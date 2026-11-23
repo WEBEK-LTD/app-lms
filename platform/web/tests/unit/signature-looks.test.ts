@@ -69,9 +69,10 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
   it("has looks A and B for each of the twenty Studio demos (131.20 Leqaa's too), one template of its kind each, named in Studio's three languages", () => {
     // 208 Lujain's two looks too.
     // 209 And Velours's, Toota's and Toot's; 210 Sakan's, Ghurza's and Rukn's; 211 Madar's, Nova's and Nawah's: twenty demos, forty looks.
-    expect(LOOKS).toHaveLength(40);
+    // 227 Round 3: Madar's and Nawah's looks C and D, four more.
+    expect(LOOKS).toHaveLength(44);
     expect(STUDIO_DEMO_TYPES).toHaveLength(20);
-    for (const demo of STUDIO_DEMO_TYPES) expect(signatureLooksOf(demo), demo).toEqual(["a", "b"]);
+    for (const demo of STUDIO_DEMO_TYPES) expect(signatureLooksOf(demo), demo).toEqual(demo === "electronics" || demo === "computers" ? ["c", "d", "a", "b"] : ["a", "b"]);
     expect(signatureDesigns().map((d) => `${d.demo}_signature_${d.variant}`).sort()).toEqual(LOOKS.map(([demo, look]) => `${demo}_signature_${look}`).sort());
     for (const [demo, look] of LOOKS) {
       const id = `${demo}_signature_${look}`;

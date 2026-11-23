@@ -8,6 +8,27 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 227 (Studio's shop types, round 3: electronics and computers &
+gaming; in the code, not released): each type gets two new looks, C its
+main and D its second, listed before A and B, which stay as they are. Madar
+C MADAR GRID is a bento of frosted and dark-glass tiles (IBM Plex Sans
+Arabic, a glass bar); Madar D the colour stage puts every device on its own
+saturated colour (story circles, big snapping cards, El Messiri, a colour
+per tab); Nawah C the battle station is neon on black with cut-corner cards
+and the Build your PC configurator first (Changa, a glowing bar); Nawah D
+the workstation is a dense blue-grey spec sheet with a compare table and
+the business quote form (Alexandria, a line bar). Each is a whole project
+(home, category menu, its own pages, shop, cart, orders, sign-in and
+account, tabs and bar, light and dark, English, Arabic and Turkish), built
+only from Studio's existing elements: no app change, no
+`CLIENT_APP_RELEASE` change, no migration.
+
+**Distinct templates.** The owner's standing rule (23 November): no
+resemblance at all between one app and another. A new template's header,
+hero, navigation, card shape, section order, bar and type scale must differ
+from every other template's, it draws nothing with the kit's visual parts,
+and its home is compared beside every other template's before it ships.
+
 Roadmap 222 (the plugin's follow-ups): plugin 0.4.54 (after 0.4.53, #496)
 serves WordPress apps' Studio pages without an empty section, as hosted
 shops' are (164.7): a list of products with nothing to show shows the

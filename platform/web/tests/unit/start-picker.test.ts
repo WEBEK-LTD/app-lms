@@ -225,13 +225,15 @@ describe("starting from a demo", () => {
   });
 
   // ——— 130 The Studio demos' two Signature looks ———
+  const ROUND_3: readonly string[] = ["electronics", "computers"];
   it("offers every Studio demo's two looks, A then B, with their pictures (the demo's own until a look has one), and none for the App editor's", () => {
     for (const id of STUDIO_DEMO_TYPES) {
-      expect(startLooks(id)).toEqual(["a", "b"]);
+      // 227 The types with looks C and D offer them first: C, D, then A and B.
+      expect(startLooks(id)).toEqual(ROUND_3.includes(id) ? ["c", "d", "a", "b"] : ["a", "b"]);
       expect(lookShotName(id, "b")).toBe(`${slugOf(id)}-sig-b-home`);
       expect(lookShotName(id, "a", true)).toBe(`${slugOf(id)}-sig-a-home-dark`);
       expect(lookOf(id, "b")).toBe("b");
-      expect(lookOf(id, "c")).toBeNull();
+      expect(lookOf(id, "c")).toBe(ROUND_3.includes(id) ? "c" : null);
       expect(pickerPath({ demo: id, make: true, adding: true, look: "b" })).toBe(`/start/${slugOf(id)}/make?new=1&look=b`);
       expect(pickerPath({ demo: id, look: "a" })).toBe(`/start/${slugOf(id)}?look=a`);
     }
@@ -241,7 +243,7 @@ describe("starting from a demo", () => {
     }
     // The pictures named are the ones in public/screens, and each look of all nine Studio demos has its own, by day and by night.
     for (const name of LOOK_SHOTS) expect(existsSync(join(ROOT, "public", "screens", `${name}.png`)), name).toBe(true);
-    expect(LOOK_SHOTS.size).toBe(STUDIO_DEMO_TYPES.length * 4);
+    expect(LOOK_SHOTS.size).toBe(STUDIO_DEMO_TYPES.length * 4 + ROUND_3.length * 4);
     for (const id of STUDIO_DEMO_TYPES) for (const look of ["a", "b"] as const) for (const dark of [false, true]) expect(hasLookShot(lookShotName(id, look, dark)), lookShotName(id, look, dark)).toBe(true);
   });
 

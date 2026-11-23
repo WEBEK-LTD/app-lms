@@ -10,7 +10,8 @@ import type { LanguageCode } from "../pages/types";
 import type { SampleList } from "../samples/lists";
 import { TEMPLATES, type TemplateInfo } from "../studio/sections";
 import { startLayout } from "../studio/start";
-import { SIGNATURE_LOOKS, type SignatureLook } from "../studio/demo-designs/signature";
+import type { SignatureLook } from "../studio/demo-designs/signature";
+import { signatureLooksOf } from "../studio/demo-designs";
 import { DEMO_SLUGS, DEMO_TYPES, demoKind, demoTypeOfSlug, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type DemoId, type StudioDemoId } from "./constants";
 import { CLINIC_SERVICES, DEMO_ARTICLES, DEMO_BRANDS, DEMO_CAMPAIGNS, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_GUIDES, DEMO_LISTINGS, DEMO_PRODUCTS, DEMO_RESTAURANTS, DEMO_SERVICES, FITNESS_SERVICES, RIDES_DEMO_TYPES, TAXI_DEMO_TYPES } from "./content";
 import { demoCourseSeeds } from "./entries";
@@ -275,7 +276,7 @@ export function demoFacts(id: DemoId): DemoFacts {
 
 /** The looks every Studio demo offers on /start, A (the demo itself) then B; none for an App editor demo. */
 export function startLooks(id: DemoId): readonly SignatureLook[] {
-  return isStudioDemo(id) ? SIGNATURE_LOOKS : [];
+  return isStudioDemo(id) ? signatureLooksOf(id) : [];
 }
 
 /** A look's picture of its home (public/screens/`<demo>-sig-<look>-home.png`, `-dark` by night), by the demo's address. */
@@ -290,7 +291,7 @@ export function lookShotName(id: DemoId, look: SignatureLook, dark = false): str
  * the app (mobile/test/screenshots/signature_screenshots_test.dart);
  * tests/unit/start-picker.test.ts keeps the list and the files the same.
  */
-export const LOOK_SHOTS: ReadonlySet<string> = new Set(STUDIO_DEMO_TYPES.flatMap((demo) => SIGNATURE_LOOKS.flatMap((look) => [lookShotName(demo, look), lookShotName(demo, look, true)])));
+export const LOOK_SHOTS: ReadonlySet<string> = new Set(STUDIO_DEMO_TYPES.flatMap((demo) => signatureLooksOf(demo).flatMap((look) => [lookShotName(demo, look), lookShotName(demo, look, true)])));
 
 /** Whether a look's picture is in public/screens. */
 export function hasLookShot(name: string): boolean {

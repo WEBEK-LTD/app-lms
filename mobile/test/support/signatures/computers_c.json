@@ -1,0 +1,3704 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/computers-photos/setup-purple.jpg",
+   "title": {
+    "en": "Ready, player?",
+    "ar": "مستعد أيها اللاعب؟",
+    "tr": "Hazır mısın oyuncu?"
+   },
+   "subtitle": {
+    "en": "Sign in for your builds, your orders and your warranty.",
+    "ar": "سجّل الدخول لتجميعاتك وطلباتك وضمانك.",
+    "tr": "Sistemleriniz, siparişleriniz ve garantiniz için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "night",
+   "accent": "#FF2BD6",
+   "items": [
+    {
+     "key": "orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "photo",
+   "image_url": "http://localhost:3000/computers-photos/setup-purple.jpg"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "minimal",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Lexend",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#0B0C12",
+   "font_family": "Changa",
+   "dark_background": "#040507",
+   "dark_surface": "#0E1017",
+   "font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/changa/Changa%5Bwght%5D.ttf",
+     "weight": null
+    }
+   ]
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "sports_esports",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shop",
+    "label": "Shop",
+    "icon": "memory",
+    "target": {
+     "type": "page",
+     "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المتجر"
+     },
+     "tr": {
+      "label": "Mağaza"
+     }
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Cart",
+    "icon": "shopping_cart",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "السلة"
+     },
+     "tr": {
+      "label": "Sepet"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "inventory_2",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطلبات"
+     },
+     "tr": {
+      "label": "Siparişler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_center",
+      "title": "Nawah",
+      "translations": {
+       "ar": {
+        "title": "Nawah"
+       },
+       "tr": {
+        "title": "Nawah"
+       }
+      },
+      "buttons": [
+       "menu",
+       "cart"
+      ],
+      "menu_page": "menu",
+      "background": "#E6E8EE",
+      "dark_background": "#040507",
+      "color": "#0B0C12",
+      "dark_color": "#F1F3FA",
+      "style": "glass"
+     },
+     "background": "#E6E8EE",
+     "dark_background": "#040507",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 108,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "row",
+        "name": "Gaming",
+        "gap": 6,
+        "scroll": true,
+        "padding": {
+         "top": 6,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "text",
+          "name": "Gaming",
+          "text": "Gaming",
+          "max_lines": 1,
+          "font": {
+           "family": "Changa",
+           "size": 13.5,
+           "weight": 700
+          },
+          "corners": {
+           "top_start": 0,
+           "top_end": 12,
+           "bottom_end": 0,
+           "bottom_start": 12
+          },
+          "padding": {
+           "top": 6,
+           "end": 16,
+           "bottom": 7,
+           "start": 16
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#0B0C12",
+          "background": "#0B0C12",
+          "dark_background": "#F1F3FA",
+          "translations": {
+           "ar": {
+            "text": "ألعاب"
+           },
+           "tr": {
+            "text": "Oyun"
+           }
+          }
+         },
+         {
+          "id": "sig-4",
+          "type": "text",
+          "name": "Streaming",
+          "text": "Streaming",
+          "max_lines": 1,
+          "font": {
+           "family": "Changa",
+           "size": 13.5,
+           "weight": 700
+          },
+          "corners": {
+           "top_start": 0,
+           "top_end": 12,
+           "bottom_end": 0,
+           "bottom_start": 12
+          },
+          "padding": {
+           "top": 6,
+           "end": 16,
+           "bottom": 7,
+           "start": 16
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "color": "#0B0C12",
+          "dark_color": "#F1F3FA",
+          "border_color": "#D0D3DC",
+          "dark_border_color": "#1F2331",
+          "border_width": 1,
+          "translations": {
+           "ar": {
+            "text": "بثّ"
+           },
+           "tr": {
+            "text": "Yayın"
+           }
+          }
+         },
+         {
+          "id": "sig-5",
+          "type": "text",
+          "name": "Parts",
+          "text": "Parts",
+          "max_lines": 1,
+          "font": {
+           "family": "Changa",
+           "size": 13.5,
+           "weight": 700
+          },
+          "corners": {
+           "top_start": 0,
+           "top_end": 12,
+           "bottom_end": 0,
+           "bottom_start": 12
+          },
+          "padding": {
+           "top": 6,
+           "end": 16,
+           "bottom": 7,
+           "start": 16
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "color": "#0B0C12",
+          "dark_color": "#F1F3FA",
+          "border_color": "#D0D3DC",
+          "dark_border_color": "#1F2331",
+          "border_width": 1,
+          "translations": {
+           "ar": {
+            "text": "قطع"
+           },
+           "tr": {
+            "text": "Parçalar"
+           }
+          }
+         },
+         {
+          "id": "sig-6",
+          "type": "text",
+          "name": "Gear",
+          "text": "Gear",
+          "max_lines": 1,
+          "font": {
+           "family": "Changa",
+           "size": 13.5,
+           "weight": 700
+          },
+          "corners": {
+           "top_start": 0,
+           "top_end": 12,
+           "bottom_end": 0,
+           "bottom_start": 12
+          },
+          "padding": {
+           "top": 6,
+           "end": 16,
+           "bottom": 7,
+           "start": 16
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "color": "#0B0C12",
+          "dark_color": "#F1F3FA",
+          "border_color": "#D0D3DC",
+          "dark_border_color": "#1F2331",
+          "border_width": 1,
+          "translations": {
+           "ar": {
+            "text": "عتاد"
+           },
+           "tr": {
+            "text": "Ekipman"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-7",
+        "type": "column",
+        "name": "Build the PC of your dreams",
+        "gap": 10,
+        "corners": {
+         "top_start": 0,
+         "top_end": 24,
+         "bottom_end": 0,
+         "bottom_start": 24
+        },
+        "padding": {
+         "top": 18,
+         "end": 18,
+         "bottom": 18,
+         "start": 18
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#0B0C12",
+        "dark_background": "#0B0C12",
+        "border_color": "#FF2BD6",
+        "dark_border_color": "#FF2BD6",
+        "border_width": 1.5,
+        "surface": {
+         "glow": "#FF2BD6",
+         "pattern": "grid",
+         "pattern_strength": 0.05
+        },
+        "children": [
+         {
+          "id": "sig-8",
+          "type": "text",
+          "text": "BUILD // 01",
+          "font": {
+           "family": "Changa",
+           "size": 12,
+           "weight": 800,
+           "letter_spacing": 2
+          },
+          "color": "#22E6FF",
+          "dark_color": "#22E6FF",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "BUILD // 01"
+           },
+           "tr": {
+            "text": "BUILD // 01"
+           }
+          }
+         },
+         {
+          "id": "sig-9",
+          "type": "text",
+          "text": "Build the PC of your dreams",
+          "font": {
+           "family": "Changa",
+           "size": 26,
+           "weight": 800,
+           "line_height": 1.12
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "max_lines": 2,
+          "margin": {
+           "top": 0,
+           "end": 0,
+           "bottom": 4,
+           "start": 0
+          },
+          "translations": {
+           "ar": {
+            "text": "جمّع حاسوب أحلامك"
+           },
+           "tr": {
+            "text": "Hayalinizdeki bilgisayarı toplayın"
+           }
+          }
+         },
+         {
+          "id": "sig-10",
+          "type": "row",
+          "name": "Processor",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "background": "#151721",
+          "dark_background": "#151721",
+          "border_color": "#262A3B",
+          "dark_border_color": "#262A3B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search",
+           "flow": "pc_builder"
+          },
+          "children": [
+           {
+            "id": "sig-11",
+            "type": "text",
+            "text": "1",
+            "width": 32,
+            "height": 32,
+            "text_align": "center",
+            "font": {
+             "family": "Changa",
+             "size": 15,
+             "weight": 800,
+             "line_height": 2.1
+            },
+            "corners": {
+             "top_start": 0,
+             "top_end": 10,
+             "bottom_end": 0,
+             "bottom_start": 10
+            },
+            "color": "#0B0C12",
+            "dark_color": "#0B0C12",
+            "background": "#FF2BD6",
+            "dark_background": "#FF2BD6"
+           },
+           {
+            "id": "sig-12",
+            "type": "column",
+            "width": "fill",
+            "gap": 1,
+            "children": [
+             {
+              "id": "sig-13",
+              "type": "text",
+              "text": "Processor",
+              "font": {
+               "family": "Changa",
+               "size": 14.5,
+               "weight": 700
+              },
+              "color": "#F1F3FA",
+              "dark_color": "#F1F3FA",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "المعالج"
+               },
+               "tr": {
+                "text": "İşlemci"
+               }
+              }
+             },
+             {
+              "id": "sig-14",
+              "type": "text",
+              "text": "The heart of the build",
+              "font": {
+               "family": "Changa",
+               "size": 11.5,
+               "weight": 400
+              },
+              "color": "#A0A6B8",
+              "dark_color": "#A0A6B8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "قلب التجميعة"
+               },
+               "tr": {
+                "text": "Sistemin kalbi"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-15",
+            "type": "icon",
+            "icon": "bolt",
+            "icon_size": 18,
+            "color": "#22E6FF",
+            "dark_color": "#22E6FF"
+           }
+          ]
+         },
+         {
+          "id": "sig-16",
+          "type": "row",
+          "name": "Graphics card",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "background": "#151721",
+          "dark_background": "#151721",
+          "border_color": "#262A3B",
+          "dark_border_color": "#262A3B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search",
+           "flow": "pc_builder"
+          },
+          "children": [
+           {
+            "id": "sig-17",
+            "type": "text",
+            "text": "2",
+            "width": 32,
+            "height": 32,
+            "text_align": "center",
+            "font": {
+             "family": "Changa",
+             "size": 15,
+             "weight": 800,
+             "line_height": 2.1
+            },
+            "corners": {
+             "top_start": 0,
+             "top_end": 10,
+             "bottom_end": 0,
+             "bottom_start": 10
+            },
+            "color": "#A0A6B8",
+            "dark_color": "#A0A6B8",
+            "background": "#232636",
+            "dark_background": "#232636"
+           },
+           {
+            "id": "sig-18",
+            "type": "column",
+            "width": "fill",
+            "gap": 1,
+            "children": [
+             {
+              "id": "sig-19",
+              "type": "text",
+              "text": "Graphics card",
+              "font": {
+               "family": "Changa",
+               "size": 14.5,
+               "weight": 700
+              },
+              "color": "#F1F3FA",
+              "dark_color": "#F1F3FA",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "بطاقة الرسوميات"
+               },
+               "tr": {
+                "text": "Ekran kartı"
+               }
+              }
+             },
+             {
+              "id": "sig-20",
+              "type": "text",
+              "text": "Chosen to match the processor",
+              "font": {
+               "family": "Changa",
+               "size": 11.5,
+               "weight": 400
+              },
+              "color": "#A0A6B8",
+              "dark_color": "#A0A6B8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "تُختار لتناسب المعالج"
+               },
+               "tr": {
+                "text": "İşlemciye uygun seçilir"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-21",
+            "type": "icon",
+            "icon": "lock",
+            "icon_size": 18,
+            "color": "#5D6275",
+            "dark_color": "#5D6275"
+           }
+          ]
+         },
+         {
+          "id": "sig-22",
+          "type": "row",
+          "name": "Memory",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "background": "#151721",
+          "dark_background": "#151721",
+          "border_color": "#262A3B",
+          "dark_border_color": "#262A3B",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search",
+           "flow": "pc_builder"
+          },
+          "children": [
+           {
+            "id": "sig-23",
+            "type": "text",
+            "text": "3",
+            "width": 32,
+            "height": 32,
+            "text_align": "center",
+            "font": {
+             "family": "Changa",
+             "size": 15,
+             "weight": 800,
+             "line_height": 2.1
+            },
+            "corners": {
+             "top_start": 0,
+             "top_end": 10,
+             "bottom_end": 0,
+             "bottom_start": 10
+            },
+            "color": "#A0A6B8",
+            "dark_color": "#A0A6B8",
+            "background": "#232636",
+            "dark_background": "#232636"
+           },
+           {
+            "id": "sig-24",
+            "type": "column",
+            "width": "fill",
+            "gap": 1,
+            "children": [
+             {
+              "id": "sig-25",
+              "type": "text",
+              "text": "Memory",
+              "font": {
+               "family": "Changa",
+               "size": 14.5,
+               "weight": 700
+              },
+              "color": "#F1F3FA",
+              "dark_color": "#F1F3FA",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "الذاكرة"
+               },
+               "tr": {
+                "text": "Bellek"
+               }
+              }
+             },
+             {
+              "id": "sig-26",
+              "type": "text",
+              "text": "Fast, and fitted to the board",
+              "font": {
+               "family": "Changa",
+               "size": 11.5,
+               "weight": 400
+              },
+              "color": "#A0A6B8",
+              "dark_color": "#A0A6B8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سريعة ومناسبة للوحة الأم"
+               },
+               "tr": {
+                "text": "Hızlı ve anakarta uygun"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-27",
+            "type": "icon",
+            "icon": "lock",
+            "icon_size": 18,
+            "color": "#5D6275",
+            "dark_color": "#5D6275"
+           }
+          ]
+         },
+         {
+          "id": "sig-28",
+          "type": "row",
+          "name": "Start the build",
+          "height": 50,
+          "gap": 8,
+          "align": "center",
+          "cross": "center",
+          "corners": {
+           "top_start": 0,
+           "top_end": 16,
+           "bottom_end": 0,
+           "bottom_start": 16
+          },
+          "margin": {
+           "top": 6,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "gradient": {
+           "from": "#FF2BD6",
+           "to": "#22E6FF",
+           "angle": 0
+          },
+          "motion": {
+           "press": "shrink"
+          },
+          "action": {
+           "type": "page",
+           "page_slug": "build-your-pc"
+          },
+          "children": [
+           {
+            "id": "sig-29",
+            "type": "text",
+            "text": "Start the build",
+            "font": {
+             "family": "Changa",
+             "size": 16,
+             "weight": 800
+            },
+            "color": "#0B0C12",
+            "dark_color": "#0B0C12",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ابدأ التجميع"
+             },
+             "tr": {
+              "text": "Toplamaya başla"
+             }
+            }
+           },
+           {
+            "id": "sig-30",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 20,
+            "color": "#0B0C12",
+            "dark_color": "#0B0C12"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-31",
+        "type": "row",
+        "name": "Top of the arsenal",
+        "cross": "end",
+        "gap": 8,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-32",
+          "type": "text",
+          "text": "Top of the arsenal",
+          "font": {
+           "family": "Changa",
+           "size": 21,
+           "weight": 800,
+           "line_height": 1.12
+          },
+          "color": "#0B0C12",
+          "dark_color": "#F1F3FA",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "نخبة العتاد"
+           },
+           "tr": {
+            "text": "Cephaneliğin en iyileri"
+           }
+          }
+         },
+         {
+          "id": "sig-33",
+          "type": "text",
+          "text": "// TOP",
+          "font": {
+           "family": "Changa",
+           "size": 13,
+           "weight": 800,
+           "letter_spacing": 1
+          },
+          "color": "#B80F86",
+          "dark_color": "#FF4FDC",
+          "max_lines": 1,
+          "margin": {
+           "top": 0,
+           "end": 0,
+           "bottom": 3,
+           "start": 0
+          },
+          "translations": {
+           "ar": {
+            "text": "// TOP"
+           },
+           "tr": {
+            "text": "// TOP"
+           }
+          }
+         },
+         {
+          "id": "sig-34",
+          "type": "row",
+          "width": "fill",
+          "height": 1,
+          "children": []
+         },
+         {
+          "id": "sig-35",
+          "type": "text",
+          "text": "All",
+          "font": {
+           "family": "Changa",
+           "size": 13,
+           "weight": 700
+          },
+          "color": "#007E9E",
+          "dark_color": "#22E6FF",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "الكل"
+           },
+           "tr": {
+            "text": "Tümü"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-36",
+        "type": "items",
+        "name": "Top of the arsenal",
+        "source": "products",
+        "layout": "carousel",
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 8,
+         "category_id": null,
+         "featured": true,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-37",
+         "type": "column",
+         "width": 196,
+         "gap": 5,
+         "padding": {
+          "top": 10,
+          "end": 10,
+          "bottom": 12,
+          "start": 10
+         },
+         "corners": {
+          "top_start": 0,
+          "top_end": 18,
+          "bottom_end": 0,
+          "bottom_start": 18
+         },
+         "background": "#FFFFFF",
+         "dark_background": "#0E1017",
+         "border_color": "#D0D3DC",
+         "dark_border_color": "#1F2331",
+         "border_width": 1,
+         "children": [
+          {
+           "id": "sig-38",
+           "type": "stack",
+           "width": "fill",
+           "height": 128,
+           "children": [
+            {
+             "id": "sig-39",
+             "type": "image",
+             "bind": "image",
+             "width": "fill",
+             "height": 128,
+             "corners": {
+              "top_start": 0,
+              "top_end": 12,
+              "bottom_end": 0,
+              "bottom_start": 12
+             },
+             "fit": "cover",
+             "background": "#D9DCE4",
+             "dark_background": "#171A24"
+            },
+            {
+             "id": "sig-40",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "family": "Changa",
+              "size": 11,
+              "weight": 800
+             },
+             "color": "#0B0C12",
+             "dark_color": "#0B0C12",
+             "background": "#FF2BD6",
+             "dark_background": "#FF2BD6",
+             "corners": {
+              "top_start": 0,
+              "top_end": 6,
+              "bottom_end": 0,
+              "bottom_start": 6
+             },
+             "padding": {
+              "top": 2,
+              "end": 7,
+              "bottom": 2,
+              "start": 7
+             },
+             "place": {
+              "x": 5,
+              "y": 6
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-41",
+           "type": "text",
+           "bind": "subtitle",
+           "max_lines": 1,
+           "font": {
+            "family": "Changa",
+            "size": 11,
+            "weight": 700
+           },
+           "color": "#7CFF4F",
+           "dark_color": "#7CFF4F",
+           "background": "#0B0C12",
+           "dark_background": "#0B0C12",
+           "corners": {
+            "top_start": 0,
+            "top_end": 6,
+            "bottom_end": 0,
+            "bottom_start": 6
+           },
+           "padding": {
+            "top": 2,
+            "end": 7,
+            "bottom": 2,
+            "start": 7
+           },
+           "self_align": "start",
+           "margin": {
+            "top": 4,
+            "end": 0,
+            "bottom": 0,
+            "start": 0
+           }
+          },
+          {
+           "id": "sig-42",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 2,
+           "color": "#0B0C12",
+           "dark_color": "#F1F3FA",
+           "font": {
+            "family": "Changa",
+            "size": 14,
+            "weight": 700,
+            "line_height": 1.25
+           }
+          },
+          {
+           "id": "sig-43",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-44",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "color": "#0B0C12",
+             "dark_color": "#F1F3FA",
+             "font": {
+              "family": "Changa",
+              "size": 17,
+              "weight": 800
+             }
+            },
+            {
+             "id": "sig-45",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#545868",
+             "dark_color": "#A0A6B8",
+             "font": {
+              "family": "Changa",
+              "size": 12
+             }
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-46",
+        "type": "spec_filter",
+        "name": "Shop by graphics",
+        "text": "Shop by graphics",
+        "translations": {
+         "ar": {
+          "text": "تسوّق حسب الرسوميات"
+         },
+         "tr": {
+          "text": "Ekran kartına göre"
+         }
+        },
+        "tech": {
+         "spec": "gpu",
+         "accent": "#FF2BD6",
+         "rows": 6
+        },
+        "color": "#0B0C12",
+        "dark_color": "#F1F3FA",
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-47",
+        "type": "row",
+        "name": "Ready builds",
+        "cross": "end",
+        "gap": 8,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-48",
+          "type": "text",
+          "text": "Ready builds",
+          "font": {
+           "family": "Changa",
+           "size": 21,
+           "weight": 800,
+           "line_height": 1.12
+          },
+          "color": "#0B0C12",
+          "dark_color": "#F1F3FA",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "أجهزة جاهزة"
+           },
+           "tr": {
+            "text": "Hazır sistemler"
+           }
+          }
+         },
+         {
+          "id": "sig-49",
+          "type": "text",
+          "text": "// RIGS",
+          "font": {
+           "family": "Changa",
+           "size": 13,
+           "weight": 800,
+           "letter_spacing": 1
+          },
+          "color": "#B80F86",
+          "dark_color": "#FF4FDC",
+          "max_lines": 1,
+          "margin": {
+           "top": 0,
+           "end": 0,
+           "bottom": 3,
+           "start": 0
+          },
+          "translations": {
+           "ar": {
+            "text": "// RIGS"
+           },
+           "tr": {
+            "text": "// RIGS"
+           }
+          }
+         },
+         {
+          "id": "sig-50",
+          "type": "row",
+          "width": "fill",
+          "height": 1,
+          "children": []
+         },
+         {
+          "id": "sig-51",
+          "type": "text",
+          "text": "All",
+          "font": {
+           "family": "Changa",
+           "size": 13,
+           "weight": 700
+          },
+          "color": "#007E9E",
+          "dark_color": "#22E6FF",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "الكل"
+           },
+           "tr": {
+            "text": "Tümü"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-52",
+        "type": "row",
+        "gap": 10,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-53",
+          "type": "photo_hero",
+          "name": "4K ultra",
+          "image_url": "http://localhost:3000/computers-photos/setup-purple.jpg",
+          "width": "fill",
+          "height": 196,
+          "corners": {
+           "top_start": 0,
+           "top_end": 20,
+           "bottom_end": 0,
+           "bottom_start": 20
+          },
+          "background": "#0B0C12",
+          "scrim": {
+           "color": "#040507",
+           "from": 0.1,
+           "middle": 0.2,
+           "at": 45,
+           "to": 0.88
+          },
+          "align": "between",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-54",
+            "type": "text",
+            "name": "4K · 120+ FPS",
+            "text": "4K · 120+ FPS",
+            "max_lines": 1,
+            "font": {
+             "family": "Changa",
+             "size": 11.5,
+             "weight": 800
+            },
+            "color": "#7CFF4F",
+            "dark_color": "#7CFF4F",
+            "background": "#0B0C12",
+            "dark_background": "#0B0C12",
+            "border_color": "#7CFF4F",
+            "dark_border_color": "#7CFF4F",
+            "border_width": 1,
+            "corners": {
+             "top_start": 0,
+             "top_end": 8,
+             "bottom_end": 0,
+             "bottom_start": 8
+            },
+            "surface": {
+             "glow": "#7CFF4F"
+            },
+            "padding": {
+             "top": 2,
+             "end": 8,
+             "bottom": 2,
+             "start": 8
+            },
+            "self_align": "start",
+            "translations": {
+             "ar": {
+              "text": "4K · 120+ FPS"
+             },
+             "tr": {
+              "text": "4K · 120+ FPS"
+             }
+            }
+           },
+           {
+            "id": "sig-55",
+            "type": "column",
+            "gap": 1,
+            "children": [
+             {
+              "id": "sig-56",
+              "type": "text",
+              "text": "4K ultra",
+              "font": {
+               "family": "Changa",
+               "size": 17,
+               "weight": 800,
+               "line_height": 1.12
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "4K بأعلى إعداد"
+               },
+               "tr": {
+                "text": "4K ultra"
+               }
+              }
+             },
+             {
+              "id": "sig-57",
+              "type": "text",
+              "text": "Built for 4K at high frame rates",
+              "font": {
+               "family": "Changa",
+               "size": 11.5,
+               "weight": 600
+              },
+              "color": "#22E6FF",
+              "dark_color": "#22E6FF",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "مصمم للعب بدقة 4K وإطارات عالية"
+               },
+               "tr": {
+                "text": "Yüksek kare hızında 4K için"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-58",
+          "type": "photo_hero",
+          "name": "Play and stream",
+          "image_url": "http://localhost:3000/computers-photos/kb-rgb.jpg",
+          "width": "fill",
+          "height": 196,
+          "corners": {
+           "top_start": 0,
+           "top_end": 20,
+           "bottom_end": 0,
+           "bottom_start": 20
+          },
+          "background": "#0B0C12",
+          "scrim": {
+           "color": "#040507",
+           "from": 0.1,
+           "middle": 0.2,
+           "at": 45,
+           "to": 0.88
+          },
+          "align": "between",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-59",
+            "type": "text",
+            "name": "1440p · 165+ FPS",
+            "text": "1440p · 165+ FPS",
+            "max_lines": 1,
+            "font": {
+             "family": "Changa",
+             "size": 11.5,
+             "weight": 800
+            },
+            "color": "#7CFF4F",
+            "dark_color": "#7CFF4F",
+            "background": "#0B0C12",
+            "dark_background": "#0B0C12",
+            "border_color": "#7CFF4F",
+            "dark_border_color": "#7CFF4F",
+            "border_width": 1,
+            "corners": {
+             "top_start": 0,
+             "top_end": 8,
+             "bottom_end": 0,
+             "bottom_start": 8
+            },
+            "surface": {
+             "glow": "#7CFF4F"
+            },
+            "padding": {
+             "top": 2,
+             "end": 8,
+             "bottom": 2,
+             "start": 8
+            },
+            "self_align": "start",
+            "translations": {
+             "ar": {
+              "text": "1440p · 165+ FPS"
+             },
+             "tr": {
+              "text": "1440p · 165+ FPS"
+             }
+            }
+           },
+           {
+            "id": "sig-60",
+            "type": "column",
+            "gap": 1,
+            "children": [
+             {
+              "id": "sig-61",
+              "type": "text",
+              "text": "Play and stream",
+              "font": {
+               "family": "Changa",
+               "size": 17,
+               "weight": 800,
+               "line_height": 1.12
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "العب وابثّ"
+               },
+               "tr": {
+                "text": "Oyna ve yayınla"
+               }
+              }
+             },
+             {
+              "id": "sig-62",
+              "type": "text",
+              "text": "Two jobs, one machine",
+              "font": {
+               "family": "Changa",
+               "size": 11.5,
+               "weight": 600
+              },
+              "color": "#22E6FF",
+              "dark_color": "#22E6FF",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "مهمتان وجهاز واحد"
+               },
+               "tr": {
+                "text": "İki iş, tek makine"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-63",
+        "type": "photo_hero",
+        "name": "Esports",
+        "image_url": "http://localhost:3000/computers-photos/pad-blue.jpg",
+        "width": "fill",
+        "height": 150,
+        "corners": {
+         "top_start": 0,
+         "top_end": 20,
+         "bottom_end": 0,
+         "bottom_start": 20
+        },
+        "background": "#0B0C12",
+        "scrim": {
+         "color": "#040507",
+         "from": 0.1,
+         "middle": 0.2,
+         "at": 45,
+         "to": 0.88
+        },
+        "align": "between",
+        "padding": {
+         "top": 12,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "sig-64",
+          "type": "text",
+          "name": "1080p · 240+ FPS",
+          "text": "1080p · 240+ FPS",
+          "max_lines": 1,
+          "font": {
+           "family": "Changa",
+           "size": 11.5,
+           "weight": 800
+          },
+          "color": "#7CFF4F",
+          "dark_color": "#7CFF4F",
+          "background": "#0B0C12",
+          "dark_background": "#0B0C12",
+          "border_color": "#7CFF4F",
+          "dark_border_color": "#7CFF4F",
+          "border_width": 1,
+          "corners": {
+           "top_start": 0,
+           "top_end": 8,
+           "bottom_end": 0,
+           "bottom_start": 8
+          },
+          "surface": {
+           "glow": "#7CFF4F"
+          },
+          "padding": {
+           "top": 2,
+           "end": 8,
+           "bottom": 2,
+           "start": 8
+          },
+          "self_align": "start",
+          "translations": {
+           "ar": {
+            "text": "1080p · 240+ FPS"
+           },
+           "tr": {
+            "text": "1080p · 240+ FPS"
+           }
+          }
+         },
+         {
+          "id": "sig-65",
+          "type": "column",
+          "gap": 1,
+          "children": [
+           {
+            "id": "sig-66",
+            "type": "text",
+            "text": "Esports",
+            "font": {
+             "family": "Changa",
+             "size": 17,
+             "weight": 800,
+             "line_height": 1.12
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "الرياضات الإلكترونية"
+             },
+             "tr": {
+              "text": "E-spor"
+             }
+            }
+           },
+           {
+            "id": "sig-67",
+            "type": "text",
+            "text": "Every frame, every time",
+            "font": {
+             "family": "Changa",
+             "size": 11.5,
+             "weight": 600
+            },
+            "color": "#22E6FF",
+            "dark_color": "#22E6FF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "كل إطار، في كل مرة"
+             },
+             "tr": {
+              "text": "Her kare, her seferinde"
+             }
+            }
+           }
+          ]
+         }
+        ],
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-68",
+        "type": "flash_sale",
+        "name": "Parts on sale",
+        "text": "Parts on sale",
+        "translations": {
+         "ar": {
+          "text": "قطع بسعر مخفّض"
+         },
+         "tr": {
+          "text": "İndirimdeki parçalar"
+         }
+        },
+        "flash_sale": {
+         "look": "carousel",
+         "limit": 6,
+         "countdown": true,
+         "stock_bar": true,
+         "accent": "#FF2BD6"
+        },
+        "corners": {
+         "top_start": 0,
+         "top_end": 22,
+         "bottom_end": 0,
+         "bottom_start": 22
+        },
+        "margin": {
+         "top": 24,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-69",
+        "type": "row",
+        "name": "Gear up",
+        "cross": "end",
+        "gap": 8,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-70",
+          "type": "text",
+          "text": "Gear up",
+          "font": {
+           "family": "Changa",
+           "size": 21,
+           "weight": 800,
+           "line_height": 1.12
+          },
+          "color": "#0B0C12",
+          "dark_color": "#F1F3FA",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "جهّز عتادك"
+           },
+           "tr": {
+            "text": "Donanımını tamamla"
+           }
+          }
+         },
+         {
+          "id": "sig-71",
+          "type": "text",
+          "text": "// GEAR",
+          "font": {
+           "family": "Changa",
+           "size": 13,
+           "weight": 800,
+           "letter_spacing": 1
+          },
+          "color": "#B80F86",
+          "dark_color": "#FF4FDC",
+          "max_lines": 1,
+          "margin": {
+           "top": 0,
+           "end": 0,
+           "bottom": 3,
+           "start": 0
+          },
+          "translations": {
+           "ar": {
+            "text": "// GEAR"
+           },
+           "tr": {
+            "text": "// GEAR"
+           }
+          }
+         },
+         {
+          "id": "sig-72",
+          "type": "row",
+          "width": "fill",
+          "height": 1,
+          "children": []
+         },
+         {
+          "id": "sig-73",
+          "type": "text",
+          "text": "All",
+          "font": {
+           "family": "Changa",
+           "size": 13,
+           "weight": 700
+          },
+          "color": "#007E9E",
+          "dark_color": "#22E6FF",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "الكل"
+           },
+           "tr": {
+            "text": "Tümü"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-74",
+        "type": "items",
+        "name": "Gear up",
+        "source": "products",
+        "layout": "grid",
+        "columns": 2,
+        "gap": 10,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 4,
+         "category_id": null,
+         "featured": false,
+         "sort": "newest",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-75",
+         "type": "column",
+         "width": "fill",
+         "gap": 5,
+         "padding": {
+          "top": 10,
+          "end": 10,
+          "bottom": 12,
+          "start": 10
+         },
+         "corners": {
+          "top_start": 0,
+          "top_end": 18,
+          "bottom_end": 0,
+          "bottom_start": 18
+         },
+         "background": "#FFFFFF",
+         "dark_background": "#0E1017",
+         "border_color": "#D0D3DC",
+         "dark_border_color": "#1F2331",
+         "border_width": 1,
+         "children": [
+          {
+           "id": "sig-76",
+           "type": "stack",
+           "width": "fill",
+           "height": 112,
+           "children": [
+            {
+             "id": "sig-77",
+             "type": "image",
+             "bind": "image",
+             "width": "fill",
+             "height": 112,
+             "corners": {
+              "top_start": 0,
+              "top_end": 12,
+              "bottom_end": 0,
+              "bottom_start": 12
+             },
+             "fit": "cover",
+             "background": "#D9DCE4",
+             "dark_background": "#171A24"
+            },
+            {
+             "id": "sig-78",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "family": "Changa",
+              "size": 11,
+              "weight": 800
+             },
+             "color": "#0B0C12",
+             "dark_color": "#0B0C12",
+             "background": "#FF2BD6",
+             "dark_background": "#FF2BD6",
+             "corners": {
+              "top_start": 0,
+              "top_end": 6,
+              "bottom_end": 0,
+              "bottom_start": 6
+             },
+             "padding": {
+              "top": 2,
+              "end": 7,
+              "bottom": 2,
+              "start": 7
+             },
+             "place": {
+              "x": 5,
+              "y": 6
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-79",
+           "type": "text",
+           "bind": "subtitle",
+           "max_lines": 1,
+           "font": {
+            "family": "Changa",
+            "size": 11,
+            "weight": 700
+           },
+           "color": "#7CFF4F",
+           "dark_color": "#7CFF4F",
+           "background": "#0B0C12",
+           "dark_background": "#0B0C12",
+           "corners": {
+            "top_start": 0,
+            "top_end": 6,
+            "bottom_end": 0,
+            "bottom_start": 6
+           },
+           "padding": {
+            "top": 2,
+            "end": 7,
+            "bottom": 2,
+            "start": 7
+           },
+           "self_align": "start",
+           "margin": {
+            "top": 4,
+            "end": 0,
+            "bottom": 0,
+            "start": 0
+           }
+          },
+          {
+           "id": "sig-80",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 2,
+           "color": "#0B0C12",
+           "dark_color": "#F1F3FA",
+           "font": {
+            "family": "Changa",
+            "size": 14,
+            "weight": 700,
+            "line_height": 1.25
+           }
+          },
+          {
+           "id": "sig-81",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-82",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "color": "#0B0C12",
+             "dark_color": "#F1F3FA",
+             "font": {
+              "family": "Changa",
+              "size": 17,
+              "weight": 800
+             }
+            },
+            {
+             "id": "sig-83",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#545868",
+             "dark_color": "#A0A6B8",
+             "font": {
+              "family": "Changa",
+              "size": 12
+             }
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-84",
+        "type": "row",
+        "name": "Rig against rig",
+        "cross": "end",
+        "gap": 8,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-85",
+          "type": "text",
+          "text": "Rig against rig",
+          "font": {
+           "family": "Changa",
+           "size": 21,
+           "weight": 800,
+           "line_height": 1.12
+          },
+          "color": "#0B0C12",
+          "dark_color": "#F1F3FA",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "جهاز مقابل جهاز"
+           },
+           "tr": {
+            "text": "Sistem sisteme karşı"
+           }
+          }
+         },
+         {
+          "id": "sig-86",
+          "type": "row",
+          "width": "fill",
+          "height": 1,
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "sig-87",
+        "type": "compare",
+        "name": "Rig against rig",
+        "tech": {
+         "accent": "#FF2BD6",
+         "rows": 5
+        },
+        "color": "#0B0C12",
+        "dark_color": "#F1F3FA",
+        "corners": {
+         "top_start": 0,
+         "top_end": 22,
+         "bottom_end": 0,
+         "bottom_start": 22
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#0E1017",
+        "border_color": "#D0D3DC",
+        "dark_border_color": "#1F2331",
+        "border_width": 1,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "shop",
+    "title": "Shop",
+    "translations": {
+     "ar": {
+      "title": "المتجر"
+     },
+     "tr": {
+      "title": "Mağaza"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-124",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-125",
+        "type": "categories",
+        "name": "All categories",
+        "source": "products",
+        "style": "chips",
+        "color": "#0B0C12",
+        "dark_color": "#F1F3FA",
+        "padding": {
+         "top": 4,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-126",
+        "type": "row",
+        "name": "Gear for every game",
+        "gap": 12,
+        "cross": "center",
+        "corners": {
+         "top_start": 0,
+         "top_end": 18,
+         "bottom_end": 0,
+         "bottom_start": 18
+        },
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "background": "#0B0C12",
+        "dark_background": "#0B0C12",
+        "border_color": "#22E6FF",
+        "dark_border_color": "#22E6FF",
+        "border_width": 1,
+        "action": {
+         "type": "page",
+         "page_slug": "build-your-pc"
+        },
+        "children": [
+         {
+          "id": "sig-127",
+          "type": "column",
+          "width": "fill",
+          "gap": 1,
+          "children": [
+           {
+            "id": "sig-128",
+            "type": "text",
+            "text": "LOADOUT",
+            "font": {
+             "family": "Changa",
+             "size": 11,
+             "weight": 800,
+             "letter_spacing": 2
+            },
+            "color": "#22E6FF",
+            "dark_color": "#22E6FF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "LOADOUT"
+             },
+             "tr": {
+              "text": "LOADOUT"
+             }
+            }
+           },
+           {
+            "id": "sig-129",
+            "type": "text",
+            "text": "Gear for every game",
+            "font": {
+             "family": "Changa",
+             "size": 19,
+             "weight": 800,
+             "line_height": 1.12
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "عتاد لكل لعبة"
+             },
+             "tr": {
+              "text": "Her oyuna ekipman"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-130",
+          "type": "icon",
+          "icon": "memory",
+          "icon_size": 26,
+          "color": "#FF2BD6",
+          "dark_color": "#FF2BD6"
+         }
+        ]
+       },
+       {
+        "id": "sig-131",
+        "type": "listing_filters",
+        "name": "Gear for every game",
+        "color": "#0B0C12",
+        "dark_color": "#F1F3FA",
+        "padding": {
+         "top": 2,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "Shop",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المتجر"
+       },
+       "tr": {
+        "title": "Mağaza"
+       }
+      },
+      "background": "#E6E8EE",
+      "color": "#0B0C12",
+      "dark_background": "#040507",
+      "dark_color": "#F1F3FA",
+      "style": "glass"
+     },
+     "background": "#E6E8EE",
+     "dark_background": "#040507"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "cart",
+    "title": "Cart",
+    "translations": {
+     "ar": {
+      "title": "السلة"
+     },
+     "tr": {
+      "title": "Sepet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-132",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-133",
+        "type": "coupon",
+        "name": "Your first order's code",
+        "code": "NAWAH10",
+        "coupon": {
+         "look": "ticket",
+         "bind": "public"
+        },
+        "radius": 6,
+        "color": "#FF2BD6",
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-134",
+        "type": "column",
+        "gap": 10,
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "corners": {
+         "top_start": 0,
+         "top_end": 14,
+         "bottom_end": 0,
+         "bottom_start": 14
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#0E1017",
+        "border_color": "#D0D3DC",
+        "dark_border_color": "#1F2331",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-135",
+          "type": "row",
+          "name": "Installments coming soon",
+          "width": "hug",
+          "radius": 15,
+          "gap": 6,
+          "cross": "center",
+          "self_align": "start",
+          "padding": {
+           "top": 7,
+           "end": 12,
+           "bottom": 7,
+           "start": 10
+          },
+          "background": "#E6E8EE",
+          "dark_background": "#040507",
+          "children": [
+           {
+            "id": "sig-136",
+            "type": "icon",
+            "icon": "schedule",
+            "icon_size": 16,
+            "color": "#545868",
+            "dark_color": "#A0A6B8"
+           },
+           {
+            "id": "sig-137",
+            "type": "text",
+            "text": "Installments coming soon",
+            "max_lines": 2,
+            "font": {
+             "size": 12.5,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#545868",
+            "dark_color": "#A0A6B8",
+            "translations": {
+             "ar": {
+              "text": "التقسيط قريبًا"
+             },
+             "tr": {
+              "text": "Taksit yakında"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "السلة"
+       },
+       "tr": {
+        "title": "Sepet"
+       }
+      },
+      "background": "#E6E8EE",
+      "color": "#0B0C12",
+      "dark_background": "#040507",
+      "dark_color": "#F1F3FA",
+      "style": "glass"
+     },
+     "background": "#E6E8EE",
+     "dark_background": "#040507"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "Orders",
+    "translations": {
+     "ar": {
+      "title": "الطلبات"
+     },
+     "tr": {
+      "title": "Siparişler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-138",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-139",
+        "type": "row",
+        "name": "Your order's journey",
+        "cross": "end",
+        "gap": 8,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-140",
+          "type": "text",
+          "text": "Your order's journey",
+          "font": {
+           "family": "Changa",
+           "size": 21,
+           "weight": 800,
+           "line_height": 1.12
+          },
+          "color": "#0B0C12",
+          "dark_color": "#F1F3FA",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "رحلة طلبك"
+           },
+           "tr": {
+            "text": "Siparişinin yolculuğu"
+           }
+          }
+         },
+         {
+          "id": "sig-141",
+          "type": "row",
+          "width": "fill",
+          "height": 1,
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "sig-142",
+        "type": "timeline",
+        "name": "Your order's journey",
+        "timeline": {
+         "style": "vertical",
+         "source": "latest_order"
+        },
+        "color": "#0B0C12",
+        "dark_color": "#F1F3FA",
+        "corners": {
+         "top_start": 0,
+         "top_end": 20,
+         "bottom_end": 0,
+         "bottom_start": 20
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#0E1017",
+        "border_color": "#D0D3DC",
+        "dark_border_color": "#1F2331",
+        "border_width": 1,
+        "padding": {
+         "top": 16,
+         "end": 14,
+         "bottom": 16,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "entries": [
+         {
+          "title": "Order received",
+          "text": "We're checking every part of it.",
+          "highlight": true,
+          "translations": {
+           "ar": {
+            "title": "تم استلام الطلب",
+            "text": "نتحقق من كل قطعة فيه."
+           },
+           "tr": {
+            "title": "Sipariş alındı",
+            "text": "Her parçasını kontrol ediyoruz."
+           }
+          }
+         },
+         {
+          "title": "Built and tested",
+          "text": "Assembled, stress-tested and packed with care.",
+          "translations": {
+           "ar": {
+            "title": "تم التجميع والفحص",
+            "text": "جُمّع واختُبر وغُلّف بعناية."
+           },
+           "tr": {
+            "title": "Toplandı ve test edildi",
+            "text": "Toplandı, test edildi ve özenle paketlendi."
+           }
+          }
+         },
+         {
+          "title": "On its way",
+          "text": "With the courier, on its way to you.",
+          "translations": {
+           "ar": {
+            "title": "في الطريق",
+            "text": "مع المندوب في طريقه إليك."
+           },
+           "tr": {
+            "title": "Yolda",
+            "text": "Kuryede, size geliyor."
+           }
+          }
+         },
+         {
+          "title": "Delivered",
+          "text": "Enjoy it. Your warranty starts today.",
+          "translations": {
+           "ar": {
+            "title": "تم التوصيل",
+            "text": "استمتع به. يبدأ ضمانك من اليوم."
+           },
+           "tr": {
+            "title": "Teslim edildi",
+            "text": "Keyfini çıkarın. Garantiniz bugün başlıyor."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      },
+      "background": "#E6E8EE",
+      "color": "#0B0C12",
+      "dark_background": "#040507",
+      "dark_color": "#F1F3FA",
+      "style": "glass"
+     },
+     "background": "#E6E8EE",
+     "dark_background": "#040507"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-144",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-143",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "account",
+     "background": "#E6E8EE",
+     "dark_background": "#040507"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "menu",
+    "title": "All categories",
+    "translations": {
+     "ar": {
+      "title": "كل الفئات"
+     },
+     "tr": {
+      "title": "Tüm kategoriler"
+     }
+    },
+    "studio": {
+     "background": "#E6E8EE",
+     "dark_background": "#040507",
+     "body": {
+      "id": "sig-88",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-89",
+        "type": "search",
+        "name": "Search parts, builds and gear…",
+        "text": "Search parts, builds and gear…",
+        "source": "products",
+        "height": 50,
+        "corners": {
+         "top_start": 0,
+         "top_end": 14,
+         "bottom_end": 0,
+         "bottom_start": 14
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#0E1017",
+        "color": "#545868",
+        "dark_color": "#A0A6B8",
+        "border_color": "#D0D3DC",
+        "dark_border_color": "#1F2331",
+        "border_width": 1,
+        "margin": {
+         "top": 4,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحث عن القطع والأجهزة والعتاد…"
+         },
+         "tr": {
+          "text": "Parça, sistem ve ekipman arayın…"
+         }
+        }
+       },
+       {
+        "id": "sig-90",
+        "type": "categories",
+        "name": "All categories",
+        "source": "products",
+        "style": "rows",
+        "category_menu": {
+         "look": "label",
+         "radius": 6,
+         "numbers": true
+        },
+        "color": "#0B0C12",
+        "dark_color": "#F1F3FA",
+        "padding": {
+         "top": 6,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-91",
+        "type": "column",
+        "gap": 8,
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-92",
+          "type": "row",
+          "name": "My account",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 10,
+           "end": 12,
+           "bottom": 10,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "corners": {
+           "top_start": 0,
+           "top_end": 14,
+           "bottom_end": 0,
+           "bottom_start": 14
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#0E1017",
+          "border_color": "#D0D3DC",
+          "dark_border_color": "#1F2331",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-93",
+            "type": "icon",
+            "icon": "person",
+            "icon_size": 20,
+            "color": "#22E6FF",
+            "dark_color": "#22E6FF",
+            "background": "#0B0C12",
+            "dark_background": "#0B0C12",
+            "corners": {
+             "top_start": 0,
+             "top_end": 8,
+             "bottom_end": 0,
+             "bottom_start": 8
+            },
+            "padding": {
+             "top": 7,
+             "end": 7,
+             "bottom": 7,
+             "start": 7
+            }
+           },
+           {
+            "id": "sig-94",
+            "type": "text",
+            "text": "My account",
+            "font": {
+             "family": "Changa",
+             "size": 14,
+             "weight": 700
+            },
+            "color": "#0B0C12",
+            "dark_color": "#F1F3FA",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "حسابي"
+             },
+             "tr": {
+              "text": "Hesabım"
+             }
+            }
+           },
+           {
+            "id": "sig-95",
+            "type": "icon",
+            "icon": "chevron_right",
+            "icon_size": 20,
+            "color": "#545868",
+            "dark_color": "#A0A6B8"
+           }
+          ]
+         },
+         {
+          "id": "sig-96",
+          "type": "row",
+          "name": "My orders",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 10,
+           "end": 12,
+           "bottom": 10,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "orders"
+          },
+          "corners": {
+           "top_start": 0,
+           "top_end": 14,
+           "bottom_end": 0,
+           "bottom_start": 14
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#0E1017",
+          "border_color": "#D0D3DC",
+          "dark_border_color": "#1F2331",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-97",
+            "type": "icon",
+            "icon": "inventory_2",
+            "icon_size": 20,
+            "color": "#22E6FF",
+            "dark_color": "#22E6FF",
+            "background": "#0B0C12",
+            "dark_background": "#0B0C12",
+            "corners": {
+             "top_start": 0,
+             "top_end": 8,
+             "bottom_end": 0,
+             "bottom_start": 8
+            },
+            "padding": {
+             "top": 7,
+             "end": 7,
+             "bottom": 7,
+             "start": 7
+            }
+           },
+           {
+            "id": "sig-98",
+            "type": "text",
+            "text": "My orders",
+            "font": {
+             "family": "Changa",
+             "size": 14,
+             "weight": 700
+            },
+            "color": "#0B0C12",
+            "dark_color": "#F1F3FA",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "طلباتي"
+             },
+             "tr": {
+              "text": "Siparişlerim"
+             }
+            }
+           },
+           {
+            "id": "sig-99",
+            "type": "icon",
+            "icon": "chevron_right",
+            "icon_size": 20,
+            "color": "#545868",
+            "dark_color": "#A0A6B8"
+           }
+          ]
+         },
+         {
+          "id": "sig-100",
+          "type": "row",
+          "name": "Wishlist",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 10,
+           "end": 12,
+           "bottom": 10,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "favorites"
+          },
+          "corners": {
+           "top_start": 0,
+           "top_end": 14,
+           "bottom_end": 0,
+           "bottom_start": 14
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#0E1017",
+          "border_color": "#D0D3DC",
+          "dark_border_color": "#1F2331",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-101",
+            "type": "icon",
+            "icon": "favorite",
+            "icon_size": 20,
+            "color": "#22E6FF",
+            "dark_color": "#22E6FF",
+            "background": "#0B0C12",
+            "dark_background": "#0B0C12",
+            "corners": {
+             "top_start": 0,
+             "top_end": 8,
+             "bottom_end": 0,
+             "bottom_start": 8
+            },
+            "padding": {
+             "top": 7,
+             "end": 7,
+             "bottom": 7,
+             "start": 7
+            }
+           },
+           {
+            "id": "sig-102",
+            "type": "text",
+            "text": "Wishlist",
+            "font": {
+             "family": "Changa",
+             "size": 14,
+             "weight": 700
+            },
+            "color": "#0B0C12",
+            "dark_color": "#F1F3FA",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "المفضلة"
+             },
+             "tr": {
+              "text": "Favoriler"
+             }
+            }
+           },
+           {
+            "id": "sig-103",
+            "type": "icon",
+            "icon": "chevron_right",
+            "icon_size": 20,
+            "color": "#545868",
+            "dark_color": "#A0A6B8"
+           }
+          ]
+         },
+         {
+          "id": "sig-104",
+          "type": "row",
+          "name": "Language",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 10,
+           "end": 12,
+           "bottom": 10,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "settings"
+          },
+          "corners": {
+           "top_start": 0,
+           "top_end": 14,
+           "bottom_end": 0,
+           "bottom_start": 14
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#0E1017",
+          "border_color": "#D0D3DC",
+          "dark_border_color": "#1F2331",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-105",
+            "type": "icon",
+            "icon": "language",
+            "icon_size": 20,
+            "color": "#22E6FF",
+            "dark_color": "#22E6FF",
+            "background": "#0B0C12",
+            "dark_background": "#0B0C12",
+            "corners": {
+             "top_start": 0,
+             "top_end": 8,
+             "bottom_end": 0,
+             "bottom_start": 8
+            },
+            "padding": {
+             "top": 7,
+             "end": 7,
+             "bottom": 7,
+             "start": 7
+            }
+           },
+           {
+            "id": "sig-106",
+            "type": "text",
+            "text": "Language",
+            "font": {
+             "family": "Changa",
+             "size": 14,
+             "weight": 700
+            },
+            "color": "#0B0C12",
+            "dark_color": "#F1F3FA",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "اللغة"
+             },
+             "tr": {
+              "text": "Dil"
+             }
+            }
+           },
+           {
+            "id": "sig-107",
+            "type": "icon",
+            "icon": "chevron_right",
+            "icon_size": 20,
+            "color": "#545868",
+            "dark_color": "#A0A6B8"
+           }
+          ]
+         },
+         {
+          "id": "sig-108",
+          "type": "row",
+          "name": "Contact us",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 10,
+           "end": 12,
+           "bottom": 10,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "corners": {
+           "top_start": 0,
+           "top_end": 14,
+           "bottom_end": 0,
+           "bottom_start": 14
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#0E1017",
+          "border_color": "#D0D3DC",
+          "dark_border_color": "#1F2331",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-109",
+            "type": "icon",
+            "icon": "support_agent",
+            "icon_size": 20,
+            "color": "#22E6FF",
+            "dark_color": "#22E6FF",
+            "background": "#0B0C12",
+            "dark_background": "#0B0C12",
+            "corners": {
+             "top_start": 0,
+             "top_end": 8,
+             "bottom_end": 0,
+             "bottom_start": 8
+            },
+            "padding": {
+             "top": 7,
+             "end": 7,
+             "bottom": 7,
+             "start": 7
+            }
+           },
+           {
+            "id": "sig-110",
+            "type": "text",
+            "text": "Contact us",
+            "font": {
+             "family": "Changa",
+             "size": 14,
+             "weight": 700
+            },
+            "color": "#0B0C12",
+            "dark_color": "#F1F3FA",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "تواصل معنا"
+             },
+             "tr": {
+              "text": "Bize ulaşın"
+             }
+            }
+           },
+           {
+            "id": "sig-111",
+            "type": "icon",
+            "icon": "chevron_right",
+            "icon_size": 20,
+            "color": "#545868",
+            "dark_color": "#A0A6B8"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-112",
+        "type": "text",
+        "text": "Tech support every day, 10 am to midnight",
+        "font": {
+         "family": "Changa",
+         "size": 12
+        },
+        "color": "#545868",
+        "dark_color": "#A0A6B8",
+        "max_lines": 2,
+        "padding": {
+         "top": 8,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "translations": {
+         "ar": {
+          "text": "دعم فني يوميًا من 10 صباحًا حتى منتصف الليل"
+         },
+         "tr": {
+          "text": "Teknik destek her gün 10.00–24.00"
+         }
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "logo_center",
+      "title": "All categories",
+      "translations": {
+       "ar": {
+        "title": "كل الفئات"
+       },
+       "tr": {
+        "title": "Tüm kategoriler"
+       }
+      },
+      "buttons": [
+       "search"
+      ],
+      "background": "#E6E8EE",
+      "color": "#0B0C12",
+      "dark_background": "#040507",
+      "dark_color": "#F1F3FA",
+      "style": "glass"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "build-your-pc",
+    "title": "Build your PC",
+    "translations": {
+     "ar": {
+      "title": "جمّع حاسوبك"
+     },
+     "tr": {
+      "title": "Bilgisayarını topla"
+     }
+    },
+    "studio": {
+     "background": "#E6E8EE",
+     "dark_background": "#040507",
+     "body": {
+      "id": "sig-113",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-114",
+        "type": "text",
+        "text": "Pick each part in turn; we check that they fit together.",
+        "font": {
+         "family": "Changa",
+         "size": 14,
+         "weight": 400,
+         "line_height": 1.5
+        },
+        "color": "#545868",
+        "dark_color": "#A0A6B8",
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "اختر كل قطعة بدورها، ونتحقق نحن من توافقها."
+         },
+         "tr": {
+          "text": "Parçaları sırayla seçin; uyumlarını biz kontrol ederiz."
+         }
+        }
+       },
+       {
+        "id": "sig-115",
+        "type": "pc_builder",
+        "name": "Build your PC",
+        "text": "Every part checked against the others: socket, memory, power and size.",
+        "translations": {
+         "ar": {
+          "text": "نتحقق من توافق كل قطعة مع الأخرى: المقبس والذاكرة والطاقة والحجم."
+         },
+         "tr": {
+          "text": "Her parçanın diğerleriyle uyumunu kontrol ederiz: soket, bellek, güç ve boyut."
+         }
+        },
+        "tech": {
+         "accent": "#FF2BD6"
+        },
+        "color": "#F1F3FA",
+        "dark_color": "#F1F3FA",
+        "background": "#0B0C12",
+        "dark_background": "#0B0C12",
+        "border_color": "#FF2BD6",
+        "dark_border_color": "#FF2BD6",
+        "border_width": 1.5,
+        "corners": {
+         "top_start": 0,
+         "top_end": 24,
+         "bottom_end": 0,
+         "bottom_start": 24
+        },
+        "surface": {
+         "glow": "#FF2BD6"
+        },
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-116",
+        "type": "row",
+        "name": "Shop by graphics",
+        "cross": "end",
+        "gap": 8,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-117",
+          "type": "text",
+          "text": "Shop by graphics",
+          "font": {
+           "family": "Changa",
+           "size": 21,
+           "weight": 800,
+           "line_height": 1.12
+          },
+          "color": "#0B0C12",
+          "dark_color": "#F1F3FA",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "تسوّق حسب الرسوميات"
+           },
+           "tr": {
+            "text": "Ekran kartına göre"
+           }
+          }
+         },
+         {
+          "id": "sig-118",
+          "type": "row",
+          "width": "fill",
+          "height": 1,
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "sig-119",
+        "type": "spec_filter",
+        "name": "Shop by graphics",
+        "text": "Shop by graphics",
+        "translations": {
+         "ar": {
+          "text": "تسوّق حسب الرسوميات"
+         },
+         "tr": {
+          "text": "Ekran kartına göre"
+         }
+        },
+        "tech": {
+         "spec": "gpu",
+         "accent": "#FF2BD6",
+         "rows": 6
+        },
+        "color": "#0B0C12",
+        "dark_color": "#F1F3FA",
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-120",
+        "type": "row",
+        "name": "Shop by memory",
+        "cross": "end",
+        "gap": 8,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-121",
+          "type": "text",
+          "text": "Shop by memory",
+          "font": {
+           "family": "Changa",
+           "size": 21,
+           "weight": 800,
+           "line_height": 1.12
+          },
+          "color": "#0B0C12",
+          "dark_color": "#F1F3FA",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "تسوّق حسب الذاكرة"
+           },
+           "tr": {
+            "text": "Belleğe göre"
+           }
+          }
+         },
+         {
+          "id": "sig-122",
+          "type": "row",
+          "width": "fill",
+          "height": 1,
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "sig-123",
+        "type": "spec_filter",
+        "name": "Shop by memory",
+        "text": "Shop by memory",
+        "translations": {
+         "ar": {
+          "text": "تسوّق حسب الذاكرة"
+         },
+         "tr": {
+          "text": "Belleğe göre"
+         }
+        },
+        "tech": {
+         "spec": "ram",
+         "accent": "#FF2BD6",
+         "rows": 6
+        },
+        "color": "#0B0C12",
+        "dark_color": "#F1F3FA",
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Build your PC",
+      "translations": {
+       "ar": {
+        "title": "جمّع حاسوبك"
+       },
+       "tr": {
+        "title": "Bilgisayarını topla"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#E6E8EE",
+      "color": "#0B0C12",
+      "dark_background": "#040507",
+      "dark_color": "#F1F3FA",
+      "style": "glass"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-145",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#E6E8EE",
+      "color": "#0B0C12",
+      "dark_background": "#040507",
+      "dark_color": "#F1F3FA",
+      "style": "glass"
+     },
+     "background": "#E6E8EE",
+     "dark_background": "#040507"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-146",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#E6E8EE",
+      "color": "#0B0C12",
+      "dark_background": "#040507",
+      "dark_color": "#F1F3FA",
+      "style": "glass"
+     },
+     "background": "#E6E8EE",
+     "dark_background": "#040507"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "favorites",
+    "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-147",
+      "type": "column",
+      "children": []
+     },
+     "screen": "favorites",
+     "header": {
+      "type": "title",
+      "title": "Wishlist",
+      "translations": {
+       "ar": {
+        "title": "المفضلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      },
+      "background": "#E6E8EE",
+      "color": "#0B0C12",
+      "dark_background": "#040507",
+      "dark_color": "#F1F3FA",
+      "style": "glass"
+     },
+     "background": "#E6E8EE",
+     "dark_background": "#040507"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-148",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#E6E8EE",
+      "color": "#0B0C12",
+      "dark_background": "#040507",
+      "dark_color": "#F1F3FA",
+      "style": "glass"
+     },
+     "background": "#E6E8EE",
+     "dark_background": "#040507"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-149",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#E6E8EE",
+      "color": "#0B0C12",
+      "dark_background": "#040507",
+      "dark_color": "#F1F3FA",
+      "style": "glass"
+     },
+     "background": "#E6E8EE",
+     "dark_background": "#040507"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-150",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#E6E8EE",
+     "dark_background": "#040507"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-151",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#E6E8EE",
+     "dark_background": "#040507"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#0B0C12",
+   "dark_background": "#0B0C12",
+   "active": "#22E6FF",
+   "dark_active": "#22E6FF",
+   "inactive": "#7D8396",
+   "dark_inactive": "#7D8396",
+   "design": "glow",
+   "labels": "always",
+   "radius": 20,
+   "margin": 14
+  }
+ }
+}

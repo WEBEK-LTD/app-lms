@@ -64,7 +64,7 @@ describe("211 the computers type, ready", () => {
     expect(shopTypesIn("shopping").map((t) => t.id)).toContain("computers");
     expect(shopTypeTemplate(type, "b")).toBe("computers_signature_b");
     expect(shopTypeOfDesign("computers_signature_a")?.id).toBe("computers");
-    expect(TEMPLATES.filter((t) => t.id.startsWith("computers_signature_")).map((t) => t.id)).toEqual(["computers_signature_a", "computers_signature_b"]);
+    expect(TEMPLATES.filter((t) => t.id.startsWith("computers_signature_")).map((t) => t.id)).toEqual(["computers_signature_c", "computers_signature_d", "computers_signature_a", "computers_signature_b"]);
   });
 });
 

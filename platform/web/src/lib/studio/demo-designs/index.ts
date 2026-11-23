@@ -45,6 +45,11 @@ import { EMERALD_B, NOVA_A } from "./mobiles-signature";
 import { NAWAH_A, SILICA_B } from "./computers-signature";
 // 211 Madar, the electronics shop: A MADAR white and deep blue, B NABD lime on near black.
 import { MADAR_A, NABD_B } from "./electronics-signature";
+// 227 Madar's looks C and D, Nawah's looks C and D (round 3).
+import { MADAR_GRID_C } from "./electronics-c-signature";
+import { STAGE_D } from "./electronics-d-signature";
+import { BATTLE_C } from "./computers-c-signature";
+import { DESK_D } from "./computers-d-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -159,7 +164,7 @@ const STUDIO_DEMO_DESIGNS: Partial<Record<StudioDemoId, DemoDesign>> = {
  * it (`studioDemoDesign` without a look). A look without tabs of its own
  * has its demo's (128's design's).
  */
-const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDesign>> = {
+const SIGNATURE_DESIGNS: Record<StudioDemoId, Partial<Record<SignatureLook, SignatureDesign>> & Record<"a" | "b", SignatureDesign>> = {
   // 130.1 130.2 Sofra Eats: A the editorial menu, B the bento table.
   food: { a: SOFRA_A, b: SOFRA_B },
   // 130.3 130.4 Zad: A the market arches, B the night aisle.
@@ -194,11 +199,13 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   crochet: { a: CROCHET_A, b: CROCHET_B },
   furniture: { a: FURNITURE_A, b: FURNITURE_B },
   // 211 Madar, the electronics shop (a store): A MADAR in white and deep blue, B NABD in lime on near black.
-  electronics: { a: MADAR_A, b: NABD_B },
+  // 227 C MADAR GRID the bento of dark glass, D the colour stage.
+  electronics: { c: MADAR_GRID_C, d: STAGE_D, a: MADAR_A, b: NABD_B },
   // 211 Nova, the mobiles shop (a store): A NOVA's ink and cobalt, B emerald on warm stone.
   mobiles: { a: NOVA_A, b: EMERALD_B },
   // 211 Nawah, computers and gaming (a store): A NAWAH in white and one strong blue, B SILICA in deep green on stone.
-  computers: { a: NAWAH_A, b: SILICA_B },
+  // 227 C the battle station, D the workstation.
+  computers: { c: BATTLE_C, d: DESK_D, a: NAWAH_A, b: SILICA_B },
 };
 
 /** A look with its demo's own tabs when it has none of its own. */

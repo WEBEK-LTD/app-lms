@@ -26,7 +26,8 @@ import type { DemoDesign } from "./index";
  * `SIGNATURE_DESIGNS` in ./index.ts, registers them all.
  */
 
-export const SIGNATURE_LOOKS = ["a", "b"] as const;
+/** 227 Every type's main look C and second look D (round 3), then A and B, kept as extra looks: listed C, D, A, B. */
+export const SIGNATURE_LOOKS = ["c", "d", "a", "b"] as const;
 export type SignatureLook = (typeof SIGNATURE_LOOKS)[number];
 
 /** The template id of a demo's look: `<demo>_signature_<look>`. */
