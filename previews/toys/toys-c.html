@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--page:#FFF6E3;--surface:#FFFFFF;--ink:#1D1A3A;--muted:#5C587A;--line:#1D1A3A;--sea:#3FB7E8;--sea2:#2196D3;--sand:#FFE08A;--red:#F2453D;--red2:#B92720;--yellow:#FFC629;--yellow2:#D69A00;--green:#2DBE6C;--green2:#1B8A4B;--blue:#3D5AFE;--blue2:#2337B8;--chip:#FFFFFF}
+.dark{--page:#0F1030;--surface:#1B1D47;--ink:#FFF6E3;--muted:#B9B6DA;--line:#000000;--sea:#16306E;--sea2:#0D1F4D;--sand:#3B3A7A;--chip:#262966}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:390px;background:var(--page);font-family:Rubik,sans-serif;color:var(--ink)}
+.disp{font-family:Lalezar,sans-serif;font-weight:400}
+.status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-weight:600;font-size:14px}
+.top{display:flex;align-items:center;gap:10px;padding:4px 16px 10px}
+.logo{font-family:Lalezar;font-size:34px;color:var(--red);line-height:1;text-shadow:0 3px 0 var(--red2)}
+.dark .logo{color:var(--yellow);text-shadow:0 3px 0 var(--yellow2)}
+.coins{margin-inline-start:auto;display:flex;align-items:center;gap:6px;background:var(--yellow);border:2.5px solid var(--line);border-radius:999px;padding:4px 12px 4px 6px;box-shadow:0 3px 0 var(--line);font-weight:700;font-size:14px;color:#1D1A3A}
+.coins i{width:24px;height:24px;border-radius:50%;background:#fff;display:grid;place-items:center;font-style:normal}
+.btn3{width:44px;height:44px;border-radius:14px;background:var(--surface);border:2.5px solid var(--line);box-shadow:0 4px 0 var(--line);display:grid;place-items:center}
+.ms{font-family:'Material Symbols Rounded';font-size:22px;line-height:1}
+.hello{padding:6px 16px 0}
+.hello h1{font-family:Lalezar;font-size:34px;line-height:1.05;font-weight:400}
+.hello p{color:var(--muted);font-size:13.5px;margin-top:4px}
+.map{position:relative;margin:14px 16px 0;height:330px;border-radius:30px;background:radial-gradient(circle at 30% 20%,#7FD3F5 0,var(--sea) 45%,var(--sea2) 100%);border:3px solid var(--line);box-shadow:0 6px 0 var(--line);overflow:hidden}
+.dark .map{background:radial-gradient(circle at 30% 20%,#27489A 0,var(--sea) 50%,var(--sea2) 100%)}
+.wave{position:absolute;color:#fff;opacity:.5;font-size:18px}
+.isle{position:absolute;display:flex;flex-direction:column;align-items:center;gap:4px;width:110px}
+.isle .blob{width:92px;height:76px;border-radius:48% 52% 44% 56%/56% 46% 54% 44%;background:var(--sand);border:3px solid var(--line);display:grid;place-items:center;box-shadow:0 5px 0 rgba(0,0,0,.25)}
+.isle img{width:62px;height:62px;border-radius:50%;object-fit:cover;border:3px solid #fff}
+.isle span{background:var(--surface);border:2.5px solid var(--line);border-radius:12px;padding:3px 10px;font-weight:700;font-size:12.5px;white-space:nowrap}
+.path{position:absolute;inset:0}
+.mapbar{position:absolute;bottom:12px;inset-inline:12px;display:flex;align-items:center;gap:10px;background:var(--surface);border:2.5px solid var(--line);border-radius:18px;padding:8px 8px 8px 12px}
+.mapbar b{font-family:Lalezar;font-size:18px;font-weight:400}
+.go{margin-inline-start:auto;background:var(--red);color:#fff;border:2.5px solid var(--line);box-shadow:0 4px 0 var(--line);border-radius:14px;padding:7px 14px;font-weight:700;font-size:13px}
+.sec{padding:26px 16px 12px;display:flex;align-items:end;gap:10px}
+.sec h2{font-family:Lalezar;font-size:25px;font-weight:400;line-height:1}
+.sec small{display:block;color:var(--muted);font-size:12.5px;margin-top:4px}
+.sec a{margin-inline-start:auto;font-weight:700;font-size:13px;color:var(--blue)}
+.dark .sec a{color:#8EA0FF}
+.stickers{display:flex;gap:12px;padding:0 16px;overflow:hidden}
+.stk{flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;font-weight:600;text-align:center}
+.stk .c{width:68px;height:68px;border-radius:50%;border:3px dashed var(--muted);display:grid;place-items:center;font-size:30px}
+.stk.got .c{border:3px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.rew{margin:14px 16px 0;display:flex;gap:12px;align-items:center;background:var(--yellow);border:3px solid var(--line);border-radius:22px;padding:12px 14px;box-shadow:0 5px 0 var(--line);color:#1D1A3A}
+.bar{height:12px;border-radius:99px;background:#fff;border:2px solid #1D1A3A;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;width:60%;background:var(--red)}
+.ages{display:flex;gap:10px;padding:0 16px}
+.age{flex:1;height:64px;border-radius:18px;border:3px solid var(--line);box-shadow:0 5px 0 var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:Lalezar;font-size:20px;line-height:1}
+.age small{font-family:Rubik;font-size:11px;font-weight:600;opacity:.9}
+.prods{display:flex;gap:14px;padding:0 16px 8px;overflow:hidden}
+.pc{flex:none;width:168px;background:var(--surface);border:3px solid var(--line);border-radius:24px;box-shadow:0 6px 0 var(--line);overflow:hidden}
+.pc .ph{height:150px;position:relative;background:var(--sand)}
+.pc img{width:100%;height:100%;object-fit:cover}
+.pc .tag{position:absolute;top:8px;inset-inline-start:8px;background:var(--yellow);border:2px solid var(--line);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700;color:#1D1A3A}
+.pc .b{padding:10px 12px 12px}
+.pc .n{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc .pr{display:flex;align-items:center;margin-top:8px}
+.pc .pr b{font-family:Lalezar;font-size:20px;font-weight:400}
+.plus{margin-inline-start:auto;width:34px;height:34px;border-radius:12px;background:var(--green);border:2.5px solid var(--line);box-shadow:0 3px 0 var(--line);display:grid;place-items:center;color:#fff}
+.quest{margin:24px 16px 0;border-radius:26px;overflow:hidden;border:3px solid var(--line);box-shadow:0 6px 0 var(--line);background:var(--blue);color:#fff;display:flex}
+.quest img{width:130px;object-fit:cover}
+.quest div{padding:16px}
+.quest h3{font-family:Lalezar;font-size:24px;font-weight:400;line-height:1.05}
+.tabbar{margin-top:24px;height:84px;background:var(--surface);border-top:3px solid var(--line);display:flex;align-items:start;justify-content:space-around;padding-top:10px}
+.tb{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;color:var(--muted)}
+.tb.on{color:var(--red)}
+.mid{width:66px;height:66px;margin-top:-34px;border-radius:50%;background:var(--red);border:3px solid var(--line);box-shadow:0 5px 0 var(--line);display:grid;place-items:center;color:#fff}
+/* product */
+.pp .hero{margin:0 16px;height:360px;border-radius:30px;background:var(--sand);border:3px solid var(--line);box-shadow:0 6px 0 var(--line);overflow:hidden;position:relative}
+.pp .hero img{width:100%;height:100%;object-fit:cover}
+.pp .chips{display:flex;gap:8px;padding:16px 16px 0}
+.pp .chip{border:2.5px solid var(--line);border-radius:12px;padding:5px 10px;font-weight:700;font-size:12px;background:var(--surface)}
+.pp h1{font-family:Lalezar;font-weight:400;font-size:30px;line-height:1.05;padding:12px 16px 0}
+.pp .price{display:flex;gap:10px;align-items:baseline;padding:8px 16px}
+.pp .price b{font-family:Lalezar;font-size:30px;font-weight:400;color:var(--red)}
+.pp .facts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:10px 16px}
+.pp .fact{border:2.5px solid var(--line);border-radius:18px;padding:10px;background:var(--surface);text-align:center;font-size:11.5px;font-weight:600;box-shadow:0 4px 0 var(--line)}
+.pp .fact b{display:block;font-family:Lalezar;font-weight:400;font-size:19px}
+.pp .cta{display:flex;gap:10px;padding:14px 16px 28px;background:var(--page)}
+.pp .cta .add{flex:1;height:56px;border-radius:18px;background:var(--green);color:#fff;border:3px solid var(--line);box-shadow:0 5px 0 var(--line);display:grid;place-items:center;font-family:Lalezar;font-size:22px}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0" rel="stylesheet">
+</head>
+<body>
+<div id="home">
+<div class="status"><span>9:41</span><span class="ms" style="font-size:18px">signal_cellular_alt</span></div>
+<div class="top">
+  <div class="btn3"><span class="ms">menu</span></div>
+  <div class="logo">توت</div>
+  <div class="coins"><i class="ms" style="font-size:18px;color:#D69A00">star</i>12 ملصقًا</div>
+</div>
+<div class="hello"><h1>إلى أين نلعب اليوم؟</h1><p>اختر جزيرة وابدأ المغامرة: كل جزيرة قسم من المتجر.</p></div>
+<div class="map">
+  <svg class="path" viewBox="0 0 354 330"><path d="M70 70 C150 40 210 120 280 80 S 250 200 180 190 S 60 230 80 270" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="2 12" stroke-linecap="round" opacity=".85"/></svg>
+  <span class="wave" style="top:140px;left:30px">〰</span><span class="wave" style="top:40px;left:170px">〰</span><span class="wave" style="top:230px;left:250px">〰</span>
+  <div class="isle" style="top:14px;right:10px"><div class="blob"><img src="/home/user/app-lms/platform/web/public/toys-photos/block-tower.jpg"></div><span>الخشبية</span></div>
+  <div class="isle" style="top:36px;left:14px"><div class="blob" style="background:#B8F0C9"><img src="/home/user/app-lms/platform/web/public/toys-photos/bricks-pile.jpg"></div><span>البناء</span></div>
+  <div class="isle" style="top:132px;right:120px"><div class="blob" style="background:#FFC9C4"><img src="/home/user/app-lms/platform/web/public/toys-photos/telescope-globe.jpg"></div><span>العلوم</span></div>
+  <div class="isle" style="top:150px;right:4px"><div class="blob" style="background:#D9D2FF"><img src="/home/user/app-lms/platform/web/public/toys-photos/bear-mint.jpg"></div><span>المحشوّة</span></div>
+  <div class="mapbar"><span class="ms" style="color:var(--red)">explore</span><b>8 جزر للاكتشاف</b><span class="go">الخريطة كاملة</span></div>
+</div>
+
+<div class="sec"><div><h2>ملصقاتك</h2><small>اجمع 5 ملصقات واحصل على هدية تغليف مجانية</small></div></div>
+<div class="rew"><span class="ms" style="font-size:34px">redeem</span><div style="flex:1"><b class="disp" style="font-size:19px">3 من 5 ملصقات</b><div class="bar"><i></i></div></div></div>
+<div class="stickers" style="margin-top:14px">
+  <div class="stk got"><div class="c" style="background:#FFC629"><span class="ms" style="font-size:32px">rocket_launch</span></div>المستكشف</div>
+  <div class="stk got"><div class="c" style="background:#2DBE6C"><span class="ms" style="font-size:32px;color:#fff">construction</span></div>البنّاء</div>
+  <div class="stk got"><div class="c" style="background:#F2453D"><span class="ms" style="font-size:32px;color:#fff">palette</span></div>الفنان</div>
+  <div class="stk"><div class="c"><span class="ms" style="font-size:28px;color:var(--muted)">lock</span></div>العالِم</div>
+  <div class="stk"><div class="c"><span class="ms" style="font-size:28px;color:var(--muted)">lock</span></div>البطل</div>
+</div>
+
+<div class="sec"><div><h2>كم عمر البطل؟</h2></div></div>
+<div class="ages">
+  <div class="age" style="background:var(--red)">0–2<small>سنة</small></div>
+  <div class="age" style="background:var(--yellow);color:#1D1A3A">3–5<small>سنوات</small></div>
+  <div class="age" style="background:var(--green)">6–8<small>سنوات</small></div>
+  <div class="age" style="background:var(--blue)">+9<small>سنوات</small></div>
+</div>
+
+<div class="sec"><div><h2>كنوز جديدة</h2><small>وصلت هذا الأسبوع</small></div><a>الكل</a></div>
+<div class="prods">
+  <div class="pc"><div class="ph"><img src="/home/user/app-lms/platform/web/public/toys-photos/plane.jpg"><span class="tag">جديد</span></div><div class="b"><div class="n">طائرة سِرب الخشبية</div><div class="pr"><b>89 د.إ</b><span class="plus ms">add</span></div></div></div>
+  <div class="pc"><div class="ph"><img src="/home/user/app-lms/platform/web/public/toys-photos/kite.jpg"></div><div class="b"><div class="n">طائرة ورقية بألوان قوس قزح</div><div class="pr"><b>110 د.إ</b><span class="plus ms">add</span></div></div></div>
+</div>
+<div class="quest"><img src="/home/user/app-lms/platform/web/public/toys-photos/gift-confetti.jpg"><div><h3>مهمة الهدية</h3><p style="font-size:12.5px;margin-top:6px;opacity:.9">3 أسئلة وتجد الهدية المناسبة لعمره</p><span class="go" style="display:inline-block;margin-top:12px;background:var(--yellow);color:#1D1A3A">ابدأ المهمة</span></div></div>
+<div class="tabbar">
+  <div class="tb on"><span class="ms">map</span>الخريطة</div>
+  <div class="tb"><span class="ms">search</span>المتجر</div>
+  <div class="mid"><span class="ms" style="font-size:30px">shopping_bag</span></div>
+  <div class="tb"><span class="ms">receipt_long</span>طلباتي</div>
+  <div class="tb"><span class="ms">person</span>حسابي</div>
+</div>
+</div>
+
+<div id="product" class="pp" style="display:none">
+<div class="status"><span>9:41</span><span class="ms" style="font-size:18px">signal_cellular_alt</span></div>
+<div class="top"><div class="btn3"><span class="ms">arrow_forward</span></div><div class="logo" style="font-size:26px">جزيرة العلوم</div><div class="btn3" style="margin-inline-start:auto"><span class="ms">favorite</span></div></div>
+<div class="hero"><img src="/home/user/app-lms/platform/web/public/toys-photos/telescope-globe.jpg"><span class="tag" style="position:absolute;top:14px;right:14px;background:var(--red);color:#fff;border:2.5px solid var(--line);border-radius:12px;padding:4px 10px;font-weight:700;font-size:12px">−13%</span></div>
+<div class="chips"><span class="chip">الفلك</span><span class="chip">9+ سنوات</span><span class="chip">+1 ملصق</span></div>
+<h1>تلسكوب مدار للمبتدئين</h1>
+<div class="price"><b>649 د.إ</b><s style="color:var(--muted)">749 د.إ</s></div>
+<div class="facts"><div class="fact"><b>70 مم</b>العدسة</div><div class="fact"><b>9+</b>العمر</div><div class="fact"><b>آمن</b>مختبر</div></div>
+<p style="padding:8px 16px;color:var(--muted);font-size:13.5px;line-height:1.6">تلسكوب خفيف بحامل ثلاثي، يرى به طفلك القمر وحلقات زحل من شرفة البيت.</p>
+<div class="sec"><div><h2>يكمل المغامرة</h2></div></div>
+<div class="prods"><div class="pc"><div class="ph"><img src="/home/user/app-lms/platform/web/public/toys-photos/compass.jpg"></div><div class="b"><div class="n">بوصلة المستكشف</div><div class="pr"><b>120 د.إ</b><span class="plus ms">add</span></div></div></div><div class="pc"><div class="ph"><img src="/home/user/app-lms/platform/web/public/toys-photos/globes.jpg"></div><div class="b"><div class="n">مجسّم أطلس</div><div class="pr"><b>215 د.إ</b><span class="plus ms">add</span></div></div></div></div>
+<div class="cta"><div class="btn3" style="width:56px;height:56px"><span class="ms">redeem</span></div><div class="add">أضف إلى الحقيبة</div></div>
+</div>
+<script>
+const q=new URLSearchParams(location.search);if(q.get('dark'))document.documentElement.classList.add('dark');if(q.get('page')==='product'){home.style.display='none';product.style.display='block'}
+</script>
+</body></html>
