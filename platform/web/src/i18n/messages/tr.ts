@@ -49,6 +49,9 @@ export const tr: Messages = {
     storyFlowersText: "Teslimat saatleri, kart mesajları ve flaş indirimler",
     storyClothes: "Giyim mağazası uygulaması",
     storyClothesText: "Beden ve renkler, kategori menüsü ve görünümü tamamla",
+    // 209 Kids' clothes
+    storyKids: "Çocuk giyim mağazası uygulaması",
+    storyKidsText: "Yaşa göre bedenler, yenidoğan hediyeleri ve hazır takımlar",
     studioDemo: "Studio demosu",
     studioDemoText: "Studio uygulamalarını telefonunda dene",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -800,6 +803,9 @@ export const tr: Messages = {
       flowers_b: { name: "Botanik baskı", text: "Tüm çiçekçi: taç yaprağı başlık, çiçeklerin kime olduğu, kartlar halinde seçki, bilet olarak Bugün gönder, orman yeşilinde flaş indirim, kemerler halinde koleksiyonlar, atölye ve fiyat listesi; her sayfa, çubuk, hesap ve hediye ödemesi adaçayı ve şeftalide." },
       clothes_a: { name: "LUJAIN, butik", text: "Siyah beyaz tüm giyim mağazası: menüsü kategori menüsünü açan küçük başlık, arama, yuvarlak kategoriler, sonraki kartı görünen vitrin, yeni gelenler, günün fırsatı, numaralı noktalarla kombini al, fotoğraf kutuları halinde koleksiyonlar ve beden kartı; kategori menüsü, beden rehberi, mağaza, sepet ve siparişler sıcak kâğıt ve mürekkep tonlarında, kömür rengi bir gece moduyla." },
       clothes_b: { name: "NOUN, sokak modası", text: "Sokak modası olarak tüm giyim mağazası: beton grisi ve elektrik mavisi, numaralı satırlarla kategori menüsü, haftanın yenileri, kayan yazı, numaralı çok satanlar, kombini al ve günün fırsatı; her sayfa, çubuk, hesap, mağaza, sepet ve siparişler aynı görünümde, siyaha yakın bir gece moduyla." },
+      // 209 Kids' clothes
+      kids_a: { name: "TOOTA, yumuşak pasteller", text: "Yumuşak pastellerle tüm çocuk giyim mağazası: menüsü kategori menüsünü açan küçük başlık, arama, yuvarlak kategoriler, sonraki kartı görünen vitrin, pastel kutularda yaşa göre alışveriş, yeni gelenler, kızlar, erkekler ve bebekler, hediye setleri, okul ve özel günler, hafta sonu fırsatları, yaşa göre beden bulucu, en sevilenler ve sözler; kategori menüsü, beden rehberi, mağaza, sepet ve siparişler krem ve kiremit tonlarında, sıcak kakao rengi bir gece moduyla." },
+      kids_b: { name: "MINIMO, neşeli lacivert", text: "Neşeli lacivertle, bölümleri numaralı tüm çocuk giyim mağazası: kategori çipleri, sonbahar vitrini, ızgarada yaşa göre alışveriş, bu haftanın yenileri, numaralı noktalarla haftanın kombini, kimin için alışveriş, yenidoğan kutusu, bir fiyatın altında küçük hediyeler, özel günler, hafta sonu fırsatları ve beden bulucu; her sayfa, çubuk, hesap, mağaza, sepet ve siparişler aynı görünümde, mavi-siyah bir gece moduyla." },
     },
   },
   meta: {

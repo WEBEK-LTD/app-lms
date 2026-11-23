@@ -1,0 +1,5078 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/kids-photos/baby-flatlay.jpg",
+   "title": {
+    "en": "Welcome to Toota",
+    "ar": "أهلًا بكِ في توتة",
+    "tr": "Toota'ya hoş geldiniz"
+   },
+   "subtitle": {
+    "en": "Sign in to follow your orders and your children's sizes.",
+    "ar": "سجّلي الدخول لتتابعي طلباتكِ ومقاسات أطفالكِ.",
+    "tr": "Siparişlerinizi ve çocuklarınızın bedenlerini takip etmek için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "cover",
+   "items": [
+    {
+     "key": "orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "glass"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "minimal",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Outfit",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#3A2B26",
+   "font_family": "Baloo Bhaijaan 2",
+   "dark_background": "#15110F",
+   "dark_surface": "#1F1916",
+   "font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/baloobhaijaan2/BalooBhaijaan2%5Bwght%5D.ttf",
+     "weight": null
+    }
+   ]
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shop",
+    "label": "Shop",
+    "icon": "storefront",
+    "target": {
+     "type": "page",
+     "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المتجر"
+     },
+     "tr": {
+      "label": "Mağaza"
+     }
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Cart",
+    "icon": "shopping_bag",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "السلة"
+     },
+     "tr": {
+      "label": "Sepet"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "package_2",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطلبات"
+     },
+     "tr": {
+      "label": "Siparişler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_actions",
+      "title": "Toota",
+      "translations": {
+       "ar": {
+        "title": "Toota"
+       },
+       "tr": {
+        "title": "Toota"
+       }
+      },
+      "buttons": [
+       "menu",
+       "notifications"
+      ],
+      "menu_page": "menu",
+      "background": "#F7F2EC",
+      "dark_background": "#15110F",
+      "color": "#2D2420",
+      "dark_color": "#F4ECE6",
+      "style": "glass"
+     },
+     "background": "#F7F2EC",
+     "dark_background": "#15110F",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 100,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "search",
+        "name": "Search dresses, pyjamas, gifts…",
+        "text": "Search dresses, pyjamas, gifts…",
+        "source": "products",
+        "radius": 26,
+        "height": 50,
+        "background": "#FFFDF9",
+        "dark_background": "#1F1916",
+        "color": "#6B5D55",
+        "dark_color": "#C7B9AF",
+        "border_color": "#EADFD3",
+        "dark_border_color": "#30271F",
+        "border_width": 1,
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحثي عن فستان، بيجامة، هدية…"
+         },
+         "tr": {
+          "text": "Elbise, pijama, hediye ara…"
+         }
+        }
+       },
+       {
+        "id": "sig-3",
+        "type": "categories",
+        "name": "Categories",
+        "source": "products",
+        "style": "circles",
+        "color": "#2D2420",
+        "dark_color": "#F4ECE6",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-4",
+        "type": "slider",
+        "name": "The season's collections",
+        "height": 210,
+        "per_view": 1.12,
+        "gap": 10,
+        "autoplay": true,
+        "interval_ms": 5000,
+        "dots": true,
+        "indicator": "dots",
+        "padding": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-5",
+          "type": "photo_hero",
+          "name": "Warm organic cotton for the first days",
+          "image_url": "http://localhost:3000/kids-photos/baby-flatlay.jpg",
+          "height": 210,
+          "radius": 28,
+          "background": "#EFE6DB",
+          "scrim": {
+           "color": "#F7F2EC",
+           "from": 0,
+           "middle": 0.35,
+           "at": 40,
+           "to": 0.94
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-6",
+            "type": "text",
+            "text": "The soft winter collection",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 0,
+             "uppercase": false
+            },
+            "color": "#A4503F",
+            "dark_color": "#A4503F",
+            "opacity": 1,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مجموعة الشتاء الناعمة"
+             },
+             "tr": {
+              "text": "Yumuşak kış koleksiyonu"
+             }
+            }
+           },
+           {
+            "id": "sig-7",
+            "type": "text",
+            "text": "Warm organic cotton for the first days",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2D2420",
+            "dark_color": "#2D2420",
+            "max_lines": 2,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "قطن عضوي دافئ لأول أيامه"
+             },
+             "tr": {
+              "text": "İlk günler için sıcak organik pamuk"
+             }
+            }
+           },
+           {
+            "id": "sig-8",
+            "type": "button",
+            "name": "Shop now",
+            "text": "Shop now",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 19,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#A4503F",
+            "dark_background": "#A4503F",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّقي الآن"
+             },
+             "tr": {
+              "text": "Alışverişe başla"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-9",
+          "type": "photo_hero",
+          "name": "Velvet coats for cold mornings",
+          "image_url": "http://localhost:3000/kids-photos/girls-coats.jpg",
+          "height": 210,
+          "radius": 28,
+          "background": "#EFE6DB",
+          "scrim": {
+           "color": "#F7F2EC",
+           "from": 0,
+           "middle": 0.35,
+           "at": 40,
+           "to": 0.94
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-10",
+            "type": "text",
+            "text": "New for girls",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 0,
+             "uppercase": false
+            },
+            "color": "#A4503F",
+            "dark_color": "#A4503F",
+            "opacity": 1,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "جديد البنات"
+             },
+             "tr": {
+              "text": "Kızlar için yeni"
+             }
+            }
+           },
+           {
+            "id": "sig-11",
+            "type": "text",
+            "text": "Velvet coats for cold mornings",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2D2420",
+            "dark_color": "#2D2420",
+            "max_lines": 2,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "معاطف مخملية للصباحات الباردة"
+             },
+             "tr": {
+              "text": "Soğuk sabahlar için kadife montlar"
+             }
+            }
+           },
+           {
+            "id": "sig-12",
+            "type": "button",
+            "name": "Shop now",
+            "text": "Shop now",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 19,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#A4503F",
+            "dark_background": "#A4503F",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّقي الآن"
+             },
+             "tr": {
+              "text": "Alışverişe başla"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-13",
+          "type": "photo_hero",
+          "name": "Knits for the first cold days",
+          "image_url": "http://localhost:3000/kids-photos/knit-hat-green.jpg",
+          "height": 210,
+          "radius": 28,
+          "background": "#EFE6DB",
+          "scrim": {
+           "color": "#F7F2EC",
+           "from": 0,
+           "middle": 0.35,
+           "at": 40,
+           "to": 0.94
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-14",
+            "type": "text",
+            "text": "Little adventurers",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 0,
+             "uppercase": false
+            },
+            "color": "#A4503F",
+            "dark_color": "#A4503F",
+            "opacity": 1,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مغامرون صغار"
+             },
+             "tr": {
+              "text": "Küçük kaşifler"
+             }
+            }
+           },
+           {
+            "id": "sig-15",
+            "type": "text",
+            "text": "Knits for the first cold days",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2D2420",
+            "dark_color": "#2D2420",
+            "max_lines": 2,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "تريكو لأول أيام البرد"
+             },
+             "tr": {
+              "text": "İlk soğuk günler için örgüler"
+             }
+            }
+           },
+           {
+            "id": "sig-16",
+            "type": "button",
+            "name": "Shop now",
+            "text": "Shop now",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 19,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#A4503F",
+            "dark_background": "#A4503F",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّقي الآن"
+             },
+             "tr": {
+              "text": "Alışverişe başla"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-17",
+        "type": "row",
+        "name": "Shop by age",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-18",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-19",
+            "type": "text",
+            "text": "Shop by age",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "تسوّقي حسب العمر"
+             },
+             "tr": {
+              "text": "Yaşa göre alışveriş"
+             }
+            }
+           },
+           {
+            "id": "sig-20",
+            "type": "text",
+            "text": "Sizes that fit every stage",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "مقاسات مضبوطة لكل مرحلة"
+             },
+             "tr": {
+              "text": "Her döneme uyan bedenler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-21",
+          "type": "text",
+          "text": "Size guide",
+          "font": {
+           "family": "Baloo Bhaijaan 2",
+           "size": 13,
+           "weight": 600
+          },
+          "color": "#A4503F",
+          "dark_color": "#EFA08C",
+          "max_lines": 1,
+          "action": {
+           "type": "page",
+           "page_slug": "size-guide"
+          },
+          "name": "Size guide",
+          "translations": {
+           "ar": {
+            "text": "دليل المقاسات"
+           },
+           "tr": {
+            "text": "Beden rehberi"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-22",
+        "type": "row",
+        "name": "Shop by age",
+        "gap": 10,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-23",
+          "type": "column",
+          "name": "0–6 months",
+          "width": 116,
+          "height": 132,
+          "gap": 2,
+          "radius": 26,
+          "padding": {
+           "top": 12,
+           "end": 14,
+           "bottom": 12,
+           "start": 14
+          },
+          "background": "#F5E2DA",
+          "dark_background": "#33231F",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-24",
+            "type": "icon",
+            "icon": "child_care",
+            "icon_size": 18,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C",
+            "background": "#FFFFFF",
+            "dark_background": "#15110F",
+            "radius": 99,
+            "padding": {
+             "top": 6,
+             "end": 6,
+             "bottom": 6,
+             "start": 6
+            },
+            "self_align": "start"
+           },
+           {
+            "id": "sig-25",
+            "type": "text",
+            "text": "0–6",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 26,
+             "weight": 700,
+             "line_height": 1.1
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "margin": {
+             "top": 8,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "0–6"
+             },
+             "tr": {
+              "text": "0–6"
+             }
+            }
+           },
+           {
+            "id": "sig-26",
+            "type": "text",
+            "text": "months",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13,
+             "weight": 500
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "شهرًا"
+             },
+             "tr": {
+              "text": "ay"
+             }
+            }
+           },
+           {
+            "id": "sig-27",
+            "type": "text",
+            "text": "Size 56–68",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مقاس 56–68"
+             },
+             "tr": {
+              "text": "Beden 56–68"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-28",
+          "type": "column",
+          "name": "6–24 months",
+          "width": 116,
+          "height": 132,
+          "gap": 2,
+          "radius": 26,
+          "padding": {
+           "top": 12,
+           "end": 14,
+           "bottom": 12,
+           "start": 14
+          },
+          "background": "#F4EACB",
+          "dark_background": "#302A1C",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-29",
+            "type": "icon",
+            "icon": "bed",
+            "icon_size": 18,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C",
+            "background": "#FFFFFF",
+            "dark_background": "#15110F",
+            "radius": 99,
+            "padding": {
+             "top": 6,
+             "end": 6,
+             "bottom": 6,
+             "start": 6
+            },
+            "self_align": "start"
+           },
+           {
+            "id": "sig-30",
+            "type": "text",
+            "text": "6–24",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 26,
+             "weight": 700,
+             "line_height": 1.1
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "margin": {
+             "top": 8,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "6–24"
+             },
+             "tr": {
+              "text": "6–24"
+             }
+            }
+           },
+           {
+            "id": "sig-31",
+            "type": "text",
+            "text": "months",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13,
+             "weight": 500
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "شهرًا"
+             },
+             "tr": {
+              "text": "ay"
+             }
+            }
+           },
+           {
+            "id": "sig-32",
+            "type": "text",
+            "text": "Size 74–92",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مقاس 74–92"
+             },
+             "tr": {
+              "text": "Beden 74–92"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-33",
+          "type": "column",
+          "name": "2–4 years",
+          "width": 116,
+          "height": 132,
+          "gap": 2,
+          "radius": 26,
+          "padding": {
+           "top": 12,
+           "end": 14,
+           "bottom": 12,
+           "start": 14
+          },
+          "background": "#E2E8D8",
+          "dark_background": "#232A20",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-34",
+            "type": "icon",
+            "icon": "celebration",
+            "icon_size": 18,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C",
+            "background": "#FFFFFF",
+            "dark_background": "#15110F",
+            "radius": 99,
+            "padding": {
+             "top": 6,
+             "end": 6,
+             "bottom": 6,
+             "start": 6
+            },
+            "self_align": "start"
+           },
+           {
+            "id": "sig-35",
+            "type": "text",
+            "text": "2–4",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 26,
+             "weight": 700,
+             "line_height": 1.1
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "margin": {
+             "top": 8,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "2–4"
+             },
+             "tr": {
+              "text": "2–4"
+             }
+            }
+           },
+           {
+            "id": "sig-36",
+            "type": "text",
+            "text": "years",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13,
+             "weight": 500
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "سنة"
+             },
+             "tr": {
+              "text": "yaş"
+             }
+            }
+           },
+           {
+            "id": "sig-37",
+            "type": "text",
+            "text": "Size 92–104",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مقاس 92–104"
+             },
+             "tr": {
+              "text": "Beden 92–104"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-38",
+          "type": "column",
+          "name": "4–8 years",
+          "width": 116,
+          "height": 132,
+          "gap": 2,
+          "radius": 26,
+          "padding": {
+           "top": 12,
+           "end": 14,
+           "bottom": 12,
+           "start": 14
+          },
+          "background": "#DDE7ED",
+          "dark_background": "#1E272C",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-39",
+            "type": "icon",
+            "icon": "wb_sunny",
+            "icon_size": 18,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C",
+            "background": "#FFFFFF",
+            "dark_background": "#15110F",
+            "radius": 99,
+            "padding": {
+             "top": 6,
+             "end": 6,
+             "bottom": 6,
+             "start": 6
+            },
+            "self_align": "start"
+           },
+           {
+            "id": "sig-40",
+            "type": "text",
+            "text": "4–8",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 26,
+             "weight": 700,
+             "line_height": 1.1
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "margin": {
+             "top": 8,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "4–8"
+             },
+             "tr": {
+              "text": "4–8"
+             }
+            }
+           },
+           {
+            "id": "sig-41",
+            "type": "text",
+            "text": "years",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13,
+             "weight": 500
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "سنة"
+             },
+             "tr": {
+              "text": "yaş"
+             }
+            }
+           },
+           {
+            "id": "sig-42",
+            "type": "text",
+            "text": "Size 110–128",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مقاس 110–128"
+             },
+             "tr": {
+              "text": "Beden 110–128"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-43",
+          "type": "column",
+          "name": "8–12 years",
+          "width": 116,
+          "height": 132,
+          "gap": 2,
+          "radius": 26,
+          "padding": {
+           "top": 12,
+           "end": 14,
+           "bottom": 12,
+           "start": 14
+          },
+          "background": "#EFE4D4",
+          "dark_background": "#2D251F",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-44",
+            "type": "icon",
+            "icon": "school",
+            "icon_size": 18,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C",
+            "background": "#FFFFFF",
+            "dark_background": "#15110F",
+            "radius": 99,
+            "padding": {
+             "top": 6,
+             "end": 6,
+             "bottom": 6,
+             "start": 6
+            },
+            "self_align": "start"
+           },
+           {
+            "id": "sig-45",
+            "type": "text",
+            "text": "8–12",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 26,
+             "weight": 700,
+             "line_height": 1.1
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "margin": {
+             "top": 8,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "8–12"
+             },
+             "tr": {
+              "text": "8–12"
+             }
+            }
+           },
+           {
+            "id": "sig-46",
+            "type": "text",
+            "text": "years",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13,
+             "weight": 500
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "سنة"
+             },
+             "tr": {
+              "text": "yaş"
+             }
+            }
+           },
+           {
+            "id": "sig-47",
+            "type": "text",
+            "text": "Size 134–152",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مقاس 134–152"
+             },
+             "tr": {
+              "text": "Beden 134–152"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-48",
+        "type": "row",
+        "name": "New in",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-49",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-50",
+            "type": "text",
+            "text": "New in",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "وصل حديثًا"
+             },
+             "tr": {
+              "text": "Yeni gelenler"
+             }
+            }
+           },
+           {
+            "id": "sig-51",
+            "type": "text",
+            "text": "New pieces for the season",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "قطع جديدة لهذا الموسم"
+             },
+             "tr": {
+              "text": "Sezon için yeni parçalar"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-52",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "family": "Baloo Bhaijaan 2",
+           "size": 13,
+           "weight": 600
+          },
+          "color": "#A4503F",
+          "dark_color": "#EFA08C",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "name": "See all",
+          "translations": {
+           "ar": {
+            "text": "عرض الكل"
+           },
+           "tr": {
+            "text": "Tümü"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-53",
+        "type": "items",
+        "name": "New in",
+        "source": "products",
+        "layout": "carousel",
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 8,
+         "category_id": null,
+         "featured": false,
+         "sort": "newest",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-54",
+         "type": "column",
+         "width": 156,
+         "gap": 5,
+         "children": [
+          {
+           "id": "sig-55",
+           "type": "stack",
+           "width": 156,
+           "height": 196,
+           "children": [
+            {
+             "id": "sig-56",
+             "type": "image",
+             "bind": "image",
+             "width": 156,
+             "height": 196,
+             "radius": 22,
+             "fit": "cover",
+             "background": "#EFE6DB",
+             "dark_background": "#2A221E"
+            },
+            {
+             "id": "sig-57",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "size": 11,
+              "weight": 700
+             },
+             "color": "#FFFFFF",
+             "dark_color": "#FFFFFF",
+             "background": "#A4503F",
+             "dark_background": "#B35C4B",
+             "radius": 10,
+             "padding": {
+              "top": 3,
+              "end": 8,
+              "bottom": 3,
+              "start": 8
+             },
+             "place": {
+              "x": 6,
+              "y": 5
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-58",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 2,
+           "color": "#2D2420",
+           "dark_color": "#F4ECE6",
+           "font": {
+            "family": "Baloo Bhaijaan 2",
+            "size": 13.5,
+            "weight": 600,
+            "line_height": 1.3
+           }
+          },
+          {
+           "id": "sig-59",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-60",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "color": "#2D2420",
+             "dark_color": "#F4ECE6",
+             "font": {
+              "family": "Baloo Bhaijaan 2",
+              "size": 14.5,
+              "weight": 700
+             }
+            },
+            {
+             "id": "sig-61",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#6B5D55",
+             "dark_color": "#C7B9AF",
+             "font": {
+              "size": 12
+             }
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-62",
+        "type": "row",
+        "name": "Girls, boys and baby",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-63",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-64",
+            "type": "text",
+            "text": "Girls, boys and baby",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "بنات وأولاد وبيبي"
+             },
+             "tr": {
+              "text": "Kızlar, erkekler ve bebekler"
+             }
+            }
+           },
+           {
+            "id": "sig-65",
+            "type": "text",
+            "text": "A whole world for every child",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "عالم كامل لكل طفل"
+             },
+             "tr": {
+              "text": "Her çocuğa bir dünya"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-66",
+        "type": "column",
+        "name": "Girls, boys and baby",
+        "gap": 10,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-67",
+          "type": "row",
+          "gap": 10,
+          "children": [
+           {
+            "id": "sig-68",
+            "type": "photo_hero",
+            "name": "Girls",
+            "image_url": "http://localhost:3000/kids-photos/tiered-dress.jpg",
+            "width": "fill",
+            "height": 200,
+            "radius": 24,
+            "background": "#2D2420",
+            "scrim": {
+             "color": "#1A1210",
+             "from": 0,
+             "middle": 0.12,
+             "at": 50,
+             "to": 0.72
+            },
+            "align": "end",
+            "padding": {
+             "top": 14,
+             "end": 14,
+             "bottom": 14,
+             "start": 14
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-69",
+              "type": "text",
+              "text": "Girls",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 19,
+               "weight": 700,
+               "line_height": 1.25
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "البنات"
+               },
+               "tr": {
+                "text": "Kız çocuk"
+               }
+              }
+             },
+             {
+              "id": "sig-70",
+              "type": "text",
+              "text": "Dresses, knits and pyjamas",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 11.5,
+               "weight": 500
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "opacity": 0.88,
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "فساتين وتريكو وبيجامات"
+               },
+               "tr": {
+                "text": "Elbise, triko ve pijama"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-71",
+            "type": "photo_hero",
+            "name": "Boys",
+            "image_url": "http://localhost:3000/kids-photos/denim-jacket.jpg",
+            "width": "fill",
+            "height": 200,
+            "radius": 24,
+            "background": "#2D2420",
+            "scrim": {
+             "color": "#1A1210",
+             "from": 0,
+             "middle": 0.12,
+             "at": 50,
+             "to": 0.72
+            },
+            "align": "end",
+            "padding": {
+             "top": 14,
+             "end": 14,
+             "bottom": 14,
+             "start": 14
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-72",
+              "type": "text",
+              "text": "Boys",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 19,
+               "weight": 700,
+               "line_height": 1.25
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "الأولاد"
+               },
+               "tr": {
+                "text": "Erkek çocuk"
+               }
+              }
+             },
+             {
+              "id": "sig-73",
+              "type": "text",
+              "text": "Hoodies, jackets and jeans",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 11.5,
+               "weight": 500
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "opacity": 0.88,
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "هوديز وجاكيتات وجينز"
+               },
+               "tr": {
+                "text": "Kapüşonlu, ceket ve kot"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-74",
+          "type": "photo_hero",
+          "name": "Baby & newborn",
+          "image_url": "http://localhost:3000/kids-photos/newborn-knit.jpg",
+          "width": "fill",
+          "height": 128,
+          "radius": 24,
+          "background": "#2D2420",
+          "scrim": {
+           "color": "#1A1210",
+           "from": 0,
+           "middle": 0.12,
+           "at": 50,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-75",
+            "type": "text",
+            "text": "Baby & newborn",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 19,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "البيبي والمواليد"
+             },
+             "tr": {
+              "text": "Bebek ve yenidoğan"
+             }
+            }
+           },
+           {
+            "id": "sig-76",
+            "type": "text",
+            "text": "Soft sets for the first year",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11.5,
+             "weight": 500
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "أطقم ناعمة لأول عام"
+             },
+             "tr": {
+              "text": "İlk yıl için yumuşak setler"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-77",
+        "type": "row",
+        "name": "Gift sets",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-78",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-79",
+            "type": "text",
+            "text": "Gift sets",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "أطقم الهدايا"
+             },
+             "tr": {
+              "text": "Hediye setleri"
+             }
+            }
+           },
+           {
+            "id": "sig-80",
+            "type": "text",
+            "text": "Wrapped by hand, with a card",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "مغلّفة يدويًا مع بطاقة إهداء"
+             },
+             "tr": {
+              "text": "Elle paketlenir, kartıyla"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-81",
+          "type": "text",
+          "text": "Newborn gifts",
+          "font": {
+           "family": "Baloo Bhaijaan 2",
+           "size": 13,
+           "weight": 600
+          },
+          "color": "#A4503F",
+          "dark_color": "#EFA08C",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "name": "Newborn gifts",
+          "translations": {
+           "ar": {
+            "text": "هدايا المواليد"
+           },
+           "tr": {
+            "text": "Yenidoğan hediyeleri"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-82",
+        "type": "row",
+        "name": "Gift sets",
+        "gap": 12,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-83",
+          "type": "column",
+          "name": "First newborn box",
+          "width": 236,
+          "gap": 6,
+          "radius": 26,
+          "padding": {
+           "top": 8,
+           "end": 8,
+           "bottom": 14,
+           "start": 8
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-84",
+            "type": "stack",
+            "height": 150,
+            "children": [
+             {
+              "id": "sig-85",
+              "type": "image",
+              "image_url": "http://localhost:3000/kids-photos/gift-kraft.jpg",
+              "fit": "cover",
+              "width": "fill",
+              "height": 150,
+              "radius": 20,
+              "background": "#EFE6DB",
+              "dark_background": "#2A221E"
+             },
+             {
+              "id": "sig-86",
+              "type": "text",
+              "text": "Most wanted",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 11,
+               "weight": 600
+              },
+              "color": "#2D2420",
+              "dark_color": "#2D2420",
+              "background": "#FFFDF9",
+              "dark_background": "#FFFDF9",
+              "radius": 10,
+              "padding": {
+               "top": 2,
+               "end": 9,
+               "bottom": 2,
+               "start": 9
+              },
+              "max_lines": 1,
+              "place": {
+               "x": 6,
+               "y": 6
+              },
+              "translations": {
+               "ar": {
+                "text": "الأكثر طلبًا"
+               },
+               "tr": {
+                "text": "En çok istenen"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-87",
+            "type": "text",
+            "text": "First newborn box",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 16,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 1,
+            "padding": {
+             "top": 4,
+             "end": 6,
+             "bottom": 0,
+             "start": 6
+            },
+            "translations": {
+             "ar": {
+              "text": "صندوق المولود الأول"
+             },
+             "tr": {
+              "text": "İlk yenidoğan kutusu"
+             }
+            }
+           },
+           {
+            "id": "sig-88",
+            "type": "text",
+            "text": "Bodysuit · hat · blanket · soft toy",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 2,
+            "padding": {
+             "top": 0,
+             "end": 6,
+             "bottom": 0,
+             "start": 6
+            },
+            "translations": {
+             "ar": {
+              "text": "بودي · قبعة · بطانية · دمية"
+             },
+             "tr": {
+              "text": "Body · şapka · battaniye · peluş"
+             }
+            }
+           },
+           {
+            "id": "sig-89",
+            "type": "row",
+            "gap": 6,
+            "cross": "center",
+            "padding": {
+             "top": 4,
+             "end": 6,
+             "bottom": 0,
+             "start": 6
+            },
+            "children": [
+             {
+              "id": "sig-90",
+              "type": "icon",
+              "icon": "redeem",
+              "icon_size": 16,
+              "color": "#A4503F",
+              "dark_color": "#EFA08C"
+             },
+             {
+              "id": "sig-91",
+              "type": "text",
+              "text": "Gift wrap and a card",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 12,
+               "weight": 600
+              },
+              "color": "#A4503F",
+              "dark_color": "#EFA08C",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "تغليف وبطاقة إهداء"
+               },
+               "tr": {
+                "text": "Hediye paketi ve kart"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-92",
+          "type": "column",
+          "name": "Pink welcome-baby box",
+          "width": 236,
+          "gap": 6,
+          "radius": 26,
+          "padding": {
+           "top": 8,
+           "end": 8,
+           "bottom": 14,
+           "start": 8
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-93",
+            "type": "stack",
+            "height": 150,
+            "children": [
+             {
+              "id": "sig-94",
+              "type": "image",
+              "image_url": "http://localhost:3000/kids-photos/gift-pink.jpg",
+              "fit": "cover",
+              "width": "fill",
+              "height": 150,
+              "radius": 20,
+              "background": "#EFE6DB",
+              "dark_background": "#2A221E"
+             }
+            ]
+           },
+           {
+            "id": "sig-95",
+            "type": "text",
+            "text": "Pink welcome-baby box",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 16,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 1,
+            "padding": {
+             "top": 4,
+             "end": 6,
+             "bottom": 0,
+             "start": 6
+            },
+            "translations": {
+             "ar": {
+              "text": "صندوق استقبال المولودة"
+             },
+             "tr": {
+              "text": "Pembe hoş geldin bebek kutusu"
+             }
+            }
+           },
+           {
+            "id": "sig-96",
+            "type": "text",
+            "text": "Sleepsuit · swaddle · bib · card",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 2,
+            "padding": {
+             "top": 0,
+             "end": 6,
+             "bottom": 0,
+             "start": 6
+            },
+            "translations": {
+             "ar": {
+              "text": "بيجامة · لفّة · مريلة · بطاقة"
+             },
+             "tr": {
+              "text": "Tulum · kundak · önlük · kart"
+             }
+            }
+           },
+           {
+            "id": "sig-97",
+            "type": "row",
+            "gap": 6,
+            "cross": "center",
+            "padding": {
+             "top": 4,
+             "end": 6,
+             "bottom": 0,
+             "start": 6
+            },
+            "children": [
+             {
+              "id": "sig-98",
+              "type": "icon",
+              "icon": "redeem",
+              "icon_size": 16,
+              "color": "#A4503F",
+              "dark_color": "#EFA08C"
+             },
+             {
+              "id": "sig-99",
+              "type": "text",
+              "text": "Gift wrap and a card",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 12,
+               "weight": 600
+              },
+              "color": "#A4503F",
+              "dark_color": "#EFA08C",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "تغليف وبطاقة إهداء"
+               },
+               "tr": {
+                "text": "Hediye paketi ve kart"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-100",
+          "type": "column",
+          "name": "Cosy winter box",
+          "width": 236,
+          "gap": 6,
+          "radius": 26,
+          "padding": {
+           "top": 8,
+           "end": 8,
+           "bottom": 14,
+           "start": 8
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-101",
+            "type": "stack",
+            "height": 150,
+            "children": [
+             {
+              "id": "sig-102",
+              "type": "image",
+              "image_url": "http://localhost:3000/kids-photos/mittens.jpg",
+              "fit": "cover",
+              "width": "fill",
+              "height": 150,
+              "radius": 20,
+              "background": "#EFE6DB",
+              "dark_background": "#2A221E"
+             }
+            ]
+           },
+           {
+            "id": "sig-103",
+            "type": "text",
+            "text": "Cosy winter box",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 16,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 1,
+            "padding": {
+             "top": 4,
+             "end": 6,
+             "bottom": 0,
+             "start": 6
+            },
+            "translations": {
+             "ar": {
+              "text": "صندوق الشتاء الدافئ"
+             },
+             "tr": {
+              "text": "Sıcacık kış kutusu"
+             }
+            }
+           },
+           {
+            "id": "sig-104",
+            "type": "text",
+            "text": "Hat · mittens · socks",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 2,
+            "padding": {
+             "top": 0,
+             "end": 6,
+             "bottom": 0,
+             "start": 6
+            },
+            "translations": {
+             "ar": {
+              "text": "قبعة · قفازات · جوارب"
+             },
+             "tr": {
+              "text": "Şapka · eldiven · çorap"
+             }
+            }
+           },
+           {
+            "id": "sig-105",
+            "type": "row",
+            "gap": 6,
+            "cross": "center",
+            "padding": {
+             "top": 4,
+             "end": 6,
+             "bottom": 0,
+             "start": 6
+            },
+            "children": [
+             {
+              "id": "sig-106",
+              "type": "icon",
+              "icon": "redeem",
+              "icon_size": 16,
+              "color": "#A4503F",
+              "dark_color": "#EFA08C"
+             },
+             {
+              "id": "sig-107",
+              "type": "text",
+              "text": "Gift wrap and a card",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 12,
+               "weight": 600
+              },
+              "color": "#A4503F",
+              "dark_color": "#EFA08C",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "تغليف وبطاقة إهداء"
+               },
+               "tr": {
+                "text": "Hediye paketi ve kart"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-108",
+        "type": "row",
+        "name": "School and occasions",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-109",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-110",
+            "type": "text",
+            "text": "School and occasions",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "المدرسة والمناسبات"
+             },
+             "tr": {
+              "text": "Okul ve özel günler"
+             }
+            }
+           },
+           {
+            "id": "sig-111",
+            "type": "text",
+            "text": "Ready for every special day",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "جاهزون لكل يوم مميّز"
+             },
+             "tr": {
+              "text": "Her özel güne hazır"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-112",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "family": "Baloo Bhaijaan 2",
+           "size": 13,
+           "weight": 600
+          },
+          "color": "#A4503F",
+          "dark_color": "#EFA08C",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "name": "See all",
+          "translations": {
+           "ar": {
+            "text": "عرض الكل"
+           },
+           "tr": {
+            "text": "Tümü"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-113",
+        "type": "row",
+        "name": "School and occasions",
+        "gap": 10,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-114",
+          "type": "photo_hero",
+          "name": "Back to school",
+          "image_url": "http://localhost:3000/kids-photos/girl-desk.jpg",
+          "width": "fill",
+          "height": 250,
+          "radius": 22,
+          "background": "#2D2420",
+          "scrim": {
+           "color": "#120D0B",
+           "from": 0,
+           "middle": 0.1,
+           "at": 50,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-115",
+            "type": "text",
+            "text": "Back to school",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 16.5,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "العودة إلى المدرسة"
+             },
+             "tr": {
+              "text": "Okula dönüş"
+             }
+            }
+           },
+           {
+            "id": "sig-116",
+            "type": "text",
+            "text": "Everyday wear, bags and shoes",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11.5
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ملابس يومية وحقائب وأحذية"
+             },
+             "tr": {
+              "text": "Günlük kıyafet, çanta ve ayakkabı"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-117",
+          "type": "column",
+          "width": "fill",
+          "gap": 10,
+          "children": [
+           {
+            "id": "sig-118",
+            "type": "photo_hero",
+            "name": "Eid looks",
+            "image_url": "http://localhost:3000/kids-photos/white-dresses.jpg",
+            "width": "fill",
+            "height": 120,
+            "radius": 22,
+            "background": "#2D2420",
+            "scrim": {
+             "color": "#120D0B",
+             "from": 0,
+             "middle": 0.1,
+             "at": 50,
+             "to": 0.72
+            },
+            "align": "end",
+            "padding": {
+             "top": 12,
+             "end": 12,
+             "bottom": 12,
+             "start": 12
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-119",
+              "type": "text",
+              "text": "Eid looks",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 16.5,
+               "weight": 700,
+               "line_height": 1.25
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "إطلالات العيد"
+               },
+               "tr": {
+                "text": "Bayram kombinleri"
+               }
+              }
+             },
+             {
+              "id": "sig-120",
+              "type": "text",
+              "text": "Dresses and shirts for the day",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 11.5
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "opacity": 0.88,
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "فساتين وقمصان للمناسبة"
+               },
+               "tr": {
+                "text": "O gün için elbise ve gömlek"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-121",
+            "type": "photo_hero",
+            "name": "Ready sets",
+            "image_url": "http://localhost:3000/kids-photos/summer-outfit.jpg",
+            "width": "fill",
+            "height": 120,
+            "radius": 22,
+            "background": "#2D2420",
+            "scrim": {
+             "color": "#120D0B",
+             "from": 0,
+             "middle": 0.1,
+             "at": 50,
+             "to": 0.72
+            },
+            "align": "end",
+            "padding": {
+             "top": 12,
+             "end": 12,
+             "bottom": 12,
+             "start": 12
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-122",
+              "type": "text",
+              "text": "Ready sets",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 16.5,
+               "weight": 700,
+               "line_height": 1.25
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "أطقم جاهزة"
+               },
+               "tr": {
+                "text": "Hazır takımlar"
+               }
+              }
+             },
+             {
+              "id": "sig-123",
+              "type": "text",
+              "text": "Whole outfits, sold as one",
+              "font": {
+               "family": "Baloo Bhaijaan 2",
+               "size": 11.5
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "opacity": 0.88,
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "إطلالات كاملة تُباع معًا"
+               },
+               "tr": {
+                "text": "Tek parça satılan kombinler"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-124",
+        "type": "flash_sale",
+        "name": "Weekend deals",
+        "text": "Weekend deals",
+        "translations": {
+         "ar": {
+          "text": "عروض نهاية الأسبوع"
+         },
+         "tr": {
+          "text": "Hafta sonu fırsatları"
+         }
+        },
+        "flash_sale": {
+         "look": "carousel",
+         "limit": 6,
+         "countdown": true,
+         "stock_bar": true,
+         "accent": "#A4503F"
+        },
+        "radius": 24,
+        "margin": {
+         "top": 24,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-125",
+        "type": "size_finder",
+        "name": "Size finder",
+        "text": "What size fits your child?",
+        "title": "Shop their size",
+        "translations": {
+         "ar": {
+          "text": "ما المقاس المناسب لطفلكِ؟",
+          "title": "تسوّقي مقاسه"
+         },
+         "tr": {
+          "text": "Çocuğunuza hangi beden uyar?",
+          "title": "Bedenine göre alışveriş"
+         }
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "background": "#3A2B26",
+        "dark_background": "#2A1F1B",
+        "color": "#FFFFFF",
+        "dark_color": "#FFFFFF",
+        "border_color": "#B35C4B",
+        "dark_border_color": "#EFA08C",
+        "font": {
+         "family": "Baloo Bhaijaan 2",
+         "size": 20,
+         "weight": 700
+        },
+        "radius": 28,
+        "padding": {
+         "top": 20,
+         "end": 18,
+         "bottom": 18,
+         "start": 18
+        },
+        "margin": {
+         "top": 26,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-126",
+        "type": "row",
+        "name": "Most loved",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-127",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-128",
+            "type": "text",
+            "text": "Most loved",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "الأكثر حبًّا"
+             },
+             "tr": {
+              "text": "En sevilenler"
+             }
+            }
+           },
+           {
+            "id": "sig-129",
+            "type": "text",
+            "text": "Parents' picks this month",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "اختيارات الأهل هذا الشهر"
+             },
+             "tr": {
+              "text": "Bu ay ebeveynlerin seçimleri"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-130",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "family": "Baloo Bhaijaan 2",
+           "size": 13,
+           "weight": 600
+          },
+          "color": "#A4503F",
+          "dark_color": "#EFA08C",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "name": "See all",
+          "translations": {
+           "ar": {
+            "text": "عرض الكل"
+           },
+           "tr": {
+            "text": "Tümü"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-131",
+        "type": "items",
+        "name": "Most loved",
+        "source": "products",
+        "layout": "grid",
+        "columns": 2,
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 4,
+         "category_id": null,
+         "featured": false,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-132",
+         "type": "column",
+         "width": "fill",
+         "gap": 5,
+         "children": [
+          {
+           "id": "sig-133",
+           "type": "stack",
+           "width": "fill",
+           "height": 200,
+           "children": [
+            {
+             "id": "sig-134",
+             "type": "image",
+             "bind": "image",
+             "width": "fill",
+             "height": 200,
+             "radius": 22,
+             "fit": "cover",
+             "background": "#EFE6DB",
+             "dark_background": "#2A221E"
+            },
+            {
+             "id": "sig-135",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "size": 11,
+              "weight": 700
+             },
+             "color": "#FFFFFF",
+             "dark_color": "#FFFFFF",
+             "background": "#A4503F",
+             "dark_background": "#B35C4B",
+             "radius": 10,
+             "padding": {
+              "top": 3,
+              "end": 8,
+              "bottom": 3,
+              "start": 8
+             },
+             "place": {
+              "x": 6,
+              "y": 5
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-136",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 2,
+           "color": "#2D2420",
+           "dark_color": "#F4ECE6",
+           "font": {
+            "family": "Baloo Bhaijaan 2",
+            "size": 13.5,
+            "weight": 600,
+            "line_height": 1.3
+           }
+          },
+          {
+           "id": "sig-137",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-138",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "color": "#2D2420",
+             "dark_color": "#F4ECE6",
+             "font": {
+              "family": "Baloo Bhaijaan 2",
+              "size": 14.5,
+              "weight": 700
+             }
+            },
+            {
+             "id": "sig-139",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#6B5D55",
+             "dark_color": "#C7B9AF",
+             "font": {
+              "size": 12
+             }
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-140",
+        "type": "row",
+        "name": "Our promises",
+        "gap": 8,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-141",
+          "type": "column",
+          "name": "Organic cotton",
+          "width": "fill",
+          "gap": 4,
+          "cross": "center",
+          "radius": 22,
+          "padding": {
+           "top": 14,
+           "end": 8,
+           "bottom": 14,
+           "start": 8
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-142",
+            "type": "icon",
+            "icon": "spa",
+            "icon_size": 20,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C",
+            "background": "#F6E3DC",
+            "dark_background": "#3A231D",
+            "radius": 99,
+            "padding": {
+             "top": 9,
+             "end": 9,
+             "bottom": 9,
+             "start": 9
+            }
+           },
+           {
+            "id": "sig-143",
+            "type": "text",
+            "text": "Organic cotton",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13.5,
+             "weight": 700
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "text_align": "center",
+            "max_lines": 1,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "قطن عضوي"
+             },
+             "tr": {
+              "text": "Organik pamuk"
+             }
+            }
+           },
+           {
+            "id": "sig-144",
+            "type": "text",
+            "text": "Gentle on sensitive skin",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "text_align": "center",
+            "max_lines": 3,
+            "translations": {
+             "ar": {
+              "text": "ناعم على البشرة الحساسة"
+             },
+             "tr": {
+              "text": "Hassas cilde nazik"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-145",
+          "type": "column",
+          "name": "Safe dyes",
+          "width": "fill",
+          "gap": 4,
+          "cross": "center",
+          "radius": 22,
+          "padding": {
+           "top": 14,
+           "end": 8,
+           "bottom": 14,
+           "start": 8
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-146",
+            "type": "icon",
+            "icon": "verified",
+            "icon_size": 20,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C",
+            "background": "#F6E3DC",
+            "dark_background": "#3A231D",
+            "radius": 99,
+            "padding": {
+             "top": 9,
+             "end": 9,
+             "bottom": 9,
+             "start": 9
+            }
+           },
+           {
+            "id": "sig-147",
+            "type": "text",
+            "text": "Safe dyes",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13.5,
+             "weight": 700
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "text_align": "center",
+            "max_lines": 1,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "صبغات آمنة"
+             },
+             "tr": {
+              "text": "Güvenli boyalar"
+             }
+            }
+           },
+           {
+            "id": "sig-148",
+            "type": "text",
+            "text": "Tested and free of harmful substances",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "text_align": "center",
+            "max_lines": 3,
+            "translations": {
+             "ar": {
+              "text": "مختبرة وخالية من المواد الضارة"
+             },
+             "tr": {
+              "text": "Test edilmiş, zararlı madde içermez"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-149",
+          "type": "column",
+          "name": "Easy exchanges",
+          "width": "fill",
+          "gap": 4,
+          "cross": "center",
+          "radius": 22,
+          "padding": {
+           "top": 14,
+           "end": 8,
+           "bottom": 14,
+           "start": 8
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-150",
+            "type": "icon",
+            "icon": "sync",
+            "icon_size": 20,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C",
+            "background": "#F6E3DC",
+            "dark_background": "#3A231D",
+            "radius": 99,
+            "padding": {
+             "top": 9,
+             "end": 9,
+             "bottom": 9,
+             "start": 9
+            }
+           },
+           {
+            "id": "sig-151",
+            "type": "text",
+            "text": "Easy exchanges",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13.5,
+             "weight": 700
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "text_align": "center",
+            "max_lines": 1,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "استبدال سهل"
+             },
+             "tr": {
+              "text": "Kolay değişim"
+             }
+            }
+           },
+           {
+            "id": "sig-152",
+            "type": "text",
+            "text": "Within 30 days if the size isn't right",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 11
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "text_align": "center",
+            "max_lines": 3,
+            "translations": {
+             "ar": {
+              "text": "خلال 30 يومًا إن لم يناسب المقاس"
+             },
+             "tr": {
+              "text": "Beden uymazsa 30 gün içinde"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "shop",
+    "title": "Shop",
+    "translations": {
+     "ar": {
+      "title": "المتجر"
+     },
+     "tr": {
+      "title": "Mağaza"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-198",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-199",
+        "type": "categories",
+        "name": "Categories",
+        "source": "products",
+        "padding": {
+         "top": 4,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-200",
+        "type": "photo_hero",
+        "name": "[Your offer in a line]",
+        "image_url": "http://localhost:3000/kids-photos/summer-outfit.jpg",
+        "height": 160,
+        "radius": 28,
+        "background": "#EFE6DB",
+        "scrim": {
+         "color": "#F7F2EC",
+         "from": 0,
+         "middle": 0.35,
+         "at": 40,
+         "to": 0.94
+        },
+        "align": "end",
+        "padding": {
+         "top": 16,
+         "end": 18,
+         "bottom": 16,
+         "start": 18
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "sig-201",
+          "type": "text",
+          "text": "Ready sets",
+          "font": {
+           "family": "Baloo Bhaijaan 2",
+           "size": 11.5,
+           "weight": 600,
+           "letter_spacing": 0,
+           "uppercase": false
+          },
+          "color": "#A4503F",
+          "dark_color": "#A4503F",
+          "opacity": 1,
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "أطقم جاهزة"
+           },
+           "tr": {
+            "text": "Hazır takımlar"
+           }
+          }
+         },
+         {
+          "id": "sig-202",
+          "type": "text",
+          "text": "Whole outfits, sold as one",
+          "font": {
+           "family": "Baloo Bhaijaan 2",
+           "size": 22,
+           "weight": 700,
+           "line_height": 1.2
+          },
+          "color": "#2D2420",
+          "dark_color": "#2D2420",
+          "max_lines": 2,
+          "margin": {
+           "top": 4,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "translations": {
+           "ar": {
+            "text": "إطلالات كاملة تُباع معًا"
+           },
+           "tr": {
+            "text": "Tek parça satılan komple kombinler"
+           }
+          }
+         },
+         {
+          "id": "sig-203",
+          "type": "button",
+          "name": "Shop the sets",
+          "text": "Shop the sets",
+          "icon": "arrow_forward",
+          "icon_position": "end",
+          "width": "hug",
+          "height": 38,
+          "radius": 19,
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 16
+          },
+          "self_align": "start",
+          "margin": {
+           "top": 10,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "background": "#A4503F",
+          "dark_background": "#A4503F",
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "font": {
+           "family": "Baloo Bhaijaan 2",
+           "size": 13.5,
+           "weight": 700
+          },
+          "motion": {
+           "press": "shrink"
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "تسوّقي الأطقم"
+           },
+           "tr": {
+            "text": "Takımları keşfet"
+           }
+          }
+         }
+        ],
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "Shop",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المتجر"
+       },
+       "tr": {
+        "title": "Mağaza"
+       }
+      },
+      "background": "#F7F2EC",
+      "color": "#2D2420",
+      "dark_background": "#15110F",
+      "dark_color": "#F4ECE6",
+      "style": "glass"
+     },
+     "background": "#F7F2EC",
+     "dark_background": "#15110F"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "cart",
+    "title": "Cart",
+    "translations": {
+     "ar": {
+      "title": "السلة"
+     },
+     "tr": {
+      "title": "Sepet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-204",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-205",
+        "type": "coupon",
+        "name": "Your code",
+        "code": "TOOTA10",
+        "coupon": {
+         "look": "ticket",
+         "bind": "public"
+        },
+        "radius": 18,
+        "color": "#A4503F",
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-206",
+        "type": "row",
+        "name": "[How your gifts are wrapped, like: add gift wrapping and a card to a gift]",
+        "gap": 12,
+        "cross": "center",
+        "radius": 18,
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#EFE6DB",
+        "dark_background": "#2A221E",
+        "children": [
+         {
+          "id": "sig-207",
+          "type": "icon",
+          "icon": "redeem",
+          "icon_size": 22,
+          "color": "#A4503F",
+          "dark_color": "#EFA08C"
+         },
+         {
+          "id": "sig-208",
+          "type": "text",
+          "text": "A newborn gift? Add gift wrapping and a card, and write its message at checkout.",
+          "font": {
+           "family": "Baloo Bhaijaan 2",
+           "size": 13,
+           "weight": 600,
+           "line_height": 1.4
+          },
+          "color": "#2D2420",
+          "dark_color": "#F4ECE6",
+          "width": "fill",
+          "max_lines": 3,
+          "translations": {
+           "ar": {
+            "text": "هدية لمولود؟ أضيفي التغليف وبطاقة، واكتبي رسالتها عند الدفع."
+           },
+           "tr": {
+            "text": "Yenidoğan hediyesi mi? Hediye paketi ve kart ekleyin, mesajını ödemede yazın."
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-209",
+        "type": "row",
+        "name": "[Your exchange policy, like: free exchange within 30 days]",
+        "gap": 12,
+        "cross": "center",
+        "radius": 18,
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#EFE6DB",
+        "dark_background": "#2A221E",
+        "children": [
+         {
+          "id": "sig-210",
+          "type": "icon",
+          "icon": "sync",
+          "icon_size": 22,
+          "color": "#A4503F",
+          "dark_color": "#EFA08C"
+         },
+         {
+          "id": "sig-211",
+          "type": "text",
+          "text": "Free exchange within 30 days if the size isn't right.",
+          "font": {
+           "family": "Baloo Bhaijaan 2",
+           "size": 13,
+           "weight": 600,
+           "line_height": 1.4
+          },
+          "color": "#2D2420",
+          "dark_color": "#F4ECE6",
+          "width": "fill",
+          "max_lines": 3,
+          "translations": {
+           "ar": {
+            "text": "استبدال مجاني خلال 30 يومًا إن لم يناسب المقاس."
+           },
+           "tr": {
+            "text": "Beden uymazsa 30 gün içinde ücretsiz değişim."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "السلة"
+       },
+       "tr": {
+        "title": "Sepet"
+       }
+      },
+      "background": "#F7F2EC",
+      "color": "#2D2420",
+      "dark_background": "#15110F",
+      "dark_color": "#F4ECE6",
+      "style": "glass"
+     },
+     "background": "#F7F2EC",
+     "dark_background": "#15110F"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "Orders",
+    "translations": {
+     "ar": {
+      "title": "الطلبات"
+     },
+     "tr": {
+      "title": "Siparişler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-212",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-213",
+        "type": "row",
+        "name": "Your order, step by step",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-214",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-215",
+            "type": "text",
+            "text": "Your order, step by step",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "طلبكِ خطوة بخطوة"
+             },
+             "tr": {
+              "text": "Siparişiniz adım adım"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-216",
+        "type": "timeline",
+        "name": "Your order, step by step",
+        "timeline": {
+         "style": "vertical",
+         "source": "latest_order"
+        },
+        "color": "#2D2420",
+        "dark_color": "#F4ECE6",
+        "background": "#FFFDF9",
+        "dark_background": "#1F1916",
+        "radius": 22,
+        "padding": {
+         "top": 16,
+         "end": 14,
+         "bottom": 16,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "border_color": "#EADFD3",
+        "dark_border_color": "#30271F",
+        "border_width": 1,
+        "entries": [
+         {
+          "title": "Ordered",
+          "text": "We have your order.",
+          "highlight": true,
+          "translations": {
+           "ar": {
+            "title": "تم الطلب",
+            "text": "استلمنا طلبكِ."
+           },
+           "tr": {
+            "title": "Sipariş alındı",
+            "text": "Siparişinizi aldık."
+           }
+          }
+         },
+         {
+          "title": "Packed",
+          "text": "Folded, checked and packed with care, the gifts wrapped.",
+          "translations": {
+           "ar": {
+            "title": "تم التغليف",
+            "text": "طُوي وفُحص وغُلّف بعناية، والهدايا مغلّفة."
+           },
+           "tr": {
+            "title": "Paketlendi",
+            "text": "Katlandı, kontrol edildi, özenle paketlendi; hediyeler sarıldı."
+           }
+          }
+         },
+         {
+          "title": "On its way",
+          "text": "With the courier, on its way to you.",
+          "translations": {
+           "ar": {
+            "title": "في الطريق",
+            "text": "مع المندوب في طريقه إليكِ."
+           },
+           "tr": {
+            "title": "Yolda",
+            "text": "Kuryede, size doğru yolda."
+           }
+          }
+         },
+         {
+          "title": "Delivered",
+          "text": "Enjoy it. A size that doesn't fit is easy to exchange from your orders.",
+          "translations": {
+           "ar": {
+            "title": "تم التوصيل",
+            "text": "استمتعي به. استبدال المقاس غير المناسب سهل من طلباتكِ."
+           },
+           "tr": {
+            "title": "Teslim edildi",
+            "text": "Güle güle kullanın. Uymayan bedeni siparişlerinizden kolayca değiştirin."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      },
+      "background": "#F7F2EC",
+      "color": "#2D2420",
+      "dark_background": "#15110F",
+      "dark_color": "#F4ECE6",
+      "style": "glass"
+     },
+     "background": "#F7F2EC",
+     "dark_background": "#15110F"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-218",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-217",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "account",
+     "background": "#F7F2EC",
+     "dark_background": "#15110F"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "menu",
+    "title": "All categories",
+    "translations": {
+     "ar": {
+      "title": "كل الأقسام"
+     },
+     "tr": {
+      "title": "Tüm kategoriler"
+     }
+    },
+    "studio": {
+     "background": "#F7F2EC",
+     "dark_background": "#15110F",
+     "body": {
+      "id": "sig-153",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-154",
+        "type": "search",
+        "name": "Search every category…",
+        "text": "Search every category…",
+        "source": "products",
+        "radius": 26,
+        "height": 50,
+        "background": "#FFFDF9",
+        "dark_background": "#1F1916",
+        "color": "#6B5D55",
+        "dark_color": "#C7B9AF",
+        "border_color": "#EADFD3",
+        "dark_border_color": "#30271F",
+        "border_width": 1,
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحثي في كل الأقسام…"
+         },
+         "tr": {
+          "text": "Tüm kategorilerde ara…"
+         }
+        }
+       },
+       {
+        "id": "sig-155",
+        "type": "row",
+        "name": "Quick ways in",
+        "gap": 8,
+        "scroll": true,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-156",
+          "type": "row",
+          "name": "New in",
+          "height": 42,
+          "radius": 21,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#A4503F",
+          "dark_background": "#B35C4B",
+          "children": [
+           {
+            "id": "sig-157",
+            "type": "icon",
+            "icon": "auto_awesome",
+            "icon_size": 18,
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF"
+           },
+           {
+            "id": "sig-158",
+            "type": "text",
+            "text": "New in",
+            "max_lines": 1,
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "translations": {
+             "ar": {
+              "text": "وصل حديثًا"
+             },
+             "tr": {
+              "text": "Yeni gelenler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-159",
+          "type": "row",
+          "name": "By age",
+          "height": 42,
+          "radius": 21,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "page",
+           "page_slug": "size-guide"
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-160",
+            "type": "icon",
+            "icon": "cake",
+            "icon_size": 18,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C"
+           },
+           {
+            "id": "sig-161",
+            "type": "text",
+            "text": "By age",
+            "max_lines": 1,
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "translations": {
+             "ar": {
+              "text": "حسب العمر"
+             },
+             "tr": {
+              "text": "Yaşa göre"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-162",
+          "type": "row",
+          "name": "Offers",
+          "height": 42,
+          "radius": 21,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-163",
+            "type": "icon",
+            "icon": "percent",
+            "icon_size": 18,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C"
+           },
+           {
+            "id": "sig-164",
+            "type": "text",
+            "text": "Offers",
+            "max_lines": 1,
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "translations": {
+             "ar": {
+              "text": "العروض"
+             },
+             "tr": {
+              "text": "Fırsatlar"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-165",
+          "type": "row",
+          "name": "Size guide",
+          "height": 42,
+          "radius": 21,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "page",
+           "page_slug": "size-guide"
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-166",
+            "type": "icon",
+            "icon": "straighten",
+            "icon_size": 18,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C"
+           },
+           {
+            "id": "sig-167",
+            "type": "text",
+            "text": "Size guide",
+            "max_lines": 1,
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 13.5,
+             "weight": 600
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "translations": {
+             "ar": {
+              "text": "دليل المقاسات"
+             },
+             "tr": {
+              "text": "Beden rehberi"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-168",
+        "type": "categories",
+        "name": "All categories",
+        "source": "products",
+        "style": "rows",
+        "category_menu": {
+         "look": "lead",
+         "radius": 24
+        },
+        "color": "#2D2420",
+        "dark_color": "#F4ECE6",
+        "padding": {
+         "top": 6,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-169",
+        "type": "divider",
+        "height": 1,
+        "background": "#EADFD3",
+        "dark_background": "#30271F",
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-170",
+        "type": "row",
+        "name": "Your account",
+        "gap": 8,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-171",
+          "type": "column",
+          "name": "My account",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 18,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-172",
+            "type": "icon",
+            "icon": "person",
+            "icon_size": 22,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C"
+           },
+           {
+            "id": "sig-173",
+            "type": "text",
+            "text": "My account",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "translations": {
+             "ar": {
+              "text": "حسابي"
+             },
+             "tr": {
+              "text": "Hesabım"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-174",
+          "type": "column",
+          "name": "My orders",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 18,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "orders"
+          },
+          "children": [
+           {
+            "id": "sig-175",
+            "type": "icon",
+            "icon": "package_2",
+            "icon_size": 22,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C"
+           },
+           {
+            "id": "sig-176",
+            "type": "text",
+            "text": "My orders",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "translations": {
+             "ar": {
+              "text": "طلباتي"
+             },
+             "tr": {
+              "text": "Siparişlerim"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-177",
+          "type": "column",
+          "name": "Language",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 18,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFDF9",
+          "dark_background": "#1F1916",
+          "border_color": "#EADFD3",
+          "dark_border_color": "#30271F",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "settings"
+          },
+          "children": [
+           {
+            "id": "sig-178",
+            "type": "icon",
+            "icon": "language",
+            "icon_size": 22,
+            "color": "#A4503F",
+            "dark_color": "#EFA08C"
+           },
+           {
+            "id": "sig-179",
+            "type": "text",
+            "text": "Language",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "translations": {
+             "ar": {
+              "text": "اللغة"
+             },
+             "tr": {
+              "text": "Dil"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-180",
+        "type": "row",
+        "name": "Contact us",
+        "gap": 12,
+        "cross": "center",
+        "radius": 20,
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#EFE6DB",
+        "dark_background": "#2A221E",
+        "action": {
+         "type": "screen",
+         "screen": "account"
+        },
+        "children": [
+         {
+          "id": "sig-181",
+          "type": "icon",
+          "icon": "support_agent",
+          "icon_size": 22,
+          "color": "#A4503F",
+          "dark_color": "#EFA08C"
+         },
+         {
+          "id": "sig-182",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-183",
+            "type": "text",
+            "text": "Contact us",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 14,
+             "weight": 700
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "translations": {
+             "ar": {
+              "text": "تواصلي معنا"
+             },
+             "tr": {
+              "text": "Bize ulaşın"
+             }
+            }
+           },
+           {
+            "id": "sig-184",
+            "type": "text",
+            "text": "Every day, 9 am to 11 pm",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "يوميًا من 9 صباحًا إلى 11 مساءً"
+             },
+             "tr": {
+              "text": "Her gün 09.00–23.00"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-185",
+          "type": "icon",
+          "icon": "chat",
+          "icon_size": 20,
+          "color": "#2D2420",
+          "dark_color": "#F4ECE6"
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "All categories",
+      "translations": {
+       "ar": {
+        "title": "كل الأقسام"
+       },
+       "tr": {
+        "title": "Tüm kategoriler"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#F7F2EC",
+      "color": "#2D2420",
+      "dark_background": "#15110F",
+      "dark_color": "#F4ECE6",
+      "style": "glass"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "size-guide",
+    "title": "Size guide",
+    "translations": {
+     "ar": {
+      "title": "دليل المقاسات"
+     },
+     "tr": {
+      "title": "Beden rehberi"
+     }
+    },
+    "studio": {
+     "background": "#F7F2EC",
+     "dark_background": "#15110F",
+     "body": {
+      "id": "sig-186",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-187",
+        "type": "text",
+        "text": "Choose your child's age to see the size that fits, or check the chart: when they are between two sizes, take the bigger one.",
+        "font": {
+         "family": "Baloo Bhaijaan 2",
+         "size": 14,
+         "line_height": 1.5
+        },
+        "color": "#6B5D55",
+        "dark_color": "#C7B9AF",
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "اختاري عمر طفلكِ لتري المقاس المناسب، أو راجعي الجدول: إن كان بين مقاسين فاختاري الأكبر."
+         },
+         "tr": {
+          "text": "Uyan bedeni görmek için çocuğunuzun yaşını seçin ya da tabloya bakın: iki beden arasındaysa büyüğünü alın."
+         }
+        }
+       },
+       {
+        "id": "sig-188",
+        "type": "size_finder",
+        "name": "Size finder",
+        "text": "What size fits your child?",
+        "title": "Shop their size",
+        "translations": {
+         "ar": {
+          "text": "ما المقاس المناسب لطفلكِ؟",
+          "title": "تسوّقي مقاسه"
+         },
+         "tr": {
+          "text": "Çocuğunuza hangi beden uyar?",
+          "title": "Bedenine göre alışveriş"
+         }
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "background": "#3A2B26",
+        "dark_background": "#2A1F1B",
+        "color": "#FFFFFF",
+        "dark_color": "#FFFFFF",
+        "border_color": "#B35C4B",
+        "dark_border_color": "#EFA08C",
+        "font": {
+         "family": "Baloo Bhaijaan 2",
+         "size": 20,
+         "weight": 700
+        },
+        "radius": 28,
+        "padding": {
+         "top": 20,
+         "end": 18,
+         "bottom": 18,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-189",
+        "type": "row",
+        "name": "Size chart",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-190",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-191",
+            "type": "text",
+            "text": "Size chart",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "جدول المقاسات"
+             },
+             "tr": {
+              "text": "Beden tablosu"
+             }
+            }
+           },
+           {
+            "id": "sig-192",
+            "type": "text",
+            "text": "By age, in centimetres and kilograms",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 12.5
+            },
+            "color": "#6B5D55",
+            "dark_color": "#C7B9AF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "حسب العمر، بالسنتيمتر والكيلوغرام"
+             },
+             "tr": {
+              "text": "Yaşa göre, santimetre ve kilogram"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-193",
+        "type": "size_chart",
+        "name": "Size chart",
+        "text": "Size chart",
+        "color": "#2D2420",
+        "dark_color": "#F4ECE6",
+        "background": "#FFFDF9",
+        "dark_background": "#1F1916",
+        "border_color": "#EADFD3",
+        "dark_border_color": "#30271F",
+        "border_width": 1,
+        "radius": 20,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "جدول المقاسات"
+         },
+         "tr": {
+          "text": "Beden tablosu"
+         }
+        }
+       },
+       {
+        "id": "sig-194",
+        "type": "row",
+        "name": "How to measure",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-195",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-196",
+            "type": "text",
+            "text": "How to measure",
+            "font": {
+             "family": "Baloo Bhaijaan 2",
+             "size": 22,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#2D2420",
+            "dark_color": "#F4ECE6",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "طريقة القياس"
+             },
+             "tr": {
+              "text": "Nasıl ölçülür"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-197",
+        "type": "timeline",
+        "name": "How to measure",
+        "timeline": {
+         "style": "vertical"
+        },
+        "color": "#2D2420",
+        "dark_color": "#F4ECE6",
+        "background": "#FFFDF9",
+        "dark_background": "#1F1916",
+        "radius": 20,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "entries": [
+         {
+          "title": "Height",
+          "text": "Standing straight against a wall, without shoes, from the floor to the top of the head.",
+          "translations": {
+           "ar": {
+            "title": "الطول",
+            "text": "واقفًا باستقامة على الحائط دون حذاء، من الأرض إلى أعلى الرأس."
+           },
+           "tr": {
+            "title": "Boy",
+            "text": "Ayakkabısız, duvara dik durarak yerden başın üstüne kadar."
+           }
+          }
+         },
+         {
+          "title": "Chest",
+          "text": "Around the fullest part of the chest, under the arms, the tape level.",
+          "translations": {
+           "ar": {
+            "title": "الصدر",
+            "text": "حول أعرض جزء من الصدر تحت الإبطين، والشريط مستوٍ."
+           },
+           "tr": {
+            "title": "Göğüs",
+            "text": "Kolların altından, göğsün en geniş yerinden, mezura düz."
+           }
+          }
+         },
+         {
+          "title": "Between two sizes",
+          "text": "Take the bigger one: children grow fast, and our clothes have room to grow.",
+          "translations": {
+           "ar": {
+            "title": "بين مقاسين",
+            "text": "اختاري الأكبر: الأطفال يكبرون بسرعة، وملابسنا تتسع لنموّهم."
+           },
+           "tr": {
+            "title": "İki beden arasında",
+            "text": "Büyüğünü alın: çocuklar hızlı büyür, kıyafetlerimizde büyüme payı var."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Size guide",
+      "translations": {
+       "ar": {
+        "title": "دليل المقاسات"
+       },
+       "tr": {
+        "title": "Beden rehberi"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#F7F2EC",
+      "color": "#2D2420",
+      "dark_background": "#15110F",
+      "dark_color": "#F4ECE6",
+      "style": "glass"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-219",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#F7F2EC",
+      "color": "#2D2420",
+      "dark_background": "#15110F",
+      "dark_color": "#F4ECE6",
+      "style": "glass"
+     },
+     "background": "#F7F2EC",
+     "dark_background": "#15110F"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-220",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#F7F2EC",
+      "color": "#2D2420",
+      "dark_background": "#15110F",
+      "dark_color": "#F4ECE6",
+      "style": "glass"
+     },
+     "background": "#F7F2EC",
+     "dark_background": "#15110F"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-221",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#F7F2EC",
+      "color": "#2D2420",
+      "dark_background": "#15110F",
+      "dark_color": "#F4ECE6",
+      "style": "glass"
+     },
+     "background": "#F7F2EC",
+     "dark_background": "#15110F"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-222",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#F7F2EC",
+      "color": "#2D2420",
+      "dark_background": "#15110F",
+      "dark_color": "#F4ECE6",
+      "style": "glass"
+     },
+     "background": "#F7F2EC",
+     "dark_background": "#15110F"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-223",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#F7F2EC",
+     "dark_background": "#15110F"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-224",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#F7F2EC",
+     "dark_background": "#15110F"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#FFFDF9",
+   "dark_background": "#261F1C",
+   "active": "#A4503F",
+   "dark_active": "#EFA08C",
+   "inactive": "#6B5D55",
+   "dark_inactive": "#A09086",
+   "design": "float",
+   "labels": "active",
+   "radius": 32,
+   "margin": 12
+  }
+ }
+}

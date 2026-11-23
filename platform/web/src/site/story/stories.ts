@@ -374,6 +374,35 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "clothes-walk", screen: "lujain-home" },
   },
+  // 209 Toota, the kids' clothes shop: a newborn gift and a coat for the first cold week, in its look A (TOOTA) by day and by night; look B (MINIMO) in its section.
+  kids: {
+    id: "kids",
+    icon: "child_care",
+    // TOOTA's terracotta, lighter on its cocoa night.
+    accent: "#EFA08C",
+    demos: ["kids"],
+    solutions: [],
+    hero: { photo: "kids-hero", screens: ["toota-home", "toota-product"] },
+    chapters: [
+      { screen: "toota-home", icon: "home" },
+      { screen: "toota-menu", icon: "menu_open" },
+      { photo: "kids-newborn", screen: "toota-home", icon: "straighten" },
+      { photo: "kids-gift", screen: "toota-product", icon: "redeem" },
+      { screen: "kids-sig-a-home-dark", icon: "bolt" },
+      { photo: "kids-school", screen: "toota-menu", icon: "inventory_2" },
+    ],
+    interlude: { photo: "kids-party" },
+    stats: [{ value: 7 }, { value: 12 }, { value: 30 }, { value: 3 }],
+    systems: [
+      { icon: "straighten", screens: ["toota-home"], features: ["child_care", "straighten", "table_chart", "translate", "check", "block"] },
+      { icon: "menu_open", screens: ["toota-menu"], features: ["view_list", "category", "family_restroom", "search", "person", "dashboard_customize"] },
+      { icon: "redeem", screens: ["toota-product"], features: ["redeem", "edit_note", "sell", "checkroom", "spa", "verified_user"] },
+      { icon: "palette", screens: ["kids-sig-b-home", "kids-sig-b-home-dark"], features: ["toys", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "kids-walk", screen: "toota-home" },
+  },
 };
 
 /** Every photo slot of a story, each once. */

@@ -1372,5 +1372,253 @@ export const STORIES_TR: StoryCopy = {
         "clothes-walk": "Beyaz kum tepelerinde yürüyen beyazlar içinde bir kadın"
       }
     },
+    // 209 Toota, the kids' clothes shop.
+    kids: {
+      navName: "Çocuk giyim mağazası uygulaması",
+      metaTitle: "Yaşa göre bedenler, yenidoğan hediyeleri ve hazır takımlarla bir çocuk giyim mağazası uygulaması, Yallapp Studio'da tasarlandı",
+      metaDescription: "Toota ile bir gün: yeni doğan bir yeğen, kartıyla paketlenmiş bir hediye kutusu, yaşa göre beden bulucu ve dört yaşındaki için bir yağmurluk.",
+      summary: "Doğumdan 12 yaşına yaşa göre bedenler, beden bulucu ve tablosu, kız, erkek ve bebek kategorileri, paket ve kartıyla yenidoğan hediyeleri ve hazır takımlar, iki premium görünümde.",
+      eyebrow: "Yallapp Studio · Çocuk giyim mağazası",
+      title: "Adam'a bir hediye, Youssef'e bir yağmurluk",
+      intro: "Salma'nın kız kardeşi bu sabah bir erkek bebek doğurdu, kendi oğlu Youssef'in yağmurluğu da yağmurlar başlarken küçük geldi. Kahire'de bir çarşamba akşamı. Telefonla geçen birkaç dakika ikisini birden böyle çözüyor.",
+      cast: "Salma, Kahire'de bir çocuk giyim mağazası olan Toota'dan alışveriş yapıyor. Toota, çocuk giyim şablonunun demosu: kıyafetleri, adları ve fiyatları uydurma, fotoğrafları gerçek ve aşağıdaki her ekran gerçek uygulama.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Kahire, banyodan sonra",
+          title: "Bu akşam alınacak iki şey",
+          text: "Youssef uyurken Salma koltukta Toota'yı açıyor. Ana sayfa yumuşak ve hızlı: arama, yuvarlak kategoriler, kayan kartlarda sezonun koleksiyonu ve altında 0–6 aydan 8–12 yaşa kadar yaşlar, her biri pastel bir kutuda."
+        },
+        {
+          time: "20:43",
+          kicker: "Menü",
+          title: "Kızlar, erkekler ve bebekler",
+          text: "Zilin yanındaki menüye dokunuyor. Mağazanın her kategorisi fotoğraflı bir kart sırası: önce Bebek ve yenidoğan, ardından kayan Yenidoğan setleri, Body ve Uyku giyimi; sonra Kız, Erkek, Ayakkabı, Yenidoğan hediyeleri ve Hazır takımlar."
+        },
+        {
+          time: "20:46",
+          kicker: "Beden bulucu",
+          title: "Dört yaş, 104 cm",
+          text: "Youssef dört yaşında. Ana sayfadaki beden bulucuda 4–5Y'yi seçiyor; kart, mağazanın kendi tablosundan bu bedenin boyunu, kilosunu ve göğsünü gösteriyor: 104 ile 110 cm. Bir dokunuşla mağaza onun bedenindeki parçalarla açılıyor."
+        },
+        {
+          time: "20:52",
+          kicker: "Yenidoğan hediyeleri",
+          title: "Paketlenmiş, kartıyla bir kutu",
+          text: "Bebek Adam için ilk yenidoğan kutusu: organik pamuktan bir body, şapka, örgü battaniye ve peluş oyuncak. Sepette mağaza yanına hediye paketi ve tebrik kartı öneriyor. Ödemede \"Dünyaya hoş geldin minik!\" satırına dokunup kendinden bir satır ekliyor."
+        },
+        {
+          time: "20:58",
+          kicker: "Hafta sonu fırsatları",
+          title: "Kapüşonlu %30 indirimli",
+          text: "Ana sayfada hafta sonu fırsatları geri sayıyor. Gri polar kapüşonlu Youssef'in bedeninde orada, eski fiyatın üstü çizili. Yağmurlukla birlikte ekliyor; mağazanın kodu TOOTA10 siparişten yüzde on düşüyor."
+        },
+        {
+          time: "10:15",
+          kicker: "Perşembe, mağazada",
+          title: "Sarı 4–5Y, paketlenmiş bir kutu",
+          text: "Toota'da Mona sabahın siparişlerini açıyor. Salma'nınkinde sarı yağmurluk 4–5Y, gri kapüşonlu ve elle yazılacak kart mesajıyla paketlenmiş yenidoğan kutusu var. Her bedenin stoğu bir azalıyor.",
+          push: {
+            app: "Toota",
+            title: "Sipariş 3204",
+            body: "Siparişiniz yolda. Hediye kartınızla paketlendi."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Paketlenmiş bir hediye, tam oturan bir yağmurluk.",
+        text: "Aradaki her şey mağazanın kendisindendi: kategorileri ve sıraları, yaşa göre bedenleri ve her birinin stoğu, beden tablosu, hediye paketleri ve kartları, fırsatları ve değişim politikası; panelde bir kez ayarlandı."
+      },
+      statsTitle: "Bir akşamın ardındaki küçük gerçekler",
+      stats: [
+        "demonun menüsünde ana kategori, her biri bir kart sırası",
+        "yaşa göre beden, 0–3 aydan 11–12 yaşa",
+        "uymayan bedeni değiştirmek için gün",
+        "dil, Arapça sağdan sola"
+      ],
+      systemsTitle: "Her parça, açıklamalı",
+      systemsText: "Yaşa göre bedenler, kategori menüsü, hediyeler ve takımlar, iki görünüm ve ürünlerin nereden geldiği.",
+      systems: [
+        {
+          name: "Yaşa göre bedenler",
+          title: "Yaşa göre uyan beden",
+          text: "Her parça yaşa göre bedenlerde gelir ve mağaza her birinin stoğunu tutar.",
+          features: [
+            [
+              "Beden yerine yaş",
+              "0–3 aydan 11–12 yaşa, her parça yapıldığı yaşlarda."
+            ],
+            [
+              "Beden bulucu",
+              "Çocuğun yaşını seçin, o bedenin boyunu, kilosunu ve göğsünü görün."
+            ],
+            [
+              "Beden tablosu",
+              "Mağazanın yaşa göre kendi tablosu, beden rehberi sayfasında ve bedenlerin yanında."
+            ],
+            [
+              "Üç dilde",
+              "Tablonun başlıkları İngilizce, Arapça ve Türkçe."
+            ],
+            [
+              "Bedenine göre alışveriş",
+              "Bulucunun düğmesi mağazayı açar."
+            ],
+            [
+              "Biten biter",
+              "Stokta kalmayan beden soluk görünür, seçilemez."
+            ]
+          ]
+        },
+        {
+          name: "Kategori menüsü",
+          title: "Kızlar, erkekler ve bebekler, her biri bir sıra",
+          text: "Zilin yanındaki menü mağazanın bütün kategorilerini bir arada, her birini fotoğraflı bir kart sırası olarak açar.",
+          features: [
+            [
+              "Her kategoriye bir sıra",
+              "Her ana kategori yana kayan bir kart sırası."
+            ],
+            [
+              "Önce hepsi",
+              "İlk kart kategorinin kendisi, kaç parçası olduğuyla."
+            ],
+            [
+              "Kızlar, erkekler ve bebekler",
+              "Her birinin alt kategorileri; bir parça iki yere aitse ikisinde de."
+            ],
+            [
+              "Üstte arama",
+              "Tek alan bütün kategorilerde arar."
+            ],
+            [
+              "Altta hesap",
+              "Hesabım, siparişlerim, dil ve mağazaya ulaşma yolu."
+            ],
+            [
+              "Editörde de",
+              "Kategori menüsü Studio kitaplığında, her mağaza için bir öğe."
+            ]
+          ]
+        },
+        {
+          name: "Hediyeler ve takımlar",
+          title: "Paketlenmiş, kartıyla",
+          text: "Yenidoğan hediye kutuları, bir fiyatın altında küçük hediyeler ve tek parça satılan komple kombinler.",
+          features: [
+            [
+              "Hediye paketi ve kart",
+              "Sepette yenidoğan hediyeleriyle önerilir, fiyatını mağaza belirler."
+            ],
+            [
+              "Kartın mesajı",
+              "Ödemede yazılır ya da dokunulacak bir satırla başlar."
+            ],
+            [
+              "Bir fiyatın altında küçük hediyeler",
+              "Mağazanın belli bir fiyat ve altındaki parçaları."
+            ],
+            [
+              "Hazır takımlar",
+              "Tek parça satılan komple kombinler, içindeki her parça adıyla."
+            ],
+            [
+              "Neyden yapıldığı",
+              "Kumaşı, kalıbı ve yıkama şekli her parçanın sayfasında."
+            ],
+            [
+              "Rozetler",
+              "Organik pamuk, hediye paketi, çocuk güvenliği için test edildi."
+            ]
+          ]
+        },
+        {
+          name: "Yallapp Studio'da tasarlandı",
+          title: "İki görünüm, her parçası sizin",
+          text: "Toota, yalnızca Studio'nun öğeleriyle yapılmış iki premium görünümle gelir.",
+          features: [
+            [
+              "TOOTA ve MINIMO",
+              "A görünümü yumuşak pastel, kiremit ve krem; B görünümü neşeli lacivert, bölümleri numaralı."
+            ],
+            [
+              "Açık ve koyu",
+              "İki görünümün de tasarlanmış bir gecesi var."
+            ],
+            [
+              "Kompakt vitrin",
+              "Koleksiyonlar yaklaşık 210 nokta yüksekliğinde kartlarda, bir sonraki görünür."
+            ],
+            [
+              "Yüzen çubuk",
+              "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan adıyla."
+            ],
+            [
+              "Hazır bölümler",
+              "Yaşa göre alışveriş, beden bulucu, hediye setleri ve dahası, her mağaza için."
+            ],
+            [
+              "Üç dil",
+              "İngilizce, sağdan sola Arapça ve Türkçe."
+            ]
+          ]
+        },
+        {
+          name: "Ürünler nereden gelir",
+          title: "Ürünleriniz ya da mağazanızın platformu",
+          text: "Toota, Yallapp'te tutulan ürünlerle ya da zaten sahip olduğunuz online mağazayla çalışır.",
+          features: [
+            [
+              "Yallapp'teki ürünler",
+              "Bu sayfadaki her şey: kategori içinde kategoriler, yaşa göre bedenler, hediyeler ve ekleri."
+            ],
+            [
+              "WordPress ve diğer platformlar",
+              "Kategorileri ve alt kategorileri menüde, bedenleri ve stokları sayfada."
+            ],
+            [
+              "Sırada",
+              "Bağlı platformdan beden tablosu."
+            ]
+          ]
+        }
+      ],
+      bundleTitle: "Tek uygulama, paneliniz ve varsa mağazanız",
+      bundleText: "Müşteri uygulaması tek bir Studio projesinden mağazanın adıyla yapılır ve yayımlanır. Ürünleri Yallapp'ten ya da mağazanın kendi platformundan gelir.",
+      bundleNodes: [
+        [
+          "Toota",
+          "Ebeveynler, Android ve iPhone'da"
+        ],
+        [
+          "Yallapp Studio",
+          "Mağaza: görünümü, kategorileri, bedenleri ve hediyeleri"
+        ],
+        [
+          "Mağazanın sitesi",
+          "Varsa WooCommerce, Shopify ya da bir başkası"
+        ]
+      ],
+      bundleFlows: [
+        "Yeni bir alt kategori menüde kendi sırasında görünür",
+        "Tükenen beden uygulamada soluk görünür",
+        "Beden tablosu ebeveynin dilinde görünür",
+        "Sipariş bedenleri, paketi ve kartıyla gelir"
+      ],
+      compareTitle: "Karşılaştırma",
+      compareText: "Online mağazalar için uygulama yapan şirketler, kendi sitelerinin anlattığı gibi; Yallapp'in ve bir ajansa uygulama yaptırmanın yanında.",
+      finale: {
+        title: "Cumartesi, yağmurda",
+        text: "Youssef sarı yağmurluğuyla her su birikintisine atlıyor. Şehrin öbür ucunda Adam örgü battaniyenin altında uyuyor, kart rafta duruyor. Mona yeni kış takımlarını çoktan sıralarına ekledi."
+      },
+      photos: {
+        "kids-hero": "Güneşli bir çayırda oynayan beyaz elbiseli iki kız",
+        "kids-newborn": "Çizgili örgü şapkasıyla uyuyan bir yenidoğan",
+        "kids-gift": "Kraft kâğıda sarılmış, pembe kurdeleli bir hediye kutusu",
+        "kids-school": "Pencere kenarında masasında resim yapan bir kız",
+        "kids-party": "Pembe bir duvarın önünde pastel balonlar",
+        "kids-walk": "Arkadan görünen kot ceketli küçük bir çocuk"
+      }
+    },
   },
 };

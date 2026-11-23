@@ -2,7 +2,7 @@ import type { Action, LayoutTab, StudioEntry, StudioFont, StudioNode, StudioPage
 import type { SectionContext, SectionInfo, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
-import { inked, sides, sigEntry, sigPhoto, sigTexts, signatureBar, signatureHeader, type SignatureInk } from "./food-signature-parts";
+import { inked, sides, sigEntry, sigImage, sigPhoto, sigTexts, signatureBar, signatureHeader, type SignatureInk } from "./food-signature-parts";
 
 /**
  * 209 Toota (توتة), Studio's kids' clothes type (lib/studio/shop-types.ts):
@@ -312,7 +312,7 @@ function dealCard(ctx: SectionContext, l: Look, look: "banner" | "carousel"): St
 const AGES_A: readonly [SectionWord, SectionWord, SectionWord, string][] = [
   ["kdAge0", "kdMonths", "kdAgeSize0", "child_care"],
   ["kdAge6", "kdMonthsMany", "kdAgeSize6", "bed"],
-  ["kdAge2", "kdYears", "kdAgeSize2", "toys"],
+  ["kdAge2", "kdYears", "kdAgeSize2", "celebration"],
   ["kdAge4", "kdYears", "kdAgeSize4", "wb_sunny"],
   ["kdAge8", "kdYearsMany", "kdAgeSize8", "school"],
 ];
@@ -440,7 +440,7 @@ function whoCards(ctx: SectionContext): StudioNode[] {
     gap: 4,
     action: shop,
     children: [
-      { id: id(), type: "image", image_url: sigPhoto(ctx, P(photo)), width: 150, height: 184, radius: 18, fit: "cover", background: l.tint.day, dark_background: l.tint.night },
+      sigImage(ctx, l.k, P(photo), { width: 150, height: 184, radius: 18, background: l.tint.day, dark_background: l.tint.night }),
       { id: id(), type: "row", gap: 4, cross: "center", margin: sides(4, 0, 0, 0), children: [say(ctx, l, title, face(l, 15, { weight: 600 }), { max_lines: 1 }), { id: id(), type: "icon", icon: "arrow_forward", icon_size: 16, color: B.accent, dark_color: B.darkAccent }] },
       say(ctx, l, line, { family: READEX, size: 11.5 }, { muted: true, max_lines: 1 }),
     ],
@@ -485,7 +485,7 @@ function giftSets(ctx: SectionContext): StudioNode[] {
         type: "stack",
         height: 150,
         children: [
-          { id: id(), type: "image", image_url: sigPhoto(ctx, P(photo)), width: "fill", height: 150, radius: 20, fit: "cover", background: l.tint.day, dark_background: l.tint.night },
+          sigImage(ctx, l.k, P(photo), { width: "fill", height: 150, radius: 20, background: l.tint.day, dark_background: l.tint.night }),
           ...(tag ? [{ ...say(ctx, l, tag, { family: BALOO, size: 11, weight: 600 }, { color: "#2D2420", dark_color: "#2D2420", background: "#FFFDF9", dark_background: "#FFFDF9", radius: 10, padding: sides(2, 9, 2, 9), max_lines: 1 }), place: { x: 6, y: 6 } }] : []),
         ],
       },
@@ -518,8 +518,8 @@ function giftSets(ctx: SectionContext): StudioNode[] {
   ];
 }
 
-/** B's newborn box: its photo beside what is in it, and a button named as the shop's newborn gifts (so it opens them). */
-function giftBox(ctx: SectionContext): StudioNode[] {
+/** B's newborn box: its photo beside what is in it, and a button named as the shop's newborn gifts (so it opens them); on the home, the little gifts under a price under it, in the same section. */
+function giftBox(ctx: SectionContext, under = false): StudioNode[] {
   const id = idOf(ctx);
   const l = LOOK_B;
   const check = (word: SectionWord): StudioNode => ({
@@ -529,9 +529,7 @@ function giftBox(ctx: SectionContext): StudioNode[] {
     cross: "center",
     children: [{ id: id(), type: "icon", icon: "check", icon_size: 16, color: B.accent, dark_color: B.darkAccent }, say(ctx, l, word, { family: READEX, size: 12.5 }, { width: "fill", max_lines: 1 })],
   });
-  return [
-    headOf(ctx, l, "kdGiftsB", { word: "kdNewbornGifts", action: shop }, undefined, "kdGiftsKicker"),
-    {
+  const card: StudioNode = {
       id: id(),
       type: "row",
       name: ctx.w("kdGiftBox1"),
@@ -544,7 +542,7 @@ function giftBox(ctx: SectionContext): StudioNode[] {
       dark_border_color: B.darkLine,
       border_width: 1,
       children: [
-        { id: id(), type: "image", image_url: sigPhoto(ctx, P("gift-pink")), width: 140, height: 212, fit: "cover", background: l.tint.day, dark_background: l.tint.night, corners: { top_start: 22, bottom_start: 22, top_end: 0, bottom_end: 0 } },
+        sigImage(ctx, l.k, P("gift-pink"), { width: 140, height: 212, background: l.tint.day, dark_background: l.tint.night, corners: { top_start: 22, bottom_start: 22, top_end: 0, bottom_end: 0 } }),
         {
           id: id(),
           type: "column",
@@ -581,7 +579,10 @@ function giftBox(ctx: SectionContext): StudioNode[] {
           ],
         },
       ],
-    },
+    };
+  return [
+    headOf(ctx, l, "kdGiftsB", { word: "kdNewbornGifts", action: shop }, undefined, "kdGiftsKicker"),
+    under ? { id: id(), type: "column", name: ctx.w("kdGiftsB"), gap: 0, children: [card, ...giftsUnder(ctx, l)] } : card,
   ];
 }
 
@@ -800,7 +801,7 @@ function lookOfWeek(ctx: SectionContext): StudioNode[] {
 
 const PROMISES: readonly [string, SectionWord, SectionWord][] = [
   ["spa", "kdPromise1", "kdPromise1Line"],
-  ["verified_user", "kdPromise2", "kdPromise2Line"],
+  ["verified", "kdPromise2", "kdPromise2Line"],
   ["sync", "kdPromise3", "kdPromise3Line"],
 ];
 
@@ -861,7 +862,7 @@ function values(ctx: SectionContext): StudioNode {
     dark_border_color: B.darkLine,
     border_width: 1,
     radius: 18,
-    children: [one("spa", "kdPromise1"), one("verified_user", "kdValueSafe"), one("sync", "kdPromise3"), one("payments", "kdValueCash")],
+    children: [one("spa", "kdPromise1"), one("verified", "kdValueSafe"), one("sync", "kdPromise3"), one("payments", "kdValueCash")],
   };
 }
 
@@ -943,8 +944,7 @@ export function minimoHome(ctx: SectionContext): StudioPage {
         newIn(ctx, l),
         ...lookOfWeek(ctx),
         ...whoCards(ctx),
-        ...giftBox(ctx),
-        ...giftsUnder(ctx, l),
+        ...giftBox(ctx, true),
         ...occasionCards(ctx),
         dealCard(ctx, l, "banner"),
         sizeFinder(ctx, l),
@@ -1306,7 +1306,7 @@ export const TOOTA_A: SignatureDesign = {
 export const MINIMO_B: SignatureDesign = {
   demo: "kids",
   variant: "b",
-  template: { id: "kids_signature_b", icon: "toys", fits: { types: ["store"], plain: true } },
+  template: { id: "kids_signature_b", icon: "apparel", fits: { types: ["store"], plain: true } },
   home: minimoHome,
   over: kidsOver(LOOK_B),
   tabs: kidsTabs(LOOK_B),
@@ -1352,7 +1352,7 @@ export const KIDS_SECTIONS: readonly SectionInfo[] = [
   { id: "kd_who", icon: "view_carousel", isNew: true, fits: STORE_PLAIN, make: one(whoCards) },
   // The newborn gifts: A's boxes, B's box, little gifts under a price.
   { id: "kd_gift_sets", icon: "redeem", isNew: true, fits: STORE_PLAIN, make: one(giftSets) },
-  { id: "kd_gift_box", icon: "redeem", isNew: true, fits: STORE_PLAIN, make: one(giftBox) },
+  { id: "kd_gift_box", icon: "redeem", isNew: true, fits: STORE_PLAIN, make: one((ctx) => giftBox(ctx)) },
   { id: "kd_gifts_under", icon: "sell", isNew: true, fits: STORE_PLAIN, make: one((ctx) => giftsUnder(ctx, LOOK_B)) },
   // School, occasions and the ready-made sets: A's bento, B's numbered cards.
   { id: "kd_occasions", icon: "dashboard", isNew: true, fits: STORE_PLAIN, make: one(occasions) },
@@ -1362,6 +1362,6 @@ export const KIDS_SECTIONS: readonly SectionInfo[] = [
   // The best loved two by two, the look of the week, the promises and the values.
   { id: "kd_loved", icon: "favorite", isNew: true, fits: STORE_PLAIN, make: one(loved) },
   { id: "kd_look", icon: "checkroom", isNew: true, fits: STORE_PLAIN, make: one(lookOfWeek) },
-  { id: "kd_promises", icon: "verified_user", isNew: true, fits: STORE_PLAIN, make: one(promises) },
+  { id: "kd_promises", icon: "verified", isNew: true, fits: STORE_PLAIN, make: one(promises) },
   { id: "kd_values", icon: "spa", isNew: true, fits: STORE_PLAIN, make: one(values) },
 ];
