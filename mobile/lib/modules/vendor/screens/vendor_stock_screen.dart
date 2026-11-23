@@ -144,7 +144,12 @@ class _VendorStockScreenState extends ConsumerState<VendorStockScreen> {
                         title: l10n.vendorStockEmpty,
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(8, 4, 8, 24),
+                        padding: EdgeInsets.fromLTRB(
+                          8,
+                          4,
+                          8,
+                          endRoom(context, 24),
+                        ),
                         itemCount: page.items.length,
                         itemBuilder: (context, i) {
                           final item = page.items[i];

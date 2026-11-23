@@ -289,7 +289,7 @@ class _Courses extends ConsumerWidget {
         onRefresh: () async => ref.invalidate(teacherCoursesProvider),
         child: ListView(
           key: const ValueKey('teacher-courses'),
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+          padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
           children: [
             SecondaryButton(
               key: const ValueKey('teacher-new-course'),

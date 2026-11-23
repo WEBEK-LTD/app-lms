@@ -93,7 +93,12 @@ class ClassroomScreen extends ConsumerWidget {
                     ..invalidate(checkinTodayProvider),
                   child: ListView(
                     key: const ValueKey('classroom'),
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      4,
+                      20,
+                      endRoom(context, 24),
+                    ),
                     children: [
                       // 113.2 The teacher checks in and out like everyone.
                       const CheckinCard(),
