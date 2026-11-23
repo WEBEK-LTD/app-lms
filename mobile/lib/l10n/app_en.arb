@@ -13722,5 +13722,158 @@
         "type": "String"
       }
     }
+  },
+  "productDetailsTitle": "Details",
+  "@productDetailsTitle": {
+    "description": "209 Title of a product's facts (brand, material, volume) on its page."
+  },
+  "productInfoIngredients": "Ingredients",
+  "@productInfoIngredients": {
+    "description": "209 On a product's page: the title of its ingredients."
+  },
+  "productInfoHowToUse": "How to use",
+  "@productInfoHowToUse": {
+    "description": "209 On a product's page: the title of how to use it."
+  },
+  "productInfoSafety": "Safety",
+  "@productInfoSafety": {
+    "description": "209 On a product's page: the title of its safety notes (a toy's)."
+  },
+  "productInfoMaterials": "Materials",
+  "@productInfoMaterials": {
+    "description": "209 On a product's page: the title of what it is made of."
+  },
+  "productInfoCare": "Care",
+  "@productInfoCare": {
+    "description": "209 On a product's page: the title of how to wash and care for it."
+  },
+  "productInfoInTheBox": "In the box",
+  "@productInfoInTheBox": {
+    "description": "209 On a product's page: the title of what comes in its box."
+  },
+  "productBadgeGenuine": "Genuine product",
+  "@productBadgeGenuine": {
+    "description": "209 A product's badge: it is genuine."
+  },
+  "productBadgeSafetyTested": "Safety tested",
+  "@productBadgeSafetyTested": {
+    "description": "209 A product's badge: tested to the child-safety standards."
+  },
+  "productBadgeOrganic": "Organic",
+  "@productBadgeOrganic": {
+    "description": "209 A product's badge: made of organic materials."
+  },
+  "productBadgeHandmade": "Handmade",
+  "@productBadgeHandmade": {
+    "description": "209 A product's badge: made by hand."
+  },
+  "productBadgeCrueltyFree": "Not tested on animals",
+  "@productBadgeCrueltyFree": {
+    "description": "209 A product's badge: not tested on animals (cosmetics)."
+  },
+  "productBadgeGiftWrap": "Gift wrapping available",
+  "@productBadgeGiftWrap": {
+    "description": "209 A product's badge: it can be gift wrapped."
+  },
+  "productExpiry": "Best before {date}",
+  "@productExpiry": {
+    "description": "209 A product's expiry (month and year) on its page.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "productAgeMonths": "Ages {from}–{to} months",
+  "@productAgeMonths": {
+    "description": "209 The ages a product is for, in months.",
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "productAgeYears": "{to, plural, =1{Ages {from}–{to} year} other{Ages {from}–{to} years}}",
+  "@productAgeYears": {
+    "description": "209 The ages a product is for, in years.",
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "productAgeMixed": "{to, plural, =1{Ages {from} months to {to} year} other{Ages {from} months to {to} years}}",
+  "@productAgeMixed": {
+    "description": "209 The ages a product is for, from months to years.",
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "productAgePlusMonths": "{from, plural, =1{Ages 1 month and up} other{Ages {from} months and up}}",
+  "@productAgePlusMonths": {
+    "description": "209 The ages a product is for, from an age in months up.",
+    "placeholders": {
+      "from": {
+        "type": "int"
+      }
+    }
+  },
+  "productAgePlusYears": "{from, plural, =1{Ages 1 year and up} other{Ages {from} years and up}}",
+  "@productAgePlusYears": {
+    "description": "209 The ages a product is for, from an age in years up.",
+    "placeholders": {
+      "from": {
+        "type": "int"
+      }
+    }
+  },
+  "quizStep": "Question {n} of {total}",
+  "@quizStep": {
+    "description": "209 A quiz: which question this is.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "quizAgain": "Start again",
+  "@quizAgain": {
+    "description": "209 A quiz's button: answer it again."
+  },
+  "quizResultTitle": "Your result",
+  "@quizResultTitle": {
+    "description": "209 A quiz: over the result."
+  },
+  "sizeFinderFits": "The size that fits: {size}",
+  "@sizeFinderFits": {
+    "description": "209 The size finder: the size of the shop's chart for the age chosen.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "swatchChosen": "{name}, chosen",
+  "@swatchChosen": {
+    "description": "209 A swatch chosen, as screen readers say it.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

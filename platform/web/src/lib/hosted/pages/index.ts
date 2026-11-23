@@ -1,3 +1,4 @@
+import { fashionOf } from "../../selling/fashion";
 import { allNodes, mapTreeAsync } from "../../studio/tree";
 import { showsShopCategories, withShopCategoriesIn, type ShopCategories } from "../../studio/shop-categories";
 import { autoSized } from "../../studio/auto-size";
@@ -132,6 +133,10 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
       const entries = shown[list] as { translations?: Translations }[] | undefined;
       if (entries) (shown as Record<string, unknown>)[list] = entries.map((entry) => (({ translations: _e, ...rest }) => (void _e, rest))(translated(entry, pc.lang, def) as { translations?: Translations }));
     }
+    // 209 A quiz's questions in the language asked for too.
+    if (node.type === "quiz" && shown.quiz?.questions) (shown as Record<string, unknown>).quiz = { questions: shown.quiz.questions.map((q) => (({ translations: _q, ...rest }) => (void _q, rest))(translated(q, pc.lang, def))) };
+    // 209 A size finder is left out while the shop has no size chart to read.
+    if (node.type === "size_finder" && !(pc.ctx.app.appType === "store" && fashionOf(pc.ctx.app)?.sizeChart)) return null;
     // 165 Dashboard › Stories in the language asked for; left out while none is shown.
     const storyKind = storyElements.get(node.id);
     if (storyKind) return withServedStories(shown as StudioNode, storyKind, await dashboardStories());
@@ -656,6 +661,8 @@ async function listProducts(pc: PageContext, query: ItemsQuery): Promise<Item[]>
         featured: query.featured ? "true" : null,
         // 112.4 Products on sale only.
         on_sale: query.on_sale ? "true" : null,
+        // 209 At this price or under (as WooCommerce's).
+        max_price: query.max_price ? String(query.max_price) : null,
         orderby: query.sort,
       };
   if (query.ids.length && !ids.length) return [];

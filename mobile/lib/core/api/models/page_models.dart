@@ -2173,6 +2173,11 @@ enum StudioNodeType {
   flashSale,
   // 208 The shop's size chart (`StoreConfig.size_chart`), as a table.
   sizeChart,
+  // 209 The size finder (the size of the shop's chart for the age chosen),
+  // shade swatches and a quiz (studio_shop_helpers.dart).
+  sizeFinder,
+  swatches,
+  quiz,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2808,6 +2813,9 @@ class StudioNode {
     this.place,
     this.categoriesStyle = CategoriesStyle.chips,
     this.categoryMenu = const StudioCategoryMenu(),
+    this.swatchSquare = false,
+    this.swatchSize = 36,
+    this.quizQuestions = const [],
     this.code,
     this.recent = false,
     this.heads,
@@ -2968,6 +2976,17 @@ class StudioNode {
           CategoriesStyle.chips,
         ),
         categoryMenu: StudioCategoryMenu.tryParse(json['category_menu']),
+        swatchSquare:
+            json['swatches'] is Map &&
+            (json['swatches'] as Map)['shape'] == 'square',
+        swatchSize: json['swatches'] is Map
+            ? (optDouble(asJson(json['swatches']), 'size') ?? 36)
+                  .clamp(24, 64)
+                  .toDouble()
+            : 36,
+        quizQuestions: json['quiz'] is Map
+            ? StudioEntry.listFrom((json['quiz'] as Map)['questions'])
+            : const [],
         code: optString(json, 'code'),
         recent: boolOr(json, 'recent', false),
         heads: optString(json, 'heads'),
@@ -3298,6 +3317,14 @@ class StudioNode {
 
   /// 208 For categories drawn as rows: the category menu's look.
   final StudioCategoryMenu categoryMenu;
+
+  /// 209 For swatches: rounded squares rather than circles, and their size.
+  final bool swatchSquare;
+  final double swatchSize;
+
+  /// 209 For a quiz: its questions (each `title` the question, its `text`
+  /// the answers one per line; answer n counts for result n, the entries).
+  final List<StudioEntry> quizQuestions;
 
   /// 112.4 For a coupon: the code people copy.
   final String? code;

@@ -12849,4 +12849,119 @@ class AppLocalizationsAr extends AppLocalizations {
   String categoryMenuRow(String name, String count) {
     return '$name، $count';
   }
+
+  @override
+  String get productDetailsTitle => 'التفاصيل';
+
+  @override
+  String get productInfoIngredients => 'المكوّنات';
+
+  @override
+  String get productInfoHowToUse => 'طريقة الاستخدام';
+
+  @override
+  String get productInfoSafety => 'السلامة';
+
+  @override
+  String get productInfoMaterials => 'الخامات';
+
+  @override
+  String get productInfoCare => 'العناية';
+
+  @override
+  String get productInfoInTheBox => 'محتويات العلبة';
+
+  @override
+  String get productBadgeGenuine => 'منتج أصلي';
+
+  @override
+  String get productBadgeSafetyTested => 'مُختبَر للسلامة';
+
+  @override
+  String get productBadgeOrganic => 'عضوي';
+
+  @override
+  String get productBadgeHandmade => 'صناعة يدوية';
+
+  @override
+  String get productBadgeCrueltyFree => 'غير مُختبَر على الحيوانات';
+
+  @override
+  String get productBadgeGiftWrap => 'التغليف للهدايا متاح';
+
+  @override
+  String productExpiry(String date) {
+    return 'صالح حتى $date';
+  }
+
+  @override
+  String productAgeMonths(int from, int to) {
+    return 'للأعمار من $from إلى $to شهرًا';
+  }
+
+  @override
+  String productAgeYears(int from, int to) {
+    String _temp0 = intl.Intl.pluralLogic(
+      to,
+      locale: localeName,
+      other: 'للأعمار من $from إلى $to سنة',
+      few: 'للأعمار من $from إلى $to سنوات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productAgeMixed(int from, int to) {
+    String _temp0 = intl.Intl.pluralLogic(
+      to,
+      locale: localeName,
+      other: 'للأعمار من $from شهرًا إلى $to سنة',
+      few: 'للأعمار من $from شهرًا إلى $to سنوات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productAgePlusMonths(int from) {
+    String _temp0 = intl.Intl.pluralLogic(
+      from,
+      locale: localeName,
+      other: 'من عمر $from شهرًا فأكثر',
+      one: 'من عمر شهر فأكثر',
+      zero: 'من الولادة فأكثر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productAgePlusYears(int from) {
+    String _temp0 = intl.Intl.pluralLogic(
+      from,
+      locale: localeName,
+      other: 'من عمر $from سنة فأكثر',
+      few: 'من عمر $from سنوات فأكثر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quizStep(int n, int total) {
+    return 'السؤال $n من $total';
+  }
+
+  @override
+  String get quizAgain => 'ابدأ من جديد';
+
+  @override
+  String get quizResultTitle => 'نتيجتك';
+
+  @override
+  String sizeFinderFits(String size) {
+    return 'المقاس المناسب: $size';
+  }
+
+  @override
+  String swatchChosen(String name) {
+    return '$name، مختارة';
+  }
 }

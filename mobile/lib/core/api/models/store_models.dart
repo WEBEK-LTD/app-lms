@@ -510,15 +510,80 @@ class ProductImage {
 }
 
 class AttributeOption {
-  const AttributeOption({required this.value, required this.label});
+  const AttributeOption({
+    required this.value,
+    required this.label,
+    this.swatch,
+  });
 
   factory AttributeOption.fromJson(Json json) => AttributeOption(
     value: reqString(json, 'value'),
     label: reqString(json, 'label'),
+    swatch: _hexColor(optString(json, 'swatch')),
   );
 
   final String value;
   final String label;
+
+  /// 209 Its swatch colour (`#RRGGBB`, a lipstick's shade); null: none.
+  final String? swatch;
+}
+
+String? _hexColor(String? v) =>
+    v != null && RegExp(r'^#[0-9A-Fa-f]{6}$').hasMatch(v) ? v : null;
+
+/// 209 A part of a product's page in its own words (`ProductDetail.info`).
+enum ProductInfoKind {
+  ingredients,
+  howToUse,
+  safety,
+  materials,
+  care,
+  inTheBox,
+}
+
+/// 209 A promise a product's page shows as a badge.
+enum ProductBadge {
+  genuine,
+  safetyTested,
+  organic,
+  handmade,
+  crueltyFree,
+  giftWrap,
+}
+
+class ProductInfo {
+  const ProductInfo({required this.kind, required this.text});
+
+  static ProductInfo? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final kind = enumOrNull(ProductInfoKind.values, json['kind']);
+    final text = optString(json, 'text')?.trim() ?? '';
+    return kind == null || text.isEmpty
+        ? null
+        : ProductInfo(kind: kind, text: text);
+  }
+
+  final ProductInfoKind kind;
+  final String text;
+}
+
+/// 209 The ages a product is for, in months (`max` null: and up).
+class ProductAges {
+  const ProductAges({required this.min, this.max});
+
+  static ProductAges? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final min = optInt(json, 'min');
+    final max = optInt(json, 'max');
+    if (min == null || min < 0 || (max != null && max < min)) return null;
+    return ProductAges(min: min, max: max);
+  }
+
+  final int min;
+  final int? max;
 }
 
 class ProductAttribute {
@@ -612,6 +677,10 @@ class ProductDetail {
     this.defaultAttributes = const {},
     this.addons = const [],
     this.completeLook = const [],
+    this.info = const [],
+    this.badges = const [],
+    this.expiry,
+    this.ages,
   });
 
   factory ProductDetail.fromJson(Json json) => ProductDetail(
@@ -636,7 +705,40 @@ class ProductDetail {
     },
     addons: listOf(json, 'addons', ProductSummary.fromJson),
     completeLook: listOf(json, 'complete_look', ProductSummary.fromJson),
+    info: [
+      for (final i in json['info'] is List ? json['info'] as List : const [])
+        ?ProductInfo.tryParse(i),
+    ],
+    badges: [
+      for (final b
+          in json['badges'] is List ? json['badges'] as List : const [])
+        ?enumOrNull(ProductBadge.values, b),
+    ],
+    expiry: switch (optString(json, 'expiry')) {
+      final String e when RegExp(r'^\d{4}-\d{2}$').hasMatch(e) => e,
+      _ => null,
+    },
+    ages: ProductAges.tryParse(json['age_months']),
   );
+
+  /// 209 Its parts in its own words (ingredients, how to use it, safety,
+  /// materials, care, what is in the box), in the shop's order.
+  final List<ProductInfo> info;
+
+  /// 209 The promises shown as badges (genuine, safety tested, organic…).
+  final List<ProductBadge> badges;
+
+  /// 209 Its batch's expiry, `YYYY-MM`; null: none shown.
+  final String? expiry;
+
+  /// 209 The ages it is for; null: none shown.
+  final ProductAges? ages;
+
+  /// 209 Its facts (brand, material, volume): the attributes not chosen.
+  List<ProductAttribute> get facts => [
+    for (final a in attributes)
+      if (!a.variation && a.options.isNotEmpty) a,
+  ];
 
   /// 208 "Complete the look": a product of each of the shop's other main
   /// categories; empty when the shop has it off.

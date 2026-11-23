@@ -54,24 +54,29 @@ class Store_Controller extends Controller {
 				'args'                => array_merge(
 					self::page_args(),
 					array(
-						'search'   => array( 'type' => 'string' ),
-						'category' => array(
+						'search'    => array( 'type' => 'string' ),
+						'category'  => array(
 							'type'    => 'integer',
 							'minimum' => 1,
 						),
-						'on_sale'  => array(
+						'on_sale'   => array(
 							'type'    => 'boolean',
 							'default' => false,
 						),
-						'featured' => array(
+						// 209 At this price or under ("Gifts under 100").
+						'max_price' => array(
+							'type'    => 'number',
+							'minimum' => 0,
+						),
+						'featured'  => array(
 							'type'    => 'boolean',
 							'default' => false,
 						),
-						'ids'      => array(
+						'ids'       => array(
 							'type'    => 'string',
 							'pattern' => '^[0-9]+(,[0-9]+)*$',
 						),
-						'orderby'  => array(
+						'orderby'   => array(
 							'type'    => 'string',
 							'enum'    => Catalog::ORDERS,
 							'default' => 'newest',
@@ -426,14 +431,15 @@ class Store_Controller extends Controller {
 		$ids    = (string) $request['ids'];
 		$result = ( new Catalog() )->products(
 			array(
-				'page'     => (int) $request['page'],
-				'per_page' => (int) $request['per_page'],
-				'search'   => (string) $request['search'],
-				'category' => (int) $request['category'],
-				'on_sale'  => (bool) $request['on_sale'],
-				'featured' => (bool) $request['featured'],
-				'ids'      => '' !== $ids ? explode( ',', $ids ) : array(),
-				'orderby'  => (string) $request['orderby'],
+				'page'      => (int) $request['page'],
+				'per_page'  => (int) $request['per_page'],
+				'search'    => (string) $request['search'],
+				'category'  => (int) $request['category'],
+				'on_sale'   => (bool) $request['on_sale'],
+				'max_price' => null === $request['max_price'] ? null : (float) $request['max_price'],
+				'featured'  => (bool) $request['featured'],
+				'ids'       => '' !== $ids ? explode( ',', $ids ) : array(),
+				'orderby'   => (string) $request['orderby'],
 			)
 		);
 		return $this->ok( array_merge( self::page_meta( $request, $result['total'] ), array( 'items' => $result['items'] ) ) );

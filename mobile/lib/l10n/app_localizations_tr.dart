@@ -12358,4 +12358,94 @@ class AppLocalizationsTr extends AppLocalizations {
   String categoryMenuRow(String name, String count) {
     return '$name, $count';
   }
+
+  @override
+  String get productDetailsTitle => 'Detaylar';
+
+  @override
+  String get productInfoIngredients => 'İçindekiler';
+
+  @override
+  String get productInfoHowToUse => 'Nasıl kullanılır';
+
+  @override
+  String get productInfoSafety => 'Güvenlik';
+
+  @override
+  String get productInfoMaterials => 'Malzemeler';
+
+  @override
+  String get productInfoCare => 'Bakım';
+
+  @override
+  String get productInfoInTheBox => 'Kutu içeriği';
+
+  @override
+  String get productBadgeGenuine => 'Orijinal ürün';
+
+  @override
+  String get productBadgeSafetyTested => 'Güvenlik testli';
+
+  @override
+  String get productBadgeOrganic => 'Organik';
+
+  @override
+  String get productBadgeHandmade => 'El yapımı';
+
+  @override
+  String get productBadgeCrueltyFree => 'Hayvanlar üzerinde test edilmedi';
+
+  @override
+  String get productBadgeGiftWrap => 'Hediye paketi mevcut';
+
+  @override
+  String productExpiry(String date) {
+    return 'Son kullanma: $date';
+  }
+
+  @override
+  String productAgeMonths(int from, int to) {
+    return '$from–$to ay';
+  }
+
+  @override
+  String productAgeYears(int from, int to) {
+    return '$from–$to yaş';
+  }
+
+  @override
+  String productAgeMixed(int from, int to) {
+    return '$from ay–$to yaş';
+  }
+
+  @override
+  String productAgePlusMonths(int from) {
+    return '$from ay ve üzeri';
+  }
+
+  @override
+  String productAgePlusYears(int from) {
+    return '$from yaş ve üzeri';
+  }
+
+  @override
+  String quizStep(int n, int total) {
+    return 'Soru $n/$total';
+  }
+
+  @override
+  String get quizAgain => 'Yeniden başla';
+
+  @override
+  String get quizResultTitle => 'Sonucunuz';
+
+  @override
+  String sizeFinderFits(String size) {
+    return 'Uyan beden: $size';
+  }
+
+  @override
+  String swatchChosen(String name) {
+    return '$name, seçili';
+  }
 }

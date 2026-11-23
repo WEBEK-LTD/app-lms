@@ -264,6 +264,18 @@ abstract final class AppIcons {
   static const deliveryTime = Symbols.local_shipping_rounded;
   static const occasion = Symbols.local_florist_rounded;
   static const discussion = Symbols.forum_rounded;
+
+  /// 209 A product page's badges, its parts and its ages.
+  static const genuine = Symbols.verified_rounded;
+  static const safetyTested = Symbols.health_and_safety_rounded;
+  static const organic = Symbols.eco_rounded;
+  static const handmade = Symbols.back_hand_rounded;
+  static const crueltyFree = Symbols.pets_rounded;
+  static const ingredients = Symbols.science_rounded;
+  static const howToUse = Symbols.format_list_numbered_rounded;
+  static const materials = Symbols.texture_rounded;
+  static const care = Symbols.local_laundry_service_rounded;
+  static const ages = Symbols.child_care_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

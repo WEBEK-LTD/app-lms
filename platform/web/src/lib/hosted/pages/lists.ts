@@ -21,6 +21,7 @@ import { DEMO_FACTS } from "../../studio/demo-templates";
  */
 export function productFallbacks(query: ItemsQuery): ItemsQuery[] {
   if (query.on_sale) return [];
+  // 209 Still at the list's highest price ("Gifts under 100" never shows dearer ones).
   const all = { ...query, featured: false, category_id: null, ids: [] as string[] };
   const narrowed = query.featured || query.category_id !== null || query.ids.length > 0;
   const tries: ItemsQuery[] = [];

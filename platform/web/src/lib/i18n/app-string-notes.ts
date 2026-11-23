@@ -10,6 +10,127 @@ import type { Lang } from "@/i18n/config";
  * its code names left out (tests/unit/phase62.test.ts lists those missing).
  */
 export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: string }> = {
+  // 209 The shop types' words (kids, cosmetics, toys).
+  "209 Title of a product's facts (brand, material, volume) on its page.": {
+    en: "On a product's page: the title of its facts (brand, material, volume).",
+    ar: "في صفحة المنتج: عنوان بياناته (الماركة، الخامة، الحجم).",
+    tr: "Ürün sayfasında: bilgilerinin başlığı (marka, malzeme, hacim).",
+  },
+  "209 On a product's page: the title of its ingredients.": {
+    en: "On a product's page: the title of its ingredients.",
+    ar: "في صفحة المنتج: عنوان المكوّنات.",
+    tr: "Ürün sayfasında: içindekilerin başlığı.",
+  },
+  "209 On a product's page: the title of how to use it.": {
+    en: "On a product's page: the title of how to use it.",
+    ar: "في صفحة المنتج: عنوان طريقة الاستخدام.",
+    tr: "Ürün sayfasında: nasıl kullanılacağının başlığı.",
+  },
+  "209 On a product's page: the title of its safety notes (a toy's).": {
+    en: "On a product's page: the title of its safety notes (a toy's).",
+    ar: "في صفحة المنتج: عنوان ملاحظات الأمان (بتاعة اللعبة).",
+    tr: "Ürün sayfasında: güvenlik notlarının başlığı (bir oyuncağın).",
+  },
+  "209 On a product's page: the title of what it is made of.": {
+    en: "On a product's page: the title of what it's made of.",
+    ar: "في صفحة المنتج: عنوان الخامات اللي معمول منها.",
+    tr: "Ürün sayfasında: neyden yapıldığının başlığı.",
+  },
+  "209 On a product's page: the title of how to wash and care for it.": {
+    en: "On a product's page: the title of how to wash and care for it.",
+    ar: "في صفحة المنتج: عنوان طريقة الغسيل والعناية.",
+    tr: "Ürün sayfasında: yıkama ve bakımının başlığı.",
+  },
+  "209 On a product's page: the title of what comes in its box.": {
+    en: "On a product's page: the title of what comes in the box.",
+    ar: "في صفحة المنتج: عنوان اللي جوه العلبة.",
+    tr: "Ürün sayfasında: kutudan çıkanların başlığı.",
+  },
+  "209 A product's badge: it is genuine.": {
+    en: "A product's badge: it's genuine.",
+    ar: "شارة المنتج: أصلي.",
+    tr: "Ürün rozeti: orijinal.",
+  },
+  "209 A product's badge: tested to the child-safety standards.": {
+    en: "A product's badge: tested to the child-safety standards.",
+    ar: "شارة المنتج: متختبر على معايير أمان الأطفال.",
+    tr: "Ürün rozeti: çocuk güvenliği standartlarına göre test edildi.",
+  },
+  "209 A product's badge: made of organic materials.": {
+    en: "A product's badge: made of organic materials.",
+    ar: "شارة المنتج: معمول من خامات عضوية.",
+    tr: "Ürün rozeti: organik malzemeden.",
+  },
+  "209 A product's badge: made by hand.": {
+    en: "A product's badge: handmade.",
+    ar: "شارة المنتج: شغل إيد.",
+    tr: "Ürün rozeti: el yapımı.",
+  },
+  "209 A product's badge: not tested on animals (cosmetics).": {
+    en: "A product's badge: not tested on animals (cosmetics).",
+    ar: "شارة المنتج: ما اتجرّبش على الحيوانات (مستحضرات التجميل).",
+    tr: "Ürün rozeti: hayvanlarda test edilmedi (kozmetik).",
+  },
+  "209 A product's badge: it can be gift wrapped.": {
+    en: "A product's badge: it can be gift wrapped.",
+    ar: "شارة المنتج: ينفع يتغلّف هدية.",
+    tr: "Ürün rozeti: hediye paketi yapılabilir.",
+  },
+  "209 A product's expiry (month and year) on its page.": {
+    en: "A product's expiry (month and year) on its page.",
+    ar: "تاريخ صلاحية المنتج (الشهر والسنة) في صفحته.",
+    tr: "Ürün sayfasında son kullanma tarihi (ay ve yıl).",
+  },
+  "209 The ages a product is for, in months.": {
+    en: "The ages a product is for, in months.",
+    ar: "الأعمار اللي المنتج مناسب لها، بالشهور.",
+    tr: "Ürünün uygun olduğu yaşlar, ay olarak.",
+  },
+  "209 The ages a product is for, in years.": {
+    en: "The ages a product is for, in years.",
+    ar: "الأعمار اللي المنتج مناسب لها، بالسنين.",
+    tr: "Ürünün uygun olduğu yaşlar, yıl olarak.",
+  },
+  "209 The ages a product is for, from months to years.": {
+    en: "The ages a product is for, from months to years.",
+    ar: "الأعمار اللي المنتج مناسب لها، من شهور لسنين.",
+    tr: "Ürünün uygun olduğu yaşlar, aydan yıla.",
+  },
+  "209 The ages a product is for, from an age in months up.": {
+    en: "The ages a product is for, from an age in months and up.",
+    ar: "الأعمار اللي المنتج مناسب لها، من سن بالشهور وأكبر.",
+    tr: "Ürünün uygun olduğu yaşlar, aylık bir yaştan itibaren.",
+  },
+  "209 The ages a product is for, from an age in years up.": {
+    en: "The ages a product is for, from an age in years and up.",
+    ar: "الأعمار اللي المنتج مناسب لها، من سن بالسنين وأكبر.",
+    tr: "Ürünün uygun olduğu yaşlar, bir yaştan itibaren.",
+  },
+  "209 A quiz: which question this is.": {
+    en: "A quiz: which question this is.",
+    ar: "الاختبار: رقم السؤال.",
+    tr: "Test: kaçıncı soru olduğu.",
+  },
+  "209 A quiz's button: answer it again.": {
+    en: "A quiz's button: answer it again.",
+    ar: "زرار الاختبار: جاوب من الأول.",
+    tr: "Testin düğmesi: yeniden cevapla.",
+  },
+  "209 A quiz: over the result.": {
+    en: "A quiz: over the result.",
+    ar: "الاختبار: فوق النتيجة.",
+    tr: "Test: sonucun üstünde.",
+  },
+  "209 The size finder: the size of the shop's chart for the age chosen.": {
+    en: "The size finder: the size from your chart for the age chosen.",
+    ar: "دليل المقاس: المقاس من جدولك للسن اللي اتختار.",
+    tr: "Beden bulucu: seçilen yaş için tablonuzdaki beden.",
+  },
+  "209 A swatch chosen, as screen readers say it.": {
+    en: "A swatch chosen, as screen readers say it.",
+    ar: "لون متختار، زي ما قارئ الشاشة بيقوله.",
+    tr: "Seçili bir renk, ekran okuyucunun söylediği gibi.",
+  },
   // 208 The clothes type's words.
   "208 Link beside a product's sizes: opens the shop's size chart.": {
     en: "The link beside a product's sizes: opens your size chart.",

@@ -3877,6 +3877,10 @@ paths:
         - name: on_sale
           in: query
           schema: { type: boolean, default: false }
+        - name: max_price
+          in: query
+          description: "209 Products at this price or under (their price now), in the shop's currency, as WooCommerce's (\"Gifts under 100\")."
+          schema: { type: number, minimum: 0 }
         - name: featured
           in: query
           schema: { type: boolean, default: false }
@@ -15848,6 +15852,7 @@ components:
                       properties:
                         value: { type: string, example: large }
                         label: { type: string, example: Large }
+                        swatch: { type: string, pattern: '^#[0-9A-Fa-f]{6}$', description: "209 The option's colour (a lipstick's shade, a foundation's): the app draws the choice as swatches. Missing: none." }
             default_attributes:
               type: object
               additionalProperties: { type: string }
@@ -15869,6 +15874,28 @@ components:
               maxItems: 12
               description: "131 \"Add a little more\": the gift add-ons offered with this product (`GET /store/addons`), each `addon: true`. Missing or empty: none."
               items: { $ref: '#/components/schemas/ProductSummary' }
+            info:
+              type: array
+              maxItems: 6
+              description: "209 Its parts in its own words, each once, in this order (a cosmetic's ingredients and how to use it, a toy's safety and materials, clothes' care): the app titles them in its language. Its facts (brand, material, volume) are its `attributes` with `variation` false. Missing or empty: none."
+              items:
+                type: object
+                required: [kind, text]
+                properties:
+                  kind: { type: string, enum: [ingredients, how_to_use, safety, materials, care, in_the_box] }
+                  text: { type: string, maxLength: 2000, description: Plain text; paragraphs separated by blank lines. }
+            badges:
+              type: array
+              description: "209 Its promises, shown as badges in the app's words. Missing or empty: none."
+              items: { type: string, enum: [genuine, safety_tested, organic, handmade, cruelty_free, gift_wrap] }
+            expiry: { type: string, pattern: '^\d{4}-\d{2}$', description: "209 Its batch's expiry, a year and a month (a cosmetic's). Missing: none shown." }
+            age_months:
+              type: object
+              required: [min, max]
+              description: "209 The ages it is for, in months (`max` null: and up), as a toy's or children's clothes'. Missing: none shown."
+              properties:
+                min: { type: integer, minimum: 0, maximum: 216 }
+                max: { type: [integer, 'null'], minimum: 0, maximum: 216 }
             complete_look:
               type: array
               maxItems: 4
@@ -16818,7 +16845,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale, size_chart]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale, size_chart, size_finder, swatches, quiz]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app. 159 What a screen reader says for an element that opens something without words of its own (a round search or bag); without it, what it opens, in the app's language." }
         children:
           type: array
@@ -16979,7 +17006,27 @@ components:
           properties:
             x: { type: number, minimum: 0, maximum: 100 }
             y: { type: number, minimum: 0, maximum: 100 }
-        style: { type: string, enum: [chips, tiles, pictures, circles, rows], default: chips, description: "112.4 For `categories`: chips in a row, tiles with their counts, `pictures` in a grid of `columns` with the name over them, or `circles`, round pictures with the name under them in a row that scrolls. A category without a picture shows a colour. 208 `rows`: the category menu, every main category a row of cards that slides, its own card first (\"All\"), then its sub-categories (`Category.children`); an app before it draws chips. Apps skip a `size_chart` element they don't know; it shows `StoreConfig.size_chart` under its `text`." }
+        style: { type: string, enum: [chips, tiles, pictures, circles, rows], default: chips, description: "112.4 For `categories`: chips in a row, tiles with their counts, `pictures` in a grid of `columns` with the name over them, or `circles`, round pictures with the name under them in a row that scrolls. A category without a picture shows a colour. 208 `rows`: the category menu, every main category a row of cards that slides, its own card first (\"All\"), then its sub-categories (`Category.children`); an app before it draws chips. Apps skip a `size_chart` element they don't know; it shows `StoreConfig.size_chart` under its `text`. 209 Apps skip a `size_finder`, `swatches` or `quiz` they don't know: `size_finder` shows the first column of `StoreConfig.size_chart` (the ages) to choose from, the chosen row's measures and its button (`title`, then the size, opening `action`), and is left out by the servers while the shop has no chart; `swatches` draws its `entries` as colour swatches (each `title` its name, `subtitle` the short code under it, `text` a line, `color`, `highlight` the one chosen first), the chosen one's words and the button (`title`, `action`); `quiz` asks `quiz.questions` one at a time (each `title` the question, `text` its answers one per line, answer n counting for result n), then shows the result with the most answers (`entries`: `title`, `text`, `icon`, its button `label` and `action`, else the element's `title` and `action`) and Start again." }
+        swatches:
+          type: [object, 'null']
+          description: "209 For `swatches`: round or rounded square swatches and their size (24 to 64, 36)."
+          properties:
+            shape: { type: string, enum: [circle, square], default: circle }
+            size: { type: number, minimum: 24, maximum: 64 }
+        quiz:
+          type: [object, 'null']
+          description: "209 For `quiz`: its questions (1 to 6), served in the app's language; each answer (2 to 6, one per line in `text`) counts for the result in its place."
+          properties:
+            questions:
+              type: array
+              minItems: 1
+              maxItems: 6
+              items:
+                type: object
+                required: [title, text]
+                properties:
+                  title: { type: string }
+                  text: { type: string }
         category_menu:
           type: [object, 'null']
           description: "208 For `categories` drawn as `rows`: `lead` a tall card of the main category first (its number, name, count and an arrow over its photo), the sub-categories' photos with their names under them; `label` the number, name and count over the row, \"All\" on its first card. `numbers` false: no 01, 02. `radius`: the cards' corners (0 to 40, 18)."

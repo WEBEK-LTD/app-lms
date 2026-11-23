@@ -19927,6 +19927,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}, {count}'**
   String categoryMenuRow(String name, String count);
+
+  /// 209 Title of a product's facts (brand, material, volume) on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get productDetailsTitle;
+
+  /// 209 On a product's page: the title of its ingredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients'**
+  String get productInfoIngredients;
+
+  /// 209 On a product's page: the title of how to use it.
+  ///
+  /// In en, this message translates to:
+  /// **'How to use'**
+  String get productInfoHowToUse;
+
+  /// 209 On a product's page: the title of its safety notes (a toy's).
+  ///
+  /// In en, this message translates to:
+  /// **'Safety'**
+  String get productInfoSafety;
+
+  /// 209 On a product's page: the title of what it is made of.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get productInfoMaterials;
+
+  /// 209 On a product's page: the title of how to wash and care for it.
+  ///
+  /// In en, this message translates to:
+  /// **'Care'**
+  String get productInfoCare;
+
+  /// 209 On a product's page: the title of what comes in its box.
+  ///
+  /// In en, this message translates to:
+  /// **'In the box'**
+  String get productInfoInTheBox;
+
+  /// 209 A product's badge: it is genuine.
+  ///
+  /// In en, this message translates to:
+  /// **'Genuine product'**
+  String get productBadgeGenuine;
+
+  /// 209 A product's badge: tested to the child-safety standards.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety tested'**
+  String get productBadgeSafetyTested;
+
+  /// 209 A product's badge: made of organic materials.
+  ///
+  /// In en, this message translates to:
+  /// **'Organic'**
+  String get productBadgeOrganic;
+
+  /// 209 A product's badge: made by hand.
+  ///
+  /// In en, this message translates to:
+  /// **'Handmade'**
+  String get productBadgeHandmade;
+
+  /// 209 A product's badge: not tested on animals (cosmetics).
+  ///
+  /// In en, this message translates to:
+  /// **'Not tested on animals'**
+  String get productBadgeCrueltyFree;
+
+  /// 209 A product's badge: it can be gift wrapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift wrapping available'**
+  String get productBadgeGiftWrap;
+
+  /// 209 A product's expiry (month and year) on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Best before {date}'**
+  String productExpiry(String date);
+
+  /// 209 The ages a product is for, in months.
+  ///
+  /// In en, this message translates to:
+  /// **'Ages {from}–{to} months'**
+  String productAgeMonths(int from, int to);
+
+  /// 209 The ages a product is for, in years.
+  ///
+  /// In en, this message translates to:
+  /// **'{to, plural, =1{Ages {from}–{to} year} other{Ages {from}–{to} years}}'**
+  String productAgeYears(int from, int to);
+
+  /// 209 The ages a product is for, from months to years.
+  ///
+  /// In en, this message translates to:
+  /// **'{to, plural, =1{Ages {from} months to {to} year} other{Ages {from} months to {to} years}}'**
+  String productAgeMixed(int from, int to);
+
+  /// 209 The ages a product is for, from an age in months up.
+  ///
+  /// In en, this message translates to:
+  /// **'{from, plural, =1{Ages 1 month and up} other{Ages {from} months and up}}'**
+  String productAgePlusMonths(int from);
+
+  /// 209 The ages a product is for, from an age in years up.
+  ///
+  /// In en, this message translates to:
+  /// **'{from, plural, =1{Ages 1 year and up} other{Ages {from} years and up}}'**
+  String productAgePlusYears(int from);
+
+  /// 209 A quiz: which question this is.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {n} of {total}'**
+  String quizStep(int n, int total);
+
+  /// 209 A quiz's button: answer it again.
+  ///
+  /// In en, this message translates to:
+  /// **'Start again'**
+  String get quizAgain;
+
+  /// 209 A quiz: over the result.
+  ///
+  /// In en, this message translates to:
+  /// **'Your result'**
+  String get quizResultTitle;
+
+  /// 209 The size finder: the size of the shop's chart for the age chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'The size that fits: {size}'**
+  String sizeFinderFits(String size);
+
+  /// 209 A swatch chosen, as screen readers say it.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, chosen'**
+  String swatchChosen(String name);
 }
 
 class _AppLocalizationsDelegate

@@ -65,6 +65,7 @@ import '../account/sign_out.dart' show AccountPageEnd;
 import '../../store/widgets/quick_add.dart';
 // 208 The category menu and the size chart.
 import 'studio_category_menu.dart';
+import 'studio_shop_helpers.dart';
 import 'studio_size_chart.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
@@ -1296,6 +1297,10 @@ class StudioNodeView extends ConsumerWidget {
       ),
       // 208 The shop's size chart, when it has one.
       StudioNodeType.sizeChart => StudioSizeChart.shows(ref),
+      // 209 A size finder with a chart to read, swatches, a quiz to take.
+      StudioNodeType.sizeFinder => StudioSizeFinder.shows(ref),
+      StudioNodeType.swatches => StudioSwatches.shows(node),
+      StudioNodeType.quiz => StudioQuiz.shows(node),
       StudioNodeType.form =>
         node.form != null && PageBlockView.shows(node.form!, ref),
       StudioNodeType.search => PageBlockView.shows(_searchBlock(node, ''), ref),
@@ -1442,7 +1447,11 @@ class StudioNodeView extends ConsumerWidget {
     }
     final action =
         (node.type == StudioNodeType.button || node.action != null) &&
-            node.type != StudioNodeType.ctaBar
+            node.type != StudioNodeType.ctaBar &&
+            // 209 Their action is their button's.
+            node.type != StudioNodeType.sizeFinder &&
+            node.type != StudioNodeType.swatches &&
+            node.type != StudioNodeType.quiz
         ? node.action
         : null;
     final press = node.motion?.press ?? StudioPress.none;
@@ -1889,6 +1898,17 @@ class StudioNodeView extends ConsumerWidget {
       case StudioNodeType.sizeChart:
         // 208 The shop's size chart.
         return StudioSizeChart(title: _text(context), color: color);
+      // 209 The size finder, the swatches and the quiz.
+      case StudioNodeType.sizeFinder:
+        return StudioSizeFinder(
+          node: node,
+          title: _text(context),
+          color: color,
+        );
+      case StudioNodeType.swatches:
+        return StudioSwatches(node: node, title: _text(context), color: color);
+      case StudioNodeType.quiz:
+        return StudioQuiz(node: node, title: _text(context), color: color);
       case StudioNodeType.video:
         final url = node.videoUrl;
         if (url == null) return const SizedBox.shrink();

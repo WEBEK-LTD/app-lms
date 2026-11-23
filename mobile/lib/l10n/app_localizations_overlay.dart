@@ -13194,4 +13194,107 @@ class OverlayLocalizations extends AppLocalizations {
   String categoryMenuRow(String name, String count) =>
       overlay.format('categoryMenuRow', {'name': name, 'count': count}) ??
       base.categoryMenuRow(name, count);
+
+  @override
+  String get productDetailsTitle =>
+      overlay.text('productDetailsTitle') ?? base.productDetailsTitle;
+
+  @override
+  String get productInfoIngredients =>
+      overlay.text('productInfoIngredients') ?? base.productInfoIngredients;
+
+  @override
+  String get productInfoHowToUse =>
+      overlay.text('productInfoHowToUse') ?? base.productInfoHowToUse;
+
+  @override
+  String get productInfoSafety =>
+      overlay.text('productInfoSafety') ?? base.productInfoSafety;
+
+  @override
+  String get productInfoMaterials =>
+      overlay.text('productInfoMaterials') ?? base.productInfoMaterials;
+
+  @override
+  String get productInfoCare =>
+      overlay.text('productInfoCare') ?? base.productInfoCare;
+
+  @override
+  String get productInfoInTheBox =>
+      overlay.text('productInfoInTheBox') ?? base.productInfoInTheBox;
+
+  @override
+  String get productBadgeGenuine =>
+      overlay.text('productBadgeGenuine') ?? base.productBadgeGenuine;
+
+  @override
+  String get productBadgeSafetyTested =>
+      overlay.text('productBadgeSafetyTested') ?? base.productBadgeSafetyTested;
+
+  @override
+  String get productBadgeOrganic =>
+      overlay.text('productBadgeOrganic') ?? base.productBadgeOrganic;
+
+  @override
+  String get productBadgeHandmade =>
+      overlay.text('productBadgeHandmade') ?? base.productBadgeHandmade;
+
+  @override
+  String get productBadgeCrueltyFree =>
+      overlay.text('productBadgeCrueltyFree') ?? base.productBadgeCrueltyFree;
+
+  @override
+  String get productBadgeGiftWrap =>
+      overlay.text('productBadgeGiftWrap') ?? base.productBadgeGiftWrap;
+
+  @override
+  String productExpiry(String date) =>
+      overlay.format('productExpiry', {'date': date}) ??
+      base.productExpiry(date);
+
+  @override
+  String productAgeMonths(int from, int to) =>
+      overlay.format('productAgeMonths', {'from': from, 'to': to}) ??
+      base.productAgeMonths(from, to);
+
+  @override
+  String productAgeYears(int from, int to) =>
+      overlay.format('productAgeYears', {'from': from, 'to': to}) ??
+      base.productAgeYears(from, to);
+
+  @override
+  String productAgeMixed(int from, int to) =>
+      overlay.format('productAgeMixed', {'from': from, 'to': to}) ??
+      base.productAgeMixed(from, to);
+
+  @override
+  String productAgePlusMonths(int from) =>
+      overlay.format('productAgePlusMonths', {'from': from}) ??
+      base.productAgePlusMonths(from);
+
+  @override
+  String productAgePlusYears(int from) =>
+      overlay.format('productAgePlusYears', {'from': from}) ??
+      base.productAgePlusYears(from);
+
+  @override
+  String quizStep(int n, int total) =>
+      overlay.format('quizStep', {'n': n, 'total': total}) ??
+      base.quizStep(n, total);
+
+  @override
+  String get quizAgain => overlay.text('quizAgain') ?? base.quizAgain;
+
+  @override
+  String get quizResultTitle =>
+      overlay.text('quizResultTitle') ?? base.quizResultTitle;
+
+  @override
+  String sizeFinderFits(String size) =>
+      overlay.format('sizeFinderFits', {'size': size}) ??
+      base.sizeFinderFits(size);
+
+  @override
+  String swatchChosen(String name) =>
+      overlay.format('swatchChosen', {'name': name}) ?? base.swatchChosen(name);
 }

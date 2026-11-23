@@ -91,7 +91,7 @@ class Catalog {
 	/**
 	 * Lists products.
 	 *
-	 * @param array $args page, per_page, search, category, on_sale, featured, ids, orderby.
+	 * @param array $args page, per_page, search, category, on_sale, max_price, featured, ids, orderby.
 	 * @return array{items: array[], total: int}
 	 */
 	public function products( array $args ) {
@@ -128,6 +128,15 @@ class Catalog {
 				$sale = array_values( array_unique( array_merge( $sale, \Yallapp\Plugin::instance()->store_extras()->flash_product_ids() ) ) );
 			}
 			$ids = null === $ids ? $sale : array_values( array_intersect( $ids, $sale ) );
+		}
+		// 209 At this price or under, by WooCommerce's own price (on sale too).
+		if ( isset( $args['max_price'] ) && null !== $args['max_price'] && (float) $args['max_price'] > 0 ) {
+			$query['meta_query'][] = array(
+				'key'     => '_price',
+				'value'   => (float) $args['max_price'],
+				'compare' => '<=',
+				'type'    => 'DECIMAL(10,2)',
+			);
 		}
 		if ( ! empty( $args['featured'] ) ) {
 			$featured = array_map( 'intval', wc_get_featured_product_ids() );

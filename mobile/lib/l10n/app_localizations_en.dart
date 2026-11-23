@@ -12452,4 +12452,118 @@ class AppLocalizationsEn extends AppLocalizations {
   String categoryMenuRow(String name, String count) {
     return '$name, $count';
   }
+
+  @override
+  String get productDetailsTitle => 'Details';
+
+  @override
+  String get productInfoIngredients => 'Ingredients';
+
+  @override
+  String get productInfoHowToUse => 'How to use';
+
+  @override
+  String get productInfoSafety => 'Safety';
+
+  @override
+  String get productInfoMaterials => 'Materials';
+
+  @override
+  String get productInfoCare => 'Care';
+
+  @override
+  String get productInfoInTheBox => 'In the box';
+
+  @override
+  String get productBadgeGenuine => 'Genuine product';
+
+  @override
+  String get productBadgeSafetyTested => 'Safety tested';
+
+  @override
+  String get productBadgeOrganic => 'Organic';
+
+  @override
+  String get productBadgeHandmade => 'Handmade';
+
+  @override
+  String get productBadgeCrueltyFree => 'Not tested on animals';
+
+  @override
+  String get productBadgeGiftWrap => 'Gift wrapping available';
+
+  @override
+  String productExpiry(String date) {
+    return 'Best before $date';
+  }
+
+  @override
+  String productAgeMonths(int from, int to) {
+    return 'Ages $from–$to months';
+  }
+
+  @override
+  String productAgeYears(int from, int to) {
+    String _temp0 = intl.Intl.pluralLogic(
+      to,
+      locale: localeName,
+      other: 'Ages $from–$to years',
+      one: 'Ages $from–$to year',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productAgeMixed(int from, int to) {
+    String _temp0 = intl.Intl.pluralLogic(
+      to,
+      locale: localeName,
+      other: 'Ages $from months to $to years',
+      one: 'Ages $from months to $to year',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productAgePlusMonths(int from) {
+    String _temp0 = intl.Intl.pluralLogic(
+      from,
+      locale: localeName,
+      other: 'Ages $from months and up',
+      one: 'Ages 1 month and up',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productAgePlusYears(int from) {
+    String _temp0 = intl.Intl.pluralLogic(
+      from,
+      locale: localeName,
+      other: 'Ages $from years and up',
+      one: 'Ages 1 year and up',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quizStep(int n, int total) {
+    return 'Question $n of $total';
+  }
+
+  @override
+  String get quizAgain => 'Start again';
+
+  @override
+  String get quizResultTitle => 'Your result';
+
+  @override
+  String sizeFinderFits(String size) {
+    return 'The size that fits: $size';
+  }
+
+  @override
+  String swatchChosen(String name) {
+    return '$name, chosen';
+  }
 }

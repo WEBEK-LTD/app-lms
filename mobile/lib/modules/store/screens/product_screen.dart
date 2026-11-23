@@ -30,6 +30,7 @@ import '../../../core/services/share_links.dart';
 import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/format/text_case.dart';
+import '../widgets/product_details.dart';
 import '../widgets/quick_add.dart';
 import '../../shared/pages/studio_size_chart.dart' show showSizeGuide;
 
@@ -502,6 +503,11 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                     ],
                   ),
                 ],
+                // 209 The ages it is for, its promises and its expiry.
+                if (ProductBadges.shows(product)) ...[
+                  const SizedBox(height: 12),
+                  ProductBadges(product: product),
+                ],
                 if (product.shortDescriptionHtml != null) ...[
                   const SizedBox(height: 12),
                   HtmlContent(html: product.shortDescriptionHtml!),
@@ -543,6 +549,22 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                       ],
                       chosen: _chosen[attribute.slug],
                       onTap: (value) => _choose(attribute.slug, value),
+                    )
+                  // 209 A choice whose options have colours (a shade): swatches.
+                  else if (attribute.options.any((o) => o.swatch != null))
+                    Wrap(
+                      key: ValueKey('product-swatches-${attribute.slug}'),
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final option in attribute.options)
+                          SwatchChip(
+                            option: option,
+                            selected: _chosen[attribute.slug] == option.value,
+                            soldOut: _soldOut(attribute.slug, option.value),
+                            onTap: () => _choose(attribute.slug, option.value),
+                          ),
+                      ],
                     )
                   else
                     Wrap(
@@ -626,6 +648,18 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                   SectionHeader(title: context.l10n.description),
                   const SizedBox(height: 8),
                   HtmlContent(html: product.descriptionHtml),
+                ],
+                // 209 Its parts in its own words (ingredients, how to use it,
+                // safety, materials, care), then its facts.
+                if (product.info.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  ProductInfoSections(product: product),
+                ],
+                if (product.facts.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  SectionHeader(title: context.l10n.productDetailsTitle),
+                  const SizedBox(height: 4),
+                  ProductFacts(facts: product.facts),
                 ],
                 // 208 Complete the look: a piece of each of the shop's other
                 // main categories.
