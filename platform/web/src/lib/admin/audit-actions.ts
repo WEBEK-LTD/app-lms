@@ -178,6 +178,8 @@ export const AUDIT_ACTIONS = {
   "market.page_unlocked": "Studio Market designer page unlocked",
   "market.rating_hidden": "Studio Market rating hidden",
   "market.rating_shown": "Studio Market rating shown again",
+  // 218 Yallapp's own designer page (its photo or logo, and its line), changed by the team.
+  "market.house_page_saved": "Studio Market Yallapp's own page changed",
   // 136 Yallapp's Firebase projects
   "firebase.project_add": "Yallapp Firebase project added",
   "firebase.project_edit": "Yallapp Firebase project changed",
