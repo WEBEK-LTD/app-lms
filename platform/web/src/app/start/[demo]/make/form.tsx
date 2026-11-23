@@ -6,8 +6,8 @@ import { uploadAssetAction } from "@/app/actions/dashboard";
 import { startFromDemoAction } from "@/app/actions/start";
 import { useDashT } from "@/components/dashboard-i18n";
 import { Icon } from "@/components/icon";
-import { browserDeflate, dominantColour, encodeRgbPng, isDark, swatchesFor } from "@/lib/brand-colour";
 import type { SignatureLook } from "@/lib/studio/demo-designs/signature";
+import { browserDeflate, dominantColour, encodeRgbPng, isDark, swatchesFor } from "@/lib/brand-colour";
 
 interface Swatch {
   hex: string;

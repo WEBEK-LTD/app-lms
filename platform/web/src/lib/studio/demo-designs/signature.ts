@@ -26,7 +26,14 @@ import type { DemoDesign } from "./index";
  * `SIGNATURE_DESIGNS` in ./index.ts, registers them all.
  */
 
-export const SIGNATURE_LOOKS = ["a", "b", "c", "d"] as const;
+/**
+ * 223 The looks in the order Studio offers them everywhere (the owner, 23
+ * November 2026): a shop type's templates C (its main one, the demo
+ * itself) and D first, then its first two, A and B, kept as extra
+ * templates. A demo's main look is the first of these it has: C for a shop
+ * type that has it, A for every other demo (`mainLookOf`, ./index.ts).
+ */
+export const SIGNATURE_LOOKS = ["c", "d", "a", "b"] as const;
 export type SignatureLook = (typeof SIGNATURE_LOOKS)[number];
 
 /** The template id of a demo's look: `<demo>_signature_<look>`. */

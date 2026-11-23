@@ -21,8 +21,8 @@ import type { SectionContext, TemplateInfo } from "./sections";
  * own tabs, bar and look; `site` is the owner's website, when known.
  */
 export function startLayout(app: App, template: TemplateInfo, ready: LayoutContent, now: Date, made: SectionContext, site: string | null = null): LayoutContent {
-  // 130 A demo's own template is its look A, the whole project too (lib/studio/demo-designs/signature.ts).
-  const own = template.demo && !template.project ? signatureDesign(template.demo, "a") : undefined;
+  // 130 A demo's own template is its main look (223 C where it has one, else A), the whole project too (lib/studio/demo-designs/signature.ts).
+  const own = template.demo && !template.project ? signatureDesign(template.demo) : undefined;
   const project = template.project ?? (own ? signatureProject(own) : null);
   // 128 A demo's template is the demo, its own pages after the home too, in its own look (lib/studio/demo-designs).
   // 130 A Signature look's template: the demo's pages in that look.
