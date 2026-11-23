@@ -20,6 +20,17 @@ done: upload the key set to the Google provider (`jwksJson`) so Google
 needs no call to the site, at the cost of uploading it again on every
 key rotation.
 
+Roadmap 222 (the plugin's follow-ups): plugin 0.4.54 (after 0.4.53, #496)
+serves WordPress apps' Studio pages without an empty section, as hosted
+shops' are (164.7): a list of products with nothing to show shows the
+shop's best sellers, else its newest, and a list left out takes its title
+and "Shop all" with it; and a flower shop's card beginnings can be written
+in English, Arabic and Turkish, each customer seeing their language's,
+the main ones kept for older apps (169.5). Deleting an account without
+waiting on Yallapp and end-to-end checks that never call yallapp.com.tr
+were already done in 206.1. Not yet released; the store end-to-end checks
+run in CI.
+
 Roadmap 220 (the code items earlier phases left open): every amount on the
 dashboard's pages (courses, school fees and salaries, rides, deliveries,
 food orders, events, donations, bookings, travel, Analytics) is written in

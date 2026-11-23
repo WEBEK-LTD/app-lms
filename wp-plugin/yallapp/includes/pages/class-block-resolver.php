@@ -344,15 +344,16 @@ class Block_Resolver {
 	 * Items fields: the query's results as Item cards. Dropped when the source can't be
 	 * served or nothing matches.
 	 *
-	 * @param array $raw Block.
+	 * @param array $raw      Block.
+	 * @param bool  $fallback 222.3 (164.1) A Studio list of products with nothing shows the best sellers, else the newest.
 	 * @return array|null
 	 */
-	private function items_block( array $raw ) {
+	private function items_block( array $raw, $fallback = false ) {
 		$source = $raw['source'] ?? null;
 		if ( ! $this->serves( $source ) ) {
 			return null;
 		}
-		$items = $this->items( $source, isset( $raw['query'] ) && is_array( $raw['query'] ) ? $raw['query'] : array() );
+		$items = $this->items( $source, isset( $raw['query'] ) && is_array( $raw['query'] ) ? $raw['query'] : array(), $fallback );
 		if ( ! $items ) {
 			return null;
 		}
@@ -459,11 +460,12 @@ class Block_Resolver {
 	/**
 	 * Runs an items query.
 	 *
-	 * @param string $source Source the site serves.
-	 * @param array  $query  Query: ids, category_id, featured, on_sale (112.4), sort, limit.
+	 * @param string $source   Source the site serves.
+	 * @param array  $query    Query: ids, category_id, featured, on_sale (112.4), sort, limit.
+	 * @param bool   $fallback 222.3 Products: with nothing found, the best sellers, else the newest (List_Headings::product_fallbacks()).
 	 * @return array[] Item shapes.
 	 */
-	public function items( $source, array $query ) {
+	public function items( $source, array $query, $fallback = false ) {
 		$ids = array();
 		foreach ( isset( $query['ids'] ) && is_array( $query['ids'] ) ? $query['ids'] : array() as $id ) {
 			if ( is_scalar( $id ) && absint( $id ) ) {
@@ -483,6 +485,12 @@ class Block_Resolver {
 			$items = $this->courses( $query );
 		} elseif ( 'products' === $source ) {
 			$items = $this->products( $query );
+			foreach ( $fallback && ! $items ? List_Headings::product_fallbacks( $query ) : array() as $instead ) {
+				$items = $this->products( $instead );
+				if ( $items ) {
+					break;
+				}
+			}
 		} elseif ( 'services' === $source ) {
 			$items = $this->services( $query );
 		} elseif ( 'articles' === $source ) {
@@ -1207,6 +1215,8 @@ class Block_Resolver {
 			return null;
 		}
 		$body = $this->with_shop_categories( $body );
+		// 222.3 (164.7) A list's title goes with a list left out, and is marked for the app (List_Headings).
+		$body = List_Headings::apply( $body, List_Headings::of( $raw['body'] ) );
 		$page = array(
 			'header' => is_array( $raw['header'] ?? null ) ? $this->studio_header( Translator::apply( $raw['header'], $language ) ) : null,
 			'body'   => $body,
@@ -1629,7 +1639,7 @@ class Block_Resolver {
 					}
 					return $node;
 				}
-				$list = $this->items_block( $raw );
+				$list = $this->items_block( $raw, true );
 				if ( ! $list ) {
 					return null;
 				}
