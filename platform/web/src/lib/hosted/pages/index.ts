@@ -152,6 +152,16 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
       if (!list?.items && node.source === "products" && query) for (const next of productFallbacks(query)) if ((list = await listed(next))?.items) break;
       return list?.items ? ({ ...shown, items: list.items } as StudioNode) : null;
     }
+    // 208 The category menu (`rows`): each main category with its sub-categories.
+    if (node.type === "categories" && node.style === "rows") {
+      const rows = node.source && servable(pc.ctx.app, pc.ctx.connector, node.source) ? await listCategories(pc, node.source, true) : null;
+      return rows?.length ? ({ ...shown, categories: rows } as StudioNode) : null;
+    }
+    // 208 A search field the editor made has no source: it searches the app's own list (a shop its products), which the app needs to open it.
+    if (node.type === "search" && !node.source) {
+      const source = itemSourcesFor(pc.ctx.app).find((s) => SEARCHED.includes(s));
+      return source && servable(pc.ctx.app, pc.ctx.connector, source) ? ({ ...shown, source } as StudioNode) : shown;
+    }
     if (node.type === "categories") {
       const list = (await resolveBlock(pc, { id: node.id, type: "categories", visibility: "everyone", title: null, source: node.source })) as { categories?: unknown[] } | null;
       return list?.categories ? ({ ...shown, categories: list.categories } as StudioNode) : null;
@@ -436,6 +446,9 @@ export function shownNow(show: LayoutBlock["show"], now: Date, platform: "androi
 }
 
 /** Whether the hosted API can fill lists and searches of this source for the app. */
+/** 208 The lists the app's search field opens (`searchLocation` in the app). */
+const SEARCHED: readonly ItemSource[] = ["products", "courses", "services", "listings", "articles", "events", "hotels"];
+
 function servable(app: App, connector: Connector | null | undefined, source: ItemSource | undefined): boolean {
   if (!source || !itemSourcesFor(app).includes(source)) return false;
   // The engine's own list, read from its connector (lib/app/kinds.ts); others (listings, posts) have their own resolvers.
@@ -511,7 +524,8 @@ async function get(pc: PageContext, path: string[], params: Record<string, strin
   if (!ctx.connector) return null;
   const query = new URLSearchParams({ platform: pc.platform });
   for (const [key, value] of Object.entries(params)) if (value !== null && value !== undefined && value !== "") query.set(key, String(value));
-  const result = await ctx.connector.handle({ method: "GET", path, query, body: undefined, user: pc.user, now: ctx.now, display: pc.display });
+  // 208 In the page's language: the categories' names (the category menu's) as the shop named them in it (175).
+  const result = await ctx.connector.handle({ method: "GET", path, query, body: undefined, user: pc.user, now: ctx.now, display: pc.display, lang: pc.lang });
   if (!result || result.status !== 200 || !result.body || typeof result.body !== "object") return null;
   return withDisplay(pc, result.body as Record<string, unknown>);
 }
@@ -740,7 +754,16 @@ async function listArticles(pc: PageContext, query: ItemsQuery): Promise<Item[]>
     .filter((i): i is Item => i !== null);
 }
 
-async function listCategories(pc: PageContext, source: ItemSource): Promise<{ id: number; name: string; count: number; image_url?: string }[] | null> {
+/** A category as an element shows it; 208 with its sub-categories (`children`) for the category menu. */
+interface ShownCategory {
+  id: number;
+  name: string;
+  count: number;
+  image_url?: string;
+  children?: ShownCategory[];
+}
+
+async function listCategories(pc: PageContext, source: ItemSource, subs = false): Promise<ShownCategory[] | null> {
   const path =
     source === "courses"
       ? ["categories"]
@@ -752,11 +775,25 @@ async function listCategories(pc: PageContext, source: ItemSource): Promise<{ id
             ? ["news", "categories"]
             : null;
   if (!path) return null;
-  return list(await get(pc, path))
-    .filter((c) => c.parent_id === null || c.parent_id === undefined)
-    // 112.4 With its picture when it has one (a store's categories).
-    .map((c) => ({ id: Number(c.id), name: String(c.name ?? ""), count: Number(c.count ?? 0), ...(typeof c.image_url === "string" && c.image_url ? { image_url: c.image_url } : {}) }))
-    .filter((c) => Number.isSafeInteger(c.id) && c.name && Number.isInteger(c.count));
+  const all = list(await get(pc, path));
+  // 112.4 With its picture when it has one (a store's categories).
+  const shown = (c: Record<string, unknown>): ShownCategory => ({ id: Number(c.id), name: String(c.name ?? ""), count: Number(c.count ?? 0), ...(typeof c.image_url === "string" && c.image_url ? { image_url: c.image_url } : {}) });
+  const fine = (c: ShownCategory) => Number.isSafeInteger(c.id) && c.name !== "" && Number.isInteger(c.count);
+  const main = (c: Record<string, unknown>) => c.parent_id === null || c.parent_id === undefined || c.parent_id === 0;
+  return all
+    .filter(main)
+    .map((c) => {
+      const out = shown(c);
+      // 208 Its sub-categories in the shop's order, those with products (at most 12).
+      if (!subs) return out;
+      const children = all
+        .filter((x) => !main(x) && Number(x.parent_id) === out.id)
+        .map(shown)
+        .filter((x) => fine(x) && x.count > 0)
+        .slice(0, 12);
+      return { ...out, children };
+    })
+    .filter(fine);
 }
 
 /** The student's first course with progress that isn't finished (`MyCourse`). */

@@ -1611,15 +1611,31 @@ function DataTab(props: Props & { node: StudioNode }) {
         <Segments
           label={t("studio.categoriesLook")}
           value={look}
-          onChange={(style) => onChange({ style: style === "chips" ? undefined : style, ...(style === "pictures" ? { columns: node.columns ?? 2 } : { columns: undefined }) })}
+          onChange={(style) => onChange({ style: style === "chips" ? undefined : style, ...(style === "pictures" ? { columns: node.columns ?? 2 } : { columns: undefined }), ...(style === "rows" ? { category_menu: node.category_menu ?? { look: "lead" } } : { category_menu: undefined }) })}
           options={[
             { value: "chips" as const, label: t("studio.catChips") },
             { value: "tiles" as const, label: t("studio.catTiles") },
             { value: "pictures" as const, label: t("studio.catPictures") },
             { value: "circles" as const, label: t("studio.catCircles") },
+            // 208 The category menu: each main category a row of cards with its sub-categories.
+            { value: "rows" as const, label: t("studio.catRows") },
           ]}
         />
         {look === "pictures" ? <Segments label={t("studio.columns")} value={String(node.columns ?? 2)} onChange={(v) => onChange({ columns: Number(v) })} options={["1", "2", "3", "4"].map((v) => ({ value: v, label: v }))} /> : null}
+        {look === "rows" ? (
+          <>
+            <Segments
+              label={t("studio.catMenuLook")}
+              value={node.category_menu?.look ?? "lead"}
+              onChange={(v) => onChange({ category_menu: { ...(node.category_menu ?? {}), look: v } })}
+              options={[
+                { value: "lead" as const, label: t("studio.catMenuLead") },
+                { value: "label" as const, label: t("studio.catMenuLabel") },
+              ]}
+            />
+            <Check label={t("studio.catMenuNumbers")} checked={node.category_menu?.numbers !== false} onChange={(on) => onChange({ category_menu: { ...(node.category_menu ?? {}), numbers: on ? undefined : false } })} />
+          </>
+        ) : null}
       </>
     );
   }
@@ -1692,6 +1708,20 @@ function HeaderPanel(props: Props) {
             />
           ))}
         </div>
+        {/* 208 The page the menu button opens (the category menu's), full screen; none: the side menu. */}
+        {(header.buttons ?? []).includes("menu") ? (
+          <label className="flex flex-col gap-1 font-bold">
+            {t("studio.menuOpens")}
+            <select value={header.menu_page ?? ""} onChange={(e) => set({ menu_page: e.target.value || undefined })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--sf-line)" }}>
+              <option value="">{t("studio.menuOpensSide")}</option>
+              {props.pages.map((pg) => (
+                <option key={pg.slug} value={pg.slug}>
+                  {pg.title}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <Rule />
         <Colors
           palette={props.palette}

@@ -64,6 +64,8 @@ const TAB_WORDS: Record<string, SectionWord> = {
   Parent: "tabParent",
   // 131.20 Leqaa's shop.
   Bouquets: "lqTabBouquets",
+  // 208 Lujain's shop.
+  Shop: "tabShop",
 };
 
 /** The word over a screen and its icon; a screen that is all its own (the search, the club, the ride map) has none. */

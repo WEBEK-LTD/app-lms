@@ -19892,6 +19892,48 @@ abstract class AppLocalizations {
   /// **'Open the payment page'**
   String get paySheetOpenAgain;
 
+  /// 208 Link beside a product's sizes: opens the shop's size chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Size guide'**
+  String get sizeGuide;
+
+  /// 208 The size chart's title, with its unit (cm or in).
+  ///
+  /// In en, this message translates to:
+  /// **'Size chart ({unit})'**
+  String sizeChartIn(String unit);
+
+  /// 208 Title of the products that go with this one on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the look'**
+  String get completeTheLook;
+
+  /// 208 The shop's exchange policy under a product's price.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Exchange or return within a day} other{Exchange or return within {days} days}}'**
+  String exchangeWithin(int days);
+
+  /// 208 A size or colour none of whose pieces are left (screen readers).
+  ///
+  /// In en, this message translates to:
+  /// **'{option}, out of stock'**
+  String optionSoldOut(String option);
+
+  /// 208 The category menu: a row's first card, the main category itself.
+  ///
+  /// In en, this message translates to:
+  /// **'All {name}'**
+  String categoryAllOf(String name);
+
+  /// 208 A category menu row's title for screen readers: its name and how many products.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {count}'**
+  String categoryMenuRow(String name, String count);
+
   /// No description provided for @appointmentStatusApproved.
   ///
   /// In en, this message translates to:

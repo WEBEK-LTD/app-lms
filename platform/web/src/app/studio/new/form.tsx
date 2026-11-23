@@ -25,13 +25,20 @@ export interface KindChoice extends PresetChoice {
 
 type StudioKind = KindChoice & { text: string; soon: boolean };
 
+/** 208 A section of Studio's shop types (lib/studio/shop-types.ts): its name and its types, the coming ones not to choose yet. */
+export interface ShopSectionChoice {
+  id: string;
+  name: string;
+  types: StudioKind[];
+}
+
 const ARABIC_DIGITS = ["١", "٢", "٣"];
 
 /** 103R.3 The new project's three steps, with its summary beside them. */
-export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioKinds: StudioKind[]; kinds: KindChoice[]; error: string | null; /** The samples the templates' lists show (lib/studio/sample-entries.ts). */ samples?: Pickable["samples"] }) {
+export function NewProjectForm({ studioKinds, kinds, error, samples, shopSections = [] }: { studioKinds: StudioKind[]; kinds: KindChoice[]; error: string | null; /** The samples the templates' lists show (lib/studio/sample-entries.ts). */ samples?: Pickable["samples"]; /** 208 Studio's shop types by section. */ shopSections?: ShopSectionChoice[] }) {
   const t = useDashT();
   const lang = useDashLang();
-  const all = [...studioKinds.filter((k) => !k.soon), ...kinds];
+  const all = [...studioKinds.filter((k) => !k.soon), ...shopSections.flatMap((s) => s.types.filter((k) => !k.soon)), ...kinds];
   const [kindId, setKindId] = useState<string | null>(null);
   const kind = all.find((k) => k.id === kindId) ?? null;
   const [sourceValue, setSourceValue] = useState<string | null>(null);
@@ -79,6 +86,47 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
     [t, lang, name, kindTemplates],
   );
 
+  /** A Studio kind's card (124.6 a preset choice, 208 a shop type), the ones still coming dimmed and not to choose. */
+  const studioCard = (k: StudioKind, group: string) => {
+    const on = kindId === k.id;
+    const key = `${group}-${k.id}`;
+    return (
+      <label
+        key={key}
+        data-kind-choice={k.id}
+        className={`relative flex flex-col items-start gap-1.5 rounded-[14px] p-3.5 ${k.soon ? "" : "cursor-pointer"}`}
+        style={on ? { border: `2px solid ${C.accent}`, background: "var(--color-peach-soft)" } : k.soon ? { border: "1px dashed var(--color-line-strong)", background: C.surface, color: C.muted } : { border: `1px solid ${C.line}`, background: C.surface }}
+      >
+        <input
+          type="radio"
+          name="kindChoice"
+          value={k.id}
+          checked={on}
+          disabled={k.soon}
+          // 128.11 Named by its visible name, its line under it as its description.
+          aria-labelledby={`kind-${key}`}
+          aria-describedby={`kind-${key}-text`}
+          onChange={() => {
+            setKindId(k.id);
+            setKindOf(kindOfChoice(k));
+            setTemplate(templateAfterChoice(k, kind, template));
+            setSourceValue(null);
+            setStep(2);
+          }}
+          className="absolute top-3 end-3"
+          style={{ accentColor: C.accent }}
+        />
+        <Glyph name={k.icon} size={28} />
+        <span id={`kind-${key}`} className="text-[15px] font-extrabold" style={{ color: C.ink }}>
+          {k.name}
+        </span>
+        <span id={`kind-${key}-text`} className="text-xs" style={{ color: C.muted }}>
+          {k.text}
+        </span>
+      </label>
+    );
+  };
+
   return (
     <form action={createStudioProjectAction} className="flex min-h-dvh flex-col">
       <input type="hidden" name="kind" value={kindOf ?? ""} />
@@ -125,50 +173,31 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
               {t("studio.studioOnly")}
             </div>
             <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
-              {studioKinds.map((k) => {
-                const on = kindId === k.id;
-                return (
-                  <label
-                    key={k.id}
-                    className={`relative flex flex-col items-start gap-1.5 rounded-[14px] p-3.5 ${k.soon ? "" : "cursor-pointer"}`}
-                    style={
-                      on
-                        ? { border: `2px solid ${C.accent}`, background: "var(--color-peach-soft)" }
-                        : k.soon
-                          ? { border: "1px dashed var(--color-line-strong)", background: C.surface, color: C.muted }
-                          : { border: `1px solid ${C.line}`, background: C.surface }
-                    }
-                  >
-                    <input
-                      type="radio"
-                      name="kindChoice"
-                      value={k.id}
-                      checked={on}
-                      disabled={k.soon}
-                      // 128.11 Named by its visible name, its line under it as its description.
-                      aria-labelledby={`kind-studio-${k.id}`}
-                      aria-describedby={`kind-studio-${k.id}-text`}
-                      onChange={() => {
-                        setKindId(k.id);
-                        setKindOf(kindOfChoice(k));
-                        setTemplate(templateAfterChoice(k, kind, template));
-                        setSourceValue(null);
-                        setStep(2);
-                      }}
-                      className="absolute top-3 end-3"
-                      style={{ accentColor: C.accent }}
-                    />
-                    <Glyph name={k.icon} size={28} />
-                    <span id={`kind-studio-${k.id}`} className="text-[15px] font-extrabold" style={{ color: C.ink }}>
-                      {k.name}
-                    </span>
-                    <span id={`kind-studio-${k.id}-text`} className="text-xs" style={{ color: C.muted }}>
-                      {k.text}
-                    </span>
-                  </label>
-                );
-              })}
+              {studioKinds.map((k) => studioCard(k, "studio"))}
             </div>
+            {/* 208 Studio's shop types: section, then type (step 3 starts on its look A, its look B beside it). */}
+            {shopSections.length ? (
+              <div className="mt-2 flex flex-col gap-3" data-shop-sections="">
+                <div className="flex flex-col gap-0.5">
+                  <h2 className="m-0 text-[18px] font-extrabold" style={{ color: C.ink }}>
+                    {t("shopTypes.title")}
+                  </h2>
+                  <span className="text-[13px]" style={{ color: C.muted }}>
+                    {t("shopTypes.text")}
+                  </span>
+                </div>
+                {shopSections.map((s) => (
+                  <div key={s.id} className="flex flex-col gap-2" data-shop-section={s.id}>
+                    <h3 className="m-0 text-[14px] font-bold" style={{ color: C.muted }}>
+                      {s.name}
+                    </h3>
+                    <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
+                      {s.types.map((k) => studioCard(k, `shop-${s.id}`))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
             <div className="mt-1 text-[13px] font-bold" style={{ color: C.muted }}>
               {t("studio.allTypes")}
             </div>

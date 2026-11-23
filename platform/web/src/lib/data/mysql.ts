@@ -1346,14 +1346,14 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null }): Promise<CatalogCategory> {
+  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null; parentId?: number | null }): Promise<CatalogCategory> {
     const rows = await this.run((db) =>
       db
         .select({ next: sql<number | null>`max(${schema.catalogCategories.position}) + 1` })
         .from(schema.catalogCategories)
         .where(eq(schema.catalogCategories.appId, input.appId)),
     );
-    const values = { appId: input.appId, name: input.name, position: Number(rows[0]?.next ?? 0), sample: input.sample === true, createdAt: input.now, names: input.names ?? null };
+    const values = { appId: input.appId, name: input.name, position: Number(rows[0]?.next ?? 0), sample: input.sample === true, createdAt: input.now, names: input.names ?? null, parentId: input.parentId ?? null };
     const [result] = await this.run((db) => db.insert(schema.catalogCategories).values(values));
     return { id: Number(result.insertId), ...values };
   }
@@ -1377,6 +1377,15 @@ export class MysqlStore implements DataStore {
     );
   }
 
+  async setCatalogCategoryParent(appId: string, id: number, parentId: number | null): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.catalogCategories)
+        .set({ parentId })
+        .where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
+    );
+  }
+
   async reorderCatalogCategories(appId: string, ids: number[]): Promise<void> {
     const ordered = categoryOrder(await this.listCatalogCategories(appId), ids);
     for (const [position, id] of ordered.entries()) {
@@ -1392,6 +1401,13 @@ export class MysqlStore implements DataStore {
   async deleteCatalogCategory(appId: string, id: number, now: Date): Promise<void> {
     await this.run((db) =>
       db.delete(schema.catalogCategories).where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
+    );
+    // 208 Its sub-categories become main categories.
+    await this.run((db) =>
+      db
+        .update(schema.catalogCategories)
+        .set({ parentId: null })
+        .where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.parentId, id))),
     );
     for (const product of await this.listCatalogProducts(appId)) {
       if (product.categoryIds.includes(id)) {

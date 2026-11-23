@@ -52,7 +52,7 @@ describe("the demos the page shows", () => {
     for (const id of all) expect(productOf(id)).toBe(isStudioDemo(id) ? "studio" : "editor");
   });
 
-  it("are the ten App editor demos and the ten Studio demos (131.20 Leqaa last), by their names, in the approved order", () => {
+  it("are the ten App editor demos and the eleven Studio demos (131.20 Leqaa, then 208 Lujain, last), by their names, in the approved order", () => {
     expect(editor.map((id) => DEMO_BRANDS[id].appName)).toEqual([
       "Nour Academy",
       "Lale Flowers",
@@ -65,7 +65,7 @@ describe("the demos the page shows", () => {
       "Kuzey Culture Centre",
       "Bereket Food Bank",
     ]);
-    expect(studio.map((id) => DEMO_BRANDS[id].appName)).toEqual(["Ufuq Academy", "Rawaq Academy", "Sofra Eats", "Zad", "Sahm Express", "Masar Rides", "Lamha Taxi", "Nakhla School", "Safra", "Leqaa"]);
+    expect(studio.map((id) => DEMO_BRANDS[id].appName)).toEqual(["Ufuq Academy", "Rawaq Academy", "Sofra Eats", "Zad", "Sahm Express", "Masar Rides", "Lamha Taxi", "Nakhla School", "Safra", "Leqaa", "Lujain"]);
   });
 
   it("each have their own real screenshots, the first on their card", () => {
@@ -91,7 +91,7 @@ describe("the demos the page shows", () => {
 
   it("count them in each language", () => {
     expect(getDashT("en")("start.apps", { count: editor.length })).toBe("10 apps");
-    expect(getDashT("ar")("start.apps", { count: studio.length })).toBe("10 تطبيقات");
+    expect(getDashT("ar")("start.apps", { count: studio.length })).toBe("11 تطبيق");
     expect(getDashT("tr")("start.apps", { count: 8 })).toBe("8 uygulama");
     expect(getDashT("en")("start.items.courses.count", { count: 6 })).toBe("6 courses with lessons");
     expect(getDashT("en")("start.comesPages", { count: 24 })).toBe("All 24 pages and tabs");
@@ -111,7 +111,8 @@ describe("the demos the page shows", () => {
   it("group by business: the teaching demos with each other, every product's own", () => {
     expect(sameBusiness("lms")).toEqual(["premium_academy", "instructors"]);
     // 131.20 Leqaa, the flower shop, is a shop too.
-    expect(sameBusiness("store")).toEqual(["marketplace", "flowers"]);
+    // 208 And Lujain, the clothes shop.
+    expect(sameBusiness("store")).toEqual(["marketplace", "flowers", "clothes"]);
     expect(sameBusiness("restaurant")).toEqual(["food"]);
     expect(sameBusiness("rides")).toEqual(["taxi"]);
     for (const id of ALL_DEMO_TYPES) expect(sameBusiness(id)).not.toContain(id);

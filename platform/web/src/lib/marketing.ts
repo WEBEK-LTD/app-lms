@@ -162,6 +162,13 @@ export const APP_SCREENS = [
   "flowers-sig-b-home",
   "flowers-sig-a-home-dark",
   "flowers-sig-b-home-dark",
+  // 208 Lujain, the clothes shop: its guide's screens (look A) and its looks' homes.
+  "lujain-home",
+  "lujain-menu",
+  "lujain-product",
+  "clothes-sig-b-home",
+  "clothes-sig-a-home-dark",
+  "clothes-sig-b-home-dark",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -298,6 +305,12 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "flowers-sig-b-home": "Leqaa in its second look, Botanical press: the petal header, who the flowers are for, the edit as cards and Send today as a ticket",
   "flowers-sig-a-home-dark": "Leqaa in its first look, Rose hour, by night: the occasions as full-screen stories, Send today, the flash sale and the collections",
   "flowers-sig-b-home-dark": "Leqaa in its second look, Botanical press, by night: the petal header, who the flowers are for, the edit as cards and Send today as a ticket",
+  "lujain-home": "Lujain, a clothes shop, in its first look, the boutique: the search, the categories, the season's collections with the next one peeking, what's new and the deal of the day",
+  "lujain-menu": "Lujain's category menu: every category a row of cards that slides, its sub-categories after it, the account and the language at the foot",
+  "lujain-product": "A dress in Lujain: its photos, its colours and sizes with the size guide, and what completes the look",
+  "clothes-sig-b-home": "Lujain in its second look, NOUN's streetwear: the drop's hero, new this week, shop the look and the categories",
+  "clothes-sig-a-home-dark": "Lujain in its first look, the boutique, by night: the search, the categories, the season's collections and what's new",
+  "clothes-sig-b-home-dark": "Lujain in its second look, NOUN's streetwear, by night: the drop's hero, new this week, shop the look and the categories",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",

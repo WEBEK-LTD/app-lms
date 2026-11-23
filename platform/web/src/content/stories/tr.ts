@@ -1124,5 +1124,253 @@ export const STORIES_TR: StoryCopy = {
         "flowers-vase": "Beyaz bir vazoda laleler ve güller",
       },
     },
+    // 208 Lujain, the clothes shop: a wedding dress bought on a Monday evening, in its look A (LUJAIN); look B (NOUN) in its section.
+    clothes: {
+      navName: "Giyim mağazası uygulaması",
+      metaTitle: "Bedenler, kategori menüsü ve görünümü tamamla ile bir giyim mağazası uygulaması, Yallapp Studio'da tasarlandı",
+      metaDescription: "Lujain ile bir gün: perşembe bir düğün, kategori menüsü, bedenine ve rengine göre bir elbise, beden rehberi ve görünümü tamamlayan topuklular.",
+      summary: "Her birinin stoğuyla bedenler ve renkler, sıra sıra kategori menüsü, beden tablosu, görünümü tamamla ve değişim, iki premium görünümde.",
+      eyebrow: "Yallapp Studio · Giyim mağazası",
+      title: "Perşembe, bakır rengi saten",
+      intro: "Noura'nın perşembe bir düğünü var ve giymek istediği hiçbir şey yok. Riyad'da pazartesi akşamı. Telefonuyla geçen birkaç dakika, bedenine uygun bir elbiseye ve yanına yakışan topuklulara böyle dönüşüyor.",
+      cast: "Noura, Riyad'da bir kadın moda evi olan Lujain'den alışveriş yapıyor. Lujain, giyim mağazası şablonunun demosu: kıyafetleri, adları ve fiyatları uydurma, fotoğrafları gerçek; aşağıdaki her ekran gerçek uygulama.",
+      chapters: [
+        {
+          time: "21:10",
+          kicker: "Riyad, akşam yemeğinden sonra",
+          title: "Perşembe bir düğün",
+          text: "Noura kanepede Lujain'i açıyor. Ana sayfa küçük ve hızlı: arama, yuvarlaklar içinde kategoriler ve kayan kartlarda sezonun koleksiyonları, bir sonrakinin kenarı görünüyor. Altında bu hafta gelenler."
+        },
+        {
+          time: "21:13",
+          kicker: "Menü",
+          title: "Her kategori bir sıra",
+          text: "Zilin yanındaki menüye dokunuyor. Mağazanın her kategorisi fotoğraflı kartlardan bir sıra: önce Elbiseler, ardından kayan Midi, Maksi ve Mini; sonra Abayalar, Mont ve ceketler, Ayakkabılar, Çantalar. Elbiseler sırasını kaydırıp Midi'ye dokunuyor."
+        },
+        {
+          time: "21:17",
+          kicker: "Elbisenin sayfası",
+          title: "Siyahta M kalmamış",
+          text: "İndirimde, bakır rengi saten bir midi elbise. Sayfa açıldığında siyah seçili ve M soluk: siyahta hiç kalmamış. Bakır rengine dokununca M geri geliyor. Bedenlerin yanında Beden rehberi mağazanın tablosunu açıyor: göğüs, bel, kalça ve boy, santimetre olarak."
+        },
+        {
+          time: "21:20",
+          kicker: "Görünümü tamamla",
+          title: "Topuklu, el çantası, güneş gözlüğü",
+          text: "Elbisenin altına mağaza diğer kategorilerinin her birinden bir parça koymuş: bantlı siyah topuklu, rugan el çantası, yuvarlak güneş gözlüğü. Fiyatın altındaki satır, 14 gün içinde değişim ve iadenin ücretsiz olduğunu söylüyor."
+        },
+        {
+          time: "21:24",
+          kicker: "Günün fırsatı",
+          title: "Topuklular %30 indirimli",
+          text: "Ana sayfada koyu bir kart Günün fırsatı diyor, sayacı geri sayıyor. Bantlı topuklular içinde, eski fiyatın üstü çizili. 38 numarasını sepete ekliyor ve ödemede mağazanın kodunu, LUJAIN10'u kopyalıyor."
+        },
+        {
+          time: "09:30",
+          kicker: "Salı, mağazada",
+          title: "Bakırda M, siyahta 38",
+          text: "Lujain'de Reem sabahın siparişlerini açıyor. Noura'nınkinde elbise bakır renginde M beden, topuklular siyahta 38 numara. Her birinin stoğu birer azalıyor, beden beden ve renk renk; kimse olmayan bir elbiseyi alamıyor.",
+          push: {
+            app: "Lujain",
+            title: "Sipariş 2108",
+            body: "Siparişiniz yolda. 14 gün içinde değişim ücretsiz."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Pazartesi dokuzda. Perşembe bakır rengi satenle.",
+        text: "Arada olan her şey mağazanın kendisindendi: kategorileri ve sıraları, bedenleri, renkleri ve her birinin stoğu, beden tablosu, fırsatları ve değişimleri; panelde bir kez ayarlandı."
+      },
+      statsTitle: "Bir elbisenin ardındaki küçük gerçekler",
+      stats: [
+        "demonun menüsünde ana kategori, her biri bir kart sırası",
+        "sıralarında kayan alt kategori",
+        "gün içinde değişim ya da iade, her fiyatın altında",
+        "dil, Arapça sağdan sola"
+      ],
+      systemsTitle: "Her parça, ayrıntısıyla",
+      systemsText: "Kategori menüsü, bedenler ve renkler, görünümü tamamla ve fırsatlar, iki görünüm ve ürünlerin nereden geldiği.",
+      systems: [
+        {
+          name: "Kategori menüsü",
+          title: "Her kategori, bir sıra",
+          text: "Zilin yanındaki menü mağazanın bütün kategorilerini birden açar, her biri fotoğraflı kartlardan bir sıra.",
+          features: [
+            [
+              "Kategori başına bir sıra",
+              "Her ana kategori yana kayan bir kart sırası."
+            ],
+            [
+              "Önce tamamı",
+              "İlk kart kategorinin kendisi, kaç parçası olduğuyla."
+            ],
+            [
+              "Sıradaki alt kategoriler",
+              "Midi, Maksi ve Mini Elbiseler'in ardından kayar, her birinin kendi fotoğrafıyla."
+            ],
+            [
+              "Üstte arama",
+              "Tek bir alan bütün kategorilerde arar."
+            ],
+            [
+              "Altta hesap",
+              "Hesabım, siparişlerim, dil ve mağazaya ulaşma yolu."
+            ],
+            [
+              "Editörde de",
+              "Kategori menüsü, Studio kütüphanesinde her mağaza için bir öğe."
+            ]
+          ]
+        },
+        {
+          name: "Bedenler ve renkler",
+          title: "Her bedenin stoğu",
+          text: "Bir parça bedenleri ve renkleriyle gelir, mağaza her birinin stoğunu tutar.",
+          features: [
+            [
+              "Renge göre beden",
+              "Her renkte her beden ayrı bir stok."
+            ],
+            [
+              "Biten seçilmez",
+              "Seçili renkte hiç kalmamış beden soluk görünür ve seçilemez."
+            ],
+            [
+              "Beden rehberi",
+              "Bedenlerin yanında mağazanın kendi tablosu bir pencerede açılır."
+            ],
+            [
+              "Üç dilde",
+              "Tablonun başlıkları İngilizce, Arapça ve Türkçe; santimetre ya da inç."
+            ],
+            [
+              "Açılışta seçili",
+              "Mağazanın seçtiği beden ve renk sayfa açıldığında hazır."
+            ],
+            [
+              "Ayakkabılar da",
+              "Ayakkabılar numaralarıyla, çanta ve aksesuarlar tek beden."
+            ]
+          ]
+        },
+        {
+          name: "Görünümü tamamla ve fırsatlar",
+          title: "Yanına ne gider",
+          text: "Mağaza yalnızca elbiseyi değil, bütün görünümü satar.",
+          features: [
+            [
+              "Görünümü tamamla",
+              "Her parçanın altında, mağazanın diğer ana kategorilerinin her birinden bir parça."
+            ],
+            [
+              "Görünümü al",
+              "Numaralı noktalarla bir fotoğraf, her nokta kendi parçasını açar."
+            ],
+            [
+              "Değişim gözünün önünde",
+              "Mağazanın değişim ve iade günleri fiyatın altında."
+            ],
+            [
+              "Günün fırsatı",
+              "Geri sayımı ve kalan adediyle flaş indirim."
+            ],
+            [
+              "Kodlar",
+              "Mağazanın kodu bir bilette, tek dokunuşla kopyalanır."
+            ]
+          ]
+        },
+        {
+          name: "Yallapp Studio'da tasarlandı",
+          title: "İki görünüm, her parçası değiştirilebilir",
+          text: "Lujain, yalnızca Studio öğeleriyle kurulmuş iki premium görünümle gelir.",
+          features: [
+            [
+              "LUJAIN",
+              "A görünümü: siyah beyaz bir butik, büyük fotoğraflar ve sakin bir yazı."
+            ],
+            [
+              "NOUN",
+              "B görünümü: sokak stili, beton grisi üstünde elektrik mavisi, droplar ve bir şerit."
+            ],
+            [
+              "Açık ve koyu",
+              "İki görünümün de tasarlanmış bir gecesi var."
+            ],
+            [
+              "Kompakt vitrin",
+              "Koleksiyonlar yaklaşık 210 nokta yüksekliğinde kartlarda, bir sonrakinin kenarı görünür."
+            ],
+            [
+              "Yüzen çubuk",
+              "Ana sayfa, Alışveriş, Sepet, Siparişler ve Hesap; açık olan adıyla bir hap."
+            ],
+            [
+              "Hazır bölümler",
+              "Kategori menüsü, fırsat, görünümü al, beden kartı ve daha fazlası, her mağaza için."
+            ],
+            [
+              "Üç dil",
+              "İngilizce, sağdan sola Arapça ve Türkçe."
+            ]
+          ]
+        },
+        {
+          name: "Ürünler nereden geliyor",
+          title: "Ürünleriniz ya da mağazanızın platformu",
+          text: "Lujain, Yallapp'te tutulan ürünlerle ya da zaten sahip olduğunuz online mağazayla çalışır.",
+          features: [
+            [
+              "Yallapp'teki ürünler",
+              "Bu sayfadaki her şey: kategori içinde kategoriler, beden tablosu ve görünümü tamamla."
+            ],
+            [
+              "WordPress ve diğer platformlar",
+              "Kategorileri ve alt kategorileri menüde, bedenleri ve stoğu sayfada."
+            ],
+            [
+              "Sırada",
+              "Bağlı bir platformdan beden tablosu ve görünümü tamamla."
+            ]
+          ]
+        }
+      ],
+      bundleTitle: "Tek uygulama, paneliniz ve varsa mağazanız",
+      bundleText: "Müşterilerin uygulaması tek bir Studio projesinden mağazanın adıyla yapılır ve yayımlanır. Ürünleri Yallapp'ten ya da mağazanın kendi platformundan gelir.",
+      bundleNodes: [
+        [
+          "Lujain",
+          "Müşteriler, Android ve iPhone'da"
+        ],
+        [
+          "Yallapp Studio",
+          "Mağaza: görünümü, kategorileri, bedenleri ve fırsatları"
+        ],
+        [
+          "Mağazanın web sitesi",
+          "Varsa WooCommerce, Shopify ya da bir başkası"
+        ]
+      ],
+      bundleFlows: [
+        "Yeni bir alt kategori menüdeki sırasında görünür",
+        "Biten beden uygulamada soluk görünür",
+        "Beden tablosu müşterinin dilinde",
+        "Sipariş bedeni ve rengiyle gelir"
+      ],
+      compareTitle: "Karşılaştırma",
+      compareText: "Online mağazalar için uygulama yapan şirketler, kendi sitelerinin anlattığı gibi; Yallapp'in ve bir ajansa uygulama yaptırmanın yanında.",
+      finale: {
+        title: "Perşembe, dokuzda",
+        text: "Elbise tam bedeninde. Topuklular gece yarısından sonra biraz acıtıyor, topukluların yaptığı gibi. Reem yeni sezonun abayalarını sıralarına çoktan ekledi; Riyad'ın bir yerinde bir başkası şimdi onları kaydırıyor."
+      },
+      photos: {
+        "clothes-hero": "Güneşli dar bir geçitte uzun yeşil elbiseli bir kadın",
+        "clothes-dress": "Bir verandada bakır rengi saten elbiseli bir kadın",
+        "clothes-heels": "Küçük bir çiçeğin yanında bantlı siyah topuklular",
+        "clothes-rack": "Askılarda beyaz elbiseler",
+        "clothes-street": "Bir şehir sokağında siyah şapkalı, sarı paltolu bir kadın",
+        "clothes-walk": "Beyaz kum tepelerinde yürüyen beyazlar içinde bir kadın"
+      }
+    },
   },
 };

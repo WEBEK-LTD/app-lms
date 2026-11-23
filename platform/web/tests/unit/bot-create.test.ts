@@ -9,7 +9,7 @@ import { makeFromAnswers, type BotMaker } from "@/lib/bot/create";
 import { BOT_LOYALTY, featureSettings, featureStatus, featuresFor } from "@/lib/bot/features";
 import { MemoryStore } from "@/lib/data/memory";
 import type { App } from "@/lib/data/types";
-import { demoIdOf, demoKind, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
+import { demoIdOf, demoKind, isStoreTemplateDemo, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoDesign, demoDesignId } from "@/lib/demo/look";
 import { demoLayout } from "@/lib/demo/setup";
@@ -72,8 +72,8 @@ function demoApp(id: StudioDemoId): App {
 }
 
 describe("the bot makes a Studio project: the chosen demo, exactly", () => {
-  // 123 The premium academy's demo is no kind of its own: the bot makes an academy, and the premium academy is a Studio template; 131.20 Leqaa likewise (a shop, and its looks are a store's templates).
-  it.each(STUDIO_DEMO_TYPES.filter((id) => id !== "premium_academy" && id !== "flowers"))("%s", async (id) => {
+  // 123 The premium academy's demo is no kind of its own: the bot makes an academy, and the premium academy is a Studio template; 131.20 Leqaa likewise (a shop, and its looks are a store's templates); 208 so is every shop type's demo (Lujain).
+  it.each(STUDIO_DEMO_TYPES.filter((id) => id !== "premium_academy" && !isStoreTemplateDemo(id)))("%s", async (id) => {
     const store = new MemoryStore();
     const kind = demoKind(id);
     const { app, open, layout } = await make(store, { kind: kind.id, name: DEMO_BRANDS[id].appName });
