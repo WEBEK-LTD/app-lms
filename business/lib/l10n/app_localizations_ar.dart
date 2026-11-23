@@ -4348,6 +4348,30 @@ class AppLocalizationsAr extends AppLocalizations {
       'اختر صوت كل نوع، واجعل الطلبات الجديدة ترن حتى تُفتح';
 
   @override
+  String get ringtonesMoney => 'المال والمبيعات';
+
+  @override
+  String get soundChaChing => 'رنّة الكاشير';
+
+  @override
+  String get soundCoinDrop => 'تساقط العملات';
+
+  @override
+  String get soundTillBell => 'الدرج والجرس';
+
+  @override
+  String get soundCoinChime => 'عملة ونغمة';
+
+  @override
+  String get soundSaleJingle => 'تمّ البيع';
+
+  @override
+  String get soundPiggyBank => 'الحصّالة';
+
+  @override
+  String get soundReceiptPrinter => 'طابعة الإيصالات';
+
+  @override
   String minutesAgo(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

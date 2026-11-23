@@ -1,3 +1,4 @@
+import { appPhoneCode } from "../country-code";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import { pushNewComplaint, pushNewMarketOrder } from "../../owner/push";
 import { pushOwnerSafely } from "../../owner/push-env";
@@ -68,7 +69,6 @@ import { delayJson, mayEditPlace, parseClosedDates, parseDelay, parseHoursList, 
 import { utcToLocal } from "../../bookings/time";
 import { monthBounds, vendorStatement, type PanelContext } from "../../market/panel-pages";
 import { parseAnyPhone } from "../phone";
-import { hostedSettings } from "../service";
 import { error, intParam } from "./common";
 import { completeUpload, kindOf, mediaLink, startUpload, uploadUrl } from "../../media/files";
 import type { MediaStorage } from "../../media/storage";
@@ -453,7 +453,7 @@ export class MarketConnector {
     const deliveryBy = fulfilment === "pickup" ? null : pr.delivery.by;
     const collectedBy = collectedByOf({ paymentMethod: input.payment, fulfilment, deliveryBy });
     const money = repriceFor(pr, { ...input, useWallet: input.useWallet || input.payment === "wallet" }, collectedBy);
-    const phone = parseAnyPhone(request.user.phone ?? "", hostedSettings(app).defaultCountryCode)?.e164 ?? request.user.phone ?? "";
+    const phone = parseAnyPhone(request.user.phone ?? "", appPhoneCode(app))?.e164 ?? request.user.phone ?? "";
     const status: MarketOrderStatus = online && money.payNow > 0 ? "awaiting_payment" : input.scheduledFor ? "scheduled" : "placed";
     const created = await store.createMarketOrder({
       appId: app.id,

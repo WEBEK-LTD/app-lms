@@ -164,6 +164,8 @@ if [ "$APP" = bookings ]; then
 	mkdir -p "$SITE_DIR/wp-content/mu-plugins"
 	cp "$HERE/sqlite-functions.php" "$SITE_DIR/wp-content/mu-plugins/"
 fi
+mkdir -p "$SITE_DIR/wp-content/mu-plugins"
+cp "$HERE/offline-platform.php" "$SITE_DIR/wp-content/mu-plugins/yallapp-offline-platform.php"
 if [ -n "$PLUGIN_SRC" ]; then
 	cp -r "$PLUGIN_SRC" "$SITE_DIR/wp-content/plugins/yallapp"
 else
@@ -195,6 +197,10 @@ define( 'WP_DEBUG_DISPLAY', false );
 define( 'YALLAPP_DEV_OTP', true );
 // 68 The dev site has no license: the checks turn enforcement back on where they test it.
 define( 'YALLAPP_ENFORCE_LICENSE', false );
+// 206.1 Never Yallapp's own server: the checks run with test license keys. The platform is a local
+// address (YALLAPP_PLATFORM_URL, else one nothing answers on), and every call the check scripts
+// don't answer themselves fails at once (mu-plugins/yallapp-offline-platform.php).
+define( 'YALLAPP_PLATFORM_URL', '${YALLAPP_PLATFORM_URL:-http://platform.yallapp.test/api/v1}' );
 // No WP-Cron of its own: PHP's built-in server (serve.sh) has one worker, so a wp-cron.php run
 // holds up every request behind it. The cron lock WP-CLI takes while setting up runs out 60
 // seconds later, and the first request after that started WordPress's update checks (30 seconds

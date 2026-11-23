@@ -4366,6 +4366,30 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose the sound of each kind, and let new orders ring until opened';
 
   @override
+  String get ringtonesMoney => 'Money and sales';
+
+  @override
+  String get soundChaChing => 'Cha-ching';
+
+  @override
+  String get soundCoinDrop => 'Coins dropping';
+
+  @override
+  String get soundTillBell => 'Till and bell';
+
+  @override
+  String get soundCoinChime => 'Coin chime';
+
+  @override
+  String get soundSaleJingle => 'Sale made';
+
+  @override
+  String get soundPiggyBank => 'Piggy bank';
+
+  @override
+  String get soundReceiptPrinter => 'Receipt printer';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

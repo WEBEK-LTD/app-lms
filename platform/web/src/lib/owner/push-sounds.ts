@@ -37,6 +37,14 @@ export const OWNER_RINGTONES = [
   "soft_drop",
   "pop",
   "knock",
+  // 213 The money sounds: a cash register's ring, coins, the till, a sale made.
+  "cha_ching",
+  "coin_drop",
+  "till_bell",
+  "coin_chime",
+  "sale_jingle",
+  "piggy_bank",
+  "receipt_printer",
 ] as const;
 export type OwnerRingtone = (typeof OWNER_RINGTONES)[number];
 /** A ringtone, the phone's own notification sound, or none. */

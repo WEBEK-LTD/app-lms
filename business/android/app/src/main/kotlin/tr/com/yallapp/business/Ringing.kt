@@ -47,6 +47,8 @@ object Ringing {
         "chime", "counter_bell", "kitchen_ticket", "marimba", "harp", "digital", "rush_hour",
         "cash_drawer", "doorbell", "xylophone", "soft_pulse", "chirp", "sunrise", "arcade",
         "soft_drop", "pop", "knock",
+        // 213 The money sounds.
+        "cha_ching", "coin_drop", "till_bell", "coin_chime", "sale_jingle", "piggy_bank", "receipt_printer",
     )
     private val defaults = mapOf(
         "orders" to "counter_bell",

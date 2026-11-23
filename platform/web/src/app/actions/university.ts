@@ -1,5 +1,6 @@
 "use server";
 
+import { appPhoneCode } from "@/lib/hosted/country-code";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
@@ -7,7 +8,6 @@ import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/sessi
 import { getStore } from "@/lib/data";
 import type { App, SchoolPerson } from "@/lib/data/types";
 import { formValues, type FormState } from "@/lib/forms";
-import { hostedSettings } from "@/lib/hosted/service";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { schoolToday } from "@/lib/school/service";
 import { schoolSettingsOf } from "@/lib/school/settings";
@@ -286,7 +286,7 @@ export async function importUniStudentsAction(_: FormState, formData: FormData):
       problems.push(`Line ${row.line}: there's no program ${row.program}.`);
       continue;
     }
-    const advisor = row.advisor ? teacherBy(teachers, row.advisor, hostedSettings(app).defaultCountryCode) : undefined;
+    const advisor = row.advisor ? teacherBy(teachers, row.advisor, appPhoneCode(app, context.client.country)) : undefined;
     if (row.advisor && !advisor) {
       problems.push(`Line ${row.line}: there's no lecturer ${row.advisor}.`);
       continue;

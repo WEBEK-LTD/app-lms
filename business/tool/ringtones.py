@@ -5,7 +5,8 @@ Every sound is synthesised by this script (sine partials, plucked strings,
 noise bursts and envelopes; no recordings, no samples from anywhere else), so
 they are Yallapp's own. Run it from business/ after changing a tone:
 
-    python3 tool/ringtones.py
+    python3 tool/ringtones.py                  # every ringtone
+    python3 tool/ringtones.py cha_ching coin_drop  # only these (213)
 
 It writes, for each ringtone in RINGTONES:
 
@@ -291,6 +292,136 @@ def chime_classic():
     return data
 
 
+# 213 The money sounds: a sale made, coins, the till ------------------------
+
+
+def band_noise(seconds: float, lo: float, hi: float, seed: int = 11) -> np.ndarray:
+    """White noise kept between lo and hi Hz (filtered in the frequency domain)."""
+    n = int(seconds * RATE)
+    spectrum = np.fft.rfft(np.random.default_rng(seed).standard_normal(n))
+    freqs = np.fft.rfftfreq(n, 1 / RATE)
+    spectrum[(freqs < lo) | (freqs > hi)] = 0
+    out = np.fft.irfft(spectrum, n)
+    return out / (np.max(np.abs(out)) or 1.0)
+
+
+def fuller(x: np.ndarray, drive: float) -> np.ndarray:
+    """A soft limiter: the quiet tail comes up next to the attack, nothing clips."""
+    x = x / (np.max(np.abs(x)) or 1.0)
+    return np.tanh(drive * x) / np.tanh(drive)
+
+
+def coin(freq: float, seconds: float = 0.35, seed: int = 5) -> np.ndarray:
+    """A small coin struck on a counter: a few close, bright, inharmonic partials and a click."""
+    t = t_axis(seconds)
+    out = np.zeros_like(t)
+    for ratio, amp, d in ((1.0, 1.0, 0.12), (1.47, 0.6, 0.08), (2.09, 0.45, 0.05), (2.81, 0.3, 0.03)):
+        out += amp * np.sin(2 * np.pi * freq * ratio * t) * np.exp(-t / d)
+    click = band_noise(seconds, 4000, 12000, seed) * np.exp(-t / 0.003)
+    return (out + 0.5 * click) * np.clip(t / 0.0005, 0, 1)
+
+
+def cha_ching():
+    # The register's key and lever (two dry clacks), then its bell rings out.
+    tr = silence(2.0)
+    clack = band_noise(0.08, 800, 5000, 21) * env(0.08, 0.0005, 0.012)
+    place(tr, clack, 0.0, 0.7)
+    place(tr, clack, 0.09, 0.9)
+    place(tr, bell(note("D7") / 2, 1.8, 0.55), 0.2, 1.0)
+    place(tr, bell(note("A6") / 2, 1.6, 0.5), 0.2, 0.45)
+    return fuller(room(tr, 0.2), 2.2)
+
+
+def coin_drop():
+    # Two coins dropped on a counter, each bouncing faster and softer until it settles.
+    tr = silence(1.9)
+    for c, (start, f, seed) in enumerate(((0.0, 3400, 1), (0.18, 4100, 2))):
+        at, gap, gain = start, 0.22, 1.0
+        for i in range(7):
+            place(tr, coin(f * (1 + 0.01 * i), 0.3, seed + i), at, gain)
+            at += gap
+            gap *= 0.62
+            gain *= 0.72
+    # The last spin of a coin settling flat.
+    t = t_axis(0.45)
+    rate = 18 + 60 * (t / 0.45) ** 2
+    spin = np.sin(2 * np.pi * np.cumsum(rate) / RATE) ** 8
+    place(tr, coin(3900, 0.45, 9) * 0.3 * (0.4 + spin), 1.1)
+    return fuller(room(tr, 0.1, 0.4), 1.6)
+
+
+def till_bell():
+    # The till's drawer slides out on its runners and stops, then the counter's bell twice.
+    tr = silence(2.4)
+    t = t_axis(0.38)
+    slide = band_noise(0.38, 300, 2600, 31) * (0.25 + 0.75 * t / 0.38) * np.clip((0.38 - t) / 0.02, 0, 1)
+    rattle = 0.5 + 0.5 * np.sign(np.sin(2 * np.pi * 34 * t))
+    place(tr, 0.35 * slide * rattle, 0.0)
+    thunk = tone(95, 0.25, ((1, 1), (2.3, 0.3)), 0.001, 0.05) + 0.4 * band_noise(0.25, 200, 1500, 32) * np.exp(-t_axis(0.25) / 0.01)
+    place(tr, thunk, 0.38, 0.9)
+    place(tr, bell(note("G6") / 2, 1.3, 0.45), 0.55, 0.85)
+    place(tr, bell(note("G6") / 2, 1.6, 0.55), 0.85, 0.75)
+    return room(tr, 0.15)
+
+
+def coin_chime():
+    # One coin on the counter, then a rising, sparkling chime: the sale went through.
+    tr = silence(2.2)
+    place(tr, coin(3600, 0.35, 41), 0.0, 0.8)
+    for i, n in enumerate(("E5", "G#5", "B5", "E6")):
+        sparkle = tone(note(n), 1.6 - i * 0.2, ((1, 1), (2, 0.25), (4.02, 0.12), (6.1, 0.05)), 0.003, 0.5)
+        place(tr, sparkle, 0.22 + i * 0.11, 0.75)
+    return room(tr, 0.3, 1.2)
+
+
+def ep(freq: float, seconds: float = 0.9) -> np.ndarray:
+    """A soft electric-piano note (two-operator FM: the bark fades, the body stays)."""
+    t = t_axis(seconds)
+    index = 1.6 * np.exp(-t / 0.15)
+    out = np.sin(2 * np.pi * freq * t + index * np.sin(2 * np.pi * freq * 1.0 * t))
+    return out * env(seconds, 0.004, 0.45)
+
+
+def sale_jingle():
+    # A short, warm jingle that resolves: soft, for a shop that's open all day.
+    tr = silence(2.5)
+    melody = (("C5", 0.0), ("E5", 0.15), ("G5", 0.3), ("A5", 0.45), ("G5", 0.62), ("C6", 0.8))
+    for n, at in melody:
+        place(tr, ep(note(n), 1.0), at, 0.7)
+    for n in ("C4", "E4", "G4"):
+        place(tr, ep(note(n), 1.6) * 0.5, 0.8, 0.6)
+    return room(tr, 0.28, 1.1)
+
+
+def piggy_bank():
+    # A coin slides along the slot, drops in, and the hollow bank answers.
+    tr = silence(1.7)
+    t = t_axis(0.25)
+    f = 5200 * (0.55 ** (t / 0.25))
+    slide = np.sin(2 * np.pi * np.cumsum(f) / RATE) * np.clip(t / 0.02, 0, 1) * np.clip((0.25 - t) / 0.03, 0, 1)
+    place(tr, 0.35 * slide + 0.15 * band_noise(0.25, 2000, 7000, 51) * np.exp(-t / 0.1), 0.0)
+    place(tr, coin(2900, 0.3, 52), 0.27, 0.9)
+    # The ceramic body: low, hollow, a little wobble.
+    hollow = tone(330, 1.0, ((1, 1), (2.71, 0.35), (5.4, 0.12)), 0.002, 0.18, vibrato=0.4)
+    place(tr, hollow, 0.3, 0.8)
+    place(tr, coin(3300, 0.25, 53), 0.52, 0.45)
+    return fuller(room(tr, 0.3, 0.7), 2.4)
+
+
+def receipt_printer():
+    # A thermal printer's quick buzz printing the slip, the tear, then a happy two-tone beep.
+    tr = silence(1.8)
+    t = t_axis(0.55)
+    steps = (np.sin(2 * np.pi * 160 * t) > 0.2).astype(float)
+    buzz = band_noise(0.55, 1500, 6000, 61) * steps * 0.35 + 0.25 * np.sin(2 * np.pi * 320 * t) * steps
+    place(tr, buzz * np.clip(t / 0.02, 0, 1) * np.clip((0.55 - t) / 0.02, 0, 1), 0.0)
+    tear = band_noise(0.12, 2500, 9000, 62) * env(0.12, 0.002, 0.03)
+    place(tr, tear, 0.6, 0.7)
+    place(tr, tone(note("E6"), 0.35, ((1, 1), (2, 0.15)), 0.004, 0.12), 0.85, 0.8)
+    place(tr, tone(note("A6"), 0.6, ((1, 1), (2, 0.15)), 0.004, 0.2), 1.02, 0.8)
+    return room(tr, 0.15, 0.5)
+
+
 # id → (maker, gap before it rings again in the long iOS version)
 RINGTONES = {
     "chime": (chime_classic, 0.4),
@@ -310,6 +441,14 @@ RINGTONES = {
     "soft_drop": (soft_drop, 0.6),
     "pop": (pop_up, 0.6),
     "knock": (wood_knock, 0.4),
+    # 213 The money sounds.
+    "cha_ching": (cha_ching, 0.4),
+    "coin_drop": (coin_drop, 0.4),
+    "till_bell": (till_bell, 0.3),
+    "coin_chime": (coin_chime, 0.3),
+    "sale_jingle": (sale_jingle, 0.3),
+    "piggy_bank": (piggy_bank, 0.5),
+    "receipt_printer": (receipt_printer, 0.4),
 }
 
 LONG_SECONDS = 25.0
@@ -337,6 +476,12 @@ def ffmpeg(src: str, dst: str, *args: str) -> None:
 
 
 def main() -> int:
+    # 213 `python3 tool/ringtones.py cha_ching coin_drop`: only these (the others' files stay as they are).
+    only = set(sys.argv[1:])
+    unknown = only - set(RINGTONES)
+    if unknown:
+        print(f"Unknown ringtones: {', '.join(sorted(unknown))}", file=sys.stderr)
+        return 2
     sounds = os.path.join(ROOT, "assets", "sounds")
     raw = os.path.join(ROOT, "android", "app", "src", "main", "res", "raw")
     ios = os.path.join(ROOT, "ios", "Runner", "Sounds")
@@ -344,6 +489,8 @@ def main() -> int:
         os.makedirs(d, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         for rid, (make, gap) in RINGTONES.items():
+            if only and rid not in only:
+                continue
             one = finish(make())
             once = os.path.join(tmp, f"{rid}.wav")
             write_wav(once, one)

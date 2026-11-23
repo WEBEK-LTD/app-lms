@@ -31,6 +31,14 @@ String soundName(AppLocalizations l10n, String id) => switch (id) {
   'soft_drop' => l10n.soundDrop,
   'pop' => l10n.soundPop,
   'knock' => l10n.soundKnock,
+  // 213
+  'cha_ching' => l10n.soundChaChing,
+  'coin_drop' => l10n.soundCoinDrop,
+  'till_bell' => l10n.soundTillBell,
+  'coin_chime' => l10n.soundCoinChime,
+  'sale_jingle' => l10n.soundSaleJingle,
+  'piggy_bank' => l10n.soundPiggyBank,
+  'receipt_printer' => l10n.soundReceiptPrinter,
   soundSilent => l10n.soundSilent,
   _ => l10n.soundDefault,
 };
@@ -432,7 +440,11 @@ class _RingtonePickerScreenState extends ConsumerState<RingtonePickerScreen> {
             child: Text(groupHelp(l10n, widget.group)),
           ),
           SectionTitle(l10n.ringtonesYours),
-          for (final id in ringtoneIds) row(id),
+          for (final id in ringtoneIds)
+            if (!moneyRingtoneIds.contains(id)) row(id),
+          // 213 A cash register, coins, the till.
+          SectionTitle(l10n.ringtonesMoney),
+          for (final id in moneyRingtoneIds) row(id),
           SectionTitle(l10n.ringtonesOther),
           row(soundDefault),
           row(soundSilent),
