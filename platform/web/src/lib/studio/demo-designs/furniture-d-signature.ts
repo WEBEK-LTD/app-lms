@@ -382,9 +382,13 @@ function houseTop(ctx: SectionContext): StudioNode {
     id: id(),
     type: "row",
     name: ctx.w("fuWordmark"),
+    // Pinned with the switcher under it: the name and its buttons stay while the rooms scroll.
+    pin: "top",
     gap: 10,
     cross: "center",
     padding: sides(8, 16, 6, 16),
+    background: K.page,
+    dark_background: K.darkPage,
     children: [
       roundButton(ctx, "menu_open", "skCategoryMenu", ownPage(ctx, MENU_PAGE), true),
       { id: id(), type: "column", width: "fill", gap: 0, children: [say(ctx, L, "fuWordmark", font(22, 800), { max_lines: 1 }), say(ctx, L, "mnTagline", font(11.5), { muted: true, max_lines: 1 })] },

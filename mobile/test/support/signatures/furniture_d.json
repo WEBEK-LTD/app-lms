@@ -204,6 +204,7 @@
         "id": "sig-2",
         "type": "row",
         "name": "Rukn",
+        "pin": "top",
         "gap": 10,
         "cross": "center",
         "padding": {
@@ -212,6 +213,8 @@
          "bottom": 6,
          "start": 16
         },
+        "background": "#F3F1EC",
+        "dark_background": "#0F131C",
         "children": [
          {
           "id": "sig-3",
