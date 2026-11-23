@@ -146,6 +146,37 @@ class QuietHours {
   int get hashCode => Object.hash(from, to);
 }
 
+/// 214 One band of Ring by order value: new orders from [from] (whole
+/// units of the order's currency) ring with [sound].
+@immutable
+class ValueBand {
+  const ValueBand(this.from, this.sound);
+
+  final double from;
+  final String sound;
+
+  Map<String, dynamic> toJson() => {
+    'from': from == from.roundToDouble() ? from.round() : from,
+    'sound': sound,
+  };
+
+  /// The bands as the server keeps them: 2 or 3, the first from 0, each
+  /// above the one before, known sounds; anything else is none.
+  static List<ValueBand>? listFrom(Object? json) {
+    if (json is! List || json.length < 2 || json.length > 3) return null;
+    final out = <ValueBand>[];
+    for (final item in json) {
+      if (item is! Map) return null;
+      final from = item['from'];
+      final sound = '${item['sound']}';
+      if (from is! num || !isSoundChoice(sound)) return null;
+      if (out.isEmpty ? from != 0 : from <= out.last.from) return null;
+      out.add(ValueBand(from.toDouble(), sound));
+    }
+    return out;
+  }
+}
+
 /// The choices of Settings › Ringtones, kept on this phone and sent to the
 /// server (`PUT /me/push-sounds`) and to Android's notifications.
 @immutable
@@ -158,6 +189,9 @@ class RingSettings {
     this.alarmVolume = false,
     this.quiet,
     this.volume = 1.0,
+    this.byValue,
+    this.summaryOn = true,
+    this.summaryAt = 23 * 60,
   });
 
   /// A group left out has its default sound.
@@ -175,6 +209,18 @@ class RingSettings {
   /// The in-app ring's and the preview's volume (0.2 to 1), this phone only.
   final double volume;
 
+  /// 214 Ring by order value: 2 or 3 bands, each from an amount (whole
+  /// units of the order's currency; the first from 0) with its own sound,
+  /// for new orders. Null: the orders' sound for every order.
+  final List<ValueBand>? byValue;
+
+  /// 214 The end-of-day summary: on, at this many minutes after midnight in
+  /// the shop's time zone (23:00 unless chosen).
+  final bool summaryOn;
+  final int summaryAt;
+
+  static const maxBands = 3;
+
   static const ringMinuteChoices = [1, 2, 3, 5, 10];
 
   String soundOf(SoundGroup group) => sounds[group] ?? group.defaultSound;
@@ -183,10 +229,24 @@ class RingSettings {
 
   /// What a push of [group] sounds like at [at]: the quiet hours silence
   /// everything but orders.
-  String soundAt(SoundGroup group, DateTime at) =>
+  String soundAt(SoundGroup group, DateTime at, {double? value}) =>
       group != SoundGroup.orders && (quiet?.contains(at) ?? false)
       ? soundSilent
+      : group == SoundGroup.orders
+      ? (soundForValue(value) ?? soundOf(group))
       : soundOf(group);
+
+  /// 214 The band's sound for a new order of [value], or null (no bands, or
+  /// no value), as the server's `soundByValue`.
+  String? soundForValue(double? value) {
+    final bands = byValue;
+    if (bands == null || bands.isEmpty || value == null) return null;
+    String? chosen;
+    for (final b in bands) {
+      if (value >= b.from) chosen = b.sound;
+    }
+    return chosen;
+  }
 
   RingSettings copyWith({
     Map<SoundGroup, String>? sounds,
@@ -197,6 +257,10 @@ class RingSettings {
     QuietHours? quiet,
     bool clearQuiet = false,
     double? volume,
+    List<ValueBand>? byValue,
+    bool clearByValue = false,
+    bool? summaryOn,
+    int? summaryAt,
   }) => RingSettings(
     sounds: sounds ?? this.sounds,
     ring: ring ?? this.ring,
@@ -205,6 +269,9 @@ class RingSettings {
     alarmVolume: alarmVolume ?? this.alarmVolume,
     quiet: clearQuiet ? null : (quiet ?? this.quiet),
     volume: volume ?? this.volume,
+    byValue: clearByValue ? null : (byValue ?? this.byValue),
+    summaryOn: summaryOn ?? this.summaryOn,
+    summaryAt: summaryAt ?? this.summaryAt,
   );
 
   /// The server's `PushSounds` (and this phone's own `volume`).
@@ -236,6 +303,14 @@ class RingSettings {
       alarmVolume: json['alarm_volume'] == true,
       quiet: QuietHours.fromJson(json['quiet']),
       volume: volume is num ? volume.toDouble().clamp(0.2, 1.0) : 1.0,
+      byValue: ValueBand.listFrom(json['by_value']),
+      summaryOn:
+          (json['summary'] is Map ? json['summary']['on'] : null) != false,
+      summaryAt:
+          QuietHours._parse(
+            json['summary'] is Map ? json['summary']['at'] : null,
+          ) ??
+          23 * 60,
     );
   }
 
@@ -251,6 +326,8 @@ class RingSettings {
     'alarm_volume': alarmVolume,
     'quiet': quiet?.toJson(),
     'time_zone': ?timeZone,
+    'by_value': byValue == null ? null : [for (final b in byValue!) b.toJson()],
+    'summary': {'on': summaryOn, 'at': QuietHours.hhmm(summaryAt)},
   };
 
   /// What this phone keeps (and Android's notifications read).
@@ -285,6 +362,13 @@ abstract class RingNative {
 
   /// The data of the notification that opened the app, once.
   Future<Map<String, dynamic>?> initial();
+
+  /// 214 iPhone: the app's notification settings (Time Sensitive).
+  Future<void> openNotificationSettings();
+
+  /// 214 An order was opened or accepted in the app: Android's ongoing
+  /// notification for it goes (by the push's [data]: its kind and id).
+  Future<void> orderDone(Map<String, String> data);
 
   /// Notifications tapped while the app runs.
   Stream<Map<String, dynamic>> get opened;
@@ -347,6 +431,14 @@ class PlatformRingNative implements RingNative {
   }
 
   @override
+  Future<void> orderDone(Map<String, String> data) =>
+      _call<void>('orderDone', {'data': data});
+
+  @override
+  Future<void> openNotificationSettings() =>
+      _call<void>('notificationSettings');
+
+  @override
   Stream<Map<String, dynamic>> get opened => _opened.stream;
 }
 
@@ -365,6 +457,10 @@ class NoRingNative implements RingNative {
   Future<String?> timeZone() => Future.value();
   @override
   Future<Map<String, dynamic>?> initial() => Future.value();
+  @override
+  Future<void> orderDone(Map<String, String> data) => Future.value();
+  @override
+  Future<void> openNotificationSettings() => Future.value();
   @override
   Stream<Map<String, dynamic>> get opened => const Stream.empty();
 }

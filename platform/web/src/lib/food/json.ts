@@ -3,6 +3,7 @@ import { centsToDecimal, formatCents } from "../catalog/money";
 import type { Courier, DeliverySettings, Dish, FoodOrder, MapTilesSetting, Restaurant, RestaurantMenu, Shipment, ShipmentPlace } from "../data/types";
 import { COURIER_ACTIVE, mapConfigJson, readPlace, visibleLocation } from "../delivery/service";
 import { DEFAULT_FOOD_TIMEZONE, foodLineJson, foodOrderReference, restaurantRating, type CartLineInput, type RestaurantState } from "./service";
+import type { pauseJson } from "../shop/pause";
 
 /**
  * 105.1 What the app reads and sends for food orders (tags Food and
@@ -43,6 +44,8 @@ export interface RestaurantNear {
   feeCents: number | null;
   delivers: boolean | null;
   deliveryMinutes: number | null;
+  /** 214 Paused from Yallapp Business or the dashboard (lib/shop/pause.ts): until, reason. */
+  paused?: ReturnType<typeof pauseJson>;
 }
 
 /** `RestaurantSummary`. */
@@ -59,6 +62,8 @@ export function restaurantSummaryJson(r: Restaurant, near: RestaurantNear, setti
     open: near.state.open,
     opens_at: near.state.open ? null : (near.state.opensAt?.toISOString() ?? null),
     busy: near.state.busy,
+    // 214 Not taking orders for now: until (null until it reopens) and why.
+    paused: near.paused ?? null,
     prep_minutes: r.prepMinutes,
     delivery_minutes: near.deliveryMinutes,
     min_order: r.minOrderCents > 0 ? centsToDecimal(r.minOrderCents) : null,

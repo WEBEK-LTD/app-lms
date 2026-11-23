@@ -75,6 +75,7 @@ import type { MediaStorage } from "../../media/storage";
 import type { RateLimitRule } from "../../rate-limit";
 import { hitRateLimit } from "../../rate-limit";
 import type { ConnectorRequest, ConnectorResult } from "./types";
+import { pauseJson, placePause } from "../../shop/pause";
 
 /**
  * 115 The marketplace's routes (the contract's Market and Vendor tags), for
@@ -254,7 +255,7 @@ export class MarketConnector {
       const own = quoteMarketDelivery(settings, { ...v, busyUntil: null, active: true }, { fulfilment: "delivery", dropoff: { address: "", details: null, lat: at.lat, lng: at.lng }, items: 0, itemCount: 1 }, now);
       if (own.ok) fee = own.fee;
     }
-    return { open, opensAt: state.opensAt, busy: state.busy, distanceKm: km, delivers, deliveryFee: fee, minutes, offer, clubBenefit: club, delay: delayJson(v, now) };
+    return { open, opensAt: state.opensAt, busy: state.busy, distanceKm: km, delivers, deliveryFee: fee, minutes, offer, clubBenefit: club, delay: delayJson(v, now), paused: pauseJson(placePause(this.deps.app, v.id, now)) };
   }
 
   private async offerWords(currency: string): Promise<Map<number | null, string>> {
