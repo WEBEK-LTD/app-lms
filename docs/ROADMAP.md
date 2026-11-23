@@ -4734,6 +4734,14 @@ A daily check alerted an owner (KechFlora): "Firebase notifications failed its d
 | [x] | 216.3 `/oidc/jwks.json` cheap: each server keeps the key set it computed for a minute (`publishedPlatformJwks`, `JWKS_MEMORY_SECONDS`), no database read meanwhile, forgotten when a key is made or rotated; the first key is still made when there is none. Both OIDC endpoints send `Cache-Control: public, max-age=300, stale-while-revalidate=3600`; the discovery document is built from the address alone (no database, no key). The issuer, the paths and the bodies are as they were | `phase216-wif-retry` |
 | [ ] | 216.4 Optional, for the owner, not done: Google's OIDC provider can hold an uploaded key set (`jwksJson` on the workload identity pool provider), so Google stops needing to reach the site at all. It would have to be uploaded again on every key rotation (`rotatePlatformKey`), before the new key signs, so it stays optional | |
 
+## Phase 217: the Studio stories' plans in the home page's night band
+
+The owner: the "The Studio plans" section on the Studio story pages looked bad; they wanted it exactly like the home page's Studio plans band (205).
+
+| | Item | Tests |
+|---|---|---|
+| [x] | 217.1 Every story page (`/yallapp-studio/<story>`, English, Arabic, Turkish) shows Studio's plans in `StudioPlansBand` (`site/studio-plans-band.tsx`): the night band, the compact cards, "Every Studio plan has", the currency note. The band takes an `id` (the home page keeps `#studio-plans`, the story keeps `#plans`, which its opening's "See the plans" links to), the page's own heading (the story keeps "The Studio plans" and "This bundle is a Yallapp Studio project…") and its own link (the story's "All plans and prices" to /pricing, in the band's underlined link). Yallapp Studio's own page (`/yallapp-studio`) shows the same band, with its "Studio's own plans" heading and "See all plans" to /pricing, in place of the older cards and "Chosen plan by plan". No price, plan or admin change. Before and after in `docs/design/story-plans/` | `pricing-studio`, e2e `public`, `pages`, `pricing-studio` |
+
 ## Phase 218: Yallapp's own designer page, its photo from the admin
 
 The owner asked where to change the photo of Yallapp's own designer page (/designers/yallapp, and the market's cards of Yallapp's free templates, 190). That designer is on the demo account, which nobody signs in to, so its photo could only be uploaded from Designer area › Your page signed in as that account, and it showed initials. No migration, no app build.
