@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 22" width="12" height="22">
+  <!-- Original cavetto-cornice tile: one painted leaf-flute of the gorge over
+       a bound torus roll. Colours are set per theme (CSS cornice flute colours via mask
+       layers in the pilot; separate paints in Flutter). Mask. -->
+  <path d="M1 2Q6 0 11 2L10.4 14Q6 15.4 1.6 14Z"/>
+  <path d="M0 16.4H12V21.6H0Z" fill-opacity=".85"/>
+</svg>

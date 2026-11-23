@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Original Eye of Horus (wedjat) ornament (decoration only). Mask. -->
+  <path d="M2.6 6.4Q11 2.6 21.4 5.6" stroke-width="1.8"/>
+  <path d="M3.4 11.2Q11.5 5.2 19.8 10.6Q11.5 15.4 3.4 11.2Z" stroke-width="1.5"/>
+  <circle cx="11.8" cy="10.4" r="2.5" fill="#000" stroke="none"/>
+  <path d="M19.8 10.6H22.6" stroke-width="1.5"/>
+  <path d="M9.6 13.8L8.8 20.6" stroke-width="1.6"/>
+  <path d="M13.2 14Q15.4 19.4 19.2 19Q21.4 18.6 20.6 16.6Q19.8 15.4 18.4 16.4" stroke-width="1.5"/>
+</svg>

@@ -48,21 +48,21 @@
   --surface: #FBF7EE;
   --surface2: #EFE4CC;
   --line: #E0D3B6;
-  --gold-line: rgba(122, 87, 16, .38);
+  --gold-line: rgba(103, 74, 11, .42);
   --ink: #161B2E;
-  --ink2: #5A513F;
-  --gold: #7A5710;
-  --faience: #0A6B62;
+  --ink2: #4D4535;
+  --gold: #674A0B;
+  --faience: #075A52;
   --faience-bg: #DCEEE8;
-  --danger: #A3311E;
+  --danger: #8E2918;
   --danger-bg: #F6E1DA;
-  --success: #1D6B43;
+  --success: #17583A;
   --success-bg: #DFEFE3;
   --btn: linear-gradient(180deg, #24346E 0%, #1C2A5C 100%);  /* lapis */
   --btn-ink: #F7EBCB;
   --btn-edge: #C9A04A;
   --nav: #FBF7EE;
-  --glyph: #7A5710;
+  --glyph: #674A0B;
   --glyph-op: .05;
   --shadow: 0 8px 24px rgba(74, 56, 20, .12);
   color-scheme: light;
@@ -183,3 +183,94 @@ bdi, .ltr { direction: ltr; unicode-bidi: isolate; }
 .badge { position: absolute; top: 7px; inset-inline-end: 7px; min-width: 18px; height: 18px; border-radius: 9px; padding: 0 5px;
   background: var(--faience); color: #06201C; font: 700 11px/18px "IBM Plex Sans Arabic"; text-align: center; }
 :root[data-mode="light"] .badge { color: #FFFFFF; }
+
+/* =====================================================================
+   Round 2: a clearly Pharaonic ground and temple framing.
+   ===================================================================== */
+:root, :root[data-mode="dark"] {
+  --star: #E8C877; --star-op: .36;
+  --sky-band: rgba(52, 78, 158, .34);
+  --horizon: rgba(226, 190, 106, .13);
+  --flute1: #D9B25A; --flute2: #3FB8A8; --flute3: #2B4590;
+  --frieze: #E2BE6A; --frieze-op: .78;
+  --column: #E2BE6A; --column-op: .42;
+  --relief: #E2BE6A; --relief-op: 0;
+  --pylon: #1B2B5E;
+  --tile1: #1E8A86; --tile2: #56D4C3; --tile3: #1C3A78; --grout: #0A0F1E;
+}
+:root[data-mode="light"] {
+  --star: #674A0B; --star-op: 0;
+  --sky-band: rgba(255, 250, 238, .0);
+  --horizon: rgba(103, 74, 11, .0);
+  --flute1: #B8892E; --flute2: #1E8A80; --flute3: #2A3F86;
+  --frieze: #8A6416; --frieze-op: .85;
+  --column: #8A6416; --column-op: .5;
+  --relief: #8C4F2A; --relief-op: .26;
+  --pylon: #D9C59A;
+  --tile1: #1E8A80; --tile2: #5CC2B4; --tile3: #2A3F86; --grout: #FBF7EE;
+}
+/* The old glow layers give way to the backdrop. */
+.hero, .headglow, .topglow, .frieze .glyphs { display: none !important; }
+:where(.screen > :not(.backdrop)) { position: relative; z-index: 1; }
+.backdrop { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; background: var(--bg); }
+.backdrop > i { position: absolute; inset: 0; display: block; }
+/* Dark: the starry tomb ceiling under a wide band of sky and a gold horizon. */
+.backdrop .sky { background:
+    radial-gradient(120% 45% at 50% -5%, var(--bg-glow) 0%, transparent 70%),
+    linear-gradient(162deg, transparent 6%, var(--sky-band) 20%, rgba(52,78,158,.10) 36%, transparent 48%),
+    linear-gradient(to top, var(--horizon), transparent 28%); }
+.backdrop .stars { background: var(--star); opacity: var(--star-op);
+  -webkit-mask: url(../svg/star-ceiling.svg) repeat; -webkit-mask-size: 46px 46px; }
+/* Light: real papyrus, washed so text keeps AA, and inscription columns at the edges. */
+:root[data-mode="light"] .backdrop { background: url(../img/papyrus.jpg) repeat; background-size: 384px 384px; }
+:root[data-mode="light"] .backdrop .sky { background:
+    linear-gradient(rgba(246, 238, 220, .38), rgba(246, 238, 220, .38)),
+    radial-gradient(120% 40% at 50% 0%, rgba(205, 176, 118, .28), transparent 70%); }
+.backdrop .relief { inset: 0 auto 0 0; width: 15px; background: var(--relief); opacity: var(--relief-op);
+  -webkit-mask: url(../svg/relief-column.svg) repeat-y; -webkit-mask-size: 15px 69px; }
+.backdrop .relief.r { inset: 0 0 0 auto; }
+
+/* Cavetto cornice: painted flutes (gold, faience, lapis) over a bound torus roll. */
+.cornice { height: 24px; flex: none; position: relative; margin: 0 0 2px;
+  background: repeating-linear-gradient(90deg, var(--flute1) 0 12px, var(--flute2) 12px 24px, var(--flute1) 24px 36px, var(--flute3) 36px 48px);
+  -webkit-mask-image: url(../svg/cornice.svg); -webkit-mask-repeat: repeat-x; -webkit-mask-position: 0 0; -webkit-mask-size: 12px 22px; opacity: .92; }
+.cornice-wrap { position: relative; flex: none; height: 30px; }
+.cornice-wrap .cornice { position: absolute; inset: 2px 0 auto; }
+.cornice-wrap::after { content: ""; position: absolute; left: 0; right: 0; top: 26px; height: 1px; background: var(--frieze); opacity: .6; }
+.cornice-wrap .sun { position: absolute; top: -2px; left: 50%; width: 112px; height: 30px; transform: translateX(-50%);
+  background-color: var(--bg); border-radius: 0 0 14px 14px; padding: 0 10px; background-origin: content-box; }
+:root[data-mode="light"] .cornice-wrap .sun { background-color: #EADBB8; }
+/* Kheker frieze for inner pages. */
+.kheker { height: 24px; flex: none; position: relative; }
+.kheker::before { content: ""; position: absolute; inset: 0 0 3px; background: var(--frieze); opacity: var(--frieze-op);
+  -webkit-mask: url(../svg/kheker.svg) round no-repeat; -webkit-mask-size: 12px 20px; }
+.kheker::after { content: ""; position: absolute; inset: auto 0 0; height: 1.5px; background: var(--frieze); opacity: .7; }
+
+/* Cards: gold corner pieces; the highlighted card carries a faience-tile edge. */
+.cornered { background:
+    url(../svg/corner-tl.svg) left 5px top 5px / 16px 16px no-repeat, url(../svg/corner-tr.svg) right 5px top 5px / 16px 16px no-repeat,
+    url(../svg/corner-bl.svg) left 5px bottom 5px / 16px 16px no-repeat, url(../svg/corner-br.svg) right 5px bottom 5px / 16px 16px no-repeat,
+    var(--surface); }
+.card.gilt::after { display: none; }
+.tiles { height: 9px; border-radius: 17px 17px 0 0; overflow: hidden;
+  background: repeating-linear-gradient(90deg, var(--tile1) 0 10px, var(--grout) 10px 11.5px, var(--tile2) 11.5px 21.5px, var(--grout) 21.5px 23px, var(--tile3) 23px 33px, var(--grout) 33px 34.5px);
+  box-shadow: inset 0 -1.5px 0 var(--grout); }
+
+/* Motifs: ornament only, never actions. */
+.motif { width: 18px; height: 18px; flex: none; display: inline-block; background: var(--gold);
+  -webkit-mask: var(--m) center / contain no-repeat; }
+.motif.ankh { --m: url(../svg/motifs/ankh.svg); }
+.motif.djed { --m: url(../svg/motifs/djed.svg); }
+.motif.was { --m: url(../svg/motifs/was.svg); }
+.motif.wedjat { --m: url(../svg/motifs/wedjat.svg); }
+.motif.scarab { --m: url(../svg/motifs/scarab.svg); }
+.section-title .motif { width: 16px; height: 16px; opacity: .9; }
+.motif-row { display: flex; justify-content: center; align-items: center; gap: 18px; }
+.motif-row .motif { width: 20px; height: 20px; opacity: .75; }
+
+/* Text that sits straight on the starry or papyrus ground gets a soft halo in
+   the ground colour, so no star or fibre ever crosses a letter. */
+.halo, .appbar h1, .section-title > span:first-child, .hello h1, .meta, .stage, .help, .foot, .form h2, .form p.lead, .status {
+  text-shadow: 0 0 3px var(--bg), 0 0 6px var(--bg), 0 0 10px var(--bg); }
+:root[data-mode="light"] :is(.halo, .appbar h1, .section-title > span:first-child, .hello h1, .meta, .stage, .help, .foot, .form h2, .form p.lead, .status) {
+  text-shadow: 0 0 3px #F1E6CB, 0 0 7px #F1E6CB; }

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Original was-sceptre ornament (decoration only). Mask. -->
+  <path d="M12 6.2V20.6" stroke-width="2"/>
+  <path d="M11.2 6.6L15.6 2.6L18 3.4L13 7.4Z" fill="#000" stroke-width="1.2"/>
+  <path d="M15.6 2.6L15.2 1.2" stroke-width="1.2"/>
+  <path d="M12 20.6L10 23M12 20.6L14 23" stroke-width="1.6"/>
+</svg>

@@ -12,10 +12,14 @@
   (https://github.com/google/material-design-icons). Downloaded from Google
   Fonts (fonts.gstatic.com).
 
-## Ornaments
+## Ornaments and textures
 
-The winged sun, the cartouche, the lotus border and the glyph texture are
-original drawings made for this pilot (`svg/`, `src/ornaments.js`). They
+The winged sun with uraei, the cartouche, the lotus border, the glyph
+texture, the star ceiling, the cavetto cornice, the kheker frieze, the papyrus
+and inscription columns, the pylon, the card corners and the five motifs
+(ankh, djed, was, Eye of Horus, scarab) are original drawings made for this
+pilot (`svg/`, `src/ornaments.js`). The papyrus texture (`img/papyrus.jpg`) is
+generated from `img/papyrus-source.svg` (SVG noise and strips), no photo. They
 follow ancient Egyptian motifs in general form only; the texture uses abstract
 shapes, not real hieroglyphs or words.
 

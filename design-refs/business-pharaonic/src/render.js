@@ -13,10 +13,11 @@ const shots = [
   ["order", "dark"], ["order", "light"],
   ["sounds", "dark"], ["sounds", "light"],
   ["home-en", "dark"],
+  ["home-tr", "dark"],
   ["theme-picker", "dark"],
 ];
 const types = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml",
-  ".woff2": "font/woff2", ".ttf": "font/ttf" };
+  ".woff2": "font/woff2", ".ttf": "font/ttf", ".jpg": "image/jpeg" };
 
 (async () => {
   const only = process.argv.slice(2);

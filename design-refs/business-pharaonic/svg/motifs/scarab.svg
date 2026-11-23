@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Original scarab pushing the sun disc (decoration only). Mask. -->
+  <circle cx="12" cy="2.6" r="2"/>
+  <path d="M9.2 7.2Q12 4.4 14.8 7.2L14.2 8.4H9.8Z"/>
+  <path fill-rule="evenodd" d="M12 9.2C15.8 9.2 17.6 12.4 17.6 15.6C17.6 19.4 15.2 22.4 12 22.4C8.8 22.4 6.4 19.4 6.4 15.6C6.4 12.4 8.2 9.2 12 9.2ZM11.5 11.2V21H12.5V11.2Z"/>
+  <g fill="none" stroke="#000" stroke-width="1.2" stroke-linecap="round">
+    <path d="M7 12.4L4.2 10.4L3 7.6M17 12.4L19.8 10.4L21 7.6"/>
+    <path d="M6.4 16H3.4M17.6 16H20.6"/>
+    <path d="M7.2 19.4L4.6 21.6M16.8 19.4L19.4 21.6"/>
+  </g>
+</svg>

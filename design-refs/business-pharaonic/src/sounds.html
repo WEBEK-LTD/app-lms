@@ -11,7 +11,7 @@
   .topglow .glyphs { -webkit-mask: url(../svg/glyph-texture.svg) repeat, linear-gradient(#000 10%, transparent 100%);
     -webkit-mask-size: 132px 132px, 100% 100%; -webkit-mask-composite: source-in; }
   .help { padding: 2px 20px 0; color: var(--ink2); font-size: 14.5px; position: relative; }
-  .group { margin: 0 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+  .group { margin: 0 16px; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
   .tone { display: flex; align-items: center; gap: 14px; padding: 0 6px 0 14px; min-height: 56px; position: relative; }
   [dir="rtl"] .tone { padding: 0 14px 0 6px; }
   .tone + .tone::before { content: ""; position: absolute; top: 0; inset-inline: 52px 0; height: 1px; background: var(--line); }
@@ -22,16 +22,19 @@
   [dir="ltr"] .tone.on { background: linear-gradient(to right, var(--faience-bg), transparent 80%); }
   .tone.on .lead { color: var(--gold); }
   .tone.on .name { font-weight: 700; }
-  .tone.on::after { content: ""; position: absolute; inset-block: 10px; inset-inline-start: 0; width: 3px; border-radius: 3px; background: var(--gold); }
+  .tone.on::after { content: ""; position: absolute; inset-block: 6px; inset-inline-start: 0; width: 5px; border-radius: 2px;
+    background: repeating-linear-gradient(var(--tile1) 0 7px, var(--grout) 7px 8px, var(--tile2) 8px 15px, var(--grout) 15px 16px, var(--tile3) 16px 23px, var(--grout) 23px 24px); }
   .tone .iconbtn { color: var(--ink); }
   .tone .iconbtn.playing { color: var(--faience); }
-  .fade { position: absolute; inset: auto 0 0 0; height: 90px; background: linear-gradient(transparent, var(--bg)); pointer-events: none; }
+  .fade { display: none; }
+  .group { -webkit-mask: linear-gradient(#000 470px, transparent 600px); }
 </style>
 </head>
 <body>
 <div class="screen">
   <div class="topglow"><div class="glyphs"></div></div>
   <div class="status"><span class="num">21:50</span><span class="icons"><span class="ms fill">signal_cellular_alt</span><span class="ms fill">wifi</span><span class="ms fill">battery_full</span></span></div>
+  <div class="kheker"></div>
   <div class="appbar">
     <span class="iconbtn"><span class="ms dir">arrow_back</span></span>
     <h1>الطلبات الجديدة</h1>
@@ -39,8 +42,8 @@
   <div class="body">
     <p class="help">طلبات المتجر والمطعم والسوق، والشحنات التي تنتظر مندوبًا</p>
 
-    <div class="section-title"><span>نغمات يلا اب</span><span class="rule"></span></div>
-    <div class="group">
+    <div class="section-title"><span>نغمات يلا اب</span><span class="rule"></span><i class="motif djed"></i></div>
+    <div class="group cornered">
       <div class="tone"><span class="lead"><span class="ms">music_note</span></span><span class="name">نغمة يلا اب</span><span class="iconbtn"><span class="ms">play_arrow</span></span></div>
       <div class="tone on"><span class="lead"><span class="ms">check</span></span><span class="name">جرس الكاونتر<small>المختارة</small></span><span class="iconbtn playing"><span class="ms fill">volume_up</span></span></div>
       <div class="tone"><span class="lead"><span class="ms">music_note</span></span><span class="name">تذكرة المطبخ</span><span class="iconbtn"><span class="ms">play_arrow</span></span></div>

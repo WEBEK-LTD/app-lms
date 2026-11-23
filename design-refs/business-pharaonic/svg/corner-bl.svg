@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" width="22" height="22" fill="none" stroke="#D0A54C" stroke-linecap="round">
+  <!-- Original gold corner piece for cards (bl). -->
+  <g transform="matrix(1 0 0 -1 0 22)">
+    <path d="M1.5 14V5Q1.5 1.5 5 1.5H14" stroke-width="1.6"/>
+    <path d="M5 11V7.4Q5 5 7.4 5H11" stroke-width=".9" stroke-opacity=".8"/>
+    <path d="M14 1.5L17.5 1.5M1.5 14V17.5" stroke-width="1.6" stroke-opacity=".5"/>
+    <circle cx="5" cy="5" r="1.2" fill="#D0A54C" stroke="none"/>
+  </g>
+</svg>

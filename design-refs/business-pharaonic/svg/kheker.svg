@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 24" width="14" height="24">
+  <!-- Original kheker frieze tile: a bound reed bundle with a rounded knot
+       head, two waist ties and a flared foot. Mask. -->
+  <path d="M7 1.2C9.6 1.2 10.6 3.4 9.6 5.4L9 6.4H5L4.4 5.4C3.4 3.4 4.4 1.2 7 1.2Z"/>
+  <path d="M5 7.6H9L8.4 10.2H5.6Z"/>
+  <path d="M5.6 11.4H8.4L9.4 15.4L8.4 16.6H5.6L4.6 15.4Z"/>
+  <path d="M5.8 17.8H8.2L10.6 22.8H3.4Z"/>
+</svg>

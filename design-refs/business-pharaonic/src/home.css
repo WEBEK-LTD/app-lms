@@ -3,11 +3,11 @@
   background: radial-gradient(130% 100% at 50% 0%, var(--bg-glow) 0%, transparent 72%); }
 .headglow .glyphs { -webkit-mask: url(../svg/glyph-texture.svg) repeat, linear-gradient(#000 20%, transparent 100%);
   -webkit-mask-size: 132px 132px, 100% 100%; -webkit-mask-composite: source-in; }
-.hello { position: relative; padding: 4px 8px 6px 20px; }
-[dir="rtl"] .hello { padding: 4px 20px 6px 8px; }
+.hello { position: relative; padding: 0 8px 4px 20px; }
+[dir="rtl"] .hello { padding: 0 20px 4px 8px; }
 .hello .row { justify-content: space-between; }
 .hello h1 { font-size: 25px; line-height: 1.35; font-weight: 700; }
-.shop { margin-top: 6px; }
+.shop { margin-top: 2px; }
 .shop .avatar { width: 34px; height: 34px; border-radius: 17px; display: grid; place-items: center; flex: none;
   background: var(--btn); color: var(--btn-ink); font-size: 18px; font-weight: 700; line-height: 1; }
 .shop .who { display: flex; flex-direction: column; line-height: 1.25; }
@@ -20,11 +20,12 @@
 .kpi b { font-size: 22px; font-weight: 700; line-height: 1.25; color: var(--ink); text-align: start; }
 [dir="rtl"] .kpi b { text-align: right; }
 
-.neworder { margin-top: 14px; padding: 14px 16px 16px; }
-.neworder::before { content: ""; position: absolute; inset: -1px 24px auto; height: 3px; border-radius: 0 0 3px 3px;
+.neworder { margin-top: 12px; padding: 0 16px 14px; }
+.neworder .tiles { margin: 0 -16px 10px; }
+.neworder::before { display: none; content: ""; position: absolute; inset: -1px 24px auto; height: 3px; border-radius: 0 0 3px 3px;
   background: linear-gradient(90deg, transparent, var(--faience), transparent); }
 .no-top { display: flex; align-items: center; justify-content: space-between; }
-.no-main { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 10px; }
+.no-main { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 6px; }
 .no-num { font-size: 30px; font-weight: 700; line-height: 1.1; color: var(--gold); text-align: start; }
 [dir="rtl"] .no-num { text-align: right; }
 .no-who { margin-top: 6px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
@@ -38,7 +39,7 @@
 .no-items i { width: 4px; height: 4px; transform: rotate(45deg); background: var(--gold); opacity: .7; }
 .no-actions { display: grid; grid-template-columns: 1.6fr 1fr; gap: 10px; margin-top: 14px; }
 
-.needs { margin: 0 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.needs { margin: 0 20px; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
 .needs .list-row { padding: 7px 14px; min-height: 52px; }
 .needs .medal { width: 36px; height: 36px; border-radius: 18px; }
 .needs .grow { flex: 1; font-weight: 500; }

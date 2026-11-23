@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 170" width="300" height="170" fill="none" stroke="#000" stroke-width="1">
+  <!-- The pylon's carved lines: torus edges, flagpole grooves, the doorway. Mask. -->
+  <path d="M14 34H126M174 34H286M122 66H178"/>
+  <path d="M16.5 37L11.5 168M123.5 37L128.5 168M176.5 37L171.5 168M283.5 37L288.5 168"/>
+  <path d="M44 44V160M96 44V160M204 44V160M256 44V160" stroke-dasharray="2 5"/>
+  <path d="M138 170V96H162V170"/>
+</svg>

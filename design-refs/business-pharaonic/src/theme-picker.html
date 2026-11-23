@@ -48,7 +48,12 @@
   [dir="rtl"] .mini.classic .navm i:first-child { order: 9; }
 
   .mini.pharaonic { background: radial-gradient(120% 60% at 50% 0%, #17244D, #0A0F1E 70%); }
-  .mini.pharaonic .sun { width: 104px; height: 28px; margin: 8px auto 2px; }
+  .mini.pharaonic::before { content: ""; position: absolute; inset: 0; background: #E8C877; opacity: .4;
+    -webkit-mask: url(../svg/star-ceiling.svg) repeat; -webkit-mask-size: 26px 26px; }
+  .mini.pharaonic > * { position: relative; }
+  .mini.pharaonic .cornice { height: 12px; margin: -10px -9px 0; -webkit-mask-size: 6px 11px; opacity: 1; }
+  .mini.classic { border: 1px solid #E4DDD0; }
+  .mini.pharaonic .sun { width: 96px; height: 26px; margin: 2px auto 0; }
   .mini.pharaonic .cart { align-self: center; height: 20px; padding: 0 12px; border-radius: 10px; box-shadow: inset 0 0 0 1px #E2BE6A, inset 0 0 0 3px #0A0F1E, inset 0 0 0 3.6px rgba(226,190,106,.55);
     font: 700 10.5px/20px "El Messiri"; color: #F4EAD5; }
   .mini.pharaonic .tile { background: #121A31; border: 1px solid rgba(226,190,106,.4); }
@@ -62,7 +67,7 @@
   .mini.pharaonic .navm i { background: #3A4466; } .mini.pharaonic .navm i:first-child { background: #E2BE6A; }
   [dir="rtl"] .mini.pharaonic .navm i:first-child { order: 9; }
 
-  .radios { margin: 0 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+  .radios { margin: 0 16px; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
   .radio { display: flex; align-items: center; gap: 14px; padding: 10px 14px; min-height: 56px; position: relative; }
   .radio + .radio::before { content: ""; position: absolute; top: 0; inset-inline: 52px 0; height: 1px; background: var(--line); }
   .radio .ms { color: var(--ink2); }
@@ -76,12 +81,13 @@
 <div class="screen">
   <div class="topglow"><div class="glyphs"></div></div>
   <div class="status"><span class="num">21:52</span><span class="icons"><span class="ms fill">signal_cellular_alt</span><span class="ms fill">wifi</span><span class="ms fill">battery_full</span></span></div>
+  <div class="kheker"></div>
   <div class="appbar">
     <span class="iconbtn"><span class="ms dir">arrow_back</span></span>
     <h1>المظهر</h1>
   </div>
   <div class="body">
-    <div class="section-title" style="padding-top:4px"><span>السمة</span><span class="rule"></span></div>
+    <div class="section-title" style="padding-top:4px"><span>السمة</span><span class="rule"></span><i class="motif ankh"></i></div>
     <div class="themes">
       <div class="card opt">
         <div class="mini classic">
@@ -98,6 +104,7 @@
       </div>
       <div class="card opt on">
         <div class="mini pharaonic">
+          <div class="cornice"></div>
           <i class="sun"></i>
           <div class="cart">بيت النيل</div>
           <div class="grid"><div class="tile"><div class="bar" style="width:60%"></div><div class="bar k"></div></div><div class="tile"><div class="bar" style="width:60%"></div><div class="bar k" style="width:40%"></div></div></div>
@@ -111,8 +118,8 @@
       </div>
     </div>
 
-    <div class="section-title"><span>فاتح أو داكن</span><span class="rule"></span></div>
-    <div class="radios">
+    <div class="section-title"><span>فاتح أو داكن</span><span class="rule"></span><i class="motif wedjat"></i></div>
+    <div class="radios cornered">
       <div class="radio"><span class="ms">radio_button_unchecked</span><span class="t">مثل إعداد الهاتف<small>فاتح أو داكن حسب إعداد هاتفك.</small></span></div>
       <div class="radio"><span class="ms">radio_button_unchecked</span><span class="t">فاتح</span></div>
       <div class="radio on"><span class="ms fill">radio_button_checked</span><span class="t">داكن</span></div>

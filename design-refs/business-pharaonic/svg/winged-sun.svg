@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" fill="none">
   <!-- Original winged-sun mark for the Pharaonic theme: a disc with two
-       abstract curls, three tiers of swept feathers on each side. -->
+       abstract curls, three tiers of swept feathers on each side, two uraei hanging from it. -->
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#F3D88F"/>
@@ -26,6 +26,11 @@
   <rect width="240" height="64" fill="url(#g)" mask="url(#feathers)"/>
   <circle cx="120" cy="30" r="12.5" fill="url(#g)"/>
   <circle cx="120" cy="30" r="8.5" stroke="#1A1406" stroke-opacity=".35" stroke-width="1"/>
-  <path d="M108.5 36c-4.5 3.5-3.5 11 2 11.5c3 .3 4-2.6 2.2-4.2" stroke="url(#g)" stroke-width="2" stroke-linecap="round"/>
-  <path d="M131.5 36c4.5 3.5 3.5 11-2 11.5c-3 .3-4-2.6-2.2-4.2" stroke="url(#g)" stroke-width="2" stroke-linecap="round"/>
+  <!-- Two uraei (rearing cobras) hang from the disc. -->
+  <g id="u" fill="url(#g)">
+    <path d="M113 42.4C115.4 42.4 116.4 45 115.8 47.6C115.4 49.6 114.2 50.8 113 50.8C111.8 50.8 110.6 49.6 110.2 47.6C109.6 45 110.6 42.4 113 42.4Z"/>
+    <circle cx="113" cy="41.2" r="1.5"/>
+    <path d="M113 50.4C109.6 51.4 108 54.6 109.6 57.2C111 59.4 114.4 59.2 115 56.8" fill="none" stroke="url(#g)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <use href="#u" transform="matrix(-1 0 0 1 240 0)"/>
 </svg>

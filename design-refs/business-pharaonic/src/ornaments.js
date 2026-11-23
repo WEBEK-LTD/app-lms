@@ -47,6 +47,17 @@
     el.prepend(svg);
   }
 
+  // Round 2: the backdrop (starry ceiling in dark, papyrus in light).
+  function backdrop() {
+    document.querySelectorAll(".screen").forEach((sc) => {
+      const b = document.createElement("div");
+      b.className = "backdrop";
+      b.innerHTML = '<i class="sky"></i><i class="stars"></i><i class="relief"></i><i class="relief r"></i>';
+      sc.prepend(b);
+    });
+  }
+  backdrop();
+
   function draw() { document.querySelectorAll(".cartouche").forEach(frame); document.body.dataset.ready = "1"; }
   document.fonts.ready.then(() => requestAnimationFrame(draw));
 })();

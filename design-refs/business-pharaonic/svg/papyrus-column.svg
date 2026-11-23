@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 64" width="18" height="64" fill="none" stroke="#000" stroke-linecap="round">
+  <!-- Original column band: a bundle of papyrus stems bound by triple ties,
+       for the side edges of the welcome screen. Repeats vertically. Mask. -->
+  <path d="M3 0V44M7 0V44M11 0V44M15 0V44" stroke-width="1.2"/>
+  <path d="M1.5 46H16.5M1.5 49H16.5M1.5 52H16.5" stroke-width="1.4"/>
+  <path d="M3 54V64M7 54V64M11 54V64M15 54V64" stroke-width="1.2"/>
+  <path d="M1 0V64M17 0V64" stroke-width=".7"/>
+</svg>

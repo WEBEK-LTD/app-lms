@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 170" width="300" height="170">
+  <!-- Original temple pylon silhouette: two battered towers with cavetto
+       cornices and a gateway whose lintel carries the winged sun. Mask. -->
+  <path d="M18 34H122L129 170H11Z"/>
+  <path d="M14 22Q70 30 126 22V34H14Z"/>
+  <path d="M178 34H282L289 170H171Z"/>
+  <path d="M174 22Q230 30 286 22V34H174Z"/>
+  <path d="M126 66H174V170H126Z"/>
+  <path d="M122 54Q150 60 178 54V66H122Z"/>
+</svg>

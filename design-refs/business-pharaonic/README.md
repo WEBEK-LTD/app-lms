@@ -18,6 +18,7 @@ applies to whichever theme is chosen. The theme screen shows the default first
 | `signin-dark.jpg`, `signin-light.jpg` | Welcome / sign-in (`SignInScreen`) |
 | `home-dark.jpg`, `home-light.jpg` | Today: greeting, shop cartouche, KPIs, a new-order card, "Needs you now" |
 | `home-en-dark.jpg` | The same home in English, LTR |
+| `home-tr-dark.jpg` | The same home in Turkish, LTR (`E£385,00`, tr-TR format) |
 | `order-dark.jpg`, `order-light.jpg` | An order's page (`OrderScreen`): stage, customer, items, totals |
 | `sounds-dark.jpg`, `sounds-light.jpg` | Settings › Ringtones › New orders (`RingtonePickerScreen`) |
 | `theme-picker-dark.jpg` | Settings › Appearance: Default vs Pharaonic, then light/dark |
@@ -44,17 +45,50 @@ Playwright, serves the folder on localhost because CSS masks don't load from
 | line | `#27314F` | `#E0D3B6` | borders, separators |
 | gold line | gold @ 40% | `#7A5710` @ 38% | gilt frames |
 | ink | `#F4EAD5` | `#161B2E` | text |
-| ink2 | `#B9AF98` | `#5A513F` | secondary text |
-| gold | `#E2BE6A` | `#7A5710` | headings accents, order numbers, chosen state |
-| faience | `#56D4C3` | `#0A6B62` | "now" state, links, call/message icons |
-| danger (carnelian) | `#FF8E7A` | `#A3311E` | reject, cancel |
-| success | `#7FD9A6` | `#1D6B43` | paid |
+| ink2 | `#B9AF98` | `#4D4535` | secondary text |
+| gold | `#E2BE6A` | `#674A0B` | headings accents, order numbers, chosen state |
+| faience | `#56D4C3` | `#075A52` | "now" state, links, call/message icons |
+| danger (carnelian) | `#FF8E7A` | `#8E2918` | reject, cancel |
+| success | `#7FD9A6` | `#17583A` | paid |
 | primary button | gold gradient `#F0D48C → #C3963C`, text `#1A1406` | lapis `#24346E → #1C2A5C`, text `#F7EBCB`, gold hairline | |
 
 Contrast (WCAG): every text colour above is AA on background, surface and
-surface2 in its mode. Lowest pairs: light faience on surface2 5.05:1, light gold
-on surface2 5.20:1; dark ink2 on surface2 7.20:1; button text 10.3:1 (dark) and
-11.5:1 (light). Ornaments are decorative and carry no meaning.
+surface2 in its mode. In light mode it is also AA on the darkest pixel of the
+washed papyrus (`#DACAA7`): ink 10.6, ink2 5.9, danger 5.2, success 5.2, gold
+5.1, faience 5.0. In dark mode ink2 on surface2 is 7.2:1; button text 10.3:1
+(dark) and 11.5:1 (light). Text that sits directly on the starry or papyrus
+ground also gets a soft halo in the ground colour (a `Shadow` in Flutter), so
+no star or fibre ever crosses a letter. Ornaments are decorative only.
+
+## Round 2: clearly Pharaonic
+
+- **Dark ground: the starry tomb ceiling.** Hand-varied gold five-pointed
+  stars in offset rows (`svg/star-ceiling.svg`, 36% opacity) under a wide
+  diagonal band of sky and a faint gold horizon.
+- **Light ground: real papyrus.** A seamless 384 px tile of crossed strips and
+  fibres (`img/papyrus.jpg`, made from `img/papyrus-source.svg`), washed 38%
+  for contrast, with ruled inscription columns of abstract carved marks down
+  both edges (`svg/relief-column.svg`).
+- **Temple architecture.** A painted cavetto cornice (gold, faience and lapis
+  flutes over a bound torus; `svg/cornice.svg`) tops the welcome and home
+  screens; a kheker frieze (`svg/kheker.svg`) tops the inner pages; bound
+  papyrus columns (`svg/papyrus-column.svg`) frame the welcome screen; a pylon
+  (`svg/pylon.svg`, `svg/pylon-lines.svg`) stands behind the winged sun, which
+  now carries two uraei.
+- **Cards.** Solid as before, with gold corner pieces (`svg/corner-*.svg`).
+  The new-order card has a faience-tile edge; the chosen ringtone a vertical
+  one.
+- **Motifs** (`svg/motifs/`): ankh, djed, was sceptre, Eye of Horus, scarab,
+  as section-title ends, in-card heading marks and the welcome footer frieze.
+  Decoration only; every action is still a Material Symbol.
+- **Fonts:** Reem Kufi was tried for headings: monumental, but its tight word
+  spacing reads worse at a glance, so El Messiri stays.
+- **Not used:** museum photos (Openverse). The drawn ornament carries the look
+  and a photo layer would fight the starry/papyrus grounds and the text.
+- **The sign-in period:** the sentence ends "…لوحة تحكم Yallapp." In RTL the end
+  of a line is on the left, so the period correctly appears to the left of
+  the Latin word (".Yallapp" visually). The word is isolated and now kept on
+  the same line as "تحكم" so it no longer stands alone.
 
 ## Fonts
 
@@ -117,10 +151,12 @@ on surface2 5.20:1; dark ink2 on surface2 7.20:1; button text 10.3:1 (dark) and
    `TextStyle` helper with `FontFeature.tabularFigures()` for amounts and order
    numbers (wrapped in `Directionality.ltr` where they stand alone).
 5. **Ornaments as CustomPainters** (no new package: the app has no SVG
-   renderer). `CartouchePainter(size, textDirection)`, `LotusBorder` (a
-   repeating `Path`, tile count rounded so none is cut), `WingedSun`, and a
-   `GlyphBackdrop` (a cached `ui.Picture`/`ImageShader` tile with a vertical
-   fade). The SVG paths in `svg/` port directly to `Path` calls.
+   renderer). `CartouchePainter(size, textDirection)`, `LotusBorder`,
+   `CorniceFrieze`, `KhekerFrieze`, `ColumnBand` (repeating `Path`s, tile
+   counts rounded so none is cut), `WingedSun`, `Pylon`, the five motifs, and
+   a `StarCeiling` backdrop (a cached `ui.Picture` tile as an `ImageShader`).
+   The light ground is `img/papyrus.jpg` as a repeating `DecorationImage`
+   (~18 KB asset). The SVG paths in `svg/` port directly to `Path` calls.
 6. **Components.** `FilledButton` with `backgroundBuilder` for the gold
    gradient; a `GiltCard` (card + inner hairline); a `PharaonicSectionTitle`
    (title + lotus rule) used where `SectionTitle` is; the `NavigationBar`
@@ -134,16 +170,15 @@ on surface2 5.20:1; dark ink2 on surface2 7.20:1; button text 10.3:1 (dark) and
    waits to be accepted can show as the new-order card (data from the orders
    or food-orders list the app already loads).
 
-**Size, roughly:** 6–8 developer days. Tokens, choice and storage 1 day;
-fonts and text styles 0.5; painters 1.5–2; sign-in, lock and opening screens
+**Size, roughly:** 8–10 developer days with the round-2 ornament set. Tokens, choice and storage 1 day;
+fonts and text styles 0.5; painters and backdrops 3–3.5; sign-in, lock and opening screens
 1; Today, order page, ringtones, nav and buttons 1.5–2; contrast tests, RTL/LTR
 golden screenshots and store-screenshot pass 1.
 
 ## Not done / open points
 
-- Turkish strings and a Turkish render.
+- Turkish strings for the theme picker (the Turkish home is rendered).
 - The new-order card on Today is a proposal: today the app lists new orders in
   Orders and Food orders, not on Today.
-- No artefact photo was used; nothing needed one.
 - Light-mode ornaments reuse the gold artwork darkened by a CSS filter; in the
   app they would be painted directly in `#9C7428`-range golds.

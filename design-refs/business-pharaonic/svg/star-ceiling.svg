@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Original tile: the starry tomb ceiling. Five-pointed stars in offset
+       rows, slightly varied in size and turn, as painted by hand. Mask; the
+       app tints it gold. -->
+  <defs><path id="s" d="M0-5L1.18-1.62L4.76-1.55L1.9.62L2.94 4.05L0 2L-2.94 4.05L-1.9.62L-4.76-1.55L-1.18-1.62Z"/></defs>
+  <use href="#s" transform="translate(12 12) rotate(-4) scale(.78)"/>
+  <use href="#s" transform="translate(36 12) rotate(5) scale(.7)"/>
+  <use href="#s" transform="translate(0 36) rotate(3) scale(.74)"/>
+  <use href="#s" transform="translate(48 36) rotate(3) scale(.74)"/>
+  <use href="#s" transform="translate(24 36) rotate(-6) scale(.82)"/>
+</svg>
