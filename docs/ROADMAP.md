@@ -4508,3 +4508,15 @@ The owner: the home page's Studio plan cards looked bad (long cards listing ever
 | | Item | Tests |
 |---|---|---|
 | [x] | 205.1 The home page's Studio plans on the pricing page's night band (`site/studio-plans-band.tsx`, the owner's chosen design of 154): compact cards with the first lines and the rest under "See everything (+N)", the featured plan marked, "Every Studio plan has" beside them, each plan's own main price, the currency note; on request when no Studio plan is shown to clients. `#studio-plans` keeps its id | `pricing-studio`, `home-hero`, e2e `pages` |
+
+## Phase 206: Old open pull requests together
+
+The owner: the long-open pull requests merged all together, onto today's main, keeping only what is still needed. #428, #429, #244, #209, #165 and #154 were already in main by their squashed merges (#425, #336, #207 and #208, #163, #152).
+
+| | Item | Tests |
+|---|---|---|
+| [x] | 206.1 124.17 (#373) on today's main: Admin › Releases takes a plugin release's version from its zip | `plugin-zip-version.test.ts`, `client-flow.spec.ts` |
+| [x] | 206.2 The platform's dependencies, each published two weeks or more ago: @netlify/blobs 11.1.8, jose 6.2.16, simple-icons 16.37.0, nodemailer 10.4.0, @netlify/plugin-nextjs 5.16.6, @playwright/test 1.65.0, tailwindcss and @tailwindcss/postcss 4.3.5 (#408); eslint 10.14.0 (#92); pdfjs-dist 6.5.438 (#91, the receipts tests' PDF reader: no `isEvalSupported`, the loading task destroyed). Not taken: next and eslint-config-next 16.4.6 and libphonenumber-js 1.13.16 (younger than two weeks), TypeScript 7 (#90: typescript-eslint supports TypeScript below 6.1, and the tests read sources with the compiler API TypeScript 7 doesn't have) and @types/node 26 (#89: the platform runs on Node 22) | the whole platform suite, `receipts-pdf.test.ts` |
+| [x] | 206.3 The app's and Yallapp Business's dependencies (#471, #409): the minor and patch updates (record 7.1.2, as 7.2.0 is younger than two weeks; material_ui 1.10.0 and cupertino_ui 1.1.6 locked for flutter_riverpod 3.5.0, whose `provider.exists` replaces the deprecated `ref.exists`), and firebase_core 5.1.0 with firebase_messaging 17.0.1 (#97, #94; Android minSdk 24 and iOS 15, as the apps already have): both apps keep sending the FCM token, which the servers send to, rather than the Firebase Installation ID. In the app's next release | both apps' `flutter test` |
+| [x] | 206.4 The build pipeline and CI: fastlane 2.241.2 (#218, only fastlane and terminal-notifier move) and the GitHub Actions group (#294), every workflow's pins moved | `bundle exec fastlane lanes`, `build/tests` |
+
