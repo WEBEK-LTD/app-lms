@@ -19,6 +19,16 @@ abstract final class Paths {
   /// 162 Build your bouquet (a store whose shop has it set up).
   static const bouquet = '/bouquet';
 
+  /// 211 An electronics shop's: products compared, the trade-in estimator,
+  /// Build your PC, and the shop filtered by a spec's value.
+  static const compare = '/compare';
+  static const tradeIn = '/trade-in';
+  static const pcBuilder = '/build-pc';
+  static String specProducts(String spec, String value) => Uri(
+    path: '/spec-products',
+    queryParameters: {'spec': spec, 'value': value},
+  ).toString();
+
   // Bookings apps.
   static const services = '/services';
   static const appointments = '/appointments';

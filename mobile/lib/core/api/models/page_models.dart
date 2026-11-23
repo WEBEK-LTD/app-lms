@@ -6,6 +6,7 @@ import 'money_models.dart';
 import 'store_models.dart';
 import 'studio_live_models.dart';
 import 'studio_premium_models.dart';
+import 'tech_models.dart';
 
 /// `GET /pages`: the bottom tabs, the side menu and the pages published in
 /// the dashboard.
@@ -453,8 +454,9 @@ enum BuiltInScreen {
 
 enum OpenIn { inApp, browser }
 
-/// 162 `Action.flow`: Build your bouquet over a store's shop.
-enum ActionFlow { bouquet }
+/// 162 `Action.flow`: Build your bouquet over a store's shop; 211 or the
+/// trade-in estimator, or Build your PC.
+enum ActionFlow { bouquet, tradeIn, pcBuilder }
 
 /// What happens on tap (the contract's `Action`).
 class PageAction {
@@ -2173,6 +2175,13 @@ enum StudioNodeType {
   flashSale,
   // 208 The shop's size chart (`StoreConfig.size_chart`), as a table.
   sizeChart,
+  // 211 The tech elements (StudioTech): a product's specs, two or three
+  // products compared, the shop by a spec, trade-in and Build your PC.
+  specTable,
+  compare,
+  specFilter,
+  tradeIn,
+  pcBuilder,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2808,6 +2817,8 @@ class StudioNode {
     this.place,
     this.categoriesStyle = CategoriesStyle.chips,
     this.categoryMenu = const StudioCategoryMenu(),
+    this.tech = const StudioTech(),
+    this.techServed,
     this.code,
     this.recent = false,
     this.heads,
@@ -2968,6 +2979,8 @@ class StudioNode {
           CategoriesStyle.chips,
         ),
         categoryMenu: StudioCategoryMenu.tryParse(json['category_menu']),
+        tech: StudioTech.tryParse(json['tech']),
+        techServed: StudioTechServed.tryParse(json['tech_served']),
         code: optString(json, 'code'),
         recent: boolOr(json, 'recent', false),
         heads: optString(json, 'heads'),
@@ -3298,6 +3311,10 @@ class StudioNode {
 
   /// 208 For categories drawn as rows: the category menu's look.
   final StudioCategoryMenu categoryMenu;
+
+  /// 211 For the tech elements: what they show, and what the server filled.
+  final StudioTech tech;
+  final StudioTechServed? techServed;
 
   /// 112.4 For a coupon: the code people copy.
   final String? code;

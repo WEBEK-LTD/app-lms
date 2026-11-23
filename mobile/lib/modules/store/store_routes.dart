@@ -14,6 +14,9 @@ import '../shared/shared_routes.dart';
 import 'data/cart_controller.dart';
 import 'screens/bouquet_builder_screen.dart';
 import 'screens/cart_screen.dart';
+import 'screens/compare_screen.dart';
+import 'screens/pc_builder_screen.dart';
+import 'widgets/trade_in.dart';
 import 'screens/menu_screen.dart';
 import 'screens/points_screen.dart';
 import 'screens/product_reviews_screen.dart';
@@ -145,6 +148,34 @@ List<RouteBase> _pushedRoutes() => [
     path: Paths.bouquet,
     pageBuilder: (context, state) =>
         appPage(state, const BouquetBuilderScreen()),
+  ),
+  // 211 Products compared, the trade-in estimator, Build your PC and the
+  // shop filtered by a spec's value.
+  GoRoute(
+    path: Paths.compare,
+    pageBuilder: (context, state) => appPage(state, const CompareScreen()),
+  ),
+  GoRoute(
+    path: Paths.tradeIn,
+    pageBuilder: (context, state) => appPage(state, const TradeInScreen()),
+  ),
+  GoRoute(
+    path: Paths.pcBuilder,
+    pageBuilder: (context, state) => appPage(state, const PcBuilderScreen()),
+  ),
+  GoRoute(
+    path: '/spec-products',
+    pageBuilder: (context, state) {
+      final q = state.uri.queryParameters;
+      final spec = q['spec'] ?? '';
+      final value = q['value'] ?? '';
+      return appPage(
+        state,
+        spec.isEmpty || value.isEmpty
+            ? const NotFoundScreen()
+            : SpecProductsScreen(spec: spec, value: value),
+      );
+    },
   ),
   GoRoute(
     path: '/product/:id',

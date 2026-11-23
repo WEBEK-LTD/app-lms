@@ -1056,20 +1056,53 @@ class FakeApi implements YallappApi {
 
   ProductQuery? lastProductQuery;
 
+  /// 211 The products a query lists, when a test sets them (Build your PC's
+  /// parts by category); null: the two usual ones.
+  List<Map<String, dynamic>> Function(ProductQuery query)? productsFor;
+
   @override
   Future<Paged<ProductSummary>> listProducts(ProductQuery query) {
     lastProductQuery = query;
     return _answer(
       'listProducts',
       () => Paged.fromJson(
-        pageJson([
-          productSummaryJson(),
-          productSummaryJson(id: 22, name: 'Chocolate Box'),
-        ]),
+        pageJson(
+          productsFor?.call(query) ??
+              [
+                productSummaryJson(),
+                productSummaryJson(id: 22, name: 'Chocolate Box'),
+              ],
+        ),
         ProductSummary.fromJson,
       ),
     );
   }
+
+  /// 211 The last trade-in request sent.
+  Map<String, String>? lastTradeIn;
+
+  @override
+  Future<String> sendTradeIn({
+    required String model,
+    required String storage,
+    required TradeInGrade grade,
+    required String name,
+    required String phone,
+    String? note,
+  }) => _answer('sendTradeIn', () {
+    lastTradeIn = {
+      'model': model,
+      'storage': storage,
+      'grade': snake(grade),
+      'name': name,
+      'phone': phone,
+      'note': ?note,
+    };
+    return 'SAR 1,350';
+  });
+
+  /// 211 Products by id, for the compare screen; missing: [product].
+  final productsById = <int, Map<String, dynamic>>{};
 
   Map<String, dynamic> product = productDetailJson();
 
@@ -1089,7 +1122,7 @@ class FakeApi implements YallappApi {
         statusCode: 404,
       );
     }
-    return ProductDetail.fromJson(product);
+    return ProductDetail.fromJson(productsById[productId] ?? product);
   });
 
   @override
