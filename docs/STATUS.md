@@ -8,6 +8,18 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 223 (Studio shop types, round 3, the shared base): Studio offers
+every demo's looks in one order, C, D, A, B, its main look first (C for a
+shop type that has one, else A), on /start, Studio's new project, the
+editor's whole designs, Studio Market and the website; the demo app opens
+on the main look. Templates C and D themselves come per type.
+
+Distinct templates (the owner's standing rule, 23 November 2026): no app,
+type or template may resemble another. Every new template is compared side
+by side with every other template's home (header, hero, card shape, section
+order, tab bar, type scale) before it ships; one that could be made by
+recolouring another has failed.
+
 Roadmap 228 (a look's own product page): `product` is a Studio page
 screen (a shop's); a look's page for it is drawn for every product in place
 of the app's product screen, its eleven product elements (photos, name,

@@ -9,7 +9,7 @@ import { TEMPLATES, templatesFor, type ProjectKind, type SectionContext } from "
 // 130.23 The whole designs' premium chrome.
 import { THEME_CHROME } from "./demo-designs/chrome";
 // 130 A demo's Signature look B as a whole design, after the demo.
-import { signatureDesign } from "./demo-designs";
+import { mainLookOf, signatureDesign, signatureLooksOf } from "./demo-designs";
 import { signatureTemplateId, type SignatureLook } from "./demo-designs/signature";
 // 130.30 The whole designs, premium for every kind.
 import { isPremiumDesign, NEW_PREMIUM_DESIGNS, premiumAbout, premiumCoverPath, premiumHome, PREMIUM_BARS, PREMIUM_COURSE_SCREENS, PREMIUM_PALETTES, type PremiumDesignId } from "./premium-designs";
@@ -80,10 +80,11 @@ export function isNewDesign(design: Pick<WholeDesign, "demo" | "theme">): boolea
 /** 130.30 A premium design's home, made for the project's kind (lib/studio/premium-designs.ts), before the kind's own pages. */
 export const PREMIUM_HOME = "premium_home";
 
-/** A Studio demo's look: its colour and font, its pages' own header, corners and background; 130 in its Signature look B, that look's. */
+/** A Studio demo's look: its colour and font, its pages' own header, corners and background; 130 in another Signature look (223 C, D or B; missing, its main look), that look's (look A is the demo's own). */
 export function demoTheme(demo: StudioDemoId, look?: SignatureLook): DesignTheme {
   const brand = DEMO_BRANDS[demo];
-  const own = look === "b" ? signatureDesign(demo, "b")?.project : undefined;
+  const shown = look ?? mainLookOf(demo);
+  const own = shown !== "a" ? signatureDesign(demo, shown)?.project : undefined;
   return { id: "demo", accent: own?.primary ?? brand.primaryColor, background: null, font: own?.appearance?.font ?? brand.font, round: 1 };
 }
 
@@ -95,11 +96,12 @@ export function demoTheme(demo: StudioDemoId, look?: SignatureLook): DesignTheme
  */
 export function demoProjectLook(demo: StudioDemoId, tabs: readonly LayoutTab[], lang: SectionContext["lang"] = "en", look?: SignatureLook): { appearance: Partial<Appearance>; tabs: LayoutTab[]; tab_bar: TabBarStyle } {
   const brand = DEMO_BRANDS[demo];
-  // 130 Its Signature look B: that look's font and second colour, tabs and bar.
-  const b = look === "b" ? signatureDesign(demo, "b") : undefined;
+  // 130 Another Signature look (223 C, D or B; missing, its main look): that look's font and second colour, tabs and bar (look A is the demo's own).
+  const shown = look ?? mainLookOf(demo);
+  const b = shown !== "a" ? signatureDesign(demo, shown) : undefined;
   return {
     appearance: { template: brand.template, font: brand.font, corners: brand.corners, cards: brand.cards, secondary_color: brand.secondaryColor, ...(b?.project.appearance ?? {}) },
-    tabs: demoPageTabs(tabs, { lang, demo, ...(b ? { look: "b" as const } : {}) }),
+    tabs: demoPageTabs(tabs, { lang, demo, ...(b ? { look: shown } : {}) }),
     tab_bar: structuredClone(b ? b.bar : DEMO_TAB_BARS[demo]),
   };
 }
@@ -111,8 +113,8 @@ export interface WholeDesign {
   templates: string[];
   /** Templates = demos: the Studio demo this design is, shown first and recommended. */
   demo?: StudioDemoId;
-  /** 130 With `demo`: its Signature look B, right after the demo (its look A). */
-  look?: "b";
+  /** 130 With `demo`: another of its Signature looks, after the demo (223 its main look; the others in Studio's order: C, D, A, B). */
+  look?: SignatureLook;
   /** 120.4 The project's type and kind, for the demo's pages around its screens. */
   kind?: { appType: string; vertical: string | null };
   /** 130.30 The kind a premium design's home and about page are made for (null: a project without one). */
@@ -141,12 +143,14 @@ export function designsFor(kind: ProjectKind | null): WholeDesign[] {
     .map((tpl) => tpl.id);
   const demo = studioDemoOf(kind);
   // The demo's pages only: its home (the only page the demo has), nothing generated around it.
-  // 130 Its two Signature looks first: the demo (its look A), then its look B; the six premium designs after them.
+  // 130 Its Signature looks first: the demo (its main look, 223 C where it has one), then its others in Studio's order (D, A, B); the six premium designs after them.
   const first: WholeDesign[] =
     demo && kind
       ? [
           { id: `demo-${demo}`, theme: demoTheme(demo), templates: [demoTemplateId(demo)], demo, kind: { appType: kind.type, vertical: kind.vertical ?? null } },
-          ...(signatureDesign(demo, "b") ? [{ id: `demo-${demo}-b`, theme: demoTheme(demo, "b"), templates: [signatureTemplateId(demo, "b")], demo, look: "b" as const, kind: { appType: kind.type, vertical: kind.vertical ?? null } }] : []),
+          ...signatureLooksOf(demo)
+            .filter((look) => look !== mainLookOf(demo))
+            .map((look) => ({ id: `demo-${demo}-${look}`, theme: demoTheme(demo, look), templates: [signatureTemplateId(demo, look)], demo, look, kind: { appType: kind.type, vertical: kind.vertical ?? null } })),
         ]
       : [];
   // 130.30 Each look premium: its home made for the kind first, then the kind's pages, the about page and contact.
