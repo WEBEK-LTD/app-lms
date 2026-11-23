@@ -53,6 +53,8 @@ export async function rateLimitHits(
 
 export const RATE_LIMITS = {
   apiCheck: { name: "api-check:client", limit: 10, windowSeconds: 10 * 60 },
+  // 106.14 A buyer's ratings and a designer's answers on Studio Market.
+  marketRating: { name: "market-rating:client", limit: 30, windowSeconds: 60 * 60 },
   // 132.34 "Test connection" of the owner's payment gateway (each test makes a few calls to the gateway).
   gatewayTest: { name: "gateway-test:client", limit: 10, windowSeconds: 10 * 60 },
   // 81.3 Apps started from a website: each reads someone's site.

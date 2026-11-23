@@ -1023,6 +1023,13 @@
       "when": 1795416835798,
       "tag": "0146_owner_push_sounds",
       "breakpoints": true
+    },
+    {
+      "idx": 147,
+      "version": "5",
+      "when": 1795419804775,
+      "tag": "0147_studio_market_designer_page",
+      "breakpoints": true
     }
   ]
 }

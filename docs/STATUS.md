@@ -20,6 +20,21 @@ apps' lists end above the phone's bar (158.7, in app release 16).
 158.3, 158.8 and Studio's 7th ring were already done on the integration
 branch (181).
 
+Roadmap 106.14 (a designer's public page on Studio Market, the owner's
+decision of 23 November): `/designers/<handle>` in English, Arabic and
+Turkish shows the designer's photo, name and line (after the team's first
+look), their country and links if they choose, their published templates
+with prices and ratings, the overall rating, ratings and buyers, and each
+buyer's rating with the designer's one reply. Designers set it up in
+Designer area › Your page (reserved addresses refused) and answer in
+Ratings; an account that got a template rates it once from its page in
+Studio and can change it; the team approves photos and lines, hides a
+rating or locks a page in Admin › Studio Market › Designers. The market's
+cards show the rating and link the designer's name to the page. Migration
+0147. The privacy policy and the designer terms now say the page, ratings
+and replies are public: after deploy, act on any "Default updated" badge
+in Admin › Website content (Phase 172).
+
 Roadmap 115.21–115.23 (the marketplace audit's three bugs,
 docs/plans/2026-11-18-marketplace-audit.md): orders for later reach their
 vendor from the frequent job at their time less the vendor's preparation
