@@ -175,6 +175,8 @@ abstract final class AppIcons {
   static const silent = Symbols.notifications_off_rounded;
   static const volume = Symbols.volume_up_rounded;
   static const share = Symbols.share_rounded;
+  // 210 Custom-order requests.
+  static const customOrder = Symbols.design_services_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

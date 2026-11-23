@@ -5048,4 +5048,100 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return 'باقة · $_temp0';
   }
+
+  @override
+  String get customOrders => 'الطلبات الخاصة';
+
+  @override
+  String get customOrdersText => 'طلبات مرسلة من نموذج الطلب الخاص في تطبيقك';
+
+  @override
+  String get requestStatusNew => 'جديد';
+
+  @override
+  String get requestStatusQuoted => 'أُرسل السعر';
+
+  @override
+  String get requestStatusAccepted => 'مقبول';
+
+  @override
+  String get requestStatusDeclined => 'مرفوض';
+
+  @override
+  String get requestStatusDone => 'مكتمل';
+
+  @override
+  String get requestsOpen => 'المفتوحة';
+
+  @override
+  String get requestsAll => 'الكل';
+
+  @override
+  String get noRequests => 'لا طلبات خاصة بعد';
+
+  @override
+  String get noRequestsText =>
+      'أضف صفحة أو نموذج الطلب الخاص إلى تطبيقك من Studio، وستظهر هنا الطلبات التي يرسلها عملاؤك.';
+
+  @override
+  String get noOpenRequests => 'لا طلبات بانتظارك';
+
+  @override
+  String get requestSomeone => 'عميل';
+
+  @override
+  String requestQuote(String price) {
+    return 'السعر $price';
+  }
+
+  @override
+  String get requestAsked => 'ما طلبه العميل';
+
+  @override
+  String get requestCustomer => 'العميل';
+
+  @override
+  String get requestAnswerTitle => 'ردّك';
+
+  @override
+  String get requestStatusLabel => 'حالة الطلب';
+
+  @override
+  String requestPrice(String currency) {
+    return 'السعر ($currency)';
+  }
+
+  @override
+  String get requestPriceHint => 'مثل 450 أو 450.50';
+
+  @override
+  String get requestReply => 'ردّك على العميل';
+
+  @override
+  String get requestReplyHint => 'السعر أو المدة أو سؤال';
+
+  @override
+  String get requestSave => 'حفظ الرد';
+
+  @override
+  String get requestSaved => 'تم حفظ الرد.';
+
+  @override
+  String requestSentOn(String title, String date) {
+    return '$title · $date';
+  }
+
+  @override
+  String requestsNewCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طلب جديد',
+      many: '$count طلبًا جديدًا',
+      few: '$count طلبات جديدة',
+      two: 'طلبان جديدان',
+      one: 'طلب جديد واحد',
+    );
+    return '$_temp0';
+  }
 }

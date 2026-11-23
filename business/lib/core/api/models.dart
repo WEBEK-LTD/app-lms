@@ -3358,3 +3358,118 @@ class MemberVisits {
   final int count;
   final List<MemberVisit> items;
 }
+
+/// 210 Where a custom-order request is: new, quoted (a price sent), accepted,
+/// declined or done. [open] are the first three.
+enum RequestStatus {
+  fresh('new'),
+  quoted('quoted'),
+  accepted('accepted'),
+  declined('declined'),
+  done('done');
+
+  const RequestStatus(this.wire);
+  final String wire;
+
+  /// An unknown status reads as new (the server's first).
+  static RequestStatus parse(String? value) {
+    for (final s in values) {
+      if (s.wire == value) return s;
+    }
+    return fresh;
+  }
+
+  bool get open => this == fresh || this == quoted || this == accepted;
+}
+
+/// 210 One line of what the customer filled in ("Size": "150 × 200 cm").
+class RequestAnswer {
+  const RequestAnswer({required this.label, required this.value});
+
+  factory RequestAnswer.fromJson(Json json) =>
+      RequestAnswer(label: str(json, 'label'), value: str(json, 'value'));
+
+  final String label;
+  final String value;
+}
+
+/// 210 A custom-order request sent from the shop's app (the dashboard's
+/// Store › Custom orders): what the customer asked for, who they are, and
+/// the shop's answer so far.
+class StoreRequest {
+  const StoreRequest({
+    required this.id,
+    required this.title,
+    required this.status,
+    required this.answers,
+    required this.customer,
+    required this.currency,
+    required this.createdAt,
+    required this.updatedAt,
+    this.reply,
+    this.quoteCents,
+    this.lang,
+    this.quote,
+  });
+
+  factory StoreRequest.fromJson(Json json) {
+    final quoteCents = optInt(json, 'quote_cents');
+    final currency = str(json, 'currency');
+    return StoreRequest(
+      id: str(json, 'id'),
+      title: str(json, 'title'),
+      status: RequestStatus.parse(optStr(json, 'status')),
+      answers: [
+        for (final a in listOf(json, 'answers', RequestAnswer.fromJson))
+          if (a.label.trim().isNotEmpty || a.value.trim().isNotEmpty) a,
+      ],
+      customer: Customer.fromJson(optObject(json, 'customer') ?? const {}),
+      reply: optStr(json, 'reply'),
+      quoteCents: quoteCents,
+      currency: currency,
+      lang: optStr(json, 'lang'),
+      createdAt: date(json, 'created_at'),
+      updatedAt: date(json, 'updated_at'),
+      // The server's formatted price; an older one sends only the cents.
+      quote:
+          Money.opt(json, 'quote') ??
+          (quoteCents == null
+              ? null
+              : Money(
+                  amountCents: quoteCents,
+                  currency: currency,
+                  formatted:
+                      '$currency ${Money(amountCents: quoteCents, currency: currency, formatted: '').major}',
+                )),
+    );
+  }
+
+  final String id;
+
+  /// The form's title ("Custom order").
+  final String title;
+  final RequestStatus status;
+  final List<RequestAnswer> answers;
+
+  /// Name, phone and email, each when given.
+  final Customer customer;
+  final String? reply;
+  final int? quoteCents;
+
+  /// The shop's currency (the price is quoted in it).
+  final String currency;
+
+  /// The language the customer wrote in.
+  final String? lang;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final Money? quote;
+
+  /// The quoted price as the price field shows it ("450", "450.50").
+  String? get quoteText {
+    final q = quote;
+    if (q == null) return null;
+    final major = q.major;
+    return major.endsWith('.00') ? major.substring(0, major.length - 3) : major;
+  }
+}

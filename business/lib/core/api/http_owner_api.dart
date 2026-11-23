@@ -1240,6 +1240,40 @@ class HttpOwnerApi implements OwnerApi {
     ),
   );
 
+  // 210 The shop's custom-order requests.
+
+  @override
+  Future<Paged<StoreRequest>> requests(
+    String appId, {
+    String status = 'open',
+    int page = 1,
+  }) async => Paged.fromJson(
+    await _get(
+      '${_app(appId)}/requests',
+      query: _listQuery('status', status, null, page),
+    ),
+    StoreRequest.fromJson,
+  );
+
+  @override
+  Future<StoreRequest> request(String appId, String id) async =>
+      StoreRequest.fromJson(await _get('${_app(appId)}/requests/${_id(id)}'));
+
+  @override
+  Future<StoreRequest> answerRequest(
+    String appId,
+    String id, {
+    required String status,
+    String? reply,
+    String? quote,
+  }) async => StoreRequest.fromJson(
+    await _post('${_app(appId)}/requests/${_id(id)}/answer', {
+      'status': status,
+      'reply': reply?.trim() ?? '',
+      if (quote != null && quote.trim().isNotEmpty) 'quote': quote.trim(),
+    }),
+  );
+
   @override
   Future<Paged<SchoolReport>> reports(
     String appId, {

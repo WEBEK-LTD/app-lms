@@ -3235,5 +3235,62 @@
         "type": "int"
       }
     }
+  },
+  "customOrders": "Custom orders",
+  "customOrdersText": "Requests sent from your app's custom-order form",
+  "requestStatusNew": "New",
+  "requestStatusQuoted": "Quoted",
+  "requestStatusAccepted": "Accepted",
+  "requestStatusDeclined": "Declined",
+  "requestStatusDone": "Done",
+  "requestsOpen": "Open",
+  "requestsAll": "All",
+  "noRequests": "No custom orders yet",
+  "noRequestsText": "Add the custom-order page or form to your app in Studio, and the requests your customers send show here.",
+  "noOpenRequests": "No requests waiting for you",
+  "requestSomeone": "A customer",
+  "requestQuote": "Quoted {price}",
+  "@requestQuote": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "requestAsked": "What they asked for",
+  "requestCustomer": "Customer",
+  "requestAnswerTitle": "Your answer",
+  "requestStatusLabel": "Where it is",
+  "requestPrice": "Price ({currency})",
+  "@requestPrice": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "requestPriceHint": "Like 450 or 450.50",
+  "requestReply": "Your reply",
+  "requestReplyHint": "The price, the time, a question",
+  "requestSave": "Save the answer",
+  "requestSaved": "Saved the answer.",
+  "requestSentOn": "{title} · {date}",
+  "@requestSentOn": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "requestsNewCount": "{count, plural, =1{1 new request} other{{count} new requests}}",
+  "@requestsNewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

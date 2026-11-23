@@ -4903,4 +4903,98 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return 'Bouquet · $_temp0';
   }
+
+  @override
+  String get customOrders => 'Custom orders';
+
+  @override
+  String get customOrdersText =>
+      'Requests sent from your app\'s custom-order form';
+
+  @override
+  String get requestStatusNew => 'New';
+
+  @override
+  String get requestStatusQuoted => 'Quoted';
+
+  @override
+  String get requestStatusAccepted => 'Accepted';
+
+  @override
+  String get requestStatusDeclined => 'Declined';
+
+  @override
+  String get requestStatusDone => 'Done';
+
+  @override
+  String get requestsOpen => 'Open';
+
+  @override
+  String get requestsAll => 'All';
+
+  @override
+  String get noRequests => 'No custom orders yet';
+
+  @override
+  String get noRequestsText =>
+      'Add the custom-order page or form to your app in Studio, and the requests your customers send show here.';
+
+  @override
+  String get noOpenRequests => 'No requests waiting for you';
+
+  @override
+  String get requestSomeone => 'A customer';
+
+  @override
+  String requestQuote(String price) {
+    return 'Quoted $price';
+  }
+
+  @override
+  String get requestAsked => 'What they asked for';
+
+  @override
+  String get requestCustomer => 'Customer';
+
+  @override
+  String get requestAnswerTitle => 'Your answer';
+
+  @override
+  String get requestStatusLabel => 'Where it is';
+
+  @override
+  String requestPrice(String currency) {
+    return 'Price ($currency)';
+  }
+
+  @override
+  String get requestPriceHint => 'Like 450 or 450.50';
+
+  @override
+  String get requestReply => 'Your reply';
+
+  @override
+  String get requestReplyHint => 'The price, the time, a question';
+
+  @override
+  String get requestSave => 'Save the answer';
+
+  @override
+  String get requestSaved => 'Saved the answer.';
+
+  @override
+  String requestSentOn(String title, String date) {
+    return '$title · $date';
+  }
+
+  @override
+  String requestsNewCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new requests',
+      one: '1 new request',
+    );
+    return '$_temp0';
+  }
 }

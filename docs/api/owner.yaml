@@ -3644,6 +3644,95 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
 
+  /apps/{app_id}/requests:
+    get:
+      tags: [Orders]
+      operationId: listStoreRequests
+      summary: The shop's custom-order requests
+      description: |
+        210 The requests sent from the app's custom-order page or form (the
+        dashboard's Store › Custom orders), for people with the Orders area:
+        new ones first, then the newest. `open` is new, quoted and accepted.
+        A new one is pushed as `new_order` with `store_request_id`.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: status
+          in: query
+          schema: { type: string, enum: [all, open, new, quoted, accepted, declined, done], default: all }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Requests
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/StoreRequest' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/requests/{request_id}:
+    get:
+      tags: [Orders]
+      operationId: getStoreRequest
+      summary: One custom-order request
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/StoreRequestId'
+      responses:
+        '200':
+          description: The request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StoreRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/requests/{request_id}/answer:
+    post:
+      tags: [Orders]
+      operationId: answerStoreRequest
+      summary: Answer a custom-order request
+      description: |
+        210 The dashboard's answer: where the request is, the price quoted
+        in the shop's currency (`450`, `450.50` or a number; empty or missing
+        clears it) and a reply to the customer (empty clears it). Field
+        errors (`status`, `quote`, `reply`) as other answers.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/StoreRequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [new, quoted, accepted, declined, done] }
+                reply: { type: [string, 'null'], maxLength: 2000 }
+                quote: { type: [number, string, 'null'], description: 'The price in the shop''s currency, more than 0.' }
+      responses:
+        '200':
+          description: The request as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StoreRequest' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /apps/{app_id}/school/reports:
     get:
       tags: [School]
@@ -4315,6 +4404,12 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    StoreRequestId:
+      name: request_id
+      in: path
+      required: true
+      description: 210 A custom-order request.
+      schema: { type: integer }
     SchoolReportId:
       name: school_report_id
       in: path
@@ -4655,7 +4750,9 @@ components:
         `school_excuse_id`, `school_report_id` and `leave_id`. Roadmap 207:
         `new_market_order` a marketplace order reached its vendor
         (`market_order_id`); `order_cancelled` a customer cancelled a food or
-        marketplace order (`food_order_id` or `market_order_id`). A device that
+        marketplace order (`food_order_id` or `market_order_id`). Roadmap 210:
+        a new custom-order request is a `new_order` with `store_request_id`
+        (and no `order_id`); it opens that request. A device that
         saved its ringtones (`PUT /me/push-sounds`) also gets `yb_group`,
         `yb_sound`, `yb_ring` and `yb_ring_minutes`; on Android it gets the push
         as data only, with `yb_title` and `yb_body`, and shows it itself.
@@ -6593,6 +6690,41 @@ components:
         status: { type: string, enum: [pending, accepted, declined, cancelled] }
         status_label: { type: string }
         answer: { type: [string, 'null'] }
+
+    StoreRequest:
+      type: object
+      description: 210 A custom-order request sent from the shop's app.
+      required: [id, title, status, answers, customer, reply, quote_cents, currency, lang, created_at, updated_at, quote]
+      properties:
+        id: { type: integer }
+        title: { type: string, description: 'The form''s title.' }
+        status: { type: string, enum: [new, quoted, accepted, declined, done] }
+        answers:
+          type: array
+          description: What the customer filled in, in the form's order.
+          items:
+            type: object
+            required: [label, value]
+            properties:
+              label: { type: string }
+              value: { type: string }
+        customer:
+          type: object
+          required: [name, phone, email]
+          properties:
+            name: { type: [string, 'null'] }
+            phone: { type: [string, 'null'] }
+            email: { type: [string, 'null'] }
+        reply: { type: [string, 'null'], description: 'The shop''s reply to the customer.' }
+        quote_cents: { type: [integer, 'null'] }
+        currency: { type: string, description: 'The shop''s currency.' }
+        lang: { type: [string, 'null'], description: 'The language the customer wrote in.' }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        quote:
+          oneOf:
+            - $ref: '#/components/schemas/Money'
+            - type: 'null'
 
     TeacherReport:
       type: object

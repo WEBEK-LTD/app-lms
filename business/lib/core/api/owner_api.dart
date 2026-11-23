@@ -470,6 +470,28 @@ abstract class OwnerApi {
     String? note,
   });
 
+  // 210 The shop's custom-order requests (the orders area).
+
+  /// all, open (new, quoted, accepted), new, quoted, accepted, declined or
+  /// done; new ones first.
+  Future<Paged<StoreRequest>> requests(
+    String appId, {
+    String status = 'open',
+    int page = 1,
+  });
+  Future<StoreRequest> request(String appId, String id);
+
+  /// Where it is now, with a [reply] to the customer and a [quote] in the
+  /// shop's currency as typed ("450.50"); an empty one clears it (field
+  /// errors as [ApiException.fieldErrors]).
+  Future<StoreRequest> answerRequest(
+    String appId,
+    String id, {
+    required String status,
+    String? reply,
+    String? quote,
+  });
+
   // 125 Prime.
   Future<PrimeInsights> primeInsights(String appId, {String period = 'week'});
   Future<PrimeAlerts> primeAlerts(String appId);

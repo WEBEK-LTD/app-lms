@@ -87,6 +87,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
   final excuse = value('school_excuse_id');
   final report = value('school_report_id');
   final leave = value('leave_id');
+  // 210 A custom-order request (kind new_order) opens itself.
+  final storeRequest = value('store_request_id');
   final location = foodOrder != null
       ? Paths.foodOrder(foodOrder)
       : shipment != null
@@ -103,6 +105,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
       ? Paths.schoolReview('reports', report)
       : leave != null
       ? Paths.schoolReview('leave', leave)
+      : storeRequest != null
+      ? Paths.request(storeRequest)
       : order != null
       ? Paths.order(order)
       : appointment != null
