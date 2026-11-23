@@ -105,6 +105,8 @@ export const ELEMENTS: readonly ElementInfo[] = [
   { type: "quiz", group: "premium", icon: "quiz", keywords: "quiz questions answers result skin type test gift finder recommend personality" },
   // 210 The shop's next delivery days and times to pick (and the assembly), kept for the checkout.
   { type: "delivery_slots", group: "premium", icon: "event_available", keywords: "delivery date day time slot book booking assembly furniture schedule appointment checkout", only: "store" },
+  // 212 The listing filters, for every shop type: sizes, colours, price, brand.
+  { type: "listing_filters", group: "premium", icon: "tune", keywords: "filter filters sizes colours colors price brand sort refine listing shop products", only: "store" },
 ];
 
 export function elementInfo(type: StudioNodeType): ElementInfo {
@@ -200,6 +202,9 @@ export function newNode(
     case "pc_builder":
       return { id, type, tech: type === "spec_filter" ? { spec: "ram" } : type === "trade_in" ? { look: "card" } : {}, radius: 20, padding: { top: 14, end: 14, bottom: 14, start: 14 }, margin: { top: 8, end: 16, bottom: 8, start: 16 }, border_color: "#E3E6EB", border_width: 1 };
     // 208 The shop's size chart, on a card.
+    // 212 The listing filters, under their title.
+    case "listing_filters":
+      return { id, type, padding: { top: 8, end: 16, bottom: 8, start: 16 } };
     case "size_chart":
       return { id, type, radius: 18, padding: { top: 12, end: 12, bottom: 12, start: 12 }, margin: { top: 8, end: 16, bottom: 8, start: 16 }, border_color: "#E4DFD6", border_width: 1 };
     // 209 The size finder: the shop's chart by age, a button to the shop.

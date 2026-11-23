@@ -1356,5 +1356,21 @@
   "requestSave": "حفظ الرد",
   "requestSaved": "تم حفظ الرد.",
   "requestSentOn": "{title} · {date}",
-  "requestsNewCount": "{count, plural, =1{طلب جديد واحد} =2{طلبان جديدان} few{{count} طلبات جديدة} many{{count} طلبًا جديدًا} other{{count} طلب جديد}}"
+  "requestsNewCount": "{count, plural, =1{طلب جديد واحد} =2{طلبان جديدان} few{{count} طلبات جديدة} many{{count} طلبًا جديدًا} other{{count} طلب جديد}}",
+  "inboxProductReviews": "تقييمات المنتجات",
+  "onProduct": "على {product}",
+  "reviewsWithPhotos": "بالصور",
+  "reviewPhotos": "صور مع التقييم",
+  "photoNumber": "الصورة {n}",
+  "noProductReviewsText": "يستطيع العملاء الذين اشتروا منتجًا تقييمه في تطبيقك، مع الصور.",
+  "shopWishes": "المنتظرون والمحفوظ",
+  "shopWaiting": "بانتظار المخزون",
+  "shopWaitingHint": "حين يعود المنتج يصل إلى كل منهم إشعار واحد.",
+  "shopWaitingNone": "لا أحد ينتظر منتجًا الآن.",
+  "shopWaitingCount": "{count, plural, =1{ينتظره عميل واحد} other{ينتظره {count}}}",
+  "shopSaved": "المحفوظ في المفضلة",
+  "shopSavedNone": "لم يحفظ أي عميل منتجًا بعد.",
+  "shopSavedCount": "{count, plural, =1{حفظه عميل واحد} other{حفظه {count}}}",
+  "variationNumber": "الاختيار رقم {id}",
+  "productNoLongerSold": "منتج لم يعد يُباع"
 }

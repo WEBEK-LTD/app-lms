@@ -42,6 +42,8 @@ import { completeLookFor, fashionOf, sizeChartJson } from "../../selling/fashion
 import { isSpecKey, sameSpecValue, specFacets, specJson, specLabel, specLine, specValue } from "../../selling/specs";
 import { pcBuilderJson, techOf, tradeInJson } from "../../selling/tech";
 import { appStageJson } from "../../catalog/stage-json";
+import { productDescriptionIn, productNameIn, translatedAttributes, translatedOptionGroups, wordIn } from "../../catalog/product-langs";
+import { facetsJson, matchesFilters, readListingFilters } from "../../selling/filters";
 
 /**
  * The shop of an app without a website: products, categories and orders the
@@ -246,6 +248,8 @@ export class CatalogConnector implements Connector {
         return { status: 200, body: { items: await this.categories() } };
       case "GET /store/products":
         return this.products(request.query);
+      case "GET /store/filters":
+        return this.filters(request.query);
       case "POST /store/cart":
         return this.quote(request);
       case "POST /store/checkout-link":
@@ -341,7 +345,8 @@ export class CatalogConnector implements Connector {
     const inStock = variable ? sellableVariants(p).length > 0 : p.stock === null || p.stock > 0;
     return {
       id: p.id,
-      name: p.name,
+      // 212 In the app's language when the owner wrote it so.
+      name: productNameIn(p, this.lang),
       type: variable ? "variable" : "simple",
       image_url: p.imageAssetIds[0] ? this.deps.assetUrl(p.imageAssetIds[0]) : null,
       price: this.price(p),
@@ -450,10 +455,9 @@ export class CatalogConnector implements Connector {
     const inCategory = category === null ? null : inside(await this.deps.store.listCatalogCategories(this.deps.app.id), category);
     const search = (query.get("search") ?? "").trim().toLocaleLowerCase("tr").slice(0, 100);
     const flag = (name: string) => query.get(name) === "true" || query.get(name) === "1";
+    // 212 The listing's filters: sizes, colours and other choices, the price, the brand.
+    const filters = readListingFilters(query);
     const orderParam = query.get("orderby") as OrderBy | null;
-    // 209 At this price or under (its price now, in the shop's currency), as WooCommerce's `max_price`.
-    const maxPrice = Number(query.get("max_price") ?? "");
-    const maxCents = query.get("max_price") && Number.isFinite(maxPrice) && maxPrice > 0 ? Math.round(maxPrice * 100) : null;
     // 211 Filtered by a spec ("spec=ram&spec_value=16 GB").
     const specKey = query.get("spec");
     const specWanted = (query.get("spec_value") ?? "").trim().slice(0, 120);
@@ -466,8 +470,8 @@ export class CatalogConnector implements Connector {
           (!flag("featured") || p.featured) &&
           // 131 With the products of a flash sale on now.
           (!flag("on_sale") || priceOf(p) < p.priceCents || this.flashFor(p, p.priceCents, this.now) !== null) &&
-          (maxCents === null || priceOf(p) <= maxCents) &&
-          (search === "" || `${p.name} ${p.description} ${(p.specs ?? []).map((x) => x.value).join(" ")}`.toLocaleLowerCase("tr").includes(search)),
+          (search === "" || this.searchText(p).includes(search)) &&
+          (filters === null || matchesFilters(p, filters)),
       ),
       orderParam && ORDERS.includes(orderParam) ? orderParam : "newest",
     );
@@ -482,6 +486,24 @@ export class CatalogConnector implements Connector {
         items: filtered.slice(start, start + perPage).map((p) => this.summary(p)),
       },
     };
+  }
+
+  /** 212 What a search looks in: the name and description, in every language the owner wrote them in. */
+  private searchText(p: CatalogProduct): string {
+    const more = Object.values(p.translations ?? {}).map((t) => `${t.name ?? ""} ${t.description ?? ""}`);
+    // 211 And its specs' values ("256 GB", "OLED").
+    return [p.name, p.description, p.brand ?? "", ...more, ...(p.specs ?? []).map((x) => x.value)].join(" ").toLocaleLowerCase("tr");
+  }
+
+  /** 212 `GET /store/filters` (of a category, a search): what its products can be filtered by. */
+  private async filters(query: URLSearchParams): Promise<ConnectorResult> {
+    const all = await this.listed();
+    const category = query.get("category") ? Number(query.get("category")) : null;
+    if (category !== null && (!Number.isSafeInteger(category) || category < 1)) return error(400, "invalid_request", "Unknown category.");
+    const inCategory = category === null ? null : inside(await this.deps.store.listCatalogCategories(this.deps.app.id), category);
+    const search = (query.get("search") ?? "").trim().toLocaleLowerCase("tr").slice(0, 100);
+    const products = all.filter((p) => (inCategory === null || p.categoryIds.some((id) => inCategory.has(id))) && (search === "" || this.searchText(p).includes(search)));
+    return { status: 200, body: facetsJson(products, this.settings.currency, this.lang) };
   }
 
   private async home() {
@@ -516,15 +538,18 @@ export class CatalogConnector implements Connector {
       status: 200,
       body: {
         ...this.summary(product, now),
-        description_html: descriptionHtml(product.description),
+        description_html: descriptionHtml(productDescriptionIn(product, this.lang)),
         short_description_html: null,
-        images: product.imageAssetIds.map((assetId) => ({ url: this.deps.assetUrl(assetId), alt: product.name })),
+        images: product.imageAssetIds.map((assetId) => ({ url: this.deps.assetUrl(assetId), alt: productNameIn(product, this.lang) })),
+        // 212 Its brand, when the owner gave one.
+        brand: product.brand ?? null,
         sku: product.sku,
         max_quantity: product.stock !== null && product.stock > 0 ? product.stock : null,
         // 91.5 Its variations, as WooCommerce's.
+        // 212 Their names and labels in the app's language; their values stay the main ones.
         // 209 Each option's swatch colour where it has one, then its facts as attributes not chosen.
         attributes: [
-          ...(variants ? attributesJson(variants) : []).map((a) => ({ ...a, options: a.options.map((o) => (swatchFor(details, o.value) ? { ...o, swatch: swatchFor(details, o.value) } : o)) })),
+          ...(variants ? translatedAttributes(product, this.lang, attributesJson(variants)) : []).map((a) => ({ ...a, options: a.options.map((o) => (swatchFor(details, o.value) ? { ...o, swatch: swatchFor(details, o.value) } : o)) })),
           ...factAttributesJson(details),
         ],
         ...detailsJson(details),
@@ -571,7 +596,7 @@ export class CatalogConnector implements Connector {
         accessories: this.accessoriesFor(product, all, categories).map((p) => this.summary(p, now)),
         external_url: null,
         permalink: productUrl(this.deps.platformUrl, app.id, product.id),
-        option_groups: optionGroupsJson(optionGroupsOf(product), this.settings.currency),
+        option_groups: optionGroupsJson(translatedOptionGroups(product, this.lang, optionGroupsOf(product)), this.settings.currency),
         // 210 Its size in cm and the days it takes to make (the app's product page); null: none.
         dimensions: product.dimensions ? { width: product.dimensions.width, depth: product.dimensions.depth, height: product.dimensions.height, unit: "cm", text: dimensionsLine(product.dimensions, this.lang) } : null,
         make_days: product.makeDays ? { min: product.makeDays.min, max: product.makeDays.max, text: makeDaysLine(product.makeDays, this.lang) } : null,
@@ -788,6 +813,8 @@ export class CatalogConnector implements Connector {
       status: 200,
       body: {
         ...priced.cart,
+        // 212 The cart's names in the app's language (the order keeps the shop's own).
+        lines: priced.out.map((o) => (o.product && this.lang ? { ...o.line, name: o.variant ? `${productNameIn(o.product, this.lang)} - ${o.variant.values.map((v) => wordIn(o.product!, this.lang, v)).join(", ")}` : productNameIn(o.product, this.lang) } : o.line)),
         coupon: coupon.json,
         discount: coupon.discountCents > 0 ? this.money(coupon.discountCents) : null,
         points: points.json,

@@ -235,6 +235,21 @@ abstract class OwnerApi {
   Future<Review> replyReview(String appId, int reviewId, String text);
   Future<Review> deleteReviewReply(String appId, int reviewId);
 
+  // 212 A store's product reviews with photos, and who waits for what.
+  Future<ReviewsPage> productReviews(
+    String appId, {
+    String filter = 'all',
+    int page = 1,
+  });
+  Future<Review> setProductReviewHidden(
+    String appId,
+    int reviewId,
+    bool hidden,
+  );
+  Future<Review> replyProductReview(String appId, int reviewId, String text);
+  Future<Review> deleteProductReviewReply(String appId, int reviewId);
+  Future<ShopWishes> shopWishes(String appId);
+
   // 63 A gym's members at the door.
   Future<MembersPage> members(String appId, {String? query, int page = 1});
   Future<MemberCheckIn> checkInMember(

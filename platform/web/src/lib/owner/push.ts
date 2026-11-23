@@ -1,3 +1,4 @@
+import type { ProductReview } from "../data/types";
 import type { Lang } from "@/i18n/config";
 import { formatDate } from "@/i18n/format";
 import { getDashT, knownTranslator, type DashKey, type DashT } from "@/i18n/dashboard";
@@ -286,6 +287,22 @@ export function pushNewReview(deps: OwnerPushDeps, app: App, input: { review: Co
       body: w.t("owner.push.newReviewBody", { name: input.name, stars: String(input.review.rating), text: clip(input.review.text, 140) }).trim(),
     }),
     { app_id: app.id, review_id: String(input.review.id) },
+  );
+}
+
+/** 212 A customer reviewed a store's product (to the people with Catalog & content); Yallapp Business opens it by `product_review_id`. */
+export function pushNewProductReview(deps: OwnerPushDeps, app: App, input: { review: ProductReview; productName: string }): Promise<number> {
+  if (app.demo) return Promise.resolve(0);
+  const product = input.productName || "#" + input.review.productId;
+  return pushToOwner(
+    deps,
+    app.clientId,
+    "new_review",
+    (w) => ({
+      title: w.t(input.review.photoIds.length ? "owner.push.newProductReviewPhotos" : "owner.push.newProductReview", { product }),
+      body: w.t("owner.push.newReviewBody", { name: input.review.authorName, stars: String(input.review.rating), text: clip(input.review.text, 140) }).trim(),
+    }),
+    { app_id: app.id, product_review_id: String(input.review.id), product_id: String(input.review.productId) },
   );
 }
 

@@ -30,6 +30,7 @@ import { TAX_RATE_MAX_BPS } from "@/lib/catalog/tax";
 import { parseVariants } from "@/lib/catalog/variants";
 import { parseDetailsForm } from "@/lib/catalog/details";
 import { readProductNumbers } from "@/lib/catalog/product-fields";
+import { readProductTranslations } from "@/lib/catalog/product-langs";
 import { parseOptionGroups } from "@/lib/catalog/options";
 import { catalogSettings, encryptOwnPayment, isOwnPayment, ownPaymentInput } from "@/lib/catalog/settings";
 import { newId } from "@/lib/crypto/tokens";
@@ -156,6 +157,16 @@ export async function reorderCategoriesAction(ids: number[]): Promise<void> {
 // Products
 
 
+/** 212 The words the form's language folds translate (as the editor listed them). */
+function langWords(formData: FormData): string[] {
+  try {
+    const list = JSON.parse(String(formData.get("langWords") ?? "[]")) as unknown;
+    return Array.isArray(list) ? list.filter((w): w is string => typeof w === "string").slice(0, 120) : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function saveProductAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireCatalogApp();
   const { app } = context;
@@ -181,6 +192,9 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
   // 211 Its specifications, one per line ("Storage: 256 GB").
   const specs = parseSpecsText(values.specs ?? "");
   if (!specs.ok) errors.specs = specs.error;
+  // 212 Its brand (for the filters) and its words in the app's other languages.
+  values.brand = str(formData, "brand").replace(/\s+/g, " ");
+  if (values.brand.length > 80) errors.brand = "Use at most 80 characters.";
   // 26 Option groups (a dish's size, sauce or extras), from the options editor as JSON.
   values.optionGroups = String(formData.get("optionGroups") ?? "");
   const optionGroups = parseOptionGroups(values.optionGroups, catalogSettings(app).currency);
@@ -276,6 +290,8 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     details: details.ok ? details.value : null,
     // 110.2 A sample product saved here is the owner's from now on.
     sample: false,
+    brand: values.brand || null,
+    translations: readProductTranslations((field) => String(formData.get(field) ?? ""), langWords(formData)),
   };
   if (existing) await store.updateCatalogProduct(app.id, existing.id, input, now);
   else await store.createCatalogProduct(input, now);

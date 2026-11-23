@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart' show immutable, kIsWeb;
+import 'package:flutter/foundation.dart'
+    show immutable, kIsWeb, listEquals, mapEquals;
 
 import 'api_exception.dart';
 import 'http_client.dart';
@@ -88,6 +89,8 @@ class ProductQuery {
     this.spec,
     this.specValue,
     this.withSpecs = false,
+    this.filters = const {},
+    this.ids = const [],
   });
 
   /// 211 The shop filtered by a spec's value (`spec`, `spec_value`).
@@ -97,6 +100,9 @@ class ProductQuery {
   /// 211 Each product with its specs (Build your PC's parts).
   final bool withSpecs;
 
+  /// 212 These products only, in this order (a guest's wishlist).
+  final List<int> ids;
+
   final int page;
   final int perPage;
   final String? search;
@@ -105,6 +111,18 @@ class ProductQuery {
   final bool featured;
   final ProductOrder orderBy;
 
+  /// 212 The listing filters as their query parameters (`size`, `colour`,
+  /// `f.<key>`, `min_price`, `max_price`, `brand`), each value joined by
+  /// commas; empty: none. Older servers ignore them.
+  final Map<String, String> filters;
+
+  /// How many filters are on (each choice and the price count once).
+  int get filterCount =>
+      filters.keys.where((k) => k != 'min_price' && k != 'max_price').length +
+      (filters.containsKey('min_price') || filters.containsKey('max_price')
+          ? 1
+          : 0);
+
   ProductQuery copyWith({
     int? page,
     String? search,
@@ -112,6 +130,7 @@ class ProductQuery {
     bool clearCategory = false,
     bool? onSale,
     ProductOrder? orderBy,
+    Map<String, String>? filters,
   }) => ProductQuery(
     page: page ?? this.page,
     perPage: perPage,
@@ -123,6 +142,8 @@ class ProductQuery {
     spec: spec,
     specValue: specValue,
     withSpecs: withSpecs,
+    filters: filters ?? this.filters,
+    ids: ids,
   );
 
   Map<String, dynamic> toQuery() => {
@@ -142,6 +163,8 @@ class ProductQuery {
       ProductOrder.priceDesc => 'price_desc',
       _ => orderBy.name,
     },
+    ...filters,
+    if (ids.isNotEmpty) 'ids': ids.join(','),
   };
 
   @override
@@ -156,11 +179,22 @@ class ProductQuery {
       other.orderBy == orderBy &&
       other.spec == spec &&
       other.specValue == specValue &&
-      other.withSpecs == withSpecs;
+      other.withSpecs == withSpecs &&
+      mapEquals(other.filters, filters) &&
+      listEquals(other.ids, ids);
 
   @override
-  int get hashCode =>
-      Object.hash(page, perPage, search, category, onSale, featured, orderBy);
+  int get hashCode => Object.hash(
+    page,
+    perPage,
+    search,
+    category,
+    onSale,
+    featured,
+    orderBy,
+    Object.hashAllUnordered(filters.entries.map((e) => '${e.key}=${e.value}')),
+    Object.hashAll(ids),
+  );
 }
 
 enum ListingSort { newest, priceAsc, priceDesc, areaDesc }
@@ -754,7 +788,36 @@ abstract class YallappApi {
     required String phone,
     String? note,
   });
-  Future<ReviewPage> listProductReviews(int productId, {int page = 1});
+  Future<ReviewPage> listProductReviews(
+    int productId, {
+    int page = 1,
+    bool photos = false,
+  });
+
+  // 212 A store's wishlist, reviews with photos, back in stock, filters.
+  Future<WishlistPage> getWishlist({int page = 1});
+  Future<void> addToShopWishlist(int productId);
+  Future<void> removeFromShopWishlist(int productId);
+
+  /// Adds a guest's hearts after signing in; every saved id.
+  Future<List<int>> mergeWishlist(List<int> productIds);
+  Future<Review> saveProductReview(
+    int productId, {
+    required int rating,
+    String text = '',
+    List<String> photoIds = const [],
+  });
+  Future<void> deleteProductReview(int productId);
+  Future<ChatUpload> startReviewUpload({
+    required String name,
+    required int size,
+    required String type,
+  });
+  Future<ChatUpload> resumeReviewUpload(String uploadId);
+  Future<void> completeReviewUpload(String uploadId);
+  Future<void> waitForStock(int productId, {int? variationId});
+  Future<void> stopWaitingForStock(int productId, {int? variationId});
+  Future<ShopFilters> getShopFilters({int? category, String? search});
 
   /// Prices the app's cart as the shop sees it now, with the coupon the
   /// customer typed (91.1).
@@ -2592,7 +2655,8 @@ class HttpYallappApi implements YallappApi {
 
   @override
   Future<ProductDetail> getProduct(int productId) =>
-      _get('/store/products/$productId', _public, ProductDetail.fromJson);
+      // 212 Signed in when the customer is: their review, what they wait for.
+      _get('/store/products/$productId', _optional, ProductDetail.fromJson);
 
   @override
   Future<String> sendTradeIn({
@@ -2618,11 +2682,125 @@ class HttpYallappApi implements YallappApi {
   );
 
   @override
-  Future<ReviewPage> listProductReviews(int productId, {int page = 1}) => _get(
+  Future<ReviewPage> listProductReviews(
+    int productId, {
+    int page = 1,
+    bool photos = false,
+  }) => _get(
     '/store/products/$productId/reviews',
     _optional,
     ReviewPage.fromJson,
-    query: {'page': page, 'per_page': 20},
+    query: {'page': page, 'per_page': 20, if (photos) 'photos': 1},
+  );
+
+  // 212
+
+  @override
+  Future<WishlistPage> getWishlist({int page = 1}) => _get(
+    '/store/wishlist',
+    _required,
+    WishlistPage.fromJson,
+    query: {'page': page, 'per_page': 50},
+  );
+
+  @override
+  Future<void> addToShopWishlist(int productId) =>
+      _send('PUT', '/store/wishlist/$productId', _required, _ignore);
+
+  @override
+  Future<void> removeFromShopWishlist(int productId) =>
+      _send('DELETE', '/store/wishlist/$productId', _required, _ignore);
+
+  @override
+  Future<List<int>> mergeWishlist(List<int> productIds) => _send(
+    'POST',
+    '/store/wishlist/merge',
+    _required,
+    (data) => [
+      for (final v in (asJson(data)['ids'] as List? ?? const []))
+        if (v is num) v.toInt(),
+    ],
+    body: {'product_ids': productIds.take(200).toList()},
+  );
+
+  @override
+  Future<Review> saveProductReview(
+    int productId, {
+    required int rating,
+    String text = '',
+    List<String> photoIds = const [],
+  }) => _send(
+    'PUT',
+    '/store/products/$productId/reviews/mine',
+    _required,
+    (data) => Review.fromJson(asJson(data)),
+    body: {'rating': rating, 'text': text, 'photo_ids': photoIds},
+  );
+
+  @override
+  Future<void> deleteProductReview(int productId) => _send(
+    'DELETE',
+    '/store/products/$productId/reviews/mine',
+    _required,
+    _ignore,
+  );
+
+  @override
+  Future<ChatUpload> startReviewUpload({
+    required String name,
+    required int size,
+    required String type,
+  }) => _send(
+    'POST',
+    '/store/review-uploads',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+    body: {'name': name, 'size': size, 'type': type},
+  );
+
+  @override
+  Future<ChatUpload> resumeReviewUpload(String uploadId) => _send(
+    'POST',
+    '/store/review-uploads/${Uri.encodeComponent(uploadId)}/resume',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<void> completeReviewUpload(String uploadId) => _send(
+    'POST',
+    '/store/review-uploads/${Uri.encodeComponent(uploadId)}/complete',
+    _required,
+    _ignore,
+  );
+
+  @override
+  Future<void> waitForStock(int productId, {int? variationId}) => _send(
+    'PUT',
+    '/store/products/$productId/back-in-stock',
+    _required,
+    _ignore,
+    body: {'variation_id': variationId},
+  );
+
+  @override
+  Future<void> stopWaitingForStock(int productId, {int? variationId}) => _send(
+    'DELETE',
+    '/store/products/$productId/back-in-stock',
+    _required,
+    _ignore,
+    query: {'variation_id': ?variationId},
+  );
+
+  @override
+  Future<ShopFilters> getShopFilters({int? category, String? search}) => _get(
+    '/store/filters',
+    _public,
+    ShopFilters.fromJson,
+    query: {
+      'category': ?category,
+      if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+    },
   );
 
   @override

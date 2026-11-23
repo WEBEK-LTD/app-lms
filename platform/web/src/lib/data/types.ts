@@ -2024,6 +2024,10 @@ export interface CatalogProduct {
   sample?: boolean;
   /** 211 Its specifications (a phone's screen, a laptop's processor), in the owner's order; null or missing: none (lib/selling/specs.ts). */
   specs?: ProductSpec[] | null;
+  /** 212 Its name, description and choices in the app's other languages; null or missing: none. */
+  translations?: import("./shop-features-types").ProductTranslations | null;
+  /** 212 Its brand, for the shop's filters; null or missing: none. */
+  brand?: string | null;
   salesCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -8071,3 +8075,6 @@ export * from "./travel-types";
 
 // 106 Studio Market: designers, templates, their versions and reviews, buyers' licences and applications
 export * from "./studio-market-types";
+
+// 212 A store's wishlist, reviews with photos, back in stock and product languages
+export * from "./shop-features-types";

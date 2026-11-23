@@ -2212,7 +2212,7 @@ abstract class AppLocalizations {
   /// **'Q&A'**
   String get questionsAndAnswers;
 
-  /// No description provided for @removeFromWishlist.
+  /// 212 The heart on a product's card and page (saved): removes it.
   ///
   /// In en, this message translates to:
   /// **'Remove from wishlist'**
@@ -2560,16 +2560,16 @@ abstract class AppLocalizations {
   /// **'Next: {title}'**
   String nextItem(String title);
 
-  /// No description provided for @wishlistEmptyTitle.
+  /// 212 The wishlist screen without products.
   ///
   /// In en, this message translates to:
   /// **'Your wishlist is empty'**
   String get wishlistEmptyTitle;
 
-  /// No description provided for @wishlistEmptyMessage.
+  /// 212 Under the empty wishlist's title.
   ///
   /// In en, this message translates to:
-  /// **'Tap the heart on a course to save it for later.'**
+  /// **'Tap the heart on a product to keep it here.'**
   String get wishlistEmptyMessage;
 
   /// No description provided for @courseComplete.
@@ -20647,6 +20647,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No delivery days are open right now.'**
   String get deliverySlotsNone;
+
+  /// 212 The heart on a product's card and page (not saved): saves it.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to wishlist'**
+  String get saveToWishlist;
+
+  /// 212 The wishlist of a customer not signed in.
+  ///
+  /// In en, this message translates to:
+  /// **'Your hearts are kept on this phone. Sign in to keep them on all your phones.'**
+  String get wishlistOnPhone;
+
+  /// 212 Saving or removing a product failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wishlist couldn\'t be changed. Try again.'**
+  String get wishlistFailed;
+
+  /// 212 Button in the review form: adds photos of the product.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photos'**
+  String get reviewAddPhotos;
+
+  /// 212 How many photos the review has, of how many it can take.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {max} photos'**
+  String reviewPhotosCount(int count, int max);
+
+  /// 212 A photo's button in the review form.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this photo'**
+  String get reviewPhotoRemove;
+
+  /// 212 A photo over the shop's limit.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo is too big. Choose one up to {size}.'**
+  String reviewPhotoTooBig(String size);
+
+  /// 212 A file that isn't a photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo (JPEG, PNG or WebP).'**
+  String get reviewPhotoType;
+
+  /// 212 On a product's page, for someone who can't review it (yet).
+  ///
+  /// In en, this message translates to:
+  /// **'Customers who bought this product can review it.'**
+  String get reviewOnlyBuyers;
+
+  /// 212 Link from a product's reviews to all of them.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{See the review} other{See all {count} reviews}}'**
+  String reviewsSeeAll(int count);
+
+  /// 212 The row of review photos on a product's page.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos from customers'**
+  String get reviewPhotosTitle;
+
+  /// 212 A review photo, read aloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer photo {n}'**
+  String reviewPhotoOf(int n);
+
+  /// 212 Button of a product (or the choice) out of stock.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me when it\'s back'**
+  String get notifyMeBack;
+
+  /// 212 The same button once the customer asked.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll tell you when it\'s back'**
+  String get notifyMeWaiting;
+
+  /// 212 Stops waiting for a product.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t notify me'**
+  String get notifyMeStop;
+
+  /// 212 After asking to be told.
+  ///
+  /// In en, this message translates to:
+  /// **'Done. You\'ll get a notification when it\'s back in stock.'**
+  String get notifyMeSaved;
+
+  /// 212 A guest pressed Notify me.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to be told when it\'s back.'**
+  String get notifyMeSignIn;
+
+  /// 212 The price range in the listing's filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get filterPrice;
+
+  /// 212 The brands in the listing's filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand'**
+  String get filterBrand;
+
+  /// 212 The price range chosen in the filters.
+  ///
+  /// In en, this message translates to:
+  /// **'{min} to {max}'**
+  String filterPriceRange(String min, String max);
+
+  /// 212 A Studio listing filter's button: opens the shop with its filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter the products'**
+  String get filterOpen;
 }
 
 class _AppLocalizationsDelegate

@@ -8241,6 +8241,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 new request} other{{count} new requests}}'**
   String requestsNewCount(int count);
+
+  /// No description provided for @inboxProductReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Product reviews'**
+  String get inboxProductReviews;
+
+  /// No description provided for @onProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'on {product}'**
+  String onProduct(String product);
+
+  /// No description provided for @reviewsWithPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'With photos'**
+  String get reviewsWithPhotos;
+
+  /// No description provided for @reviewPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos with the review'**
+  String get reviewPhotos;
+
+  /// No description provided for @photoNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo {n}'**
+  String photoNumber(int n);
+
+  /// No description provided for @noProductReviewsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers who bought a product can review it in your app, with photos.'**
+  String get noProductReviewsText;
+
+  /// No description provided for @shopWishes.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting & saved'**
+  String get shopWishes;
+
+  /// No description provided for @shopWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for stock'**
+  String get shopWaiting;
+
+  /// No description provided for @shopWaitingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When it\'s back, each of them gets a notification once.'**
+  String get shopWaitingHint;
+
+  /// No description provided for @shopWaitingNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody is waiting for a product right now.'**
+  String get shopWaitingNone;
+
+  /// No description provided for @shopWaitingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 waits} other{{count} wait}}'**
+  String shopWaitingCount(int count);
+
+  /// No description provided for @shopSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to wishlists'**
+  String get shopSaved;
+
+  /// No description provided for @shopSavedNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No customer saved a product yet.'**
+  String get shopSavedNone;
+
+  /// No description provided for @shopSavedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Saved by 1} other{Saved by {count}}}'**
+  String shopSavedCount(int count);
+
+  /// No description provided for @variationNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Choice #{id}'**
+  String variationNumber(int id);
+
+  /// No description provided for @productNoLongerSold.
+  ///
+  /// In en, this message translates to:
+  /// **'A product no longer sold'**
+  String get productNoLongerSold;
 }
 
 class _AppLocalizationsDelegate

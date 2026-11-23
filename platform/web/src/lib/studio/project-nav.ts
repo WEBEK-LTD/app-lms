@@ -95,7 +95,16 @@ export function studioProjectNav({ app, text, can, supportUrl }: StudioNavInput)
   const { t, k } = text;
   const content = contentNavOf(app);
   // 131 A store's delivery, gifts, flash sales and discount codes, and its card messages, next to its products and orders.
-  const storeExtras = app.appType === "store" ? [item("/dashboard/selling", t("selling.nav"), "local_shipping"), item("/dashboard/selling/messages", t("selling.messagesTitle"), "redeem")] : [];
+  // 212 Its product reviews, and who waits for what and saved what.
+  const storeExtras =
+    app.appType === "store"
+      ? [
+          item("/dashboard/selling", t("selling.nav"), "local_shipping"),
+          item("/dashboard/selling/messages", t("selling.messagesTitle"), "redeem"),
+          item("/dashboard/selling/reviews", t("shopFeatures.reviews"), "reviews"),
+          item("/dashboard/selling/wishes", t("shopFeatures.wishes"), "favorite"),
+        ]
+      : [];
   // A kind's page by its own word: the school's Classes are its classes, not the gym's ("Classes" alone is the gym's word in the known texts).
   const kindLabel = (href: string, label: string) => {
     const own = SCHOOL_WORDS[href];

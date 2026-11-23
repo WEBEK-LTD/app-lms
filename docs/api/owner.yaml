@@ -2260,6 +2260,170 @@ paths:
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /apps/{app_id}/product-reviews:
+    get:
+      tags: [Reviews]
+      operationId: listProductReviews
+      summary: A store's product reviews
+      description: |
+        212 Customers' reviews of the store's products (any store: Yallapp's
+        own shop, Shopify, the connected platforms), newest first, each with
+        its photos and the short name the app shows ("Ahmed K."), never an
+        email or a phone. Only customers who bought a product review it, one
+        each. The person needs Catalog & content (`AppFeatures.product_reviews`).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: filter
+          in: query
+          description: "`unreplied`: shown and without a reply; `photos`: with photos; `hidden`: hidden from others."
+          schema: { type: string, enum: [all, unreplied, photos, hidden], default: all }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Reviews
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, rating, rating_count, counts]
+                    properties:
+                      rating: { type: [number, 'null'] }
+                      rating_count: { type: integer }
+                      counts:
+                        type: object
+                        description: Shown reviews per star, "1" to "5".
+                        additionalProperties: { type: integer }
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/ProductReview' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/product-reviews/{review_id}:
+    patch:
+      tags: [Reviews]
+      operationId: updateProductReview
+      summary: Hide an abusive product review, or show it again
+      description: 212 A hidden review reaches its writer only; it leaves the product's rating.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ReviewId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hidden]
+              properties:
+                hidden: { type: boolean }
+      responses:
+        '200':
+          description: The review
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductReview' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/product-reviews/{review_id}/reply:
+    put:
+      tags: [Reviews]
+      operationId: replyProductReview
+      summary: The shop's one reply under a product review
+      description: 212 Up to 2,000 characters; written again, it replaces the reply.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ReviewId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '200':
+          description: The review with its reply
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductReview' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Reviews]
+      operationId: deleteProductReviewReply
+      summary: Remove the shop's reply
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ReviewId'
+      responses:
+        '200':
+          description: The review
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductReview' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/shop-wishes:
+    get:
+      tags: [Reviews]
+      operationId: getShopWishes
+      summary: Who waits for what, and what customers saved
+      description: |
+        212 The products (and variations) customers wait for to be back in
+        stock, with how many wait (each is told once it's back), and the
+        products saved most to wishlists. 50 of each at most.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: The counts
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [waiting, waiting_total, saved]
+                properties:
+                  waiting:
+                    type: array
+                    items:
+                      type: object
+                      required: [product_id, variation_id, product_name, product_image_url, count]
+                      properties:
+                        product_id: { type: integer }
+                        variation_id: { type: [integer, 'null'] }
+                        product_name: { type: string }
+                        product_image_url: { type: [string, 'null'] }
+                        count: { type: integer }
+                  waiting_total: { type: integer }
+                  saved:
+                    type: array
+                    items:
+                      type: object
+                      required: [product_id, product_name, product_image_url, count]
+                      properties:
+                        product_id: { type: integer }
+                        product_name: { type: string }
+                        product_image_url: { type: [string, 'null'] }
+                        count: { type: integer }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /apps/{app_id}/reviews/{review_id}/reply:
     put:
       tags: [Reviews]
@@ -4469,6 +4633,37 @@ components:
           schema: { $ref: '#/components/schemas/Error' }
 
   schemas:
+    ProductReview:
+      type: object
+      required: [id, product_id, product_name, product_image_url, person, rating, text, photos, hidden, reply, created_at, updated_at]
+      properties:
+        id: { type: integer }
+        product_id: { type: integer }
+        product_name: { type: string, description: "As the shop serves it now; empty when it's no longer sold." }
+        product_image_url: { type: [string, 'null'] }
+        person: { type: string, description: 'The short name the app shows ("Ahmed K.").' }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        text: { type: string }
+        photos:
+          type: array
+          maxItems: 4
+          items:
+            type: object
+            required: [url]
+            properties:
+              url: { type: string, format: uri }
+        hidden: { type: boolean }
+        reply:
+          oneOf:
+            - type: object
+              required: [text, created_at]
+              properties:
+                text: { type: string }
+                created_at: { type: string, format: date-time }
+            - type: 'null'
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
     Error:
       type: object
       required: [code, message]
@@ -4686,6 +4881,7 @@ components:
         inquiries: { type: boolean }
         questions: { type: boolean, description: "63 Students' questions in courses managed in Yallapp (Messages). Missing on older servers: false." }
         reviews: { type: boolean, description: "63 Reviews of courses managed in Yallapp (Catalog & content). Missing on older servers: false." }
+        product_reviews: { type: boolean, description: "212 A store's product reviews with photos and its waiting and saved products (`/apps/{app_id}/product-reviews`, `/apps/{app_id}/shop-wishes`; Catalog & content). Missing on older servers: false." }
         member_check_in: { type: boolean, description: "63 A gym's members checked in at the door (Bookings & appointments). Missing on older servers: false." }
         chat: { type: boolean, description: "77 The app's chat (its plan has it and it is on). Missing on older servers: false." }
         app_users: { type: boolean }

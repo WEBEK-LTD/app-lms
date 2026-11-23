@@ -926,7 +926,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       const result = await hosted(app, op.method, op.route, await customerOf(app), BODY);
       const where = `${op.method} ${op.route} on the caller's app`;
       // Taking something off the customer's own list: what isn't there is already off it.
-      if (op.method === "DELETE" && /^\/me\/(favorites|wishlist)\//.test(op.route)) expect(result.status === 204 || result.status >= 400, where).toBe(true);
+      // 212 A store's wishlist, back in stock and the review of the caller: their own rows only, a no-op elsewhere.
+      if (op.method === "DELETE" && (/^\/me\/(favorites|wishlist)\//.test(op.route) || /^\/store\/(wishlist\/|products\/\{product_id\}\/(back-in-stock|reviews\/mine))/.test(op.route))) expect(result.status === 204 || result.status >= 400, where).toBe(true);
       else expect(result.status, where).toBeGreaterThanOrEqual(400);
       expect(JSON.stringify(result.body ?? null), where).not.toContain(MARK);
       tried++;

@@ -7,6 +7,9 @@ import { queueBuild } from "../app/setup";
 import { runAppReviewSubmissions, type AppReviewReport } from "../publishing/app-review-submit";
 import { noteAppReviewSent, notifyPublishingWork } from "../publishing/service";
 import { runOrderWatches, type OrderWatchReport } from "../hosted/order-watch";
+import { connectorFor } from "../hosted/connectors";
+import type { GuestMailer } from "../hosted/auto-notifications";
+import { runStockAlerts } from "../selling/shop-features";
 import { syncReviewStatuses, type ReviewSyncReport } from "../publishing/review";
 import type { PreflightDeps } from "../builds/preflight";
 import { assetUrl } from "../assets";
@@ -66,6 +69,8 @@ export interface FrequentReport {
   pipeline: AskAgainReport;
   /** 91.2 Order watches looked at, people told of an order update, watches that ended. */
   orders: OrderWatchReport;
+  /** 212 Stores whose waiting customers were looked at, the products looked at, and the people told they're back. */
+  stock?: { apps: number; looked: number; told: number };
   /** 100.2 Store products made or changed in Google Play and the App Store. */
   storeProducts: StoreProductsRunReport;
   /** 100.3 Access given or taken back on the source, Google's refunds, memberships that ended. */
@@ -109,6 +114,8 @@ export async function runFrequentJobs(deps: {
   storeFetch?: typeof fetch;
   /** 91.2 How the connected platforms are reached (tests: a fake fetch). */
   platformFetch?: typeof fetch;
+  /** 212 Emails a customer that what they waited for is back (the app's email); left out: the push and the inbox only. */
+  stockMail?: GuestMailer;
   /** 114 How email campaigns are sent; left out, they wait for their own job. */
   mail?: Omit<MailRunDeps, "store" | "budgetMs">;
   /** 136 Yallapp's Firebase (lib/firebase/env.ts); left out when it isn't set up: nothing calls Google. */
@@ -206,6 +213,20 @@ export async function runFrequentJobs(deps: {
     orders = await runOrderWatches({ store: deps.store, key: deps.key, now: deps.now, send: deps.send, fetcher: deps.platformFetch });
   } catch (error) {
     console.error("[frequent] order updates", error instanceof Error ? error.message : String(error));
+  }
+  // 212 Products customers wait for, back in stock: each of them told once.
+  let stock = { apps: 0, looked: 0, told: 0 };
+  try {
+    stock = await runStockAlerts({
+      store: deps.store,
+      key: deps.key,
+      now: deps.now,
+      send: deps.send,
+      connectorOf: (app) => connectorFor(app, deps.key, { store: deps.store, assetUrl, platformUrl: deps.platformUrl ?? appUrl() }, deps.platformFetch),
+      ...(deps.stockMail ? { mail: deps.stockMail } : {}),
+    });
+  } catch (error) {
+    console.error("[frequent] back in stock", error instanceof Error ? error.message : String(error));
   }
   // 100.2 The in-app products waiting for Google Play or the App Store.
   let storeProducts: StoreProductsRunReport = { apps: 0, done: 0, failed: 0 };
@@ -315,5 +336,5 @@ export async function runFrequentJobs(deps: {
       );
     }
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, screenshots, reviews, appReview, appRelease, pipeline, orders, storeProducts, storePurchases, rides, market, library, school, mail, prime, ...(firebase ? { firebase } : {}) };
+  return { notifications, announcements, ended, campaigns, automatic, builds, screenshots, reviews, appReview, appRelease, pipeline, orders, stock, storeProducts, storePurchases, rides, market, library, school, mail, prime, ...(firebase ? { firebase } : {}) };
 }

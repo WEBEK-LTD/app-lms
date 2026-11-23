@@ -3161,8 +3161,11 @@ class DemoApi extends FakeApi {
   };
 
   @override
-  Future<ReviewPage> listProductReviews(int productId, {int page = 1}) =>
-      listReviews(productId, page: page);
+  Future<ReviewPage> listProductReviews(
+    int productId, {
+    int page = 1,
+    bool photos = false,
+  }) => listReviews(productId, page: page);
 
   // ------------------------------------------------------------ Bookings
 

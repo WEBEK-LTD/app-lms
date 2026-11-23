@@ -14,6 +14,8 @@ import { parsePrice } from "@/lib/catalog/money";
 import { initialFormState } from "@/lib/forms";
 import { richText } from "@/i18n/rich";
 import { AddonFields, Check, DetailsFields, OptionGroupsEditor, VariantsEditor, type ProductFormValues } from "./forms";
+import { productWords, PRODUCT_LANGS } from "@/lib/catalog/product-langs";
+import type { ProductTranslations } from "@/lib/data/types";
 
 /** One card of the editor: its heading, a line about it, and its fields. */
 function Card({ id, icon, title, description, children }: { id: string; icon: IconName; title: string; description?: ReactNode; children: ReactNode }) {
@@ -33,6 +35,63 @@ function Card({ id, icon, title, description, children }: { id: string; icon: Ic
       </div>
       {children}
     </section>
+  );
+}
+
+/** 212 The saved product's choices (attributes and option groups), for the words to translate. */
+function savedChoices(product: ProductFormValues) {
+  return {
+    variants: { attributes: product.variants.attributes.map((a) => ({ name: a.name, values: a.values.split(",").map((v) => v.trim()).filter(Boolean) })), items: [] },
+    optionGroups: product.optionGroups.map((g) => ({ id: "", name: g.name, min: 0, max: 0, options: g.options.map((o) => ({ id: "", name: o.name, priceDeltaCents: 0 })) })),
+  };
+}
+
+/**
+ * 212 The product in the app's other languages: a fold per language with
+ * its name, its description and its choices' words (as saved: a choice
+ * added now is translated after saving). Empty: the main text.
+ */
+function ProductLanguages({ translations, words }: { translations: ProductTranslations | null; words: string[] }) {
+  const t = useDashT();
+  return (
+    <div className="flex flex-col gap-2">
+      <input type="hidden" name="langWords" value={JSON.stringify(words)} />
+      {PRODUCT_LANGS.map((lang) => {
+        const own = translations?.[lang];
+        const language = t(`shopFeatures.lang_${lang}`);
+        const textDir = lang === "ar" ? "rtl" : "ltr";
+        return (
+          <details key={lang} className="rounded-xl border border-line-soft px-3.5 py-2.5" open={Boolean(own)}>
+            <summary className="cursor-pointer text-[15px] font-semibold">{language}</summary>
+            <div className="flex flex-col gap-3 pt-3">
+              <Field label={t("shopFeatures.langName", { lang: language })} name={`name_${lang}`} maxLength={120} defaultValue={own?.name ?? ""} dir={textDir} lang={lang} />
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor={`f-description-${lang}`} className="text-sm font-semibold">
+                  {t("shopFeatures.langDescription", { lang: language })}
+                </label>
+                <textarea id={`f-description-${lang}`} name={`description_${lang}`} rows={3} maxLength={5000} defaultValue={own?.description ?? ""} className="input min-h-20 py-3" dir={textDir} lang={lang} />
+              </div>
+              {words.length ? (
+                <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+                  <legend className="text-sm font-semibold">{t("shopFeatures.langWords", { lang: language })}</legend>
+                  <span className="text-[13px] text-muted">{t("shopFeatures.langWordsHint")}</span>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {words.map((word, i) => (
+                      <label key={word} className="flex items-center gap-2">
+                        <span className="w-28 shrink-0 truncate text-[14px] text-ink-3" dir="auto">
+                          {word}
+                        </span>
+                        <input name={`word_${lang}_${i}`} defaultValue={own?.words?.[word] ?? ""} maxLength={60} className="input h-10 min-w-0 flex-1" dir={textDir} lang={lang} aria-label={`${word} (${language})`} />
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ) : null}
+            </div>
+          </details>
+        );
+      })}
+    </div>
   );
 }
 
@@ -245,6 +304,7 @@ export function ProductEditor({
     { id: "p-photos", label: t("shop.photos"), icon: "photo_library" },
     { id: "p-price", label: t("manage.secPrice"), icon: "sell" },
     { id: "p-options", label: t("shop.formOptions", { kind }), icon: "tune" },
+    { id: "p-langs", label: t("shopFeatures.langs"), icon: "translate" },
     { id: "p-stock", label: t("shop.stock"), icon: "inventory_2" },
     { id: "p-delivery", label: t("manage.secDelivery"), icon: "local_shipping" },
     ...(restaurant ? [] : [{ id: "p-addon", label: t("manage.secAddon"), icon: "redeem" as const }]),
@@ -332,6 +392,12 @@ export function ProductEditor({
           <Card id="p-options" icon="tune" title={t("shop.formOptions", { kind })} description={t("shop.formOptionsHint", { kind })}>
             {restaurant ? null : <VariantsEditor initial={product.variants} currency={currency} error={errors.variants} />}
             <OptionGroupsEditor initial={product.optionGroups} currency={currency} restaurant={restaurant} error={errors.optionGroups} />
+          </Card>
+
+          {/* 212 Its name, description and choices in the app's other languages, and its brand. */}
+          <Card id="p-langs" icon="translate" title={t("shopFeatures.langs")} description={t("shopFeatures.langsHint")}>
+            <ProductLanguages translations={product.translations ?? null} words={productWords(savedChoices(product))} />
+            <Field label={t("shopFeatures.brand")} name="brand" maxLength={80} defaultValue={product.brand ?? ""} hint={t("shopFeatures.brandHint")} error={errors.brand} className="sm:max-w-[360px]" />
           </Card>
 
           <Card id="p-stock" icon="inventory_2" title={t("shop.stock")} description={product.variants.items.length ? t("manage.stockVariants") : undefined}>

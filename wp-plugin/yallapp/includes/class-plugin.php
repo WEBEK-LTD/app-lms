@@ -96,6 +96,8 @@ class Plugin {
 		$this->store_checkout()->register();
 		// 131 Delivery slots, the gift checkout, card messages, flash sales and coupons shown in the app.
 		$this->store_extras()->register();
+		// 212 Customers waiting for a product are told once it's back in stock.
+		( new Store\Shop_Features( $this ) )->register();
 		// 91.2 Order updates in the app (WooCommerce).
 		( new Commerce\Order_Updates( $this ) )->register();
 		( new Commerce\Delivery_Stages() )->register();
@@ -139,6 +141,8 @@ class Plugin {
 		( new Rest\Notifications_Controller( $this ) )->register_routes();
 		( new Rest\Community_Controller( $this ) )->register_routes();
 		( new Rest\Store_Controller( $this ) )->register_routes();
+		// 212 The wishlist, writing a review, back in stock and the listing filters.
+		( new Rest\Shop_Features_Controller( $this ) )->register_routes();
 		// 123 Several courses in one checkout, with a saved card.
 		( new Rest\Course_Cart_Controller( $this ) )->register_routes();
 		( new Rest\Bookings_Controller( $this ) )->register_routes();

@@ -3902,6 +3902,30 @@ paths:
           in: query
           description: "211 Each product's `specs` too (Build your PC's parts, checked against each other by them). Yallapp's own catalog only."
           schema: { type: boolean, default: false }
+        - name: size
+          in: query
+          description: "212 Sizes (comma-separated values from `GET /store/filters`, any of them). Yallapp's own shops; others ignore it."
+          schema: { type: string, example: 'M,L' }
+        - name: colour
+          in: query
+          description: "212 Colours, as `size`."
+          schema: { type: string, example: 'Black' }
+        - name: min_price
+          in: query
+          description: "212 The lowest price, in the shop's currency (`GET /store/filters` `price.currency`)."
+          schema: { type: number, minimum: 0 }
+        - name: max_price
+          in: query
+          description: "212 The highest price, as `min_price`."
+          schema: { type: number, minimum: 0 }
+        - name: brand
+          in: query
+          description: "212 Brands (comma-separated, any of them)."
+          schema: { type: string }
+        - name: in_stock
+          in: query
+          description: "212 In stock now only."
+          schema: { type: boolean, default: false }
       responses:
         '200':
           description: Products
@@ -3943,12 +3967,20 @@ paths:
       tags: [Store]
       operationId: listProductReviews
       summary: List a product's reviews
-      description: Approved reviews, newest first, with the rating summary. Fails with `feature_disabled` when the site has reviews turned off.
+      description: |
+        Approved reviews, newest first, with the rating summary. Fails with `feature_disabled` when the site has reviews turned off.
+        Roadmap 212: on Yallapp's hosted API every store has them (Yallapp's own shop, Shopify, the connected
+        platforms), each with its `photos`; `photos=1` lists the ones with photos; the signed-in customer gets
+        `mine` and `can_review` (they bought it).
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/ProductId'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
+        - name: photos
+          in: query
+          description: 212 Only reviews with photos.
+          schema: { type: boolean, default: false }
       responses:
         '200':
           description: Reviews
@@ -3964,8 +3996,332 @@ paths:
                         type: array
                         items: { $ref: '#/components/schemas/Review' }
                       summary: { $ref: '#/components/schemas/RatingSummary' }
+                      mine:
+                        description: 212 The signed-in customer's own review (hidden ones too); null when none.
+                        oneOf:
+                          - $ref: '#/components/schemas/Review'
+                          - type: 'null'
+                      can_review: { type: boolean, description: "212 Whether the signed-in customer may write or edit one: they bought it." }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+
+  /store/filters:
+    get:
+      tags: [Store]
+      operationId: getShopFilters
+      summary: What a listing can be filtered by
+      description: |
+        Roadmap 212. The reusable listing filter element's choices for the
+        products of a category or a search: the sizes, colours and other
+        choices sold (each value with how many products have it, a colour's
+        swatch when it is a common colour), the price range in the shop's
+        currency, the brands and the sorts. Sent back to `GET /store/products`
+        as `size`, `colour`, `f.<key>`, `min_price`, `max_price` and `brand`.
+        A shop on a connected platform offers the sorts only (`choices` empty,
+        `price` null): its lists don't carry the choices. Missing (404) on
+        older servers and WordPress sites without it: the app shows its own
+        sort only.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - name: category
+          in: query
+          schema: { type: integer }
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: The filters
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ShopFilters' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /store/wishlist:
+    get:
+      tags: [Store]
+      operationId: listShopWishlist
+      summary: The customer's wishlist
+      description: |
+        Roadmap 212. The products the signed-in customer saved (the heart on a
+        product's card and page), newest first, as the shop serves them now (a
+        product it no longer sells drops out of `items`, its id stays in `ids`
+        until removed). At most 200. A guest's hearts stay on the phone and
+        are added with `POST /store/wishlist/merge` once they sign in. Present
+        when `StoreConfig.wishlist` is true.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: The wishlist
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [ids, items]
+                    properties:
+                      ids:
+                        type: array
+                        description: Every saved product's id, newest first (to draw the hearts).
+                        items: { type: integer }
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/ProductSummary' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /store/wishlist/merge:
+    post:
+      tags: [Store]
+      operationId: mergeShopWishlist
+      summary: Add a guest's hearts after signing in
+      description: Roadmap 212. Adds the products the phone saved before signing in (unknown ids are kept out of nothing; at most 200 in all) and answers every saved id.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_ids]
+              properties:
+                product_ids:
+                  type: array
+                  maxItems: 200
+                  items: { type: integer }
+      responses:
+        '200':
+          description: The saved ids
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ids]
+                properties:
+                  ids:
+                    type: array
+                    items: { type: integer }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /store/wishlist/{product_id}:
+    put:
+      tags: [Store]
+      operationId: addToShopWishlist
+      summary: Save a product
+      description: Roadmap 212. Saving it again changes nothing. `409 wishlist_full` at 200 products.
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '204': { description: Saved }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    delete:
+      tags: [Store]
+      operationId: removeFromShopWishlist
+      summary: Remove a saved product
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '204': { description: Removed }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /store/products/{product_id}/reviews/mine:
+    put:
+      tags: [Store]
+      operationId: saveMyProductReview
+      summary: Write or edit the customer's review of a product
+      description: |
+        Roadmap 212. One per product and customer, which they may edit (the
+        shop's reply and hiding stay). Only a customer who bought it (an order
+        of theirs, paid or done, holds it: `403 not_bought`). A rating 1 to 5,
+        words up to 2,000 characters without links, and up to 4 photos sent
+        first with `POST /store/review-uploads` (their `id`s; a photo already
+        on the review may be kept). Shown with a short name ("Ahmed K."), never
+        an email or a phone. At most 20 written or edited an hour (429).
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductReviewInput' }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Review' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    delete:
+      tags: [Store]
+      operationId: deleteMyProductReview
+      summary: Delete the customer's review of a product
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /store/review-uploads:
+    post:
+      tags: [Store]
+      operationId: startReviewPhoto
+      summary: Start sending a review's photo
+      description: |
+        Roadmap 212. A JPEG, PNG or WebP of at most 8 MB
+        (`StoreConfig.review_photos`), into the shop's Media library, sent in
+        chunks to `upload_url` as an assignment's files are; then
+        `POST /store/review-uploads/{upload_id}/complete`. Only customers who
+        bought from the shop (`403 not_bought`); at most 30 an hour.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, size, type]
+              properties:
+                name: { type: string, maxLength: 200 }
+                size: { type: integer, minimum: 1, maximum: 8388608 }
+                type: { type: string, enum: [image/jpeg, image/png, image/webp] }
+      responses:
+        '201':
+          description: Started
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReviewUpload' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '413': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /store/review-uploads/{upload_id}/resume:
+    post:
+      tags: [Store]
+      operationId: resumeReviewPhoto
+      summary: A fresh link to go on sending a review's photo
+      parameters:
+        - { name: upload_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: The link
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReviewUpload' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /store/review-uploads/{upload_id}/complete:
+    post:
+      tags: [Store]
+      operationId: completeReviewPhoto
+      summary: Finish a review's photo
+      parameters:
+        - { name: upload_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Ready
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, url]
+                properties:
+                  id: { type: string }
+                  url: { type: string, format: uri }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /store/products/{product_id}/back-in-stock:
+    put:
+      tags: [Store]
+      operationId: waitForStock
+      summary: Notify me when it's back
+      description: |
+        Roadmap 212. For a product (or one of its variations, `variation_id`)
+        that is out of stock now (`409 in_stock` otherwise). When it's back
+        the customer gets a push (`back_in_stock`, with `product_id`), the
+        notification in the inbox, and an email when the app's email goes
+        out, once; asking again waits again. At most 50 at once
+        (`409 too_many`). Present when `StoreConfig.back_in_stock` is true.
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variation_id: { type: [integer, 'null'] }
+      responses:
+        '200':
+          description: Waiting
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [product_id, variation_id, waiting]
+                properties:
+                  product_id: { type: integer }
+                  variation_id: { type: [integer, 'null'] }
+                  waiting: { type: boolean }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    delete:
+      tags: [Store]
+      operationId: stopWaitingForStock
+      summary: Don't notify me
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+        - name: variation_id
+          in: query
+          schema: { type: integer }
+      responses:
+        '204': { description: Not waiting }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /store/back-in-stock:
+    get:
+      tags: [Store]
+      operationId: listWaitingForStock
+      summary: What the customer waits for
+      description: Roadmap 212. The products and variations the signed-in customer asked to be told about, still out of stock.
+      responses:
+        '200':
+          description: Waiting
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [product_id, variation_id, name, created_at]
+                      properties:
+                        product_id: { type: integer }
+                        variation_id: { type: [integer, 'null'] }
+                        name: { type: string }
+                        created_at: { type: string, format: date-time }
+        '401': { $ref: '#/components/responses/Unauthorized' }
 
   /store/cart:
     post:
@@ -15123,6 +15479,16 @@ components:
       type: object
       required: [id, rating, text, author, created_at, status, mine]
       properties:
+        photos:
+          type: array
+          maxItems: 4
+          description: "212 A product review's photos (Yallapp's hosted API). Missing: none."
+          items:
+            type: object
+            required: [url]
+            properties:
+              url: { type: string, format: uri }
+        updated_at: { type: string, format: date-time, description: "212 When it was last edited." }
         id: { type: integer }
         rating: { type: integer, minimum: 1, maximum: 5 }
         text: { type: string }
@@ -15145,6 +15511,75 @@ components:
                 text: { type: string, maxLength: 2000 }
                 created_at: { type: string, format: date-time }
             - type: 'null'
+
+    ProductReviewInput:
+      type: object
+      required: [rating]
+      properties:
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        text: { type: string, maxLength: 2000 }
+        photo_ids:
+          type: array
+          maxItems: 4
+          description: "212 Photos sent with `POST /store/review-uploads`, in order."
+          items: { type: string }
+
+    ReviewUpload:
+      type: object
+      required: [id, upload_url, chunk_bytes, size]
+      properties:
+        id: { type: string }
+        kind: { type: string }
+        upload_url: { type: string, format: uri }
+        chunk_bytes: { type: integer }
+        size: { type: integer }
+
+    ShopFilters:
+      type: object
+      required: [choices, price, brands, sorts]
+      properties:
+        choices:
+          type: array
+          maxItems: 6
+          items:
+            type: object
+            required: [key, name, kind, values]
+            properties:
+              key: { type: string, description: "`size`, `colour`, or another choice's own key (sent as `f.<key>`)." }
+              name: { type: string, description: In the app's language. }
+              kind: { type: string, enum: [size, colour, choice] }
+              values:
+                type: array
+                items:
+                  type: object
+                  required: [value, label, count]
+                  properties:
+                    value: { type: string, description: What is sent back. }
+                    label: { type: string, description: In the app's language. }
+                    count: { type: integer }
+                    swatch: { type: [string, 'null'], description: "A colour's swatch (#rrggbb), when it is a common colour." }
+        price:
+          oneOf:
+            - type: object
+              required: [min, max, currency]
+              properties:
+                min: { type: string }
+                max: { type: string }
+                currency: { type: string }
+                min_formatted: { type: string }
+                max_formatted: { type: string }
+            - type: 'null'
+        brands:
+          type: array
+          items:
+            type: object
+            required: [value, count]
+            properties:
+              value: { type: string }
+              count: { type: integer }
+        sorts:
+          type: array
+          items: { type: string, enum: [newest, popular, rating, price_asc, price_desc, title] }
 
     ReviewInput:
       type: object
@@ -15263,6 +15698,20 @@ components:
           type: boolean
           description: "Roadmap 176.11. False while the shop has no way to be paid in the app yet (no card gateway of its own and no bank transfer or own method): its products aren't `purchasable`, and the app says ordering isn't open yet rather than that the product isn't sold in the app. Missing means the app doesn't know (WordPress shops, older servers)."
         reviews: { type: boolean, description: Whether product reviews are on. }
+        wishlist: { type: boolean, description: "212 The wishlist (`/store/wishlist`) is synced for signed-in customers. Missing or false: the app keeps hearts on the phone only, or none." }
+        back_in_stock: { type: boolean, description: "212 \"Notify me when it's back\" (`/store/products/{product_id}/back-in-stock`)." }
+        review_photos:
+          description: "212 Photos with reviews (`POST /store/review-uploads`): how many and how big. Null or missing: reviews without photos."
+          oneOf:
+            - type: object
+              required: [max, max_bytes, types]
+              properties:
+                max: { type: integer }
+                max_bytes: { type: integer }
+                types:
+                  type: array
+                  items: { type: string }
+            - type: 'null' 
         checkout_payment:
           type: string
           enum: [platform, in_app]
@@ -16001,6 +16450,9 @@ components:
         key: { type: [string, 'null'], description: "One of `screen, cpu, gpu, ram, storage, camera, front_camera, battery, charging, os, refresh, connectivity, water, weight, socket, memory_type, watts, psu_watts, form_factor, condition, grade, battery_health, warranty`; null: the owner's own." }
         label: { type: string, maxLength: 40 }
         value: { type: string, maxLength: 120 }
+        wishlisted:
+          type: boolean
+          description: "212 In the signed-in customer's wishlist (its heart filled). Missing: not known (a guest's hearts are the phone's)."
 
     ProductDetail:
       allOf:
@@ -16114,6 +16566,53 @@ components:
               items: { $ref: '#/components/schemas/ProductSummary' }
             external_url: { type: [string, 'null'], format: uri, description: "For external products, the page that sells it." }
             permalink: { type: string, format: uri }
+            brand: { type: [string, 'null'], description: "212 Its brand (Yallapp's own shop), when it has one." }
+            reviews_preview:
+              type: object
+              description: |
+                212 The product page's reviews: the summary with its bars, the
+                first reviews, the photos row (up to 12, each opening its review),
+                the customer's own and whether they may write one. Missing on
+                older servers: the page links to the reviews when `StoreConfig.reviews`.
+              required: [summary, items, photos, photo_count, mine, can_review]
+              properties:
+                summary:
+                  type: object
+                  required: [rating, rating_count, counts]
+                  properties:
+                    rating: { type: [number, 'null'] }
+                    rating_count: { type: integer }
+                    counts:
+                      type: object
+                      additionalProperties: { type: integer }
+                items:
+                  type: array
+                  maxItems: 3
+                  items: { $ref: '#/components/schemas/Review' }
+                photos:
+                  type: array
+                  maxItems: 12
+                  items:
+                    type: object
+                    required: [url, review_id]
+                    properties:
+                      url: { type: string, format: uri }
+                      review_id: { type: integer }
+                photo_count: { type: integer, description: How many reviews have photos. }
+                mine:
+                  oneOf:
+                    - $ref: '#/components/schemas/Review'
+                    - type: 'null'
+                can_review: { type: boolean }
+            back_in_stock:
+              type: object
+              description: "212 What the signed-in customer waits for on this product: the product itself, and its variations. Missing: back in stock isn't offered."
+              required: [waiting, variations]
+              properties:
+                waiting: { type: boolean }
+                variations:
+                  type: array
+                  items: { type: integer }
             option_groups:
               type: array
               description: |
@@ -17056,7 +17555,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale, size_chart, size_finder, swatches, quiz, delivery_slots, spec_table, compare, spec_filter, trade_in, pc_builder]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale, size_chart, size_finder, swatches, quiz, delivery_slots, spec_table, compare, spec_filter, trade_in, pc_builder, listing_filters]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app. 159 What a screen reader says for an element that opens something without words of its own (a round search or bag); without it, what it opens, in the app's language." }
         children:
           type: array
@@ -17217,7 +17716,7 @@ components:
           properties:
             x: { type: number, minimum: 0, maximum: 100 }
             y: { type: number, minimum: 0, maximum: 100 }
-        style: { type: string, enum: [chips, tiles, pictures, circles, rows], default: chips, description: "112.4 For `categories`: chips in a row, tiles with their counts, `pictures` in a grid of `columns` with the name over them, or `circles`, round pictures with the name under them in a row that scrolls. A category without a picture shows a colour. 208 `rows`: the category menu, every main category a row of cards that slides, its own card first (\"All\"), then its sub-categories (`Category.children`); an app before it draws chips. Apps skip a `size_chart` element they don't know; it shows `StoreConfig.size_chart` under its `text`. 209 Apps skip a `size_finder`, `swatches` or `quiz` they don't know: `size_finder` shows the first column of `StoreConfig.size_chart` (the ages) to choose from, the chosen row's measures and its button (`title`, then the size, opening `action`), and is left out by the servers while the shop has no chart; `swatches` draws its `entries` as colour swatches (each `title` its name, `subtitle` the short code under it, `text` a line, `color`, `highlight` the one chosen first), the chosen one's words and the button (`title`, `action`); `quiz` asks `quiz.questions` one at a time (each `title` the question, `text` its answers one per line, answer n counting for result n), then shows the result with the most answers (`entries`: `title`, `text`, `icon`, its button `label` and `action`, else the element's `title` and `action`) and Start again." }
+        style: { type: string, enum: [chips, tiles, pictures, circles, rows], default: chips, description: "112.4 For `categories`: chips in a row, tiles with their counts, `pictures` in a grid of `columns` with the name over them, or `circles`, round pictures with the name under them in a row that scrolls. A category without a picture shows a colour. 208 `rows`: the category menu, every main category a row of cards that slides, its own card first (\"All\"), then its sub-categories (`Category.children`); an app before it draws chips. Apps skip a `size_chart` element they don't know; it shows `StoreConfig.size_chart` under its `text`. 209 Apps skip a `size_finder`, `swatches` or `quiz` they don't know: `size_finder` shows the first column of `StoreConfig.size_chart` (the ages) to choose from, the chosen row's measures and its button (`title`, then the size, opening `action`), and is left out by the servers while the shop has no chart; `swatches` draws its `entries` as colour swatches (each `title` its name, `subtitle` the short code under it, `text` a line, `color`, `highlight` the one chosen first), the chosen one's words and the button (`title`, `action`); `quiz` asks `quiz.questions` one at a time (each `title` the question, `text` its answers one per line, answer n counting for result n), then shows the result with the most answers (`entries`: `title`, `text`, `icon`, its button `label` and `action`, else the element's `title` and `action`) and Start again. 212 A `listing_filters` element shows the shop's first choice of `GET /store/filters` (its sizes, else colours) as chips under its `text`, each opening the shop filtered by it, and a Filters chip; nothing when there's nothing to filter by; apps before it skip it." }
         swatches:
           type: [object, 'null']
           description: "209 For `swatches`: round or rounded square swatches and their size (24 to 64, 36)."

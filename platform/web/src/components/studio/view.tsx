@@ -45,7 +45,7 @@ import { PremiumHeader, SystemScreen } from "./premium-chrome";
 import { GiftCheckout } from "./gift-checkout";
 import { quickAddLabel } from "./quick-add";
 // 208 The category menu and the size chart.
-import { CategoryMenuCanvas, DeliverySlotsCanvas, SizeChartCanvas } from "./category-menu";
+import { CategoryMenuCanvas, DeliverySlotsCanvas, ListingFiltersCanvas, SizeChartCanvas } from "./category-menu";
 import { QuizCanvas, SizeFinderCanvas, SwatchesCanvas } from "./shop-helpers";
 // 211 The electronics shops' elements.
 import { CompareCanvas, PcBuilderCanvas, SpecFilterCanvas, SpecTableCanvas, TradeInCanvas } from "./tech";
@@ -907,6 +907,9 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return <TradeInCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;
       case "pc_builder":
         return <PcBuilderCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;
+      case "listing_filters":
+        // 212 The shop's listing filters: its sizes (or colours) as chips, and Filters.
+        return <ListingFiltersCanvas pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;
       case "flash_sale":
         // 131 The flash sale: its products at their sale price, the live countdown and the stock bar.
         return <FlashSaleCanvas node={n} title={text} pickable={p.pickable} dark={dark} brand={look.brand} words={p.commerceWords ?? COMMERCE_WORDS_EN} />;

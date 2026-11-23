@@ -1070,7 +1070,7 @@
     }
   },
   "wishlistEmptyTitle": "Your wishlist is empty",
-  "wishlistEmptyMessage": "Tap the heart on a course to save it for later.",
+  "wishlistEmptyMessage": "Tap the heart on a product to keep it here.",
   "courseComplete": "Course complete. Well done!",
   "lessonComplete": "Lesson complete · {percent}% of the course done",
   "@lessonComplete": {
@@ -13788,7 +13788,7 @@
   },
   "installmentsSoon": "Installments coming soon",
   "@installmentsSoon": {
-    "description": "211 A tag under a product's price: paying in installments isn't offered yet."
+    "description": "210 A tag under a furniture or electronics product's price: installments are not offered yet."
   },
   "tradeInTitle": "What is your old device worth?",
   "@tradeInTitle": {
@@ -14229,8 +14229,128 @@
   "@deliverySlotsNone": {
     "description": "210 The delivery days element when no day is open."
   },
-  "installmentsSoon": "Installments coming soon",
-  "@installmentsSoon": {
-    "description": "210 A tag under a furniture or electronics product's price: installments are not offered yet."
+  "saveToWishlist": "Save to wishlist",
+  "@saveToWishlist": {
+    "description": "212 The heart on a product's card and page (not saved): saves it."
+  },
+  "@removeFromWishlist": {
+    "description": "212 The heart on a product's card and page (saved): removes it."
+  },
+  "@wishlistEmptyTitle": {
+    "description": "212 The wishlist screen without products."
+  },
+  "@wishlistEmptyMessage": {
+    "description": "212 Under the empty wishlist's title."
+  },
+  "wishlistOnPhone": "Your hearts are kept on this phone. Sign in to keep them on all your phones.",
+  "@wishlistOnPhone": {
+    "description": "212 The wishlist of a customer not signed in."
+  },
+  "wishlistFailed": "Your wishlist couldn't be changed. Try again.",
+  "@wishlistFailed": {
+    "description": "212 Saving or removing a product failed."
+  },
+  "reviewAddPhotos": "Add photos",
+  "@reviewAddPhotos": {
+    "description": "212 Button in the review form: adds photos of the product."
+  },
+  "reviewPhotosCount": "{count} of {max} photos",
+  "@reviewPhotosCount": {
+    "description": "212 How many photos the review has, of how many it can take.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewPhotoRemove": "Remove this photo",
+  "@reviewPhotoRemove": {
+    "description": "212 A photo's button in the review form."
+  },
+  "reviewPhotoTooBig": "This photo is too big. Choose one up to {size}.",
+  "@reviewPhotoTooBig": {
+    "description": "212 A photo over the shop's limit.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewPhotoType": "Choose a photo (JPEG, PNG or WebP).",
+  "@reviewPhotoType": {
+    "description": "212 A file that isn't a photo."
+  },
+  "reviewOnlyBuyers": "Customers who bought this product can review it.",
+  "@reviewOnlyBuyers": {
+    "description": "212 On a product's page, for someone who can't review it (yet)."
+  },
+  "reviewsSeeAll": "{count, plural, =1{See the review} other{See all {count} reviews}}",
+  "@reviewsSeeAll": {
+    "description": "212 Link from a product's reviews to all of them.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewPhotosTitle": "Photos from customers",
+  "@reviewPhotosTitle": {
+    "description": "212 The row of review photos on a product's page."
+  },
+  "reviewPhotoOf": "Customer photo {n}",
+  "@reviewPhotoOf": {
+    "description": "212 A review photo, read aloud.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notifyMeBack": "Notify me when it's back",
+  "@notifyMeBack": {
+    "description": "212 Button of a product (or the choice) out of stock."
+  },
+  "notifyMeWaiting": "We'll tell you when it's back",
+  "@notifyMeWaiting": {
+    "description": "212 The same button once the customer asked."
+  },
+  "notifyMeStop": "Don't notify me",
+  "@notifyMeStop": {
+    "description": "212 Stops waiting for a product."
+  },
+  "notifyMeSaved": "Done. You'll get a notification when it's back in stock.",
+  "@notifyMeSaved": {
+    "description": "212 After asking to be told."
+  },
+  "notifyMeSignIn": "Sign in to be told when it's back.",
+  "@notifyMeSignIn": {
+    "description": "212 A guest pressed Notify me."
+  },
+  "filterPrice": "Price",
+  "@filterPrice": {
+    "description": "212 The price range in the listing's filters."
+  },
+  "filterBrand": "Brand",
+  "@filterBrand": {
+    "description": "212 The brands in the listing's filters."
+  },
+  "filterPriceRange": "{min} to {max}",
+  "@filterPriceRange": {
+    "description": "212 The price range chosen in the filters.",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "filterOpen": "Filter the products",
+  "@filterOpen": {
+    "description": "212 A Studio listing filter's button: opens the shop with its filters."
   }
 }

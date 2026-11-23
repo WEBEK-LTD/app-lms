@@ -25,6 +25,7 @@ import type {
   PayoutDetailsStatus,
 } from "./types";
 // 106.12 Studio Market discounts
+import type { ProductReview, ProductReviewInput, ProductReviewPatch, ShopWishlistItem, StockAlert } from "./types";
 import type { MarketDiscount, MarketDiscountKind } from "./types";
 import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
@@ -853,6 +854,10 @@ export class MemoryStore implements DataStore {
     // 63 Their check-ins, reviews, questions and answers go with the account, as in the database.
     for (const [key, c] of this.memberCheckIns) if (c.appId === appId && c.userId === id) this.memberCheckIns.delete(key);
     for (const [key, r] of this.courseReviews) if (r.appId === appId && r.userId === id) this.courseReviews.delete(key);
+    // 212 Their wishlist, product reviews and back-in-stock requests go with the account, as in the database.
+    for (const [key, w] of this.shopWishlist) if (w.appId === appId && w.userId === id) this.shopWishlist.delete(key);
+    for (const [key, r] of this.productReviews) if (r.appId === appId && r.userId === id) this.productReviews.delete(key);
+    for (const [key, s] of this.stockAlerts) if (s.appId === appId && s.userId === id) this.stockAlerts.delete(key);
     // 105.3 Their follows and reviews of teachers go with the account; a teacher keeps their profile.
     for (const [key, f] of this.teacherFollows) if (f.appId === appId && f.userId === id) this.teacherFollows.delete(key);
     for (const p of this.schoolPeople.values()) if (p.appId === appId && p.userId === id) p.userId = null;
@@ -6385,6 +6390,15 @@ export class MemoryStore implements DataStore {
         counts.reviews++;
       }
     }
+    // 212 Visitors' product reviews, saved products and back-in-stock requests.
+    for (const [id, review] of this.productReviews) {
+      if (review.appId === appId && old(review.createdAt)) {
+        this.productReviews.delete(id);
+        counts.reviews++;
+      }
+    }
+    for (const [key, w] of this.shopWishlist) if (w.appId === appId && old(w.createdAt)) this.shopWishlist.delete(key);
+    for (const [key, a] of this.stockAlerts) if (a.appId === appId && old(a.createdAt)) this.stockAlerts.delete(key);
     for (const [id, donation] of this.donations) {
       if (donation.appId === appId && old(donation.createdAt)) {
         this.donations.delete(id);
@@ -7485,7 +7499,7 @@ export class MemoryStore implements DataStore {
   private static readonly DATA_FIELDS = [
     "hostedUsers", "hostedPasswords", "hostedDevices", "hostedTokens", "hostedChallenges", "hostedNotifications", "catalogOrders", "storePlatformOrders", "bookingAppointments",
     "classSessions", "classBookings", "memberships", "courseEnrollments", "lessonProgress", "quizAttempts", "assignmentSubmissions", "lessonNotes",
-    "lessonBookmarks", "analyticsEvents", "analyticsDaily", "storeDeliveries", "refunds", "memberCheckIns", "courseReviews", "courseQuestions",
+    "lessonBookmarks", "analyticsEvents", "analyticsDaily", "storeDeliveries", "refunds", "memberCheckIns", "courseReviews", "courseQuestions", "shopWishlist", "productReviews", "stockAlerts",
     "courseAnswers", "tickets", "donations", "couriers", "shipments", "schoolPeople", "schoolFamily", "schoolAttendance", "schoolHomework",
     "schoolSubmissions", "schoolAssessments", "schoolScores", "schoolAnnouncements", "schoolFees", "schoolCheckins", "schoolLeave", "schoolBehaviour",
     "schoolTopicProgress", "schoolReports", "schoolSlips", "schoolSlipAnswers", "schoolExcuses", "schoolPickups", "schoolPickupNotes", "schoolBusRiders",
@@ -7522,6 +7536,7 @@ export class MemoryStore implements DataStore {
       rekey(this.learning, (id) => `${id}|`);
       rekey(this.loyaltyBalances, (id) => `${id}:`);
       rekey(this.crashRuns, (id) => `${id}:`);
+      rekey(this.shopWishlist, (id) => `${id}:`);
       const versions = this.layoutVersions.get(fromAppId);
       if (versions) {
         this.layoutVersions.delete(fromAppId);
@@ -9606,6 +9621,125 @@ export class MemoryStore implements DataStore {
   async markDesignerPayoutEmailed(id: string, at: Date): Promise<void> {
     const found = this.designerPayouts.get(id);
     if (found) this.designerPayouts.set(id, { ...found, emailedAt: new Date(at) });
+  }
+
+  // 212 A store's wishlist, reviews with photos and back in stock
+
+  private shopWishlist = new Map<string, ShopWishlistItem>();
+  private productReviews = new Map<number, ProductReview>();
+  private nextProductReviewId = 1;
+  private stockAlerts = new Map<number, StockAlert>();
+  private nextStockAlertId = 1;
+
+  async listShopWishlist(appId: string, userId: number): Promise<ShopWishlistItem[]> {
+    return [...this.shopWishlist.values()]
+      .filter((w) => w.appId === appId && w.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.productId - a.productId)
+      .slice(0, 500)
+      .map(clone);
+  }
+
+  async addShopWishlist(appId: string, userId: number, productId: number, now: Date): Promise<boolean> {
+    const key = `${appId}:${userId}:${productId}`;
+    if (this.shopWishlist.has(key)) return false;
+    this.shopWishlist.set(key, { appId, userId, productId, createdAt: new Date(now) });
+    return true;
+  }
+
+  async removeShopWishlist(appId: string, userId: number, productId: number): Promise<void> {
+    this.shopWishlist.delete(`${appId}:${userId}:${productId}`);
+  }
+
+  async countShopWishlist(appId: string): Promise<{ productId: number; count: number }[]> {
+    const counts = new Map<number, number>();
+    for (const w of this.shopWishlist.values()) if (w.appId === appId) counts.set(w.productId, (counts.get(w.productId) ?? 0) + 1);
+    return [...counts].map(([productId, count]) => ({ productId, count })).sort((a, b) => b.count - a.count);
+  }
+
+  async saveProductReview(input: ProductReviewInput): Promise<ProductReview> {
+    const there = [...this.productReviews.values()].find((r) => r.appId === input.appId && r.productId === input.productId && r.userId === input.userId);
+    const { now, ...fields } = input;
+    const row: ProductReview = there
+      ? { ...there, rating: input.rating, text: input.text, photoIds: [...input.photoIds], authorName: input.authorName, updatedAt: now }
+      : { ...fields, photoIds: [...input.photoIds], id: this.nextProductReviewId++, hidden: false, replyText: null, replyAt: null, createdAt: now, updatedAt: now };
+    this.productReviews.set(row.id, clone(row));
+    return clone(row);
+  }
+
+  async getProductReview(appId: string, id: number): Promise<ProductReview | null> {
+    const row = this.productReviews.get(id);
+    return row && row.appId === appId ? clone(row) : null;
+  }
+
+  async getProductReviewOf(appId: string, productId: number, userId: number): Promise<ProductReview | null> {
+    const row = [...this.productReviews.values()].find((r) => r.appId === appId && r.productId === productId && r.userId === userId);
+    return row ? clone(row) : null;
+  }
+
+  async listProductReviews(input: { appId: string; productIds?: number[]; hidden?: boolean; unreplied?: boolean; photos?: boolean; offset: number; limit: number }): Promise<{ items: ProductReview[]; total: number }> {
+    const all = [...this.productReviews.values()]
+      .filter(
+        (r) =>
+          r.appId === input.appId &&
+          (!input.productIds || input.productIds.includes(r.productId)) &&
+          (input.hidden === undefined || r.hidden === input.hidden) &&
+          (!input.unreplied || r.replyText === null) &&
+          (!input.photos || r.photoIds.length > 0),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+  }
+
+  async countProductRatings(appId: string, productIds?: number[]): Promise<{ productId: number; rating: number; count: number }[]> {
+    const counts = new Map<string, { productId: number; rating: number; count: number }>();
+    for (const r of this.productReviews.values()) {
+      if (r.appId !== appId || r.hidden || (productIds && !productIds.includes(r.productId))) continue;
+      const key = `${r.productId}:${r.rating}`;
+      const row = counts.get(key) ?? { productId: r.productId, rating: r.rating, count: 0 };
+      row.count++;
+      counts.set(key, row);
+    }
+    return [...counts.values()];
+  }
+
+  async updateProductReview(appId: string, id: number, patch: ProductReviewPatch): Promise<void> {
+    const row = this.productReviews.get(id);
+    if (row && row.appId === appId) this.productReviews.set(id, clone({ ...row, ...patch }));
+  }
+
+  async deleteProductReview(appId: string, id: number): Promise<void> {
+    const row = this.productReviews.get(id);
+    if (row && row.appId === appId) this.productReviews.delete(id);
+  }
+
+  async saveStockAlert(input: Omit<StockAlert, "id" | "notifiedAt">): Promise<StockAlert> {
+    const there = [...this.stockAlerts.values()].find((a) => a.appId === input.appId && a.productId === input.productId && a.variationId === input.variationId && a.userId === input.userId);
+    const row: StockAlert = there ? { ...there, productName: input.productName, createdAt: input.createdAt, notifiedAt: null } : { ...input, id: this.nextStockAlertId++, notifiedAt: null };
+    this.stockAlerts.set(row.id, clone(row));
+    return clone(row);
+  }
+
+  async deleteStockAlert(appId: string, userId: number, productId: number, variationId: number): Promise<void> {
+    for (const [key, a] of this.stockAlerts) if (a.appId === appId && a.userId === userId && a.productId === productId && a.variationId === variationId) this.stockAlerts.delete(key);
+  }
+
+  async listStockAlerts(input: { appId: string; productId?: number; userId?: number; waiting?: boolean; limit?: number }): Promise<StockAlert[]> {
+    return [...this.stockAlerts.values()]
+      .filter((a) => a.appId === input.appId && (input.productId === undefined || a.productId === input.productId) && (input.userId === undefined || a.userId === input.userId) && (!input.waiting || a.notifiedAt === null))
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id)
+      .slice(0, input.limit ?? 5000)
+      .map(clone);
+  }
+
+  async listAppsWithStockAlerts(limit: number): Promise<string[]> {
+    return [...new Set([...this.stockAlerts.values()].filter((a) => a.notifiedAt === null).map((a) => a.appId))].slice(0, limit);
+  }
+
+  async markStockAlertsNotified(appId: string, ids: number[], now: Date): Promise<void> {
+    for (const id of ids) {
+      const row = this.stockAlerts.get(id);
+      if (row && row.appId === appId) this.stockAlerts.set(id, { ...row, notifiedAt: new Date(now) });
+    }
   }
 }
 

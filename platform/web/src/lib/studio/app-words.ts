@@ -1059,6 +1059,8 @@ export const en = {
   techFilterBy: "Shop by {spec}",
   // 208 The category menu's first card in each row (the main category itself).
   categoryAll: "All",
+  // 212 The listing filters' button.
+  filters: "Filters",
   // ——— end 208 ———
   // ——— 209 Velours, the cosmetics shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/beauty-signature.ts) ———
   btWordmark: "{app}",
@@ -2830,6 +2832,7 @@ export const ar: Record<AppWord, string> = {
   techPartCase: "الصندوق",
   techFilterBy: "تسوّق حسب {spec}",
   categoryAll: "الكل",
+  filters: "الفلاتر",
   // ——— end 208 ———
   // ——— 209 Velours, the cosmetics shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/beauty-signature.ts) ———
   btWordmark: "{app}",
@@ -4596,6 +4599,7 @@ export const tr: Record<AppWord, string> = {
   techPartCase: "Kasa",
   techFilterBy: "{spec} ile alışveriş",
   categoryAll: "Tümü",
+  filters: "Filtreler",
   // ——— end 208 ———
   // ——— 209 Velours, the cosmetics shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/beauty-signature.ts) ———
   btWordmark: "{app}",

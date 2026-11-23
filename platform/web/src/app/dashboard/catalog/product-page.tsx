@@ -91,6 +91,9 @@ export async function ProductPage({ id }: { id: number | null }) {
         variants,
         // 209 More about it.
         details: detailsFormText(productDetails(product)),
+        // 212 Its other languages and brand.
+        translations: product.translations ?? null,
+        brand: product.brand ?? "",
       }
     : { id: null, name: "", description: "", price: "", salePrice: "", stock: "", sku: "", categoryIds: [], images: [], digital: false, featured: false, active: true, optionGroups, variants };
   // Its own page, while it's shown in the app.

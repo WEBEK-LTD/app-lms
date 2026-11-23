@@ -84,6 +84,9 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   // 63 Course questions and reviews, a gym's members and today's check-ins.
   final _questions = <String, List<QuestionDetail>>{};
   final _reviews = <String, List<Review>>{};
+
+  /// 212 A store's product reviews (the restaurant's dishes here).
+  final _productReviews = <String, List<Review>>{};
   final _members = <String, List<Member>>{};
   final _visits = <String, List<MemberVisit>>{};
   final _memberCodes = <String, int>{};
@@ -228,6 +231,8 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
           orders: true,
           kitchen: true,
           products: true,
+          // 212 Its customers' reviews with photos, and who waits for what.
+          productReviews: true,
           // 77 Its customers write to it.
           chat: true,
           appUsers: true,
@@ -3273,6 +3278,147 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     await _call('deleteReviewReply');
     _app(appId, (f) => f.reviews);
     return _saveReview(appId, _ownReview(appId, reviewId), clearReply: true);
+  }
+
+  // 212 A store's product reviews with photos, and who waits for what
+
+  List<Review> _productReviewsOf(String appId) =>
+      _productReviews[appId] ??= appId == restaurantId
+      ? [
+          Review(
+            id: 501,
+            courseId: 0,
+            courseTitle: 'Chicken shawarma plate',
+            person: 'Ahmed K.',
+            rating: 5,
+            text: 'Generous plate, still hot when it came.',
+            hidden: false,
+            createdAt: now.subtract(const Duration(hours: 5)).toUtc(),
+            productId: 1,
+            photos: const ['https://yallapp.test/m/review-photo-1'],
+          ),
+          Review(
+            id: 502,
+            courseId: 0,
+            courseTitle: 'Fattoush',
+            person: 'Mona H.',
+            rating: 3,
+            text: 'Good, a little too much lemon for me.',
+            hidden: false,
+            createdAt: now.subtract(const Duration(days: 2)).toUtc(),
+            productId: 2,
+          ),
+        ]
+      : <Review>[];
+
+  Review _ownProductReview(String appId, int reviewId) {
+    final found = _productReviewsOf(appId)
+        .where((r) => r.id == reviewId)
+        .firstOrNull;
+    if (found == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    return found;
+  }
+
+  Review _saveProductReview(String appId, Review updated) {
+    final list = _productReviewsOf(appId);
+    final i = list.indexWhere((r) => r.id == updated.id);
+    list[i] = updated;
+    return updated;
+  }
+
+  @override
+  Future<ReviewsPage> productReviews(
+    String appId, {
+    String filter = 'all',
+    int page = 1,
+  }) async {
+    await _call('productReviews');
+    _app(appId, (f) => f.productReviews);
+    final every = _productReviewsOf(appId);
+    final all = [
+      for (final r in every)
+        if (filter == 'all' ||
+            (filter == 'hidden' && r.hidden) ||
+            (filter == 'photos' && r.photos.isNotEmpty) ||
+            (filter == 'unreplied' && !r.hidden && r.reply == null))
+          r,
+    ];
+    final shown = every.where((r) => !r.hidden).toList();
+    final sum = shown.fold(0, (n, r) => n + r.rating);
+    return ReviewsPage(
+      page: _page(all, page, 20),
+      rating: shown.isEmpty ? null : (sum / shown.length * 10).round() / 10,
+      ratingCount: shown.length,
+    );
+  }
+
+  @override
+  Future<Review> setProductReviewHidden(
+    String appId,
+    int reviewId,
+    bool hidden,
+  ) async {
+    await _call('setProductReviewHidden');
+    _app(appId, (f) => f.productReviews);
+    return _saveProductReview(
+      appId,
+      _ownProductReview(appId, reviewId).copyWith(hidden: hidden),
+    );
+  }
+
+  @override
+  Future<Review> replyProductReview(
+    String appId,
+    int reviewId,
+    String text,
+  ) async {
+    await _call('replyProductReview');
+    _app(appId, (f) => f.productReviews);
+    final value = text.trim();
+    if (value.isEmpty) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        message: 'Write your reply.',
+        statusCode: 400,
+      );
+    }
+    return _saveProductReview(
+      appId,
+      _ownProductReview(appId, reviewId).copyWith(
+        reply: ReviewReply(text: value, createdAt: DateTime.now().toUtc()),
+      ),
+    );
+  }
+
+  @override
+  Future<Review> deleteProductReviewReply(String appId, int reviewId) async {
+    await _call('deleteProductReviewReply');
+    _app(appId, (f) => f.productReviews);
+    return _saveProductReview(
+      appId,
+      _ownProductReview(appId, reviewId).copyWith(clearReply: true),
+    );
+  }
+
+  @override
+  Future<ShopWishes> shopWishes(String appId) async {
+    await _call('shopWishes');
+    _app(appId, (f) => f.productReviews);
+    return const ShopWishes(
+      waiting: [
+        ShopWish(productId: 3, name: 'Kunafa tray', count: 4),
+        ShopWish(
+          productId: 1,
+          variationId: 12,
+          name: 'Chicken shawarma plate',
+          count: 1,
+        ),
+      ],
+      waitingTotal: 5,
+      saved: [ShopWish(productId: 1, name: 'Chicken shawarma plate', count: 9)],
+    );
   }
 
   // 63 A gym's members at the door

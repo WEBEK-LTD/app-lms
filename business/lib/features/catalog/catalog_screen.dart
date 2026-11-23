@@ -57,6 +57,17 @@ class CatalogScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(catalogLabel(context, app)),
+          actions: [
+            // 212 The shop's product reviews with photos, and who waits for
+            // what to be back in stock.
+            if (f.productReviews)
+              IconButton(
+                key: const ValueKey('catalog-product-reviews'),
+                tooltip: l10n.inboxProductReviews,
+                icon: const Icon(AppIcons.star),
+                onPressed: () => context.go(Paths.inboxTab('product_reviews')),
+              ),
+          ],
           bottom: tabs.length < 2
               ? null
               : TabBar(

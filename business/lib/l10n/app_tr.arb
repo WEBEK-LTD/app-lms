@@ -1356,5 +1356,21 @@
   "requestSave": "Yanıtı kaydet",
   "requestSaved": "Yanıt kaydedildi.",
   "requestSentOn": "{title} · {date}",
-  "requestsNewCount": "{count, plural, other{{count} yeni talep}}"
+  "requestsNewCount": "{count, plural, other{{count} yeni talep}}",
+  "inboxProductReviews": "Ürün değerlendirmeleri",
+  "onProduct": "{product} için",
+  "reviewsWithPhotos": "Fotoğraflı",
+  "reviewPhotos": "Değerlendirmenin fotoğrafları",
+  "photoNumber": "Fotoğraf {n}",
+  "noProductReviewsText": "Bir ürünü satın alan müşteriler onu uygulamanızda fotoğraflarla değerlendirebilir.",
+  "shopWishes": "Bekleyenler ve kaydedilenler",
+  "shopWaiting": "Stok bekleyenler",
+  "shopWaitingHint": "Geri geldiğinde her biri bir kez bildirim alır.",
+  "shopWaitingNone": "Şu anda bir ürünü bekleyen yok.",
+  "shopWaitingCount": "{count, plural, =1{1 kişi bekliyor} other{{count} kişi bekliyor}}",
+  "shopSaved": "İstek listelerinde",
+  "shopSavedNone": "Henüz hiçbir müşteri ürün kaydetmedi.",
+  "shopSavedCount": "{count, plural, =1{1 kişi kaydetti} other{{count} kişi kaydetti}}",
+  "variationNumber": "Seçenek #{id}",
+  "productNoLongerSold": "Artık satılmayan bir ürün"
 }

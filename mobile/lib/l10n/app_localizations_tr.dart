@@ -1618,7 +1618,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get wishlistEmptyMessage =>
-      'Daha sonrası için kaydetmek üzere bir kurstaki kalbe dokunun.';
+      'Burada tutmak için bir ürünün kalbine dokunun.';
 
   @override
   String get courseComplete => 'Kurs tamamlandı. Tebrikler!';
@@ -12769,4 +12769,87 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get deliverySlotsNone => 'Şu anda açık teslimat günü yok.';
+
+  @override
+  String get saveToWishlist => 'İstek listesine ekle';
+
+  @override
+  String get wishlistOnPhone =>
+      'Kalpleriniz bu telefonda tutulur. Tüm telefonlarınızda olması için giriş yapın.';
+
+  @override
+  String get wishlistFailed =>
+      'İstek listeniz değiştirilemedi. Yeniden deneyin.';
+
+  @override
+  String get reviewAddPhotos => 'Fotoğraf ekle';
+
+  @override
+  String reviewPhotosCount(int count, int max) {
+    return '$count/$max fotoğraf';
+  }
+
+  @override
+  String get reviewPhotoRemove => 'Bu fotoğrafı kaldır';
+
+  @override
+  String reviewPhotoTooBig(String size) {
+    return 'Bu fotoğraf çok büyük. En fazla $size olanı seçin.';
+  }
+
+  @override
+  String get reviewPhotoType => 'Bir fotoğraf seçin (JPEG, PNG veya WebP).';
+
+  @override
+  String get reviewOnlyBuyers =>
+      'Bu ürünü satın alan müşteriler onu değerlendirebilir.';
+
+  @override
+  String reviewsSeeAll(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count değerlendirmenin tümünü gör',
+      one: 'Değerlendirmeyi gör',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reviewPhotosTitle => 'Müşteri fotoğrafları';
+
+  @override
+  String reviewPhotoOf(int n) {
+    return 'Müşteri fotoğrafı $n';
+  }
+
+  @override
+  String get notifyMeBack => 'Gelince haber ver';
+
+  @override
+  String get notifyMeWaiting => 'Gelince size haber vereceğiz';
+
+  @override
+  String get notifyMeStop => 'Haber verme';
+
+  @override
+  String get notifyMeSaved =>
+      'Tamam. Yeniden stoka girdiğinde bildirim alacaksınız.';
+
+  @override
+  String get notifyMeSignIn => 'Geldiğinde haber almak için giriş yapın.';
+
+  @override
+  String get filterPrice => 'Fiyat';
+
+  @override
+  String get filterBrand => 'Marka';
+
+  @override
+  String filterPriceRange(String min, String max) {
+    return '$min – $max';
+  }
+
+  @override
+  String get filterOpen => 'Ürünleri filtrele';
 }

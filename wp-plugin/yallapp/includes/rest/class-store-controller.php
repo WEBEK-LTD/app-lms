@@ -431,18 +431,45 @@ class Store_Controller extends Controller {
 		$ids    = (string) $request['ids'];
 		$result = ( new Catalog() )->products(
 			array(
-				'page'      => (int) $request['page'],
-				'per_page'  => (int) $request['per_page'],
-				'search'    => (string) $request['search'],
-				'category'  => (int) $request['category'],
-				'on_sale'   => (bool) $request['on_sale'],
-				'max_price' => null === $request['max_price'] ? null : (float) $request['max_price'],
-				'featured'  => (bool) $request['featured'],
-				'ids'       => '' !== $ids ? explode( ',', $ids ) : array(),
-				'orderby'   => (string) $request['orderby'],
-			)
+				'page'     => (int) $request['page'],
+				'per_page' => (int) $request['per_page'],
+				'search'   => (string) $request['search'],
+				'category' => (int) $request['category'],
+				'on_sale'  => (bool) $request['on_sale'],
+				'featured' => (bool) $request['featured'],
+				'ids'      => '' !== $ids ? explode( ',', $ids ) : array(),
+				'orderby'  => (string) $request['orderby'],
+			) + self::listing_filters( $request )
 		);
 		return $this->ok( array_merge( self::page_meta( $request, $result['total'] ), array( 'items' => $result['items'] ) ) );
+	}
+
+	/**
+	 * 212 The listing filters asked for: `size`, `colour`, `f.<key>`, `min_price`, `max_price`. Pure.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return array
+	 */
+	public static function listing_filters( WP_REST_Request $request ) {
+		$filters = array();
+		foreach ( (array) $request->get_query_params() as $key => $value ) {
+			if ( ! is_string( $value ) || '' === $value ) {
+				continue;
+			}
+			if ( 'size' === $key || 'colour' === $key || 'color' === $key ) {
+				$filters[ 'color' === $key ? 'colour' : $key ] = $value;
+			} elseif ( 0 === strpos( (string) $key, 'f.' ) || 0 === strpos( (string) $key, 'f_' ) ) {
+				$filters[ sanitize_key( substr( (string) $key, 2 ) ) ] = $value;
+			}
+		}
+		$out = $filters ? array( 'filters' => $filters ) : array();
+		foreach ( array( 'min_price', 'max_price' ) as $key ) {
+			$value = $request->get_param( $key );
+			if ( is_numeric( $value ) && (float) $value >= 0 ) {
+				$out[ $key ] = (float) $value;
+			}
+		}
+		return $out;
 	}
 
 	/**

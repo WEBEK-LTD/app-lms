@@ -1,7 +1,7 @@
 import { pipelineRuns, startPipeline, startScreenshots } from "@/lib/builds/dispatch";
 import { preflightDeps } from "@/lib/builds/preflight-env";
 import { getStore } from "@/lib/data";
-import { sendTemplate } from "@/lib/email/send";
+import { appMailDelivered, sendAppMail, sendTemplate } from "@/lib/email/send";
 import { appUrl, encryptionKey, integrationChecksOn, internalJobSecret, licenseRefreshTestUrl, paymentApiUrls, signingSecret } from "@/lib/env";
 import { openMailer } from "@/lib/mail";
 import { getPlans } from "@/lib/settings/platform";
@@ -59,6 +59,11 @@ export async function POST(request: Request): Promise<Response> {
       mail: await mailDeps(store),
       // 136 Yallapp's Firebase, when it's set up here.
       firebase: await firebaseJobDeps(store),
+      // 212 "It's back" emailed too, when the app's email goes out.
+      stockMail: async (app, to, mail) => {
+        if (app.demo || !(await appMailDelivered(store, app))) return;
+        await sendAppMail(store, app, { to, subject: mail.subject, text: mail.text });
+      },
     });
     await alertFailedScheduledPushes(store, jobs.notifications.failed, now, teamMail);
     const watch = await runWatch({ store, now, mail: teamMail, jobs: ["daily", "webhooks", "pipeline"], dispatch: dispatchSet(), crashes: true });

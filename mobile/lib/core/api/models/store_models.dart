@@ -6,6 +6,7 @@ import 'json.dart';
 import 'money_models.dart';
 import 'restaurant_models.dart';
 import 'tech_models.dart';
+import 'shop_features_models.dart';
 
 /// `Config.store`: the shop's settings for Store apps.
 class StoreConfig {
@@ -28,6 +29,9 @@ class StoreConfig {
     this.tradeIn,
     this.pcBuilder,
     this.installmentsSoon = false,
+    this.wishlist = false,
+    this.backInStock = false,
+    this.reviewPhotos,
     this.orderingOpen,
   });
 
@@ -58,6 +62,9 @@ class StoreConfig {
     tradeIn: TradeInRules.tryParse(json['trade_in']),
     pcBuilder: PcBuilderRules.tryParse(json['pc_builder']),
     installmentsSoon: json['installments_soon'] == true,
+    wishlist: boolOr(json, 'wishlist', false),
+    backInStock: boolOr(json, 'back_in_stock', false),
+    reviewPhotos: ReviewPhotoRules.tryParse(json['review_photos']),
     orderingOpen: json['ordering_open'] is bool
         ? json['ordering_open'] as bool
         : null,
@@ -73,6 +80,16 @@ class StoreConfig {
 
   /// 211 Build your PC: a category for each part; null: off.
   final PcBuilderRules? pcBuilder;
+
+  /// 212 The wishlist is synced for signed-in customers (`/store/wishlist`);
+  /// false: the hearts stay on the phone.
+  final bool wishlist;
+
+  /// 212 "Notify me when it's back" for what's out of stock.
+  final bool backInStock;
+
+  /// 212 Photos with reviews; null: reviews without photos.
+  final ReviewPhotoRules? reviewPhotos;
 
   /// 208 The shop's size chart, under a product's sizes ("Size guide") and
   /// on a Studio page (`size_chart`); null: none.
@@ -722,6 +739,9 @@ class ProductDetail {
     this.makeDays,
     this.specs = const [],
     this.accessories = const [],
+    this.reviewsPreview,
+    this.backInStock,
+    this.brand,
   });
 
   factory ProductDetail.fromJson(Json json) => ProductDetail(
@@ -764,6 +784,9 @@ class ProductDetail {
     makeDays: _lineOf(json['make_days']),
     specs: ProductSpec.listFrom(json['specs']),
     accessories: listOf(json, 'accessories', ProductSummary.fromJson),
+    reviewsPreview: ReviewsPreview.tryParse(json['reviews_preview']),
+    backInStock: BackInStock.tryParse(json['back_in_stock']),
+    brand: optString(json, 'brand'),
   );
 
   /// 209 Its parts in its own words (ingredients, how to use it, safety,
@@ -806,6 +829,16 @@ class ProductDetail {
 
   /// 211 Matching accessories ("Goes with it"); empty: none.
   final List<ProductSummary> accessories;
+
+  /// 212 Its reviews on its page (the bars, the photos, the first ones);
+  /// null on older servers.
+  final ReviewsPreview? reviewsPreview;
+
+  /// 212 What the signed-in customer waits for; null: not offered.
+  final BackInStock? backInStock;
+
+  /// 212 Its brand, when the shop gave one.
+  final String? brand;
 
   /// 208 "Complete the look": a product of each of the shop's other main
   /// categories; empty when the shop has it off.

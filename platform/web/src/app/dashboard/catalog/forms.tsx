@@ -3,6 +3,7 @@
 import type { detailsFormText } from "@/lib/catalog/details";
 import { PRODUCT_BADGES, PRODUCT_INFO_KINDS } from "@/lib/data/types";
 import type { DashKey } from "@/i18n/dashboard";
+import type { ProductTranslations } from "@/lib/data/types";
 import { useActionState, useState, type ReactNode } from "react";
 import {
   addCouponAction,
@@ -63,6 +64,9 @@ export interface ProductFormValues {
   variants: EditorVariants;
   /** 209 Its details as the form shows them (lib/catalog/details.ts detailsFormText); missing: none. */
   details?: ReturnType<typeof detailsFormText>;
+  /** 212 Its words in the app's other languages, and its brand. */
+  translations?: ProductTranslations | null;
+  brand?: string;
 }
 
 /** 91.5 Variations in the editor: attributes with their values typed as a list, and the combinations sold. */

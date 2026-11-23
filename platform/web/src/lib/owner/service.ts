@@ -11,6 +11,7 @@ import * as insights from "./insights";
 import { acceptedLang, ownerLang } from "./lang";
 import * as library from "./library";
 import * as community from "./community";
+import * as productReviews from "./product-reviews";
 import * as members from "./members";
 import * as sales from "./sales";
 import * as requests from "./requests";
@@ -101,6 +102,12 @@ export const ROUTES: Route[] = [
   route("PUT", "apps/:app_id/ratings/:source/:rating_id/reply", ratings.replyRating),
   route("DELETE", "apps/:app_id/ratings/:source/:rating_id/reply", ratings.deleteRatingReply),
   route("DELETE", "apps/:app_id/reviews/:review_id/reply", community.deleteReviewReply),
+  // 212 A store's product reviews with photos, and who waits for what and saved what.
+  route("GET", "apps/:app_id/product-reviews", productReviews.listProductReviews),
+  route("PATCH", "apps/:app_id/product-reviews/:review_id", productReviews.updateProductReview),
+  route("PUT", "apps/:app_id/product-reviews/:review_id/reply", productReviews.replyProductReview),
+  route("DELETE", "apps/:app_id/product-reviews/:review_id/reply", productReviews.deleteProductReviewReply),
+  route("GET", "apps/:app_id/shop-wishes", productReviews.shopWishes),
   route("GET", "apps/:app_id/members", members.listMembers),
   route("POST", "apps/:app_id/members/check-in", members.checkInMember),
   route("GET", "apps/:app_id/members/check-ins", members.listCheckIns),

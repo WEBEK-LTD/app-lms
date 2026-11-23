@@ -91,7 +91,7 @@ class Catalog {
 	/**
 	 * Lists products.
 	 *
-	 * @param array $args page, per_page, search, category, on_sale, max_price, featured, ids, orderby.
+	 * @param array $args page, per_page, search, category, on_sale, min_price, max_price, featured, ids, orderby.
 	 * @return array{items: array[], total: int}
 	 */
 	public function products( array $args ) {
@@ -108,6 +108,18 @@ class Catalog {
 		);
 		if ( '' !== $search ) {
 			$query['s'] = $search;
+		}
+		// 212 The listing filters: sizes, colours and other attributes (their slugs), the price.
+		foreach ( Shop_Features::tax_filters( (array) ( $args['filters'] ?? array() ) ) as $part ) {
+			$query['tax_query'][] = $part;
+		}
+		if ( isset( $args['min_price'] ) || isset( $args['max_price'] ) ) {
+			$query['meta_query'][] = array(
+				'key'     => '_price',
+				'value'   => array( (float) ( $args['min_price'] ?? 0 ), (float) ( $args['max_price'] ?? PHP_INT_MAX ) ),
+				'compare' => 'BETWEEN',
+				'type'    => 'DECIMAL(20,4)',
+			);
 		}
 		if ( ! empty( $args['category'] ) ) {
 			$query['tax_query'][] = array(
@@ -128,15 +140,6 @@ class Catalog {
 				$sale = array_values( array_unique( array_merge( $sale, \Yallapp\Plugin::instance()->store_extras()->flash_product_ids() ) ) );
 			}
 			$ids = null === $ids ? $sale : array_values( array_intersect( $ids, $sale ) );
-		}
-		// 209 At this price or under, by WooCommerce's own price (on sale too).
-		if ( isset( $args['max_price'] ) && null !== $args['max_price'] && (float) $args['max_price'] > 0 ) {
-			$query['meta_query'][] = array(
-				'key'     => '_price',
-				'value'   => (float) $args['max_price'],
-				'compare' => '<=',
-				'type'    => 'DECIMAL(10,2)',
-			);
 		}
 		if ( ! empty( $args['featured'] ) ) {
 			$featured = array_map( 'intval', wc_get_featured_product_ids() );
@@ -384,7 +387,8 @@ class Catalog {
 				'rating'     => max( 1, min( 5, (int) get_comment_meta( (int) $row->comment_ID, 'rating', true ) ) ),
 				'text'       => trim( html_entity_decode( wp_strip_all_tags( (string) $row->comment_content ), ENT_QUOTES, 'UTF-8' ) ),
 				'author'     => array(
-					'name'       => $user ? (string) $user->display_name : (string) $row->comment_author,
+					// 212 A first name and an initial only ("Ahmed K."), never more.
+					'name'       => Shop_Features::short_name( $user ? (string) $user->display_name : (string) $row->comment_author ),
 					'avatar_url' => $row->user_id ? \Yallapp\Otp\Sign_In::avatar_url( (int) $row->user_id ) : null,
 					'instructor' => false,
 				),

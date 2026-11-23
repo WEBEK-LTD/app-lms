@@ -2,6 +2,13 @@
 import { fashionOf, sizeChartJson } from "../../selling/fashion";
 // 211 An electronics shop's trade-in and Build your PC.
 import { techOf, tradeInJson } from "../../selling/tech";
+import { facetsJson } from "../../selling/filters";
+
+/** 212 The listing filters' first choice, as the editor's canvas draws it. */
+function firstFilter(f: ReturnType<typeof facetsJson>) {
+  const c = f.choices[0];
+  return c ? { name: c.name, values: c.values.slice(0, 12).map((v) => ({ label: v.label, swatch: (v as { swatch?: string | null }).swatch ?? null })) } : null;
+}
 import { readApiList } from "../../app/api-check";
 import type { DataStore } from "../../data/store";
 import { ENGINES, isAppType } from "../../app/kinds";
@@ -62,6 +69,8 @@ export interface PickableCommerce {
   /** 211 Trade-in's devices and grades, and Build your PC's parts in order (Store › Delivery & offers › Electronics); null: off. */
   tradeIn?: { models: { name: string; storages: { label: string; cents: number }[] }[]; grades: Record<string, number> } | null;
   pcBuilder?: { parts: string[] } | null;
+  /** 212 The first choice the `listing_filters` element shows (the shop's sizes, else colours), from its products. */
+  listingFilter?: { name: string; values: { label: string; swatch: string | null }[] } | null;
 }
 
 /** Entries and categories the page editor offers to pick from. */
@@ -164,6 +173,8 @@ export async function pickableCommerce(store: DataStore, app: App, now: Date): P
     // 211 What the trade-in and Build your PC elements show.
     tradeIn: tradeInJson(techOf(app)?.tradeIn ?? null),
     pcBuilder: techOf(app)?.pcBuilder ? { parts: techOf(app)!.pcBuilder!.steps.map((s) => s.part) } : null,
+    // 212 What the listing filters show, for Yallapp's own products.
+    listingFilter: app.connector?.kind === "catalog" ? firstFilter(facetsJson((await store.listCatalogProducts(app.id)).filter((p) => p.active && !p.addon), currency as CatalogCurrency, null)) : null,
   };
 }
 

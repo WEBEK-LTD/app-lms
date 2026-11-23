@@ -71,6 +71,7 @@ import 'studio_size_chart.dart';
 import 'studio_delivery_slots.dart';
 // 211 The electronics shops' elements.
 import 'studio_tech.dart';
+import 'studio_listing_filters.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -1341,6 +1342,8 @@ class StudioNodeView extends ConsumerWidget {
       StudioNodeType.specFilter ||
       StudioNodeType.tradeIn ||
       StudioNodeType.pcBuilder => studioTechShows(node, ref),
+      // 212 A store's listing filters.
+      StudioNodeType.listingFilters => StudioListingFilters.shows(ref),
       StudioNodeType.form =>
         node.form != null && PageBlockView.shows(node.form!, ref),
       StudioNodeType.search => PageBlockView.shows(_searchBlock(node, ''), ref),
@@ -2028,6 +2031,9 @@ class StudioNodeView extends ConsumerWidget {
       case StudioNodeType.pcBuilder:
         // 211 An electronics shop's parts.
         return StudioTechView(node: node, title: _text(context), color: color);
+      case StudioNodeType.listingFilters:
+        // 212 The shop's listing filters.
+        return StudioListingFilters(title: _text(context), color: color);
       case StudioNodeType.video:
         final url = node.videoUrl;
         if (url == null) return const SizedBox.shrink();

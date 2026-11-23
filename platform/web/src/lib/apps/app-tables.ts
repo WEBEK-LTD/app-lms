@@ -209,6 +209,10 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   quiz_attempts: "customers",
   assignment_submissions: "customers",
   course_reviews: "customers",
+  // 212 A store's customers' saved products, product reviews and back-in-stock requests.
+  shop_wishlist: "customers",
+  product_reviews: "customers",
+  stock_alerts: "customers",
   course_questions: "customers",
   course_answers: "customers",
   teacher_follows: "customers",

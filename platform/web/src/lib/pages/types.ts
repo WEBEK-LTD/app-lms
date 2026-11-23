@@ -103,6 +103,8 @@ export const STUDIO_CONTENT_TYPES = [
   // 211 An electronics shop's parts (`StudioTech`): a product's specs as a table, two or three products compared,
   // the shop filtered by a spec, the trade-in estimator and Build your PC.
   ...STUDIO_TECH_TYPES,
+  // 212 The listing filters: the shop's sizes (or colours) as chips opening the shop filtered, and its Filters.
+  "listing_filters",
 ] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
