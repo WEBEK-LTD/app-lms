@@ -2,7 +2,7 @@
   "version": "5",
   "dialect": "mysql",
   "id": "f06f76dc-54cd-48ee-89b0-bfb76aa4a548",
-  "prevId": "2f852f4d-9e5b-47bf-8faf-51c0afb691cf",
+  "prevId": "ec9f6c14-4dc1-4316-9bce-5ca5703f6882",
   "tables": {
     "account_deletion_requests": {
       "name": "account_deletion_requests",
@@ -27080,6 +27080,73 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "photo_asset_id": {
+          "name": "photo_asset_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "profile_review": {
+          "name": "profile_review",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'none'"
+        },
+        "profile_note": {
+          "name": "profile_note",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "profile_reviewed_at": {
+          "name": "profile_reviewed_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "show_country": {
+          "name": "show_country",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "links": {
+          "name": "links",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "('[]')"
+        },
+        "show_links": {
+          "name": "show_links",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "page_locked_at": {
+          "name": "page_locked_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "page_locked_reason": {
+          "name": "page_locked_reason",
+          "type": "varchar(400)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -27096,6 +27163,14 @@
             "slug"
           ],
           "isUnique": true
+        },
+        "studio_market_designers_review_idx": {
+          "name": "studio_market_designers_review_idx",
+          "columns": [
+            "profile_review",
+            "updated_at"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -28357,6 +28432,186 @@
       "compositePrimaryKeys": {
         "studio_market_payouts_id": {
           "name": "studio_market_payouts_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "studio_market_ratings": {
+      "name": "studio_market_ratings",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "template_id": {
+          "name": "template_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "designer_id": {
+          "name": "designer_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_id": {
+          "name": "client_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "stars": {
+          "name": "stars",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "comment": {
+          "name": "comment",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "author_name": {
+          "name": "author_name",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reply": {
+          "name": "reply",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "replied_at": {
+          "name": "replied_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "hidden_at": {
+          "name": "hidden_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "hidden_by": {
+          "name": "hidden_by",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "hidden_reason": {
+          "name": "hidden_reason",
+          "type": "varchar(400)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "studio_market_ratings_once_idx": {
+          "name": "studio_market_ratings_once_idx",
+          "columns": [
+            "template_id",
+            "client_id"
+          ],
+          "isUnique": true
+        },
+        "studio_market_ratings_designer_idx": {
+          "name": "studio_market_ratings_designer_idx",
+          "columns": [
+            "designer_id",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "studio_market_ratings_template_idx": {
+          "name": "studio_market_ratings_template_idx",
+          "columns": [
+            "template_id",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "studio_market_ratings_template_fk": {
+          "name": "studio_market_ratings_template_fk",
+          "tableFrom": "studio_market_ratings",
+          "tableTo": "studio_market_templates",
+          "columnsFrom": [
+            "template_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "studio_market_ratings_designer_fk": {
+          "name": "studio_market_ratings_designer_fk",
+          "tableFrom": "studio_market_ratings",
+          "tableTo": "studio_market_designers",
+          "columnsFrom": [
+            "designer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "studio_market_ratings_client_fk": {
+          "name": "studio_market_ratings_client_fk",
+          "tableFrom": "studio_market_ratings",
+          "tableTo": "clients",
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "studio_market_ratings_id": {
+          "name": "studio_market_ratings_id",
           "columns": [
             "id"
           ]

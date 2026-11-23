@@ -4,6 +4,9 @@ import type { LanguageCode, LayoutTab, StudioPage, TabBarStyle } from "../pages/
 import type { StudioLook } from "@/components/studio/view";
 import { kindById } from "../app/kinds";
 import { designerInitials, designerTint } from "./designers";
+import { pageOpen, publicProfile, ratingStats, type RatingStats } from "./designer-page";
+import { assetUrl } from "../assets";
+import { safePhotoUrl } from "./photo-url";
 import { getsUpdates, mayMove, nextMoveAt } from "./apply";
 import { templateText } from "./templates";
 import { offeredPlans, type PriceTag } from "./plans";
@@ -29,11 +32,16 @@ export interface DesignerChip {
   bg: string;
   fg: string;
   country: string;
+  /** 106.14 Their photo once the team approved it, else null (their initials show). */
+  photoUrl: string | null;
+  /** 106.14 Their public page /designers/<slug> is open (not locked by the team). */
+  page: boolean;
 }
 
 export function designerChip(d: TemplateDesigner): DesignerChip {
   const tint = designerTint(d.slug);
-  return { id: d.id, name: d.name, slug: d.slug, initials: designerInitials(d.name), bg: tint.bg, fg: tint.fg, country: d.country };
+  const photo = publicProfile(d).photoAssetId;
+  return { id: d.id, name: d.name, slug: d.slug, initials: designerInitials(d.name), bg: tint.bg, fg: tint.fg, country: d.country, photoUrl: photo ? safePhotoUrl(assetUrl(photo)) : null, page: pageOpen(d) };
 }
 
 export interface CoverView {
@@ -78,6 +86,8 @@ export interface TemplateCard {
   updatedAt: string;
   isNew: boolean;
   tags: string[];
+  /** 106.14 Its buyers' visible ratings: the average (one decimal) and how many. */
+  rating: RatingStats;
 }
 
 function kindsOf(template: Pick<MarketTemplate, "kinds">): TemplateCard["kinds"] {
@@ -96,6 +106,7 @@ export function templateCard(
   counts: { all: number; recent: number },
   now: Date,
   discounts: readonly MarketDiscount[] = [],
+  rating: RatingStats = { average: null, count: 0 },
 ): TemplateCard {
   const text = templateText(template, lang);
   const { tag: price, wasCents, flashEndsAt } = marketPrice(template, discounts, now);
@@ -117,6 +128,7 @@ export function templateCard(
     updatedAt: template.updatedAt.toISOString(),
     isNew: Boolean(template.publishedAt && now.getTime() - template.publishedAt.getTime() < 7 * DAY),
     tags: template.tags,
+    rating,
   };
 }
 
@@ -140,19 +152,21 @@ export interface MarketCatalog {
 export async function marketCatalog(store: DataStore, lang: string, now: Date, blobs: BlobStore = getBlobStore()): Promise<MarketCatalog> {
   await houseTemplatesReady(store, blobs, now);
   const templates = (await store.listMarketTemplates({ statuses: ["published"] })).filter((t) => t.currentVersionId);
-  const [designers, versions, all, recent, discounts] = await Promise.all([
+  const [designers, versions, all, recent, discounts, ratings] = await Promise.all([
     store.listTemplateDesigners([...new Set(templates.map((t) => t.designerId))]),
     store.listMarketTemplateVersions(templates.map((t) => t.currentVersionId!)),
     store.countTemplateLicences(),
     store.countTemplateLicences(new Date(now.getTime() - 30 * DAY)),
     // 106.12 The price drops and flash sales not ended yet.
     automaticDiscounts(store, templates.map((t) => t.id), now),
+    // 106.14 The buyers' ratings on each card.
+    store.marketRatingSummaries(templates.map((t) => t.id)),
   ]);
   const designerOf = new Map(designers.filter((d) => d.status === "active").map((d) => [d.id, d]));
   const versionOf = new Map(versions.map((v) => [v.id, v]));
   const cards = templates.flatMap((t) => {
     const designer = designerOf.get(t.designerId);
-    return designer ? [templateCard(t, designer, versionOf.get(t.currentVersionId!) ?? null, lang, { all: all[t.id] ?? 0, recent: recent[t.id] ?? 0 }, now, discounts.get(t.id) ?? [])] : [];
+    return designer ? [templateCard(t, designer, versionOf.get(t.currentVersionId!) ?? null, lang, { all: all[t.id] ?? 0, recent: recent[t.id] ?? 0 }, now, discounts.get(t.id) ?? [], ratingStats(ratings, [t.id]))] : [];
   });
   const byDesigner = new Map<string, TemplateCard[]>();
   for (const card of cards) byDesigner.set(card.designer.id, [...(byDesigner.get(card.designer.id) ?? []), card]);
