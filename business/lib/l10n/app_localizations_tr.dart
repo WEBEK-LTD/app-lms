@@ -4374,6 +4374,30 @@ class AppLocalizationsTr extends AppLocalizations {
       'Her türün sesini seçin, yeni siparişler açılana kadar çalsın';
 
   @override
+  String get ringtonesMoney => 'Para ve satış';
+
+  @override
+  String get soundChaChing => 'Ça-çing';
+
+  @override
+  String get soundCoinDrop => 'Düşen bozukluklar';
+
+  @override
+  String get soundTillBell => 'Kasa ve zil';
+
+  @override
+  String get soundCoinChime => 'Bozukluk ve çan';
+
+  @override
+  String get soundSaleJingle => 'Satış yapıldı';
+
+  @override
+  String get soundPiggyBank => 'Kumbara';
+
+  @override
+  String get soundReceiptPrinter => 'Fiş yazıcısı';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

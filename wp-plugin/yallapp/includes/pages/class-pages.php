@@ -258,7 +258,40 @@ class Pages {
 	 */
 	public function version( $language ) {
 		$version = (string) $this->layout()['version'];
-		return $language === $this->languages()['default'] ? $version : $version . '.' . $language;
+		$version = $language === $this->languages()['default'] ? $version : $version . '.' . $language;
+		// 157.7 With a page showing the shop's categories, they mark it too: an app back on screen asks
+		// for its pages again once the owner changed them in WooCommerce (145.1).
+		$mark = $this->categories_mark();
+		return '' === $mark ? $version : $version . '.c' . $mark;
+	}
+
+	/**
+	 * 157.7 A short mark of the shop's top categories when a Studio page may show them (a list
+	 * Shop_Categories changes); empty otherwise.
+	 *
+	 * @return string
+	 */
+	private function categories_mark() {
+		if ( ! $this->resolver->serves( 'products' ) ) {
+			return '';
+		}
+		$shows = false;
+		foreach ( (array) ( $this->layout()['pages'] ?? array() ) as $page ) {
+			if ( is_array( $page ) && is_array( $page['studio']['body'] ?? null ) && Shop_Categories::shown_in( $page['studio']['body'] ) ) {
+				$shows = true;
+				break;
+			}
+		}
+		if ( ! $shows ) {
+			return '';
+		}
+		$list = array_map(
+			static function ( $category ) {
+				return array( $category['id'], $category['name'], $category['image_url'] ?? null );
+			},
+			$this->resolver->categories( 'products' )
+		);
+		return substr( md5( (string) wp_json_encode( $list ) ), 0, 10 );
 	}
 
 	/**
