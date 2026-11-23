@@ -88,6 +88,11 @@ function brands(ctx: SectionContext): StudioNode {
   return { id: id(), type: "row", name: ctx.w("mbBrands"), gap: 6, scroll: true, padding: sides(6, 12, 4, 12), children: [chip("mbHubAll", true), chip("mbBrand1", false), chip("mbBrand2", false), chip("mbBrand3", false), chip("mbBrand4", false)] };
 }
 
+/** The shop's own categories as dense chips ("All" first, each opening its category): the home's quick row. */
+function catChips(ctx: SectionContext, padding = sides(6, 10, 4, 10)): StudioNode {
+  return { id: idOf(ctx)(), type: "categories", name: ctx.w("mbHubCats"), source: "products", style: "chips", color: K.ink, dark_color: K.darkInk, font: { family: FACE }, padding };
+}
+
 /** Today's deals: a hot pink card, the bolt and its words, then the shop's flash sale (its countdown and stock bars) on white. */
 function deals(ctx: SectionContext, margin = sides(8, 12, 0, 12)): StudioNode {
   const id = idOf(ctx);
@@ -98,23 +103,11 @@ function deals(ctx: SectionContext, margin = sides(8, 12, 0, 12)): StudioNode {
     name: ctx.w("mbHubDeals"),
     gap: 10,
     radius: 16,
-    padding: sides(12, 10, 10, 10),
+    padding: sides(6, 6, 6, 6),
     margin,
     background: HOT,
     dark_background: "#C8143D",
     children: [
-      {
-        id: id(),
-        type: "row",
-        gap: 8,
-        cross: "center",
-        padding: sides(0, 4, 0, 4),
-        children: [
-          { id: id(), type: "icon", icon: "bolt", icon_size: 26, color: ZAP, dark_color: ZAP },
-          { id: id(), type: "column", width: "fill", gap: 0, children: [say(ctx, "mbHubDeals", font(18, 800), { ...white, max_lines: 1 }), say(ctx, "mbHubDealsLine", font(11.5, 400), { ...white, opacity: 0.9, max_lines: 1 })] },
-          { id: id(), type: "icon", icon: "schedule", icon_size: 22, color: ZAP, dark_color: ZAP, motion: { loop: "pulse" } },
-        ],
-      },
       { id: id(), type: "flash_sale", name: ctx.w("mbDeal"), text: t.text, translations: t.translations, flash_sale: { look: "carousel", limit: 6, countdown: true, stock_bar: true, accent: HOT }, font: { family: FACE }, background: K.page, dark_background: K.darkPage, radius: 12, padding: sides(8, 8, 8, 8) },
     ],
   };
@@ -153,7 +146,7 @@ function denseCard(ctx: SectionContext): StudioNode {
         children: [
           { id: id(), type: "text", text: ctx.w("installmentsSoon"), max_lines: 1, font: font(9.5, 700), color: GOOD.day, dark_color: GOOD.night, background: GOOD.soft, dark_background: GOOD.darkSoft, radius: 5, padding: sides(2, 5, 2, 5), self_align: "start" },
           { id: id(), type: "text", bind: "title", max_lines: 1, color: K.ink, dark_color: K.darkInk, font: font(11.5, 700), margin: sides(2, 0, 0, 0) },
-          { id: id(), type: "text", bind: "price", max_lines: 1, color: K.ink, dark_color: K.darkInk, font: font(14, 800) },
+          { id: id(), type: "text", bind: "price", max_lines: 2, color: K.ink, dark_color: K.darkInk, font: font(12.5, 800) },
           { id: id(), type: "text", bind: "was_price", max_lines: 1, color: K.muted, dark_color: K.darkMuted, font: font(10.5, 400) },
         ],
       },
@@ -236,7 +229,7 @@ export function hubHome(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 100, 0),
       children: [
-        brands(ctx),
+        catChips(ctx),
         deals(ctx),
         head(ctx, "mbHubCats"),
         { id: id(), type: "categories", name: ctx.w("mbHubCats"), source: "products", style: "pictures", color: K.ink, dark_color: K.darkInk, font: { family: FACE }, padding: sides(0, 8, 0, 8) },
@@ -293,7 +286,6 @@ export function hubMenuPage(ctx: SectionContext): StudioPage {
       padding: sides(0, 0, 36, 0),
       children: [
         { id: id(), type: "search", name: ctx.w("mbHubSearch"), text: ctx.w("mbHubSearch"), source: "products", radius: 10, height: 44, background: K.surface, dark_background: K.darkSurface, color: K.muted, dark_color: K.darkMuted, margin: sides(4, 12, 4, 12) },
-        brands(ctx),
         { id: id(), type: "categories", name: ctx.w("mbCategoryMenu"), source: "products", style: "rows", category_menu: { look: "lead", radius: 12 }, color: K.ink, dark_color: K.darkInk, font: { family: FACE }, padding: sides(8, 0, 6, 0) },
         {
           id: id(),
@@ -352,7 +344,7 @@ export function hubComparePage(ctx: SectionContext): StudioPage {
 /** Over the shop: the brands, the shop's filters and the shop by storage. */
 function listTop(ctx: SectionContext): StudioNode[] {
   const id = idOf(ctx);
-  return [head(ctx, "mbHubListTitle", undefined, sides(8, 12, 2, 12)), brands(ctx), { id: id(), type: "listing_filters", name: ctx.w("mbHubListTitle"), padding: sides(4, 12, 4, 12) }, storage(ctx)];
+  return [head(ctx, "mbHubListTitle", undefined, sides(8, 12, 2, 12)), catChips(ctx), { id: id(), type: "listing_filters", name: ctx.w("mbHubListTitle"), padding: sides(4, 12, 4, 12) }, storage(ctx)];
 }
 
 /** Over the cart: the shop's code, the delivery note and the installments notice. */

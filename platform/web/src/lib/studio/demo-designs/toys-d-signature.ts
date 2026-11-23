@@ -328,7 +328,7 @@ function sageBand(ctx: SectionContext): StudioNode {
     dark_background: "#232B1E",
     corners: { bottom_start: 28, bottom_end: 28 },
     children: [
-      { id: id(), type: "column", gap: 8, padding: sides(0, 20, 0, 20), children: [say(ctx, "tyMoKicker", font(12.5, 600), { color: "#D8E0C9", dark_color: "#A9B998", max_lines: 1 }), say(ctx, "tyMoHello", font(27, 500, { line_height: 1.35 }), { ...cream, max_lines: 3 }), say(ctx, "tyMoHelloLine", font(13, 400, { line_height: 1.65 }), { color: "#E3E8D9", dark_color: "#C9D1BC", max_lines: 3 })] },
+      { id: id(), type: "column", gap: 8, padding: sides(0, 20, 0, 20), children: [say(ctx, "tyMoHello", font(27, 500, { line_height: 1.35 }), { ...cream, max_lines: 3 }), say(ctx, "tyMoHelloLine", font(13, 400, { line_height: 1.65 }), { color: "#E3E8D9", dark_color: "#C9D1BC", max_lines: 3 })] },
       { ...label(ctx, "tyMoSkillsLabel", sides(20, 20, 10, 20)), color: "#D8E0C9", dark_color: "#A9B998" },
       skills(ctx),
       { ...label(ctx, "tyMoAgeLabel", sides(18, 20, 10, 20)), color: "#D8E0C9", dark_color: "#A9B998" },

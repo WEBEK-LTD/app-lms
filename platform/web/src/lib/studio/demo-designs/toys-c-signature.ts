@@ -3,7 +3,7 @@ import type { SectionContext, SectionInfo, SectionWord } from "../sections";
 import { APP_WORDS } from "../app-words";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
-import { inked, sides, sigEntry, sigImage, sigPhoto, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
+import { inked, sides, sigEntry, sigImage, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
 import { clothesTabs, MENU_PAGE } from "./clothes-signature";
 import { TOYS_AGE_WORDS, TOYS_COUPON_CODE } from "./toys-signature";
 
@@ -141,7 +141,7 @@ function head(ctx: SectionContext, title: SectionWord, line?: SectionWord, link?
 // ——— The map ———
 
 /** One island: its photo on a blob of sand, its category's name on a flag under it (named as the category, so opening it). */
-function island(ctx: SectionContext, word: SectionWord, photo: string, sand: string, place: { x: number; y: number }): StudioNode {
+function island(ctx: SectionContext, word: SectionWord, label: SectionWord, photo: string, sand: string, place: { x: number; y: number }): StudioNode {
   const id = idOf(ctx);
   return {
     id: id(),
@@ -170,7 +170,7 @@ function island(ctx: SectionContext, word: SectionWord, photo: string, sand: str
         shadow: "medium",
         children: [sigImage(ctx, K, P(photo), { width: 60, height: 60, radius: 30, border_color: "#FFFFFF", dark_border_color: "#FFFFFF", border_width: 3 })],
       },
-      { ...say(ctx, word, text(11.5, 700), { max_lines: 1, text_align: "center" }), background: K.surface, dark_background: K.darkSurface, border_color: OUT.day, dark_border_color: OUT.night, border_width: 2, radius: 10, padding: sides(2, 8, 2, 8) },
+      { ...say(ctx, label, text(12, 700), { max_lines: 1, text_align: "center" }), background: K.surface, dark_background: K.darkSurface, border_color: OUT.day, dark_border_color: OUT.night, border_width: 2, radius: 10, padding: sides(2, 8, 2, 8) },
     ],
   };
 }
@@ -188,7 +188,6 @@ function mapCard(ctx: SectionContext): StudioNode {
       name: ctx.w("tyMapIslands"),
       gap: 10,
       padding: sides(10, 10, 10, 10),
-      gradient: { from: "#6CCDF2", to: "#1E8FD0", angle: 160 },
       background: "#3FB7E8",
       dark_background: "#16306E",
       children: [
@@ -197,17 +196,17 @@ function mapCard(ctx: SectionContext): StudioNode {
           type: "stack",
           name: ctx.w("tyMapIslands"),
           width: "fill",
-          height: 268,
+          height: 300,
           children: [
-            mark(ctx, "auto_awesome", 22, { x: 40, y: 2 }),
-            mark(ctx, "auto_awesome", 20, { x: 8, y: 44 }),
-            mark(ctx, "auto_awesome", 20, { x: 74, y: 46 }),
-            mark(ctx, "explore", 30, { x: 44, y: 82 }, 0.9),
-            island(ctx, "tyMapCatWooden", "block-tower", SANDS[0], { x: 1, y: 0 }),
-            island(ctx, "tyMapCatBuilding", "bricks-pile", SANDS[1], { x: 64, y: 3 }),
-            island(ctx, "tyMapCatScience", "telescope-globe", SANDS[2], { x: 33, y: 31 }),
-            island(ctx, "tyMapCatPlush", "bear-mint", SANDS[3], { x: 0, y: 56 }),
-            island(ctx, "tyMapCatArts", "crayons-pastel", SANDS[4], { x: 66, y: 58 }),
+            mark(ctx, "auto_awesome", 22, { x: 50, y: 4 }),
+            mark(ctx, "auto_awesome", 18, { x: 6, y: 52 }),
+            mark(ctx, "auto_awesome", 18, { x: 94, y: 50 }),
+            mark(ctx, "explore", 28, { x: 50, y: 96 }, 0.9),
+            island(ctx, "tyMapCatWooden", "tyMapIsle1", "block-tower", SANDS[0], { x: 0, y: 0 }),
+            island(ctx, "tyMapCatBuilding", "tyMapIsle2", "bricks-pile", SANDS[1], { x: 100, y: 0 }),
+            island(ctx, "tyMapCatScience", "tyMapIsle3", "telescope-globe", SANDS[2], { x: 50, y: 50 }),
+            island(ctx, "tyMapCatPlush", "tyMapIsle4", "bear-mint", SANDS[3], { x: 0, y: 100 }),
+            island(ctx, "tyMapCatArts", "tyMapIsle5", "crayons-pastel", SANDS[4], { x: 100, y: 100 }),
           ],
         },
         {

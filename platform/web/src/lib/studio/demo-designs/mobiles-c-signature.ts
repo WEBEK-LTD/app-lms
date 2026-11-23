@@ -46,7 +46,6 @@ const K = KEYNOTE_INK;
 const STAGE = "#000000";
 const SILVER = "#F5F5F7";
 const GREY = "#A1A1A6";
-const GOLD = { day: "#A8713E", night: "#E8B07A" };
 const FACE = "Readex Pro";
 
 const P = (name: string) => `/mobiles-photos/${name}.jpg`;
@@ -146,14 +145,14 @@ function stage(ctx: SectionContext): StudioNode {
         margin: sides(18, 0, 0, 0),
         action: shop,
         children: [
-          { id: id(), type: "row", width: 300, height: 300, radius: 150, place: { x: 12, y: 3 }, gradient: { from: "#5A4029", to: "#000000", angle: 90 }, background: "#2A1F15", dark_background: "#2A1F15", opacity: 0.85, children: [] },
-          { ...sigImage(ctx, K, P("phone-cam"), { width: 246, height: 300, radius: 34, background: "#111111", dark_background: "#111111" }), place: { x: 18, y: 3 }, motion: { enter: "zoom", duration_ms: 900 } },
+          { id: id(), type: "row", width: 300, height: 300, radius: 150, place: { x: 50, y: 50 }, gradient: { from: "#5A4029", to: "#000000", angle: 90 }, background: "#2A1F15", dark_background: "#2A1F15", opacity: 0.85, children: [] },
+          { ...sigImage(ctx, K, P("phone-cam"), { width: 246, height: 300, radius: 34, background: "#111111", dark_background: "#111111" }), place: { x: 50, y: 50 }, motion: { enter: "zoom", duration_ms: 900 } },
         ],
       },
       colours(ctx),
       { id: id(), type: "row", name: ctx.w("mbKeyBuy"), gap: 12, align: "center", padding: sides(18, 0, 0, 0), children: [pill(ctx, "mbKeyBuy", true, shop), pill(ctx, "mbKeyMore", false, shop)] },
       say(ctx, "mbKeyFrom", font(13, 400), { ...grey, max_lines: 1, text_align: "center", padding: sides(14, 20, 8, 20) }),
-      { ...installmentsTag(ctx, { color: "#C9C9CE", dark_color: "#C9C9CE", background: "#1C1C1E", dark_background: "#1C1C1E" }), self_align: "center" },
+      { id: id(), type: "row", align: "center", children: [installmentsTag(ctx, { color: "#C9C9CE", dark_color: "#C9C9CE", background: "#1C1C1E", dark_background: "#1C1C1E" })] },
     ],
   };
 }
@@ -171,7 +170,7 @@ function specRows(ctx: SectionContext): StudioNode[] {
     motion: { enter: "slide_up", duration_ms: 600 },
     children: [
       { id: id(), type: "divider", height: 1, background: K.line, dark_background: K.darkLine },
-      { id: id(), type: "row", gap: 16, cross: "center", padding: sides(18, 0, 18, 0), children: [say(ctx, value, font(42, 300, { line_height: 1, letter_spacing: -1 }), { width: 168, max_lines: 1 }), say(ctx, line, font(13.5, 400, { line_height: 1.45 }), { muted: true, width: "fill", max_lines: 3 })] },
+      { id: id(), type: "column", gap: 6, padding: sides(20, 0, 20, 0), children: [say(ctx, value, font(44, 300, { line_height: 1.05, letter_spacing: -1 }), { max_lines: 1 }), say(ctx, line, font(13.5, 400, { line_height: 1.45 }), { muted: true, max_lines: 2 })] },
     ],
   });
   return [
@@ -205,7 +204,6 @@ function trade(ctx: SectionContext, margin = sides(16, 16, 0, 16)): StudioNode {
     border_width: 1,
     children: [
       say(ctx, "mbKeyTradeKicker", font(13, 400), { ...gold, max_lines: 1 }),
-      say(ctx, "mbKeyTrade", font(23, 500, { line_height: 1.3 }), { ...silver, max_lines: 3 }),
       { id: id(), type: "trade_in", name: ctx.w("mbKeyTradeKicker"), text: t.text, translations: t.translations, tech: { look: "full", accent: "#E8B07A" }, font: { family: FACE }, ...silver, background: "#111113", dark_background: "#111113", radius: 20, padding: sides(14, 0, 0, 0) },
     ],
   };

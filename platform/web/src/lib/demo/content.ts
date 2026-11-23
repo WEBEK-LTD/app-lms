@@ -932,13 +932,13 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     welcome: "Soft clothes from birth to 12, in the size that fits.",
   },
   // 209 Toys
-  // 209 Toot (تُوت, "mulberry"), the toy shop: its look A's plum and gold on cream.
+  // 209 Toot (تُوت, "mulberry"), the toy shop; 226 its main look C's tomato red, royal blue and sand (look A keeps its plum, toys-signature.ts).
   toys: {
     appName: "Toot",
     shortName: "Toot",
-    primaryColor: "#7B2D4E",
-    splashColor: "#F7F2EA",
-    secondaryColor: "#C08A3E",
+    primaryColor: "#E5352C",
+    splashColor: "#FFF6E3",
+    secondaryColor: "#3D5AFE",
     template: "classic",
     font: "Lexend",
     corners: "round",
