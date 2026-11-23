@@ -53,6 +53,8 @@ const KEYS = {
     "knowReview",
   ],
   marketDiscounts: ["flashPill", "salePill", "wasPrice", "endsIn", "endsInDays", "saleEnded"],
+  // 106.14 The stars on the cards and the designers' pages.
+  marketPage: ["stars", "ratingsCount", "designerPage", "someone"],
   studio: ["price", "addPicture", "addVideo", "send", "search", "days", "hours", "minutes", "seconds", "copyCode"],
   nav: ["languages"],
 } as const;
@@ -62,6 +64,7 @@ type Words<A extends Area> = Record<(typeof KEYS)[A][number], string>;
 export interface MarketWords {
   studioMarket: Words<"studioMarket">;
   marketDiscounts: Words<"marketDiscounts">;
+  marketPage: Words<"marketPage">;
   studio: Words<"studio">;
   nav: Words<"nav">;
 }
@@ -119,6 +122,12 @@ const AR: MarketWords = {
     endsIn: "ينتهي بعد {time}",
     endsInDays: "ينتهي بعد {days, plural, one {يوم واحد} two {يومين} few {{days} أيام} other {{days} يومًا}} و{time}",
     saleEnded: "انتهى هذا العرض",
+  },
+  marketPage: {
+    stars: "{rating} من 5",
+    ratingsCount: "{count, plural, =0 {لا توجد تقييمات بعد} one {تقييم واحد} two {تقييمان} few {{count} تقييمات} other {{count} تقييمًا}}",
+    designerPage: "صفحة {name}",
+    someone: "أحد مستخدمي Yallapp",
   },
   studio: {
     price: "[السعر]",

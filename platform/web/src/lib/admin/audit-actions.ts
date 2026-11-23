@@ -171,6 +171,13 @@ export const AUDIT_ACTIONS = {
   "market.payouts_export": "Studio Market bank file downloaded",
   "market.payout_sent": "Studio Market payout marked as sent",
   "market.payout_cancelled": "Studio Market payout cancelled",
+  // 106.14 A designer's public page: the team's first look at the photo and line, the page's lock, an abusive rating hidden.
+  "market.profile_approved": "Studio Market designer photo and line approved",
+  "market.profile_declined": "Studio Market designer photo and line declined",
+  "market.page_locked": "Studio Market designer page locked",
+  "market.page_unlocked": "Studio Market designer page unlocked",
+  "market.rating_hidden": "Studio Market rating hidden",
+  "market.rating_shown": "Studio Market rating shown again",
   // 136 Yallapp's Firebase projects
   "firebase.project_add": "Yallapp Firebase project added",
   "firebase.project_edit": "Yallapp Firebase project changed",
@@ -214,6 +221,8 @@ export const AUDIT_TARGETS = {
   market_licence: "Studio Market licence",
   market_designer: "Studio Market designer",
   market_payout: "Studio Market payout",
+  // 106.14 A buyer's rating of a template.
+  market_rating: "Studio Market rating",
   // 133
   addon: "Add-on",
   // 136

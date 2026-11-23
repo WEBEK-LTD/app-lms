@@ -69,7 +69,6 @@ class StudioPremiumHeader extends ConsumerWidget {
     final build = ref.watch(appEnvironmentProvider).build;
     final config = ref.watch(appConfigProvider);
     final style = chromeStyleOfHeader(header.style!);
-    final onColour = ChromeHeaderBar.onColourFor(style, header.imageUrl);
     final title = header.title ?? build.appName;
     final logo =
         header.logoUrl ??
@@ -79,9 +78,21 @@ class StudioPremiumHeader extends ConsumerWidget {
     final background = parseHexColor(
       dark ? (header.darkBackground ?? header.background) : header.background,
     );
-    final foreground = parseHexColor(
+    final own = parseHexColor(
       dark ? (header.darkColor ?? header.color) : header.color,
     );
+    // 178 The buttons in white on the brand's colour, but in the page's ink
+    // on a light colour the owner gave it (Lamha's cream "Ride" and "My
+    // rides": a white back and bell on cream, unseen).
+    final onColour = style == ChromeHeaderStyle.brand && background != null
+        ? background.computeLuminance() < 0.4
+        : ChromeHeaderBar.onColourFor(style, header.imageUrl);
+    // 180.19 Over a photo (or the brand's colour) the words are white unless
+    // the owner's colour reads on its dark shade: Safra's navy title was
+    // unreadable over the Stays, Flights and Trips photos.
+    final foreground = onColour && own != null && contrastRatio(own, _shade) < 3
+        ? null
+        : own;
     final auth = ref.watch(authControllerProvider);
     final unread =
         header.buttons.contains(StudioHeaderButton.notifications) &&
@@ -215,3 +226,6 @@ class StudioPremiumHeader extends ConsumerWidget {
     StudioHeaderButton.account => HeaderIcon.account,
   };
 }
+
+/// 180.19 The darkest a cover's shade is under its words (Safra's navy).
+const _shade = Color(0xFF0E1424);

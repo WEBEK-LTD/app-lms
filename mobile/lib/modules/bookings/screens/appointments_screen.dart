@@ -206,7 +206,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       children: [
         Text(
-          a.statusLabel,
+          appointmentStatusText(context, a),
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,

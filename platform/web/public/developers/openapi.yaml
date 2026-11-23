@@ -15589,6 +15589,9 @@ components:
         currency: { type: string, example: TRY }
         guest_checkout: { type: boolean, description: Whether the shop allows checkout without an account. }
         checkout_opens_in: { type: string, enum: [in_app, browser] }
+        ordering_open:
+          type: boolean
+          description: "Roadmap 176.11. False while the shop has no way to be paid in the app yet (no card gateway of its own and no bank transfer or own method): its products aren't `purchasable`, and the app says ordering isn't open yet rather than that the product isn't sold in the app. Missing means the app doesn't know (WordPress shops, older servers)."
         reviews: { type: boolean, description: Whether product reviews are on. }
         wishlist: { type: boolean, description: "212 The wishlist (`/store/wishlist`) is synced for signed-in customers. Missing or false: the app keeps hearts on the phone only, or none." }
         back_in_stock: { type: boolean, description: "212 \"Notify me when it's back\" (`/store/products/{product_id}/back-in-stock`)." }
@@ -18234,6 +18237,13 @@ components:
             the shop opened on this category or collection, saved with a
             story's button in Dashboard › Stories. Apps before release 9 open
             the shop.
+        teacher_id:
+          type: [integer, 'null']
+          description: |
+            179.6 With `screen` `teachers` in an academy with many teachers: opens
+            this teacher's page (one of the academy's, `TeacherSummary.id`). Hosted
+            `GET /pages` sends it on the taps of Rawaq's faculty (each entry one of
+            the academy's teachers). Apps that don't know it open the Teachers list.
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -19029,6 +19039,7 @@ components:
         formatted: { type: string, example: 'EGP 4,250,000' }
         period: { type: [string, 'null'], enum: [month, year, null], description: 'For rent: per month or year.' }
         negotiable: { type: boolean }
+        display: { $ref: '#/components/schemas/DisplayMoney', description: '180.13 In the customer''s currency.' }
 
     ListingSummary:
       type: object
@@ -19263,6 +19274,17 @@ components:
             - type: 'null'
         online: { type: boolean, description: 'Whether it can be joined online (it has an online link).' }
         price_label: { type: [string, 'null'], description: 'Display text only ("Free", "From ₺150"), in the language the app asked for with `Accept-Language` (English, Arabic or Turkish on the hosted API). Never a purchase button.', example: Free }
+        price_from:
+          description: '180.13 The cheapest paid ticket as money, with `display` in the customer''s currency; null when every ticket is free.'
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [amount, currency, formatted]
+              properties:
+                amount: { type: string, example: '150.00' }
+                currency: { type: string, pattern: '^[A-Z]{3}$' }
+                formatted: { type: string, example: '₺150.00' }
+                display: { $ref: '#/components/schemas/DisplayMoney' }
         status: { type: string, enum: [scheduled, cancelled, ended] }
         spots_left: { type: [integer, 'null'], description: 'Places left across its ticket types; null when there''s no limit.' }
         sold_out: { type: boolean }
@@ -19391,6 +19413,7 @@ components:
         ends_at: { type: [string, 'null'], format: date-time }
         status: { type: string, enum: [open, closed], description: '`closed` once the charity closes it or `ends_at` has passed: it takes no donations.' }
         featured: { type: boolean }
+        display: { $ref: '#/components/schemas/DisplayMoney', description: '180.13 The goal and what was raised in the customer''s currency (`goal`, `goal_formatted`, `raised`, `raised_formatted`).' }
 
     Campaign:
       allOf:
@@ -23429,6 +23452,9 @@ components:
               photo_url: { type: [string, 'null'], format: uri }
               hotels: { type: integer }
               stay_from_formatted: { type: [string, 'null'], description: 'The cheapest night there.' }
+              currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+              stay_from_amount: { type: [string, 'null'] }
+              display: { $ref: '#/components/schemas/DisplayMoney' }
               trip_from: { type: [string, 'null'], description: 'Stay and flight for two for `nights` nights, from `from`; null when there is no flight.' }
               trip_from_formatted: { type: [string, 'null'] }
         featured:
@@ -23451,6 +23477,10 @@ components:
         nightly_formatted: { type: string, description: 'The average night, taxes included.' }
         was_total_formatted: { type: [string, 'null'], description: 'The price before the member price, when one applies.' }
         member: { type: boolean, description: The member price is in it. }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+        nightly_amount: { type: [string, 'null'] }
+        was_total_amount: { type: [string, 'null'] }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     TravelHotelCard:
       type: object
@@ -23483,6 +23513,9 @@ components:
         pay_at_hotel: { type: boolean, description: A rate paid at the hotel. }
         member_price: { type: boolean, description: 'The company gives signed-in people a member price.' }
         from_nightly_formatted: { type: [string, 'null'], description: 'The cheapest night of any room, before taxes.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+        from_nightly_amount: { type: [string, 'null'] }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         price:
           oneOf:
             - $ref: '#/components/schemas/TravelPrice'
@@ -23623,6 +23656,8 @@ components:
         name: { type: string, description: "The company's name for it (\"Classic\")." }
         price: { type: string, description: 'For one person, both ways for a return.' }
         price_formatted: { type: string }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         available: { type: boolean }
         seats_left: { type: [integer, 'null'], description: 'When 9 or fewer.' }
         cabin_kg: { type: integer }
@@ -23658,6 +23693,8 @@ components:
           items: { $ref: '#/components/schemas/TravelFare' }
         from_price: { type: string }
         from_price_formatted: { type: string }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         minutes: { type: integer, description: Both legs' time. }
         tags:
           type: array
@@ -23672,6 +23709,10 @@ components:
           items: { $ref: '#/components/schemas/TravelFlightOption' }
         best_formatted: { type: [string, 'null'] }
         cheapest_formatted: { type: [string, 'null'] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+        best_amount: { type: [string, 'null'] }
+        cheapest_amount: { type: [string, 'null'] }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         fastest_minutes: { type: [integer, 'null'] }
         price_level:
           oneOf:
@@ -23683,6 +23724,10 @@ components:
                 position: { type: number, minimum: 0, maximum: 1, description: 'Where the cheapest price is between the usual lowest (0) and highest (1).' }
                 usual_from_formatted: { type: string }
                 usual_to_formatted: { type: string }
+                currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+                usual_from_amount: { type: [string, 'null'] }
+                usual_to_amount: { type: [string, 'null'] }
+                display: { $ref: '#/components/schemas/DisplayMoney' }
 
     TravelCalendar:
       type: object
@@ -23699,6 +23744,8 @@ components:
               price: { type: [string, 'null'] }
               price_formatted: { type: [string, 'null'] }
               level: { type: [string, 'null'], enum: [low, typical, high, null] }
+              currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+              display: { $ref: '#/components/schemas/DisplayMoney' }
         tip:
           oneOf:
             - type: 'null'
@@ -23707,6 +23754,9 @@ components:
               properties:
                 date: { type: string, format: date }
                 saving_formatted: { type: string }
+                currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+                saving_amount: { type: [string, 'null'] }
+                display: { $ref: '#/components/schemas/DisplayMoney' }
 
     TravelSeatMap:
       type: object
@@ -23735,6 +23785,10 @@ components:
                     taken: { type: boolean }
         seat_price_formatted: { type: [string, 'null'], description: 'What a seat costs on a light fare; null: free.' }
         extra_price_formatted: { type: [string, 'null'], description: 'What a seat with extra legroom costs; null: no such seats.' }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+        seat_price_amount: { type: [string, 'null'] }
+        extra_price_amount: { type: [string, 'null'] }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     TravelChoice:
       type: object
@@ -23778,6 +23832,9 @@ components:
         unit_formatted: { type: [string, 'null'], description: 'The price of one (a night, a fare).' }
         amount: { type: string, description: 'Negative for what is taken off.', example: '-28.00' }
         amount_formatted: { type: string }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+        unit_amount: { type: [string, 'null'] }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
 
     TravelQuote:
       type: object
@@ -23790,6 +23847,8 @@ components:
         total: { type: string }
         total_formatted: { type: string }
         saving_formatted: { type: [string, 'null'], description: 'What the bundle and member prices take off.' }
+        saving_amount: { type: [string, 'null'] }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         refundable: { type: boolean }
         free_cancel_until: { type: [string, 'null'], format: date }
         payment:
@@ -23896,6 +23955,9 @@ components:
             paid_formatted: { type: [string, 'null'] }
             due: { type: [string, 'null'], description: 'What is still to pay in the app (after a change too); null for nothing.' }
             due_formatted: { type: [string, 'null'] }
+            currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+            paid_amount: { type: [string, 'null'] }
+            display: { $ref: '#/components/schemas/DisplayMoney' }
         currency: { type: string }
         lines:
           type: array
@@ -23911,8 +23973,13 @@ components:
                 at: { type: string, format: date-time }
                 by: { type: string, enum: [customer, company, unpaid] }
                 refund_formatted: { type: [string, 'null'] }
+                currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+                refund_amount: { type: [string, 'null'] }
+                display: { $ref: '#/components/schemas/DisplayMoney' }
         can_cancel: { type: boolean }
         cancel_refund_formatted: { type: [string, 'null'], description: 'What cancelling now would refund of what was paid.' }
+        cancel_refund_amount: { type: [string, 'null'] }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         can_change: { type: boolean }
         passes_open: { type: boolean, description: 'The boarding passes can be shown (`/passes`).' }
 
@@ -23949,5 +24016,8 @@ components:
         direction: { type: [string, 'null'], enum: [down, up, same, null] }
         advice: { type: [string, 'null'], enum: [book_now, null], description: '`book_now`: few seats are left at this price.' }
         max_price_formatted: { type: [string, 'null'] }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: '180.12 The company''s currency, of this object''s amounts.' }
+        max_price_amount: { type: [string, 'null'] }
+        display: { $ref: '#/components/schemas/DisplayMoney' }
         matches: { type: [integer, 'null'], description: 'For `anywhere`: destinations under the price now.' }
         photo_url: { type: [string, 'null'], format: uri }

@@ -28,6 +28,7 @@ class StoreConfig {
     this.wishlist = false,
     this.backInStock = false,
     this.reviewPhotos,
+    this.orderingOpen,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -57,6 +58,9 @@ class StoreConfig {
     wishlist: boolOr(json, 'wishlist', false),
     backInStock: boolOr(json, 'back_in_stock', false),
     reviewPhotos: ReviewPhotoRules.tryParse(json['review_photos']),
+    orderingOpen: json['ordering_open'] is bool
+        ? json['ordering_open'] as bool
+        : null,
   );
 
   /// 212 The wishlist is synced for signed-in customers (`/store/wishlist`);
@@ -72,6 +76,11 @@ class StoreConfig {
   /// 208 The shop's size chart, under a product's sizes ("Size guide") and
   /// on a Studio page (`size_chart`); null: none.
   final SizeChart? sizeChart;
+
+  /// 176.11 False while the shop can't be paid in the app yet (no card
+  /// gateway of its own nor its own method): its products say ordering
+  /// isn't open yet. Null: not known (WordPress, older servers).
+  final bool? orderingOpen;
 
   /// 162 Build your bouquet, when the shop has it set up; null: an action
   /// with `flow: bouquet` opens the shop, as before.

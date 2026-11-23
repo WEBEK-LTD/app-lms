@@ -2,6 +2,14 @@ import type { Strings } from "../types";
 
 /** 105.1 Food delivery from many restaurants: restaurants, menus, staff, food orders and statements. */
 export const en = {
+  // 177 A marketplace's Vendors page: its places are restaurants, supermarkets and shops.
+  vendors: "Vendors",
+  vendorsIntro: "The restaurants, supermarkets and shops customers order from in your app, each with its menu or catalog, opening hours, staff and your share of its orders.",
+  addVendor: "Add a vendor",
+  addVendorHint: "Its name, address and place on the map; set its hours, menu or catalog and staff on its page next.",
+  vendorCount: "{count, plural, one {{count} vendor} other {{count} vendors}}",
+  noVendors: "No vendors yet. Add the first one above.",
+  searchVendors: "Search vendors",
   // Restaurants
   restaurants: "Restaurants",
   restaurantsIntro: "The restaurants customers order from in your app, each with its menu, opening hours, staff and your share of its orders.",
@@ -340,6 +348,14 @@ export const en = {
 } as const;
 
 export const ar: Strings<typeof en> = {
+  // 177 صفحة البائعين في السوق: مطاعم وسوبر ماركت ومحلات.
+  vendors: "البائعين",
+  vendorsIntro: "المطاعم والسوبر ماركت والمحلات اللي العملاء بيطلبوا منها في تطبيقك، لكل واحد قائمته أو منتجاته ومواعيده وفريقه ونصيبك من طلباته.",
+  addVendor: "إضافة بائع",
+  addVendorHint: "اسمه وعنوانه ومكانه على الخريطة، وبعدين اضبط مواعيده وقائمته أو منتجاته وفريقه من صفحته.",
+  vendorCount: "{count, plural, zero {مفيش بائعين} one {بائع واحد} two {بائعين اتنين} few {{count} بائعين} many {{count} بائع} other {{count} بائع}}",
+  noVendors: "مفيش بائعين لسه. ضيف أول واحد من فوق.",
+  searchVendors: "دوّر في البائعين",
   restaurants: "المطاعم",
   restaurantsIntro: "المطاعم التي يطلب منها العملاء في تطبيقك، لكل منها قائمة طعام ومواعيد عمل وموظفون ونصيبك من طلباتها.",
   notHere: "المطاعم وطلبات الطعام لمشاريع توصيل الطعام في Yallapp Studio.",
@@ -665,6 +681,14 @@ export const ar: Strings<typeof en> = {
 };
 
 export const tr: Strings<typeof en> = {
+  // 177 Pazaryerinin Satıcılar sayfası: restoranlar, marketler ve mağazalar.
+  vendors: "Satıcılar",
+  vendorsIntro: "Müşterilerin uygulamanızda sipariş verdiği restoranlar, marketler ve mağazalar; her birinin menüsü ya da ürünleri, çalışma saatleri, personeli ve siparişlerinden sizin payınız.",
+  addVendor: "Satıcı ekle",
+  addVendorHint: "Adı, adresi ve haritadaki yeri; saatlerini, menüsünü ya da ürünlerini ve çalışanlarını sonra sayfasında ayarlayın.",
+  vendorCount: "{count, plural, one {{count} satıcı} other {{count} satıcı}}",
+  noVendors: "Henüz satıcı yok. İlkini yukarıdan ekleyin.",
+  searchVendors: "Satıcılarda ara",
   restaurants: "Restoranlar",
   restaurantsIntro: "Müşterilerin uygulamanızda sipariş verdiği restoranlar; her birinin menüsü, çalışma saatleri, personeli ve siparişlerinden sizin payınız.",
   notHere: "Restoranlar ve yemek siparişleri, Yallapp Studio'daki Yemek teslimatı projeleri içindir.",

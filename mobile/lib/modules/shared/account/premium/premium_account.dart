@@ -454,11 +454,20 @@ class _Person extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                ltrIsolate(formatPhone(user?.phone ?? '')),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white.withValues(alpha: 0.82),
+              // 180.21 One line, a little smaller if it must: at a larger
+              // text size beside Edit ("Düzenle") its last digits went to a
+              // second line.
+              FittedBox(
+                key: const ValueKey('chrome-account-phone'),
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  ltrIsolate(formatPhone(user?.phone ?? '')),
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white.withValues(alpha: 0.82),
+                  ),
                 ),
               ),
             ],

@@ -22,7 +22,8 @@ export function itemSourcesFor(app: Pick<App, "appType" | "backend"> & Partial<P
 
 /** Sources with categories the app can show (29 campaigns have none). */
 export function categorySourcesFor(app: Pick<App, "appType" | "backend"> & Partial<Pick<App, "connector">>): ItemSource[] {
-  return itemSourcesFor(app).filter((s) => s !== "listings" && s !== "campaigns" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types" && s !== "school_news" && s !== "bundles" && s !== "hotels");
+  // 180.14 Not events: their categories are named, not numbered, so the block had nothing to show (the events screens have their own chips).
+  return itemSourcesFor(app).filter((s) => s !== "listings" && s !== "campaigns" && s !== "events" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types" && s !== "school_news" && s !== "bundles" && s !== "hotels");
 }
 
 /** 29 Sources the app can search: campaigns are a short list, without a search. */

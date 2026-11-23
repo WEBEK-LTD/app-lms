@@ -1,5 +1,10 @@
+// 180.12 The prices a customer browses (stays, rates, fares, flights, the
+// calendar, seats, alerts, places) in their currency when the server sent it
+// (`display`, `customerText`); the quote's and the booking's totals, what
+// the card is charged, in the company's.
 import 'config_models.dart' show FontFileRef;
 import 'json.dart';
+import 'money_models.dart' show customerText;
 
 /// 126 Travel: hotels and flights (tag Travel in docs/api/openapi.yaml):
 /// `Config.travel`, the hotels and their rooms, the flights and their fares,
@@ -96,7 +101,7 @@ class TravelAmenityInfo {
 class TravelTransfer {
   const TravelTransfer({required this.priceFormatted, this.note});
   factory TravelTransfer.fromJson(Json json) => TravelTransfer(
-    priceFormatted: optString(json, 'price_formatted') ?? '',
+    priceFormatted: customerText(json, 'price_formatted') ?? '',
     note: optString(json, 'note'),
   );
   final String priceFormatted;
@@ -133,9 +138,9 @@ class TravelPrice {
   });
   factory TravelPrice.fromJson(Json json) => TravelPrice(
     nights: intOr(json, 'nights', 0),
-    totalFormatted: optString(json, 'total_formatted') ?? '',
-    nightlyFormatted: optString(json, 'nightly_formatted') ?? '',
-    wasTotalFormatted: optString(json, 'was_total_formatted'),
+    totalFormatted: customerText(json, 'total_formatted') ?? '',
+    nightlyFormatted: customerText(json, 'nightly_formatted') ?? '',
+    wasTotalFormatted: customerText(json, 'was_total_formatted'),
     member: boolOr(json, 'member', false),
   );
   final int nights;
@@ -231,7 +236,7 @@ class TravelHotel {
       breakfast: boolOr(json, 'breakfast', false),
       payAtHotel: boolOr(json, 'pay_at_hotel', false),
       memberPrice: boolOr(json, 'member_price', false),
-      fromNightlyFormatted: optString(json, 'from_nightly_formatted'),
+      fromNightlyFormatted: customerText(json, 'from_nightly_formatted'),
       price: optObject(json, 'price', TravelPrice.fromJson),
       saved: boolOr(json, 'saved', false),
       description: optString(json, 'description'),
@@ -496,7 +501,7 @@ class TravelFare {
       id: optString(json, 'id') ?? 'standard',
       name: optString(json, 'name') ?? '',
       price: double.tryParse(optString(json, 'price') ?? '') ?? 0,
-      priceFormatted: optString(json, 'price_formatted') ?? '',
+      priceFormatted: customerText(json, 'price_formatted') ?? '',
       available: boolOr(json, 'available', true),
       seatsLeft: optInt(json, 'seats_left'),
       cabinKg: intOr(json, 'cabin_kg', 0),
@@ -542,7 +547,7 @@ class TravelFlightOption {
     outbound: TravelLeg.fromJson(asJson(json['outbound'])),
     inbound: optObject(json, 'inbound', TravelLeg.fromJson),
     fares: listOf(json, 'fares', TravelFare.fromJson),
-    fromPriceFormatted: optString(json, 'from_price_formatted') ?? '',
+    fromPriceFormatted: customerText(json, 'from_price_formatted') ?? '',
     minutes: intOr(json, 'minutes', 0),
     tags: stringList(json, 'tags'),
   );
@@ -572,15 +577,15 @@ class TravelFlightSearch {
         : null;
     return TravelFlightSearch(
       items: listOf(json, 'items', TravelFlightOption.fromJson),
-      bestFormatted: optString(json, 'best_formatted'),
-      cheapestFormatted: optString(json, 'cheapest_formatted'),
+      bestFormatted: customerText(json, 'best_formatted'),
+      cheapestFormatted: customerText(json, 'cheapest_formatted'),
       fastestMinutes: optInt(json, 'fastest_minutes'),
       priceLevel: level == null ? null : optString(level, 'level'),
       position: level == null ? null : optDouble(level, 'position'),
       usualFrom: level == null
           ? null
-          : optString(level, 'usual_from_formatted'),
-      usualTo: level == null ? null : optString(level, 'usual_to_formatted'),
+          : customerText(level, 'usual_from_formatted'),
+      usualTo: level == null ? null : customerText(level, 'usual_to_formatted'),
     );
   }
   final List<TravelFlightOption> items;
@@ -620,12 +625,12 @@ class TravelCalendar {
         'days',
         (d) => TravelCalendarDay(
           date: optString(d, 'date') ?? '',
-          priceFormatted: optString(d, 'price_formatted'),
+          priceFormatted: customerText(d, 'price_formatted'),
           level: optString(d, 'level'),
         ),
       ),
       tipDate: tip == null ? null : optString(tip, 'date'),
-      tipSaving: tip == null ? null : optString(tip, 'saving_formatted'),
+      tipSaving: tip == null ? null : customerText(tip, 'saving_formatted'),
     );
   }
   final String month;
@@ -670,8 +675,8 @@ class TravelSeatMap {
         ),
       ),
     ),
-    seatPriceFormatted: optString(json, 'seat_price_formatted'),
-    extraPriceFormatted: optString(json, 'extra_price_formatted'),
+    seatPriceFormatted: customerText(json, 'seat_price_formatted'),
+    extraPriceFormatted: customerText(json, 'extra_price_formatted'),
   );
   final int flightId;
   final List<String> columns;
@@ -962,11 +967,11 @@ class TravelAlert {
     roundTrip: boolOr(json, 'return', true),
     nights: optInt(json, 'nights'),
     travellers: intOr(json, 'travellers', 1),
-    priceFormatted: optString(json, 'price_formatted'),
+    priceFormatted: customerText(json, 'price_formatted'),
     changeFormatted: optString(json, 'change_formatted'),
     direction: optString(json, 'direction'),
     advice: optString(json, 'advice'),
-    maxPriceFormatted: optString(json, 'max_price_formatted'),
+    maxPriceFormatted: customerText(json, 'max_price_formatted'),
     matches: optInt(json, 'matches'),
     photoUrl: optString(json, 'photo_url'),
   );
@@ -1003,8 +1008,8 @@ class TravelDestination {
     code: optString(json, 'code'),
     photoUrl: optString(json, 'photo_url'),
     hotels: intOr(json, 'hotels', 0),
-    stayFromFormatted: optString(json, 'stay_from_formatted'),
-    tripFromFormatted: optString(json, 'trip_from_formatted'),
+    stayFromFormatted: customerText(json, 'stay_from_formatted'),
+    tripFromFormatted: customerText(json, 'trip_from_formatted'),
   );
   final String city;
   final String? country;

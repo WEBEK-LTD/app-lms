@@ -79,6 +79,7 @@
    "currency": "TRY",
    "guest_checkout": true,
    "checkout_opens_in": "in_app",
+   "ordering_open": false,
    "reviews": false,
    "checkout_mode": "standard",
    "delivery_date": {
@@ -158,9 +159,9 @@
  },
  "first": {
   "en": {
-   "etag": "\"2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tcdd2a4e8.c146f4edc8a\"",
+   "etag": "\"2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~te0a4a441.c146f4edc8a\"",
    "navigation": {
-    "version": "2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tcdd2a4e8.c146f4edc8a",
+    "version": "2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~te0a4a441.c146f4edc8a",
     "tabs": [
      {
       "id": "home",
@@ -2259,9 +2260,9 @@
    }
   },
   "ar": {
-   "etag": "\"2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tcdd2a4e8.ar.c146f4edc8a\"",
+   "etag": "\"2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~te0a4a441.ar.c146f4edc8a\"",
    "navigation": {
-    "version": "2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~tcdd2a4e8.ar.c146f4edc8a",
+    "version": "2026-11-18T10:00:00Z.1~fcc4fac52~c0bb636aca5c~te0a4a441.ar.c146f4edc8a",
     "tabs": [
      {
       "id": "home",
@@ -4362,9 +4363,9 @@
  },
  "second": {
   "en": {
-   "etag": "\"2026-11-18T10:05:00Z.2~f47ab6d0c~de3efb70b26d~tcdd2a4e8.c146f4edc8a\"",
+   "etag": "\"2026-11-18T10:05:00Z.2~f47ab6d0c~de3efb70b26d~te0a4a441.c146f4edc8a\"",
    "navigation": {
-    "version": "2026-11-18T10:05:00Z.2~f47ab6d0c~de3efb70b26d~tcdd2a4e8.c146f4edc8a",
+    "version": "2026-11-18T10:05:00Z.2~f47ab6d0c~de3efb70b26d~te0a4a441.c146f4edc8a",
     "tabs": [
      {
       "id": "home",

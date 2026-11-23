@@ -194,7 +194,8 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
  * then type, then its looks A and B on the type's page (/start/<demo>); a
  * type still being made shows as coming soon, never a link. The shops
  * Studio already has that belong to a section (the flower shop, the
- * marketplace) follow its types.
+ * marketplace) follow its types, as data-section-demo: their big cards
+ * above keep data-demo, one per demo.
  */
 function ShopTypes({ text, adding }: { text: DashboardText; adding: boolean }) {
   const { t } = text;
@@ -242,7 +243,7 @@ function ShopTypes({ text, adding }: { text: DashboardText; adding: boolean }) {
             })}
             {(SECTION_DEMOS[section] ?? []).map((demo) => (
               <li key={demo} className="flex">
-                <Link href={pickerPath({ demo, adding })} data-demo={demo} className="flex w-full items-center gap-3 rounded-[18px] p-3.5 no-underline" style={{ background: STUDIO.card, border: `1px solid ${STUDIO.cardLine}`, color: STUDIO.text }}>
+                <Link href={pickerPath({ demo, adding })} data-section-demo={demo} className="flex w-full items-center gap-3 rounded-[18px] p-3.5 no-underline" style={{ background: STUDIO.card, border: `1px solid ${STUDIO.cardLine}`, color: STUDIO.text }}>
                   <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl" style={{ background: STUDIO.tile, color: STUDIO.gold }}>
                     <Icon name={demo === "flowers" ? "local_florist" : "storefront"} size={22} />
                   </span>

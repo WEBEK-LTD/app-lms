@@ -70,7 +70,7 @@ void main() {
     await TestApp.settle(tester, 20);
   }
 
-  FakeApi apiOf(TestApp app) => app.api as FakeApi;
+  FakeApi apiOf(TestApp app) => app.api;
 
   testWidgets('the heart saves a product to the account, the Wishlist screen '
       'shows it', (tester) async {
