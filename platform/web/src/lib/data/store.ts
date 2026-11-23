@@ -114,6 +114,7 @@ import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket
 import type { AppAuthKey, BuildVariant } from "./types";
 import type { AppFirebaseApp, FirebaseAppPlatform, FirebaseAppVariant, FirebaseProject, PlatformKeyPurpose, PlatformSigningKey } from "./types";
 // 63
+import type { ProductReview, ProductReviewInput, ProductReviewPatch, ShopWishlistItem, StockAlert } from "./types";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 29 Charity & donations
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
@@ -2673,4 +2674,31 @@ export interface DataStore {
   /** Cancelled only while it isn't sent: its month is free again. False otherwise. */
   cancelDesignerPayout(id: string, patch: Pick<DesignerPayout, "cancelledAt" | "cancelledBy" | "cancelNote">): Promise<boolean>;
   markDesignerPayoutEmailed(id: string, at: Date): Promise<void>;
+
+  // 212 A store's wishlist, reviews with photos and back in stock (lib/selling/shop-features)
+  /** The customer's saved products, newest first. */
+  listShopWishlist(appId: string, userId: number): Promise<ShopWishlistItem[]>;
+  /** Saves a product (kept once); false when it was there already. */
+  addShopWishlist(appId: string, userId: number, productId: number, now: Date): Promise<boolean>;
+  removeShopWishlist(appId: string, userId: number, productId: number): Promise<void>;
+  /** How many customers saved each product (the owner's counts), most first. */
+  countShopWishlist(appId: string): Promise<{ productId: number; count: number }[]>;
+  /** Writes or replaces the customer's review of the product (one each); the shop's reply and hiding stay. */
+  saveProductReview(input: ProductReviewInput): Promise<ProductReview>;
+  getProductReview(appId: string, id: number): Promise<ProductReview | null>;
+  getProductReviewOf(appId: string, productId: number, userId: number): Promise<ProductReview | null>;
+  /** Newest first. `hidden` filters by it; `unreplied`: without a reply; `photos`: with photos only. */
+  listProductReviews(input: { appId: string; productIds?: number[]; hidden?: boolean; unreplied?: boolean; photos?: boolean; offset: number; limit: number }): Promise<{ items: ProductReview[]; total: number }>;
+  /** How many shown reviews each product has of each rating (of these products, else all). */
+  countProductRatings(appId: string, productIds?: number[]): Promise<{ productId: number; rating: number; count: number }[]>;
+  updateProductReview(appId: string, id: number, patch: ProductReviewPatch): Promise<void>;
+  deleteProductReview(appId: string, id: number): Promise<void>;
+  /** Asks to be told (kept once per product, variation and customer: asking again waits again). */
+  saveStockAlert(input: Omit<StockAlert, "id" | "notifiedAt">): Promise<StockAlert>;
+  deleteStockAlert(appId: string, userId: number, productId: number, variationId: number): Promise<void>;
+  /** Oldest first; `waiting`: not told yet. */
+  listStockAlerts(input: { appId: string; productId?: number; userId?: number; waiting?: boolean; limit?: number }): Promise<StockAlert[]>;
+  /** The apps with someone still waiting (for the job). */
+  listAppsWithStockAlerts(limit: number): Promise<string[]>;
+  markStockAlertsNotified(appId: string, ids: number[], now: Date): Promise<void>;
 }

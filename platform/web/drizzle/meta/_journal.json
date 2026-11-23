@@ -1030,6 +1030,13 @@
       "when": 1795423507441,
       "tag": "0148_shop_types",
       "breakpoints": true
+    },
+    {
+      "idx": 152,
+      "version": "5",
+      "when": 1795425589946,
+      "tag": "0152_shop_features",
+      "breakpoints": true
     }
   ]
 }

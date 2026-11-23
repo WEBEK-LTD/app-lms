@@ -1,4 +1,4 @@
-import type { LiabilityAcceptance } from "../data/types";
+import type { LiabilityAcceptance, ProductTranslations } from "../data/types";
 import type { OrderMoney } from "../market/money";
 import type {
   AppAuthKey,
@@ -872,6 +872,9 @@ export const catalogProducts = mysqlTable(
     salesCount: int("sales_count").notNull().default(0),
     // 110.2 A sample entry (lib/samples).
     sample: boolean("sample").notNull().default(false),
+    // 212 Its words in the app's other languages (JSON; null: none), and its brand for the filters.
+    translations: jsonText<ProductTranslations>("translations"),
+    brand: varchar("brand", { length: 80 }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -6062,4 +6065,65 @@ export const studioMarketPayouts = mysqlTable(
     index("studio_market_payouts_designer_idx").on(t.designerId, t.preparedAt),
     index("studio_market_payouts_period_idx").on(t.period, t.status),
   ],
+);
+
+/** 212 A store customer's saved products (any store's: Yallapp's own, Shopify, the connected platforms), by the source's id. */
+export const shopWishlist = mysqlTable(
+  "shop_wishlist",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    productId: bigint("product_id", { mode: "number", unsigned: true }).notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId, t.productId] }), index("shop_wishlist_product_idx").on(t.appId, t.productId)],
+);
+
+/** 212 Customers' reviews of a store's products, with photos: one per product and customer. */
+export const productReviews = mysqlTable(
+  "product_reviews",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    productId: bigint("product_id", { mode: "number", unsigned: true }).notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    rating: int("rating").notNull(),
+    text: text("text").notNull(),
+    photoIds: jsonText<string[]>("photo_ids").notNull(),
+    authorName: varchar("author_name", { length: 60 }).notNull(),
+    hidden: boolean("hidden").notNull().default(false),
+    replyText: text("reply_text"),
+    replyAt: time("reply_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("product_reviews_customer_unique").on(t.appId, t.productId, t.userId), index("product_reviews_app_idx").on(t.appId, t.createdAt)],
+);
+
+/** 212 "Notify me when it's back": a customer waiting for a product or one of its variations (0: the product). */
+export const stockAlerts = mysqlTable(
+  "stock_alerts",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    productId: bigint("product_id", { mode: "number", unsigned: true }).notNull(),
+    variationId: bigint("variation_id", { mode: "number", unsigned: true }).notNull().default(0),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    productName: varchar("product_name", { length: 160 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    notifiedAt: time("notified_at"),
+  },
+  (t) => [uniqueIndex("stock_alerts_customer_unique").on(t.appId, t.productId, t.variationId, t.userId), index("stock_alerts_waiting_idx").on(t.appId, t.notifiedAt)],
 );
