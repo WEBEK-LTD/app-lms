@@ -285,7 +285,6 @@ export function hubMenuPage(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 36, 0),
       children: [
-        { id: id(), type: "search", name: ctx.w("mbHubSearch"), text: ctx.w("mbHubSearch"), source: "products", radius: 10, height: 44, background: K.surface, dark_background: K.darkSurface, color: K.muted, dark_color: K.darkMuted, margin: sides(4, 12, 4, 12) },
         { id: id(), type: "categories", name: ctx.w("mbCategoryMenu"), source: "products", style: "rows", category_menu: { look: "lead", radius: 12 }, color: K.ink, dark_color: K.darkInk, font: { family: FACE }, padding: sides(8, 0, 6, 0) },
         {
           id: id(),

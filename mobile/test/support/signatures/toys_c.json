@@ -311,11 +311,6 @@
            "bottom": 10,
            "start": 10
           },
-          "gradient": {
-           "from": "#6CCDF2",
-           "to": "#1E8FD0",
-           "angle": 160
-          },
           "background": "#3FB7E8",
           "dark_background": "#16306E",
           "children": [
@@ -324,7 +319,7 @@
             "type": "stack",
             "name": "Islands to explore",
             "width": "fill",
-            "height": 268,
+            "height": 300,
             "children": [
              {
               "id": "sig-6",
@@ -335,47 +330,47 @@
               "dark_color": "#FFFFFF",
               "opacity": 0.55,
               "place": {
-               "x": 40,
-               "y": 2
+               "x": 50,
+               "y": 4
               }
              },
              {
               "id": "sig-7",
               "type": "icon",
               "icon": "auto_awesome",
-              "icon_size": 20,
+              "icon_size": 18,
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
               "opacity": 0.55,
               "place": {
-               "x": 8,
-               "y": 44
+               "x": 6,
+               "y": 52
               }
              },
              {
               "id": "sig-8",
               "type": "icon",
               "icon": "auto_awesome",
-              "icon_size": 20,
+              "icon_size": 18,
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
               "opacity": 0.55,
               "place": {
-               "x": 74,
-               "y": 46
+               "x": 94,
+               "y": 50
               }
              },
              {
               "id": "sig-9",
               "type": "icon",
               "icon": "explore",
-              "icon_size": 30,
+              "icon_size": 28,
               "color": "#FFFFFF",
               "dark_color": "#FFFFFF",
               "opacity": 0.9,
               "place": {
-               "x": 44,
-               "y": 82
+               "x": 50,
+               "y": 96
               }
              },
              {
@@ -386,7 +381,7 @@
               "gap": 4,
               "cross": "center",
               "place": {
-               "x": 1,
+               "x": 0,
                "y": 0
               },
               "action": {
@@ -435,10 +430,10 @@
                {
                 "id": "sig-13",
                 "type": "text",
-                "text": "Wooden toys",
+                "text": "Wooden",
                 "font": {
                  "family": "Rubik",
-                 "size": 11.5,
+                 "size": 12,
                  "weight": 700,
                  "line_height": 1.35
                 },
@@ -460,10 +455,10 @@
                 },
                 "translations": {
                  "ar": {
-                  "text": "الألعاب الخشبية"
+                  "text": "الخشبية"
                  },
                  "tr": {
-                  "text": "Ahşap oyuncaklar"
+                  "text": "Ahşap"
                  }
                 }
                }
@@ -477,8 +472,8 @@
               "gap": 4,
               "cross": "center",
               "place": {
-               "x": 64,
-               "y": 3
+               "x": 100,
+               "y": 0
               },
               "action": {
                "type": "screen",
@@ -529,7 +524,7 @@
                 "text": "Building",
                 "font": {
                  "family": "Rubik",
-                 "size": 11.5,
+                 "size": 12,
                  "weight": 700,
                  "line_height": 1.35
                 },
@@ -568,8 +563,8 @@
               "gap": 4,
               "cross": "center",
               "place": {
-               "x": 33,
-               "y": 31
+               "x": 50,
+               "y": 50
               },
               "action": {
                "type": "screen",
@@ -617,10 +612,10 @@
                {
                 "id": "sig-21",
                 "type": "text",
-                "text": "Science & STEM",
+                "text": "Science",
                 "font": {
                  "family": "Rubik",
-                 "size": 11.5,
+                 "size": 12,
                  "weight": 700,
                  "line_height": 1.35
                 },
@@ -642,10 +637,10 @@
                 },
                 "translations": {
                  "ar": {
-                  "text": "العلوم والاستكشاف"
+                  "text": "العلوم"
                  },
                  "tr": {
-                  "text": "Bilim ve keşif"
+                  "text": "Bilim"
                  }
                 }
                }
@@ -660,7 +655,7 @@
               "cross": "center",
               "place": {
                "x": 0,
-               "y": 56
+               "y": 100
               },
               "action": {
                "type": "screen",
@@ -711,7 +706,7 @@
                 "text": "Plush",
                 "font": {
                  "family": "Rubik",
-                 "size": 11.5,
+                 "size": 12,
                  "weight": 700,
                  "line_height": 1.35
                 },
@@ -750,8 +745,8 @@
               "gap": 4,
               "cross": "center",
               "place": {
-               "x": 66,
-               "y": 58
+               "x": 100,
+               "y": 100
               },
               "action": {
                "type": "screen",
@@ -799,10 +794,10 @@
                {
                 "id": "sig-29",
                 "type": "text",
-                "text": "Arts & music",
+                "text": "Arts",
                 "font": {
                  "family": "Rubik",
-                 "size": 11.5,
+                 "size": 12,
                  "weight": 700,
                  "line_height": 1.35
                 },
@@ -824,10 +819,10 @@
                 },
                 "translations": {
                  "ar": {
-                  "text": "الفنون والموسيقى"
+                  "text": "الفنون"
                  },
                  "tr": {
-                  "text": "Sanat ve müzik"
+                  "text": "Sanat"
                  }
                 }
                }

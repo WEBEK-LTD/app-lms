@@ -94,7 +94,7 @@ function pill(ctx: SectionContext, word: SectionWord, filled: boolean, action: A
 
 /** The phone's colours: the `swatches` element, the shades the owner's (the demo's four), the one tapped showing its name. */
 function colours(ctx: SectionContext): StudioNode {
-  const t = sigTexts(ctx, { text: "mbKeyColours", title: "mbKeyBuy" });
+  const t = sigTexts(ctx, { text: "mbKeyColours" });
   const shades: [SectionWord, string][] = [
     ["mbKeySw1", "#8C8A86"],
     ["mbKeySw2", "#1E1E20"],
@@ -107,9 +107,7 @@ function colours(ctx: SectionContext): StudioNode {
     type: "swatches",
     name: ctx.w("mbKeyColours"),
     text: t.text,
-    title: t.title,
     translations: t.translations,
-    action: shop,
     swatches: { shape: "circle", size: 28 },
     entries,
     font: { family: FACE },
@@ -145,8 +143,7 @@ function stage(ctx: SectionContext): StudioNode {
         margin: sides(18, 0, 0, 0),
         action: shop,
         children: [
-          { id: id(), type: "row", width: 300, height: 300, radius: 150, place: { x: 50, y: 50 }, gradient: { from: "#5A4029", to: "#000000", angle: 90 }, background: "#2A1F15", dark_background: "#2A1F15", opacity: 0.85, children: [] },
-          { ...sigImage(ctx, K, P("phone-cam"), { width: 246, height: 300, radius: 34, background: "#111111", dark_background: "#111111" }), place: { x: 50, y: 50 }, motion: { enter: "zoom", duration_ms: 900 } },
+          { ...sigImage(ctx, K, P("phone-cam"), { width: 250, height: 300, radius: 34, background: "#111111", dark_background: "#111111", shadow: "strong" }), place: { x: 50, y: 50 }, motion: { enter: "zoom", duration_ms: 900 } },
         ],
       },
       colours(ctx),
