@@ -4734,3 +4734,21 @@ A daily check alerted an owner (KechFlora): "Firebase notifications failed its d
 | [x] | 216.3 `/oidc/jwks.json` cheap: each server keeps the key set it computed for a minute (`publishedPlatformJwks`, `JWKS_MEMORY_SECONDS`), no database read meanwhile, forgotten when a key is made or rotated; the first key is still made when there is none. Both OIDC endpoints send `Cache-Control: public, max-age=300, stale-while-revalidate=3600`; the discovery document is built from the address alone (no database, no key). The issuer, the paths and the bodies are as they were | `phase216-wif-retry` |
 | [ ] | 216.4 Optional, for the owner, not done: Google's OIDC provider can hold an uploaded key set (`jwksJson` on the workload identity pool provider), so Google stops needing to reach the site at all. It would have to be uploaded again on every key rotation (`rotatePlatformKey`), before the new key signs, so it stays optional | |
 
+## Phase 218: Yallapp's own designer page, its photo from the admin
+
+The owner asked where to change the photo of Yallapp's own designer page (/designers/yallapp, and the market's cards of Yallapp's free templates, 190). That designer is on the demo account, which nobody signs in to, so its photo could only be uploaded from Designer area › Your page signed in as that account, and it showed initials. No migration, no app build.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 218.1 Yallapp's logo by default (`lib/studio-market/house-photo.ts`): Yallapp's own designer (`HOUSE_DESIGNER_ID`) shows the site's own logo (`/android-chrome-512x512.png`, lib/seo.ts `LOGO_PATH`) whenever no approved photo is uploaded: on the market's cards and designers' lists (`designerChip`), on /designers/yallapp (its photo, link previews and its JSON-LD `image`, `publicDesigner`) and in the admin. The photo check (`safePhotoUrl`) takes that one path besides the uploaded assets' addresses; another designer still shows initials until their photo is approved | `phase218-house-photo` |
+| [x] | 218.2 Admin › Studio Market › Designers › Yallapp's own page, on top: the photo the page shows now (the uploaded one, or the logo), upload or replace it (PNG or JPEG by its first bytes, up to 2 MB, a `designer_photo` asset in the demo account's folder, as the designer's upload), "Use the Yallapp logo" to remove the uploaded one (its file and asset gone), the line about it (one language, as the designer's form has it, 400 characters) and "See the page". Approved at once, never in the review queue. Permission `market.review` (owners, admins, support); viewers see it disabled. In the audit log (`market.house_page_saved`, what changed). Before the demo apps are made, the card says to make them first | `phase218-house-photo`, `studio-market-house-photo.spec.ts` |
+| [ ] | 218.3 For the owner: on production, upload the photo in Admin › Studio Market › Designers › Yallapp's own page; until then the Yallapp logo shows. If the demo account had a designer profile of its own before 190 (not the fixed `HOUSE_DESIGNER_ID`), the card still edits it but the logo default doesn't apply to it | — |
+
+## Phase 219: iPhone builds with Xcode 27
+
+Apple's upload notice ITMS-90725 (23 November, on Yallapp Business 1.0.5): apps built with the iOS 26.2 SDK are still taken, but from April 2027 App Store Connect takes only apps built with the iOS 27 SDK (Xcode 27 or later). The owner asked that the clients' apps the platform builds follow too.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 219.1 Every job that builds for iPhone runs on GitHub's `xcode-27` runner and picks the newest released Xcode on it, never older than 27 (a beta or release candidate never counts; with none, the job stops and lists the Xcodes it found): the clients' builds (`build-apps.yml`), Yallapp Business and Yallapp Courier releases, and CI's iOS compiles (`mobile.yml`) | CI's iOS compile jobs on this change |
+| [ ] | 219.2 The first signed builds on Xcode 27: the next Yallapp Business release, then a client's build, reach TestFlight without the ITMS-90725 notice | — |

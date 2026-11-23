@@ -10,7 +10,11 @@ import { emailLangOf, sendTemplate } from "@/lib/email/send";
 import type { FormState } from "@/lib/forms";
 import { decideReview, REVIEW_MESSAGES } from "@/lib/studio-market/review";
 import { templateText } from "@/lib/studio-market/templates";
-import { designerPath, RATING_LIMITS } from "@/lib/studio-market/designer-page";
+import { DESIGNER_PHOTO_MAX_BYTES, designerPath, PAGE_MESSAGES, RATING_LIMITS, readDesignerPhoto } from "@/lib/studio-market/designer-page";
+import { readDesignerProfile } from "@/lib/studio-market/designers";
+import { findHouseDesigner, HOUSE_PAGE_MESSAGES } from "@/lib/studio-market/house-photo";
+import { getBlobStore } from "@/lib/blobs";
+import { newId } from "@/lib/crypto/tokens";
 
 /**
  * 106.1 Admin › Studio Market › Review queue: approve and publish a template
@@ -176,4 +180,69 @@ export async function hideRatingAction(formData: FormData): Promise<void> {
   if (designer) refreshDesigner(designer.slug);
   if (template) for (const prefix of ["", "/ar", "/tr"]) revalidatePath(`${prefix}/templates/${template.slug}`);
   redirect(`/admin/market/designers?done=${hide ? "hidden" : "shown"}#ratings`);
+}
+
+/**
+ * 218 Admin › Studio Market › Designers › Yallapp's own page: the photo of
+ * the designer that lists Yallapp's free templates (190, on the demo account
+ * nobody signs in to), uploaded or replaced (PNG or JPEG by its first bytes,
+ * up to 2 MB, a `designer_photo` asset in the demo account's folder, as a
+ * designer's own), or removed for the Yallapp logo; and the line about it.
+ * The team's own change: approved at once, never in the review queue.
+ * Permission `market.review`; in the audit log.
+ */
+export async function saveHouseDesignerAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("market.review");
+  const store = await getStore();
+  const designer = await findHouseDesigner(store);
+  if (!designer) return { errors: { form: HOUSE_PAGE_MESSAGES.none } };
+  const values = { bio: String(formData.get("bio") ?? "").slice(0, 2000) };
+  // The line as a designer's own form checks it (its name, address and country stay as they are).
+  const read = readDesignerProfile({ name: designer.name, slug: designer.slug, country: designer.country, bio: values.bio }, designer.slug);
+  const errors: Record<string, string> = read.ok ? {} : { ...read.errors };
+  // The photo: PNG or JPEG by its first bytes, up to 2 MB (the file's own type and name aren't trusted).
+  const useLogo = formData.get("useLogo") === "on";
+  const file = formData.get("photo");
+  let photoData: Buffer | null = null;
+  if (!useLogo && file && typeof file !== "string" && file.size > 0) {
+    if (file.size > DESIGNER_PHOTO_MAX_BYTES) errors.photo = PAGE_MESSAGES.photo;
+    else photoData = Buffer.from(await file.arrayBuffer());
+  }
+  const photo = errors.photo ? null : readDesignerPhoto(photoData);
+  if (photo && !photo.ok) errors.photo = photo.error;
+  if (!read.ok || Object.keys(errors).length) return { errors, values };
+
+  const now = new Date();
+  let photoAssetId = useLogo ? null : designer.photoAssetId;
+  if (photo?.ok && photo.photo) {
+    photoAssetId = newId();
+    const blobKey = `assets/${designer.clientId}/${photoAssetId}.${photo.photo.extension}`;
+    await getBlobStore().put(blobKey, photo.photo.data, photo.photo.contentType);
+    await store.createAsset({ id: photoAssetId, clientId: designer.clientId, kind: "designer_photo", blobKey, contentType: photo.photo.contentType, size: photo.photo.data.length, createdAt: now });
+  }
+  const bio = read.value.bio;
+  // The team's own change: approved at once (nothing to approve when neither is given: the logo shows).
+  const profileReview = bio || photoAssetId ? "approved" : "none";
+  await store.updateTemplateDesigner(designer.id, { bio, photoAssetId, profileReview, profileNote: null, profileReviewedAt: now }, now);
+  // The photo it replaced isn't needed any more.
+  if (designer.photoAssetId && designer.photoAssetId !== photoAssetId) {
+    const old = await store.getAsset(designer.photoAssetId);
+    if (old && old.kind === "designer_photo" && old.clientId === designer.clientId) {
+      await getBlobStore().delete(old.blobKey).catch(() => undefined);
+      await store.deleteAsset(old.id);
+    }
+  }
+  const photoChange = photoAssetId === designer.photoAssetId ? null : photoAssetId ? (designer.photoAssetId ? "replaced the photo" : "uploaded a photo") : "removed the photo (the Yallapp logo shows)";
+  const bioChange = bio === designer.bio ? null : bio ? "changed the line" : "removed the line";
+  await recordAudit({
+    actor: admin,
+    action: "market.house_page_saved",
+    target: { type: "market_designer", id: designer.id },
+    clientId: designer.clientId,
+    summary: `Yallapp's own designer page: ${[photoChange, bioChange].filter(Boolean).join(", ") || "saved with no change"}`,
+    before: { photo: designer.photoAssetId ?? "Yallapp logo", bio: designer.bio, profileReview: designer.profileReview },
+    after: { photo: photoAssetId ?? "Yallapp logo", bio, profileReview },
+  });
+  refreshDesigner(designer.slug);
+  return { ok: true, message: useLogo && designer.photoAssetId ? HOUSE_PAGE_MESSAGES.logo : HOUSE_PAGE_MESSAGES.saved, values: { bio: bio ?? "" } };
 }
