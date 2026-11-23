@@ -1064,7 +1064,7 @@ export const en = {
   mbTrust1Line: "An instant estimate",
   mbTrust2: "Certified repair",
   mbTrust2Line: "Within 24 hours",
-  mbTrust3: "Up to 2 years' warranty",
+  mbTrust3: "2-year warranty",
   mbTrust3Line: "On every device",
   mbLatest: "Latest phones",
   mbLatestLine: "This season's releases with the agent's warranty",

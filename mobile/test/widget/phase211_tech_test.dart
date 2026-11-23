@@ -372,11 +372,11 @@ void main() {
       final (app, _) = await open(tester, language: language, dark: dark);
       expect(find.byKey(const ValueKey('studio-spec-table')), findsOneWidget);
       expect(find.text('Key specs'), findsOneWidget);
-      // Two rows at most.
-      expect(find.text('12 GB'), findsOneWidget);
-      expect(find.text('512 GB'), findsNothing);
+      // Two rows at most (a value in its own direction: 211 isolated in Arabic).
+      expect(find.textContaining('12 GB'), findsOneWidget);
+      expect(find.textContaining('512 GB'), findsNothing);
       expect(find.byKey(const ValueKey('studio-compare')), findsOneWidget);
-      expect(find.text('—'), findsNWidgets(2));
+      expect(find.textContaining('—'), findsNWidgets(2));
       expect(find.byKey(const ValueKey('studio-spec-filter')), findsOneWidget);
       expect(find.text('Memory'), findsOneWidget);
       expect(find.byKey(const ValueKey('trade-in-estimator')), findsOneWidget);

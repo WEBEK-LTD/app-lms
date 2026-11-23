@@ -278,36 +278,36 @@ class _TradeInEstimatorState extends ConsumerState<TradeInEstimator> {
           const SizedBox(height: 16),
           Divider(color: p.divider, height: 1),
           const SizedBox(height: 14),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          // 211 The estimate on its own line, the button under it.
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.l10n.tradeInEstimate,
-                      style: TextStyle(fontSize: 12.5, color: p.textSecondary),
-                    ),
-                    const SizedBox(height: 2),
-                    // 211 On one line, smaller when the amount is long.
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(
-                        context.l10n.tradeInUpTo(estimate),
-                        key: const ValueKey('trade-in-estimate'),
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: p.text,
-                        ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.tradeInEstimate,
+                    style: TextStyle(fontSize: 12.5, color: p.textSecondary),
+                  ),
+                  const SizedBox(height: 2),
+                  // 211 On one line, smaller when the amount is long.
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      context.l10n.tradeInUpTo(estimate),
+                      key: const ValueKey('trade-in-estimate'),
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: p.text,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 12),
               FilledButton.icon(
                 key: const ValueKey('trade-in-start'),
                 style: FilledButton.styleFrom(

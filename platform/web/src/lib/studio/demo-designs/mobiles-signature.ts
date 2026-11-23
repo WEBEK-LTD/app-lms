@@ -179,7 +179,7 @@ function searchPill(ctx: SectionContext, l: Look, word: SectionWord, margin = si
 function categoryRow(ctx: SectionContext, l: Look): StudioNode {
   return l.look === "a"
     ? { id: idOf(ctx)(), type: "categories", name: ctx.w("mbCategories"), source: "products", style: "circles", color: l.k.ink, dark_color: l.k.darkInk, padding: sides(10, 12, 4, 12) }
-    : { id: idOf(ctx)(), type: "categories", name: ctx.w("mbCategories"), source: "products", style: "pictures", columns: 3, color: l.k.ink, dark_color: l.k.darkInk, padding: sides(10, 16, 4, 16) };
+    : { id: idOf(ctx)(), type: "categories", name: ctx.w("mbCategories"), source: "products", style: "pictures", columns: 2, color: l.k.ink, dark_color: l.k.darkInk, padding: sides(10, 16, 4, 16) };
 }
 
 /** One hero card: a photo under a shade from its start, its kicker, headline and a button. */
