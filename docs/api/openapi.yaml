@@ -3878,10 +3878,6 @@ paths:
         - name: on_sale
           in: query
           schema: { type: boolean, default: false }
-        - name: max_price
-          in: query
-          description: "209 Products at this price or under (their price now), in the shop's currency, as WooCommerce's (\"Gifts under 100\")."
-          schema: { type: number, minimum: 0 }
         - name: featured
           in: query
           schema: { type: boolean, default: false }
@@ -3917,7 +3913,7 @@ paths:
           schema: { type: number, minimum: 0 }
         - name: max_price
           in: query
-          description: "212 The highest price, as `min_price`."
+          description: "209 212 Products at this price or under (their price now), in the shop's currency (`GET /store/filters` `price.currency`), as WooCommerce's: a Studio product list's limit (\"Gifts under 100\") and the listing filters' highest price, with `min_price`."
           schema: { type: number, minimum: 0 }
         - name: brand
           in: query
