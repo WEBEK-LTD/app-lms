@@ -70,7 +70,7 @@
    "cards": "outlined",
    "secondary_color": "#66665F",
    "font_family": "IBM Plex Sans Arabic",
-   "arabic_font": "IBM Plex Sans Arabic",
+   "arabic_font": "Amiri",
    "dark_background": "#0B0B0B",
    "dark_surface": "#171716",
    "font_files": [
@@ -93,20 +93,12 @@
    ],
    "arabic_font_files": [
     {
-     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-Regular.ttf",
+     "url": "http://localhost:3000/api/v1/fonts/ofl/amiri/Amiri-Regular.ttf",
      "weight": 400
     },
     {
-     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-Medium.ttf",
-     "weight": 500
-    },
-    {
-     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-SemiBold.ttf",
+     "url": "http://localhost:3000/api/v1/fonts/ofl/amiri/Amiri-Bold.ttf",
      "weight": 600
-    },
-    {
-     "url": "http://localhost:3000/api/v1/fonts/ofl/ibmplexsansarabic/IBMPlexSansArabic-Bold.ttf",
-     "weight": 700
     }
    ]
   },
@@ -264,7 +256,7 @@
         "padding": {
          "top": 26,
          "end": 28,
-         "bottom": 4,
+         "bottom": 14,
          "start": 28
         },
         "translations": {
@@ -284,7 +276,7 @@
          "family": "Amiri",
          "size": 44,
          "weight": 400,
-         "line_height": 1.1
+         "line_height": 1.35
         },
         "color": "#0B0B0B",
         "dark_color": "#F2F2EF",
@@ -495,33 +487,6 @@
                 "text": "Ölçü: 15 × 15 × 30 cm"
                }
               }
-             },
-             {
-              "id": "sig-15",
-              "type": "text",
-              "text": "260 SAR",
-              "font": {
-               "family": "IBM Plex Sans Arabic",
-               "size": 12,
-               "weight": 600
-              },
-              "color": "#0B0B0B",
-              "dark_color": "#F2F2EF",
-              "max_lines": 1,
-              "margin": {
-               "top": 4,
-               "end": 0,
-               "bottom": 0,
-               "start": 0
-              },
-              "translations": {
-               "ar": {
-                "text": "260 ر.س"
-               },
-               "tr": {
-                "text": "260 SAR"
-               }
-              }
              }
             ]
            }
@@ -531,7 +496,7 @@
         ]
        },
        {
-        "id": "sig-16",
+        "id": "sig-15",
         "type": "row",
         "name": "On the wall",
         "gap": 12,
@@ -544,13 +509,13 @@
         },
         "children": [
          {
-          "id": "sig-17",
+          "id": "sig-16",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-18",
+            "id": "sig-17",
             "type": "text",
             "text": "The collection",
             "font": {
@@ -572,7 +537,7 @@
             }
            },
            {
-            "id": "sig-19",
+            "id": "sig-18",
             "type": "text",
             "text": "On the wall",
             "font": {
@@ -596,7 +561,7 @@
           ]
          },
          {
-          "id": "sig-20",
+          "id": "sig-19",
           "type": "text",
           "text": "See all",
           "font": {
@@ -625,7 +590,7 @@
         ]
        },
        {
-        "id": "sig-21",
+        "id": "sig-20",
         "type": "row",
         "name": "On the wall",
         "gap": 18,
@@ -638,7 +603,7 @@
         },
         "children": [
          {
-          "id": "sig-22",
+          "id": "sig-21",
           "type": "items",
           "name": "On the wall",
           "source": "products",
@@ -655,17 +620,17 @@
            "limit": 2,
            "category_id": null,
            "featured": true,
-           "sort": "newest",
+           "sort": "price_desc",
            "ids": []
           },
           "card": {
-           "id": "sig-23",
+           "id": "sig-22",
            "type": "column",
            "width": 160,
            "gap": 0,
            "children": [
             {
-             "id": "sig-25",
+             "id": "sig-24",
              "type": "column",
              "gap": 0,
              "padding": {
@@ -681,7 +646,7 @@
              "border_width": 1.5,
              "children": [
               {
-               "id": "sig-24",
+               "id": "sig-23",
                "type": "image",
                "bind": "image",
                "width": 137,
@@ -693,7 +658,7 @@
              ]
             },
             {
-             "id": "sig-26",
+             "id": "sig-25",
              "type": "column",
              "gap": 1,
              "padding": {
@@ -704,7 +669,7 @@
              },
              "children": [
               {
-               "id": "sig-27",
+               "id": "sig-26",
                "type": "text",
                "bind": "title",
                "max_lines": 2,
@@ -718,7 +683,7 @@
                }
               },
               {
-               "id": "sig-28",
+               "id": "sig-27",
                "type": "text",
                "bind": "subtitle",
                "max_lines": 1,
@@ -731,13 +696,13 @@
                }
               },
               {
-               "id": "sig-29",
+               "id": "sig-28",
                "type": "row",
                "gap": 6,
                "cross": "center",
                "children": [
                 {
-                 "id": "sig-30",
+                 "id": "sig-29",
                  "type": "text",
                  "bind": "price",
                  "max_lines": 1,
@@ -750,7 +715,7 @@
                  }
                 },
                 {
-                 "id": "sig-31",
+                 "id": "sig-30",
                  "type": "text",
                  "bind": "was_price",
                  "max_lines": 1,
@@ -770,7 +735,7 @@
           }
          },
          {
-          "id": "sig-32",
+          "id": "sig-31",
           "type": "items",
           "name": "On the wall",
           "source": "products",
@@ -787,17 +752,17 @@
            "limit": 2,
            "category_id": null,
            "featured": false,
-           "sort": "popular",
+           "sort": "price_asc",
            "ids": []
           },
           "card": {
-           "id": "sig-33",
+           "id": "sig-32",
            "type": "column",
            "width": 160,
            "gap": 0,
            "children": [
             {
-             "id": "sig-35",
+             "id": "sig-34",
              "type": "column",
              "gap": 0,
              "padding": {
@@ -813,11 +778,11 @@
              "border_width": 1.5,
              "children": [
               {
-               "id": "sig-34",
+               "id": "sig-33",
                "type": "image",
                "bind": "image",
                "width": 137,
-               "height": 140,
+               "height": 170,
                "fit": "cover",
                "background": "#F6F6F3",
                "dark_background": "#121211"
@@ -825,7 +790,7 @@
              ]
             },
             {
-             "id": "sig-36",
+             "id": "sig-35",
              "type": "column",
              "gap": 1,
              "padding": {
@@ -836,7 +801,7 @@
              },
              "children": [
               {
-               "id": "sig-37",
+               "id": "sig-36",
                "type": "text",
                "bind": "title",
                "max_lines": 2,
@@ -850,7 +815,7 @@
                }
               },
               {
-               "id": "sig-38",
+               "id": "sig-37",
                "type": "text",
                "bind": "subtitle",
                "max_lines": 1,
@@ -863,13 +828,13 @@
                }
               },
               {
-               "id": "sig-39",
+               "id": "sig-38",
                "type": "row",
                "gap": 6,
                "cross": "center",
                "children": [
                 {
-                 "id": "sig-40",
+                 "id": "sig-39",
                  "type": "text",
                  "bind": "price",
                  "max_lines": 1,
@@ -882,7 +847,7 @@
                  }
                 },
                 {
-                 "id": "sig-41",
+                 "id": "sig-40",
                  "type": "text",
                  "bind": "was_price",
                  "max_lines": 1,
@@ -904,7 +869,7 @@
         ]
        },
        {
-        "id": "sig-42",
+        "id": "sig-41",
         "type": "row",
         "name": "The halls",
         "gap": 12,
@@ -917,13 +882,13 @@
         },
         "children": [
          {
-          "id": "sig-43",
+          "id": "sig-42",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-44",
+            "id": "sig-43",
             "type": "text",
             "text": "Gallery guide",
             "font": {
@@ -945,7 +910,7 @@
             }
            },
            {
-            "id": "sig-45",
+            "id": "sig-44",
             "type": "text",
             "text": "The halls",
             "font": {
@@ -971,7 +936,7 @@
         ]
        },
        {
-        "id": "sig-46",
+        "id": "sig-45",
         "type": "column",
         "name": "The halls",
         "gap": 0,
@@ -983,7 +948,7 @@
         },
         "children": [
          {
-          "id": "sig-47",
+          "id": "sig-46",
           "type": "row",
           "height": 1,
           "background": "#0B0B0B",
@@ -991,7 +956,7 @@
           "children": []
          },
          {
-          "id": "sig-48",
+          "id": "sig-47",
           "type": "row",
           "name": "Living room",
           "gap": 18,
@@ -1008,7 +973,7 @@
           },
           "children": [
            {
-            "id": "sig-49",
+            "id": "sig-48",
             "type": "text",
             "text": "I",
             "width": 30,
@@ -1022,7 +987,7 @@
             }
            },
            {
-            "id": "sig-50",
+            "id": "sig-49",
             "type": "text",
             "text": "Living room",
             "font": {
@@ -1045,7 +1010,7 @@
             }
            },
            {
-            "id": "sig-51",
+            "id": "sig-50",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -1055,7 +1020,7 @@
           ]
          },
          {
-          "id": "sig-52",
+          "id": "sig-51",
           "type": "row",
           "height": 1,
           "background": "#E4E4DE",
@@ -1063,7 +1028,7 @@
           "children": []
          },
          {
-          "id": "sig-53",
+          "id": "sig-52",
           "type": "row",
           "name": "Bedroom",
           "gap": 18,
@@ -1080,7 +1045,7 @@
           },
           "children": [
            {
-            "id": "sig-54",
+            "id": "sig-53",
             "type": "text",
             "text": "II",
             "width": 30,
@@ -1094,7 +1059,7 @@
             }
            },
            {
-            "id": "sig-55",
+            "id": "sig-54",
             "type": "text",
             "text": "Bedroom",
             "font": {
@@ -1117,7 +1082,7 @@
             }
            },
            {
-            "id": "sig-56",
+            "id": "sig-55",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -1127,7 +1092,7 @@
           ]
          },
          {
-          "id": "sig-57",
+          "id": "sig-56",
           "type": "row",
           "height": 1,
           "background": "#E4E4DE",
@@ -1135,7 +1100,7 @@
           "children": []
          },
          {
-          "id": "sig-58",
+          "id": "sig-57",
           "type": "row",
           "name": "Dining room",
           "gap": 18,
@@ -1152,7 +1117,7 @@
           },
           "children": [
            {
-            "id": "sig-59",
+            "id": "sig-58",
             "type": "text",
             "text": "III",
             "width": 30,
@@ -1166,7 +1131,7 @@
             }
            },
            {
-            "id": "sig-60",
+            "id": "sig-59",
             "type": "text",
             "text": "Dining room",
             "font": {
@@ -1189,7 +1154,7 @@
             }
            },
            {
-            "id": "sig-61",
+            "id": "sig-60",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -1199,7 +1164,7 @@
           ]
          },
          {
-          "id": "sig-62",
+          "id": "sig-61",
           "type": "row",
           "height": 1,
           "background": "#E4E4DE",
@@ -1207,7 +1172,7 @@
           "children": []
          },
          {
-          "id": "sig-63",
+          "id": "sig-62",
           "type": "row",
           "name": "Reading corner",
           "gap": 18,
@@ -1224,7 +1189,7 @@
           },
           "children": [
            {
-            "id": "sig-64",
+            "id": "sig-63",
             "type": "text",
             "text": "IV",
             "width": 30,
@@ -1238,7 +1203,7 @@
             }
            },
            {
-            "id": "sig-65",
+            "id": "sig-64",
             "type": "text",
             "text": "Reading corner",
             "font": {
@@ -1261,7 +1226,7 @@
             }
            },
            {
-            "id": "sig-66",
+            "id": "sig-65",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -1271,7 +1236,7 @@
           ]
          },
          {
-          "id": "sig-67",
+          "id": "sig-66",
           "type": "row",
           "height": 1,
           "background": "#E4E4DE",
@@ -1279,7 +1244,7 @@
           "children": []
          },
          {
-          "id": "sig-68",
+          "id": "sig-67",
           "type": "row",
           "name": "Plants & terrariums",
           "gap": 18,
@@ -1296,7 +1261,7 @@
           },
           "children": [
            {
-            "id": "sig-69",
+            "id": "sig-68",
             "type": "text",
             "text": "V",
             "width": 30,
@@ -1310,7 +1275,7 @@
             }
            },
            {
-            "id": "sig-70",
+            "id": "sig-69",
             "type": "text",
             "text": "Plants & terrariums",
             "font": {
@@ -1333,7 +1298,7 @@
             }
            },
            {
-            "id": "sig-71",
+            "id": "sig-70",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -1343,7 +1308,7 @@
           ]
          },
          {
-          "id": "sig-72",
+          "id": "sig-71",
           "type": "row",
           "height": 1,
           "background": "#E4E4DE",
@@ -1353,9 +1318,9 @@
         ]
        },
        {
-        "id": "sig-73",
+        "id": "sig-72",
         "type": "column",
-        "name": "— [The curator's note]",
+        "name": "— The curator",
         "gap": 12,
         "padding": {
          "top": 26,
@@ -1374,7 +1339,7 @@
         "border_width": 1,
         "children": [
          {
-          "id": "sig-74",
+          "id": "sig-73",
           "type": "text",
           "text": "We choose every piece as a museum chooses a work for its wall: to stay, not to fill a space.",
           "font": {
@@ -1402,7 +1367,7 @@
           }
          },
          {
-          "id": "sig-75",
+          "id": "sig-74",
           "type": "text",
           "text": "— Noura, Sakan's curator",
           "font": {
@@ -1431,7 +1396,7 @@
         ]
        },
        {
-        "id": "sig-76",
+        "id": "sig-75",
         "type": "row",
         "name": "New acquisitions",
         "gap": 12,
@@ -1444,13 +1409,13 @@
         },
         "children": [
          {
-          "id": "sig-77",
+          "id": "sig-76",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-78",
+            "id": "sig-77",
             "type": "text",
             "text": "Just arrived",
             "font": {
@@ -1472,7 +1437,7 @@
             }
            },
            {
-            "id": "sig-79",
+            "id": "sig-78",
             "type": "text",
             "text": "New acquisitions",
             "font": {
@@ -1496,7 +1461,7 @@
           ]
          },
          {
-          "id": "sig-80",
+          "id": "sig-79",
           "type": "text",
           "text": "See all",
           "font": {
@@ -1525,7 +1490,7 @@
         ]
        },
        {
-        "id": "sig-81",
+        "id": "sig-80",
         "type": "items",
         "name": "New acquisitions",
         "source": "products",
@@ -1545,13 +1510,13 @@
          "ids": []
         },
         "card": {
-         "id": "sig-82",
+         "id": "sig-81",
          "type": "column",
          "width": 132,
          "gap": 0,
          "children": [
           {
-           "id": "sig-84",
+           "id": "sig-83",
            "type": "column",
            "gap": 0,
            "padding": {
@@ -1567,7 +1532,7 @@
            "border_width": 1.5,
            "children": [
             {
-             "id": "sig-83",
+             "id": "sig-82",
              "type": "image",
              "bind": "image",
              "width": 109,
@@ -1579,7 +1544,7 @@
            ]
           },
           {
-           "id": "sig-85",
+           "id": "sig-84",
            "type": "column",
            "gap": 1,
            "padding": {
@@ -1590,7 +1555,7 @@
            },
            "children": [
             {
-             "id": "sig-86",
+             "id": "sig-85",
              "type": "text",
              "bind": "title",
              "max_lines": 2,
@@ -1604,7 +1569,7 @@
              }
             },
             {
-             "id": "sig-87",
+             "id": "sig-86",
              "type": "text",
              "bind": "subtitle",
              "max_lines": 1,
@@ -1617,13 +1582,13 @@
              }
             },
             {
-             "id": "sig-88",
+             "id": "sig-87",
              "type": "row",
              "gap": 6,
              "cross": "center",
              "children": [
               {
-               "id": "sig-89",
+               "id": "sig-88",
                "type": "text",
                "bind": "price",
                "max_lines": 1,
@@ -1636,7 +1601,7 @@
                }
               },
               {
-               "id": "sig-90",
+               "id": "sig-89",
                "type": "text",
                "bind": "was_price",
                "max_lines": 1,
@@ -1656,7 +1621,7 @@
         }
        },
        {
-        "id": "sig-91",
+        "id": "sig-90",
         "type": "row",
         "name": "The showroom",
         "gap": 12,
@@ -1669,13 +1634,13 @@
         },
         "children": [
          {
-          "id": "sig-92",
+          "id": "sig-91",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-93",
+            "id": "sig-92",
             "type": "text",
             "text": "Visit",
             "font": {
@@ -1697,7 +1662,7 @@
             }
            },
            {
-            "id": "sig-94",
+            "id": "sig-93",
             "type": "text",
             "text": "The showroom",
             "font": {
@@ -1723,7 +1688,7 @@
         ]
        },
        {
-        "id": "sig-95",
+        "id": "sig-94",
         "type": "text",
         "text": "Sakan showroom, Riyadh: open every day from 10 am to 10 pm, closed on Fridays. Delivery across the city in 3 days.",
         "font": {
@@ -1767,11 +1732,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-119",
+      "id": "sig-118",
       "type": "column",
       "children": [
        {
-        "id": "sig-120",
+        "id": "sig-119",
         "type": "text",
         "text": "The whole collection",
         "font": {
@@ -1799,7 +1764,7 @@
         }
        },
        {
-        "id": "sig-121",
+        "id": "sig-120",
         "type": "text",
         "text": "Every piece",
         "font": {
@@ -1827,7 +1792,7 @@
         }
        },
        {
-        "id": "sig-122",
+        "id": "sig-121",
         "type": "row",
         "name": "The halls",
         "gap": 18,
@@ -1840,7 +1805,7 @@
         },
         "children": [
          {
-          "id": "sig-123",
+          "id": "sig-122",
           "type": "row",
           "name": "Living room",
           "gap": 6,
@@ -1851,7 +1816,7 @@
           },
           "children": [
            {
-            "id": "sig-124",
+            "id": "sig-123",
             "type": "text",
             "text": "I",
             "color": "#66665F",
@@ -1864,7 +1829,7 @@
             }
            },
            {
-            "id": "sig-125",
+            "id": "sig-124",
             "type": "text",
             "text": "Living room",
             "font": {
@@ -1888,7 +1853,7 @@
           ]
          },
          {
-          "id": "sig-126",
+          "id": "sig-125",
           "type": "row",
           "name": "Bedroom",
           "gap": 6,
@@ -1899,7 +1864,7 @@
           },
           "children": [
            {
-            "id": "sig-127",
+            "id": "sig-126",
             "type": "text",
             "text": "II",
             "color": "#66665F",
@@ -1912,7 +1877,7 @@
             }
            },
            {
-            "id": "sig-128",
+            "id": "sig-127",
             "type": "text",
             "text": "Bedroom",
             "font": {
@@ -1936,7 +1901,7 @@
           ]
          },
          {
-          "id": "sig-129",
+          "id": "sig-128",
           "type": "row",
           "name": "Dining room",
           "gap": 6,
@@ -1947,7 +1912,7 @@
           },
           "children": [
            {
-            "id": "sig-130",
+            "id": "sig-129",
             "type": "text",
             "text": "III",
             "color": "#66665F",
@@ -1960,7 +1925,7 @@
             }
            },
            {
-            "id": "sig-131",
+            "id": "sig-130",
             "type": "text",
             "text": "Dining room",
             "font": {
@@ -1984,7 +1949,7 @@
           ]
          },
          {
-          "id": "sig-132",
+          "id": "sig-131",
           "type": "row",
           "name": "Reading corner",
           "gap": 6,
@@ -1995,7 +1960,7 @@
           },
           "children": [
            {
-            "id": "sig-133",
+            "id": "sig-132",
             "type": "text",
             "text": "IV",
             "color": "#66665F",
@@ -2008,7 +1973,7 @@
             }
            },
            {
-            "id": "sig-134",
+            "id": "sig-133",
             "type": "text",
             "text": "Reading corner",
             "font": {
@@ -2032,7 +1997,7 @@
           ]
          },
          {
-          "id": "sig-135",
+          "id": "sig-134",
           "type": "row",
           "name": "Plants & terrariums",
           "gap": 6,
@@ -2043,7 +2008,7 @@
           },
           "children": [
            {
-            "id": "sig-136",
+            "id": "sig-135",
             "type": "text",
             "text": "V",
             "color": "#66665F",
@@ -2056,7 +2021,7 @@
             }
            },
            {
-            "id": "sig-137",
+            "id": "sig-136",
             "type": "text",
             "text": "Plants & terrariums",
             "font": {
@@ -2124,11 +2089,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-138",
+      "id": "sig-137",
       "type": "column",
       "children": [
        {
-        "id": "sig-139",
+        "id": "sig-138",
         "type": "coupon",
         "name": "Your code",
         "code": "SAKAN10",
@@ -2146,7 +2111,7 @@
         }
        },
        {
-        "id": "sig-140",
+        "id": "sig-139",
         "type": "row",
         "name": "Wrapped as a work of art",
         "gap": 12,
@@ -2158,7 +2123,7 @@
         },
         "children": [
          {
-          "id": "sig-141",
+          "id": "sig-140",
           "type": "row",
           "width": 2,
           "background": "#0B0B0B",
@@ -2166,13 +2131,13 @@
           "children": []
          },
          {
-          "id": "sig-142",
+          "id": "sig-141",
           "type": "column",
           "width": "fill",
           "gap": 1,
           "children": [
            {
-            "id": "sig-143",
+            "id": "sig-142",
             "type": "text",
             "text": "Wrapped as a work of art",
             "font": {
@@ -2194,7 +2159,7 @@
             }
            },
            {
-            "id": "sig-144",
+            "id": "sig-143",
             "type": "text",
             "text": "Each piece wrapped by hand, a card with your words on request",
             "font": {
@@ -2262,11 +2227,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-145",
+      "id": "sig-144",
       "type": "column",
       "children": [
        {
-        "id": "sig-146",
+        "id": "sig-145",
         "type": "row",
         "name": "Your order's journey",
         "gap": 12,
@@ -2279,13 +2244,13 @@
         },
         "children": [
          {
-          "id": "sig-147",
+          "id": "sig-146",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-148",
+            "id": "sig-147",
             "type": "text",
             "text": "From our wall to yours",
             "font": {
@@ -2307,7 +2272,7 @@
             }
            },
            {
-            "id": "sig-149",
+            "id": "sig-148",
             "type": "text",
             "text": "Your order's journey",
             "font": {
@@ -2333,7 +2298,7 @@
         ]
        },
        {
-        "id": "sig-150",
+        "id": "sig-149",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -2452,11 +2417,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-152",
+      "id": "sig-151",
       "type": "column",
       "children": [
        {
-        "id": "sig-151",
+        "id": "sig-150",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -2517,7 +2482,7 @@
      "background": "#FFFFFF",
      "dark_background": "#0B0B0B",
      "body": {
-      "id": "sig-96",
+      "id": "sig-95",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2527,7 +2492,7 @@
       },
       "children": [
        {
-        "id": "sig-97",
+        "id": "sig-96",
         "type": "text",
         "text": "Gallery plan",
         "font": {
@@ -2555,7 +2520,7 @@
         }
        },
        {
-        "id": "sig-98",
+        "id": "sig-97",
         "type": "text",
         "text": "The halls",
         "font": {
@@ -2583,7 +2548,7 @@
         }
        },
        {
-        "id": "sig-99",
+        "id": "sig-98",
         "type": "search",
         "name": "Search the collection…",
         "text": "Search the collection…",
@@ -2613,7 +2578,7 @@
         }
        },
        {
-        "id": "sig-100",
+        "id": "sig-99",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -2633,7 +2598,7 @@
         }
        },
        {
-        "id": "sig-101",
+        "id": "sig-100",
         "type": "column",
         "name": "Your account",
         "gap": 0,
@@ -2645,7 +2610,7 @@
         },
         "children": [
          {
-          "id": "sig-102",
+          "id": "sig-101",
           "type": "row",
           "height": 1,
           "background": "#0B0B0B",
@@ -2653,7 +2618,7 @@
           "children": []
          },
          {
-          "id": "sig-103",
+          "id": "sig-102",
           "type": "row",
           "name": "Account",
           "gap": 10,
@@ -2672,7 +2637,7 @@
           },
           "children": [
            {
-            "id": "sig-104",
+            "id": "sig-103",
             "type": "text",
             "text": "Account",
             "font": {
@@ -2695,7 +2660,7 @@
             }
            },
            {
-            "id": "sig-105",
+            "id": "sig-104",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -2705,7 +2670,7 @@
           ]
          },
          {
-          "id": "sig-106",
+          "id": "sig-105",
           "type": "row",
           "name": "Orders",
           "gap": 10,
@@ -2724,7 +2689,7 @@
           },
           "children": [
            {
-            "id": "sig-107",
+            "id": "sig-106",
             "type": "text",
             "text": "Orders",
             "font": {
@@ -2747,7 +2712,7 @@
             }
            },
            {
-            "id": "sig-108",
+            "id": "sig-107",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -2757,7 +2722,7 @@
           ]
          },
          {
-          "id": "sig-109",
+          "id": "sig-108",
           "type": "row",
           "name": "Saved pieces",
           "gap": 10,
@@ -2776,7 +2741,7 @@
           },
           "children": [
            {
-            "id": "sig-110",
+            "id": "sig-109",
             "type": "text",
             "text": "Saved pieces",
             "font": {
@@ -2799,7 +2764,7 @@
             }
            },
            {
-            "id": "sig-111",
+            "id": "sig-110",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -2809,7 +2774,7 @@
           ]
          },
          {
-          "id": "sig-112",
+          "id": "sig-111",
           "type": "row",
           "name": "Language",
           "gap": 10,
@@ -2828,7 +2793,7 @@
           },
           "children": [
            {
-            "id": "sig-113",
+            "id": "sig-112",
             "type": "text",
             "text": "Language",
             "font": {
@@ -2851,7 +2816,7 @@
             }
            },
            {
-            "id": "sig-114",
+            "id": "sig-113",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -2861,7 +2826,7 @@
           ]
          },
          {
-          "id": "sig-115",
+          "id": "sig-114",
           "type": "row",
           "name": "Contact us",
           "gap": 10,
@@ -2880,7 +2845,7 @@
           },
           "children": [
            {
-            "id": "sig-116",
+            "id": "sig-115",
             "type": "text",
             "text": "Contact us",
             "font": {
@@ -2903,7 +2868,7 @@
             }
            },
            {
-            "id": "sig-117",
+            "id": "sig-116",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 18,
@@ -2915,7 +2880,7 @@
         ]
        },
        {
-        "id": "sig-118",
+        "id": "sig-117",
         "type": "text",
         "text": "Sakan showroom, Riyadh: open every day from 10 am to 10 pm, closed on Fridays. Delivery across the city in 3 days.",
         "font": {
@@ -2983,7 +2948,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-153",
+      "id": "sig-152",
       "type": "column",
       "children": []
      },
@@ -3025,7 +2990,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-154",
+      "id": "sig-153",
       "type": "column",
       "children": []
      },
@@ -3067,7 +3032,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-155",
+      "id": "sig-154",
       "type": "column",
       "children": []
      },
@@ -3109,7 +3074,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-156",
+      "id": "sig-155",
       "type": "column",
       "children": []
      },
@@ -3151,7 +3116,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-157",
+      "id": "sig-156",
       "type": "column",
       "children": []
      },
@@ -3185,7 +3150,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-158",
+      "id": "sig-157",
       "type": "column",
       "children": []
      },
@@ -3202,7 +3167,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-159",
+      "id": "sig-158",
       "type": "column",
       "children": []
      },
@@ -3223,9 +3188,7 @@
    "inactive": "#8A8A83",
    "dark_inactive": "#7E7E78",
    "design": "text",
-   "labels": "always",
-   "radius": 0,
-   "margin": 0
+   "labels": "always"
   }
  }
 }

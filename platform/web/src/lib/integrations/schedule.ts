@@ -22,7 +22,10 @@ import { integrationsOf, testIntegration } from "./index";
  * the owner is told once (a notice on the overview, an email and their
  * phone) and the team gets an alert; when it works again, both close.
  * A provider that can't be reached tells no one: it's checked again the
- * next day.
+ * next day. 216 Yallapp's Firebase failing (Google's token service, or its
+ * way to the platform's issuer, out for a moment) is checked again a few
+ * minutes later, at the next run of the frequent job, before anyone is told:
+ * only a second failure counts.
  */
 
 /** Each app's connections are checked again after this long. */
@@ -36,6 +39,10 @@ const DAY = 86_400_000;
 
 /** Failures nobody is told about: the other side couldn't be reached, not refused. */
 const QUIET_CODES = new Set(["payments_unreachable"]);
+/** 216 Failures looked at once more before anyone is told. */
+const SECOND_LOOK_CODES = new Set(["yallapp_push_refused"]);
+/** 216 How long after a first failure the second look comes (the frequent job runs every 5 minutes: at its next run). */
+export const SECOND_LOOK_MINUTES = 3;
 
 /** What the owner reads, in English (the dashboard words it in their language: i18n/dashboard/integrations.ts `known.notices`). */
 const NOTICE_TITLE: Partial<Record<IntegrationKey, string>> = {
@@ -103,6 +110,13 @@ export interface ScheduleReport {
   checks: number;
   failed: number;
   told: number;
+}
+
+/** 216 Whether a failure now is the first: it worked before or was never tested (a second look left from long ago counts as none). */
+function firstFailure(before: IntegrationCheck | undefined, now: Date): boolean {
+  if (!before) return true;
+  if (before.unconfirmed) return now.getTime() - Date.parse(before.at) > INTEGRATION_CHECK_HOURS * 3_600_000 / 2;
+  return before.ok;
 }
 
 const teamKey = (appId: string, key: IntegrationKey) => `integration:${appId}:${key}`;
@@ -230,8 +244,15 @@ export async function runIntegrationChecks(deps: ScheduleDeps): Promise<Schedule
       continue;
     }
     const previous = app.integrationChecks ?? {};
+    // 216 A first failure that gets a second look: kept as unconfirmed, the app due again in a few minutes.
+    const secondLook = (Object.entries(checks) as [IntegrationKey, IntegrationCheck][]).filter(([key, check]) => !check.ok && SECOND_LOOK_CODES.has(check.code) && firstFailure(previous[key], now));
+    for (const [key, check] of secondLook) {
+      checks[key] = { ...check, unconfirmed: true };
+      console.warn("[integrations] failed once, checked again in a few minutes", app.id, key, check.problems.join(" | "));
+    }
     const next: IntegrationChecks = { ...previous, ...checks };
-    await store.updateApp(app.id, { integrationChecks: next, integrationsCheckedAt: now }, now);
+    const checkedAt = secondLook.length > 0 ? new Date(now.getTime() - INTEGRATION_CHECK_HOURS * 3_600_000 + SECOND_LOOK_MINUTES * 60_000) : now;
+    await store.updateApp(app.id, { integrationChecks: next, integrationsCheckedAt: checkedAt }, now);
     for (const [key, check] of Object.entries(checks) as [IntegrationKey, IntegrationCheck][]) {
       report.checks++;
       if (check.ok) {
@@ -239,10 +260,10 @@ export async function runIntegrationChecks(deps: ScheduleDeps): Promise<Schedule
         continue;
       }
       report.failed++;
-      if (QUIET_CODES.has(check.code)) continue;
+      if (QUIET_CODES.has(check.code) || check.unconfirmed) continue;
       const before = previous[key];
-      // Told once: when it worked before (or was never tested). Still failing: the team's alert counts it.
-      if (!before || before.ok) {
+      // Told once: when it worked before (or was never tested, or only failed its first look). Still failing: the team's alert counts it.
+      if (!before || before.ok || before.unconfirmed) {
         if (await tellOwner(deps, app, client, key, check, activation)) report.told++;
       }
       await tellTeam(deps, app, client, key, check);

@@ -1457,9 +1457,9 @@
            "dark_color": "#F1F1EE",
            "font": {
             "family": "Cairo",
-            "size": 14,
+            "size": 12.5,
             "weight": 800,
-            "line_height": 1.25
+            "line_height": 1.3
            },
            "margin": {
             "top": 6,
@@ -1471,6 +1471,7 @@
           {
            "id": "sig-78",
            "type": "row",
+           "width": 150,
            "gap": 0,
            "cross": "center",
            "children": [
@@ -1486,7 +1487,7 @@
             {
              "id": "sig-80",
              "type": "row",
-             "width": "fill",
+             "width": 148,
              "height": 1,
              "background": "#111111",
              "dark_background": "#F1F1EE",
@@ -2430,7 +2431,7 @@
          "limit": 4,
          "category_id": null,
          "featured": false,
-         "sort": "popular",
+         "sort": "price_desc",
          "ids": []
         },
         "card": {
@@ -2498,9 +2499,9 @@
            "dark_color": "#F1F1EE",
            "font": {
             "family": "Cairo",
-            "size": 14,
+            "size": 12.5,
             "weight": 800,
-            "line_height": 1.25
+            "line_height": 1.3
            },
            "margin": {
             "top": 6,
@@ -2512,6 +2513,7 @@
           {
            "id": "sig-147",
            "type": "row",
+           "width": 150,
            "gap": 0,
            "cross": "center",
            "children": [
@@ -2527,7 +2529,7 @@
             {
              "id": "sig-149",
              "type": "row",
-             "width": "fill",
+             "width": 148,
              "height": 1,
              "background": "#111111",
              "dark_background": "#F1F1EE",
@@ -5712,9 +5714,7 @@
    "inactive": "#77776F",
    "dark_inactive": "#8E8E88",
    "design": "line",
-   "labels": "always",
-   "radius": 0,
-   "margin": 0
+   "labels": "always"
   }
  }
 }
