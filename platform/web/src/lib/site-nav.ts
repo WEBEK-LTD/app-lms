@@ -69,7 +69,7 @@ export const PRODUCT_LINKS: SiteLink[] = [
   { id: "how", href: "/how-it-works", label: "How it works", description: "From sign-up to the app stores", icon: "task_alt" },
 ];
 
-const STORY_ICONS: Record<StoryId, IconName> = { school: "school", rides: "local_taxi", delivery: "local_shipping", "multi-vendor": "storefront", academy: "workspace_premium", flowers: "local_florist", clothes: "checkroom", mobiles: "smartphone" };
+const STORY_ICONS: Record<StoryId, IconName> = { school: "school", rides: "local_taxi", delivery: "local_shipping", "multi-vendor": "storefront", academy: "workspace_premium", flowers: "local_florist", clothes: "checkroom", mobiles: "smartphone", computers: "computer" };
 const STORY_LABELS: Record<StoryId, [string, string]> = {
   school: ["School app", "Students, parents, teachers and staff"],
   rides: ["Ride-hailing app", "Riders, drivers and the live map"],
@@ -79,6 +79,7 @@ const STORY_LABELS: Record<StoryId, [string, string]> = {
   flowers: ["Flower shop app", "Delivery slots, card messages and flash sales"],
   clothes: ["Clothes shop app", "Sizes and colours, a category menu and complete the look"],
   mobiles: ["Phone shop app", "Trade-in, certified used, specs and compare"],
+  computers: ["Computers shop app", "Build your PC, filters by spec and compare"],
 };
 
 /** The Studio story pages, for the Studio menu and the footer. */
@@ -136,6 +137,7 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
     "story-flowers": [m.storyFlowers, m.storyFlowersText],
     "story-clothes": [m.storyClothes, m.storyClothesText],
     "story-mobiles": [m.storyMobiles, m.storyMobilesText],
+    "story-computers": [m.storyComputers, m.storyComputersText],
     pricing: [m.pricing],
     demo: [m.demo],
     resources: [m.resources],
@@ -164,6 +166,6 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
 
 /** The footer's Studio column in a language: the apps made in Studio. */
 export function storyLinksFor(lang: Lang, m: Messages["nav"]): { id: string; href: string; label: string }[] {
-  const label: Record<StoryId, string> = { school: m.storySchool, rides: m.storyRides, delivery: m.storyDelivery, "multi-vendor": m.storyMultiVendor, academy: m.storyAcademy, flowers: m.storyFlowers, clothes: m.storyClothes, mobiles: m.storyMobiles };
+  const label: Record<StoryId, string> = { school: m.storySchool, rides: m.storyRides, delivery: m.storyDelivery, "multi-vendor": m.storyMultiVendor, academy: m.storyAcademy, flowers: m.storyFlowers, clothes: m.storyClothes, mobiles: m.storyMobiles, computers: m.storyComputers };
   return STORY_IDS.map((id) => ({ id: `story-${id}`, href: localePath(lang, storyPath(id)), label: label[id] }));
 }

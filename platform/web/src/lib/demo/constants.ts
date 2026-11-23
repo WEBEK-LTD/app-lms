@@ -89,10 +89,13 @@ export const SHOP_TYPE_DEMOS = {
   clothes: "clothes_signature_a",
   // 211 Nova (نوفا), the mobiles shop: A a white and blue phone store, B deep green on warm stone.
   mobiles: "mobiles_signature_a",
+  // 211 Nawah (نواة), computers and gaming: A NAWAH (white and one strong blue), B SILICA (deep green on warm stone).
+  computers: "computers_signature_a",
 } as const;
 export type ShopTypeDemo = keyof typeof SHOP_TYPE_DEMOS;
 export const CLOTHES_DEMO = "clothes" as const satisfies ShopTypeDemo;
 export const MOBILES_DEMO = "mobiles" as const satisfies ShopTypeDemo;
+export const COMPUTERS_DEMO = "computers" as const satisfies ShopTypeDemo;
 
 export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school" | "travel"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO | ShopTypeDemo;
 

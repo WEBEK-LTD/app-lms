@@ -51,6 +51,8 @@ export const tr: Messages = {
     storyClothesText: "Beden ve renkler, kategori menüsü ve görünümü tamamla",
     storyMobiles: "Telefon mağazası uygulaması",
     storyMobilesText: "Takas, garantili ikinci el, özellikler ve karşılaştırma",
+    storyComputers: "Bilgisayar mağazası uygulaması",
+    storyComputersText: "PC toplama, özelliğe göre filtre ve karşılaştırma",
     studioDemo: "Studio demosu",
     studioDemoText: "Studio uygulamalarını telefonunda dene",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -804,6 +806,8 @@ export const tr: Messages = {
       clothes_b: { name: "NOUN, sokak modası", text: "Sokak modası olarak tüm giyim mağazası: beton grisi ve elektrik mavisi, numaralı satırlarla kategori menüsü, haftanın yenileri, kayan yazı, numaralı çok satanlar, kombini al ve günün fırsatı; her sayfa, çubuk, hesap, mağaza, sepet ve siparişler aynı görünümde, siyaha yakın bir gece moduyla." },
       mobiles_a: { name: "NOVA, mürekkep ve kobalt", text: "Beyaz, mürekkep ve kobaltla tüm telefon mağazası: kategori menüsünü açan menü, arama, dairelerde kategoriler, kamera telefonu vitrini, takas, servis ve garanti, özellikleriyle en yeni telefonlar, eski telefonunuzun değeri sayfanın üstünde hesaplanır, günün fırsatları, sınıflarıyla garantili ikinci el, iki telefonun karşılaştırması, aksesuarlar ve markalar." },
       mobiles_b: { name: "Taş üstünde zümrüt", text: "Sıcak taş üstünde koyu yeşille tüm telefon mağazası: kutucuklarda kategoriler, takas vitrini, çok satanlar, üç adımda takas, garantili yenilenmiş cihazlar, fırsat, taksit yakında notuyla hazır paket, iki telefonun karşılaştırması ve rakamlarınız." },
+      computers_a: { name: "NAWAH, beyaz ve mavi", text: "Beyaz ve tek güçlü maviyle tüm bilgisayar ve oyun mağazası: menüsü kategori menüsünü açan küçük başlık, arama, kategoriler, sonraki kartı görünen vitrin, parça parça PC toplama, saatin fırsatları, ana özellikleriyle dizüstüler, kullanıma göre alışveriş, oyuncu bölgesi, en çok istenen parçalar, özelliğe göre filtreler ve taksit yakında etiketiyle hizmetler; kategori menüsü, PC toplama, özelliğe göre bulma, mağaza, sepet ve siparişler aynı görünümde, grafit bir gece moduyla." },
+      computers_b: { name: "SILICA, taş üstünde yeşil", text: "Sıcak taş üstünde koyu yeşille, numaralı bölümleriyle tüm bilgisayar ve oyun mağazası: özellik çipli arama, daire kategoriler, cihazını biz önerelim, özellik tablosuyla haftanın cihazı, oyuncu köşesi, bu haftanın parça fiyatları, yan yana hazır toplamalar ve PC toplama; her sayfa, çubuk, hesap, mağaza, sepet ve siparişler aynı görünümde, yeşil-siyah bir gece moduyla." },
     },
   },
   meta: {

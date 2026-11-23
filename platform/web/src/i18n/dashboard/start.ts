@@ -60,6 +60,7 @@ export const en = {
     flowers: { name: "Flower shop", line: "Bouquets, delivery days and a gift checkout" },
     clothes: { name: "Clothes shop", line: "Sizes and colours, the category menu and complete the look" },
     mobiles: { name: "Phone shop", line: "Storage and colour, trade-in, certified used and compare" },
+    computers: { name: "Computers shop", line: "Build your PC, filters by spec and compare" },
   },
   business: {
     teaching: "Teaching and courses",
@@ -250,6 +251,7 @@ export const ar: Messages = {
     flowers: { name: "محل ورد", line: "بوكيهات ومواعيد توصيل ودفع كهدية" },
     clothes: { name: "محل هدوم", line: "مقاسات وألوان، وقايمة الأقسام، وكمّل الإطلالة" },
     mobiles: { name: "محل موبايلات", line: "المساحة واللون، والاستبدال، والمستعمل المضمون، والمقارنة" },
+    computers: { name: "محل كمبيوتر", line: "ابني جهازك، وفلاتر بالمواصفات، والمقارنة" },
   },
   business: {
     teaching: "تعليم وكورسات",
@@ -436,6 +438,7 @@ export const tr: Messages = {
     flowers: { name: "Çiçekçi", line: "Buketler, teslimat günleri ve hediye ödemesi" },
     clothes: { name: "Giyim mağazası", line: "Beden ve renkler, kategori menüsü ve görünümü tamamla" },
     mobiles: { name: "Telefon mağazası", line: "Depolama ve renk, takas, garantili ikinci el ve karşılaştırma" },
+    computers: { name: "Bilgisayar mağazası", line: "PC toplama, özelliğe göre filtre ve karşılaştırma" },
   },
   business: {
     teaching: "Eğitim ve kurslar",

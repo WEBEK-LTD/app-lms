@@ -56,6 +56,8 @@ export const en = {
     storyClothesText: "Sizes and colours, a category menu and complete the look",
     storyMobiles: "Phone shop app",
     storyMobilesText: "Trade-in, certified used, specs and compare",
+    storyComputers: "Computers shop app",
+    storyComputersText: "Build your PC, filters by spec and compare",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -825,6 +827,8 @@ export const en = {
       clothes_b: { name: "NOUN, streetwear", text: "The whole clothes shop as streetwear: concrete grey and electric blue, the category menu with numbered rows, the drop of the week, the ticker, the numbered best sellers, shop the fit and the deal of the day; every page, the bar, the account, the shop, the cart and orders in the look, with a near-black night." },
       mobiles_a: { name: "NOVA, ink and cobalt", text: "The whole phone shop in white, ink and cobalt: the menu that opens the category menu, the search, the categories in circles, the camera phone's hero, trade-in, repair and warranty, the latest phones with their specs, what your old phone is worth worked out on the page, the deal of the day, certified used with its grades, two phones compared, the accessories and the brands." },
       mobiles_b: { name: "Emerald on stone", text: "The whole phone shop in deep green on warm stone: the categories as tiles, the trade-in hero, the best sellers, trade-in in three steps, renewed devices with a warranty, the deal, a ready bundle with installments coming soon, two phones compared and your numbers." },
+      computers_a: { name: "NAWAH, white and blue", text: "The whole computers and gaming shop in white and one strong blue: the small header whose menu opens the category menu, the search, the categories, the hero with the next card peeking, Build your PC part by part, the hour deals, laptops with their key specs, shop by use, the gamer zone, the most wanted parts, the filters by spec and the services with installments coming soon; the category menu, Build your PC, find by spec, the shop, the cart and orders in the look, with a graphite night." },
+      computers_b: { name: "SILICA, green on stone", text: "The whole computers and gaming shop in deep green on warm stone, its sections numbered: the search with spec chips, the categories in circles, let us suggest your device, the device of the week with its spec table, the gamer corner, parts prices this week, ready builds side by side and Build your PC; every page, the bar, the account, the shop, the cart and orders in the look, with a green-black night." },
     },
   },
   meta: {

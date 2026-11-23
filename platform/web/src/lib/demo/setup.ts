@@ -23,8 +23,9 @@ import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
-import { ALL_DEMO_TYPES, CLOTHES_DEMO, MOBILES_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
+import { ALL_DEMO_TYPES, CLOTHES_DEMO, MOBILES_DEMO, COMPUTERS_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
 import { CLOTHES_COMMERCE, CLOTHES_CURRENCY, CLOTHES_FREE_SHIPPING_OVER_CENTS, CLOTHES_SHIPPING_CENTS } from "./clothes";
+import { COMPUTERS_COMMERCE, COMPUTERS_CURRENCY, COMPUTERS_FREE_SHIPPING_OVER_CENTS, COMPUTERS_SHIPPING_CENTS } from "./computers";
 import { FLOWER_COMMERCE, FLOWER_CURRENCY, FLOWER_FREE_SHIPPING_OVER_CENTS, FLOWER_SHIPPING_CENTS } from "./flowers";
 import {
   BOOKING_RULES,
@@ -50,6 +51,7 @@ import {
 import { demoClothesCommerce, demoClothesProducts } from "./clothes-entries";
 import { demoMobilesCommerce, demoMobilesProducts } from "./mobiles-entries";
 import { MOBILES_COMMERCE, MOBILES_CURRENCY, MOBILES_FREE_SHIPPING_OVER_CENTS, MOBILES_SHIPPING_CENTS } from "./mobiles";
+import { demoComputersCommerce, demoComputersProducts } from "./computers-entries";
 import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerCommerce, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
 import { savePicture, type DemoPicture, type PictureSize } from "./picture-assets";
 import { refreshMarketplaceDemo, savingZadPictures } from "./marketplace";
@@ -231,6 +233,9 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   } else if (content === "catalog" && id === MOBILES_DEMO) {
     // 211 Nova in Cairo: Egyptian pounds, free from a bigger order, returns within 14 days (its trade-in and accessories once its categories are made).
     patch.catalogSettings = { currency: MOBILES_CURRENCY, shippingCents: MOBILES_SHIPPING_CENTS, freeShippingOverCents: MOBILES_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(MOBILES_COMMERCE) };
+  } else if (content === "catalog" && id === COMPUTERS_DEMO) {
+    // 211 Nawah in Jeddah: Saudi riyals, free from a bigger order, returns within 14 days (its tech parts follow its categories, computers-entries.ts).
+    patch.catalogSettings = { currency: COMPUTERS_CURRENCY, shippingCents: COMPUTERS_SHIPPING_CENTS, freeShippingOverCents: COMPUTERS_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(COMPUTERS_COMMERCE) };
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
   } else if (content === "bookings" && id === "fitness") {
@@ -268,6 +273,10 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     // 211 Nova's devices, their storages, colours and warranties, their specs, its categories, its flash sale and code, trade-in and accessories.
     await demoMobilesProducts(entryDeps(deps, client.id), saved);
     await demoMobilesCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && id === COMPUTERS_DEMO) {
+    // 211 Nawah's products with their specs and options, its categories, Build your PC and the accessories, its hour deals and code.
+    await demoComputersProducts(entryDeps(deps, client.id), saved);
+    await demoComputersCommerce(entryDeps(deps, client.id), saved);
   }
   else if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
   // Studio's demos: a parcel company, food delivery from three restaurants, rides.

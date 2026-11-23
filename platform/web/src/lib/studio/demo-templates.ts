@@ -52,6 +52,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   clothes: "clothes_signature_a",
   // 211 Nova, the mobiles shop, is its Signature look A, NOVA (lib/studio/demo-designs/mobiles-signature.ts).
   mobiles: "mobiles_signature_a",
+  // 211 Nawah, computers and gaming, is its Signature look A, NAWAH (lib/studio/demo-designs/computers-signature.ts).
+  computers: "computers_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -116,6 +118,8 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   clothes: { surface: "#FFFFFF", nightSurface: "#191917", line: "#E4DFD6", nightLine: "#2E2C28", muted: "#5F5B55", nightMuted: "#B6B0A6" },
   // 211 Nova's, its look A's (lib/studio/demo-designs/mobiles-signature.ts NOVA_INK).
   mobiles: { surface: "#FFFFFF", nightSurface: "#15171C", line: "#E2E5EA", nightLine: "#262A31", muted: "#525864", nightMuted: "#AEB3BD" },
+  // 211 Nawah's, its look A's (lib/studio/demo-designs/computers-signature.ts NAWAH_INK).
+  computers: { surface: "#FFFFFF", nightSurface: "#14171D", line: "#E1E4E9", nightLine: "#242931", muted: "#4A5161", nightMuted: "#B4BAC6" },
 };
 
 /**
@@ -310,6 +314,14 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     lqBouquetTitle: { en: "Blush Garden", ar: "حديقة الورد", tr: "Pembe Bahçe" },
     lqBouquetLine: { en: "Blush roses, lisianthus and eucalyptus, made on the day it is delivered.", ar: "ورد وردي وليزيانثوس وأوكالبتوس، تُصنع في يوم توصيلها.", tr: "Pembe güller, lisianthus ve okaliptüs; teslim edildiği gün hazırlanır." },
   },
+  // 211 Nawah's own words where its looks leave the owner brackets: its services, its warranty and returns, how to reach it (lib/demo/computers.ts).
+  computers: {
+    pcServiceBuildText: { en: "Every build assembled and tested for 24 hours", ar: "كل تجميعة تُجمَّع وتُختبر 24 ساعة", tr: "Her toplama kurulur ve 24 saat test edilir" },
+    pcServiceWarrantyText: { en: "Up to 3 years, serviced in Jeddah", ar: "حتى 3 سنوات، والصيانة في جدة", tr: "3 yıla kadar, servis Cidde'de" },
+    pcServiceDeliveryText: { en: "Within a day in Jeddah, 2 to 3 days elsewhere", ar: "خلال يوم في جدة، ومن يومين إلى 3 أيام لغيرها", tr: "Cidde'de bir gün içinde, diğer şehirlere 2–3 gün" },
+    pcContactLine: { en: "Tech support every day, 10 am to midnight", ar: "دعم فني يوميًا من 10 صباحًا حتى منتصف الليل", tr: "Teknik destek her gün 10.00–24.00" },
+    pcWarrantyNote: { en: "Returns within 14 days, and up to 3 years of warranty on every device.", ar: "إرجاع خلال 14 يومًا، وضمان حتى 3 سنوات على كل جهاز.", tr: "14 gün içinde iade ve her cihazda 3 yıla kadar garanti." },
+  },
   // 208 Lujain's own words where its looks leave the owner brackets: its look, its drop, its promises and its exchanges (lib/demo/clothes.ts).
   clothes: {
     clLookName: { en: "Classic black with a soft touch", ar: "أسود كلاسيكي بلمسة ناعمة", tr: "Yumuşak dokunuşlu klasik siyah" },
@@ -395,4 +407,4 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
 }
 
 /** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
-const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", mobiles: "Nova" };
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", mobiles: "Nova", computers: "Nawah" };

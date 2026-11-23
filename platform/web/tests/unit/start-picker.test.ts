@@ -65,7 +65,7 @@ describe("the demos the page shows", () => {
       "Kuzey Culture Centre",
       "Bereket Food Bank",
     ]);
-    expect(studio.map((id) => DEMO_BRANDS[id].appName)).toEqual(["Ufuq Academy", "Rawaq Academy", "Sofra Eats", "Zad", "Sahm Express", "Masar Rides", "Lamha Taxi", "Nakhla School", "Safra", "Leqaa", "Lujain", "Nova"]);
+    expect(studio.map((id) => DEMO_BRANDS[id].appName)).toEqual(["Ufuq Academy", "Rawaq Academy", "Sofra Eats", "Zad", "Sahm Express", "Masar Rides", "Lamha Taxi", "Nakhla School", "Safra", "Leqaa", "Lujain", "Nova", "Nawah"]);
   });
 
   it("each have their own real screenshots, the first on their card", () => {
@@ -112,7 +112,7 @@ describe("the demos the page shows", () => {
     expect(sameBusiness("lms")).toEqual(["premium_academy", "instructors"]);
     // 131.20 Leqaa, the flower shop, is a shop too.
     // 208 And Lujain, the clothes shop.
-    expect(sameBusiness("store")).toEqual(["marketplace", "flowers", "clothes", "mobiles"]);
+    expect(sameBusiness("store")).toEqual(["marketplace", "flowers", "clothes", "mobiles", "computers"]);
     expect(sameBusiness("restaurant")).toEqual(["food"]);
     expect(sameBusiness("rides")).toEqual(["taxi"]);
     for (const id of ALL_DEMO_TYPES) expect(sameBusiness(id)).not.toContain(id);

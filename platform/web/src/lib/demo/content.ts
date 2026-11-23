@@ -396,6 +396,16 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["nova-home", "nova-menu", "nova-product"],
   },
+  // 211 Nawah, computers and gaming: a store in Studio, its two Signature looks, Build your PC, the filters by spec and the compare sheet.
+  computers: {
+    summary: "A computers and gaming shop in Jeddah: laptops, ready builds, monitors, the parts to build a PC, keyboards, headsets and controllers, each with its specifications. Build a PC part by part and the app checks that the parts fit; filter laptops by processor, memory and graphics, and compare them side by side. Its photos are CC0, from StockSnap.",
+    tryThis: [
+      "Tap Build your PC: choose a processor, then a motherboard, memory and a power supply, and see a part that doesn't fit say why",
+      "Filter by graphics card or memory, open a laptop, read its specifications and configure its memory and storage",
+      "Compare two builds side by side, check out with the shop's code, and switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["nawah-home", "nawah-menu", "nawah-product"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -828,6 +838,26 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "New and certified used phones, trade-in, watches and earbuds, delivered across Cairo.",
     fullDescription: `Nova sells phones and everything that goes with them: new phones in every storage and colour, certified used phones with their grade and battery health, tablets, smart watches, earbuds and headphones, chargers and cases.\n\nCompare two phones spec by spec, choose a local or an international warranty, and find out what your old phone is worth: send it as a trade-in and the shop calls you. Returns within 14 days.\n\n${PRIVACY_NOTE}`,
     welcome: "New and certified used phones, with trade-in for your old one.",
+  },
+  // 211 Nawah (نواة, "core"), computers and gaming: its look A's white and blue.
+  computers: {
+    appName: "Nawah",
+    shortName: "Nawah",
+    primaryColor: "#2F5BEA",
+    splashColor: "#F2F3F5",
+    secondaryColor: "#10131A",
+    template: "minimal",
+    font: "Manrope",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-computers",
+    banner: { picture: "banner-store", heading: "Computers, parts and gaming", subheading: "Laptops, ready builds and every part to build your own, delivered across Jeddah." },
+    androidPackage: "com.yallapp.demo.computers",
+    storeTitle: "Nawah Computers",
+    shortDescription: "Laptops, gaming builds, monitors and PC parts, with Build your PC and filters by spec.",
+    fullDescription: `Nawah sells computers and gaming gear: laptops, ready gaming builds and workstations, monitors, processors, motherboards, memory, graphics cards and every other part, keyboards, headsets and controllers.\n\nBuild your PC part by part and the app checks that every part fits the others: the socket, the memory type, the power and the size. Filter by processor, memory, storage and graphics card, read every product's specifications and compare them side by side. Returns within 14 days, and up to 3 years of warranty.\n\n${PRIVACY_NOTE}`,
+    welcome: "Laptops, builds and parts, with Build your PC at hand.",
   },
 };
 

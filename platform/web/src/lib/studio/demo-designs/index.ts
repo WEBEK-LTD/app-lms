@@ -30,6 +30,8 @@ import { LEQAA_A, LEQAA_B } from "./leqaa-signature";
 import { LUJAIN_A, NOUN_B } from "./clothes-signature";
 // 211 Nova, the mobiles shop: A NOVA ink and cobalt, B emerald on stone.
 import { EMERALD_B, NOVA_A } from "./mobiles-signature";
+// 211 Nawah, computers and gaming: A NAWAH white and blue, B SILICA green on stone.
+import { NAWAH_A, SILICA_B } from "./computers-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -169,6 +171,8 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   clothes: { a: LUJAIN_A, b: NOUN_B },
   // 211 Nova, the mobiles shop (a store): A NOVA's ink and cobalt, B emerald on warm stone.
   mobiles: { a: NOVA_A, b: EMERALD_B },
+  // 211 Nawah, computers and gaming (a store): A NAWAH in white and one strong blue, B SILICA in deep green on stone.
+  computers: { a: NAWAH_A, b: SILICA_B },
 };
 
 /** A look with its demo's own tabs when it has none of its own. */

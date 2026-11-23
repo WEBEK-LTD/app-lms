@@ -20,6 +20,8 @@ import { CLOTHES_SECTIONS } from "./demo-designs/clothes-signature";
 // 211 Nova's sections.
 import { MOBILES_SECTIONS } from "./demo-designs/mobiles-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
+// 211 Nawah's sections (Build your PC, the spec filters, ready builds, the device of the week).
+import { COMPUTERS_SECTIONS } from "./demo-designs/computers-signature";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -320,7 +322,9 @@ export type SectionWord =
   | Extract<AppWord, `cl${string}`>
   | "installmentsSoon"
   // 211 Nova's looks, pages and sections (lib/studio/demo-designs/mobiles-signature.ts).
-  | Extract<AppWord, `mb${string}`>;
+  | Extract<AppWord, `mb${string}`>
+  // 211 Nawah's looks, pages and sections (lib/studio/demo-designs/computers-signature.ts).
+  | Extract<AppWord, `pc${string}`>;
 
 export interface SectionContext {
   brand: string;
@@ -1114,6 +1118,8 @@ export const SECTIONS: readonly SectionInfo[] = [
   INSTALLMENTS_SECTION,
   // 211 The mobiles type's parts (trade-in, compare, by storage, certified used, accessories, brands, bundle, numbers).
   ...MOBILES_SECTIONS,
+  // 211 The computers type's parts: Build your PC, the spec filters, ready builds compared, the device of the week, the services.
+  ...COMPUTERS_SECTIONS,
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,
 ];
