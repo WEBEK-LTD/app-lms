@@ -207,7 +207,6 @@
         "id": "sig-2",
         "type": "row",
         "name": "Nova",
-        "pin": "top",
         "gap": 8,
         "cross": "center",
         "padding": {
@@ -2625,7 +2624,7 @@
    "dark_active": "#FF2D55",
    "inactive": "#5E6470",
    "dark_inactive": "#A3A8B3",
-   "design": "folder",
+   "design": "segment",
    "labels": "always"
   }
  }

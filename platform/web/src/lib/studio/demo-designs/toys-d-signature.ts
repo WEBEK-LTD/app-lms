@@ -341,7 +341,7 @@ function sageBand(ctx: SectionContext): StudioNode {
 
 // ——— The home ———
 
-/** The home's own header, made of elements and pinned on top: the menu, the wordmark centred over its quiet line, the bag, a hairline under them. */
+/** The home's own header, made of elements, first on the page: the menu, the wordmark centred over its quiet line, the bag, a hairline under them. */
 function topBar(ctx: SectionContext): StudioNode {
   const id = idOf(ctx);
   const icon = (name: string, action: Action): StudioNode => ({ id: id(), type: "row", width: 40, height: 40, align: "center", cross: "center", action, children: [{ id: id(), type: "icon", icon: name, icon_size: 24, color: K.ink, dark_color: K.darkInk }] });
@@ -349,7 +349,6 @@ function topBar(ctx: SectionContext): StudioNode {
     id: id(),
     type: "column",
     name: ctx.w("tyWordmark"),
-    pin: "top",
     gap: 0,
     background: K.page,
     dark_background: K.darkPage,

@@ -251,7 +251,7 @@ function lineup(ctx: SectionContext): StudioNode {
 
 // ——— The home ———
 
-/** The home's own header, made of elements and pinned on top of the stage: thin icons and a tiny spaced wordmark, silver on black. */
+/** The home's own header, made of elements, first on the page of the stage: thin icons and a tiny spaced wordmark, silver on black. */
 function topBar(ctx: SectionContext): StudioNode {
   const id = idOf(ctx);
   const icon = (name: string, action: Action): StudioNode => ({ id: id(), type: "row", width: 40, height: 40, align: "center", cross: "center", action, children: [{ id: id(), type: "icon", icon: name, icon_size: 22, ...silver }] });
@@ -259,7 +259,6 @@ function topBar(ctx: SectionContext): StudioNode {
     id: id(),
     type: "row",
     name: ctx.w("mbWordmark"),
-    pin: "top",
     gap: 8,
     cross: "center",
     padding: sides(4, 14, 4, 14),

@@ -29,7 +29,7 @@ how-to-play cards, a names-only bar), Nova C the keynote (one phone on a
 black stage, its colours, specs one per row, compare, the trade-in on a dark
 card, a small dock) and Nova D the deals hub (category chips, today's deals
 on hot pink, a dense grid of three with "Installments coming soon", the
-compare tray and page, a pink folder-tab bar). Light and dark, Arabic, English and
+compare tray and page, a pink segmented bar). Light and dark, Arabic, English and
 Turkish, built only from Studio's elements; A and B stay as extra templates.
 Not yet: the app draws a node's own font family only when it is the
 project's main or Arabic font (Toot C's Lalezar headings show in Rubik).

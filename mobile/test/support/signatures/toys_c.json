@@ -203,7 +203,6 @@
         "id": "sig-2",
         "type": "row",
         "name": "Toot",
-        "pin": "top",
         "gap": 10,
         "cross": "center",
         "padding": {

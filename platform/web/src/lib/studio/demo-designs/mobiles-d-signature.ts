@@ -213,7 +213,7 @@ function storage(ctx: SectionContext): StudioNode {
 
 // ——— The home ———
 
-/** The home's own header, made of elements and pinned on top: a square menu button, the shop's search filling the row, a pink compare button. */
+/** The home's own header, made of elements, first on the page: a square menu button, the shop's search filling the row, a pink compare button. */
 function topBar(ctx: SectionContext): StudioNode {
   const id = idOf(ctx);
   const square = (icon: string, action: Action, hot = false): StudioNode => ({ id: id(), type: "row", width: 44, height: 44, radius: 10, align: "center", cross: "center", action, ...(hot ? { background: HOT, dark_background: HOT } : { background: K.surface, dark_background: K.darkSurface }), children: [{ id: id(), type: "icon", icon, icon_size: 22, ...(hot ? white : { color: K.ink, dark_color: K.darkInk }) }] });
@@ -221,7 +221,6 @@ function topBar(ctx: SectionContext): StudioNode {
     id: id(),
     type: "row",
     name: ctx.w("mbWordmark"),
-    pin: "top",
     gap: 8,
     cross: "center",
     padding: sides(6, 12, 8, 12),
@@ -405,8 +404,8 @@ const HUB_SCREENS = signatureScreens({
   first: ["orders", "wishlist", "notifications", "settings", "help", "privacy", "terms"],
 });
 
-/** The bar: across the bottom on white, the open tab a hot pink folder tab rising from it. */
-export const HUB_BAR = signatureBar(K, { design: "folder", background: K.page, dark_background: K.darkPage, active: HOT, dark_active: HOT, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always" });
+/** The bar: a segmented track across the bottom, the open tab a hot pink segment. */
+export const HUB_BAR = signatureBar(K, { design: "segment", background: K.page, dark_background: K.darkPage, active: HOT, dark_active: HOT, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always" });
 
 export const HUB_D: SignatureDesign = {
   demo: "mobiles",

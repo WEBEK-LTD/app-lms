@@ -498,7 +498,7 @@ function safe(ctx: SectionContext): StudioNode {
 
 // ——— The home ———
 
-/** The home's own header, made of elements and pinned on top: a chunky menu button (the category menu), the wordmark in Lalezar, a chunky yellow bag. */
+/** The home's own header, made of elements, first on the page: a chunky menu button (the category menu), the wordmark in Lalezar, a chunky yellow bag. */
 function topBar(ctx: SectionContext): StudioNode {
   const id = idOf(ctx);
   const button = (icon: string, action: Action, fill: { day: string; night: string }, dark = false): StudioNode =>
@@ -507,7 +507,6 @@ function topBar(ctx: SectionContext): StudioNode {
     id: id(),
     type: "row",
     name: ctx.w("tyWordmark"),
-    pin: "top",
     gap: 10,
     cross: "center",
     padding: sides(6, 16, 10, 16),

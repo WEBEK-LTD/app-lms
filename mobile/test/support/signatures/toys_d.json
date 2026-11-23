@@ -203,7 +203,6 @@
         "id": "sig-2",
         "type": "column",
         "name": "Toot",
-        "pin": "top",
         "gap": 0,
         "background": "#F3EDE3",
         "dark_background": "#1A1612",

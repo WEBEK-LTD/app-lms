@@ -199,7 +199,6 @@
         "id": "sig-2",
         "type": "row",
         "name": "Nova",
-        "pin": "top",
         "gap": 8,
         "cross": "center",
         "padding": {
