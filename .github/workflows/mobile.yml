@@ -287,11 +287,14 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       # The same Xcode as the clients' iPhone builds (build-apps.yml).
-      - name: Use Xcode 27
+      - name: Use the newest Xcode (27 or later)
         run: |
-          xcode=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
-          if [ -z "$xcode" ]; then
-            echo "::error::This runner has no released Xcode 27 (a beta does not count)."
+          # The newest released Xcode on the runner (a beta or release candidate
+          # never counts), and never older than 27.
+          xcode=$(ls -d /Applications/Xcode_[0-9]*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
+          major=$(basename "$xcode" .app | sed -E 's/^Xcode_([0-9]+).*/\1/')
+          if [ -z "$xcode" ] || [ "${major:-0}" -lt 27 ]; then
+            echo "::error::This runner has no released Xcode 27 or later (a beta does not count)."
             ls -d /Applications/Xcode*.app
             exit 1
           fi

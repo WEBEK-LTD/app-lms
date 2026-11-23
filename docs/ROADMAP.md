@@ -4714,5 +4714,5 @@ Apple's upload notice ITMS-90725 (23 November, on Yallapp Business 1.0.5): apps 
 
 | Status | Item | Tests |
 |---|---|---|
-| [x] | 219.1 Every job that builds for iPhone runs on GitHub's `xcode-27` runner and picks the newest released Xcode 27 on it (a beta or release candidate never counts; with none, the job stops and lists the Xcodes it found): the clients' builds (`build-apps.yml`), Yallapp Business and Yallapp Courier releases, and CI's iOS compiles (`mobile.yml`) | CI's iOS compile jobs on this change |
+| [x] | 219.1 Every job that builds for iPhone runs on GitHub's `xcode-27` runner and picks the newest released Xcode on it, never older than 27 (a beta or release candidate never counts; with none, the job stops and lists the Xcodes it found): the clients' builds (`build-apps.yml`), Yallapp Business and Yallapp Courier releases, and CI's iOS compiles (`mobile.yml`) | CI's iOS compile jobs on this change |
 | [ ] | 219.2 The first signed builds on Xcode 27: the next Yallapp Business release, then a client's build, reach TestFlight without the ITMS-90725 notice | — |
