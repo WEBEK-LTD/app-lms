@@ -16,6 +16,8 @@ export interface CategoryRow {
   names?: Record<string, string> | null;
   count: number;
   image: string | null;
+  /** 206 The main category it is inside; null: a main category. */
+  parentId?: number | null;
 }
 
 const TINTS = ["bg-tile-1", "bg-tile-2", "bg-tile-3", "bg-tile-4", "bg-tile-5"];
@@ -25,7 +27,7 @@ const TINTS = ["bg-tile-1", "bg-tile-2", "bg-tile-3", "bg-tile-4", "bg-tile-5"];
  * with the arrow keys and buttons) into place, renamed where they are, with
  * their products' count (a link to them) and the first one's photo.
  */
-export function CategoriesList({ categories, restaurant }: { categories: CategoryRow[]; restaurant: boolean }) {
+export function CategoriesList({ categories, restaurant, subs = false }: { categories: CategoryRow[]; restaurant: boolean; /** 206 A store's: each category may sit inside a main one. */ subs?: boolean }) {
   const t = useDashT();
   const kind = restaurant ? "restaurant" : "shop";
   const [saving, start] = useTransition();
@@ -76,6 +78,22 @@ export function CategoriesList({ categories, restaurant }: { categories: Categor
                   <Icon name="warning" size={16} />
                   {t("shop.categoryDuplicate")}
                 </span>
+              ) : null}
+              {/* 206 Inside a main category (a store's sub-categories, one level deep): never itself, nor one that has its own. */}
+              {subs ? (
+                <label className="flex min-w-0 items-center gap-2 text-[13px] font-semibold text-muted">
+                  {t("shopTypes.parent")}
+                  <select name="parent" defaultValue={c.parentId ?? ""} disabled={categories.some((o) => o.parentId === c.id)} onChange={(e) => e.currentTarget.form?.requestSubmit()} className="input input-sm min-w-0 flex-1 font-normal" data-category-parent="">
+                    <option value="">{t("shopTypes.parentNone")}</option>
+                    {categories
+                      .filter((o) => o.id !== c.id && !o.parentId)
+                      .map((o) => (
+                        <option key={o.id} value={o.id}>
+                          {o.name}
+                        </option>
+                      ))}
+                  </select>
+                </label>
               ) : null}
               {/* 175 Its names in the app's other languages, served to customers in theirs. */}
               <details className="group text-[13px]" open={Boolean(c.names?.ar || c.names?.tr)}>

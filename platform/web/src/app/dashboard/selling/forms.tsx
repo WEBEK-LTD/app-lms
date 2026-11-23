@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { saveFashionAction } from "@/app/actions/selling";
 import { saveAddonsAction, saveAreasAction, saveBouquetAction, saveCheckoutModeAction, saveDeliveryAction, saveFlashSaleAction, saveGiftsAction, saveOccasionAction, addOccasionAction, saveTemplateAction, saveTitlesAction } from "@/app/actions/selling";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { FormActions } from "@/components/page-kit";
@@ -558,6 +559,49 @@ export function BouquetForm({ values: saved, categories, addons, platform }: { v
       <div className="flex justify-end">
         <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
           {t("selling.saveBouquet")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/**
+ * 206 A clothes shop's parts: the size chart (rows of cells separated by |,
+ * its first line the titles, its titles in the app's other languages) and
+ * "Complete the look" on every product's page.
+ */
+export function FashionForm({ values: saved, langs }: { values: Record<string, string>; langs: { code: string; name: string }[] }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveFashionAction, initialFormState);
+  const v = { ...saved, ...state.values };
+  const e = state.errors ?? {};
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" data-fashion-form="">
+      <FormMessage message={state.message} ok={state.ok} />
+      <label className="flex flex-col gap-1.5 text-sm font-semibold">
+        {t("shopTypes.fashionChart")}
+        <textarea name="fashionChart" rows={7} dir="ltr" defaultValue={v.fashionChart ?? ""} aria-invalid={e.fashionChart ? true : undefined} aria-describedby="f-fashionChart-hint" className="input min-h-[150px] py-2 font-mono text-[13px] font-normal" />
+        <span id="f-fashionChart-hint" className="text-[13px] font-normal text-muted">
+          {t("shopTypes.fashionChartHint")}
+        </span>
+        <FieldError id="f-fashionChart-error" error={e.fashionChart} />
+      </label>
+      <fieldset className="m-0 flex flex-wrap gap-4 border-0 p-0">
+        <legend className="mb-1.5 text-sm font-semibold">{t("shopTypes.fashionUnit")}</legend>
+        {(["cm", "in"] as const).map((unit) => (
+          <label key={unit} className="flex cursor-pointer items-center gap-2 text-sm">
+            <input type="radio" name="fashionUnit" value={unit} defaultChecked={(v.fashionUnit === "in" ? "in" : "cm") === unit} className="h-4 w-4 accent-midnight" />
+            {t(unit === "cm" ? "shopTypes.fashionCm" : "shopTypes.fashionIn")}
+          </label>
+        ))}
+      </fieldset>
+      {langs.map((l) => (
+        <Field key={l.code} label={t("shopTypes.fashionTitlesIn", { language: l.name })} name={`fashionTitles_${l.code}`} dir={l.code === "ar" ? "rtl" : "ltr"} defaultValue={v[`fashionTitles_${l.code}`]} hint={t("shopTypes.fashionTitlesHint")} error={e[`fashionTitles_${l.code}`]} small />
+      ))}
+      <Check name="completeLook" label={t("shopTypes.fashionLook")} hint={t("shopTypes.fashionLookHint")} defaultChecked={v.completeLook === "on"} />
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("shopTypes.fashionSave")}
         </SubmitButton>
       </div>
     </form>

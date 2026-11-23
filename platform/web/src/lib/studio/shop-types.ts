@@ -1,3 +1,4 @@
+import type { IconName } from "../../components/icon-names";
 import { CLOTHES_DEMO, type StudioDemoId } from "../demo/constants";
 
 /**
@@ -32,7 +33,7 @@ export interface ShopType {
   id: ShopTypeId;
   /** The sections it is listed in, the first its own (kids' clothes is in Fashion and in Kids & toys, the same type). */
   sections: readonly ShopSection[];
-  icon: string;
+  icon: IconName;
   /** Its Studio demo (its looks, products and photos); missing: coming soon. */
   demo?: StudioDemoId;
   liability: LiabilityKind;

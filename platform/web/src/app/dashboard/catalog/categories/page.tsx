@@ -31,7 +31,7 @@ export default async function CatalogCategoriesPage() {
   const rows: CategoryRow[] = categories.map((c) => {
     const inIt = products.filter((p) => p.categoryIds.includes(c.id));
     const pictured = inIt.find((p) => p.imageAssetIds.length > 0);
-    return { id: c.id, name: c.name, names: c.names ?? null, count: inIt.length, image: pictured ? assetUrl(pictured.imageAssetIds[0]!) : null };
+    return { id: c.id, name: c.name, names: c.names ?? null, count: inIt.length, image: pictured ? assetUrl(pictured.imageAssetIds[0]!) : null, parentId: c.parentId ?? null };
   });
   const without = products.filter((p) => p.categoryIds.length === 0).length;
   return (
@@ -43,10 +43,11 @@ export default async function CatalogCategoriesPage() {
           <h2 id="h-categories" className="m-0 text-lg font-bold">
             {t("manage.categoriesCount", { count: categories.length })}
           </h2>
-          <AddCategoryForm />
+          {/* 206 A new category inside a main one (a store's, not a restaurant's menu). */}
+          <AddCategoryForm mains={restaurant ? [] : categories.filter((c) => !c.parentId).map((c) => ({ id: c.id, name: c.name }))} />
         </div>
         {rows.length ? (
-          <CategoriesList categories={rows} restaurant={restaurant} />
+          <CategoriesList categories={rows} restaurant={restaurant} subs={!restaurant} />
         ) : (
           <div className="px-5 pb-6 sm:px-6">
             <EmptyState icon="category" title={t("manage.noCategories")}>

@@ -37,6 +37,10 @@ export const en = {
   text_electronics: "Specs, warranty, options and matching accessories.",
   text_mobiles: "Storage and colour, new or used, and warranty.",
   text_computers: "Filter by CPU, RAM, storage and GPU.",
+  demo_flowers: "Flowers & gifts",
+  demo_marketplace: "Multi-vendor market",
+  demoText_flowers: "Bouquets for every occasion, delivery days and slots, and the gift checkout.",
+  demoText_marketplace: "Many shops and restaurants in one app, with their couriers.",
   // The liability notice, shown once.
   noticeTitle: "Before you start: your shop is yours",
   noticeIntro: "Yallapp makes the app; you run the shop. You are fully responsible for your app and what it sells.",
@@ -66,6 +70,12 @@ export const en = {
   parentNone: "A main category",
   parentHint: "A sub-category shows in its main category's row in the category menu.",
   parentOf: "In {name}",
+  known: {
+    // lib/selling/fashion.ts
+    fashionChart: "Write the size chart as rows of cells separated by |, its first line the column titles.",
+    fashionColumns: "Every row of the size chart needs as many cells as its titles.",
+    fashionLong: "A size chart has at most 8 columns and 24 rows, each cell at most 24 characters.",
+  },
 };
 
 type Messages = Strings<typeof en>;
@@ -100,6 +110,10 @@ export const ar: Messages = {
   text_electronics: "المواصفات، والضمان، والاختيارات، والإكسسوارات المناسبة.",
   text_mobiles: "المساحة واللون، جديد أو مستعمل، والضمان.",
   text_computers: "فلترة بالبروسيسور والرامات والمساحة وكارت الشاشة.",
+  demo_flowers: "ورد وهدايا",
+  demo_marketplace: "سوق متعدد البايعين",
+  demoText_flowers: "بوكيهات لكل مناسبة، وأيام ومواعيد التوصيل، والدفع كهدية.",
+  demoText_marketplace: "محلات ومطاعم كتير في تطبيق واحد، ومعاهم المناديب.",
   noticeTitle: "قبل ما تبدأ: المتجر متجرك",
   noticeIntro: "Yallapp بيعمل التطبيق، وإنت اللي بتدير المتجر. إنت مسؤول مسؤولية كاملة عن تطبيقك وعن اللي بيبيعه.",
   notice_general: "إنت مسؤول عن منتجاتك ووصفها وأسعارها، وعن الإرجاع والاستبدال، وعن إنك تمشي على قوانين بلدك.",
@@ -116,7 +130,7 @@ export const ar: Messages = {
   fashionUnit: "الوحدة",
   fashionCm: "سنتي",
   fashionIn: "بوصة",
-  fashionTitlesIn: "العناوين بال{language}",
+  fashionTitlesIn: "العناوين ({language})",
   fashionTitlesHint: "سطر واحد، بعدد خانات العناوين. لو فاضي: العناوين اللي فوق.",
   fashionLook: "كمّل الإطلالة",
   fashionLookHint: "تحت كل منتج، منتج من كل قسم رئيسي تاني عندك (جزمة وشنطة وإكسسوار مع الفستان).",
@@ -126,6 +140,11 @@ export const ar: Messages = {
   parentNone: "قسم رئيسي",
   parentHint: "القسم الفرعي بيظهر في صف القسم الرئيسي بتاعه في قايمة الأقسام.",
   parentOf: "في {name}",
+  known: {
+    fashionChart: "اكتب جدول المقاسات صفوف من خانات بينها |، وأول سطر فيه عناوين الأعمدة.",
+    fashionColumns: "كل صف في جدول المقاسات لازم يبقى فيه نفس عدد خانات العناوين.",
+    fashionLong: "جدول المقاسات أقصاه 8 أعمدة و24 صف، وكل خانة أقصاها 24 حرف.",
+  },
 };
 
 export const tr: Messages = {
@@ -158,6 +177,10 @@ export const tr: Messages = {
   text_electronics: "Özellikler, garanti, seçenekler ve uyumlu aksesuarlar.",
   text_mobiles: "Depolama ve renk, yeni ya da ikinci el, garanti.",
   text_computers: "İşlemci, RAM, depolama ve ekran kartına göre filtre.",
+  demo_flowers: "Çiçek ve hediye",
+  demo_marketplace: "Çok satıcılı pazar",
+  demoText_flowers: "Her vesileye buketler, teslim günleri ve saatleri, hediye ödemesi.",
+  demoText_marketplace: "Tek uygulamada birçok mağaza ve restoran, kuryeleriyle.",
   noticeTitle: "Başlamadan önce: mağazanız sizin",
   noticeIntro: "Uygulamayı Yallapp yapar, mağazayı siz yönetirsiniz. Uygulamanızdan ve sattıklarından tamamen siz sorumlusunuz.",
   notice_general: "Ürünlerinizden, açıklamalarından ve fiyatlarından, iade ve değişimlerinizden ve ülkenizin yasalarına uymaktan siz sorumlusunuz.",
@@ -174,7 +197,7 @@ export const tr: Messages = {
   fashionUnit: "Birim",
   fashionCm: "cm",
   fashionIn: "inç",
-  fashionTitlesIn: "{language} başlıklar",
+  fashionTitlesIn: "Başlıklar ({language})",
   fashionTitlesHint: "Tek satır, başlıklar kadar hücre. Boş: yukarıdaki başlıklar.",
   fashionLook: "Görünümü tamamla",
   fashionLookHint: "Her ürünün altında, diğer ana kategorilerinizin her birinden bir ürün (elbiseyle ayakkabı, çanta, aksesuar).",
@@ -184,4 +207,9 @@ export const tr: Messages = {
   parentNone: "Ana kategori",
   parentHint: "Bir alt kategori, kategori menüsünde ana kategorisinin sırasında görünür.",
   parentOf: "{name} içinde",
+  known: {
+    fashionChart: "Beden tablosunu | ile ayrılmış hücre satırları olarak yazın, ilk satır sütun başlıkları.",
+    fashionColumns: "Beden tablosunun her satırında başlıklar kadar hücre olmalı.",
+    fashionLong: "Bir beden tablosu en fazla 8 sütun ve 24 satırdır, her hücre en fazla 24 karakter.",
+  },
 };

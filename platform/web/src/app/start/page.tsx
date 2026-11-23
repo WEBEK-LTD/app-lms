@@ -10,6 +10,9 @@ import type { DemoId } from "@/lib/demo/constants";
 import { demoLoop } from "@/lib/demo/loops";
 import { pickerPath, pickerSections } from "@/lib/demo/picker";
 import { cardWords, demoScreens, lookShots, Phone, PickerShell, ProductBadge, STUDIO, tintStyle } from "./parts";
+import { Icon } from "@/components/icon";
+import type { DashKey } from "@/i18n/dashboard";
+import { SECTION_DEMOS, SHOP_SECTIONS, SHOP_TYPES, shopTypesIn } from "@/lib/studio/shop-types";
 import { PickerFilter, type PickerShow } from "./filter";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -139,7 +142,8 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
         </span>
       </div>
       <ul className="m-0 grid list-none gap-[18px] p-0 [grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr))]">
-        {ids.map((id) => {
+        {/* 206 A shop type's demo is in its section below. */}
+        {ids.filter((id) => !SHOP_TYPES.some((t) => t.demo === id)).map((id) => {
           const words = cardWords(text, id);
           const shot = demoScreens(text, id)[0]!;
           // 130 Its two Signature looks: look A (the demo, its loop playing) in front, look B beside it.
@@ -177,10 +181,84 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
           );
         })}
       </ul>
+      <ShopTypes text={text} adding={adding} />
       <Link href="/studio/new" className="self-start text-sm font-semibold underline-offset-2 hover:underline" style={{ color: STUDIO.gold }}>
         {t("start.emptyStudio")}
       </Link>
     </section>
+  );
+}
+
+/**
+ * 206 Studio's shop types by section (lib/studio/shop-types.ts): section,
+ * then type, then its looks A and B on the type's page (/start/<demo>); a
+ * type still being made shows as coming soon, never a link. The shops
+ * Studio already has that belong to a section (the flower shop, the
+ * marketplace) follow its types.
+ */
+function ShopTypes({ text, adding }: { text: DashboardText; adding: boolean }) {
+  const { t } = text;
+  return (
+    <div className="flex flex-col gap-5 pt-2" data-shop-types="" style={{ borderTop: `1px solid ${STUDIO.line}` }}>
+      <div className="flex flex-col gap-1 pt-3">
+        <h3 className="m-0 text-[22px] font-extrabold tracking-[-0.01em]">{t("shopTypes.title")}</h3>
+        <p className="m-0 text-[15px]" style={{ color: STUDIO.muted }}>
+          {t("shopTypes.text")}
+        </p>
+      </div>
+      {SHOP_SECTIONS.map((section) => (
+        <div key={section} className="flex flex-col gap-2.5" data-shop-section={section}>
+          <h4 className="m-0 text-[13px] font-extrabold tracking-[0.08em] uppercase" style={{ color: STUDIO.gold }}>
+            {t(`shopTypes.section_${section}`)}
+          </h4>
+          <ul className="m-0 grid list-none gap-3 p-0 [grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr))]">
+            {shopTypesIn(section).map((type) => {
+              const inner = (
+                <>
+                  <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl" style={{ background: STUDIO.tile, color: STUDIO.gold }}>
+                    <Icon name={type.icon} size={22} />
+                  </span>
+                  <span className="flex min-w-0 flex-col gap-0.5">
+                    <span className="text-[15px] font-bold">{t(`shopTypes.type_${type.id}` as DashKey)}</span>
+                    <span className="text-[13px] leading-[1.35]" style={{ color: STUDIO.muted }}>
+                      {type.demo ? t("shopTypes.looks") : t("shopTypes.soon")}
+                    </span>
+                  </span>
+                </>
+              );
+              return (
+                <li key={type.id} className="flex">
+                  {type.demo ? (
+                    <Link href={pickerPath({ demo: type.demo, adding })} data-shop-type={type.id} data-demo={type.demo} className="flex w-full items-center gap-3 rounded-[18px] p-3.5 no-underline" style={{ background: STUDIO.card, border: `1px solid ${STUDIO.goldLine}`, color: STUDIO.text }}>
+                      {inner}
+                    </Link>
+                  ) : (
+                    <span data-shop-type={type.id} data-soon="" aria-disabled="true" className="flex w-full items-center gap-3 rounded-[18px] p-3.5 opacity-60" style={{ border: `1px dashed ${STUDIO.cardLine}`, color: STUDIO.text }}>
+                      {inner}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+            {(SECTION_DEMOS[section] ?? []).map((demo) => (
+              <li key={demo} className="flex">
+                <Link href={pickerPath({ demo, adding })} data-demo={demo} className="flex w-full items-center gap-3 rounded-[18px] p-3.5 no-underline" style={{ background: STUDIO.card, border: `1px solid ${STUDIO.cardLine}`, color: STUDIO.text }}>
+                  <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl" style={{ background: STUDIO.tile, color: STUDIO.gold }}>
+                    <Icon name={demo === "flowers" ? "local_florist" : "storefront"} size={22} />
+                  </span>
+                  <span className="flex min-w-0 flex-col gap-0.5">
+                    <span className="text-[15px] font-bold">{t(`shopTypes.demo_${demo}` as DashKey)}</span>
+                    <span className="text-[13px] leading-[1.35]" style={{ color: STUDIO.muted }}>
+                      {t(`shopTypes.demoText_${demo}` as DashKey)}
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
   );
 }
 

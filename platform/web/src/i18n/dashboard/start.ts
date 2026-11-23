@@ -58,6 +58,7 @@ export const en = {
     school: { name: "School", line: "Parents, teachers, classes, fees and the bus" },
     travel: { name: "Hotels and flights", line: "Stays, your own flights and both as one trip" },
     flowers: { name: "Flower shop", line: "Bouquets, delivery days and a gift checkout" },
+    clothes: { name: "Clothes shop", line: "Sizes and colours, the category menu and complete the look" },
   },
   business: {
     teaching: "Teaching and courses",
@@ -246,6 +247,7 @@ export const ar: Messages = {
     school: { name: "مدرسة", line: "أولياء أمور ومدرسين وفصول ومصاريف والباص" },
     travel: { name: "فنادق وطيران", line: "إقامة وطياراتك وجوه رحلة واحدة" },
     flowers: { name: "محل ورد", line: "بوكيهات ومواعيد توصيل ودفع كهدية" },
+    clothes: { name: "محل هدوم", line: "مقاسات وألوان، وقايمة الأقسام، وكمّل الإطلالة" },
   },
   business: {
     teaching: "تعليم وكورسات",
@@ -430,6 +432,7 @@ export const tr: Messages = {
     school: { name: "Okul", line: "Veliler, öğretmenler, sınıflar, ücretler ve servis" },
     travel: { name: "Otel ve uçuş", line: "Konaklama, kendi uçuşlarınız ve ikisi tek seyahatte" },
     flowers: { name: "Çiçekçi", line: "Buketler, teslimat günleri ve hediye ödemesi" },
+    clothes: { name: "Giyim mağazası", line: "Beden ve renkler, kategori menüsü ve görünümü tamamla" },
   },
   business: {
     teaching: "Eğitim ve kurslar",

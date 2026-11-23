@@ -18,6 +18,7 @@ import { shopZone, zoneOffsetMinutes } from "@/lib/selling/zone";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { langTextOfForm, parseAddonSettings } from "@/lib/selling/addons";
 import { parseBouquetForm } from "@/lib/selling/bouquet";
+import { parseFashionForm } from "@/lib/selling/fashion";
 
 /**
  * 131 Store › Delivery & offers (app/dashboard/selling): the checkout, the
@@ -293,6 +294,19 @@ export async function saveBouquetAction(_: FormState, formData: FormData): Promi
   if (!parsed.ok) return { errors: parsed.errors, values: v };
   await saveSettings(context.app, { bouquet: parsed.value });
   await recordStaffChange(context, parsed.value ? "Changed Build your bouquet" : "Turned off Build your bouquet");
+  refresh();
+  return { ok: true, message: "Saved.", values: v };
+}
+
+/** 206 A clothes shop's size chart (with its titles in the app's other languages) and "Complete the look". */
+export async function saveFashionAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireStoreApp();
+  const v = values(formData);
+  const languages = await appLanguagesOf(await getStore(), context.app);
+  const parsed = parseFashionForm(v, languages.available.filter((l) => l !== languages.default));
+  if (!parsed.ok) return { errors: parsed.errors, values: v };
+  await saveSettings(context.app, { fashion: parsed.value });
+  await recordStaffChange(context, parsed.value ? "Changed the size chart and Complete the look" : "Turned off the size chart and Complete the look");
   refresh();
   return { ok: true, message: "Saved.", values: v };
 }

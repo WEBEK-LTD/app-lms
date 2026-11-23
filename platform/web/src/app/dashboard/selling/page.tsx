@@ -33,7 +33,8 @@ import { appLanguagesOf, platformCarriesDetails } from "@/lib/selling/store";
 import { localInput, shopZone } from "@/lib/selling/zone";
 import { checkoutLookOf } from "@/lib/studio/checkout-look";
 import { CouponForm } from "../catalog/forms";
-import { AddonsForm, AreasForm, BouquetForm, CheckoutModeForm, DeliveryForm, FlashSaleForm, GiftsForm, TitlesForm } from "./forms";
+import { AddonsForm, AreasForm, BouquetForm, CheckoutModeForm, DeliveryForm, FashionForm, FlashSaleForm, GiftsForm, TitlesForm } from "./forms";
+import { chartText, fashionOf } from "@/lib/selling/fashion";
 import type { AreasStart } from "./pickers";
 import { SellingTabs } from "./tabs";
 
@@ -193,6 +194,14 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
     ...Object.fromEntries(Object.entries(s.titles ?? {}).map(([code, text]) => [`title_${code}`, text])),
   });
   const otherLangs = langs.filter((l) => l.code !== languages.default);
+  // 206 The size chart and Complete the look as saved (the form's values).
+  const fashion = fashionOf(app);
+  const fashionValues: Record<string, string> = {
+    fashionChart: chartText(fashion?.sizeChart ?? null),
+    fashionUnit: fashion?.sizeChart?.unit ?? "cm",
+    completeLook: fashion?.completeLook ? "on" : "",
+    ...Object.fromEntries(Object.entries(fashion?.sizeChart?.translations ?? {}).map(([code, titles]) => [`fashionTitles_${code}`, titles.join(" | ")])),
+  };
   // 131 A flash sale's list never has a gift add-on.
   // 132.186 Each with its picture and price, so the owner knows it at a glance.
   const pictureOf = (p: { imageAssetIds: string[] }) => (p.imageAssetIds[0] ? assetUrl(p.imageAssetIds[0]) : null);
@@ -209,6 +218,8 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
     { id: "gifts", label: t("manage.giftsTab") },
     ...(titled ? [{ id: "addons", label: t("selling.addonsTitle") }] : []),
     ...(hosted ? [{ id: "bouquet", label: t("selling.bouquetTitle") }] : []),
+    // 206 A clothes shop's size chart and Complete the look (the products kept in Yallapp).
+    ...(source.kind === "catalog" ? [{ id: "fashion", label: t("shopTypes.fashionTab") }] : []),
     ...(offers ? [{ id: "flash", label: t("manage.offersTab"), count: sales.length }] : []),
     ...(platform ? [{ id: "deliveries", label: t("selling.deliveriesTitle"), count: deliveries.length }] : []),
   ];
@@ -642,6 +653,17 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
                 categories={source.kind === "catalog" ? categories.map((c) => ({ id: c.id, name: c.name })) : null}
                 addons={source.kind === "catalog" ? ownAddons.map((p) => ({ id: p.id, name: p.name, image: pictureOf(p), price: money(p.salePriceCents ?? p.priceCents) })) : null}
               />
+            </KitSection>
+          </KitTabPanel>
+        ) : null}
+        {source.kind === "catalog" ? (
+          <KitTabPanel tab="fashion">
+            {/* 206 The size chart and Complete the look. */}
+            <KitSection titleId="h-fashion" title={t("shopTypes.fashionTab")} description={t("shopTypes.fashionIntro")}>
+              <KitCallout tone="info" icon="info">
+                {t("shopTypes.fashionSrcCatalog")}
+              </KitCallout>
+              <FashionForm values={fashionValues} langs={otherLangs.map((l) => ({ code: l.code, name: new Intl.DisplayNames([lang], { type: "language" }).of(l.code) ?? l.code }))} />
             </KitSection>
           </KitTabPanel>
         ) : null}

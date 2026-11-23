@@ -14,6 +14,7 @@ import { parseStageInput, setOrderStage } from "@/lib/catalog/order-stages";
 import { markStageRefunded, type StageRefundDeps } from "@/lib/catalog/stage-refunds";
 import { cancelNeedsChoice, cancelOrder, readRefundChoice } from "@/lib/catalog/cancel";
 import { duplicateCategory, readCategoryNames } from "@/lib/catalog/category-names";
+import { parentChoice } from "@/lib/selling/fashion";
 import type { GuestMailer } from "@/lib/hosted/auto-notifications";
 import { headers } from "next/headers";
 import { ipFromHeaders } from "@/lib/http";
@@ -114,7 +115,8 @@ export async function addCategoryAction(_: FormState, formData: FormData): Promi
   if (categories.length >= 50) return { message: "You can have up to 50 categories.", values };
   // 175 Two categories of one name read as one in the app.
   if (duplicateCategory(categories, name)) return { errors: { name: "You already have a category with this name. Choose another, or use that one." }, values };
-  await store.createCatalogCategory({ appId: app.id, name, now: new Date(), names: readCategoryNames((f) => str(formData, f)) });
+  // 206 Inside a main category, when one is chosen.
+  await store.createCatalogCategory({ appId: app.id, name, now: new Date(), names: readCategoryNames((f) => str(formData, f)), parentId: app.vertical === "restaurant" ? null : parentChoice(categories, null, formData.get("parent")) });
   refresh();
   return { ok: true, message: `Added “${name}”.` };
 }
@@ -128,6 +130,8 @@ export async function renameCategoryAction(formData: FormData): Promise<void> {
   const store = await getStore();
   if (name && !duplicateCategory(await store.listCatalogCategories(app.id), name, id)) await store.renameCatalogCategory(app.id, id, name);
   if (formData.has("name_ar") || formData.has("name_tr")) await store.setCatalogCategoryNames(app.id, id, readCategoryNames((f) => str(formData, f)));
+  // 206 Inside a main category, or a main one again.
+  if (formData.has("parent") && app.vertical !== "restaurant") await store.setCatalogCategoryParent(app.id, id, parentChoice(await store.listCatalogCategories(app.id), id, formData.get("parent")));
   refresh();
 }
 

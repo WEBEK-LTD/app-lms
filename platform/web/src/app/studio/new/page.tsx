@@ -7,9 +7,11 @@ import { getStore } from "@/lib/data";
 import { platformDefinitions } from "@/lib/hosted/connectors/registry";
 import { STUDIO_ONLY_KINDS, studioSourcesFor } from "@/lib/studio/section";
 import { premiumAcademyChoice } from "@/lib/studio/new-choices";
+import { SECTION_DEMOS, SHOP_SECTIONS, shopTypesIn, shopTypeTemplate } from "@/lib/studio/shop-types";
+import { STORE_TEMPLATE_DEMOS, isStoreTemplateDemo } from "@/lib/demo/constants";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 import { StudioScreen } from "../chrome";
-import { NewProjectForm, type KindChoice } from "./form";
+import { NewProjectForm, type KindChoice, type ShopSectionChoice } from "./form";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -93,6 +95,30 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
       ? { ...choiceOf(travel), name: t("studio.kindTravel"), icon: "travel_explore", text: t("studio.kindTravelText"), soon: false }
       : { id: "travel", name: t("studio.kindTravel"), icon: "travel_explore", sources: [], text: t("studio.soon"), soon: true },
   ];
+  // 206 Studio's shop types by section (lib/studio/shop-types.ts): a ready one is the store with its look A chosen; the others coming soon.
+  const storeKind = kindById("store");
+  const shopOn = storeKind ? offered.includes(storeKind) : false;
+  const shopSections: ShopSectionChoice[] = shopOn
+    ? SHOP_SECTIONS.map((section) => ({
+        id: section,
+        name: t(`shopTypes.section_${section}`),
+        types: [
+          ...shopTypesIn(section).map((type) => {
+            const template = shopTypeTemplate(type);
+            const base = { id: `shop_${type.id}`, name: t(`shopTypes.type_${type.id}`), icon: type.icon };
+            return template && storeKind ? { ...choiceOf(storeKind), ...base, kind: storeKind.id, template, text: t(`shopTypes.text_${type.id}`), soon: false } : { ...base, sources: [], text: t("shopTypes.soon"), soon: true };
+          }),
+          // Studio's shops already offered that sit in this section (the flower shop, the marketplace).
+          ...(SECTION_DEMOS[section] ?? []).flatMap((demo) => {
+            const own = isStoreTemplateDemo(demo) ? storeKind : kindById(demo);
+            // A store template demo is the store with its look A.
+            if (!own || !offered.includes(own)) return [];
+            const base = { id: `shop_${demo}`, name: t(`shopTypes.demo_${demo}` as DashKey), icon: demo === "flowers" ? "local_florist" : "storefront", text: t(`shopTypes.demoText_${demo}` as DashKey), soon: false };
+            return [{ ...choiceOf(own), ...base, kind: own.id, ...(isStoreTemplateDemo(demo) ? { template: STORE_TEMPLATE_DEMOS[demo] } : {}) }];
+          }),
+        ],
+      }))
+    : [];
   const problem = typeof query.error === "string" ? query.error : null;
   const error = problem === "name" ? k("Give the project a name of up to 30 characters.") : problem && ERRORS[problem] ? t(ERRORS[problem]) : null;
   return (
@@ -100,6 +126,7 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
       <NewProjectForm
         samples={sampleEntries(new Date())}
         studioKinds={studioKinds}
+        shopSections={shopSections}
         kinds={offered.filter((kind) => !STUDIO_ONLY_KINDS.has(kind.id)).map(choiceOf)}
         error={error}
       />
