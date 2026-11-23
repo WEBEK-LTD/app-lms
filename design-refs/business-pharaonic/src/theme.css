@@ -274,3 +274,105 @@ bdi, .ltr { direction: ltr; unicode-bidi: isolate; }
   text-shadow: 0 0 3px var(--bg), 0 0 6px var(--bg), 0 0 10px var(--bg); }
 :root[data-mode="light"] :is(.halo, .appbar h1, .section-title > span:first-child, .hello h1, .meta, .stage, .help, .foot, .form h2, .form p.lead, .status) {
   text-shadow: 0 0 3px #F1E6CB, 0 0 7px #F1E6CB; }
+
+/* =====================================================================
+   Round 3: premium. Fewer but better ornaments, real metallic gold on the
+   key moments only (mark, frames, primary button, active tab), mineral grain,
+   vignettes, one hairline weight, calm spacing.
+   ===================================================================== */
+@font-face { font-family: "Cinzel"; font-weight: 400 900; font-display: block;
+  src: url(../fonts/Cinzel-latin.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F; }
+@font-face { font-family: "Cinzel"; font-weight: 400 900; font-display: block;
+  src: url(../fonts/Cinzel-latin-ext.woff2) format("woff2"); unicode-range: U+0100-02BA, U+1E00-1E9F; }
+
+:root, :root[data-mode="dark"] {
+  --metal: linear-gradient(180deg, #F7E7B4 0%, #E6C474 18%, #C2953F 42%, #8E6623 55%, #D8B566 74%, #F3DE9E 100%);
+  --metal-h: linear-gradient(90deg, transparent 0%, #A57B2C 12%, #E9CB7C 38%, #F7E7B4 50%, #E9CB7C 62%, #A57B2C 88%, transparent 100%);
+  --hair: 1px;
+  --star-op: .5;
+  --emboss: drop-shadow(0 1px 0 rgba(0, 0, 0, .55)) drop-shadow(0 -0.5px 0 rgba(255, 236, 180, .25));
+}
+:root[data-mode="light"] {
+  --metal: linear-gradient(180deg, #E9CF8A 0%, #C89B45 30%, #8C6420 55%, #B98A3A 78%, #DDBB6E 100%);
+  --metal-h: linear-gradient(90deg, transparent 0%, #8C6420 14%, #C89B45 40%, #E2C27A 50%, #C89B45 60%, #8C6420 86%, transparent 100%);
+  --relief-op: .16;
+  --emboss: drop-shadow(0 1px 0 rgba(255, 252, 240, .85)) drop-shadow(0 -0.5px 0 rgba(70, 50, 10, .25));
+}
+
+/* Ground: mineral grain, stars fading from the ceiling down, vignette. */
+.backdrop .stars { -webkit-mask: url(../svg/star-ceiling.svg) repeat, linear-gradient(#000 0%, rgba(0,0,0,.7) 30%, rgba(0,0,0,.28) 70%, rgba(0,0,0,.18) 100%);
+  -webkit-mask-size: 52px 52px, 100% 100%; -webkit-mask-composite: source-in; }
+.backdrop .grain { background: url(../svg/grain.svg) repeat; background-size: 200px 200px; opacity: .07; mix-blend-mode: screen; }
+.backdrop .vignette { background: radial-gradient(120% 90% at 50% 38%, transparent 55%, rgba(2, 4, 12, .55) 100%); }
+:root[data-mode="light"] .backdrop .grain { display: none; }
+:root[data-mode="light"] .backdrop .vignette { background: radial-gradient(125% 95% at 50% 40%, transparent 58%, rgba(120, 88, 36, .2) 100%); }
+
+/* Metallic gold on the frames. */
+.cornice { background: var(--metal) !important; opacity: 1; filter: var(--emboss); }
+.cornice-wrap::after { background: var(--metal-h); opacity: 1; height: 1px; }
+.kheker::before { background: var(--metal); opacity: .9; filter: var(--emboss); }
+.kheker::after { background: var(--metal-h); opacity: 1; height: 1px; }
+.lotus { background: var(--metal); opacity: .85; }
+
+/* Section heads: a small label, then a gold hairline with a centred motif. */
+.section-title { gap: 12px; padding: 22px 20px 12px; font-size: 16px; }
+.section-title > span:first-child { order: 0; color: var(--ink); }
+.section-title .rule { order: 1; flex: 1; height: 1px; background: linear-gradient(to left, transparent, var(--gold-line) 30%, var(--gold-line)); opacity: 1; -webkit-mask: none; }
+[dir="rtl"] .section-title .rule { background: linear-gradient(to right, transparent, var(--gold-line) 30%, var(--gold-line)); }
+.section-title .motif { order: 2; width: 14px; height: 14px; background: var(--metal); filter: var(--emboss); opacity: 1; }
+.section-title::after { content: ""; order: 3; flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--gold-line) 30%, var(--gold-line)); }
+[dir="rtl"] .section-title::after { background: linear-gradient(to left, transparent, var(--gold-line) 30%, var(--gold-line)); }
+:root[lang="en"] .section-title > span:first-child, :root[lang="tr"] .section-title > span:first-child {
+  font: 600 13px/1.2 "Cinzel", serif; letter-spacing: 1.6px; text-transform: uppercase; color: var(--gold); }
+/* A stand-alone divider between sections. */
+.divider-motif { display: flex; align-items: center; gap: 12px; padding: 18px 56px 4px; }
+.divider-motif::before, .divider-motif::after { content: ""; flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--gold-line)); }
+.divider-motif::after { background: linear-gradient(to left, transparent, var(--gold-line)); }
+.divider-motif .motif { width: 16px; height: 16px; background: var(--metal); filter: var(--emboss); }
+
+/* Hairline cards; corner pieces only on the one hero card of a screen. */
+.card, .needs, .group, .radios { border-width: var(--hair); }
+.card.gilt { border-color: transparent; background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(160deg, #F7E7B4, #C2953F 30%, #6E4F1A 50%, #D8B566 75%, #F3DE9E) border-box; border: 1px solid transparent; }
+:root[data-mode="light"] .card.gilt { background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(160deg, #E2C27A, #A57B2C 35%, #6E4F1A 55%, #C89B45 80%, #E2C27A) border-box; }
+.card.gilt.cornered { background:
+    url(../svg/corner-tl.svg) left 6px top 12px / 16px 16px no-repeat padding-box, url(../svg/corner-tr.svg) right 6px top 12px / 16px 16px no-repeat padding-box,
+    url(../svg/corner-bl.svg) left 6px bottom 6px / 16px 16px no-repeat padding-box, url(../svg/corner-br.svg) right 6px bottom 6px / 16px 16px no-repeat padding-box,
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(160deg, #F7E7B4, #C2953F 30%, #6E4F1A 50%, #D8B566 75%, #F3DE9E) border-box; }
+.tiles { height: 6px; position: relative; border-radius: 16px 16px 0 0;
+  background: repeating-linear-gradient(90deg, var(--tile1) 0 13px, var(--grout) 13px 14px, var(--tile2) 14px 27px, var(--grout) 27px 28px, var(--tile3) 28px 41px, var(--grout) 41px 42px); box-shadow: none; }
+.tiles::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(255,255,255,.35), transparent 60%, rgba(0,0,0,.25)); }
+
+/* The primary button: metallic gold with an engraved edge (dark); lapis with a gold hairline (light). */
+.btn.primary { background: var(--btn); box-shadow:
+    inset 0 1px 0 rgba(255, 248, 220, .75), inset 0 -1px 0 rgba(90, 60, 10, .45), 0 0 0 1px rgba(120, 85, 25, .9), 0 8px 22px rgba(201, 154, 62, .18); }
+:root[data-mode="dark"] .btn.primary { --btn: linear-gradient(180deg, #F7E7B4 0%, #E9CB7C 30%, #CFA651 62%, #B8873A 100%); }
+:root[data-mode="light"] .btn.primary { box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 0 0 1px #A57B2C, 0 8px 18px rgba(28, 42, 92, .22); }
+.btn { letter-spacing: 0; }
+
+/* Active tab: a metal hairline pill; the nav's top edge is a fading gold hairline. */
+.nav::before { -webkit-mask: none; background: var(--metal-h); height: 1px; inset: -1px 0 auto 0; opacity: 1; }
+.nav { border-top-color: transparent; }
+.nav .tab.on .pill { box-shadow: none; background:
+    linear-gradient(var(--surface2), var(--surface2)) padding-box, var(--metal) border-box; border: 1px solid transparent; }
+.actions::before { -webkit-mask: none !important; background: var(--metal-h) !important; height: 1px !important; inset: -1px 0 auto 0 !important; opacity: 1 !important; }
+.actions { border-top-color: transparent !important; }
+
+/* New-order shimmer: a soft light sweeps across the gilt card every 4.5 s
+   (README). The still shows it two thirds of the way across. */
+@keyframes sheen { from { transform: translateX(-140%) skewX(-18deg); } to { transform: translateX(240%) skewX(-18deg); } }
+.shimmer { position: relative; overflow: hidden; }
+.shimmer .sheen { position: absolute; top: 0; bottom: 0; left: 0; width: 38%; pointer-events: none; z-index: 2;
+  background: linear-gradient(90deg, transparent, rgba(255, 236, 180, .075) 45%, rgba(255, 244, 210, .13) 50%, rgba(255, 236, 180, .075) 55%, transparent);
+  transform: translateX(150%) skewX(-18deg); }
+:root[data-mode="light"] .shimmer .sheen { background: linear-gradient(90deg, transparent, rgba(255,255,255,.35) 50%, transparent); }
+/* A finer cornice: shorter flutes, a hairline below. */
+.cornice-wrap { height: 24px; }
+.cornice-wrap .cornice { height: 15px; inset: 3px 0 auto; -webkit-mask-size: 8px 15px !important; opacity: .9; }
+.cornice-wrap::after { top: 20px; }
+:root { --star-op: .44; }
+:root[data-mode="light"] { --star-op: 0; }

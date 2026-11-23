@@ -15,6 +15,7 @@ const shots = [
   ["home-en", "dark"],
   ["home-tr", "dark"],
   ["theme-picker", "dark"],
+  ["kitchen-empty", "dark"], ["kitchen-empty", "light"],
 ];
 const types = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml",
   ".woff2": "font/woff2", ".ttf": "font/ttf", ".jpg": "image/jpeg" };

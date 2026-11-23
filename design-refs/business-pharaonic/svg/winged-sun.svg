@@ -3,9 +3,12 @@
        abstract curls, three tiers of swept feathers on each side, two uraei hanging from it. -->
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#F3D88F"/>
-      <stop offset=".55" stop-color="#D4A94E"/>
-      <stop offset="1" stop-color="#9C7428"/>
+      <stop offset="0" stop-color="#F8EAB9"/>
+      <stop offset=".28" stop-color="#E6C474"/>
+      <stop offset=".52" stop-color="#B88A35"/>
+      <stop offset=".64" stop-color="#8E6623"/>
+      <stop offset=".84" stop-color="#D8B566"/>
+      <stop offset="1" stop-color="#F3DE9E"/>
     </linearGradient>
     <mask id="feathers" maskUnits="userSpaceOnUse" x="0" y="0" width="240" height="64">
       <rect width="240" height="64" fill="#000"/>

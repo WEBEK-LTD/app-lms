@@ -22,6 +22,7 @@ applies to whichever theme is chosen. The theme screen shows the default first
 | `order-dark.jpg`, `order-light.jpg` | An order's page (`OrderScreen`): stage, customer, items, totals |
 | `sounds-dark.jpg`, `sounds-light.jpg` | Settings › Ringtones › New orders (`RingtonePickerScreen`) |
 | `theme-picker-dark.jpg` | Settings › Appearance: Default vs Pharaonic, then light/dark |
+| `kitchen-empty-dark.jpg`, `kitchen-empty-light.jpg` | The empty state: Kitchen mode with no orders (`KitchenScreen`) |
 
 All text is the app's own Arabic/English strings (`lib/l10n/app_*.arb`) except
 the theme picker's new ones (below). Prices use the server's Arabic format
@@ -90,6 +91,40 @@ no star or fibre ever crosses a letter. Ornaments are decorative only.
   the Latin word (".Yallapp" visually). The word is isolated and now kept on
   the same line as "تحكم" so it no longer stands alone.
 
+## Round 3: premium
+
+Aim: a luxury house's flagship app doing Egypt, never a souvenir. Fewer but
+better ornaments, gold only on the key moments, one hairline weight.
+
+- **Metallic gold**, a six-stop gradient with a specular band and an engraved
+  edge (a dark 1px outline plus a light top highlight). Used only on the mark,
+  the frames (cornice, kheker, cartouche, the gilt card's border, corner
+  pieces), the primary button and the active tab's hairline pill.
+- **Material depth:** lapis with a fine mineral grain (`svg/grain.svg`,
+  7%) and a vignette; the stars now fade from the ceiling down, so the lower
+  half (where the numbers are) stays calm. Papyrus gets a warm vignette.
+  Ornaments are embossed (dark) or debossed (light) with 1px drop shadows,
+  so they read as carved, not pasted.
+- **Calm:** corner pieces only on the one hero card of a screen; the painted
+  multicolour cornice became a fine gold one; lotus rules gave way to a gold
+  hairline with a small centred motif between sections; the sign-in foot is
+  one centred ankh; home shows two "needs you" rows with more air.
+- **Typography:** El Messiri for Arabic headings (Arabic is never
+  letter-spaced: it would break the joins); **Cinzel** for Latin small-caps
+  labels ("NEEDS YOU NOW", the wordmark's "BUSINESS") with 1.6–3.2px
+  tracking. Body and numbers stay IBM Plex Sans Arabic, tabular.
+- **Empty state:** a gold medallion (double hairline ring, fine rays, an
+  embossed ankh) over the app's own strings.
+- **New-order shimmer (motion, not visible in stills):** a soft band of light
+  (warm white, 7–13% opacity, 38% of the card wide, skewed 18°) sweeps across
+  the gilt new-order card from the reading start to the end, over 1.6 s with
+  ease-in-out, then rests 2.9 s (a 4.5 s loop) while the order waits. It stops
+  as soon as the order is accepted or rejected, and is off when the system's
+  reduce-motion setting is on. The faience tile edge does not move. The still
+  shows the band about two thirds of the way across. In Flutter: an
+  `AnimationController` driving a `ShaderMask`/`LinearGradient` transform
+  inside the card's `ClipRRect`.
+
 ## Fonts
 
 - **El Messiri** (Google Fonts, OFL): headings, greetings, section titles,
@@ -98,6 +133,8 @@ no star or fibre ever crosses a letter. Ornaments are decorative only.
 - **IBM Plex Sans Arabic** (OFL, already bundled in the app): all body text,
   fields, buttons, and **every number** (order numbers, prices, times) with
   tabular, lining figures. Numbers never use the display font.
+- **Cinzel** (Google Fonts, OFL): Latin small-caps labels only (English and
+  Turkish section labels, the wordmark's "BUSINESS").
 - **Material Symbols Rounded** (Apache 2.0): every icon that means an action
   or a state. Decoration is custom SVG only.
 
@@ -170,7 +207,7 @@ no star or fibre ever crosses a letter. Ornaments are decorative only.
    waits to be accepted can show as the new-order card (data from the orders
    or food-orders list the app already loads).
 
-**Size, roughly:** 8–10 developer days with the round-2 ornament set. Tokens, choice and storage 1 day;
+**Size, roughly:** 9–11 developer days with the round-2 and round-3 work (metallic shaders, grain, shimmer). Tokens, choice and storage 1 day;
 fonts and text styles 0.5; painters and backdrops 3–3.5; sign-in, lock and opening screens
 1; Today, order page, ringtones, nav and buttons 1.5–2; contrast tests, RTL/LTR
 golden screenshots and store-screenshot pass 1.

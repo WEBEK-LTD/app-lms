@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Pharaonic · Kitchen, empty</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 40px 70px; }
+  .medallion { width: 148px; height: 148px; border-radius: 50%; position: relative; display: grid; place-items: center;
+    background: radial-gradient(circle at 50% 38%, var(--surface2), var(--surface) 70%); }
+  .medallion::before { content: ""; position: absolute; inset: 0; border-radius: 50%; padding: 1px; background: var(--metal);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; }
+  .medallion::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; border: 0.75px solid var(--gold-line); }
+  .medallion .motif { width: 58px; height: 58px; background: var(--metal); filter: var(--emboss); }
+  .medallion .rays { position: absolute; inset: -26px; background: var(--metal); opacity: .5;
+    -webkit-mask: repeating-conic-gradient(#000 0 1.2deg, transparent 1.2deg 15deg), radial-gradient(circle, transparent 82px, #000 83px, #000 92px, transparent 93px);
+    -webkit-mask-composite: source-in; }
+  .empty h2 { font: 700 23px/1.35 "El Messiri", serif; margin-top: 34px; }
+  .empty p { color: var(--ink2); margin-top: 8px; font-size: 15px; line-height: 1.65; }
+  .empty .chip { margin-top: 22px; }
+  .appbar .iconbtn.on { color: var(--faience); }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="status"><span class="num">22:05</span><span class="icons"><span class="ms fill">signal_cellular_alt</span><span class="ms fill">wifi</span><span class="ms fill">battery_full</span></span></div>
+  <div class="kheker"></div>
+  <div class="appbar">
+    <span class="iconbtn"><span class="ms dir">arrow_back</span></span>
+    <h1>وضع المطبخ</h1>
+    <span class="iconbtn on"><span class="ms fill">volume_up</span></span>
+  </div>
+  <div class="empty">
+    <div class="medallion"><i class="rays"></i><i class="motif ankh"></i></div>
+    <h2 class="halo">لا طلبات في المطبخ</h2>
+    <p class="halo">تظهر الطلبات الجديدة هنا مع تنبيه صوتي ما دامت هذه الشاشة مفتوحة.</p>
+    <span class="chip faience"><span class="ms s18 fill">volume_up</span>الصوت مفعّل للطلبات الجديدة</span>
+  </div>
+  <div class="homebar clear"><i></i></div>
+</div>
+<script src="ornaments.js"></script>
+</body>
+</html>
