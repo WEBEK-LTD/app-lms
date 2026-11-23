@@ -129,8 +129,8 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
 
 /**
  * 118.3 A Studio demo's `hostedSettings.studioScreens`; its photo on the
- * platform's own address. 130 In one of its Signature looks (missing, look
- * A: the demo itself): that look's sign-in screen, account menu and 130.23
+ * platform's own address. 130 In one of its Signature looks (missing, its
+ * main look, the demo itself: 223 C where it has one, else A): that look's sign-in screen, account menu and 130.23
  * premium system screens (lib/studio/demo-designs/signature.ts).
  */
 export function demoStudioScreens(id: StudioDemoId, platformUrl: string, look?: SignatureLook): StudioScreens {
@@ -141,7 +141,7 @@ export function demoStudioScreens(id: StudioDemoId, platformUrl: string, look?: 
 /** 118.3 The screens 128 gave a demo, before its Signature looks. */
 function demoOwnScreens(id: StudioDemoId, platformUrl: string): StudioScreens {
   if (id === PREMIUM_ACADEMY_DEMO) return ACADEMY_PROJECT.screens(platformUrl);
-  if (isStoreTemplateDemo(id)) return signatureScreensOf(signatureDesign(id, "a")!, platformUrl);
+  if (isStoreTemplateDemo(id)) return signatureScreensOf(signatureDesign(id)!, platformUrl);
   const d = DEMO_SCREENS[id];
   return {
     sign_in: {

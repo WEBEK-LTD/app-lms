@@ -8,7 +8,8 @@ import { platformDefinitions } from "@/lib/hosted/connectors/registry";
 import { STUDIO_ONLY_KINDS, studioSourcesFor } from "@/lib/studio/section";
 import { premiumAcademyChoice } from "@/lib/studio/new-choices";
 import { SECTION_DEMOS, SHOP_SECTIONS, shopTypesIn, shopTypeTemplate } from "@/lib/studio/shop-types";
-import { STORE_TEMPLATE_DEMOS, isStoreTemplateDemo } from "@/lib/demo/constants";
+import { isStoreTemplateDemo } from "@/lib/demo/constants";
+import { mainTemplateOf } from "@/lib/studio/demo-designs";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 import { StudioScreen } from "../chrome";
 import { NewProjectForm, type KindChoice, type ShopSectionChoice } from "./form";
@@ -104,6 +105,7 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
         name: t(`shopTypes.section_${section}`),
         types: [
           ...shopTypesIn(section).map((type) => {
+            // 223 The type's main look (C where it has one).
             const template = shopTypeTemplate(type);
             const base = { id: `shop_${type.id}`, name: t(`shopTypes.type_${type.id}`), icon: type.icon };
             return template && storeKind ? { ...choiceOf(storeKind), ...base, kind: storeKind.id, template, text: t(`shopTypes.text_${type.id}`), soon: false } : { ...base, sources: [], text: t("shopTypes.soon"), soon: true };
@@ -111,10 +113,10 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
           // Studio's shops already offered that sit in this section (the flower shop, the marketplace).
           ...(SECTION_DEMOS[section] ?? []).flatMap((demo) => {
             const own = isStoreTemplateDemo(demo) ? storeKind : kindById(demo);
-            // A store template demo is the store with its look A.
+            // A store template demo is the store with its main look.
             if (!own || !offered.includes(own)) return [];
             const base = { id: `shop_${demo}`, name: t(`shopTypes.demo_${demo}` as DashKey), icon: demo === "flowers" ? "local_florist" : "storefront", text: t(`shopTypes.demoText_${demo}` as DashKey), soon: false };
-            return [{ ...choiceOf(own), ...base, kind: own.id, ...(isStoreTemplateDemo(demo) ? { template: STORE_TEMPLATE_DEMOS[demo] } : {}) }];
+            return [{ ...choiceOf(own), ...base, kind: own.id, ...(isStoreTemplateDemo(demo) ? { template: mainTemplateOf(demo) } : {}) }];
           }),
         ],
       }))

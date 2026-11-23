@@ -518,6 +518,8 @@ export const tr: Messages = {
     looksText: "Studio'nun her demosu, her biri açık ve karanlık modda iki görünümle gelir. Bir proje ikisinden biriyle başlayabilir.",
     lookA: "Görünüm A",
     lookB: "Görünüm B",
+    lookC: "Görünüm C",
+    lookD: "Görünüm D",
     lookDay: "Açık",
     lookNight: "Karanlık",
     demoEditorTitle: "Arkalarındaki düzenleyici",
@@ -794,7 +796,7 @@ export const tr: Messages = {
   marketHouse: {
     title: "{app} · {look}",
     shortA: "{app} demosunun kendisi: uygulamanın tamamı, ücretsiz.",
-    shortB: "{app} demosunun ikinci görünümü: uygulamanın tamamı, ücretsiz.",
+    shortB: "{app} demosunun başka bir görünümü: uygulamanın tamamı, ücretsiz.",
     about:
       "Yallapp'in tasarımı. Uyguladığınızda projeniz, bu demodan başlayan yeni bir projenin aldığı her şeyi alır: tüm sayfalar, sekmeler ve çubukları, renkler, yazı tipleri, giriş ve hesap ekranları. İçeriğiniz sizde kalır; önceki tasarımınıza istediğiniz zaman dönebilirsiniz.",
     looks: {

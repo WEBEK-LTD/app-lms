@@ -90,6 +90,9 @@ export interface LookShot {
 }
 
 
+/** 223 Each look's label ("Look C"). */
+const LOOK_LABELS = { a: "start.lookA", b: "start.lookB", c: "start.lookC", d: "start.lookD" } as const satisfies Record<SignatureLook, DashKey>;
+
 /** A Studio demo's looks with their pictures (`<demo>-sig-<look>-home.png`), the demo's own screenshot until a look has its own. */
 export function lookShots(text: DashboardText, id: DemoId): LookShot[] {
   const fallback = demoScreens(text, id)[0]!;
@@ -98,7 +101,7 @@ export function lookShots(text: DashboardText, id: DemoId): LookShot[] {
     const dark = hasLookShot(lookShotName(id, look, true));
     const key = `tpl_${id}_signature_${look}`;
     const name = key in studioWords ? text.t(`studio.${key}` as DashKey) : null;
-    const label = text.t(look === "a" ? "start.lookA" : "start.lookB");
+    const label = text.t(LOOK_LABELS[look]);
     return {
       look,
       src: own ? screenSrc(lookShotName(id, look)) : fallback.src,

@@ -532,6 +532,8 @@ export const en = {
     looksText: "Every Studio demo comes in two looks, each in light and dark mode. A project can start from either one.",
     lookA: "Look A",
     lookB: "Look B",
+    lookC: "Look C",
+    lookD: "Look D",
     lookDay: "Light",
     lookNight: "Dark",
     demoEditorTitle: "The editor behind them",
@@ -815,7 +817,7 @@ export const en = {
   marketHouse: {
     title: "{app} · {look}",
     shortA: "The {app} demo itself: the whole app, free.",
-    shortB: "The {app} demo's second look: the whole app, free.",
+    shortB: "Another look of the {app} demo: the whole app, free.",
     about:
       "Made by Yallapp. Applying it gives your project what a new project from this demo starts with: every page, the tabs and their bar, the colours, the fonts and the sign-in and account screens. Your own content stays yours, and you can go back to your previous design at any time.",
     looks: {
