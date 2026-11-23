@@ -18,7 +18,7 @@
 ## Ornaments and textures
 
 The winged sun with uraei, the cartouche, the lotus border, the glyph
-texture, the star ceiling, the cavetto cornice, the kheker frieze, the papyrus
+texture, the star ceiling and its sparse "whisper" tile, the cavetto cornice, the kheker frieze, the papyrus
 and inscription columns, the pylon, the card corners and the five motifs
 (ankh, djed, was, Eye of Horus, scarab) are original drawings made for this
 pilot (`svg/`, `src/ornaments.js`). The papyrus texture (`img/papyrus.jpg`) is

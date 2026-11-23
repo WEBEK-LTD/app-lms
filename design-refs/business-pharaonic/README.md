@@ -103,8 +103,6 @@ better ornaments, gold only on the key moments, one hairline weight.
 - **Material depth:** lapis with a fine mineral grain (`svg/grain.svg`,
   7%) and a vignette; the stars now fade from the ceiling down, so the lower
   half (where the numbers are) stays calm. Papyrus gets a warm vignette.
-  On the welcome screen the stars stay strong at the top and down the
-  edges and fade under the form (a soft veil in the ground colour).
   Ornaments are embossed (dark) or debossed (light) with 1px drop shadows,
   so they read as carved, not pasted.
 - **Calm:** corner pieces only on the one hero card of a screen; the painted
@@ -126,6 +124,27 @@ better ornaments, gold only on the key moments, one hairline weight.
   shows the band about two thirds of the way across. In Flutter: an
   `AnimationController` driving a `ShaderMask`/`LinearGradient` transform
   inside the card's `ClipRRect`.
+
+## Round 4: eye comfort
+
+Owner feedback: the stars tired the eyes. The app is used for hours at night
+in a busy shop, so:
+
+- **Stars are now a whisper.** A sparse tile (`svg/star-whisper.svg`, two
+  small stars per 120 px) at about 7.5% opacity, only in the header band,
+  gone by 22% of the screen height. Nothing behind content, cards, lists or
+  the form. No glints, no twinkle, no motion. At a glance they read as
+  atmosphere, not a pattern. (The dense `star-ceiling.svg` stays in the folder
+  but is no longer used.)
+- **Lapis** keeps its fine grain and vignette; the diagonal sky band is
+  calmer (20%). The welcome screen's form veil is gone: nothing is left to
+  calm.
+- **Papyrus** gets a stronger wash (56%), so the fibre reads as material,
+  not pattern; side inscription columns drop to 9%; the welcome screen's
+  gold papyrus columns to 30%. Light text contrast only rises with the
+  lighter ground.
+- The Pharaonic character now rests on the cornice and kheker frieze, the
+  frames and corner pieces, the metallic gold and the winged sun.
 
 ## Fonts
 

@@ -376,3 +376,20 @@ bdi, .ltr { direction: ltr; unicode-bidi: isolate; }
 .cornice-wrap::after { top: 20px; }
 :root { --star-op: .44; }
 :root[data-mode="light"] { --star-op: 0; }
+
+/* =====================================================================
+   Round 4: eye comfort for long night shifts. The stars are a whisper in
+   the header band only (about 7%, small, sparse, no motion), gone by about
+   22% of the screen; nothing behind content. Papyrus and its side columns
+   are softer.
+   ===================================================================== */
+:root, :root[data-mode="dark"] { --star-op: .075; }
+:root[data-mode="light"] { --star-op: 0; --relief-op: .09; }
+.backdrop .stars { -webkit-mask: url(../svg/star-whisper.svg) repeat, linear-gradient(#000 0%, #000 9%, transparent 22%);
+  -webkit-mask-size: 120px 120px, 100% 100%; -webkit-mask-composite: source-in; }
+/* The diagonal sky band stays but calmer. */
+:root[data-mode="dark"] { --sky-band: rgba(52, 78, 158, .2); }
+/* Papyrus: a stronger wash so the fibre reads as material, not pattern. */
+:root[data-mode="light"] .backdrop .sky { background:
+    linear-gradient(rgba(246, 238, 220, .56), rgba(246, 238, 220, .56)),
+    radial-gradient(120% 40% at 50% 0%, rgba(205, 176, 118, .2), transparent 70%); }
