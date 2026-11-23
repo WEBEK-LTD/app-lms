@@ -7625,6 +7625,8 @@ export class MysqlStore implements DataStore {
     );
     await this.run((db) => db.delete(s.travelSaved).where(and(inArray(s.travelSaved.appId, ids), lt(s.travelSaved.createdAt, before))));
     await this.run((db) => db.delete(s.travelAlerts).where(and(inArray(s.travelAlerts.appId, ids), lt(s.travelAlerts.createdAt, before))));
+    // 210 Visitors' custom-order requests.
+    await this.run((db) => db.delete(s.storeRequests).where(and(inArray(s.storeRequests.appId, ids), lt(s.storeRequests.createdAt, before))));
     return {
       travelBookings: travelBookings.affectedRows,
       teacherFollows: teacherFollows.affectedRows,

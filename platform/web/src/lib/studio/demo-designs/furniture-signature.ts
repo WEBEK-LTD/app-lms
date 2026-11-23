@@ -497,7 +497,7 @@ function kanafHome(ctx: SectionContext): StudioPage {
       padding: sides(0, 0, 96, 0),
       children: [
         { ...kitSearch(ctx, l, "fuSearchB"), radius: 14 },
-        kitCategories(ctx, l, "tiles"),
+        kitCategories(ctx, l, "chips"),
         kitHero(
           ctx,
           l,

@@ -8,6 +8,23 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 210 (Studio's shop types, stage 2: home decor, crochet and
+handmade, furniture): Sakan (decor: A SAKAN the decor magazine, B TEEN
+earth tones), Ghurza (crochet: A GHURZA warm handmade, B HABKA colourful)
+and Rukn (furniture: A RUKN white and wood, B KANAF quiet luxury) are ready
+on /start?for=studio and Studio's new project, each a kit of real CC0
+photos and products with its demo, two looks light and dark, story page and
+screenshots. New for every store, each a reusable element: shop the look
+(a room photo with tappable products), shop by room or style, a custom-order
+request form whose answers land in Store › Custom orders and Yallapp
+Business (migration 0150), a product's size in cm and days to make (cards
+and product page), the delivery and assembly booking (`delivery_slots`,
+kept for the checkout), the maker's story, gifts with a card, the seasons'
+banners, and "Installments coming soon" on a furniture product (a tag only).
+The app's preview is rebuilt; no `CLIENT_APP_RELEASE` change. Not yet: the
+academy's courses served to a store (Ghurza's workshops are products with
+seats for now) and turning an accepted request into a paid order.
+
 Roadmap 208 (Studio's shop types, stage 1: the foundation and Clothes):
 the planning doc's shop types are in one registry (`lib/studio/shop-types.ts`)
 by section (Fashion; Beauty & care; Home & living; Kids & toys; Shopping &

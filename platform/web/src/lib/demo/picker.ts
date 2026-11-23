@@ -166,10 +166,10 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   flowers: () => ({ list: "products", noun: "products", count: FLOWER_PRODUCTS.length }),
   // 208 Lujain: its clothes, shoes, bags and accessories.
   clothes: () => ({ list: "products", noun: "products", count: CLOTHES_PRODUCTS.length }),
-  // 210 The kits' products (decor, crochet and handmade, furniture), add-ons left out.
-  decor: () => ({ list: "products", noun: "products", count: DECOR_KIT.products.filter((p) => !p.addon).length }),
-  crochet: () => ({ list: "products", noun: "products", count: CROCHET_KIT.products.filter((p) => !p.addon).length }),
-  furniture: () => ({ list: "products", noun: "products", count: FURNITURE_KIT.products.filter((p) => !p.addon).length }),
+  // 210 The kits' products (decor, crochet and handmade, furniture) and their add-ons, as Leqaa's: what an app started from them gets.
+  decor: () => ({ list: "products", noun: "products", count: DECOR_KIT.products.length }),
+  crochet: () => ({ list: "products", noun: "products", count: CROCHET_KIT.products.length }),
+  furniture: () => ({ list: "products", noun: "products", count: FURNITURE_KIT.products.length }),
 };
 
 export function demoItems(id: DemoId): DemoItems {

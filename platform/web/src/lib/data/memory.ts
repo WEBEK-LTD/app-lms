@@ -6379,6 +6379,8 @@ export class MemoryStore implements DataStore {
       for (const [messageId, message] of this.listingMessages) if (message.inquiryId === id) this.listingMessages.delete(messageId);
       counts.inquiries++;
     }
+    // 210 Visitors' custom-order requests.
+    for (const [id, request] of this.storeRequests) if (request.appId === appId && old(request.createdAt)) this.storeRequests.delete(id);
     const favorites = this.listingFavorites.length;
     this.listingFavorites = this.listingFavorites.filter((f) => !(f.appId === appId && old(f.createdAt)));
     counts.favorites = favorites - this.listingFavorites.length;
@@ -7463,7 +7465,7 @@ export class MemoryStore implements DataStore {
     "travelSaved", "travelAlerts", "rides", "listingFavorites", "listingInquiries", "listingMessages", "storePurchases", "billingSessions",
     "storePurchaseEvents", "ownerNotices", "crashIssues", "scheduledNotifications", "hostedCarts", "orderWatches", "loyaltyEntries",
     "notificationCampaigns", "campaignSends", "chatMembers", "chatConversations", "chatParticipants", "chatMessages", "chatReports", "chatBlocks",
-    "chatSessions", "chatUploads", "appErrors", "uniStudents", "uniRegistrations", "uniEnrolments", "uniAttendance",
+    "chatSessions", "chatUploads", "appErrors", "uniStudents", "uniRegistrations", "uniEnrolments", "uniAttendance", "storeRequests",
   ] as const;
 
   async repointAppRows(fromAppId: string, toAppId: string, group: "plan" | "payments" | "builds" | "data", now: Date): Promise<void> {

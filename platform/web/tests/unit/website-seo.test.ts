@@ -58,6 +58,10 @@ describe("32 the website's menu", () => {
       "/yallapp-studio/academy",
       "/yallapp-studio/flowers",
     "/yallapp-studio/clothes",
+      // 210 Sakan's, Ghurza's and Rukn's story pages.
+      "/yallapp-studio/decor",
+      "/yallapp-studio/crochet",
+      "/yallapp-studio/furniture",
       "/demo/studio",
       // 106.13 Studio Market's public page.
       "/templates",

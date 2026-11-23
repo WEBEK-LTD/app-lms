@@ -59,6 +59,9 @@ export const en = {
     travel: { name: "Hotels and flights", line: "Stays, your own flights and both as one trip" },
     flowers: { name: "Flower shop", line: "Bouquets, delivery days and a gift checkout" },
     clothes: { name: "Clothes shop", line: "Sizes and colours, the category menu and complete the look" },
+    decor: { name: "Home decor shop", line: "Complete the room, shop by room and style, and gifts" },
+    crochet: { name: "Crochet shop", line: "Custom orders, the days to make and workshops" },
+    furniture: { name: "Furniture shop", line: "Sizes in cm, delivery and assembly on your day, made to order" },
   },
   business: {
     teaching: "Teaching and courses",
@@ -248,6 +251,9 @@ export const ar: Messages = {
     travel: { name: "فنادق وطيران", line: "إقامة وطياراتك وجوه رحلة واحدة" },
     flowers: { name: "محل ورد", line: "بوكيهات ومواعيد توصيل ودفع كهدية" },
     clothes: { name: "محل هدوم", line: "مقاسات وألوان، وقايمة الأقسام، وكمّل الإطلالة" },
+    decor: { name: "محل ديكور", line: "كمّل الأوضة، وتسوّق حسب الأوضة والستايل، وهدايا" },
+    crochet: { name: "محل كروشيه", line: "طلبات خاصة، وأيام الشغل، وورش" },
+    furniture: { name: "محل موبيليا", line: "المقاسات بالسنتي، والتوصيل والتركيب في يومك، وتفصيل على المقاس" },
   },
   business: {
     teaching: "تعليم وكورسات",
@@ -433,6 +439,9 @@ export const tr: Messages = {
     travel: { name: "Otel ve uçuş", line: "Konaklama, kendi uçuşlarınız ve ikisi tek seyahatte" },
     flowers: { name: "Çiçekçi", line: "Buketler, teslimat günleri ve hediye ödemesi" },
     clothes: { name: "Giyim mağazası", line: "Beden ve renkler, kategori menüsü ve görünümü tamamla" },
+    decor: { name: "Ev dekorasyonu mağazası", line: "Odayı tamamla, odaya ve tarza göre gez, hediyeler" },
+    crochet: { name: "Örgü mağazası", line: "Özel siparişler, yapım günleri ve atölyeler" },
+    furniture: { name: "Mobilya mağazası", line: "Ölçüler cm cinsinden, seçtiğin gün teslimat ve kurulum, ölçüye özel" },
   },
   business: {
     teaching: "Eğitim ve kurslar",

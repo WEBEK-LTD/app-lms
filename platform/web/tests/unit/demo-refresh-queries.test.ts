@@ -34,8 +34,11 @@ function deps(store: MemoryStore, now: Date = NOW): DemoSetupDeps {
   return { store, encryptionKey: KEY, putBlob: async () => {}, assetUrl: (id) => `https://yallapp.test/a/${id}`, platformUrl: "https://yallapp.test", contact: { whatsapp: "+90 544 673 19 42", email: "info@yallapp.test" }, actorEmail: "admin@yallapp.test", now };
 }
 
-/** Store calls a demo's refresh may make: the school and the marketplace do the most (the marketplace's 55 photos, one look each); 208 Lujain's 54 photos the same way. */
-const BUDGET: Partial<Record<DemoId, number>> = { school: 125, marketplace: 160, clothes: 80 };
+/**
+ * Store calls a demo's refresh may make: the school and the marketplace do the most (the marketplace's 55 photos, one look each); 208 Lujain's 54 photos the same way.
+ * 210 Sakan's 45 photos (57 calls) and Rukn's 47 (60) the same way too; Ghurza's 37 keep it within the 50 of every demo.
+ */
+const BUDGET: Partial<Record<DemoId, number>> = { school: 125, marketplace: 160, clothes: 80, decor: 62, furniture: 65 };
 
 beforeEach(() => clearPlatformSettingsCache());
 
