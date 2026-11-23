@@ -41,6 +41,8 @@ export const AUTO_KINDS = [
   "order_update",
   "live_class_soon",
   "assignment_graded",
+  // 212 A product a customer waits for is back in stock (they asked: it goes whatever the switch says).
+  "back_in_stock",
 ] as const;
 export type AutoKind = (typeof AUTO_KINDS)[number];
 
@@ -70,9 +72,9 @@ export function autoKindsFor(app: Pick<App, "connector" | "backend" | "vertical"
   if (areas.appointments) kinds.push("appointment_confirmed", "appointment_reminder");
   if (areas.memberCheckIn) kinds.push("class_soon", "membership_ending");
   if (areas.events) kinds.push("event_soon");
-  if (areas.products) kinds.push("cart_left", "order_update");
+  if (areas.products) kinds.push("cart_left", "order_update", "back_in_stock");
   // 91.2 A shop on Shopify or another platform: its orders are watched (lib/hosted/order-watch.ts).
-  else if (shopOnPlatform(app)) kinds.push("order_update");
+  else if (shopOnPlatform(app)) kinds.push("order_update", "back_in_stock");
   return AUTO_KINDS.filter((k) => kinds.includes(k));
 }
 
@@ -137,6 +139,11 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
     en: (v) => ({ title: `Live class at ${v.time}`, body: `${v.live} in ${v.course}. Open it in the app to join.` }),
     ar: (v) => ({ title: `حصة مباشرة الساعة ${v.time}`, body: `${v.live} في ${v.course}. افتحها في التطبيق للانضمام.` }),
     tr: (v) => ({ title: `Canlı ders saat ${v.time}`, body: `${v.course}: ${v.live}. Katılmak için uygulamada açın.` }),
+  },
+  back_in_stock: {
+    en: (v) => ({ title: "Back in stock", body: `${v.product} is back. Order it before it runs out again.` }),
+    ar: (v) => ({ title: "عاد إلى المخزون", body: `عاد ${v.product} متوفرًا. اطلبه قبل أن ينفد مرة أخرى.` }),
+    tr: (v) => ({ title: "Yeniden stokta", body: `${v.product} yeniden stokta. Tükenmeden sipariş verin.` }),
   },
   assignment_graded: {
     en: (v) => ({
@@ -275,6 +282,7 @@ function phoneAllows(device: HostedDevice, kind: AutoKind): boolean {
   if (kind === "study_reminder") return prefs.daily_reminder === true;
   // 91.2 Order updates, unless the phone turned them off.
   if (kind === "order_update") return prefs.orders !== false;
+  // 212 Asked for by the customer: unless the phone turned offers and news off.
   return prefs.announcements !== false;
 }
 
