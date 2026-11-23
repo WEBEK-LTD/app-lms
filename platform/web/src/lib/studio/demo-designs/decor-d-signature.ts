@@ -115,6 +115,9 @@ function collage(ctx: SectionContext): StudioNode {
         id: id(),
         type: "row",
         name: ctx.w("mjStamp"),
+        // Sized to its words: a placed element keeps its own width.
+        width: Math.round(44 + ctx.w("mjStamp").length * 8.2),
+        align: "center",
         radius: 26,
         padding: sides(10, 18, 10, 18),
         background: K.fill,
@@ -217,7 +220,7 @@ function palettes(ctx: SectionContext): StudioNode {
 }
 
 /** The pieces as polaroids: the photo on white paper, the name and price handwritten under it, every other one tilted the other way. */
-function polaroidCards(ctx: SectionContext, word: SectionWord, sort: "newest" | "popular", featured: boolean, tilt: number): StudioNode {
+function polaroidCards(ctx: SectionContext, word: SectionWord, sort: "newest" | "price_asc", featured: boolean, tilt: number): StudioNode {
   const id = idOf(ctx);
   return {
     id: id(),
@@ -300,7 +303,7 @@ function home(ctx: SectionContext): StudioPage {
         polaroidCards(ctx, "mjOnBoard", "newest", false, -2),
         makeBoard(ctx),
         head(ctx, "mjLoved", { word: "skSeeAll", action: shop }),
-        polaroidCards(ctx, "mjLoved", "popular", true, 2),
+        polaroidCards(ctx, "mjLoved", "price_asc", true, 2),
       ],
     },
   };

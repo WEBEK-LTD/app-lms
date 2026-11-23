@@ -244,7 +244,7 @@ function dimensionCard(ctx: SectionContext): StudioNode {
 }
 
 /** The pieces on a hairline grid, two by two. */
-function dimensionGrid(ctx: SectionContext, word: SectionWord, sort: "newest" | "popular", limit = 4): StudioNode {
+function dimensionGrid(ctx: SectionContext, word: SectionWord, sort: "newest" | "price_desc", limit = 4): StudioNode {
   return {
     id: idOf(ctx)(),
     type: "items",
@@ -410,7 +410,8 @@ function home(ctx: SectionContext): StudioPage {
         head(ctx, "04", "mzSlots"),
         booking(ctx),
         head(ctx, "05", "mzLoved", { word: "skSeeAll", action: shop }),
-        dimensionGrid(ctx, "mzLoved", "popular"),
+        // Its finest pieces (a new shop has no best sellers yet, so never the same four as the new ones).
+        dimensionGrid(ctx, "mzLoved", "price_desc"),
         head(ctx, "06", "mzNotes"),
         notes(ctx),
       ],

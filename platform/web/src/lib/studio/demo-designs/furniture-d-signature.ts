@@ -201,7 +201,7 @@ function materials(ctx: SectionContext): StudioNode {
 }
 
 /** Large horizontal cards: the piece's wide photo, its name, size and price, the installments tag. */
-function wideCards(ctx: SectionContext, word: SectionWord, sort: "newest" | "popular", featured = false): StudioNode {
+function wideCards(ctx: SectionContext, word: SectionWord, sort: "newest" | "price_desc", featured = false): StudioNode {
   const id = idOf(ctx);
   return {
     id: id(),
@@ -279,7 +279,7 @@ function listCards(ctx: SectionContext, word: SectionWord): StudioNode {
     layout: "list",
     gap: 10,
     padding: sides(0, 16, 0, 16),
-    query: { limit: 4, category_id: null, featured: true, sort: "popular", ids: [] },
+    query: { limit: 4, category_id: null, featured: true, sort: "price_asc", ids: [] },
     card: {
       id: id(),
       type: "row",
@@ -365,7 +365,7 @@ function home(ctx: SectionContext): StudioPage {
         head(ctx, "mnLoved", "mnLovedLine", { word: "skSeeAll", action: shop }),
         listCards(ctx, "mnLoved"),
         head(ctx, "mnOutdoor", "mnOutdoorLine", { word: "skSeeAll", action: shop }),
-        wideCards(ctx, "mnOutdoor", "popular", true),
+        wideCards(ctx, "mnOutdoor", "price_desc", true),
       ],
     },
   };
