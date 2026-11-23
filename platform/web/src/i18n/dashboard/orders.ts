@@ -262,6 +262,13 @@ export const en = {
   paidCount: "{count, plural, =0 {Paid orders} one {{count} paid order} other {{count} paid orders}}",
   search: "Search by customer, product or number",
   noMatch: "No orders match.",
+  // 214 Paused from Yallapp Business: no new orders until it reopens.
+  pausedShop: "Not taking new orders",
+  pausedPlace: "{place} isn't taking new orders",
+  pausedUntil: "Until {time}.",
+  pausedUntilReopen: "Until you reopen.",
+  pausedReason: "Reason customers see: {reason}",
+  reopen: "Reopen now",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -514,6 +521,13 @@ export const ar: Messages = {
   paidCount: "{count, plural, =0 {الطلبات المدفوعة} one {طلب مدفوع واحد} two {طلبان مدفوعان} few {{count} طلبات مدفوعة} many {{count} طلبًا مدفوعًا} other {{count} طلب مدفوع}}",
   search: "ابحث بالعميل أو المنتج أو الرقم",
   noMatch: "لا توجد طلبات مطابقة.",
+  // 214
+  pausedShop: "الطلبات الجديدة واقفة",
+  pausedPlace: "{place} مش بياخد طلبات جديدة",
+  pausedUntil: "لحد {time}.",
+  pausedUntilReopen: "لحد ما تفتح تاني.",
+  pausedReason: "السبب اللي العملاء بيشوفوه: {reason}",
+  reopen: "افتح دلوقتي",
 };
 
 export const tr: Messages = {
@@ -764,4 +778,11 @@ export const tr: Messages = {
   paidCount: "{count, plural, =0 {Ödenen siparişler} one {{count} ödenen sipariş} other {{count} ödenen sipariş}}",
   search: "Müşteri, ürün veya numarayla arayın",
   noMatch: "Eşleşen sipariş yok.",
+  // 214
+  pausedShop: "Yeni sipariş alınmıyor",
+  pausedPlace: "{place} yeni sipariş almıyor",
+  pausedUntil: "Saat {time}'e kadar.",
+  pausedUntilReopen: "Siz yeniden açana kadar.",
+  pausedReason: "Müşterilerin gördüğü neden: {reason}",
+  reopen: "Şimdi aç",
 };

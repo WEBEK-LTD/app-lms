@@ -8,6 +8,22 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 214 (Yallapp Business 1.0.6; in the code, not released: the
+release waits for the owner): ring by order value (2 or 3 bands with their
+own sounds), the end-of-day summary at the phone's time in the shop's time
+zone, and Pause the shop (15, 30, 60 minutes or until reopened, with a
+reason customers read; a shop's checkout refuses new orders, a
+restaurant's or marketplace place's through its busy time; migration 0153).
+The home-screen widget on Android and iPhone (sales today, orders today,
+new orders waiting; its own read-only token for `GET /widget`), and a new
+order until it is answered: Android's ongoing notification with Accept and
+Open, the iPhone's Live Activity on the Lock Screen and in the Dynamic
+Island, started and ended by the server's pushes (migration 0154); the
+New order card on Today with Accept and Reject. New
+iPhone extension: `tr.com.yallapp.business.ShopWidget`, its App ID and
+profile made by fastlane on the first release. Time Sensitive is ready
+but off (open item below).
+
 Roadmap 206 (the follow-ups of 157, 158 and 160): plugin 0.4.52 never
 makes WordPress wait on Yallapp when an account is deleted (the chat's
 forget is queued in WP-Cron with a short timeout and retried), and its
@@ -1476,6 +1492,12 @@ sale show, with their prices from Admin › Plans.
 
 ## To verify against real services before release
 
+- 214 Yallapp Business 1.0.6 on real phones: the iPhone extension
+  (widget and Live Activity) compiled and signed on the first release
+  (CI compiles it unsigned; nothing here builds Swift), FCM's
+  `apns.live_activity_token` start and end pushes, the push-to-start token
+  (iOS 17.2), the widget's 15-minute timeline and Android's widget and
+  ongoing notification on a device.
 - 138 The App Store Connect calls of the App Review submission
   (`lib/publishing/app-review-submit.ts`): `builds` by version and
   processing state, `usesNonExemptEncryption`, making and renaming an
@@ -1547,6 +1569,11 @@ test environment:
 
 ## Known gaps
 
+- 214.7 Time Sensitive: waiting on the owner to tick Time Sensitive
+  Notifications for the Yallapp Business App ID in Apple Developer
+  (Identifiers), then turn the switch on (repository variable
+  `BUSINESS_TIME_SENSITIVE` = 1). Until then new-order pushes are
+  time-sensitive in the payload only, which iOS treats as active.
 - 155 Apple Pay inside the iPhone app's web view and Google Pay inside the
   Android app's aren't expected: WebKit allows Apple Pay only in a
   WKWebView without injected scripts (the app's web view adds its
