@@ -154,12 +154,14 @@ export class FoodConnector implements Connector {
   private near(r: Restaurant, settings: DeliverySettings, at: { lat: number; lng: number } | null, now: Date): RestaurantNear {
     const state = restaurantState(r, settings.timezone ?? DEFAULT_FOOD_TIMEZONE, now);
     const km = distanceFrom(r, at);
-    // By area, the fee is known only once the customer chooses theirs.
-    const quote = at && settings.pricing !== "zone" ? deliveryQuote(settings, r, { address: "", details: null, lat: at.lat, lng: at.lng }, null) : null;
+    // By area, the fee is known only once the customer chooses theirs. 176.2 With no prices set yet, none: the
+    // card said "Delivery E£0.00", as if free, while the cart can't order (`unavailable`).
+    const priced = pricesSet(settings);
+    const quote = priced && at && settings.pricing !== "zone" ? deliveryQuote(settings, r, { address: "", details: null, lat: at.lat, lng: at.lng }, null) : null;
     return {
       state,
       distanceKm: km,
-      feeCents: quote?.ok ? quote.cents : settings.pricing === "fixed" ? settings.fixedCents : null,
+      feeCents: quote?.ok ? quote.cents : priced && settings.pricing === "fixed" ? settings.fixedCents : null,
       delivers: quote ? quote.ok : null,
       deliveryMinutes: deliveryMinutes(r.prepMinutes, km),
     };

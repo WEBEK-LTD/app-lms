@@ -284,6 +284,8 @@ export const ICON_NAMES = [
   // 130.13–130.18 The school's and the academies' Signature looks: a link's arrow, the live tab.
   "north_east",
   "sensors",
+  // 179 Nakhla's forms to sign (its call to action's lead).
+  "signature",
   // 131 The card messages' occasions, and the flash sale.
   "cake",
   "celebration",

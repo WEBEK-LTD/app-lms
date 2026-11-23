@@ -109,7 +109,8 @@ function addressRow(ctx: SectionContext): StudioNode {
     gap: 8,
     cross: "center",
     self_align: "start",
-    height: 66,
+    // 176.7 Its height at the least: two lines at a larger text size make it taller.
+    min_height: 66,
     padding: sides(18, 16, 4, 16),
     children: [
       {
@@ -467,7 +468,7 @@ function cuisineBento(ctx: SectionContext, margin = sides(16, 16, 0, 16)): Studi
     margin,
     bento: { caption: "glass", row: 92 },
     entries: [
-      sigEntry(ctx, { title: "sofGrill", text: "sofSahara", subtitle: "sofGrillChip" }, { size: "large", image_url: sigPhoto(ctx, "/demo-photos/cover-grill.jpg"), action: restaurants }),
+      sigEntry(ctx, { title: "sofGrill", text: "sofGrillPlace", subtitle: "sofGrillChip" }, { size: "large", image_url: sigPhoto(ctx, "/demo-photos/cover-grill.jpg"), action: restaurants }),
       sigEntry(ctx, { title: "sofPizza" }, { size: "small", image_url: sigPhoto(ctx, "/demo-photos/cover-pizza.jpg"), action: restaurants }),
       sigEntry(ctx, { title: "sofDesserts" }, { size: "small", image_url: sigPhoto(ctx, "/demo-photos/chocolate-brownie.jpg"), action: restaurants }),
       sigEntry(ctx, { title: "sofEgyptian", text: "sofEgyptianLine" }, { size: "full", image_url: sigPhoto(ctx, "/demo-screens/sofra-mezze.jpg"), action: restaurants }),

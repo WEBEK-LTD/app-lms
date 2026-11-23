@@ -5671,6 +5671,8 @@ export interface RideQuery {
   userId?: number;
   /** Not this rider's (the store review account's). */
   notUserId?: number;
+  /** 178 Not the rides of a rider of this name (the review driver's sample rides, lib/rides/review.ts). */
+  notRiderName?: string;
   driverId?: number;
   offeredTo?: number;
   statuses?: RideStatus[];

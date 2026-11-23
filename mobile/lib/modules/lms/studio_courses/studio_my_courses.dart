@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -226,7 +228,13 @@ class StudioMyCourses extends ConsumerWidget {
                 )
               else if (design.layout == MyCoursesLayout.grid)
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 120),
+                  // 179 At least the design's room, and above a tab bar floating over it with the phone's own bar under it (roadmap 158).
+                  padding: EdgeInsets.fromLTRB(
+                    18,
+                    0,
+                    18,
+                    math.max(120, endRoom(context, 24)),
+                  ),
                   sliver: SliverGrid.count(
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
@@ -240,7 +248,13 @@ class StudioMyCourses extends ConsumerWidget {
                 )
               else
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 120),
+                  // 179 At least the design's room, and above a tab bar floating over it with the phone's own bar under it (roadmap 158).
+                  padding: EdgeInsets.fromLTRB(
+                    18,
+                    0,
+                    18,
+                    math.max(120, endRoom(context, 24)),
+                  ),
                   sliver: SliverList.separated(
                     itemCount: state.items.length,
                     separatorBuilder: (_, _) => look.look == CourseLook.faculty

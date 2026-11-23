@@ -255,7 +255,7 @@ class _PriceCalendarScreenState extends ConsumerState<PriceCalendarScreen> {
             children: [
               Text(
                 search.roundTrip
-                    ? '${shortDay(search.depart)} → ${shortDay(search.back)}'
+                    ? route(shortDay(search.depart), shortDay(search.back))
                     : shortDay(search.depart),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -507,7 +507,26 @@ class FlightResultsScreen extends ConsumerStatefulWidget {
 
 class _FlightResultsScreenState extends ConsumerState<FlightResultsScreen> {
   String _sort = 'best';
-  bool _tracking = false;
+
+  /// What the switch was just turned to, until the alerts are read again.
+  bool? _tracking;
+
+  /// 180.3 The person's alert on this route, month and kind of trip, if
+  /// they already watch it (here or from Price alerts).
+  TravelAlert? _watching(FlightSearch search) {
+    final alerts = ref.read(travelAlertsProvider).value ?? const [];
+    final month = search.depart == null ? null : monthOf(search.depart!);
+    return alerts
+        .where(
+          (a) =>
+              a.kind == 'flight' &&
+              a.from.code == search.from?.code &&
+              a.to?.code == search.to?.code &&
+              a.month == month &&
+              a.roundTrip == search.roundTrip,
+        )
+        .firstOrNull;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -516,6 +535,8 @@ class _FlightResultsScreenState extends ConsumerState<FlightResultsScreen> {
     final search = ref.watch(flightSearchProvider);
     final results = ref.watch(flightSearchResultsProvider(search));
     final data = results.value;
+    ref.watch(travelAlertsProvider);
+    final tracking = _tracking ?? _watching(search) != null;
     return Scaffold(
       backgroundColor: t.page,
       body: SafeArea(
@@ -670,7 +691,7 @@ class _FlightResultsScreenState extends ConsumerState<FlightResultsScreen> {
                         children: [
                           TravelToggle(
                             t: t,
-                            on: _tracking,
+                            on: tracking,
                             label: l.travelTrack,
                             onChanged: (v) => _track(v, search),
                           ),
@@ -713,7 +734,12 @@ class _FlightResultsScreenState extends ConsumerState<FlightResultsScreen> {
                     );
                   }
                   return ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 22, 16, 24),
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      22,
+                      16,
+                      endRoom(context, 24),
+                    ),
                     itemCount: items.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 18),
                     itemBuilder: (context, i) =>
@@ -739,9 +765,19 @@ class _FlightResultsScreenState extends ConsumerState<FlightResultsScreen> {
       );
       return;
     }
-    if (!on) return setState(() => _tracking = false);
-    setState(() => _tracking = true);
+    final watching = _watching(search);
+    setState(() => _tracking = on);
     try {
+      // 180.3 Off stops the alert (it kept sending prices); on again doesn't
+      // make a second one.
+      if (!on) {
+        if (watching != null) {
+          await ref.read(travelApiProvider).deleteAlert(watching.id);
+          ref.invalidate(travelAlertsProvider);
+        }
+        return;
+      }
+      if (watching != null) return;
       await ref.read(travelApiProvider).addAlert({
         'kind': 'flight',
         'from': search.from!.code,
@@ -758,7 +794,7 @@ class _FlightResultsScreenState extends ConsumerState<FlightResultsScreen> {
       if (mounted) showMessage(context, l.travelTracking);
     } on ApiException catch (e) {
       if (!mounted) return;
-      setState(() => _tracking = false);
+      setState(() => _tracking = !on);
       showMessage(context, e.message);
     }
   }
@@ -784,7 +820,7 @@ class _OptionCard extends ConsumerWidget {
         Text.rich(
           TextSpan(
             children: [
-              TextSpan(text: '${g.departTime} → ${g.arriveTime}'),
+              TextSpan(text: route(g.departTime, g.arriveTime)),
               if (g.daysLater > 0)
                 TextSpan(
                   text: ' +${g.daysLater}',
@@ -994,13 +1030,7 @@ class FaresScreen extends ConsumerWidget {
                     g.number,
                     g.aircraft,
                     durationLabel(context, g.minutes),
-                    ...g.amenities.map(
-                      (a) => a == 'wifi'
-                          ? l.travelWifi
-                          : a == 'meal'
-                          ? l.travelMeal
-                          : a,
-                    ),
+                    ...g.amenities.map((a) => flightAmenityName(l, a)),
                   ].whereType<String>().join(' · '),
                   style: t.ui(11.5, color: t.muted),
                 ),

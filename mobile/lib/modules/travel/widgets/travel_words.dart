@@ -120,3 +120,15 @@ DateTime? dayOf(String value) =>
 /// "CAI → IST", the arrow pointing the reading way.
 String route(String from, String to) =>
     '${ltrRun(from)} ${toArrow()} ${ltrRun(to)}';
+
+/// 180.7 What a flight has on board, in the app's language: the five the
+/// dashboard offers (`TRAVEL_FLIGHT_AMENITIES`); "power" and the others
+/// showed as they are stored.
+String flightAmenityName(AppLocalizations l, String id) => switch (id) {
+  'wifi' => l.travelWifi,
+  'meal' => l.travelMeal,
+  'power' => l.travelPower,
+  'entertainment' => l.travelEntertainment,
+  'lounge' => l.travelLounge,
+  _ => id,
+};
