@@ -1,0 +1,13 @@
+/* 214 The home-screen widget and the new order's Live Activity. */
+"widget.name" = "Today's sales";
+"widget.description" = "Sales today, orders today and the new orders waiting.";
+"widget.choose" = "Choose the shop";
+"widget.shop" = "Shop";
+"widget.sales" = "Sales today";
+"widget.orders" = "Orders today";
+"widget.waiting" = "Waiting";
+"widget.signIn" = "Sign in to Yallapp Business to see your day.";
+"widget.offline" = "Couldn't update. Showing the last figures.";
+"widget.updated" = "Updated %@";
+"live.newOrder" = "New order %@";
+"live.waiting" = "waiting";

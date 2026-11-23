@@ -139,7 +139,8 @@ BUSINESS_ID = "tr.com.yallapp.business"
 # (business by default): Yallapp Business (business/, its push entitlement in the project) and
 # Yallapp Courier (mobile/, the client app's project: the push entitlement is written here).
 RELEASE_APPS = {
-  "business" => { id: BUSINESS_ID, name: "Yallapp Business", ipa: "YallappBusiness", keychain: "yallapp-business.keychain", entitlements: false },
+  # 214 extensions: the app's extension targets and their bundle IDs, signed with profiles of their own.
+  "business" => { id: BUSINESS_ID, name: "Yallapp Business", ipa: "YallappBusiness", keychain: "yallapp-business.keychain", entitlements: false, extensions: { "ShopWidget" => "#{BUSINESS_ID}.ShopWidget" } },
   "courier" => { id: "tr.com.yallapp.courier", name: "Yallapp Courier", ipa: "YallappCourier", keychain: "yallapp-courier.keychain", entitlements: true },
 }.freeze
 
@@ -517,13 +518,34 @@ platform :ios do
       code_sign_identity: "Apple Distribution",
       profile_name: profile_name,
     )
+    # 214 Yallapp Business's widget extension (the home-screen widget and the new order's Live
+    # Activity): its own App ID (made here the first time) and App Store profile. It shares a
+    # keychain item with the app (keychain-access-groups under the team's prefix, in every
+    # profile): no capability to turn on, nothing Apple grants.
+    profiles = { app_id => profile_name }
+    (app[:extensions] || {}).each do |target, extension_id|
+      Spaceship::ConnectAPI::BundleId.find(extension_id) ||
+        Spaceship::ConnectAPI::BundleId.create(name: "#{app[:name]} Widget", identifier: extension_id, platform: "IOS")
+      get_provisioning_profile(api_key: api_key, app_identifier: extension_id, cert_id: cert_id, force: true, output_path: options[:out], filename: "#{target}.mobileprovision")
+      extension_profile = lane_context[SharedValues::SIGH_NAME]
+      update_code_signing_settings(
+        path: File.join(ios_dir, "Runner.xcodeproj"),
+        use_automatic_signing: false,
+        targets: [target],
+        build_configurations: ["Release"],
+        team_id: team_id,
+        code_sign_identity: "Apple Distribution",
+        profile_name: extension_profile,
+      )
+      profiles[extension_id] = extension_profile
+    end
     build_app(
       workspace: File.join(ios_dir, "Runner.xcworkspace"),
       scheme: "Runner",
       configuration: "Release",
       export_method: "app-store",
       export_team_id: team_id,
-      export_options: { provisioningProfiles: { app_id => profile_name }, signingStyle: "manual" },
+      export_options: { provisioningProfiles: profiles, signingStyle: "manual" },
       output_directory: options[:out],
       output_name: app[:ipa],
       xcargs: entitlements ? "CODE_SIGN_ENTITLEMENTS=#{entitlements}" : nil,

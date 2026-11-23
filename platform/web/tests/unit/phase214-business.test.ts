@@ -6,9 +6,9 @@ import type { App, CatalogOrder, OwnerDevice, OwnerPushSounds, RestaurantInput }
 import { EMPTY_MENU } from "@/lib/food/menu";
 import { restaurantState } from "@/lib/food/service";
 import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
-import type { sendPush, ServiceAccount } from "@/lib/hosted/push";
+import { apsOf, fcmMessage, type sendPush, type ServiceAccount } from "@/lib/hosted/push";
 import { daySummary, runDailySummaries, summaryWords } from "@/lib/owner/daily-summary";
-import { orderValue, pushNewOrder, type OwnerPushDeps, type OwnerPushMessage } from "@/lib/owner/push";
+import { WIDGET_KINDS, orderValue, pushNewOrder, type OwnerPushDeps, type OwnerPushMessage } from "@/lib/owner/push";
 import { defaultPushSounds, pushDelivery, pushSoundsJson, readPushSounds, soundByValue } from "@/lib/owner/push-sounds";
 import { appPause, pauseApp, pausePlace, placePause, readPause, reopen } from "@/lib/shop/pause";
 import { getDashT, knownTranslator } from "@/i18n/dashboard";
@@ -284,5 +284,16 @@ describe("214 the end-of-day summary", () => {
     // 23:00 (20:00 UTC): the first phone.
     expect((await run(at("2026-10-13T20:05:00Z"))).sent).toBe(1);
     expect(sent.at(-1)!.targets).toEqual(["token-11111111-1111-4111-8111-111111111111"]);
+  });
+});
+
+describe("214 the home-screen widget's pushes", () => {
+  it("a new order's push also wakes an iPhone app, so its widget reads again", () => {
+    expect(apsOf({ apnsSound: "default", contentAvailable: true })).toEqual({ sound: "default", "content-available": 1 });
+    expect(apsOf({ apnsSound: null })).toEqual({});
+    const message = fcmMessage("t", { title: "New order", body: "", data: {}, contentAvailable: true });
+    expect(message.apns?.payload.aps).toMatchObject({ "content-available": 1 });
+    expect(WIDGET_KINDS.has("new_order")).toBe(true);
+    expect(WIDGET_KINDS.has("new_message")).toBe(false);
   });
 });

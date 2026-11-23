@@ -72,12 +72,18 @@ export interface PushMessage {
   apnsSound?: string | null;
   /** 207 iOS: time-sensitive (shown at once, through a Focus that allows it). */
   timeSensitive?: boolean;
+  /** 214 iOS: also wakes the app in the background (`content-available`), for its widget. */
+  contentAvailable?: boolean;
 }
 
 /** 207 The `aps` of a push: its sound and, when asked, time-sensitive. */
-export function apsOf(message: Pick<PushMessage, "apnsSound" | "timeSensitive">): Record<string, string> {
+export function apsOf(message: Pick<PushMessage, "apnsSound" | "timeSensitive" | "contentAvailable">): Record<string, string | number> {
   const sound = message.apnsSound === undefined ? "default" : message.apnsSound;
-  return { ...(sound ? { sound } : {}), ...(message.timeSensitive ? { "interruption-level": "time-sensitive" } : {}) };
+  return {
+    ...(sound ? { sound } : {}),
+    ...(message.timeSensitive ? { "interruption-level": "time-sensitive" } : {}),
+    ...(message.contentAvailable ? { "content-available": 1 } : {}),
+  };
 }
 
 /** 207 The FCM v1 message for one token. */

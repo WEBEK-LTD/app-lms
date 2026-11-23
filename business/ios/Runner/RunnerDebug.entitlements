@@ -4,5 +4,10 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)tr.com.yallapp.business</string>
+		<string>$(AppIdentifierPrefix)tr.com.yallapp.business.shared</string>
+	</array>
 </dict>
 </plist>

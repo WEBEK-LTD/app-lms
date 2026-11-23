@@ -59,7 +59,12 @@ export interface OwnerPushMessage {
   dataOnly?: boolean;
   apnsSound?: string | null;
   timeSensitive?: boolean;
+  /** 214 iOS: wakes the app too, so its home-screen widget reads again. */
+  contentAvailable?: boolean;
 }
+
+/** 214 The pushes that change the home-screen widget's figures (the app's own list: lib/app.dart). */
+export const WIDGET_KINDS: ReadonlySet<OwnerPushKind> = new Set<OwnerPushKind>(["new_order", "new_food_order", "new_market_order", "shipment_waiting", "order_cancelled"]);
 
 export interface OwnerPushDeps {
   store: DataStore;
@@ -168,6 +173,7 @@ export async function pushToOwner(
         body: clip(text.body, NOTIFICATION_BODY_MAX),
         data: { type: "owner", kind, ...data, ...(delivery?.data ?? {}), business_id: clientId, business_name: name },
         ...(delivery ? { dataOnly: delivery.dataOnly, apnsSound: delivery.apnsSound, timeSensitive: delivery.timeSensitive } : {}),
+        ...(WIDGET_KINDS.has(kind) && !delivery?.dataOnly ? { contentAvailable: true } : {}),
       };
       await deps.capture?.({ to: devices.map((d) => d.id), message });
       if (!deps.account) continue;
