@@ -13169,6 +13169,37 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('paySheetOpenAgain') ?? base.paySheetOpenAgain;
 
   @override
+  String get sizeGuide => overlay.text('sizeGuide') ?? base.sizeGuide;
+
+  @override
+  String sizeChartIn(String unit) =>
+      overlay.format('sizeChartIn', {'unit': unit}) ?? base.sizeChartIn(unit);
+
+  @override
+  String get completeTheLook =>
+      overlay.text('completeTheLook') ?? base.completeTheLook;
+
+  @override
+  String exchangeWithin(int days) =>
+      overlay.format('exchangeWithin', {'days': days}) ??
+      base.exchangeWithin(days);
+
+  @override
+  String optionSoldOut(String option) =>
+      overlay.format('optionSoldOut', {'option': option}) ??
+      base.optionSoldOut(option);
+
+  @override
+  String categoryAllOf(String name) =>
+      overlay.format('categoryAllOf', {'name': name}) ??
+      base.categoryAllOf(name);
+
+  @override
+  String categoryMenuRow(String name, String count) =>
+      overlay.format('categoryMenuRow', {'name': name, 'count': count}) ??
+      base.categoryMenuRow(name, count);
+
+  @override
   String get appointmentStatusApproved =>
       overlay.text('appointmentStatusApproved') ??
       base.appointmentStatusApproved;

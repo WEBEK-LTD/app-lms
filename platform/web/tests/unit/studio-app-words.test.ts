@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import type { App } from "@/lib/data/types";
-import { demoKind, FLOWER_SHOP_DEMO, FLOWER_SHOP_TEMPLATE, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
+import { demoKind, isStoreTemplateDemo, STORE_TEMPLATE_DEMOS, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoStudioScreens } from "@/lib/demo/screens";
 import { demoLayout } from "@/lib/demo/setup";
@@ -150,7 +150,7 @@ function arabicContext(app: App): SectionContext {
 function demoApp(id: StudioDemoId): App {
   const kind = demoKind(id);
   // 131.20 And Leqaa's its look A.
-  const design = id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : id === FLOWER_SHOP_DEMO ? { design: FLOWER_SHOP_TEMPLATE } : {};
+  const design = id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : isStoreTemplateDemo(id) ? { design: STORE_TEMPLATE_DEMOS[id] } : {};
   return { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS[id].appName, primaryColor: DEMO_BRANDS[id].primaryColor, brandingDoneAt: NOW, ...design };
 }
 

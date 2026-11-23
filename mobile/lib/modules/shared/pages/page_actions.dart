@@ -393,3 +393,19 @@ String? categoryLocation(ItemSource? source, AppType appType, int id) =>
       ),
       _ => null,
     };
+
+/// 208 The page a header's menu button opens (`StudioHeader.menu_page`, the
+/// category menu's); null: the side menu, as before.
+String? headerMenuPage(StudioHeader header) {
+  final slug = header.menuPage?.trim();
+  return slug == null || slug.isEmpty ? null : slug;
+}
+
+/// 208 Opens the header menu's page over the screen.
+void openHeaderMenuPage(BuildContext context, WidgetRef ref, String slug) {
+  runPageAction(
+    context,
+    ref,
+    PageAction(type: PageActionType.page, pageSlug: slug),
+  );
+}

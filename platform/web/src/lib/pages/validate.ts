@@ -85,6 +85,7 @@ import {
   type StudioGallery,
   type StudioMarquee,
   STUDIO_CATEGORY_STYLES,
+  STUDIO_CATEGORY_MENU_LOOKS,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_DAYS,
@@ -269,8 +270,8 @@ export function mediaAddress(text: string): string | null {
   }
   // 97.5 The platform's own files too, 99.1 and the designs' pictures (https in production; local tests serve them over http),
   // 128 and Yallapp's own photos the demos' templates use (public/demo-photos, demo-screens, stories); 130.12 and its travel photos (public/travel-photos).
-  // 131.20 And Leqaa's flower photos (public/flower-photos).
-  const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures|demo-photos|demo-screens|stories|travel-photos|flower-photos)\//.test(url.pathname);
+  // 131.20 And Leqaa's flower photos (public/flower-photos); 208 and every shop type's (public/<type>-photos: clothes-photos and the next).
+  const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures|demo-photos|demo-screens|stories|[a-z]+-photos)\//.test(url.pathname);
   if (!url || (url.protocol !== "https:" && !own) || text.length > 2000 || /\s/.test(text)) return null;
   return url.toString();
 }
@@ -1180,6 +1181,11 @@ function parseStudioHeader(ctx: Context, where: string, value: unknown): StudioH
     else if (v.collapse === false) header.collapse = false;
   }
   // ——— end 130.20 premium chrome ———
+  // 208 The page its menu button opens.
+  if (v.menu_page !== undefined && v.menu_page !== null && v.menu_page !== "") {
+    if (typeof v.menu_page !== "string" || !SLUG.test(v.menu_page) || v.menu_page.length > 40) c.fail(where, "choose the page the menu button opens.");
+    else header.menu_page = v.menu_page;
+  }
   const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studioHeader, { title: 80, subtitle: 80 });
   if (translations) header.translations = translations;
   return header;
@@ -1983,6 +1989,31 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       if (style && style !== "chips") node.style = style;
       const columns = num("columns", 1, L.maxColumns, "the columns");
       if (columns && style === "pictures") node.columns = Math.round(columns);
+      // 208 The category menu's look.
+      if (style === "rows" && v.category_menu !== undefined && v.category_menu !== null) {
+        const m = record(v.category_menu);
+        if (!m) bad("the category menu's options aren't valid.");
+        else {
+          const menu: NonNullable<StudioNode["category_menu"]> = {};
+          if (m.look !== undefined && m.look !== null) {
+            if (!oneOf(STUDIO_CATEGORY_MENU_LOOKS, m.look)) bad("choose how the category menu looks.");
+            else menu.look = m.look;
+          }
+          if (m.numbers === false) menu.numbers = false;
+          const radius = studioNumber(m.radius, 0, 40);
+          if (radius !== undefined && Number.isNaN(radius)) bad("the cards' corners are 0 to 40.");
+          else if (radius !== undefined) menu.radius = radius;
+          if (Object.keys(menu).length) node.category_menu = menu;
+        }
+      }
+      break;
+    }
+    case "size_chart": {
+      // 208 The shop's size chart; its title (optional) above it.
+      const text = c.optionalText(where, v.text, L.titleChars, "The size chart's title");
+      if (text) node.text = text;
+      const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.titleChars, title: L.titleChars });
+      if (translations) node.translations = translations;
       break;
     }
     case "form": {

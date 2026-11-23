@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
-import { demoKind, FLOWER_SHOP_DEMO, FLOWER_SHOP_TEMPLATE, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
+import { demoKind, isStoreTemplateDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoLayout } from "@/lib/demo/setup";
 import { INNER_SCREENS, innerScreensFor } from "@/lib/pages/inner-screens";
@@ -23,7 +23,7 @@ const NOW = new Date("2026-11-11T10:00:00Z");
 function demoApp(id: (typeof STUDIO_DEMO_TYPES)[number]): App {
   const kind = demoKind(id);
   // 123 The premium academy's demo keeps the template it started from; 131.20 Leqaa its look A.
-  const design = id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : id === FLOWER_SHOP_DEMO ? { design: FLOWER_SHOP_TEMPLATE } : {};
+  const design = id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : isStoreTemplateDemo(id) ? { design: STORE_TEMPLATE_DEMOS[id] } : {};
   return { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS[id].appName, brandingDoneAt: NOW, ...design };
 }
 

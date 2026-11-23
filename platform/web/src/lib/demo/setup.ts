@@ -23,7 +23,8 @@ import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
-import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, FLOWER_SHOP_TEMPLATE, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, type DemoId } from "./constants";
+import { ALL_DEMO_TYPES, CLOTHES_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
+import { CLOTHES_COMMERCE, CLOTHES_CURRENCY, CLOTHES_FREE_SHIPPING_OVER_CENTS, CLOTHES_SHIPPING_CENTS } from "./clothes";
 import { FLOWER_COMMERCE, FLOWER_CURRENCY, FLOWER_FREE_SHIPPING_OVER_CENTS, FLOWER_SHIPPING_CENTS } from "./flowers";
 import {
   BOOKING_RULES,
@@ -46,6 +47,7 @@ import {
   STORE_FREE_SHIPPING_OVER_CENTS,
   STORE_SHIPPING_CENTS,
 } from "./content";
+import { demoClothesCommerce, demoClothesProducts } from "./clothes-entries";
 import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerCommerce, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
 import { savePicture, type DemoPicture, type PictureSize } from "./picture-assets";
 import { refreshMarketplaceDemo, savingZadPictures } from "./marketplace";
@@ -162,8 +164,8 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     ...(isStudioDemo(id) ? { section: "studio" as const } : {}),
     // 123 The premium academy keeps the template it started from, which tells it apart from the academy's own demo.
     ...(id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : {}),
-    // 131.20 Leqaa keeps its look A, which tells it apart from the store's own demo.
-    ...(id === FLOWER_SHOP_DEMO ? { design: FLOWER_SHOP_TEMPLATE } : {}),
+    // 131.20 Leqaa keeps its look A, which tells it apart from the store's own demo; 208 so does each shop type's demo.
+    ...(isStoreTemplateDemo(id) ? { design: STORE_TEMPLATE_DEMOS[id] } : {}),
     appName: brand.appName,
     shortName: brand.shortName,
     iconAssetId,
@@ -221,6 +223,9 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
       // 162 Build your bouquet kept through a refresh (its products' IDs stay); entries.ts writes it when they change.
       ...(app.catalogSettings?.bouquet ? { bouquet: app.catalogSettings.bouquet } : {}),
     };
+  } else if (content === "catalog" && id === CLOTHES_DEMO) {
+    // 208 Lujain in Riyadh: Saudi riyals, free from a bigger order, exchanges within 14 days, its size chart and "Complete the look".
+    patch.catalogSettings = { currency: CLOTHES_CURRENCY, shippingCents: CLOTHES_SHIPPING_CENTS, freeShippingOverCents: CLOTHES_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(CLOTHES_COMMERCE) };
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
   } else if (content === "bookings" && id === "fitness") {
@@ -250,6 +255,10 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     await demoFlowerProducts(entryDeps(deps, client.id), saved);
     // 131 Its flash sale, its code shown in the app, its card messages.
     await demoFlowerCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && id === CLOTHES_DEMO) {
+    // 208 Lujain's clothes, their sizes and colours with the stock of each, its categories and their sub-categories, its flash sale and code.
+    await demoClothesProducts(entryDeps(deps, client.id), saved);
+    await demoClothesCommerce(entryDeps(deps, client.id), saved);
   }
   else if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
   // Studio's demos: a parcel company, food delivery from three restaurants, rides.

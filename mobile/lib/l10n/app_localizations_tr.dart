@@ -12326,6 +12326,43 @@ class AppLocalizationsTr extends AppLocalizations {
   String get paySheetOpenAgain => 'Ödeme sayfasını aç';
 
   @override
+  String get sizeGuide => 'Beden rehberi';
+
+  @override
+  String sizeChartIn(String unit) {
+    return 'Beden tablosu ($unit)';
+  }
+
+  @override
+  String get completeTheLook => 'Görünümü tamamla';
+
+  @override
+  String exchangeWithin(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days gün içinde değişim veya iade',
+      one: '1 gün içinde değişim veya iade',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String optionSoldOut(String option) {
+    return '$option, tükendi';
+  }
+
+  @override
+  String categoryAllOf(String name) {
+    return 'Tüm $name';
+  }
+
+  @override
+  String categoryMenuRow(String name, String count) {
+    return '$name, $count';
+  }
+
+  @override
   String get appointmentStatusApproved => 'Onaylandı';
 
   @override

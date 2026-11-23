@@ -78,11 +78,32 @@ export const FLOWER_SHOP_DEMO = "flowers" as const;
 /** 131.20 Leqaa's look A, the template its demo app keeps as its design. */
 export const FLOWER_SHOP_TEMPLATE = "flowers_signature_a";
 
-export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school" | "travel"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO;
+/**
+ * 208 The premium shop types' demos (lib/studio/shop-types.ts), each a
+ * Studio demo of the store kind told apart from the store's own demo by its
+ * look A (`App.design`), as Leqaa is: its template id by its demo id. A
+ * later type adds its line here.
+ */
+export const SHOP_TYPE_DEMOS = {
+  // 208 Lujain (لجين), the clothes shop: A a black and white boutique, B streetwear (NOUN).
+  clothes: "clothes_signature_a",
+} as const;
+export type ShopTypeDemo = keyof typeof SHOP_TYPE_DEMOS;
+export const CLOTHES_DEMO = "clothes" as const satisfies ShopTypeDemo;
+
+export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school" | "travel"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO | ShopTypeDemo;
+
+/** 208 The Studio demos of a template rather than a kind (a store told apart by its look A): Leqaa and the shop types', their look A by their id. */
+export const STORE_TEMPLATE_DEMOS: Readonly<Record<typeof FLOWER_SHOP_DEMO | ShopTypeDemo, string>> = { [FLOWER_SHOP_DEMO]: FLOWER_SHOP_TEMPLATE, ...SHOP_TYPE_DEMOS };
+
+/** 208 Whether a demo is a store's template demo (Leqaa, a shop type's). */
+export function isStoreTemplateDemo(id: string): id is typeof FLOWER_SHOP_DEMO | ShopTypeDemo {
+  return Object.hasOwn(STORE_TEMPLATE_DEMOS, id);
+}
 export type DemoId = Exclude<AppType, StudioDemoId> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
 
 /** The kinds only Studio offers (lib/studio/section.ts STUDIO_ONLY_KINDS). */
-const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors", "marketplace", "travel", PREMIUM_ACADEMY_DEMO, FLOWER_SHOP_DEMO];
+const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors", "marketplace", "travel", PREMIUM_ACADEMY_DEMO, FLOWER_SHOP_DEMO, ...Object.keys(SHOP_TYPE_DEMOS)];
 
 export function isStudioDemo(id: DemoId): id is StudioDemoId {
   return STUDIO_DEMO_KINDS.includes(id);
@@ -92,8 +113,8 @@ export function isStudioDemo(id: DemoId): id is StudioDemoId {
 export function demoKind(id: DemoId): KindInfo {
   // 123 The premium academy is an academy.
   if (id === PREMIUM_ACADEMY_DEMO) return defaultKind("lms");
-  // 131.20 Leqaa is a store.
-  if (id === FLOWER_SHOP_DEMO) return defaultKind("store");
+  // 131.20 Leqaa is a store; 208 and so is each shop type's demo.
+  if (isStoreTemplateDemo(id)) return defaultKind("store");
   return isAppType(id) ? defaultKind(id) : KINDS.find((k) => k.vertical === id)!;
 }
 
@@ -108,6 +129,8 @@ export const ALL_DEMO_TYPES: readonly DemoId[] = [
   PREMIUM_ACADEMY_DEMO,
   // 131.20 Leqaa, the flower shop, a template's demo too (the store's).
   FLOWER_SHOP_DEMO,
+  // 208 The shop types' demos, templates' demos of the store too.
+  ...(Object.keys(SHOP_TYPE_DEMOS) as ShopTypeDemo[]),
 ];
 
 /** The regular apps' demos, on /demo. */
@@ -117,7 +140,7 @@ export const DEMO_TYPES: readonly DemoId[] = ALL_DEMO_TYPES.filter((id) => !isSt
 export const STUDIO_DEMO_TYPES: readonly StudioDemoId[] = ALL_DEMO_TYPES.filter(isStudioDemo);
 
 /** Each demo's address on /demo (or /demo/studio) and of its download: /demo/download/<slug> (lib/app/kinds.ts). */
-export const DEMO_SLUGS = Object.fromEntries(ALL_DEMO_TYPES.map((id) => [id, id === PREMIUM_ACADEMY_DEMO ? "premium-academy" : id === FLOWER_SHOP_DEMO ? "flowers" : demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;
+export const DEMO_SLUGS = Object.fromEntries(ALL_DEMO_TYPES.map((id) => [id, id === PREMIUM_ACADEMY_DEMO ? "premium-academy" : isStoreTemplateDemo(id) ? id.replaceAll("_", "-") : demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;
 
 export function demoTypeOfSlug(slug: string): DemoId | null {
   return ALL_DEMO_TYPES.find((id) => DEMO_SLUGS[id] === slug) ?? null;
@@ -127,8 +150,11 @@ export function demoTypeOfSlug(slug: string): DemoId | null {
 export function demoIdOf(app: Pick<App, "appType"> & { vertical?: AppVertical | null; design?: string | null }): DemoId {
   // 123 The premium academy's demo keeps its template as its design.
   if (app.appType === "lms" && !app.vertical && app.design === PREMIUM_ACADEMY_TEMPLATE) return PREMIUM_ACADEMY_DEMO;
-  // 131.20 Leqaa's demo keeps its look A as its design.
-  if (app.appType === "store" && !app.vertical && app.design === FLOWER_SHOP_TEMPLATE) return FLOWER_SHOP_DEMO;
+  // 131.20 Leqaa's demo keeps its look A as its design; 208 so does each shop type's.
+  if (app.appType === "store" && !app.vertical && app.design) {
+    const own = (Object.keys(STORE_TEMPLATE_DEMOS) as (keyof typeof STORE_TEMPLATE_DEMOS)[]).find((id) => STORE_TEMPLATE_DEMOS[id] === app.design);
+    if (own) return own;
+  }
   const vertical = app.vertical ?? null;
   return vertical && (ALL_DEMO_TYPES as readonly string[]).includes(vertical) ? (vertical as DemoId) : (app.appType as DemoId);
 }

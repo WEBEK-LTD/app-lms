@@ -1,5 +1,5 @@
 import type { LayoutBlock, StudioEntry, StudioNode, StudioPage } from "../pages/types";
-import type { StudioDemoId } from "../demo/constants";
+import type { ShopTypeDemo, StudioDemoId } from "../demo/constants";
 import { APP_WORDS } from "./app-words";
 import { newNodeId } from "./elements";
 import type { SectionContext, SectionWord } from "./sections";
@@ -48,6 +48,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   premium_academy: "premium_academy_signature_a",
   // 131.20 Leqaa, the flower shop, is its Signature look A, rose hour (lib/studio/demo-designs/leqaa-signature.ts).
   flowers: "flowers_signature_a",
+  // 208 Lujain, the clothes shop, is its Signature look A, the boutique (lib/studio/demo-designs/clothes-signature.ts).
+  clothes: "clothes_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -108,6 +110,8 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   travel: { surface: "#FFFFFF", nightSurface: "#1B2338", line: "#E6DFD2", nightLine: "#2A3350", muted: "#5F6472", nightMuted: "#B4B8C6" },
   // 131.20 Leqaa's, its look A's (lib/studio/demo-designs/leqaa-signature.ts LEQAA_A_INK).
   flowers: { surface: "#FFFFFF", nightSurface: "#21121A", line: "#F0DDD9", nightLine: "#3A2530", muted: "#7B5E67", nightMuted: "#C9AEB6" },
+  // 208 Lujain's, its look A's (lib/studio/demo-designs/clothes-signature.ts LUJAIN_INK).
+  clothes: { surface: "#FFFFFF", nightSurface: "#191917", line: "#E4DFD6", nightLine: "#2E2C28", muted: "#5F5B55", nightMuted: "#B6B0A6" },
 };
 
 /**
@@ -222,7 +226,8 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
 
 /** The demos' own templates; 123 the premium academy is a template already (lib/studio/sections.ts academy_premium). */
 /** 131.20 Leqaa (a template's demo, as the premium academy) has none: its looks are a store's first templates. */
-export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy" | "flowers">, string> = {
+/** 208 Nor the shop types' demos (Lujain): their looks are a store's first templates too. */
+export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy" | "flowers" | ShopTypeDemo>, string> = {
   delivery: "local_shipping",
   food: "delivery_dining",
   marketplace: "storefront",
@@ -322,6 +327,15 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     lqBouquetTitle: { en: "Blush Garden", ar: "حديقة الورد", tr: "Pembe Bahçe" },
     lqBouquetLine: { en: "Blush roses, lisianthus and eucalyptus, made on the day it is delivered.", ar: "ورد وردي وليزيانثوس وأوكالبتوس، تُصنع في يوم توصيلها.", tr: "Pembe güller, lisianthus ve okaliptüs; teslim edildiği gün hazırlanır." },
   },
+  // 208 Lujain's own words where its looks leave the owner brackets: its look, its drop, its promises and its exchanges (lib/demo/clothes.ts).
+  clothes: {
+    clLookName: { en: "Classic black with a soft touch", ar: "أسود كلاسيكي بلمسة ناعمة", tr: "Yumuşak dokunuşlu klasik siyah" },
+    clDropKicker: { en: "Drop 07 · Limited pieces", ar: "الإصدار 07 · قطع محدودة", tr: "Drop 07 · Sınırlı parça" },
+    clTicker: { en: "Free delivery over 500 SAR · Exchanges within 14 days · New pieces every week", ar: "توصيل مجاني فوق 500 ر.س · استبدال خلال 14 يومًا · قطع جديدة كل أسبوع", tr: "500 SAR üzeri ücretsiz teslimat · 14 gün içinde değişim · Her hafta yeni parçalar" },
+    clContactLine: { en: "Customer care every day, 9 am to 11 pm", ar: "خدمة العملاء يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Müşteri hizmetleri her gün 09.00–23.00" },
+    clEditTitle: { en: "Day dresses, the new season", ar: "فساتين النهار للموسم الجديد", tr: "Yeni sezonun gündüz elbiseleri" },
+    clExchangeNote: { en: "Free exchange within 14 days, picked up from your door.", ar: "استبدال مجاني خلال 14 يومًا، نستلم القطعة من باب منزلكِ.", tr: "14 gün içinde ücretsiz değişim, kapınızdan alınır." },
+  },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {
     sigStayOne: { en: "Safra Caldera Suites", ar: "Safra Caldera Suites", tr: "Safra Caldera Suites" },
@@ -379,4 +393,4 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
 }
 
 /** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
-const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa" };
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain" };
