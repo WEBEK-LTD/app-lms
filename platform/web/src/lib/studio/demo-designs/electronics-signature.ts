@@ -357,7 +357,7 @@ function servicesStrip(ctx: SectionContext, l: Look): StudioNode {
     border_width: 1,
     children: [
       serviceTile(ctx, l, "local_shipping", "elFast", "elFastText"),
-      serviceTile(ctx, l, "handyman", "elInstall", "elInstallText"),
+      serviceTile(ctx, l, "home_work", "elInstall", "elInstallText"),
       serviceTile(ctx, l, "verified", "elWarranty", "elWarrantyText"),
       serviceTile(ctx, l, "calendar_month", "elInstallments", "elSoon", true),
     ],
@@ -426,7 +426,7 @@ function starCard(ctx: SectionContext, l: Look): StudioNode {
     dark_border_color: l.k.darkLine,
     border_width: 1,
     children: [
-      { id: id(), type: "image", image_url: sigPhoto(ctx, P("w-tv-room")), height: 190, fit: "cover", radius: 0, background: l.tint.day, dark_background: l.tint.night },
+      ...(sigPhoto(ctx, P("w-tv-room")) ? [{ id: id(), type: "image" as const, image_url: sigPhoto(ctx, P("w-tv-room")), height: 190, fit: "cover" as const, radius: 0, background: l.tint.day, dark_background: l.tint.night }] : []),
       {
         id: id(),
         type: "column",
@@ -435,7 +435,7 @@ function starCard(ctx: SectionContext, l: Look): StudioNode {
         children: [
           say(ctx, l, "elStarKicker", { size: 11, weight: 700, letter_spacing: 1.2 }, { muted: true, max_lines: 1 }),
           say(ctx, l, "elStarTitle", face(l, 19), { max_lines: 3 }),
-          { id: id(), type: "row", gap: 6, scroll: true, children: [chip("live_tv", "elStar4k"), chip("bolt", "elStarFast"), chip("auto_awesome", "elStarHdr"), chip("handyman", "elStarMount")] },
+          { id: id(), type: "row", gap: 6, scroll: true, children: [chip("live_tv", "elStar4k"), chip("bolt", "elStarFast"), chip("auto_awesome", "elStarHdr"), chip("home_work", "elStarMount")] },
           installmentsTag(ctx, { color: l.k.muted, dark_color: l.k.darkMuted, background: l.tint.day, dark_background: l.tint.night }),
           {
             id: id(),
@@ -717,7 +717,11 @@ function topList(ctx: SectionContext): StudioNode {
 function bundleCard(ctx: SectionContext): StudioNode {
   const id = idOf(ctx);
   const l = LOOK_B;
-  const photo = (name: string, height: number): StudioNode => ({ id: id(), type: "image", image_url: sigPhoto(ctx, P(name)), width: "fill", height, radius: 14, fit: "cover", background: B_CARD.line, dark_background: B_CARD.line });
+  // A tile without the platform's photo at hand (a page made without pictures) is a dark tile.
+  const photo = (name: string, height: number): StudioNode => {
+    const url = sigPhoto(ctx, P(name));
+    return url ? { id: id(), type: "image", image_url: url, width: "fill", height, radius: 14, fit: "cover", background: B_CARD.line, dark_background: B_CARD.line } : { id: id(), type: "row", width: "fill", height, radius: 14, background: B_CARD.line, dark_background: B_CARD.line, children: [] };
+  };
   return {
     id: id(),
     type: "column",
@@ -795,7 +799,7 @@ function servicesGrid(ctx: SectionContext): StudioNode {
     columns: 2,
     gap: 10,
     padding: sides(0, 16, 0, 16),
-    children: [tile("handyman", "elInstall", "elInstallText"), tile("verified", "elCare", "elCareText"), tile("bolt", "elFast", "elFastBText"), tile("calendar_month", "elInstallments", "elSoon", true)],
+    children: [tile("home_work", "elInstall", "elInstallText"), tile("verified", "elCare", "elCareText"), tile("bolt", "elFast", "elFastBText"), tile("calendar_month", "elInstallments", "elSoon", true)],
   };
 }
 
@@ -911,7 +915,7 @@ export function categoryMenuPage(ctx: SectionContext, l: Look): StudioPage {
           gap: 8,
           scroll: true,
           padding: sides(8, 16, 8, 16),
-          children: [quick("elQuickOffers", "local_offer", true, shop), quick("elNewIn", "new_releases", false, shop), quick("elQuickTrade", "sync", false, ownPage(ctx, TRADE_PAGE)), quick("elQuickInstall", "handyman", false, shop)],
+          children: [quick("elQuickOffers", "local_offer", true, shop), quick("elNewIn", "new_releases", false, shop), quick("elQuickTrade", "sync", false, ownPage(ctx, TRADE_PAGE)), quick("elQuickInstall", "home_work", false, shop)],
         },
         {
           id: id(),

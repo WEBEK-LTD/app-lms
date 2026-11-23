@@ -52,7 +52,7 @@ function deps(store: MemoryStore, now: Date = NOW, blobs = new Map<string, Buffe
 beforeEach(() => clearPlatformSettingsCache());
 
 // 27 Eight (28 nine, 29 ten) demo apps draw their pictures: slower when the whole suite runs at once.
-describe("creating the demo apps", { timeout: 20_000 }, () => {
+describe("creating the demo apps", { timeout: 45_000 }, () => {
   it("makes the demo account with twenty-one apps (131.20 Leqaa and 208 Lujain too), their content, pages and a license that doesn't end", async () => {
     const store = new MemoryStore();
     const blobs = new Map<string, Buffer>();
@@ -263,8 +263,8 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(second.clientId).toBe(first.clientId);
     expect(second.apps.map((a) => a.appId)).toEqual(first.apps.map((a) => a.appId));
     expect(second.apps.every((a) => !a.created)).toBe(true);
-    expect(await store.listAppsByClient(first.clientId)).toHaveLength(21);
-    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(21);
+    expect(await store.listAppsByClient(first.clientId)).toHaveLength(22);
+    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(22);
     const food = second.apps.find((a) => a.type === "food")!.appId;
     expect(await store.listRestaurants(food)).toHaveLength(DEMO_RESTAURANTS.length);
     const parcels = second.apps.find((a) => a.type === "delivery")!.appId;
@@ -744,7 +744,7 @@ describe("demo checkout and the daily clean-up", () => {
     expect((await cleanDemoActivity(store, new Date(NOW.getTime() + 2 * HOUR))).deleted).toBe(0);
 
     const report = await runDailyNotices({ store, baseUrl: "https://yallapp.test", mail: async () => undefined, now: new Date(NOW.getTime() + 25 * HOUR) });
-    expect(report.demo.apps).toBe(21);
+    expect(report.demo.apps).toBe(22);
     // An order, a conversation, a favorite, a device; 115.15 and Zad's courier job of yesterday (made again with its day).
     expect(report.demo.deleted).toBe(5);
     const left = await store.listCatalogOrders({ appId: shop.id, offset: 0, limit: 10 });
