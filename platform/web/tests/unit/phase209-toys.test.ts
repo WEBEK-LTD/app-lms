@@ -71,7 +71,8 @@ describe("209 the toys type", () => {
     expect(shopTypeTemplate(toys)).toBe("toys_signature_a");
     expect(shopTypeTemplate(toys, "b")).toBe("toys_signature_b");
     expect(shopTypesIn("kids").map((t) => t.id)).toContain("toys");
-    expect(shopTypesIn("kids")[0]!.id).toBe("toys");
+    // Beside kids' clothes, the section's other ready type.
+    expect(shopTypesIn("kids").map((t) => t.id)).toEqual(["kids_clothes", "toys"]);
     const store = templatesFor({ type: "store", vertical: null }).map((t) => t.id);
     expect(store).toEqual(expect.arrayContaining(["toys_signature_a", "toys_signature_b"]));
     expect(templatesFor({ type: "store", vertical: "restaurant" }).map((t) => t.id)).not.toContain("toys_signature_a");
