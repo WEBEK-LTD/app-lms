@@ -1295,11 +1295,7 @@ export const STORIES_EN: StoryCopy = {
             ],
             [
               "The outfit builder",
-              "Template D: an outfit built from a top, a bottom and shoes, a dock and a round bag button."
-            ],
-            [
-              "LUJAIN and NOUN",
-              "Templates A and B, kept: a black and white boutique, and streetwear in electric blue."
+              "Template D: an outfit built from a top, a bottom and shoes, a dock and a round bag button. LUJAIN and NOUN, A and B, kept."
             ],
             [
               "Light and dark",

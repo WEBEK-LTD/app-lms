@@ -69,6 +69,7 @@ const TAB_WORDS: Record<string, SectionWord> = {
   // 223 RUNWAY's Discover and Bag, the nursery's Gifts.
   Discover: "rwyTabDiscover",
   Bag: "rwyTabBag",
+  Wishlist: "rwyTabWishlist",
   Gifts: "nrsTabGifts",
 };
 

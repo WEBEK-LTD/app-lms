@@ -141,6 +141,14 @@
     "target": {
      "type": "page",
      "page_slug": "wishlist"
+    },
+    "translations": {
+     "ar": {
+      "label": "المفضّلة"
+     },
+     "tr": {
+      "label": "Favoriler"
+     }
     }
    },
    {
@@ -2696,6 +2704,14 @@
    {
     "slug": "wishlist",
     "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضّلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
     "studio": {
      "body": {
       "id": "sig-212",
@@ -2709,6 +2725,14 @@
       "buttons": [
        "notifications"
       ],
+      "translations": {
+       "ar": {
+        "title": "المفضّلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      },
       "background": "#141211",
       "color": "#F6F2EA",
       "dark_background": "#171513",

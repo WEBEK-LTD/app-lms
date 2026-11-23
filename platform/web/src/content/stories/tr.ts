@@ -1291,11 +1291,7 @@ export const STORIES_TR: StoryCopy = {
             ],
             [
               "Kombin kurucu",
-              "D şablonu: üst, alt ve ayakkabıdan kurulan bir kombin, ortada bir dock ve yuvarlak bir sepet düğmesi."
-            ],
-            [
-              "LUJAIN ve NOUN",
-              "A ve B şablonları duruyor: siyah beyaz bir butik ve elektrik mavisiyle sokak stili."
+              "D şablonu: üst, alt ve ayakkabıdan kurulan bir kombin, ortada bir dock ve yuvarlak bir sepet düğmesi. LUJAIN ve NOUN, A ve B, duruyor."
             ],
             [
               "Açık ve koyu",
