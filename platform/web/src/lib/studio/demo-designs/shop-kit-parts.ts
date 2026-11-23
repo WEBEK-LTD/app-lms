@@ -332,7 +332,8 @@ export function kitShopTheLook(ctx: SectionContext, l: KitLook, o: { photo: stri
       id: id(),
       type: "row",
       name: ctx.w(label),
-      width: "hug",
+      // Sized to its label: a placed element keeps its own width in the app (never the photo's).
+      width: Math.round(46 + ctx.w(label).length * 7),
       height: 30,
       radius: 15,
       gap: 6,
