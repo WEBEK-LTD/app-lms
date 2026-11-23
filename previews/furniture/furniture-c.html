@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--page:#F6F6F4;--surface:#FFFFFF;--ink:#111111;--muted:#5E5E5A;--line:#D9D9D4;--fine:#E7E7E3;--fill:#111111;--on:#FFFFFF;--mark:#111111}
+.dark{--page:#0D0D0D;--surface:#161616;--ink:#F1F1EE;--muted:#A3A39E;--line:#333331;--fine:#232322;--fill:#F1F1EE;--on:#0D0D0D;--mark:#F1F1EE}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:390px;font-family:Cairo,sans-serif;background:var(--page);color:var(--ink)}
+.status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:700;direction:ltr}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 10px;border-bottom:1px solid var(--line)}
+.hdr .wm{font-weight:900;letter-spacing:6px;font-size:15px}
+.ic{font-family:'Material Symbols Rounded';font-size:22px;line-height:1}
+.ib{width:38px;height:38px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+.tblock{display:grid;grid-template-columns:1.2fr 1fr 1fr;border-bottom:1px solid var(--line)}
+.tblock div{padding:7px 12px;border-inline-start:1px solid var(--line);font-size:10.5px;color:var(--muted);line-height:1.35}
+.tblock div:first-child{border:none}
+.tblock b{display:block;color:var(--ink);font-size:12.5px;font-weight:700}
+.scene{position:relative;height:300px;background:url(fp/hero-living.jpg) center/cover;border-bottom:1px solid var(--line)}
+.dark .scene{filter:brightness(.86)}
+.spot{position:absolute;display:flex;align-items:center;gap:6px;background:var(--surface);color:var(--ink);font-size:11px;font-weight:700;padding:4px 9px 4px 4px;border:1px solid var(--ink)}
+.spot i{width:18px;height:18px;border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:12px}
+.fig{display:flex;justify-content:space-between;padding:8px 16px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--line)}
+.h1{padding:22px 16px 6px;font-size:30px;font-weight:800;line-height:1.15;letter-spacing:-.3px}
+.lead{padding:0 16px 16px;font-size:13px;color:var(--muted);line-height:1.6}
+.sec{display:flex;align-items:baseline;gap:10px;padding:26px 16px 12px}
+.sec .n{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px}
+.sec .t{font-size:18px;font-weight:800}
+.sec .rule{flex:1;height:1px;background:var(--line)}
+.sec .a{font-size:12px;font-weight:700}
+.index{margin:0 16px;border-top:1px solid var(--ink)}
+.index .r{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.index .r .no{font-size:11px;color:var(--muted);width:22px}
+.index .r .nm{flex:1;font-size:16px;font-weight:700}
+.index .r .ct{font-size:11.5px;color:var(--muted)}
+.index .r img{width:54px;height:38px;object-fit:cover}
+.grid{display:grid;grid-template-columns:1fr 1fr;margin:0 16px;border-top:1px solid var(--line);border-inline-start:1px solid var(--line)}
+.card{border-inline-end:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px;background:var(--surface)}
+.card img{width:100%;height:132px;object-fit:cover;display:block;background:var(--fine)}
+.dim{margin-top:9px;font-size:17px;font-weight:800;letter-spacing:-.2px;direction:ltr;text-align:right}
+.dim small{font-size:10px;font-weight:600;color:var(--muted)}
+.dimbar{display:flex;align-items:center;gap:4px;margin-top:2px;direction:ltr}
+.dimbar span{flex:1;height:1px;background:var(--ink)}
+.dimbar b{width:1px;height:7px;background:var(--ink)}
+.card .nm{font-size:12.5px;color:var(--muted);margin-top:6px}
+.card .pr{font-size:13.5px;font-weight:700;margin-top:2px}
+.plan{margin:0 16px;border:1px solid var(--ink);background:var(--surface)}
+.plan .draw{position:relative;height:190px;background-image:linear-gradient(var(--fine) 1px,transparent 1px),linear-gradient(90deg,var(--fine) 1px,transparent 1px);background-size:19px 19px;border-bottom:1px solid var(--line)}
+.room{position:absolute;inset:22px 30px 26px 30px;border:2.5px solid var(--ink)}
+.sofa{position:absolute;right:46px;top:40px;width:120px;height:36px;border:1.5px solid var(--ink)}
+.tbl{position:absolute;right:76px;top:94px;width:60px;height:34px;border:1.5px solid var(--ink);border-radius:50%}
+.chair{position:absolute;left:58px;top:60px;width:38px;height:38px;border:1.5px solid var(--ink)}
+.dimx{position:absolute;bottom:6px;left:30px;right:30px;font-size:10px;text-align:center;color:var(--muted);border-top:1px solid var(--muted);padding-top:1px;direction:ltr}
+.plan .tx{padding:14px}
+.plan .tx b{font-size:17px;font-weight:800}
+.plan .tx p{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:4px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;background:var(--fill);color:var(--on);font-size:13.5px;font-weight:700;margin-top:12px}
+.spec{margin:0 16px;border-top:1px solid var(--ink)}
+.spec .r{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.spec .r span{color:var(--muted)}
+.slots{margin:0 16px;border:1px solid var(--line);padding:12px;background:var(--surface)}
+.slots .days{display:flex;gap:6px;margin-top:10px}
+.slots .d{flex:1;border:1px solid var(--line);padding:6px 0;text-align:center;font-size:11px;color:var(--muted)}
+.slots .d b{display:block;font-size:15px;color:var(--ink)}
+.slots .d.on{background:var(--fill);color:var(--on);border-color:var(--fill)}
+.slots .d.on b{color:var(--on)}
+.bar{position:relative;display:flex;background:var(--page);border-top:1px solid var(--line);padding:0 0 18px}
+.bar div{flex:1;text-align:center;padding-top:9px;font-size:10.5px;color:var(--muted);border-top:2px solid transparent;margin-top:-1px}
+.bar div.on{color:var(--ink);border-top-color:var(--ink);font-weight:700}
+.bar .ic{display:block;margin-bottom:2px}
+/* product */
+.pimg{position:relative;height:360px;background:var(--surface);border-bottom:1px solid var(--line)}
+.pimg img{width:100%;height:100%;object-fit:cover}
+.pnav{position:absolute;top:10px;right:12px;left:12px;display:flex;justify-content:space-between}
+.pnav .ib{background:var(--surface)}
+.ptitle{padding:16px 16px 4px;font-size:24px;font-weight:800}
+.pprice{padding:0 16px 12px;font-size:20px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.pprice small{font-size:11.5px;color:var(--muted);font-weight:600}
+.opts{display:flex;gap:8px;padding:0 16px 12px}
+.opts div{border:1px solid var(--line);padding:7px 14px;font-size:12.5px}
+.opts div.on{border-color:var(--ink);font-weight:700}
+.cta{position:relative;display:flex;gap:8px;padding:12px 16px 24px;background:var(--page);border-top:1px solid var(--line)}
+.cta .b1{flex:1;height:50px;background:var(--fill);color:var(--on);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+.cta .b2{width:50px;height:50px;border:1px solid var(--ink);display:flex;align-items:center;justify-content:center}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet">
+</head>
+<body class="THEME">
+<div id="home">
+<div class="status"><span>9:41</span><span>●●● ▮</span></div>
+<div class="hdr"><div class="ib"><span class="ic">menu</span></div><div class="wm">ميزان · MIZAN</div><div style="display:flex;gap:6px"><div class="ib"><span class="ic">search</span></div><div class="ib"><span class="ic">shopping_bag</span></div></div></div>
+<div class="tblock"><div><b>لوحة 01</b>غرفة المعيشة</div><div><b>1:50</b>المقياس</div><div><b>4 قطع</b>في المشهد</div></div>
+<div class="scene">
+  <div class="spot" style="top:150px;right:28px"><i>1</i>كنبة نجد · 220 سم</div>
+  <div class="spot" style="top:86px;left:30px"><i>2</i>كرسي نجد · 82 سم</div>
+  <div class="spot" style="top:226px;left:110px"><i>3</i>طاولة قهوة · 110 سم</div>
+</div>
+<div class="fig"><span>شكل 1 — طقم نجد، غرفة معيشة 4.2 × 5.6 م</span><span>اضغط على الرقم</span></div>
+<div class="h1">أثاث يُقاس<br>قبل أن يُشترى.</div>
+<div class="lead">كل قطعة بأبعادها الحقيقية أولًا: العرض والعمق والارتفاع بالسنتيمتر، لتعرف أين تقف في غرفتك.</div>
+<div class="sec"><span class="n">01</span><span class="t">فهرس الغرف</span><span class="rule"></span></div>
+<div class="index">
+  <div class="r"><span class="no">A</span><img src="fp/room-living.jpg"><span class="nm">غرفة المعيشة</span><span class="ct">12 قطعة</span><span class="ic" style="font-size:18px">arrow_back</span></div>
+  <div class="r"><span class="no">B</span><img src="fp/room-bedroom.jpg"><span class="nm">غرفة النوم</span><span class="ct">9 قطع</span><span class="ic" style="font-size:18px">arrow_back</span></div>
+  <div class="r"><span class="no">C</span><img src="fp/room-dining.jpg"><span class="nm">غرفة الطعام</span><span class="ct">7 قطع</span><span class="ic" style="font-size:18px">arrow_back</span></div>
+  <div class="r"><span class="no">D</span><img src="fp/room-office.jpg"><span class="nm">المكتب</span><span class="ct">4 قطع</span><span class="ic" style="font-size:18px">arrow_back</span></div>
+</div>
+<div class="sec"><span class="n">02</span><span class="t">قطع جديدة</span><span class="rule"></span><span class="a">الكل</span></div>
+<div class="grid">
+  <div class="card"><img src="fp/sofa-ivory.jpg"><div class="dim">220 × 95 × 82 <small>سم</small></div><div class="dimbar"><b></b><span></span><b></b></div><div class="nm">كنبة سدير، 3 مقاعد</div><div class="pr">6,450 ر.س</div></div>
+  <div class="card"><img src="fp/wingback.jpg"><div class="dim">76 × 84 × 108 <small>سم</small></div><div class="dimbar"><b></b><span></span><b></b></div><div class="nm">كرسي واحة بظهر عالٍ</div><div class="pr">2,890 ر.س</div></div>
+  <div class="card"><img src="fp/dining-round.jpg"><div class="dim">Ø 120 × 75 <small>سم</small></div><div class="dimbar"><b></b><span></span><b></b></div><div class="nm">طاولة طعام دائرية</div><div class="pr">3,200 ر.س</div></div>
+  <div class="card"><img src="fp/desk.jpg"><div class="dim">140 × 70 × 75 <small>سم</small></div><div class="dimbar"><b></b><span></span><b></b></div><div class="nm">مكتب أفق</div><div class="pr">1,950 ر.س</div></div>
+</div>
+<div class="sec"><span class="n">03</span><span class="t">جرّبها في غرفتك</span><span class="rule"></span></div>
+<div class="plan">
+  <div class="draw"><div class="room"></div><div class="sofa"></div><div class="tbl"></div><div class="chair"></div><div class="dimx">← 4.20 م →</div></div>
+  <div class="tx"><b>أرسل مقاسات غرفتك، نرسم لك المخطط</b><p>العرض والطول ومكان الباب والنافذة، وفريقنا يرسم أين تقف كل قطعة قبل أن تطلب.</p><span class="btn">ارسم غرفتي <span class="ic" style="font-size:18px">arrow_back</span></span></div>
+</div>
+<div class="sec"><span class="n">04</span><span class="t">موعد التوصيل والتركيب</span><span class="rule"></span></div>
+<div class="slots"><b style="font-size:14px">اختر اليوم، والفريق يركّبها لك</b>
+<div class="days"><div class="d on"><b>24</b>السبت</div><div class="d"><b>25</b>الأحد</div><div class="d"><b>26</b>الاثنين</div><div class="d"><b>27</b>الثلاثاء</div></div></div>
+<div class="sec"><span class="n">05</span><span class="t">الأكثر طلبًا</span><span class="rule"></span><span class="a">الكل</span></div>
+<div class="grid">
+  <div class="card"><img src="fp/najd-sofa.jpg"><div class="dim">220 × 95 × 82 <small>سم</small></div><div class="dimbar"><b></b><span></span><b></b></div><div class="nm">كنبة نجد الجلدية</div><div class="pr">5,900 ر.س</div></div>
+  <div class="card"><img src="fp/bed-oak.jpg"><div class="dim">180 × 210 × 110 <small>سم</small></div><div class="dimbar"><b></b><span></span><b></b></div><div class="nm">سرير سنديان</div><div class="pr">4,700 ر.س</div></div>
+</div>
+<div style="height:24px"></div>
+<div class="bar"><div class="on"><span class="ic">home</span>الرئيسية</div><div><span class="ic">grid_view</span>المتجر</div><div><span class="ic">shopping_bag</span>السلة</div><div><span class="ic">package_2</span>طلباتي</div><div><span class="ic">person</span>حسابي</div></div>
+</div>
+<div id="product">
+<div class="status"><span>9:41</span><span>●●● ▮</span></div>
+<div class="pimg"><img src="fp/najd-sofa.jpg"><div class="pnav"><div class="ib"><span class="ic">arrow_forward</span></div><div style="display:flex;gap:6px"><div class="ib"><span class="ic">favorite</span></div><div class="ib"><span class="ic">ios_share</span></div></div></div></div>
+<div class="tblock"><div><b>W 220</b>العرض سم</div><div><b>D 95</b>العمق سم</div><div><b>H 82</b>الارتفاع سم</div></div>
+<div class="ptitle">كنبة نجد الجلدية، 3 مقاعد</div>
+<div class="pprice">5,900 ر.س <small>التقسيط قريبًا</small></div>
+<div style="padding:0 16px 8px;font-size:12px;color:var(--muted)">اللون</div>
+<div class="opts"><div class="on">عاجي</div><div>رملي</div><div>فحمي</div></div>
+<div class="sec" style="padding-top:12px"><span class="n">—</span><span class="t">المواصفات</span><span class="rule"></span></div>
+<div class="spec"><div class="r"><span>المادة</span>جلد طبيعي، هيكل خشب زان</div><div class="r"><span>التوصيل</span>خلال 5–7 أيام مع التركيب</div><div class="r"><span>الضمان</span>سنتان على الهيكل</div></div>
+<div style="height:30px"></div>
+<div class="cta"><div class="b2"><span class="ic">straighten</span></div><div class="b1">أضف إلى السلة</div></div>
+</div>
+</body></html>

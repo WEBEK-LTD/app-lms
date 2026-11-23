@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+:root{--page:#F3F1EC;--surface:#FFFFFF;--ink:#1B2233;--muted:#5D6373;--line:#E2DED5;--fill:#1F2A44;--on:#FFFFFF;--acc:#B9823A;--tint:#E9E4DA}
+.dark{--page:#0F131C;--surface:#181E2B;--ink:#EEF0F5;--muted:#A9AFBE;--line:#283042;--fill:#E3B868;--on:#1A1408;--acc:#E3B868;--tint:#1F2636}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:390px;font-family:'Noto Sans Arabic',sans-serif;background:var(--page);color:var(--ink)}
+.ic{font-family:'Material Symbols Rounded';font-size:22px;line-height:1}
+.status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:700;direction:ltr}
+.hdr{padding:4px 16px 10px}
+.hdr .top{display:flex;align-items:center;gap:10px}
+.hdr .wm{flex:1;font-size:22px;font-weight:800}
+.hdr .wm small{display:block;font-size:11.5px;font-weight:500;color:var(--muted)}
+.rb{width:42px;height:42px;border-radius:21px;background:var(--surface);display:flex;align-items:center;justify-content:center;border:1px solid var(--line)}
+.srch{margin-top:10px;height:46px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 14px;color:var(--muted);font-size:13.5px}
+.seg{margin:4px 12px 0;padding:5px;background:var(--tint);border-radius:16px;display:flex;gap:4px;box-shadow:0 6px 14px rgba(0,0,0,.06)}
+.seg div{flex:1;border-radius:12px;padding:7px 0 6px;text-align:center;font-size:11px;font-weight:600;color:var(--muted)}
+.seg div .ic{display:block;font-size:20px;margin-bottom:1px}
+.seg div.on{background:var(--fill);color:var(--on)}
+.pinned{font-size:10px;color:var(--muted);text-align:center;margin-top:4px}
+.room{margin:14px 16px 0;border-radius:24px;overflow:hidden;background:var(--surface)}
+.room .ph{height:230px;background:url(fp/room-living.jpg) center/cover;position:relative}
+.room .tag{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.92);color:#1B2233;border-radius:12px;padding:5px 10px;font-size:11.5px;font-weight:700}
+.room .bd{padding:14px 16px 16px}
+.room h2{font-size:22px;font-weight:800}
+.room p{font-size:12.5px;color:var(--muted);margin-top:2px}
+.subs{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.subs span{border:1px solid var(--line);border-radius:10px;padding:6px 11px;font-size:12px;font-weight:600}
+.h{display:flex;align-items:flex-end;justify-content:space-between;padding:26px 16px 12px}
+.h b{font-size:19px;font-weight:800}
+.h small{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.h a{font-size:12.5px;font-weight:700;color:var(--acc)}
+.mats{display:flex;gap:10px;padding:0 16px;overflow:hidden}
+.mat{flex:0 0 auto;width:84px}
+.mat .sw{height:84px;border-radius:18px;border:1px solid var(--line)}
+.mat b{display:block;font-size:12.5px;margin-top:6px}
+.mat small{font-size:11px;color:var(--muted)}
+.wide{display:flex;gap:12px;padding:0 16px;overflow:hidden}
+.wc{flex:0 0 300px;border-radius:22px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.wc img{width:100%;height:170px;object-fit:cover;display:block}
+.wc .bd{padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+.wc .bd b{font-size:15px;font-weight:700;display:block}
+.wc .bd small{font-size:11.5px;color:var(--muted)}
+.wc .bd .p{font-size:15px;font-weight:800}
+.chip{display:inline-block;background:var(--tint);border-radius:8px;padding:2px 8px;font-size:10.5px;font-weight:700;color:var(--acc);margin-top:4px}
+.tl{margin:0 16px;background:var(--fill);color:var(--on);border-radius:24px;padding:18px 16px}
+.tl b.t{font-size:17px}
+.tl p{font-size:12px;opacity:.85;margin-top:3px}
+.steps{display:flex;margin-top:16px;position:relative}
+.steps:before{content:"";position:absolute;top:17px;right:12%;left:12%;height:2px;background:currentColor;opacity:.3}
+.st{flex:1;text-align:center;position:relative}
+.st .c{width:36px;height:36px;border-radius:18px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:var(--on);color:var(--fill)}
+.st .c .ic{font-size:19px}
+.st b{display:block;font-size:11.5px;margin-top:6px}
+.st small{font-size:10px;opacity:.8}
+.list{margin:0 16px;display:flex;flex-direction:column;gap:10px}
+.lc{display:flex;gap:12px;background:var(--surface);border-radius:20px;border:1px solid var(--line);padding:8px;align-items:center}
+.lc img{width:128px;height:96px;border-radius:14px;object-fit:cover}
+.lc b{font-size:14px;display:block}
+.lc small{font-size:11.5px;color:var(--muted);display:block}
+.lc .p{font-size:15px;font-weight:800;margin-top:6px}
+.bar{margin:16px 12px 18px;background:var(--surface);border-radius:20px;padding:6px;display:flex;border:1px solid var(--line)}
+.bar div{flex:1;text-align:center;padding:7px 0;font-size:10.5px;color:var(--muted);border-radius:14px}
+.bar div .ic{display:block;font-size:21px}
+.bar div.on{background:var(--tint);color:var(--ink);font-weight:700}
+.pimg{height:330px;background:url(fp/sofa-ivory.jpg) center/cover;position:relative;border-radius:0 0 28px 28px}
+.pnav{position:absolute;top:10px;right:14px;left:14px;display:flex;justify-content:space-between}
+.pnav .rb{background:rgba(255,255,255,.9);color:#1B2233}
+.pt{padding:16px 16px 0;font-size:22px;font-weight:800}
+.pr{padding:4px 16px;display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800}
+.pr span{font-size:11px;font-weight:700;background:var(--tint);color:var(--acc);border-radius:8px;padding:3px 8px}
+.lbl{padding:14px 16px 8px;font-size:12.5px;font-weight:700}
+.pm{display:flex;gap:8px;padding:0 16px}
+.pm div{width:56px;text-align:center;font-size:11px}
+.pm div i{display:block;height:56px;border-radius:16px;border:2px solid transparent;margin-bottom:4px}
+.pm div.on i{border-color:var(--fill)}
+.cta{margin:18px 16px 24px;height:54px;border-radius:18px;background:var(--fill);color:var(--on);display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px}
+</style>
+</head>
+<body class="THEME">
+<div id="home">
+<div class="status"><span>9:41</span><span>●●● ▮</span></div>
+<div class="hdr"><div class="top"><div class="rb"><span class="ic">menu</span></div><div class="wm">منزل<small>غرفة غرفة، بيت كامل</small></div><div class="rb"><span class="ic">notifications</span></div><div class="rb"><span class="ic">shopping_bag</span></div></div>
+<div class="srch"><span class="ic" style="font-size:20px">search</span>ابحث عن كنبة، سرير، طاولة…</div></div>
+<div class="seg"><div class="on"><span class="ic">weekend</span>المعيشة</div><div><span class="ic">bed</span>النوم</div><div><span class="ic">dining</span>الطعام</div><div><span class="ic">desk</span>المكتب</div><div><span class="ic">deck</span>الخارجية</div></div>
+<div class="room"><div class="ph"><span class="tag">12 قطعة · من 690 ر.س</span></div><div class="bd"><h2>غرفة المعيشة</h2><p>كنب، كراسي، طاولات قهوة ووحدات تلفاز</p><div class="subs"><span>الكنب</span><span>الكراسي</span><span>طاولات القهوة</span><span>وحدات التلفاز</span></div></div></div>
+<div class="h"><div><b>اختر الخامة أولًا</b><small>عيّنات مجانية تصلك قبل أن تقرّر</small></div></div>
+<div class="mats">
+  <div class="mat"><div class="sw" style="background:linear-gradient(135deg,#C99A62,#A87842)"></div><b>سنديان</b><small>خشب صلب</small></div>
+  <div class="mat"><div class="sw" style="background:linear-gradient(135deg,#6B4630,#4A2E1E)"></div><b>جوز</b><small>قشرة طبيعية</small></div>
+  <div class="mat"><div class="sw" style="background:#E6DFD2"></div><b>كتّان</b><small>قابل للغسل</small></div>
+  <div class="mat"><div class="sw" style="background:radial-gradient(circle at 30% 30%,#FBF8F2,#E8E1D4)"></div><b>بوكليه</b><small>ملمس ناعم</small></div>
+</div>
+<div class="h"><div><b>قطع تستحق مكانها</b><small>بطاقات كبيرة، تفاصيل أوضح</small></div><a>الكل</a></div>
+<div class="wide">
+  <div class="wc"><img src="fp/najd-sofa.jpg"><div class="bd"><div><b>كنبة نجد الجلدية</b><small>220 × 95 × 82 سم</small><div class="chip">التقسيط قريبًا</div></div><div class="p">5,900 ر.س</div></div></div>
+  <div class="wc"><img src="fp/loveseat.jpg"><div class="bd"><div><b>كنبة سكون</b><small>160 × 85 × 80 سم</small></div><div class="p">3,900</div></div></div>
+</div>
+<div class="h"><div><b>من الطلب حتى التركيب</b></div></div>
+<div class="tl"><b class="t">يوم توصيلك تختاره أنت</b><p>الفريق يوصل ويركّب ويأخذ الكرتون معه</p>
+<div class="steps"><div class="st"><div class="c"><span class="ic">shopping_cart</span></div><b>الطلب</b><small>اليوم</small></div><div class="st"><div class="c"><span class="ic">inventory_2</span></div><b>التجهيز</b><small>2–4 أيام</small></div><div class="st"><div class="c"><span class="ic">local_shipping</span></div><b>التوصيل</b><small>في يومك</small></div><div class="st"><div class="c"><span class="ic">handyman</span></div><b>التركيب</b><small>مجانًا</small></div></div></div>
+<div class="h"><div><b>غرفة النوم هذا الموسم</b><small>أسرّة وخزائن وطاولات جانبية</small></div><a>الكل</a></div>
+<div class="list">
+  <div class="lc"><img src="fp/bed-oak.jpg"><div><b>سرير سنديان</b><small>180 × 210 × 110 سم</small><div class="p">4,700 ر.س</div></div></div>
+  <div class="lc"><img src="fp/nightstand.jpg"><div><b>طاولة سرير لُجين</b><small>50 × 40 × 55 سم</small><div class="p">690 ر.س</div></div></div>
+  <div class="lc"><img src="fp/wardrobe-oak.jpg"><div><b>خزانة سنديان</b><small>160 × 60 × 210 سم</small><div class="p">5,400 ر.س</div></div></div>
+</div>
+<div class="bar"><div class="on"><span class="ic">home</span>الرئيسية</div><div><span class="ic">chair</span>الغرف</div><div><span class="ic">shopping_bag</span>السلة</div><div><span class="ic">package_2</span>طلباتي</div><div><span class="ic">person</span>حسابي</div></div>
+</div>
+<div id="product">
+<div class="status"><span>9:41</span><span>●●● ▮</span></div>
+<div class="pimg"><div class="pnav"><div class="rb"><span class="ic">arrow_forward</span></div><div class="rb"><span class="ic">favorite</span></div></div></div>
+<div class="pt">كنبة سدير، 3 مقاعد</div>
+<div class="pr">6,450 ر.س <span>التقسيط قريبًا</span></div>
+<div style="padding:2px 16px;font-size:12.5px;color:var(--muted)">العرض 220 × العمق 95 × الارتفاع 82 سم</div>
+<div class="lbl">القماش</div>
+<div class="pm"><div class="on"><i style="background:radial-gradient(circle at 30% 30%,#FBF8F2,#E8E1D4)"></i>بوكليه</div><div><i style="background:#3D5A45"></i>مخمل</div><div><i style="background:#E6DFD2"></i>كتّان</div></div>
+<div class="lbl">التوصيل والتركيب</div>
+<div class="tl" style="padding:14px"><div class="steps" style="margin-top:0"><div class="st"><div class="c"><span class="ic">inventory_2</span></div><b>التجهيز</b></div><div class="st"><div class="c"><span class="ic">local_shipping</span></div><b>السبت 24</b></div><div class="st"><div class="c"><span class="ic">handyman</span></div><b>التركيب</b></div></div></div>
+<div class="cta"><span class="ic">add_shopping_cart</span>أضف إلى السلة</div>
+</div>
+</body></html>
