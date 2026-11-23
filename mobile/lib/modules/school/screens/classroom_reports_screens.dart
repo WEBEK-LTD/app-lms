@@ -101,7 +101,7 @@ class SyllabusScreen extends ConsumerWidget {
                 ref.invalidate(classSyllabusProvider(classId)),
             child: ListView(
               key: const ValueKey('class-syllabus'),
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+              padding: EdgeInsets.fromLTRB(20, 8, 20, endRoom(context, 24)),
               children: [
                 for (final subject in s.subjects) ...[
                   _SubjectCard(subject: subject),

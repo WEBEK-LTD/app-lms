@@ -4685,7 +4685,7 @@ components:
     SoundChoice:
       type: string
       description: 'A ringtone of the app (`ringtones`), `default` (the phone''s own sound) or `silent`.'
-      enum: [chime, counter_bell, kitchen_ticket, marimba, harp, digital, rush_hour, cash_drawer, doorbell, xylophone, soft_pulse, chirp, sunrise, arcade, soft_drop, pop, knock, default, silent]
+      enum: [chime, counter_bell, kitchen_ticket, marimba, harp, digital, rush_hour, cash_drawer, doorbell, xylophone, soft_pulse, chirp, sunrise, arcade, soft_drop, pop, knock, cha_ching, coin_drop, till_bell, coin_chime, sale_jingle, piggy_bank, receipt_printer, default, silent]
 
     PushSounds:
       type: object

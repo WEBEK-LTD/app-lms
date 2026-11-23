@@ -1,5 +1,6 @@
 "use server";
 
+import { appPhoneCode } from "@/lib/hosted/country-code";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
@@ -17,7 +18,6 @@ import { parseCourierForm, parseDeliverySettings, parseServiceForm } from "@/lib
 import { COMPANY_STEPS, shipmentReference } from "@/lib/delivery/service";
 import { DELIVERY_LIMITS, deliverySettingsOf } from "@/lib/delivery/settings";
 import { formValues, type FormState } from "@/lib/forms";
-import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { imageType } from "@/lib/images";
 import type { TeamPermission } from "@/lib/team/permissions";
@@ -175,7 +175,7 @@ export async function addCourierAction(_: FormState, formData: FormData): Promis
   const { app } = context;
   const store = await getStore();
   const values = formValues(formData);
-  const parsed = parseCourierForm(values, hostedSettings(app).defaultCountryCode, signsInByEmailOnly(app));
+  const parsed = parseCourierForm(values, appPhoneCode(app, context.client.country), signsInByEmailOnly(app));
   if (!parsed.ok) return { errors: parsed.errors, values };
   if ((await store.listCouriers(app.id)).length >= DELIVERY_LIMITS.couriers) return { message: `You can have up to ${DELIVERY_LIMITS.couriers} couriers.`, values };
   const created = await store.createCourier({ appId: app.id, ...parsed.value, active: true }, new Date());
@@ -193,7 +193,7 @@ export async function updateCourierAction(_: FormState, formData: FormData): Pro
   const id = Number(formData.get("id"));
   const courier = Number.isSafeInteger(id) ? await store.getCourier(app.id, id) : null;
   if (!courier) return { message: "This courier doesn't exist anymore." };
-  const parsed = parseCourierForm(values, hostedSettings(app).defaultCountryCode, signsInByEmailOnly(app));
+  const parsed = parseCourierForm(values, appPhoneCode(app, context.client.country), signsInByEmailOnly(app));
   if (!parsed.ok) return { errors: parsed.errors, values };
   const saved = await store.updateCourier(app.id, courier.id, parsed.value, new Date());
   if (!saved.ok) return { errors: { phone: "You already have a courier with this number or email." }, values };
