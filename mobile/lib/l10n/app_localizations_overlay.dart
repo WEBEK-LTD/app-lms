@@ -13194,4 +13194,237 @@ class OverlayLocalizations extends AppLocalizations {
   String categoryMenuRow(String name, String count) =>
       overlay.format('categoryMenuRow', {'name': name, 'count': count}) ??
       base.categoryMenuRow(name, count);
+
+  @override
+  String get specsTitle => overlay.text('specsTitle') ?? base.specsTitle;
+
+  @override
+  String get specsAll => overlay.text('specsAll') ?? base.specsAll;
+
+  @override
+  String get specsFewer => overlay.text('specsFewer') ?? base.specsFewer;
+
+  @override
+  String get compareAdd => overlay.text('compareAdd') ?? base.compareAdd;
+
+  @override
+  String get compareAdded => overlay.text('compareAdded') ?? base.compareAdded;
+
+  @override
+  String compareOpen(int count) =>
+      overlay.format('compareOpen', {'count': count}) ??
+      base.compareOpen(count);
+
+  @override
+  String get compareTitle => overlay.text('compareTitle') ?? base.compareTitle;
+
+  @override
+  String get compareFull => overlay.text('compareFull') ?? base.compareFull;
+
+  @override
+  String get compareRemove =>
+      overlay.text('compareRemove') ?? base.compareRemove;
+
+  @override
+  String get compareEmpty => overlay.text('compareEmpty') ?? base.compareEmpty;
+
+  @override
+  String get compareSpec => overlay.text('compareSpec') ?? base.compareSpec;
+
+  @override
+  String get accessoriesTitle =>
+      overlay.text('accessoriesTitle') ?? base.accessoriesTitle;
+
+  @override
+  String accessoriesAdd(int count) =>
+      overlay.format('accessoriesAdd', {'count': count}) ??
+      base.accessoriesAdd(count);
+
+  @override
+  String get installmentsSoon =>
+      overlay.text('installmentsSoon') ?? base.installmentsSoon;
+
+  @override
+  String get tradeInTitle => overlay.text('tradeInTitle') ?? base.tradeInTitle;
+
+  @override
+  String get tradeInLine => overlay.text('tradeInLine') ?? base.tradeInLine;
+
+  @override
+  String tradeInUpTo(String amount) =>
+      overlay.format('tradeInUpTo', {'amount': amount}) ??
+      base.tradeInUpTo(amount);
+
+  @override
+  String get tradeInCheck => overlay.text('tradeInCheck') ?? base.tradeInCheck;
+
+  @override
+  String get tradeInModel => overlay.text('tradeInModel') ?? base.tradeInModel;
+
+  @override
+  String get tradeInStorage =>
+      overlay.text('tradeInStorage') ?? base.tradeInStorage;
+
+  @override
+  String get tradeInCondition =>
+      overlay.text('tradeInCondition') ?? base.tradeInCondition;
+
+  @override
+  String get tradeInGradeLikeNew =>
+      overlay.text('tradeInGradeLikeNew') ?? base.tradeInGradeLikeNew;
+
+  @override
+  String get tradeInGradeGood =>
+      overlay.text('tradeInGradeGood') ?? base.tradeInGradeGood;
+
+  @override
+  String get tradeInGradeFair =>
+      overlay.text('tradeInGradeFair') ?? base.tradeInGradeFair;
+
+  @override
+  String get tradeInGradeBroken =>
+      overlay.text('tradeInGradeBroken') ?? base.tradeInGradeBroken;
+
+  @override
+  String get tradeInEstimate =>
+      overlay.text('tradeInEstimate') ?? base.tradeInEstimate;
+
+  @override
+  String get tradeInStart => overlay.text('tradeInStart') ?? base.tradeInStart;
+
+  @override
+  String get tradeInFinal => overlay.text('tradeInFinal') ?? base.tradeInFinal;
+
+  @override
+  String get tradeInContact =>
+      overlay.text('tradeInContact') ?? base.tradeInContact;
+
+  @override
+  String get tradeInName => overlay.text('tradeInName') ?? base.tradeInName;
+
+  @override
+  String get tradeInPhone => overlay.text('tradeInPhone') ?? base.tradeInPhone;
+
+  @override
+  String get tradeInNote => overlay.text('tradeInNote') ?? base.tradeInNote;
+
+  @override
+  String get tradeInSend => overlay.text('tradeInSend') ?? base.tradeInSend;
+
+  @override
+  String get tradeInSent => overlay.text('tradeInSent') ?? base.tradeInSent;
+
+  @override
+  String tradeInSentLine(String model, String estimate) =>
+      overlay.format('tradeInSentLine', {
+        'model': model,
+        'estimate': estimate,
+      }) ??
+      base.tradeInSentLine(model, estimate);
+
+  @override
+  String get pcBuilderTitle =>
+      overlay.text('pcBuilderTitle') ?? base.pcBuilderTitle;
+
+  @override
+  String get pcBuilderLine =>
+      overlay.text('pcBuilderLine') ?? base.pcBuilderLine;
+
+  @override
+  String get pcBuilderStart =>
+      overlay.text('pcBuilderStart') ?? base.pcBuilderStart;
+
+  @override
+  String pcBuilderStep(int step, int count) =>
+      overlay.format('pcBuilderStep', {'step': step, 'count': count}) ??
+      base.pcBuilderStep(step, count);
+
+  @override
+  String get pcBuilderSkip =>
+      overlay.text('pcBuilderSkip') ?? base.pcBuilderSkip;
+
+  @override
+  String get pcBuilderNext =>
+      overlay.text('pcBuilderNext') ?? base.pcBuilderNext;
+
+  @override
+  String get pcBuilderReview =>
+      overlay.text('pcBuilderReview') ?? base.pcBuilderReview;
+
+  @override
+  String get pcBuilderTotal =>
+      overlay.text('pcBuilderTotal') ?? base.pcBuilderTotal;
+
+  @override
+  String pcBuilderWatts(int watts) =>
+      overlay.format('pcBuilderWatts', {'watts': watts}) ??
+      base.pcBuilderWatts(watts);
+
+  @override
+  String get pcBuilderAddAll =>
+      overlay.text('pcBuilderAddAll') ?? base.pcBuilderAddAll;
+
+  @override
+  String get pcBuilderAdded =>
+      overlay.text('pcBuilderAdded') ?? base.pcBuilderAdded;
+
+  @override
+  String get pcBuilderFits =>
+      overlay.text('pcBuilderFits') ?? base.pcBuilderFits;
+
+  @override
+  String get pcBuilderEmpty =>
+      overlay.text('pcBuilderEmpty') ?? base.pcBuilderEmpty;
+
+  @override
+  String get pcBuilderOptional =>
+      overlay.text('pcBuilderOptional') ?? base.pcBuilderOptional;
+
+  @override
+  String get pcPartCpu => overlay.text('pcPartCpu') ?? base.pcPartCpu;
+
+  @override
+  String get pcPartBoard => overlay.text('pcPartBoard') ?? base.pcPartBoard;
+
+  @override
+  String get pcPartRam => overlay.text('pcPartRam') ?? base.pcPartRam;
+
+  @override
+  String get pcPartGpu => overlay.text('pcPartGpu') ?? base.pcPartGpu;
+
+  @override
+  String get pcPartStorage =>
+      overlay.text('pcPartStorage') ?? base.pcPartStorage;
+
+  @override
+  String get pcPartCooler => overlay.text('pcPartCooler') ?? base.pcPartCooler;
+
+  @override
+  String get pcPartPsu => overlay.text('pcPartPsu') ?? base.pcPartPsu;
+
+  @override
+  String get pcPartCase => overlay.text('pcPartCase') ?? base.pcPartCase;
+
+  @override
+  String pcIssueSocket(String part) =>
+      overlay.format('pcIssueSocket', {'part': part}) ??
+      base.pcIssueSocket(part);
+
+  @override
+  String pcIssueMemory(String part) =>
+      overlay.format('pcIssueMemory', {'part': part}) ??
+      base.pcIssueMemory(part);
+
+  @override
+  String pcIssuePower(int watts) =>
+      overlay.format('pcIssuePower', {'watts': watts}) ??
+      base.pcIssuePower(watts);
+
+  @override
+  String pcIssueSize(String part) =>
+      overlay.format('pcIssueSize', {'part': part}) ?? base.pcIssueSize(part);
+
+  @override
+  String get specFilterEmpty =>
+      overlay.text('specFilterEmpty') ?? base.specFilterEmpty;
 }

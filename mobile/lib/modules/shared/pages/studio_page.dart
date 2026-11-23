@@ -66,6 +66,8 @@ import '../../store/widgets/quick_add.dart';
 // 208 The category menu and the size chart.
 import 'studio_category_menu.dart';
 import 'studio_size_chart.dart';
+// 211 The electronics shops' elements.
+import 'studio_tech.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -1296,6 +1298,12 @@ class StudioNodeView extends ConsumerWidget {
       ),
       // 208 The shop's size chart, when it has one.
       StudioNodeType.sizeChart => StudioSizeChart.shows(ref),
+      // 211 The tech elements, once they have something to show.
+      StudioNodeType.specTable ||
+      StudioNodeType.compare ||
+      StudioNodeType.specFilter ||
+      StudioNodeType.tradeIn ||
+      StudioNodeType.pcBuilder => studioTechShows(node, ref),
       StudioNodeType.form =>
         node.form != null && PageBlockView.shows(node.form!, ref),
       StudioNodeType.search => PageBlockView.shows(_searchBlock(node, ''), ref),
@@ -1889,6 +1897,13 @@ class StudioNodeView extends ConsumerWidget {
       case StudioNodeType.sizeChart:
         // 208 The shop's size chart.
         return StudioSizeChart(title: _text(context), color: color);
+      case StudioNodeType.specTable:
+      case StudioNodeType.compare:
+      case StudioNodeType.specFilter:
+      case StudioNodeType.tradeIn:
+      case StudioNodeType.pcBuilder:
+        // 211 An electronics shop's parts.
+        return StudioTechView(node: node, title: _text(context), color: color);
       case StudioNodeType.video:
         final url = node.videoUrl;
         if (url == null) return const SizedBox.shrink();

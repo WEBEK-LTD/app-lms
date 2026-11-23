@@ -19927,6 +19927,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}, {count}'**
   String categoryMenuRow(String name, String count);
+
+  /// 211 A product's specifications table: its title.
+  ///
+  /// In en, this message translates to:
+  /// **'Specifications'**
+  String get specsTitle;
+
+  /// 211 Opens the rest of a product's specifications.
+  ///
+  /// In en, this message translates to:
+  /// **'All specifications'**
+  String get specsAll;
+
+  /// 211 Folds a product's specifications back to the first ones.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer specifications'**
+  String get specsFewer;
+
+  /// 211 A product page's button that adds it to the compare list.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get compareAdd;
+
+  /// 211 The compare button once the product is in the compare list (a tap removes it).
+  ///
+  /// In en, this message translates to:
+  /// **'In compare'**
+  String get compareAdded;
+
+  /// 211 Opens the compare screen; count is how many products are in it.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare ({count})'**
+  String compareOpen(int count);
+
+  /// 211 The compare screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get compareTitle;
+
+  /// 211 Said when a fourth product is added to the compare list.
+  ///
+  /// In en, this message translates to:
+  /// **'You can compare up to 3 products'**
+  String get compareFull;
+
+  /// 211 Removes a product from the compare screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from compare'**
+  String get compareRemove;
+
+  /// 211 The compare screen with fewer than two products.
+  ///
+  /// In en, this message translates to:
+  /// **'Add two or three products to compare them side by side.'**
+  String get compareEmpty;
+
+  /// 211 The compare table's first column: the specifications' names.
+  ///
+  /// In en, this message translates to:
+  /// **'Specification'**
+  String get compareSpec;
+
+  /// 211 A product page's matching accessories.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes with it'**
+  String get accessoriesTitle;
+
+  /// 211 Adds the product and the accessories ticked to the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Add 1 item to the cart} other{Add {count} items to the cart}}'**
+  String accessoriesAdd(int count);
+
+  /// 211 A tag under a product's price: paying in installments isn't offered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Installments coming soon'**
+  String get installmentsSoon;
+
+  /// 211 The trade-in card's and screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'What is your old device worth?'**
+  String get tradeInTitle;
+
+  /// 211 The trade-in card's line.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your device and its condition to see its value in seconds.'**
+  String get tradeInLine;
+
+  /// 211 The most the shop pays for a device (amount is formatted money).
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {amount}'**
+  String tradeInUpTo(String amount);
+
+  /// 211 The trade-in card's button: opens the estimator.
+  ///
+  /// In en, this message translates to:
+  /// **'Check its value'**
+  String get tradeInCheck;
+
+  /// 211 The trade-in estimator: the device to trade in.
+  ///
+  /// In en, this message translates to:
+  /// **'Your device'**
+  String get tradeInModel;
+
+  /// 211 The trade-in estimator: the device's storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage'**
+  String get tradeInStorage;
+
+  /// 211 The trade-in estimator: the device's condition.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition'**
+  String get tradeInCondition;
+
+  /// 211 A trade-in grade: no marks at all.
+  ///
+  /// In en, this message translates to:
+  /// **'Like new'**
+  String get tradeInGradeLikeNew;
+
+  /// 211 A trade-in grade: light signs of use.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get tradeInGradeGood;
+
+  /// 211 A trade-in grade: clear scratches or wear.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair'**
+  String get tradeInGradeFair;
+
+  /// 211 A trade-in grade: the screen or back is cracked.
+  ///
+  /// In en, this message translates to:
+  /// **'Broken screen'**
+  String get tradeInGradeBroken;
+
+  /// 211 The trade-in estimator: over the estimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated value'**
+  String get tradeInEstimate;
+
+  /// 211 The trade-in estimator's button: asks how to reach the customer.
+  ///
+  /// In en, this message translates to:
+  /// **'Start trade-in'**
+  String get tradeInStart;
+
+  /// 211 Under the trade-in estimate.
+  ///
+  /// In en, this message translates to:
+  /// **'The final value is set once the shop checks the device.'**
+  String get tradeInFinal;
+
+  /// 211 The trade-in request sheet's title.
+  ///
+  /// In en, this message translates to:
+  /// **'How can the shop reach you?'**
+  String get tradeInContact;
+
+  /// 211 The trade-in request: the customer's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get tradeInName;
+
+  /// 211 The trade-in request: the customer's phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get tradeInPhone;
+
+  /// 211 The trade-in request: an optional note.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything to add (optional)'**
+  String get tradeInNote;
+
+  /// 211 Sends the trade-in request to the shop.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get tradeInSend;
+
+  /// 211 The trade-in request was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'We received your request'**
+  String get tradeInSent;
+
+  /// 211 After a trade-in request: model is the device, estimate its formatted value.
+  ///
+  /// In en, this message translates to:
+  /// **'The shop will call you about your {model} ({estimate}).'**
+  String tradeInSentLine(String model, String estimate);
+
+  /// 211 Build your PC: its card's and screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Build your PC'**
+  String get pcBuilderTitle;
+
+  /// 211 Build your PC's card line.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose each part; we check that they fit together.'**
+  String get pcBuilderLine;
+
+  /// 211 Build your PC's card button.
+  ///
+  /// In en, this message translates to:
+  /// **'Start building'**
+  String get pcBuilderStart;
+
+  /// 211 Build your PC: where the customer is.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {count}'**
+  String pcBuilderStep(int step, int count);
+
+  /// 211 Build your PC: leaves an optional part out.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip this part'**
+  String get pcBuilderSkip;
+
+  /// 211 Build your PC: goes to the next part.
+  ///
+  /// In en, this message translates to:
+  /// **'Next part'**
+  String get pcBuilderNext;
+
+  /// 211 Build your PC: the last step, the whole build.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the build'**
+  String get pcBuilderReview;
+
+  /// 211 Build your PC: the chosen parts' total.
+  ///
+  /// In en, this message translates to:
+  /// **'Build total'**
+  String get pcBuilderTotal;
+
+  /// 211 Build your PC: the power the build needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs {watts} W'**
+  String pcBuilderWatts(int watts);
+
+  /// 211 Build your PC: adds every chosen part.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the build to the cart'**
+  String get pcBuilderAddAll;
+
+  /// 211 Build your PC: the parts were added.
+  ///
+  /// In en, this message translates to:
+  /// **'The build is in your cart'**
+  String get pcBuilderAdded;
+
+  /// 211 Build your PC: no problem between the parts chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Every part fits'**
+  String get pcBuilderFits;
+
+  /// 211 Build your PC: a part's category has no products.
+  ///
+  /// In en, this message translates to:
+  /// **'No parts here yet'**
+  String get pcBuilderEmpty;
+
+  /// 211 Build your PC: a part the build can go without.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get pcBuilderOptional;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Processor'**
+  String get pcPartCpu;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Motherboard'**
+  String get pcPartBoard;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory'**
+  String get pcPartRam;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Graphics card'**
+  String get pcPartGpu;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage'**
+  String get pcPartStorage;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooler'**
+  String get pcPartCooler;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Power supply'**
+  String get pcPartPsu;
+
+  /// 211 Build your PC: a part.
+  ///
+  /// In en, this message translates to:
+  /// **'Case'**
+  String get pcPartCase;
+
+  /// 211 Build your PC: a part's socket differs (part names the other part).
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn\'t fit the socket of the {part}'**
+  String pcIssueSocket(String part);
+
+  /// 211 Build your PC: the memory type differs.
+  ///
+  /// In en, this message translates to:
+  /// **'Not the memory type the {part} takes'**
+  String pcIssueMemory(String part);
+
+  /// 211 Build your PC: the power supply is too small.
+  ///
+  /// In en, this message translates to:
+  /// **'Too little power for this build ({watts} W)'**
+  String pcIssuePower(int watts);
+
+  /// 211 Build your PC: the case is smaller than the board.
+  ///
+  /// In en, this message translates to:
+  /// **'Too small for the {part}'**
+  String pcIssueSize(String part);
+
+  /// 211 The shop filtered by a spec, with nothing in it.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches this yet'**
+  String get specFilterEmpty;
 }
 
 class _AppLocalizationsDelegate

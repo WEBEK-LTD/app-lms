@@ -5,6 +5,7 @@ import 'config_models.dart';
 import 'json.dart';
 import 'money_models.dart';
 import 'restaurant_models.dart';
+import 'tech_models.dart';
 
 /// `Config.store`: the shop's settings for Store apps.
 class StoreConfig {
@@ -24,6 +25,9 @@ class StoreConfig {
     this.payInApp = false,
     this.bouquet,
     this.sizeChart,
+    this.tradeIn,
+    this.pcBuilder,
+    this.installmentsSoon = false,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -50,7 +54,21 @@ class StoreConfig {
     payInApp: json['checkout_payment'] == 'in_app',
     bouquet: BouquetRules.tryParse(json['bouquet']),
     sizeChart: SizeChart.tryParse(json['size_chart']),
+    tradeIn: TradeInRules.tryParse(json['trade_in']),
+    pcBuilder: PcBuilderRules.tryParse(json['pc_builder']),
+    installmentsSoon: json['installments_soon'] == true,
   );
+
+  /// 211 Trade-in: the devices the shop takes and what each is worth; null:
+  /// it takes none (the `trade_in` element and flow show nothing / the shop).
+  final TradeInRules? tradeIn;
+
+  /// 211 Build your PC: a category for each part; null: off.
+  final PcBuilderRules? pcBuilder;
+
+  /// 211 "Installments coming soon" under a product's price (electronics,
+  /// mobiles, computers and furniture shops); never a way to pay.
+  final bool installmentsSoon;
 
   /// 208 The shop's size chart, under a product's sizes ("Size guide") and
   /// on a Studio page (`size_chart`); null: none.
@@ -455,6 +473,8 @@ class ProductSummary {
     this.ratingCount = 0,
     this.sale,
     this.addon = false,
+    this.specLine,
+    this.specs = const [],
   });
 
   factory ProductSummary.fromJson(Json json) => ProductSummary(
@@ -474,7 +494,15 @@ class ProductSummary {
     digital: boolOr(json, 'digital', false),
     sale: ProductSale.tryParse(json['sale']),
     addon: boolOr(json, 'addon', false),
+    specLine: optString(json, 'spec_line'),
+    specs: ProductSpec.listFrom(json['specs']),
   );
+
+  /// 211 Its key specs in a line ("256 GB · 6.7″ OLED · 5G"); null: none.
+  final String? specLine;
+
+  /// 211 Its specs, in lists asked `with_specs` (Build your PC's parts).
+  final List<ProductSpec> specs;
 
   /// 131 A gift add-on: offered with other products, never bought alone.
   final bool addon;
@@ -612,6 +640,8 @@ class ProductDetail {
     this.defaultAttributes = const {},
     this.addons = const [],
     this.completeLook = const [],
+    this.specs = const [],
+    this.accessories = const [],
   });
 
   factory ProductDetail.fromJson(Json json) => ProductDetail(
@@ -636,7 +666,16 @@ class ProductDetail {
     },
     addons: listOf(json, 'addons', ProductSummary.fromJson),
     completeLook: listOf(json, 'complete_look', ProductSummary.fromJson),
+    specs: ProductSpec.listFrom(json['specs']),
+    accessories: listOf(json, 'accessories', ProductSummary.fromJson),
   );
+
+  /// 211 Its specifications, in the shop's order (names in the app's
+  /// language); empty: none.
+  final List<ProductSpec> specs;
+
+  /// 211 Matching accessories ("Goes with it"); empty: none.
+  final List<ProductSummary> accessories;
 
   /// 208 "Complete the look": a product of each of the shop's other main
   /// categories; empty when the shop has it off.

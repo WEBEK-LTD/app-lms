@@ -31,6 +31,7 @@ import '../../../core/l10n/vertical_wording.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/format/text_case.dart';
 import '../widgets/quick_add.dart';
+import '../widgets/tech_widgets.dart';
 import '../../shared/pages/studio_size_chart.dart' show showSizeGuide;
 
 /// A product: images, price, options, quantity and Add to cart.
@@ -114,6 +115,9 @@ class _ProductViewState extends ConsumerState<_ProductView> {
 
   /// 131 The gift add-ons chosen to go with it ("Add a little more").
   final Set<int> _addons = {};
+
+  /// 211 The matching accessories ticked to go in with it.
+  final Set<int> _accessories = {};
 
   ProductDetail get _product => widget.product;
 
@@ -254,6 +258,27 @@ class _ProductViewState extends ConsumerState<_ProductView> {
               : null,
         ),
       );
+  }
+
+  /// 211 The product with the accessories ticked ("Goes with it").
+  void _addWithAccessories() {
+    _addToCart();
+    final cart = ref.read(cartProvider.notifier);
+    for (final a in AccessoriesPicker.offered(_product.accessories)) {
+      if (!_accessories.contains(a.id)) continue;
+      cart.add(
+        CartItem(
+          productId: a.id,
+          quantity: 1,
+          name: a.name,
+          imageUrl: a.imageUrl,
+          price: a.sale?.shopNowFormatted ?? a.price.formatted,
+          shownPrice: a.sale?.nowFormatted ?? a.price.shown,
+          shownCurrency: a.price.display?.currency,
+        ),
+      );
+    }
+    setState(_accessories.clear);
   }
 
   void _addToCart() {
@@ -502,6 +527,20 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                     ],
                   ),
                 ],
+                // 211 Installments coming soon (an electronics, mobiles,
+                // computers or furniture shop): a tag, never a way to pay.
+                if (store?.installmentsSoon ?? false) ...[
+                  const SizedBox(height: 10),
+                  const Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: InstallmentsSoonTag(),
+                  ),
+                ],
+                // 211 A product with specs can be compared with others.
+                if (product.specs.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  CompareButtons(productId: product.id),
+                ],
                 if (product.shortDescriptionHtml != null) ...[
                   const SizedBox(height: 12),
                   HtmlContent(html: product.shortDescriptionHtml!),
@@ -620,6 +659,32 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                       );
                     },
                   ),
+                ],
+                // 211 Matching accessories, ticked to go in with it.
+                if (AccessoriesPicker.offered(product.accessories)
+                    .isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  AccessoriesPicker(
+                    accessories: AccessoriesPicker.offered(product.accessories),
+                    selected: _accessories,
+                    onChanged: (a, on) => setState(() {
+                      if (on) {
+                        _accessories.add(a.id);
+                      } else {
+                        _accessories.remove(a.id);
+                      }
+                    }),
+                    onAdd:
+                        cta == ProductCta.addToCart &&
+                            product.optionGroups.isEmpty
+                        ? _addWithAccessories
+                        : null,
+                  ),
+                ],
+                // 211 Its specifications.
+                if (product.specs.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  ProductSpecsSection(specs: product.specs),
                 ],
                 if (product.descriptionHtml.trim().isNotEmpty) ...[
                   const SizedBox(height: 24),

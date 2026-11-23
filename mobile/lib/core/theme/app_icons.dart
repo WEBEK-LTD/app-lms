@@ -261,6 +261,24 @@ abstract final class AppIcons {
   /// 208 A clothes shop's exchanges, and the size guide beside the sizes.
   static const exchange = Symbols.sync_rounded;
   static const sizeGuide = Symbols.straighten_rounded;
+
+  /// 211 An electronics shop's parts: specs, compare, trade-in, Build your
+  /// PC and its parts, matching accessories, installments coming soon.
+  static const specs = Symbols.list_alt_rounded;
+  static const compare = Symbols.compare_arrows_rounded;
+  static const tradeIn = Symbols.currency_exchange_rounded;
+  static const pcBuilder = Symbols.construction_rounded;
+  static const pcCpu = Symbols.memory_rounded;
+  static const pcBoard = Symbols.developer_board_rounded;
+  static const pcRam = Symbols.memory_alt_rounded;
+  static const pcGpu = Symbols.videogame_asset_rounded;
+  static const pcStorage = Symbols.hard_drive_rounded;
+  static const pcCooler = Symbols.mode_fan_rounded;
+  static const pcPsu = Symbols.power_rounded;
+  static const pcCase = Symbols.desktop_windows_rounded;
+  static const power = Symbols.bolt_rounded;
+  static const fits = Symbols.verified_rounded;
+  static const collapse = Symbols.expand_less_rounded;
   static const deliveryTime = Symbols.local_shipping_rounded;
   static const occasion = Symbols.local_florist_rounded;
   static const discussion = Symbols.forum_rounded;
