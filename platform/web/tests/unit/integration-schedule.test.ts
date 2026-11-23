@@ -8,7 +8,7 @@ import { encrypt } from "@/lib/crypto/encryption";
 import { MemoryStore } from "@/lib/data/memory";
 import { DEFAULT_CATALOG_SETTINGS, type App, type IntegrationKey, type TeamAlert } from "@/lib/data/types";
 import { SERVICE_ACCOUNT_CONTEXT } from "@/lib/hosted/notify";
-import { runIntegrationChecks, scheduledChecks, SILENT_DAYS, type IntegrationMailer } from "@/lib/integrations/schedule";
+import { runIntegrationChecks, scheduledChecks, SECOND_LOOK_MINUTES, SILENT_DAYS, type IntegrationMailer } from "@/lib/integrations/schedule";
 import { KEY, NOW } from "./helpers";
 
 const DAY = 86_400_000;
@@ -198,5 +198,65 @@ describe("80.2 a WordPress site whose plugin stopped checking in", () => {
     const result = await scheduledChecks(wordpress(), { siteUrl: "academy.test", lastCheckedAt: NOW } as never, { store, encryptionKey: KEY, now: NOW, test: flaky });
     expect(result.website?.ok).toBe(true);
     expect(calls).toBe(2);
+  });
+});
+
+describe("216 Yallapp's Firebase failing once tells no one", () => {
+  const minutes = (m: number) => new Date(NOW.getTime() + m * 60_000);
+  /** The push test answers as Google does: refused while `down`, accepted otherwise; the other connections have no test here. */
+  function google(down: () => boolean) {
+    return async (key: IntegrationKey, _app: App, deps: { now: Date }) =>
+      key === "push"
+        ? down()
+          ? { at: deps.now.toISOString(), ok: false, code: "yallapp_push_refused", subject: null, problems: ["Google's token service didn't accept the platform's assertion: invalid_grant: Error connecting to the given credential's issuer. (HTTP 400)"] }
+          : { at: deps.now.toISOString(), ok: true, code: "yallapp_push_accepted", subject: null, problems: [] }
+        : null;
+  }
+  const runWith = (s: Awaited<ReturnType<typeof shop>>, now: Date, down: () => boolean) =>
+    runIntegrationChecks({ store: s.store, encryptionKey: KEY, now, baseUrl: "https://yallapp.test", mail: async () => undefined, teamMail: async (a) => void s.teamMails.push(a), test: google(down) as never });
+
+  it("looks again at the next run a few minutes later, and says nothing when it works then", async () => {
+    const s = await shop();
+    let down = true;
+    expect(await runWith(s, NOW, () => down)).toMatchObject({ apps: 1, checks: 1, failed: 1, told: 0 });
+    let saved = (await s.store.getAppById(s.app.id))!;
+    expect(saved.integrationChecks?.push).toMatchObject({ ok: false, code: "yallapp_push_refused", unconfirmed: true });
+    // Due again SECOND_LOOK_MINUTES later, not in a day.
+    expect(saved.integrationsCheckedAt).toEqual(new Date(NOW.getTime() - 24 * 3_600_000 + SECOND_LOOK_MINUTES * 60_000));
+    expect(await s.notices()).toEqual([]);
+    expect(await s.alerts()).toEqual([]);
+    expect(await runWith(s, minutes(1), () => down)).toMatchObject({ apps: 0 });
+    down = false;
+    expect(await runWith(s, minutes(5), () => down)).toMatchObject({ apps: 1, checks: 1, failed: 0, told: 0 });
+    saved = (await s.store.getAppById(s.app.id))!;
+    expect(saved.integrationChecks?.push).toMatchObject({ ok: true, code: "yallapp_push_accepted" });
+    expect(saved.integrationChecks?.push?.unconfirmed).toBeUndefined();
+    expect(saved.integrationsCheckedAt).toEqual(minutes(5));
+    expect(await s.notices()).toEqual([]);
+    expect(await s.alerts()).toEqual([]);
+    expect(s.teamMails).toEqual([]);
+  });
+
+  it("tells the owner and the team, in the same words, when it still fails at the second look", async () => {
+    const s = await shop();
+    await runWith(s, NOW, () => true);
+    expect(await runWith(s, minutes(5), () => true)).toMatchObject({ apps: 1, failed: 1, told: 1 });
+    const [notice] = await s.notices();
+    expect(notice).toMatchObject({ dedupeKey: "integration_failed:push:1", title: "Rose Shop: your Firebase notifications need attention" });
+    const [alert] = await s.alerts();
+    expect(alert!.title).toBe("Rose Shop (Rose Owner): Firebase notifications failed its daily check");
+    expect(alert!.detail).toContain("yallapp_push_refused");
+    const saved = (await s.store.getAppById(s.app.id))!;
+    expect(saved.integrationChecks?.push).toMatchObject({ ok: false, code: "yallapp_push_refused" });
+    expect(saved.integrationChecks?.push?.unconfirmed).toBeUndefined();
+    expect(saved.integrationsCheckedAt).toEqual(minutes(5));
+    // Still failing the next day: no second notice, no second look.
+    expect(await runWith(s, minutes(5 + 24 * 60), () => true)).toMatchObject({ told: 0 });
+    expect(await s.notices()).toHaveLength(1);
+  });
+
+  it("only Yallapp's Firebase waits: a refused key of the owner's own is told at once", async () => {
+    const s = await shop();
+    expect(await s.run(NOW, "failure")).toMatchObject({ told: 1 });
   });
 });
