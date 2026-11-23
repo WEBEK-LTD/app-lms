@@ -152,7 +152,7 @@ class _Results extends ConsumerWidget {
     return found.when(
       loading: () => const SkeletonList(),
       error: (e, _) => MessageView(
-        icon: Symbols.error,
+        icon: Symbols.error_rounded,
         title: l10n.tabSearch,
         message: '$e',
         actionLabel: l10n.marketBrowse,
@@ -160,7 +160,7 @@ class _Results extends ConsumerWidget {
       ),
       data: (results) => results.isEmpty
           ? MessageView(
-              icon: Symbols.search_off,
+              icon: Symbols.search_off_rounded,
               title: l10n.marketSearchNone(query),
             )
           : ListView(

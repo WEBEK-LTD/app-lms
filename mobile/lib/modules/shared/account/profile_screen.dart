@@ -399,8 +399,9 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Text(
+                        OnePhoneLine(
                           ltrIsolate(formatPhone(user?.phone ?? '')),
+                          key: const ValueKey('account-phone'),
                           style: TextStyle(fontSize: 14, color: headSub),
                         ),
                       ],

@@ -19,6 +19,158 @@ FCM token kept, as the servers send to it); fastlane 2.241.2; the GitHub
 Actions pins. TypeScript 7 and @types/node 26 stay out. The app's changes
 ship with its next release (CLIENT_APP_RELEASE unchanged).
 
+Roadmap 115.21–115.23 (the marketplace audit's three bugs,
+docs/plans/2026-11-18-marketplace-audit.md): orders for later reach their
+vendor from the frequent job at their time less the vendor's preparation
+(with a delay in force), released and announced once even when two runs
+overlap, on memory and MariaDB; the four marketplace notifications are
+sent through the inbox and push path in the person's language, opening
+the right screen (`market_order_update` on each stage, `vendor_order` to
+the vendor's staff on a new or released order, `complaint_update` on
+support's reply or decision, `club_renewal` 3 days before a kept club plan
+ends and on its last day, nothing charged); the customer app opens a
+dish's choices before it goes in the basket and sends them with the quote
+and the order, and shows them in the basket, the checkout and the order.
+No migration and no contract change. Still to check on a real phone: the
+pushes arriving (customer app, vendor app, the Vendor tab) and each tap
+opening its screen, and the dish sheet on a small screen.
+
+Roadmap 176 (food and delivery apps say the business's own words): Sofra's
+and Sahm's Signature looks showed every business made from them the demo's
+restaurants and prices in Egyptian pounds, in every language; they are the
+demos' facts now, and apps made before are served without them. Served
+pages also drop what stood only beside a placeholder (Sofra's "Deliver to"
+and its chevron) and ask "Where from?" for a pickup street still to be
+written. A food company's restaurants show no delivery fee before its
+prices are set; a new company isn't told its couriers worked in its
+customers' app. An app started from an App editor demo is served without
+the demo's banner line and welcome sentence (Defne Café's hours and
+neighbourhoods). No migration, no app build. Not yet on a phone: text size
+1.3, a parcel, a café's card order, Yallapp Business (ROADMAP 176.7).
+
+Roadmap 177 (Zad and the classic store, walked end to end): in a project
+made from Zad, the bar's Cart, Orders and Account tabs open their own
+screens with the bar (the basket had no branch of the shell, so each
+opened the next tab's screen and Account threw); the vendor page's aisle
+chips go to their aisle, and its search, share and heart work (the heart
+saves a place on the phone); a line on sale shows its old price, so an
+order's lines add up to Items; one big word on one line ("15%") shrinks at
+a larger text size instead of being cut; every Material Symbol is rounded.
+On the platform: a business's own app no longer shows a template's coupon
+code it doesn't have (Zad's FRESH15 and ZAD20); the marketplace's price
+lines, notes and refusals are in Arabic and Turkish; a marketplace's
+sign-in opens on its country's code; Dashboard › Vendors names vendors.
+A marketplace customer chooses the delivery address on the map (a pin,
+or a street found by the map's search) instead of only the phone's
+position; the marketplace's and the store's templates pass the template
+guard's prices and layout (Zad's third poster without a price in its
+words, "Order again" and sliders of words growing with the text size).
+The app's part reaches the stores with the next `CLIENT_APP_RELEASE`
+(integration branch). Open: the template's tiles opening the search,
+"Cash on delivery" with pick-up (ROADMAP 177.11, 177.12).
+
+Roadmap 178 (the rides and taxi templates, tested by hand): Masar Rides
+and Lamha Taxi made both ways and walked through in the app preview. Their
+homes' car classes (Economy, Comfort and Van "from E£35"; Taxi, Comfort,
+XL) were the template's words, whatever vehicle types, fares and currency
+the company set: hosted `GET /pages` and Studio's canvas now make them the
+company's offered vehicle types, at their smallest fares in Ride settings'
+currency, and the pages' version follows them. A drawn map's template
+words (Home, Office, Airport, the districts, Pickup) are served in the
+language asked for. The app preview may use the location (geolocation=
+(self) on /preview-app and the Preview page only). In the app: the
+drivers' app preview reads its role (it showed the riders' home), no empty
+frosted card without a ride, no second menu and chip under the ride
+screen's Studio header, My rides and the driver's lists end above a
+floating bar, the glass bar fits at 1.3, Lamha's cream headers show their
+buttons, and "No free taxis near you" with none free. Yallapp Business
+colours an accepted ride (the driver on the way) in the board's blue.
+The home's ride card and living map read the ride again every 15 seconds
+while it is on its way, and the riders' app with the review number leaves
+out the sample rides the drivers' app makes for it (it couldn't ask for a
+ride while the drivers' app was online). A ride nobody took in time is no
+longer sent among the rides on their way (the home said "Your driver is
+coming" over the ride's "No driver found"), and the template guard's layout
+passes on every rides and taxi look: the map's words stay inside it and the
+car classes' cards fit at text 1.3, as designed where they fit. No migration; the
+app's part needs the next app build (no `CLIENT_APP_RELEASE` change here);
+the whole trip with a real driver's phone, real tiles and pushes is still
+to try (ROADMAP 178.12).
+
+Roadmap 179 (the education templates, tested by hand): Nakhla School's
+look A home ran the template's words in its News pill, which customers'
+apps leave out, so every school showed "News" with nothing after it; it now
+runs the school's own news to everyone (Dashboard › School › News), newest
+first, and goes when there is none. Rawaq Academy's faculty (look A's
+index, look B's slides and rings) named the template's four teachers in
+every academy; it is now the academy's own active teachers, featured
+first, with their subjects and, on B, their newest course, and goes when
+there is none. Both are made when the pages are served, so apps already
+made from the templates have them with no change to their pages, and the
+pages' version follows the news and the teachers. Studio's inspector says
+so over them. The academy's and the school's tabs (Teachers, My courses,
+the parent's day, the school week) now end above the looks' floating tab
+bars (Roadmap 158's `endRoom`); that needs the next app build (no
+`CLIENT_APP_RELEASE` change here). Nakhla's "Forms to sign" card showed the
+word SIGNATURE on Studio's canvas; its icon is in the site's icon font now.
+A row of buttons only (Rawaq B's slides, the classic academy and
+university heroes) puts its last buttons on a second line when they don't
+fit at a large text, instead of running past the screen; as designed when
+they fit (next app build). A faculty entry opens its teacher's page (the
+contract's new `Action.teacher_id`; older apps open the Teachers list), a
+card's price beside its title is never wider than the card's label, and
+Studio's canvas draws the ticker and the faculty with the school's news and
+the academy's teachers.
+Not yet tried on a phone (ROADMAP 179.9); the WordPress dev site was not
+run (179.10).
+
+Roadmap 180 (travel, bookings, events, real estate, news and charity, tested
+as a customer): Safra and the classic bookings, events, real estate, news and
+charity apps, started from Studio and from their demos. Fixed: a room reserved
+from a stays search no longer brings in a flight looked at earlier, and the
+trip's Change goes back to the same trip; Track on the flights found reflects
+the alert the person has, and off deletes it; the hotels and flights found end
+above Android's buttons; the real estate office's reply and a moved
+appointment's pushes open their screens (they opened Home), the reply's title
+in the app's language; the hosted bookings API writes its home titles and an
+appointment's state in the app's language, and the app shows the states, a
+home's property type and every flight amenity in its own words; a membership's
+price with the customer's currency; Arabic digits and "1.500.000" in the price
+filter and the donation amount; the flights' arrows right to left. Open:
+Studio's canvas drawing signed-in and signed-out elements together (Safra's
+hero), and travel, events, donations and listings prices in the customer's
+currency (ROADMAP 180.11–180.13). Needs the next app build (no
+`CLIENT_APP_RELEASE` change here); the hosted API part (bookings words, the
+reply's title) works for apps already in the stores once deployed.
+Then (the coordinator's decisions): Studio's canvas has a Signed in /
+Signed out switch, signed out first; travel, events, homes and campaigns
+show their prices in the customer's currency (the travel API sends each
+price's amount and currency, the contract in both copies); the smaller
+ones fixed; Safra's homes fit text 1.3 (the template guard passes for
+the travel demo and both Signature looks); and a walk of each kind in the
+app found and fixed six more: a gym from the demo without classes until
+the next day, the checkout offering a payment the company can't take,
+Safra's empty cover for a signed-in person without a trip, photo
+headers' titles unreadable, the flights' search and the account's phone
+broken at 1.3, and a one-word section title broken (ROADMAP 180.11–180.23).
+An e2e spec takes Safra from Studio to a booked stay.
+
+Roadmap 181 (what 157 to 163 left open for Leqaa and Kech Flora): under a
+premium header that folds as the page scrolls, a quick fling now ends at
+the page's end on Android and the iPhone (it could stop up to about 10
+points short on a page a little longer than the screen, as the fold moved
+the end; 158.3). Settings' plain choice sheet (the language in an app
+without a premium look, an academy's video quality and speed) scrolls to
+its last choice above the phone's bar (158.8). In Studio's canvas a row of
+more than 6 story rings scrolls as the app's does, and a click on any ring
+picks its story, marked there and in the inspector (the dashboard's rings
+once the owner saved Dashboard › Stories, 165, with its note). Studio ›
+Screens says under each Arabic and Turkish text whether the app shows the
+owner's own translation, Yallapp's or the owner's main text, as the page
+inspector does. No migration; the app's part comes with the next app build
+(no `CLIENT_APP_RELEASE` change here); not yet tried on a phone (ROADMAP
+181.5, 181.6).
+
 Roadmap 207 (Yallapp Business 1.0.4, ringtones; in the code, not released:
 the release waits for the owner): new orders ring until opened, like a call.
 Seventeen ringtones of Yallapp's own, made from code

@@ -170,7 +170,7 @@ class _ListingBody extends ConsumerWidget {
                       Text(
                         [
                           purposeLabel(l10n, s.purpose),
-                          s.typeLabel ?? s.type,
+                          propertyTypeLabel(l10n, s.type, s.typeLabel),
                           s.place,
                         ].join(' · '),
                         style: TextStyle(fontSize: 14, color: p.textSecondary),

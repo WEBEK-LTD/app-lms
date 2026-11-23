@@ -1,3 +1,4 @@
+import 'dart:async' show scheduleMicrotask;
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter, lerpDouble;
 
@@ -972,6 +973,21 @@ class ChromeFoldingHeader extends StatefulWidget {
 class _ChromeFoldingHeaderState extends State<ChromeFoldingHeader> {
   final _offset = ValueNotifier<double>(0);
 
+  /// The offset the header was last drawn for.
+  double _drawn = 0;
+
+  /// 181 The list's last metrics, and what the header's fold made of its
+  /// end while it rested there ([_ends]: the offset drawn, the end).
+  ScrollMetrics? _last;
+  final _ends = <(double, double)>[];
+
+  /// 181 A finger is on the list (dragging it, not a fling or a bounce);
+  /// the fling went past the end since (a bounce, on the iPhone); the
+  /// list's last move ended at its end.
+  bool _finger = false;
+  bool _bounce = false;
+  bool _endLast = false;
+
   @override
   void dispose() {
     _offset.dispose();
@@ -979,32 +995,164 @@ class _ChromeFoldingHeaderState extends State<ChromeFoldingHeader> {
   }
 
   bool _onScroll(ScrollNotification n) {
-    if (n.metrics.axis == Axis.vertical && n.depth <= 2) {
-      final offset = math.max(0.0, n.metrics.pixels);
-      // 163 A list told while it is laid out (its content grew or shrank
-      // under a finger, a Samsung's larger text): the header redraws after
-      // this frame, not during it ("Build scheduled during frame").
-      if (SchedulerBinding.instance.schedulerPhase ==
-          SchedulerPhase.persistentCallbacks) {
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _offset.value = offset;
-        });
-      } else {
-        _offset.value = offset;
+    final m = n.metrics;
+    if (n.depth == 0 && m.axis == Axis.vertical && m.hasPixels) {
+      switch (n) {
+        case ScrollStartNotification(:final dragDetails):
+          _finger = dragDetails != null;
+          if (_finger) _bounce = false;
+        case ScrollUpdateNotification(:final dragDetails):
+          _finger = dragDetails != null;
+          _endLast = m.pixels >= m.maxScrollExtent - 0.5;
+          if (!_finger && m.pixels > m.maxScrollExtent + 0.5) _bounce = true;
+        case OverscrollNotification(:final dragDetails, :final overscroll):
+          _finger = dragDetails != null;
+          _endLast = overscroll > 0 || m.pixels >= m.maxScrollExtent - 0.5;
+        case ScrollEndNotification():
+          _finger = false;
+          _bounce = false;
+          // 181 A finger let go at the end while the fold moved it on (a
+          // quick flick that ended under the finger).
+          final context = n.context;
+          if (_endLast &&
+              context != null &&
+              m.pixels < m.maxScrollExtent - 0.01) {
+            _toEnd(Scrollable.maybeOf(context)?.position);
+          }
+        default:
+          break;
       }
     }
+    _follow(n.metrics, n.depth);
     return false;
+  }
+
+  /// 181 The list put at its end once it is still (after this frame when
+  /// it is told during one); its end then holds it ([_keepAtEnd]).
+  void _toEnd(ScrollPosition? position) {
+    if (position == null) return;
+    void go() {
+      if (!mounted || !position.hasPixels || _finger) return;
+      if (position.isScrollingNotifier.value) return;
+      if (position.pixels < position.maxScrollExtent - 0.01) {
+        position.jumpTo(position.maxScrollExtent);
+      }
+    }
+
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) => go());
+    } else {
+      scheduleMicrotask(go);
+    }
+  }
+
+  /// 181 (158.3) The list laid out again: the header follows where it now
+  /// is (a list put back at an end that came nearer is told no scroll),
+  /// and a list at its end stays there as the fold moves it.
+  bool _onMetrics(ScrollMetricsNotification n) {
+    // Put at its end, the list tells where it went itself.
+    if (n.metrics.axis == Axis.vertical &&
+        n.depth == 0 &&
+        _keepAtEnd(n.metrics, Scrollable.maybeOf(n.context)?.position)) {
+      return false;
+    }
+    _follow(n.metrics, n.depth);
+    return false;
+  }
+
+  /// 181 (158.3) As the header folds, what is under it has more room, so
+  /// a list a little longer than the screen ends sooner, and later as it
+  /// opens: a quick fling stopped at the end the header had then, and the
+  /// fold that followed moved the end away from it (up to about 10 points
+  /// short); on the iPhone, the bounce back from past the end went on
+  /// towards the start as the header opened. When only the fold changed
+  /// the list's room (its content as long as before) while it rested at
+  /// its end, or as it came back to it from a bounce, the list is put at
+  /// the end where the fold and the end agree: found from the ends the
+  /// folds drawn gave (one step where the fold is even, as it is between
+  /// open and folded), a few steps at most, so a fold that jumps (reduced
+  /// motion) can't loop. A finger on the list is always followed.
+  bool _keepAtEnd(ScrollMetrics now, ScrollPosition? position) {
+    final last = _last;
+    _last = now;
+    double extent(ScrollMetrics m) =>
+        m.maxScrollExtent - m.minScrollExtent + m.viewportDimension;
+    if (last == null ||
+        position == null ||
+        !position.hasPixels ||
+        _finger ||
+        (extent(now) - extent(last)).abs() > 0.5 ||
+        last.pixels < last.maxScrollExtent - 0.5) {
+      _ends.clear();
+      return false;
+    }
+    final moving = position.isScrollingNotifier.value;
+    final short = now.pixels < now.maxScrollExtent - 0.01;
+    // Resting at the end, or put back at an end that came nearer (not
+    // moved from it by a scroll since).
+    final resting = !moving && (now.pixels >= last.pixels - 0.5 || !short);
+    // Coming back from past the end (a bounce), and short of it now.
+    final bouncing = moving && _bounce && short;
+    if (!resting && !bouncing) {
+      _ends.clear();
+      return false;
+    }
+    if ((now.viewportDimension - last.viewportDimension).abs() < 0.01) {
+      return false;
+    }
+    // Where the header was drawn, and the end that gave.
+    _ends.add((_drawn, now.maxScrollExtent));
+    if (_ends.length > 6 || !short) return false;
+    final here = now.pixels;
+    final end = now.maxScrollExtent;
+    var to = end;
+    if (_ends.length >= 2) {
+      // The offset where the end is the offset drawn, between the last two.
+      final (x0, e0) = _ends[_ends.length - 2];
+      final (x1, e1) = _ends[_ends.length - 1];
+      final g0 = e0 - x0;
+      final g1 = e1 - x1;
+      if ((g1 - g0).abs() > 1e-6) {
+        final root = x1 - g1 * (x1 - x0) / (g1 - g0);
+        if (root.isFinite) to = root.clamp(here, end);
+      }
+    }
+    position.jumpTo(to);
+    return true;
+  }
+
+  void _follow(ScrollMetrics metrics, int depth) {
+    if (metrics.axis != Axis.vertical || depth > 2) return;
+    final offset = math.max(0.0, metrics.pixels);
+    // 163 A list told while it is laid out (its content grew or shrank
+    // under a finger, a Samsung's larger text): the header redraws after
+    // this frame, not during it ("Build scheduled during frame").
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _offset.value = offset;
+      });
+    } else {
+      _offset.value = offset;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final header = ValueListenableBuilder<double>(
       valueListenable: _offset,
-      builder: (context, offset, _) => widget.builder(context, offset),
+      builder: (context, offset, _) {
+        _drawn = offset;
+        return widget.builder(context, offset);
+      },
     );
-    final body = NotificationListener<ScrollNotification>(
-      onNotification: _onScroll,
-      child: widget.child,
+    final body = NotificationListener<ScrollMetricsNotification>(
+      onNotification: _onMetrics,
+      child: NotificationListener<ScrollNotification>(
+        onNotification: _onScroll,
+        child: widget.child,
+      ),
     );
     if (widget.overlay) {
       return Stack(

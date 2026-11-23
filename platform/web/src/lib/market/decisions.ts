@@ -1,6 +1,8 @@
 import type { DataStore } from "../data/store";
 import type { App, MarketOrder } from "../data/types";
 import { ownPaymentAccount } from "../catalog/settings";
+import { notifyDeps } from "../delivery/flow";
+import { tellComplaint } from "./notify";
 import type { DecisionDeps } from "./complaints";
 import { personalCoupon } from "./offers";
 import { refundMarketPayment } from "./payments";
@@ -9,10 +11,12 @@ import { refundMarketPayment } from "./payments";
  * 115.9 What support's decision on a complaint is carried out with: a refund
  * on the order's payment through the app's own gateway (47's refunds), and a
  * one-person coupon for a compensation. The dashboard's complaint queue
- * (115.12) passes these to `decideComplaint`.
+ * (115.12) passes these to `decideComplaint`. 115.22 And the customer is
+ * told of the decision (`complaint_update`).
  */
 export function complaintDecisionDeps(store: DataStore, app: App, key: Buffer, input: { ip: string; now: Date }): DecisionDeps {
   return {
+    tell: (complaint) => tellComplaint(notifyDeps({ store, app, now: input.now }), complaint, "decision"),
     refundToPayment: async (order: MarketOrder, amount: number, complaintId: number) => {
       const account = ownPaymentAccount(app, key);
       if (!account) return { ok: false, error: "The app's payments aren't set up, so the refund can't go back to the card. Refund to the wallet instead." };

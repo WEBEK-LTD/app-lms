@@ -31,7 +31,7 @@ class StudioMediaCover extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final kids = [
       for (final child in node.children)
-        if (StudioNodeView.shows(child, ref)) child,
+        if (StudioNodeView.shows(child, ref, siblings: node.children)) child,
     ];
     final video = node.type == StudioNodeType.videoHero;
     final height = node.height?.fixed ?? (video ? 420.0 : 300.0);

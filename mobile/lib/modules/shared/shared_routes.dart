@@ -243,6 +243,39 @@ List<RouteBase> sharedPageRoutes() => [
 /// Every route of an app: sign-in, the bottom tabs ([tabs]), the module's
 /// screens that aren't tabs (pushed, with a back button), dashboard pages
 /// and the module's pushed pages.
+/// Whether a tab's place gets a branch of the shell: one of the app's
+/// screens, a web page or a Studio page.
+bool _hasBranch(
+  String path,
+  Map<String, TabScreen> screens,
+  Map<String, TabScreen> shared,
+) =>
+    screens.containsKey(path) ||
+    shared.containsKey(path) ||
+    path.startsWith(Paths.webTabPrefix) ||
+    path.startsWith(Paths.pagePrefix);
+
+/// 177 Each tab's branch of the shell, by the tab's place in the bar, as
+/// [tabbedRoutes] builds them: a tab whose place has no screen (or repeats
+/// one) has none. [MainShell] counted every tab with a place, so one
+/// without a branch sent every tab after it to the next one's screen.
+Map<int, int> tabBranchIndexes(AppModule module, List<ShellTab> tabs) {
+  final screens = {
+    for (final s in [...module.screens(), chatTabScreen()]) s.path: s,
+  };
+  final shared = {for (final s in sharedTabScreens()) s.path: s};
+  final used = <String>{};
+  final out = <int, int>{};
+  for (final (i, tab) in tabs.indexed) {
+    final path = tab.path;
+    if (tab.location == null || path == null || used.contains(path)) continue;
+    if (!_hasBranch(path, screens, shared)) continue;
+    used.add(path);
+    out[i] = out.length;
+  }
+  return out;
+}
+
 List<RouteBase> tabbedRoutes({
   required AppModule module,
   required List<ShellTab> tabs,
@@ -264,6 +297,7 @@ List<RouteBase> tabbedRoutes({
     final location = tab.location;
     final path = tab.path;
     if (location == null || path == null || used.contains(path)) continue;
+    if (!_hasBranch(path, screens, shared)) continue;
     final screen = screens[path] ?? shared[path];
     final GoRoute route;
     if (screen != null) {
@@ -408,12 +442,9 @@ class MainShell extends ConsumerWidget {
       // 77 Unread chat messages.
       Paths.chat: ref.watch(chatUnreadProvider),
     };
-    // Branches are built in tab order from the tabs that have a location.
-    final branchOf = <int, int>{};
-    var branch = 0;
-    for (final (i, tab) in tabs.indexed) {
-      if (tab.location != null) branchOf[i] = branch++;
-    }
+    // Branches are built in tab order from the tabs that have a screen
+    // (177: as tabbedRoutes builds them).
+    final branchOf = tabBranchIndexes(ref.watch(appModuleProvider), tabs);
     final current = branchOf.entries
         .firstWhere(
           (e) => e.value == shell.currentIndex,

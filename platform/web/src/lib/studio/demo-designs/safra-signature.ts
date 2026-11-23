@@ -131,6 +131,8 @@ function safraAHome(ctx: SectionContext): StudioPage {
     name: ctx.w("acTabExplore"),
     width: "hug",
     height: 44,
+    // 180.16 Sideways when its four words don't fit (Arabic at a larger text size): it overflowed the cover.
+    scroll: true,
     radius: 22,
     gap: 2,
     cross: "center",
@@ -194,7 +196,8 @@ function safraAHome(ctx: SectionContext): StudioPage {
           id: id(),
           type: "row",
           name: ctx.w("sigBundleTitle"),
-          height: 64,
+          // 180.16 At least its height: its two lines at a larger text size overflowed it.
+          min_height: 64,
           radius: 20,
           gap: 14,
           cross: "center",
@@ -436,7 +439,8 @@ function safraBHome(ctx: SectionContext): StudioPage {
             children: [
               inked(ctx, f.number, B_MUTED, { size: 11, weight: 500, family: MONO }, { width: 58 }),
               inked(ctx, f.to, B_INK, { size: 15, weight: 700, family: MONO }, { width: 38 }),
-              { id: id(), type: "row", width: "fill", gap: 4, children: [inked(ctx, ctx.w(f.city), B_MUTED, { size: 12, weight: 600 }), inked(ctx, "·", B_MUTED, { size: 12 }), inked(ctx, ctx.w(f.how), B_MUTED, { size: 12, weight: 600 })] },
+              // 180.16 One line each, the last giving way (163.3): "Istanbul · nonstop" ran past the row at a larger text size.
+              { id: id(), type: "row", width: "fill", gap: 4, children: [inked(ctx, ctx.w(f.city), B_MUTED, { size: 12, weight: 600 }, { max_lines: 1 }), inked(ctx, "·", B_MUTED, { size: 12 }), inked(ctx, ctx.w(f.how), B_MUTED, { size: 12, weight: 600 }, { max_lines: 1 })] },
               inked(ctx, f.time, B_INK, { size: 15, weight: 700, family: MONO }),
             ],
           })),

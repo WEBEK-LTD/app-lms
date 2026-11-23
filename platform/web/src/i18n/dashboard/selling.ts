@@ -8,6 +8,8 @@ import type { Strings } from "../types";
  * app of a connected shop. Arabic in the dashboard's Egyptian.
  */
 export const en = {
+  // 176.11 A shop kept here with no way to be paid in the app yet.
+  cantOrderYet: "Customers can't order yet: turn on cash or another way to pay of your own, or connect a card payment, on <link>Payments</link>.",
   nav: "Delivery & offers",
   title: "Delivery & offers",
   intro: "When and where you deliver, what it costs, gifts and card messages, flash sales and discount codes, for every way your shop is connected.",
@@ -356,6 +358,7 @@ export const en = {
 type Messages = Strings<typeof en>;
 
 export const ar: Messages = {
+  cantOrderYet: "العملاء مش هيقدروا يطلبوا لسه: شغّل الكاش أو طريقة دفع خاصة بيك، أو اربط الدفع بالبطاقة، من <link>المدفوعات</link>.",
   nav: "التوصيل والعروض",
   title: "التوصيل والعروض",
   intro: "إمتى وفين بتوصّل، وبكام، والهدايا ورسايل الكروت، وعروض الفلاش وأكواد الخصم، لكل طريقة متجرك متوصّل بيها.",
@@ -683,6 +686,7 @@ export const ar: Messages = {
 };
 
 export const tr: Messages = {
+  cantOrderYet: "Müşteriler henüz sipariş veremez: <link>Ödemeler</link> sayfasında nakdi veya kendi ödeme yönteminizi açın ya da kartla ödemeyi bağlayın.",
   nav: "Teslimat ve fırsatlar",
   title: "Teslimat ve fırsatlar",
   intro: "Ne zaman ve nereye teslim ettiğiniz, ne kadar tuttuğu, hediyeler ve kart mesajları, flaş indirimler ve indirim kodları; mağazanız nasıl bağlı olursa olsun.",

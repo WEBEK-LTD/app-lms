@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import 'package:go_router/go_router.dart';
-
+import '../../../core/api/models/models.dart' show Dish;
 import '../../../core/format/bidi.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/gate/app_gate.dart';
+import '../../../core/routing/app_router.dart' show openLocation;
 import '../../../core/routing/paths.dart';
+import '../../../core/services/share_links.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../data/market_basket.dart';
 import '../../delivery/data/delivery_providers.dart' show LocateProblem;
+import '../../food/widgets/dish_sheet.dart';
 import '../data/market_models.dart';
 import '../data/market_place.dart';
 import '../data/market_providers.dart';
@@ -52,6 +56,53 @@ class _VendorPageView extends ConsumerStatefulWidget {
 class _VendorPageViewState extends ConsumerState<_VendorPageView> {
   int _shelf = 0;
 
+  /// 177 Each aisle's (or menu section's) heading, so its chip scrolls to it.
+  final _headings = <String, GlobalKey>{};
+
+  GlobalKey _heading(MarketShelf shelf) =>
+      _headings.putIfAbsent(shelf.id, GlobalKey.new);
+
+  /// 177 A chip scrolls the page to its aisle, under the pinned chips (it
+  /// only changed colour before).
+  Future<void> _goTo(int i) async {
+    setState(() => _shelf = i);
+    final key = _headings[widget.page.shelves[i].id];
+    if (key == null || !_scroll.hasClients) return;
+    // An aisle far down isn't built yet: go down (or up) a screen at a time
+    // until it is, then put its heading right under the pinned bars.
+    for (var step = 0; key.currentContext == null && step < 40; step++) {
+      final position = _scroll.position;
+      final down = i > 0;
+      final next =
+          (position.pixels + (down ? 1 : -1) * position.viewportDimension * 0.9)
+              .clamp(0.0, position.maxScrollExtent);
+      if (next == position.pixels) break;
+      _scroll.jumpTo(next);
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return;
+    }
+    final box = key.currentContext?.findRenderObject();
+    if (box == null || !box.attached || !mounted) return;
+    // The viewport puts it under the pinned bars (the cover's and the chips).
+    final to = RenderAbstractViewport.of(box)
+        .getOffsetToReveal(box, 0)
+        .offset
+        .clamp(0.0, _scroll.position.maxScrollExtent);
+    await _scroll.animateTo(
+      to,
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  final _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
   MarketVendor get _vendor => widget.page.vendor;
   bool get _shop => _vendor.sellsGoods;
 
@@ -82,6 +133,40 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
       );
       if (yes != true || !mounted) return;
     }
+    // 115.23 A dish with choices (a size, extras) opens them first: what's
+    // chosen goes in the basket with it, and to the server with the order.
+    if (item.choices.isNotEmpty) {
+      final chosen = await showDishSheet(
+        context,
+        Dish(
+          id: int.tryParse(item.id) ?? 0,
+          name: item.name,
+          priceFormatted: item.price,
+          description: item.description,
+          imageUrl: item.imageUrl,
+          available: item.inStock,
+          choiceGroups: item.choices,
+        ),
+      );
+      if (chosen == null || !mounted) return;
+      final extra = [
+        for (final g in item.choices)
+          for (final c in g.choices)
+            if (chosen.choices.contains(c.id)) c.extra ?? 0,
+      ].fold<double>(0, (sum, e) => sum + e);
+      basket.add(
+        _vendor,
+        item,
+        currency: widget.page.currency,
+        decimals: widget.page.decimals,
+        choices: chosen.choices,
+        choiceNames: chosen.choiceNames,
+        extra: extra,
+        note: chosen.note,
+        count: chosen.quantity,
+      );
+      return;
+    }
     basket.add(
       _vendor,
       item,
@@ -105,6 +190,7 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
       body: Stack(
         children: [
           CustomScrollView(
+            controller: _scroll,
             slivers: [
               _Cover(vendor: _vendor),
               SliverToBoxAdapter(child: _Info(page: widget.page)),
@@ -113,7 +199,7 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
                 delegate: _ShelfTabs(
                   shelves: shelves,
                   selected: _shelf,
-                  onSelect: (i) => setState(() => _shelf = i),
+                  onSelect: _goTo,
                   palette: p,
                   title: _shop ? context.l10n.marketAisles : null,
                 ),
@@ -121,6 +207,7 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
               for (final shelf in shelves) ...[
                 SliverToBoxAdapter(
                   child: Padding(
+                    key: _heading(shelf),
                     padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
                     child: Text(
                       shelf.name,
@@ -179,7 +266,7 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
                   widget.page.currency,
                   widget.page.decimals,
                 ),
-                onTap: () => context.push(Paths.marketCheckout),
+                onTap: () => openLocation(context, Paths.marketCheckout),
               ),
             ),
         ],
@@ -188,23 +275,45 @@ class _VendorPageViewState extends ConsumerState<_VendorPageView> {
   }
 }
 
-class _Cover extends StatelessWidget {
+class _Cover extends ConsumerWidget {
   const _Cover({required this.vendor});
 
   final MarketVendor vendor;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
-    Widget round(IconData icon, {bool filled = false}) => Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: p.surface.withValues(alpha: 0.94),
-        shape: BoxShape.circle,
+    final l10n = context.l10n;
+    // 177 The place saved with the heart, on this phone.
+    final saved = ref.watch(marketSavedPlacesProvider).contains(vendor.id);
+    Widget round(
+      IconData icon, {
+      required String label,
+      required VoidCallback onTap,
+      bool filled = false,
+      Color? color,
+    }) => Semantics(
+      button: true,
+      label: label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: p.surface.withValues(alpha: 0.94),
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: AppIcon(
+            icon,
+            size: 20,
+            color: color ?? p.text,
+            filled: filled,
+          ),
+        ),
       ),
-      alignment: Alignment.center,
-      child: AppIcon(icon, size: 20, color: p.text, filled: filled),
     );
     return SliverAppBar(
       expandedHeight: 236,
@@ -216,16 +325,43 @@ class _Cover extends StatelessWidget {
       titleSpacing: 12,
       title: Row(
         children: [
-          GestureDetector(
+          round(
+            AppIcons.back,
+            label: MaterialLocalizations.of(context).backButtonTooltip,
             onTap: () => Navigator.of(context).maybePop(),
-            child: round(AppIcons.back),
           ),
           const Spacer(),
-          round(Symbols.search_rounded),
+          // 177 They did nothing: search opens the marketplace's search,
+          // share sends the place's name and the app's link, the heart saves it.
+          round(
+            Symbols.search_rounded,
+            label: l10n.tabSearch,
+            onTap: () => openLocation(context, Paths.marketSearch),
+          ),
           const SizedBox(width: 8),
-          round(Symbols.ios_share_rounded),
+          round(
+            Symbols.ios_share_rounded,
+            label: l10n.shareLink,
+            onTap: () => ref.read(shareTextProvider)(
+              shareMessage(
+                title: vendor.name,
+                link: ref.read(shareBaseProvider),
+                appName: switch (ref.read(appGateProvider)) {
+                  GateReady(:final config) => config.site.name,
+                  _ => '',
+                },
+              ),
+            ),
+          ),
           const SizedBox(width: 8),
-          round(Symbols.favorite_rounded, filled: vendor.favorited),
+          round(
+            Symbols.favorite_rounded,
+            label: saved ? l10n.removeFromFavorites : l10n.saveToFavorites,
+            filled: saved || vendor.favorited,
+            color: saved || vendor.favorited ? p.danger : null,
+            onTap: () =>
+                ref.read(marketSavedPlacesProvider.notifier).toggle(vendor.id),
+          ),
         ],
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -277,12 +413,16 @@ class _Info extends StatelessWidget {
         children: [
           AppIcon(icon, size: 16, color: color ?? p.primary),
           const SizedBox(width: 5),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w700,
-              color: color ?? p.text,
+          // 177 Longer than the row (Arabic, a larger text size): it wraps
+          // inside the chip instead of running past it.
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: color ?? p.text,
+              ),
             ),
           ),
         ],
@@ -568,11 +708,13 @@ class _ShelfTabs extends SliverPersistentHeaderDelegate {
   final AppPalette palette;
   final String? title;
 
-  @override
-  double get minExtent => 58;
+  static const height = 58.0;
 
   @override
-  double get maxExtent => 58;
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlaps) {
@@ -745,7 +887,11 @@ class _DishRow extends StatelessWidget {
                       end: -4,
                       bottom: -4,
                       child: item.inStock
-                          ? _RoundAdd(count: quantity, onTap: onAdd)
+                          ? _RoundAdd(
+                              key: ValueKey('market-add-${item.id}'),
+                              count: quantity,
+                              onTap: onAdd,
+                            )
                           : MarketPill(
                               text: l10n.marketSoldOut,
                               background: p.text,
@@ -764,7 +910,7 @@ class _DishRow extends StatelessWidget {
 }
 
 class _RoundAdd extends StatelessWidget {
-  const _RoundAdd({required this.count, required this.onTap});
+  const _RoundAdd({super.key, required this.count, required this.onTap});
 
   final int count;
   final VoidCallback onTap;
