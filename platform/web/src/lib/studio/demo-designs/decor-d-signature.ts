@@ -66,8 +66,8 @@ function head(ctx: SectionContext, title: SectionWord, link?: { word: SectionWor
   };
 }
 
-/** A polaroid: the photo on white paper with a deep foot, its caption handwritten there, a strip of tape on top; tilted. */
-function polaroid(ctx: SectionContext, o: { photo: string; caption: SectionWord; width: number; height: number; tilt: number; x: number; y: number; tape?: boolean }): StudioNode {
+/** A polaroid: a strip of tape on top, the photo on white paper with a deep foot, its caption handwritten there; tilted. */
+function polaroid(ctx: SectionContext, o: { photo: string; caption: SectionWord; width: number; height: number; tilt: number; top?: number }): StudioNode {
   const id = idOf(ctx);
   const url = kitPhoto(ctx, L, o.photo);
   return {
@@ -77,56 +77,64 @@ function polaroid(ctx: SectionContext, o: { photo: string; caption: SectionWord;
     width: o.width + 18,
     gap: 6,
     cross: "center",
-    padding: sides(9, 9, 10, 9),
+    padding: sides(0, 9, 10, 9),
+    margin: sides(o.top ?? 0, 0, 0, 0),
     background: PAPER,
     dark_background: PAPER,
     shadow: "medium",
     rotation: o.tilt,
-    place: { x: o.x, y: o.y },
     action: shop,
     children: [
+      { id: id(), type: "row", width: 64, height: 16, background: TAPE, dark_background: TAPE, opacity: 0.6, rotation: -o.tilt, children: [] },
       url ? { id: id(), type: "image", image_url: url, width: o.width, height: o.height, fit: "cover" } : { id: id(), type: "row", width: o.width, height: o.height, background: L.tint.day, children: [] },
       { id: id(), type: "text", text: ctx.w(o.caption), max_lines: 1, text_align: "center", color: PRINT_INK, dark_color: PRINT_INK, font: font(13, 500) },
     ],
   };
 }
 
-/** A strip of tape over a polaroid's top. */
-function tape(ctx: SectionContext, x: number, y: number, tilt: number): StudioNode {
-  return { id: idOf(ctx)(), type: "row", width: 70, height: 22, background: TAPE, dark_background: TAPE, opacity: 0.6, rotation: tilt, place: { x, y }, children: [] };
-}
-
-/** The collage hero: three polaroids overlapping, taped, and the week's stamp over them. */
+/** The collage hero: two polaroids side by side, tilted apart, a third under them beside the week's stamp; none covers another's caption. */
 function collage(ctx: SectionContext): StudioNode {
   const id = idOf(ctx);
   return {
     id: id(),
-    type: "stack",
+    type: "column",
     name: ctx.w("mjBoard"),
-    height: 430,
+    gap: 16,
+    padding: sides(14, 16, 8, 16),
     children: [
-      // Side by side and a third under them, a little apart, so every caption reads in full.
-      polaroid(ctx, { photo: "hero-autumn", caption: "mjPolaroid1", width: 158, height: 176, tilt: 4, x: 51, y: 3 }),
-      polaroid(ctx, { photo: "pink-vase", caption: "mjPolaroid2", width: 140, height: 160, tilt: -5, x: 5, y: 7 }),
-      polaroid(ctx, { photo: "brass-lantern", caption: "mjPolaroid3", width: 130, height: 112, tilt: -2, x: 8, y: 58 }),
-      tape(ctx, 63, 1, -4),
-      tape(ctx, 14, 5, 6),
       {
         id: id(),
         type: "row",
-        name: ctx.w("mjStamp"),
-        // Sized to its words: a placed element keeps its own width.
-        width: Math.round(44 + ctx.w("mjStamp").length * 8.2),
+        gap: 14,
         align: "center",
-        radius: 26,
-        padding: sides(10, 18, 10, 18),
-        background: K.fill,
-        dark_background: K.darkFill,
-        shadow: "medium",
-        rotation: -3,
-        place: { x: 54, y: 72 },
-        action: shop,
-        children: [say(ctx, L, "mjStamp", font(14.5, 700), { color: K.onFill, dark_color: K.darkOnFill, max_lines: 1 })],
+        cross: "start",
+        children: [
+          polaroid(ctx, { photo: "pink-vase", caption: "mjPolaroid2", width: 140, height: 160, tilt: -5 }),
+          polaroid(ctx, { photo: "hero-autumn", caption: "mjPolaroid1", width: 140, height: 150, tilt: 4, top: 26 }),
+        ],
+      },
+      {
+        id: id(),
+        type: "row",
+        gap: 18,
+        align: "center",
+        cross: "center",
+        children: [
+          polaroid(ctx, { photo: "brass-lantern", caption: "mjPolaroid3", width: 120, height: 104, tilt: -3 }),
+          {
+            id: id(),
+            type: "row",
+            name: ctx.w("mjStamp"),
+            radius: 26,
+            padding: sides(12, 18, 12, 18),
+            background: K.fill,
+            dark_background: K.darkFill,
+            shadow: "medium",
+            rotation: -4,
+            action: shop,
+            children: [say(ctx, L, "mjStamp", font(14.5, 700), { color: K.onFill, dark_color: K.darkOnFill, max_lines: 2, text_align: "center" })],
+          },
+        ],
       },
     ],
   };
