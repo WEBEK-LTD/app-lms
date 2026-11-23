@@ -1,3 +1,4 @@
+import type { LiabilityAcceptance } from "../data/types";
 import type { OrderMoney } from "../market/money";
 import type {
   AppAuthKey,
@@ -443,6 +444,8 @@ export const apps = mysqlTable(
     autoBuildDueAt: time("auto_build_due_at"),
     // 93.1 The overview's guide through the first app, hidden by the owner.
     guideHiddenAt: time("guide_hidden_at"),
+    // 208 The owner's "I read it and agree" to each shop type's liability notice (JSON, by notice: when and who).
+    liabilityAccepted: jsonText<LiabilityAcceptance>("liability_accepted"),
     // 116 Where a school's or academy's staff work: "bundle" (their own app) or "same" (the main app); null: a project made before, "same".
     staffApp: varchar("staff_app", { length: 8 }).$type<StaffAppPlace>(),
     // 88.2 The listing in more languages, tablet and iPad screenshots, framed screenshots.
@@ -833,6 +836,8 @@ export const catalogCategories = mysqlTable(
     createdAt: time("created_at").notNull(),
     // 175 Its name in the app's other languages ({ "ar": "…", "tr": "…" }, JSON); null: `name` in every language.
     names: jsonText<LangText>("names"),
+    // 208 The main category it sits inside (one level deep); null: a main category.
+    parentId: bigint("parent_id", { mode: "number", unsigned: true }),
   },
   (t) => [index("catalog_categories_app_idx").on(t.appId)],
 );

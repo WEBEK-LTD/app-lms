@@ -13668,6 +13668,62 @@
   "@paySheetOpenAgain": {
     "description": "170 Button: open the payment page in the browser sheet again."
   },
+  "sizeGuide": "Size guide",
+  "@sizeGuide": {
+    "description": "208 Link beside a product's sizes: opens the shop's size chart."
+  },
+  "sizeChartIn": "Size chart ({unit})",
+  "@sizeChartIn": {
+    "description": "208 The size chart's title, with its unit (cm or in).",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "completeTheLook": "Complete the look",
+  "@completeTheLook": {
+    "description": "208 Title of the products that go with this one on its page."
+  },
+  "exchangeWithin": "{days, plural, =1{Exchange or return within a day} other{Exchange or return within {days} days}}",
+  "@exchangeWithin": {
+    "description": "208 The shop's exchange policy under a product's price.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "optionSoldOut": "{option}, out of stock",
+  "@optionSoldOut": {
+    "description": "208 A size or colour none of whose pieces are left (screen readers).",
+    "placeholders": {
+      "option": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryAllOf": "All {name}",
+  "@categoryAllOf": {
+    "description": "208 The category menu: a row's first card, the main category itself.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryMenuRow": "{name}, {count}",
+  "@categoryMenuRow": {
+    "description": "208 A category menu row's title for screen readers: its name and how many products.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "appointmentStatusApproved": "Approved",
   "appointmentStatusPending": "Pending",
   "appointmentStatusCancelled": "Cancelled",

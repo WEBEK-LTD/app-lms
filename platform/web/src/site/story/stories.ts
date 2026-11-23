@@ -345,6 +345,35 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "flowers-vase", screen: "leqaa-home" },
   },
+  // 208 Lujain, the clothes shop: a dress for Thursday's wedding, in its look A (LUJAIN) by day and by night; look B (NOUN) in its section.
+  clothes: {
+    id: "clothes",
+    icon: "checkroom",
+    // LUJAIN's sale red, lighter on its charcoal night.
+    accent: "#E58C84",
+    demos: ["clothes"],
+    solutions: [],
+    hero: { photo: "clothes-hero", screens: ["lujain-home", "lujain-product"] },
+    chapters: [
+      { screen: "lujain-home", icon: "home" },
+      { screen: "lujain-menu", icon: "menu_open" },
+      { photo: "clothes-dress", screen: "lujain-product", icon: "straighten" },
+      { photo: "clothes-heels", screen: "lujain-product", icon: "checkroom" },
+      { screen: "clothes-sig-a-home-dark", icon: "bolt" },
+      { photo: "clothes-rack", screen: "lujain-menu", icon: "inventory_2" },
+    ],
+    interlude: { photo: "clothes-street" },
+    stats: [{ value: 8 }, { value: 17 }, { value: 14 }, { value: 3 }],
+    systems: [
+      { icon: "menu_open", screens: ["lujain-menu"], features: ["view_list", "category", "view_carousel", "search", "person", "dashboard_customize"] },
+      { icon: "straighten", screens: ["lujain-product"], features: ["palette", "block", "straighten", "translate", "check", "checkroom"] },
+      { icon: "checkroom", screens: [], features: ["checkroom", "add", "sync", "bolt", "confirmation_number"] },
+      { icon: "palette", screens: ["clothes-sig-b-home", "clothes-sig-b-home-dark"], features: ["apparel", "trending_up", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "clothes-walk", screen: "lujain-home" },
+  },
 };
 
 /** Every photo slot of a story, each once. */

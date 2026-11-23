@@ -13352,6 +13352,11 @@ components:
         name: { type: string, description: "175 In the app's language (`Accept-Language`) when the shop named it so (Arabic, Turkish), else its main name." }
         count: { type: integer }
         image_url: { type: [string, 'null'], format: uri, description: "112.4 The category's picture, when it has one (a store's categories); shown by a Studio `categories` element as pictures or circles." }
+        children:
+          type: array
+          maxItems: 12
+          description: "208 Only in a Studio `categories` element drawn as `rows` (the category menu): its sub-categories with products, in the shop's order. `GET /store/categories` gives each sub-category its `parent_id` instead."
+          items: { $ref: '#/components/schemas/Category' }
 
     Instructor:
       type: object
@@ -15189,6 +15194,22 @@ components:
             addons: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 }, example: { en: Make it extra special, ar: أضف لمسة أخرى } }
             gift_card: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
             delivery: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
+        size_chart:
+          description: |
+            208 The shop's size chart (a clothes shop's, Store › Delivery &
+            offers › Clothes): its titles in the language asked for (the
+            first the size's), a row per size, its unit. The app shows "Size
+            guide" beside a choice whose options are its sizes, and a Studio
+            `size_chart` element shows it. Null or missing (none, a
+            connected platform, WordPress, older servers): neither.
+          oneOf:
+            - type: object
+              required: [headers, rows, unit]
+              properties:
+                headers: { type: array, minItems: 2, maxItems: 8, items: { type: string, maxLength: 24 } }
+                rows: { type: array, minItems: 1, maxItems: 24, items: { type: array, items: { type: string, maxLength: 24 } } }
+                unit: { type: string, enum: [cm, in] }
+            - { type: 'null' }
         bouquet:
           description: |
             162 Build your bouquet, when the store has it set up: an action
@@ -15850,6 +15871,11 @@ components:
               type: array
               maxItems: 12
               description: "131 \"Add a little more\": the gift add-ons offered with this product (`GET /store/addons`), each `addon: true`. Missing or empty: none."
+              items: { $ref: '#/components/schemas/ProductSummary' }
+            complete_look:
+              type: array
+              maxItems: 4
+              description: "208 \"Complete the look\" (a clothes shop's, when it has it on): a product of each of the shop's other main categories. Missing or empty: none."
               items: { $ref: '#/components/schemas/ProductSummary' }
             external_url: { type: [string, 'null'], format: uri, description: "For external products, the page that sells it." }
             permalink: { type: string, format: uri }
@@ -16703,6 +16729,7 @@ components:
         subtitle: { type: [string, 'null'], maxLength: 80, description: "130.20 A line under the title (`large`, `photo`, `brand`, 131.21 `petal`), in the language asked for." }
         image_url: { type: [string, 'null'], format: uri, description: "130.20 The `photo` style's photo (131.21 and the `petal` style's); null, the main to second colour gradient." }
         collapse: { type: boolean, description: "130.20 False keeps `large`, `photo`, `search` and 131.21 `petal` open as the page scrolls. Missing, true." }
+        menu_page: { type: [string, 'null'], maxLength: 40, description: "208 The page (its address) the `menu` button opens over the page, the category menu's; null or missing: the side menu, as before (and in apps before it)." }
         title: { type: [string, 'null'], maxLength: 80, description: "In the language asked for; null, the app's name." }
         logo_url: { type: [string, 'null'], format: uri, description: "Null, the app's logo." }
         buttons:
@@ -16794,7 +16821,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale, size_chart]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app. 159 What a screen reader says for an element that opens something without words of its own (a round search or bag); without it, what it opens, in the app's language." }
         children:
           type: array
@@ -16955,7 +16982,14 @@ components:
           properties:
             x: { type: number, minimum: 0, maximum: 100 }
             y: { type: number, minimum: 0, maximum: 100 }
-        style: { type: string, enum: [chips, tiles, pictures, circles], default: chips, description: "112.4 For `categories`: chips in a row, tiles with their counts, `pictures` in a grid of `columns` with the name over them, or `circles`, round pictures with the name under them in a row that scrolls. A category without a picture shows a colour." }
+        style: { type: string, enum: [chips, tiles, pictures, circles, rows], default: chips, description: "112.4 For `categories`: chips in a row, tiles with their counts, `pictures` in a grid of `columns` with the name over them, or `circles`, round pictures with the name under them in a row that scrolls. A category without a picture shows a colour. 208 `rows`: the category menu, every main category a row of cards that slides, its own card first (\"All\"), then its sub-categories (`Category.children`); an app before it draws chips. Apps skip a `size_chart` element they don't know; it shows `StoreConfig.size_chart` under its `text`." }
+        category_menu:
+          type: [object, 'null']
+          description: "208 For `categories` drawn as `rows`: `lead` a tall card of the main category first (its number, name, count and an arrow over its photo), the sub-categories' photos with their names under them; `label` the number, name and count over the row, \"All\" on its first card. `numbers` false: no 01, 02. `radius`: the cards' corners (0 to 40, 18)."
+          properties:
+            look: { type: string, enum: [lead, label], default: lead }
+            numbers: { type: boolean, default: true }
+            radius: { type: number, minimum: 0, maximum: 40 }
         code: { type: [string, 'null'], minLength: 1, maxLength: 40, description: "112.4 For `coupon`: the code (letters, numbers, - and _), copied to the phone's clipboard when tapped." }
         recent: { type: boolean, default: false, description: "112.4 For `items` of products: the products this person opened lately on this phone, newest first, kept by the app; sent with no `items`. The app leaves it out until there is one." }
         heads: { type: string, description: "164 Sent by the servers only: this element is the title of its sibling `items` with this ID (a section's title and its \"Shop all\"). The app hides it while that list is hidden; the servers leave it out with a list they leave out." }

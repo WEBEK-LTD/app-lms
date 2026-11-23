@@ -104,7 +104,8 @@
    },
    "bouquet": null,
    "returns": null,
-   "loyalty": null
+   "loyalty": null,
+   "size_chart": null
   },
   "appearance": {
    "template": "classic",

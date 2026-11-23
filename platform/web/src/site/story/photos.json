@@ -439,5 +439,85 @@
         "title": "Bouquet-3175315 1920"
       }
     }
+  ],
+  "clothes": [
+    {
+      "slot": "clothes-hero",
+      "src": "/stories/clothes/clothes-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "The Lazy Artist Gallery",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/fashion-woman-1CXI0CSPE5",
+        "title": "Fashion Woman"
+      }
+    },
+    {
+      "slot": "clothes-dress",
+      "src": "/stories/clothes/clothes-dress.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Matt Moloney",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/urban-female-COOWAKH2W5",
+        "title": "Urban Female"
+      }
+    },
+    {
+      "slot": "clothes-heels",
+      "src": "/stories/clothes/clothes-heels.jpg",
+      "width": 960,
+      "height": 641,
+      "credit": {
+        "creator": "Beauty and Fashion",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/heels-flower-OYB0IZTBTV",
+        "title": "Heels Flower"
+      }
+    },
+    {
+      "slot": "clothes-rack",
+      "src": "/stories/clothes/clothes-rack.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Charisse Kenion",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/dress-white-0TGREM1T78",
+        "title": "Dress White"
+      }
+    },
+    {
+      "slot": "clothes-street",
+      "src": "/stories/clothes/clothes-street.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "donterase",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/person-woman-5GB7LPF8SD",
+        "title": "Person Woman"
+      }
+    },
+    {
+      "slot": "clothes-walk",
+      "src": "/stories/clothes/clothes-walk.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Evan Phillip",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/white-sand-G87AL8KRMW",
+        "title": "White Sand"
+      }
+    }
   ]
 }

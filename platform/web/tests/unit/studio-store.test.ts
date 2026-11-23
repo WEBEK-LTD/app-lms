@@ -49,8 +49,8 @@ describe("112.4 a store's sections and sliders in Studio", () => {
     expect(academy.filter((id) => own.includes(id))).toEqual([]);
     // Categories in pictures only where there are categories to show.
     expect(sectionsFor(STORE, { categories: false }).map((s) => s.id)).not.toContain("category_pictures");
-    // 131.20 After Leqaa's two looks, the flower shop's (a store's first templates).
-    expect(templatesFor(STORE).slice(0, 5).map((t) => t.id)).toEqual(["flowers_signature_a", "flowers_signature_b", "shop", "shop_deals", "shop_looks"]);
+    // 131.20 After Leqaa's two looks, the flower shop's (a store's first templates); 208 and Lujain's, the clothes shop's.
+    expect(templatesFor(STORE).slice(0, 7).map((t) => t.id)).toEqual(["flowers_signature_a", "flowers_signature_b", "clothes_signature_a", "clothes_signature_b", "shop", "shop_deals", "shop_looks"]);
     // 130.30 A premium home made for the store first.
     expect(designsFor(STORE)[0]!.templates).toEqual(["premium_home", "shop", "shop_deals", "shop_looks", "brand", "contact"]);
   });

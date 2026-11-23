@@ -336,8 +336,8 @@ test("103R the Studio demo has its own page; the regular demo stays as it is", a
   await expect(page.getByRole("heading", { level: 1, name: "See what a Studio project looks like" })).toBeVisible();
   // 130.49 Each Studio demo in its two looks, light and dark, in place of the café.
   await expect(page.getByRole("heading", { level: 2, name: "A café designed in Studio" })).toHaveCount(0);
-  // 131.20 And Leqaa, the flower shop: ten.
-  await expect(page.locator("[data-studio-looks]")).toHaveCount(10);
+  // 131.20 And Leqaa, the flower shop: ten; 208 and Lujain, the clothes shop: eleven.
+  await expect(page.locator("[data-studio-looks]")).toHaveCount(11);
   await expect(page.getByRole("heading", { level: 3, name: "Two looks to start from" }).first()).toBeVisible();
   await expect(page.locator('[data-studio-looks="food-delivery"] figcaption')).toHaveText(["Look A · Dark", "Look B · Light", "Look B · Dark"]);
   // Studio's own project types as demo apps, signed in to with the shared demo number.
@@ -439,7 +439,9 @@ test("103R pricing keeps the regular plans and Studio's own plans apart, with th
   await expect(apps.getByRole("link", { name: "Multi-vendor app" })).toHaveAttribute("href", "/yallapp-studio/multi-vendor");
   await expect(apps.getByRole("link", { name: "Academy app" })).toHaveAttribute("href", "/yallapp-studio/academy");
   await expect(apps.getByRole("link", { name: "Flower shop app" })).toHaveAttribute("href", "/yallapp-studio/flowers");
-  await expect(apps.getByRole("link")).toHaveCount(6);
+  // 208 And the clothes shop: seven.
+  await expect(apps.getByRole("link", { name: "Clothes shop app" })).toHaveAttribute("href", "/yallapp-studio/clothes");
+  await expect(apps.getByRole("link")).toHaveCount(7);
 });
 
 test("the menu's lists open with the keyboard and close on Escape or a click outside", async ({ page }) => {

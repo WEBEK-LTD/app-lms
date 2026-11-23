@@ -47,6 +47,8 @@ export const tr: Messages = {
     storyAcademyText: "Kurslar, canlı dersler ve sertifikalar",
     storyFlowers: "Çiçekçi uygulaması",
     storyFlowersText: "Teslimat saatleri, kart mesajları ve flaş indirimler",
+    storyClothes: "Giyim mağazası uygulaması",
+    storyClothesText: "Beden ve renkler, kategori menüsü ve görünümü tamamla",
     studioDemo: "Studio demosu",
     studioDemoText: "Studio uygulamalarını telefonunda dene",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -796,6 +798,8 @@ export const tr: Messages = {
       premium_academy_b: { name: "Altın halka", text: "Premium akademi, daha da güçlü: devam eden kurs altın bir halka içinde, bu haftanın günleriyle seri ve canlı ders, öğrenciye seçilen kurslar; her ekran, dock ve menüler krem ve altın renginde." },
       flowers_a: { name: "Gül saati", text: "Tüm çiçekçi: tam ekran hikâyeler olarak vesileler, Bugün gönder, flaş indirim, bento olarak koleksiyonlar, en sevilenler, Buketini oluştur ve güzel sözler; her sayfa, taç yaprağı başlık ve çubuk, hesap ve hediye ödemesi pembe ve mürdümde." },
       flowers_b: { name: "Botanik baskı", text: "Tüm çiçekçi: taç yaprağı başlık, çiçeklerin kime olduğu, kartlar halinde seçki, bilet olarak Bugün gönder, orman yeşilinde flaş indirim, kemerler halinde koleksiyonlar, atölye ve fiyat listesi; her sayfa, çubuk, hesap ve hediye ödemesi adaçayı ve şeftalide." },
+      clothes_a: { name: "LUJAIN, butik", text: "Siyah beyaz tüm giyim mağazası: menüsü kategori menüsünü açan küçük başlık, arama, yuvarlak kategoriler, sonraki kartı görünen vitrin, yeni gelenler, günün fırsatı, numaralı noktalarla kombini al, fotoğraf kutuları halinde koleksiyonlar ve beden kartı; kategori menüsü, beden rehberi, mağaza, sepet ve siparişler sıcak kâğıt ve mürekkep tonlarında, kömür rengi bir gece moduyla." },
+      clothes_b: { name: "NOUN, sokak modası", text: "Sokak modası olarak tüm giyim mağazası: beton grisi ve elektrik mavisi, numaralı satırlarla kategori menüsü, haftanın yenileri, kayan yazı, numaralı çok satanlar, kombini al ve günün fırsatı; her sayfa, çubuk, hesap, mağaza, sepet ve siparişler aynı görünümde, siyaha yakın bir gece moduyla." },
     },
   },
   meta: {

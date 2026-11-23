@@ -28,6 +28,8 @@ const problems: string[] = [];
 const EDITOR = ["lms", "store", "restaurant", "booking", "clinic", "fitness", "real_estate", "news", "events", "donations"];
 // 131.20 Leqaa, the flower shop, last.
 const STUDIO = ["premium_academy", "instructors", "food", "marketplace", "delivery", "rides", "taxi", "school", "travel", "flowers"];
+// 208 Studio's shop types with a demo (Lujain, the clothes shop): a shop-type card under its section, after the big cards.
+const SHOP_TYPES = ["clothes"];
 
 test.beforeAll(async ({ browser }) => {
   // 128.9 The team has made the demo apps (Admin › Demo apps): the demos' pages run them live.
@@ -86,10 +88,15 @@ test("a new account chooses Nour Academy and gets the whole demo in the app edit
   await expect(own.getByRole("button", { name: "All apps", pressed: true })).toBeVisible();
   // Every demo once, in its own product's section, and nothing else.
   expect(await demosIn(own, "editor")).toEqual(EDITOR);
-  expect(await demosIn(own, "studio")).toEqual(STUDIO);
-  expect(await own.locator("a[data-demo]").count()).toBe(EDITOR.length + STUDIO.length);
+  expect(await demosIn(own, "studio")).toEqual([...STUDIO, ...SHOP_TYPES]);
+  expect(await own.locator("a[data-demo]").count()).toBe(EDITOR.length + STUDIO.length + SHOP_TYPES.length);
+  // 208 The big cards, then the shop-type cards; the shop section's shortcuts to the big cards aren't data-demo.
+  expect(await own.locator('[data-section="studio"] a[data-demo]:not([data-shop-type])').evaluateAll((links) => links.map((a) => a.getAttribute("data-demo")))).toEqual(STUDIO);
+  expect(await own.locator('[data-section="studio"] a[data-shop-type]').evaluateAll((links) => links.map((a) => a.getAttribute("data-demo")))).toEqual(SHOP_TYPES);
+  expect(await own.locator('[data-section="studio"] a[data-section-demo]').evaluateAll((links) => links.map((a) => a.getAttribute("data-section-demo")))).toEqual(["flowers", "marketplace"]);
   await expect(own.locator('[data-section="editor"]').getByText("10 apps")).toBeVisible();
-  await expect(own.locator('[data-section="studio"]').getByText("10 apps")).toBeVisible();
+  // 208 Studio's count is every demo it offers, the clothes shop with them: 11.
+  await expect(own.locator('[data-section="studio"]').getByText("11 apps")).toBeVisible();
   // Each card says its product, and shows the demo's own screenshot.
   for (const id of EDITOR) await expect(own.locator(`[data-section="editor"] a[data-demo="${id}"]`)).toContainText("App editor");
   for (const id of STUDIO) await expect(own.locator(`[data-section="studio"] a[data-demo="${id}"]`)).toContainText("STUDIO");
@@ -247,7 +254,7 @@ test("in Arabic and dark, Studio's New project opens the same page with Studio c
   // Studio chosen: the App editor's section is hidden, Studio's shows.
   await expect(own.getByRole("button", { name: "Studio", pressed: true })).toBeVisible();
   await expect(own.locator('[data-section="editor"]')).toBeHidden();
-  expect(await demosIn(own, "studio")).toEqual(STUDIO);
+  expect(await demosIn(own, "studio")).toEqual([...STUDIO, ...SHOP_TYPES]);
   // Dark: the page in Midnight, Studio's cards dark with gold.
   await expect.poll(() => own.locator("[data-picker-step]").evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(14, 13, 36)");
   await fitsPhone(own);
