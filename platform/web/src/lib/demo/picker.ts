@@ -10,8 +10,8 @@ import type { LanguageCode } from "../pages/types";
 import type { SampleList } from "../samples/lists";
 import { TEMPLATES, type TemplateInfo } from "../studio/sections";
 import { startLayout } from "../studio/start";
+import { mainLookOf, signatureLooksOf } from "../studio/demo-designs";
 import type { SignatureLook } from "../studio/demo-designs/signature";
-import { signatureLooksOf } from "../studio/demo-designs";
 import { DEMO_SLUGS, DEMO_TYPES, demoKind, demoTypeOfSlug, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type DemoId, type StudioDemoId } from "./constants";
 import { CLINIC_SERVICES, DEMO_ARTICLES, DEMO_BRANDS, DEMO_CAMPAIGNS, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_GUIDES, DEMO_LISTINGS, DEMO_PRODUCTS, DEMO_RESTAURANTS, DEMO_SERVICES, FITNESS_SERVICES, RIDES_DEMO_TYPES, TAXI_DEMO_TYPES } from "./content";
 import { demoCourseSeeds } from "./entries";
@@ -214,14 +214,15 @@ export function demoItems(id: DemoId): DemoItems {
 
 /**
  * The Studio template a Studio demo starts a project from: the demo's own
- * (templates = demos, the demo being its Signature look A); 130 with
+ * (templates = demos, the demo being its main Signature look: 223 C where
+ * it has one, else A); 130 with
  * `look`, the demo's Signature look of that name (the whole app in that
  * look). The premium academy, with no template of the demo's own, starts
- * from its look A.
+ * from its main look.
  */
 export function studioDemoTemplate(id: StudioDemoId, look?: SignatureLook): TemplateInfo {
-  // 131.20 Leqaa too (a template's demo, as the premium academy): its look A.
-  const own = TEMPLATES.find((t) => t.demo === id && t.look === (look ?? (id === PREMIUM_ACADEMY_DEMO || isStoreTemplateDemo(id) ? "a" : undefined)));
+  // 131.20 Leqaa too (a template's demo, as the premium academy): its main look (223 C where it has one).
+  const own = TEMPLATES.find((t) => t.demo === id && t.look === (look ?? (id === PREMIUM_ACADEMY_DEMO || isStoreTemplateDemo(id) ? mainLookOf(id) : undefined)));
   if (own) return own;
   return TEMPLATES.find((t) => t.demo === id && !t.look) ?? TEMPLATES.find((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)!;
 }
@@ -274,7 +275,7 @@ export function demoFacts(id: DemoId): DemoFacts {
 
 // ——— 130 The Studio demos' two Signature looks on /start ———
 
-/** The looks every Studio demo offers on /start, A (the demo itself) then B; none for an App editor demo. */
+/** The looks every Studio demo offers on /start in Studio's order, its main look (the demo itself) first: 223 C, D, A, B where it has them; none for an App editor demo. */
 export function startLooks(id: DemoId): readonly SignatureLook[] {
   return isStudioDemo(id) ? signatureLooksOf(id) : [];
 }
@@ -286,7 +287,7 @@ export function lookShotName(id: DemoId, look: SignatureLook, dark = false): str
 
 /**
  * The looks' pictures in public/screens, by name: every Studio demo's looks
- * A and B by day and by night, named by the demo's address (`lookShotName`:
+ * (223 C, D, A and B where it has them) by day and by night, named by the demo's address (`lookShotName`:
  * `school-sig-a-home.png`, `food-delivery-sig-b-home-dark.png`), made by
  * the app (mobile/test/screenshots/signature_screenshots_test.dart);
  * tests/unit/start-picker.test.ts keeps the list and the files the same.

@@ -443,7 +443,7 @@
           "max_lines": 1,
           "translations": {
            "ar": {
-            "text": "BUILD // 01"
+            "text": "تجميع // 01"
            },
            "tr": {
             "text": "BUILD // 01"
@@ -921,7 +921,7 @@
           },
           "translations": {
            "ar": {
-            "text": "// TOP"
+            "text": "// الأفضل"
            },
            "tr": {
             "text": "// TOP"
@@ -1226,7 +1226,7 @@
           },
           "translations": {
            "ar": {
-            "text": "// RIGS"
+            "text": "// أجهزة"
            },
            "tr": {
             "text": "// RIGS"
@@ -1347,7 +1347,7 @@
             "self_align": "start",
             "translations": {
              "ar": {
-              "text": "4K · 120+ FPS"
+              "text": "4K · أكثر من 120 إطارًا"
              },
              "tr": {
               "text": "4K · 120+ FPS"
@@ -1475,7 +1475,7 @@
             "self_align": "start",
             "translations": {
              "ar": {
-              "text": "1440p · 165+ FPS"
+              "text": "1440p · أكثر من 165 إطارًا"
              },
              "tr": {
               "text": "1440p · 165+ FPS"
@@ -1605,7 +1605,7 @@
           "self_align": "start",
           "translations": {
            "ar": {
-            "text": "1080p · 240+ FPS"
+            "text": "1080p · أكثر من 240 إطارًا"
            },
            "tr": {
             "text": "1080p · 240+ FPS"
@@ -1759,7 +1759,7 @@
           },
           "translations": {
            "ar": {
-            "text": "// GEAR"
+            "text": "// عتاد"
            },
            "tr": {
             "text": "// GEAR"
@@ -2150,7 +2150,7 @@
             "max_lines": 1,
             "translations": {
              "ar": {
-              "text": "LOADOUT"
+              "text": "العتاد"
              },
              "tr": {
               "text": "LOADOUT"

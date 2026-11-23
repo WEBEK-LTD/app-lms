@@ -15,7 +15,7 @@ import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { itemSourcesFor } from "@/lib/pages/sources";
 import { STUDIO_HEADER_STYLES, TAB_BAR_DESIGNS, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { parseLayoutContent } from "@/lib/pages/validate";
-import { signatureDesign, signatureDesigns, signatureLooksOf, studioDemoDesign } from "@/lib/studio/demo-designs";
+import { mainLookOf, signatureDesign, signatureDesigns, signatureLooksOf, studioDemoDesign } from "@/lib/studio/demo-designs";
 import { SYSTEM_SCREENS, systemLookFor } from "@/lib/studio/premium-chrome";
 import { parseStudioScreens } from "@/lib/studio/screens";
 import type { SignatureLook } from "@/lib/studio/demo-designs/signature";
@@ -96,13 +96,15 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
     }
   });
 
-  it("makes every demo's look A the demo: its home, bar, screens and chrome", () => {
+  it("makes every demo's main look the demo (223: C where it has one, else A): its home, bar, screens and chrome", () => {
     for (const demo of STUDIO_DEMO_TYPES) {
-      expect(DEMO_HOME_TEMPLATES[demo]).toBe(`${demo}_signature_a`);
-      expect(studioDemoDesign(demo)).toEqual(signatureDesign(demo, "a"));
-      expect(demoTabBar(demo)).toEqual(signatureDesign(demo, "a")!.bar);
-      expect(demoStudioScreens(demo, appUrl())).toEqual(demoStudioScreens(demo, appUrl(), "a"));
-      expect(studioDemoTemplate(demo).id === `${demo}_signature_a` || studioDemoTemplate(demo).demo === demo, demo).toBe(true);
+      const main = mainLookOf(demo);
+      expect(main, demo).toBe(demo === "electronics" || demo === "computers" ? "c" : "a");
+      expect(DEMO_HOME_TEMPLATES[demo]).toBe(`${demo}_signature_${main}`);
+      expect(studioDemoDesign(demo)).toEqual(signatureDesign(demo, main));
+      expect(demoTabBar(demo)).toEqual(signatureDesign(demo, main)!.bar);
+      expect(demoStudioScreens(demo, appUrl())).toEqual(demoStudioScreens(demo, appUrl(), main));
+      expect(studioDemoTemplate(demo).id === `${demo}_signature_${main}` || studioDemoTemplate(demo).demo === demo, demo).toBe(true);
     }
   });
 

@@ -11,7 +11,7 @@ import { ALL_DEMO_TYPES, DEMO_TYPES, demoKind, isStudioDemo, STUDIO_DEMO_TYPES }
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoDesign, demoDesignId } from "@/lib/demo/look";
 import { businessOf, demoFacts, hasLookShot, LOOK_SHOTS, lookOf, lookShotName, regularPageCount, demoItems, demoOfSlug, pickerPath, pickerSections, productOf, sameBusiness, screensOf, slugOf, startLooks } from "@/lib/demo/picker";
-import { signatureDesign } from "@/lib/studio/demo-designs";
+import { mainLookOf, signatureDesign } from "@/lib/studio/demo-designs";
 import { firstStepsView, makeFromDemo, shortNameOf, startedFromDemo, type DemoMaker } from "@/lib/demo/start";
 import { readPngInfo } from "@/lib/png";
 import type { TabBarStyle } from "@/lib/pages/types";
@@ -266,9 +266,9 @@ describe("starting from a demo", () => {
     for (const p of headed) expect(p.studio!.header!.style, p.slug).toBeTruthy();
     expect(headed.filter((p) => p.studio!.header!.style === design.chrome.header).length).toBeGreaterThan(2);
     expect(app.design).toBe(`${id}_signature_b`);
-    // Look A (or none chosen) is the demo itself.
+    // The main look (or none chosen) is the demo itself: 227 C for the types that have it.
     const a = await makeFromDemo(store, maker("Lale"), { demo: id, name: "Lale", colour: "#B4235A", logoAssetId: null, iconAssetId: null }, NOW);
-    expect((await store.getAppLayout(a.app.id))!.draft.tab_bar).toEqual(savedBar(signatureDesign(id, "a")!.bar));
+    expect((await store.getAppLayout(a.app.id))!.draft.tab_bar).toEqual(savedBar(signatureDesign(id, mainLookOf(id))!.bar));
   });
 
   it("shortens the name under the icon", () => {

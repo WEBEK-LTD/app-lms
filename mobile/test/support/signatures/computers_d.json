@@ -2219,7 +2219,7 @@
        {
         "id": "sig-82",
         "type": "text",
-        "text": "[When companies can reach you]",
+        "text": "Business desk every day, 10 am to midnight",
         "font": {
          "family": "Alexandria",
          "size": 11.5,
@@ -2236,10 +2236,10 @@
         },
         "translations": {
          "ar": {
-          "text": "[متى يمكن للشركات التواصل معك]"
+          "text": "مكتب الشركات يوميًا من 10 صباحًا حتى منتصف الليل"
          },
          "tr": {
-          "text": "[Şirketlerin size ne zaman ulaşabileceği]"
+          "text": "Kurumsal masa her gün 10.00–24.00"
          }
         }
        }

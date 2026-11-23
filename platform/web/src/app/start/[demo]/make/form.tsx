@@ -2,11 +2,11 @@
 
 /* eslint-disable @next/next/no-img-element -- the owner's logo, just uploaded, and the demo's screenshot. */
 import { useRef, useState, useTransition } from "react";
-import type { SignatureLook } from "@/lib/studio/demo-designs/signature";
 import { uploadAssetAction } from "@/app/actions/dashboard";
 import { startFromDemoAction } from "@/app/actions/start";
 import { useDashT } from "@/components/dashboard-i18n";
 import { Icon } from "@/components/icon";
+import type { SignatureLook } from "@/lib/studio/demo-designs/signature";
 import { browserDeflate, dominantColour, encodeRgbPng, isDark, swatchesFor } from "@/lib/brand-colour";
 
 interface Swatch {

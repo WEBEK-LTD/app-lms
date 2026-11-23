@@ -1,3 +1,4 @@
+import type { SignatureLook } from "./demo-designs/signature";
 import type { Action, Languages, LanguageCode, LayoutPage, LayoutTab, StudioNode, StudioPage, TabBarStyle, Translations } from "../pages/types";
 import { uniqueSlug } from "../pages/model";
 import type { StudioDemoId } from "../demo/constants";
@@ -79,8 +80,8 @@ export interface DesignFile {
   fonts: DesignFileFont[];
   /** Templates = demos: made here (never read from a file) when it is a Studio demo's whole design, for the demo's look, tabs and sample entries. */
   demo?: StudioDemoId;
-  /** 130 With `demo`: the demo's Signature look B (missing, look A: the demo itself). */
-  demo_look?: "b";
+  /** 130 With `demo`: another of the demo's Signature looks (223 C, D, A or B; missing, its main look: the demo itself). */
+  demo_look?: SignatureLook;
 }
 
 export type DesignFileError = "not_ours" | "too_new" | "broken" | "empty" | "too_big";

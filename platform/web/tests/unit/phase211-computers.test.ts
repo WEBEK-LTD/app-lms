@@ -140,7 +140,8 @@ describe("211 Nawah, the computers shop's demo", () => {
     });
 
     it("keeps its categories and sub-categories, its products with their specs, and Build your PC by its categories", async () => {
-      expect(app.design).toBe("computers_signature_a");
+      // 227 The demo is its main look, C.
+      expect(app.design).toBe("computers_signature_c");
       expect(app.catalogSettings?.currency).toBe("SAR");
       expect(app.catalogSettings?.returnDays).toBe(14);
       const categories = await store.listCatalogCategories(app.id);
