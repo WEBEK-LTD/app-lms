@@ -340,6 +340,10 @@ class FirebasePushService implements PushService, ApnsTokenSource {
       if (settings.authorizationStatus == AuthorizationStatus.denied) {
         return null;
       }
+      // firebase_messaging 17 deprecates the FCM token for the Firebase
+      // Installation ID's direct send (register(), onRegistered); our servers
+      // send to FCM registration tokens, so the app keeps sending its token.
+      // ignore: deprecated_member_use
       return await messaging.getToken();
     } on Object {
       return null;
@@ -370,6 +374,7 @@ class FirebasePushService implements PushService, ApnsTokenSource {
 
   @override
   Stream<String> get tokenRefreshes =>
+      // ignore: deprecated_member_use
       _ready ? FirebaseMessaging.instance.onTokenRefresh : const Stream.empty();
 
   @override
