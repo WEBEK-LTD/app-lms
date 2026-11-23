@@ -14,6 +14,7 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../food/food_sheets.dart' show acceptFoodOrder, rejectFoodOrder;
 import '../orders/order_actions.dart' show changeOrderStatus, orderActionLabel;
+import 'new_order_card_pharaonic.dart';
 import 'today_screen.dart' show todayProvider;
 
 /// 214 The "New order" card on Today: the newest order waiting for the
@@ -62,9 +63,15 @@ class NewOrderCardTheme extends ThemeExtension<NewOrderCardTheme> {
     reject: c.danger,
   );
 
-  static NewOrderCardTheme of(BuildContext context) =>
-      Theme.of(context).extension<NewOrderCardTheme>() ??
-      NewOrderCardTheme.from(context.yb);
+  static NewOrderCardTheme of(BuildContext context) {
+    final set = Theme.of(context).extension<NewOrderCardTheme>();
+    if (set != null) return set;
+    // 215 The Pharaonic theme's own card.
+    final o = context.ornaments;
+    return o != null
+        ? pharaonicNewOrderCard(context.yb, o)
+        : NewOrderCardTheme.from(context.yb);
+  }
 
   final Color background;
   final Color border;

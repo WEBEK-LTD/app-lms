@@ -8,6 +8,17 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 215 (Yallapp Business 1.0.7, after 1.0.6; in the code, not
+released): the Pharaonic theme beside the default look, chosen in Settings ›
+Appearance and kept on the phone, light and dark following the same setting.
+Its own colours (AA throughout), El Messiri and Cinzel for headings, tabular
+figures for every number, the ground and ornaments painted in the app, the
+welcome, lock and opening screens, Today, an order, the ringtones, the nav
+and buttons, empty states, and the New order card in its skin (with a
+shimmer that stops with the answer and with less motion). The default look
+is unchanged: goldens of its screens match pixel for pixel. No migration,
+no server change.
+
 Roadmap 214 (Yallapp Business 1.0.6; in the code, not released: the
 release waits for the owner): ring by order value (2 or 3 bands with their
 own sounds), the end-of-day summary at the phone's time in the shop's time

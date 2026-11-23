@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/session.dart';
+import '../../core/theme/pharaonic_widgets.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../prime/prime_today.dart' show greetingFor;
@@ -193,8 +194,14 @@ class _OpeningScreenState extends ConsumerState<OpeningScreen>
     final greeting = prime && me != null && app != null
         ? '${greetingFor(context, me)}.\n${l10n.launchOpening(app.name)}'
         : null;
+    // 215 The Pharaonic theme opens on its own ground, its own way.
+    final pharaonic = context.ornaments != null;
     return Scaffold(
-      backgroundColor: dark ? Brand.midnight : Brand.ivory,
+      backgroundColor: pharaonic
+          ? Colors.transparent
+          : dark
+          ? Brand.midnight
+          : Brand.ivory,
       body: Semantics(
         label: l10n.launchLoading,
         child: ExcludeSemantics(
@@ -207,13 +214,15 @@ class _OpeningScreenState extends ConsumerState<OpeningScreen>
                 duration: _still
                     ? Duration.zero
                     : const Duration(milliseconds: 300),
-                builder: (context, p, _) => _Frame(
-                  t: _motion.value,
-                  fill: lerpDouble(0.62, 1, _finish.value)!,
-                  prime: p,
-                  dark: dark,
-                  greeting: greeting,
-                ),
+                builder: (context, p, _) => pharaonic
+                    ? _PharaonicFrame(t: _motion.value)
+                    : _Frame(
+                        t: _motion.value,
+                        fill: lerpDouble(0.62, 1, _finish.value)!,
+                        prime: p,
+                        dark: dark,
+                        greeting: greeting,
+                      ),
               ),
             ),
           ),
@@ -494,6 +503,85 @@ class _Frame extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// 215 The Pharaonic opening at [t] (0 to 1): the winged sun rises and
+/// brightens, then the wordmark, then the lotus border.
+class _PharaonicFrame extends StatelessWidget {
+  const _PharaonicFrame({required this.t});
+
+  final double t;
+
+  @override
+  Widget build(BuildContext context) {
+    final sun = _span(t, 0, 0.6, Curves.easeOutCubic);
+    final word = _span(t, 0.3, 0.8, Curves.easeOut);
+    final lotus = _span(t, 0.55, 1, Curves.easeOut);
+    final c = context.yb;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Opacity(
+            opacity: sun,
+            child: Transform.translate(
+              offset: Offset(0, 24 * (1 - sun)),
+              child: const WingedSun(width: 240),
+            ),
+          ),
+          const SizedBox(height: 28),
+          Opacity(
+            opacity: word,
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      'yallapp',
+                      style: TextStyle(
+                        fontFamily: YbOrnaments.displayFont,
+                        fontSize: 34,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.8,
+                        color: c.ink,
+                      ),
+                    ),
+                    Text(
+                      '.',
+                      style: TextStyle(
+                        fontFamily: YbOrnaments.displayFont,
+                        fontSize: 34,
+                        fontWeight: FontWeight.w600,
+                        color: c.gold,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'BUSINESS',
+                      style: TextStyle(
+                        fontFamily: YbOrnaments.labelFont,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 3.2,
+                        color: c.gold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Opacity(opacity: lotus, child: const LotusBorder(width: 200)),
+        ],
+      ),
     );
   }
 }

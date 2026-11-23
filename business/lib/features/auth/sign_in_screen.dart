@@ -5,6 +5,7 @@ import '../../core/api/api_exception.dart';
 import '../../core/providers.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
+import '../../core/theme/pharaonic_widgets.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
@@ -97,180 +98,298 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final error = _error;
     final website = ref.watch(configProvider).websiteUrl;
 
+    final pharaonic = context.ornaments != null;
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: AutofillGroup(
-                child: Form(
-                  key: _form,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: LanguageMenu(),
-                      ),
-                      const SizedBox(height: 24),
-                      const Wordmark(),
-                      const SizedBox(height: 32),
-                      Semantics(
-                        header: true,
-                        child: Text(
-                          _needsCode ? l10n.twoStepTitle : l10n.signInTitle,
-                          style: theme.textTheme.headlineMedium,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _needsCode ? l10n.twoStepText : l10n.signInText,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: context.yb.ink2,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      if (expired && error == null && !_needsCode)
-                        _Notice(text: l10n.signedOutNotice, tone: Tone.info),
-                      if (error != null)
-                        _Notice(
-                          text: switch (error.code) {
-                            ApiException.invalidCredentials =>
-                              l10n.invalidCredentials,
-                            ApiException.invalidTwoFactorCode =>
-                              l10n.twoStepWrong,
-                            _ => errorMessage(context, error),
-                          },
-                          tone: Tone.bad,
-                          action: error.code == ApiException.useWebsite
-                              ? TextButton(
-                                  onPressed: () =>
-                                      openLink(context, ref, website),
-                                  child: Text(l10n.useWebsiteButton),
-                                )
-                              : null,
-                        ),
-                      if (_needsCode) ...[
-                        TextFormField(
-                          controller: _code,
-                          autofocus: true,
-                          keyboardType: TextInputType.visiblePassword,
-                          autofillHints: const [AutofillHints.oneTimeCode],
-                          textInputAction: TextInputAction.done,
-                          autocorrect: false,
-                          enableSuggestions: false,
-                          onFieldSubmitted: (_) => _submit(),
-                          decoration: InputDecoration(
-                            labelText: l10n.twoStepCode,
-                            helperText: l10n.twoStepHint,
-                            helperMaxLines: 3,
-                          ),
-                          validator: (v) => (v == null || v.trim().isEmpty)
-                              ? l10n.twoStepEnter
-                              : null,
+        child: _PharaonicFrame(
+          on: pharaonic,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: AutofillGroup(
+                  child: Form(
+                    key: _form,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: LanguageMenu(),
                         ),
                         const SizedBox(height: 24),
-                        FilledButton(
-                          onPressed: _busy ? null : _submit,
-                          child: _busy
-                              ? SizedBox.square(
-                                  dimension: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.5,
-                                    color: context.yb.onInk,
-                                    semanticsLabel: l10n.signingIn,
-                                  ),
-                                )
-                              : Text(l10n.twoStepVerify),
+                        // 215 The Pharaonic theme's mark.
+                        if (context.ornaments != null)
+                          const PharaonicMark()
+                        else
+                          const Wordmark(),
+                        const SizedBox(height: 32),
+                        Semantics(
+                          header: true,
+                          child: Text(
+                            _needsCode ? l10n.twoStepTitle : l10n.signInTitle,
+                            style: pharaonic
+                                ? theme.textTheme.headlineMedium?.copyWith(
+                                    fontFamily: YbOrnaments.displayFont,
+                                  )
+                                : theme.textTheme.headlineMedium,
+                          ),
                         ),
                         const SizedBox(height: 8),
-                        TextButton(
-                          onPressed: _busy ? null : _otherAccount,
-                          child: Text(l10n.twoStepOther),
+                        Text(
+                          _needsCode ? l10n.twoStepText : l10n.signInText,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: context.yb.ink2,
+                          ),
                         ),
-                      ] else ...[
-                        TextFormField(
-                          controller: _email,
-                          keyboardType: TextInputType.emailAddress,
-                          autofillHints: const [AutofillHints.email],
-                          textInputAction: TextInputAction.next,
-                          autocorrect: false,
-                          decoration: InputDecoration(labelText: l10n.email),
-                          validator: (v) => (v == null || !v.contains('@'))
-                              ? l10n.emailInvalid
-                              : null,
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _password,
-                          obscureText: _hidden,
-                          autofillHints: const [AutofillHints.password],
-                          textInputAction: TextInputAction.done,
-                          onFieldSubmitted: (_) => _submit(),
-                          decoration: InputDecoration(
-                            labelText: l10n.password,
-                            suffixIcon: IconButton(
-                              tooltip: _hidden
-                                  ? l10n.showPassword
-                                  : l10n.hidePassword,
-                              icon: Icon(
-                                _hidden ? AppIcons.visible : AppIcons.hidden,
+                        const SizedBox(height: 24),
+                        if (expired && error == null && !_needsCode)
+                          _Notice(text: l10n.signedOutNotice, tone: Tone.info),
+                        if (error != null)
+                          _Notice(
+                            text: switch (error.code) {
+                              ApiException.invalidCredentials =>
+                                l10n.invalidCredentials,
+                              ApiException.invalidTwoFactorCode =>
+                                l10n.twoStepWrong,
+                              _ => errorMessage(context, error),
+                            },
+                            tone: Tone.bad,
+                            action: error.code == ApiException.useWebsite
+                                ? TextButton(
+                                    onPressed: () =>
+                                        openLink(context, ref, website),
+                                    child: Text(l10n.useWebsiteButton),
+                                  )
+                                : null,
+                          ),
+                        if (_needsCode) ...[
+                          TextFormField(
+                            controller: _code,
+                            autofocus: true,
+                            keyboardType: TextInputType.visiblePassword,
+                            autofillHints: const [AutofillHints.oneTimeCode],
+                            textInputAction: TextInputAction.done,
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            onFieldSubmitted: (_) => _submit(),
+                            decoration: InputDecoration(
+                              labelText: l10n.twoStepCode,
+                              helperText: l10n.twoStepHint,
+                              helperMaxLines: 3,
+                            ),
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? l10n.twoStepEnter
+                                : null,
+                          ),
+                          const SizedBox(height: 24),
+                          FilledButton(
+                            onPressed: _busy ? null : _submit,
+                            child: _busy
+                                ? SizedBox.square(
+                                    dimension: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: context.yb.onInk,
+                                      semanticsLabel: l10n.signingIn,
+                                    ),
+                                  )
+                                : Text(l10n.twoStepVerify),
+                          ),
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: _busy ? null : _otherAccount,
+                            child: Text(l10n.twoStepOther),
+                          ),
+                        ] else ...[
+                          TextFormField(
+                            controller: _email,
+                            keyboardType: TextInputType.emailAddress,
+                            autofillHints: const [AutofillHints.email],
+                            textInputAction: TextInputAction.next,
+                            autocorrect: false,
+                            decoration: InputDecoration(labelText: l10n.email),
+                            validator: (v) => (v == null || !v.contains('@'))
+                                ? l10n.emailInvalid
+                                : null,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _password,
+                            obscureText: _hidden,
+                            autofillHints: const [AutofillHints.password],
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _submit(),
+                            decoration: InputDecoration(
+                              labelText: l10n.password,
+                              suffixIcon: IconButton(
+                                tooltip: _hidden
+                                    ? l10n.showPassword
+                                    : l10n.hidePassword,
+                                icon: Icon(
+                                  _hidden ? AppIcons.visible : AppIcons.hidden,
+                                ),
+                                onPressed: () =>
+                                    setState(() => _hidden = !_hidden),
                               ),
-                              onPressed: () =>
-                                  setState(() => _hidden = !_hidden),
+                            ),
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? l10n.passwordEmpty
+                                : null,
+                          ),
+                          Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: TextButton(
+                              onPressed: _forgot,
+                              child: Text(l10n.forgotPassword),
                             ),
                           ),
-                          validator: (v) => (v == null || v.isEmpty)
-                              ? l10n.passwordEmpty
-                              : null,
-                        ),
-                        Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: TextButton(
-                            onPressed: _forgot,
-                            child: Text(l10n.forgotPassword),
+                          const SizedBox(height: 8),
+                          FilledButton(
+                            onPressed: _busy ? null : _submit,
+                            child: _busy
+                                ? SizedBox.square(
+                                    dimension: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: context.yb.onInk,
+                                      semanticsLabel: l10n.signingIn,
+                                    ),
+                                  )
+                                : Text(l10n.signIn),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        FilledButton(
-                          onPressed: _busy ? null : _submit,
-                          child: _busy
-                              ? SizedBox.square(
-                                  dimension: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.5,
-                                    color: context.yb.onInk,
-                                    semanticsLabel: l10n.signingIn,
-                                  ),
-                                )
-                              : Text(l10n.signIn),
-                        ),
-                        const SizedBox(height: 32),
-                        Text(
-                          l10n.newToYallapp,
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodySmall,
-                        ),
-                        TextButton(
-                          onPressed: () => openLink(
-                            context,
-                            ref,
-                            ref
-                                .read(configProvider)
-                                .websitePage('/', context.lang),
+                          const SizedBox(height: 32),
+                          Text(
+                            l10n.newToYallapp,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall,
                           ),
-                          child: Text(l10n.openWebsite),
-                        ),
+                          TextButton(
+                            onPressed: () => openLink(
+                              context,
+                              ref,
+                              ref
+                                  .read(configProvider)
+                                  .websitePage('/', context.lang),
+                            ),
+                            child: Text(l10n.openWebsite),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// 215 The Pharaonic welcome: the cornice along the top and bound papyrus
+/// columns down both edges, around the form.
+class _PharaonicFrame extends StatelessWidget {
+  const _PharaonicFrame({required this.on, required this.child});
+
+  final bool on;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!on) return child;
+    return Stack(
+      children: [
+        const Positioned(top: 0, left: 0, right: 0, child: Cornice()),
+        const PositionedDirectional(
+          top: 40,
+          bottom: 24,
+          start: 4,
+          child: ExcludeSemantics(child: PapyrusColumn()),
+        ),
+        const PositionedDirectional(
+          top: 40,
+          bottom: 24,
+          end: 4,
+          child: ExcludeSemantics(child: PapyrusColumn()),
+        ),
+        Padding(padding: const EdgeInsets.only(top: 24), child: child),
+      ],
+    );
+  }
+}
+
+/// 215 The Pharaonic theme's mark: the winged sun before a temple pylon,
+/// the wordmark, a lotus border.
+class PharaonicMark extends StatelessWidget {
+  const PharaonicMark({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.yb;
+    return Semantics(
+      label: 'Yallapp Business',
+      excludeSemantics: true,
+      child: Column(
+        children: [
+          const SizedBox(
+            height: 150,
+            child: Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                Pylon(width: 300),
+                Positioned(top: 34, child: WingedSun(width: 240)),
+              ],
+            ),
+          ),
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    'yallapp',
+                    style: TextStyle(
+                      fontFamily: YbOrnaments.displayFont,
+                      fontSize: 34,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.8,
+                      color: c.ink,
+                    ),
+                  ),
+                  Text(
+                    '.',
+                    style: TextStyle(
+                      fontFamily: YbOrnaments.displayFont,
+                      fontSize: 34,
+                      fontWeight: FontWeight.w600,
+                      color: c.gold,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'BUSINESS',
+                    style: TextStyle(
+                      fontFamily: YbOrnaments.labelFont,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 3.2,
+                      color: c.gold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          const LotusBorder(width: 200),
+        ],
       ),
     );
   }

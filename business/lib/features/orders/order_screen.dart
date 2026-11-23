@@ -6,6 +6,7 @@ import '../../core/api/models.dart';
 import '../../core/providers.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
+import '../../core/theme/pharaonic_widgets.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/contact.dart';
 import '../../core/widgets/digits.dart';
@@ -77,7 +78,19 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(loaded?.label ?? l10n.order),
+        // 215 The Pharaonic theme: the order's number in a cartouche.
+        title: context.ornaments != null && loaded != null
+            ? Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Cartouche(
+                  child: Text(
+                    isolate(loaded.label),
+                    style: Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(color: context.yb.gold),
+                  ),
+                ),
+              )
+            : Text(loaded?.label ?? l10n.order),
         // 207 Copy or send the order's details.
         actions: [if (loaded != null) OrderShareButton(order: loaded)],
       ),
