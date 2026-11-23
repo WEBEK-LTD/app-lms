@@ -3,6 +3,7 @@ import { openRegularAppsAction } from "@/app/actions/studio-projects";
 import { DashboardLanguage } from "@/components/dashboard-language";
 import { SignOutButton } from "@/components/sign-out";
 import { ThemeSwitch } from "@/components/theme-switch";
+import { BUSINESS_APP_LINKS } from "@/lib/business-app";
 import { isStudioProject } from "@/lib/studio/section";
 import { pathPermission } from "@/lib/team/permissions";
 import { CloseOnNavigate } from "./close-on-navigate";
@@ -108,6 +109,29 @@ export async function StudioAccountMenu({ look = "bar" }: { look?: "bar" | "avat
           <Glyph name="help" size={18} />
           {t("studio.help")}
         </a>
+        {/* 203 Yallapp Business on the App Store and Google Play (lib/business-app.ts). */}
+        <div className="mt-0.5 flex flex-col gap-1.5 px-3 pt-2 pb-1.5" style={{ borderTop: line }} data-studio-business-app="">
+          <span className="text-xs font-bold" style={{ color: C.muted }}>
+            {t("owner.getApp")}
+          </span>
+          <div className="flex gap-1.5">
+            {BUSINESS_APP_LINKS.map((link) => (
+              <a
+                key={link.store}
+                href={link.url}
+                target="_blank"
+                rel="noopener"
+                data-business-app={link.store}
+                className="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] font-semibold no-underline hover:bg-[var(--sf-soft,#F4EFE6)]"
+                style={{ border: line, color: ink }}
+              >
+                <Glyph name={link.icon} size={16} />
+                <span dir="ltr">{link.store === "appStore" ? t("owner.appStore") : t("owner.googlePlay")}</span>
+                <span className="sr-only">{t("owner.newTab")}</span>
+              </a>
+            ))}
+          </div>
+        </div>
         <div className="mt-0.5 pt-1.5" style={{ borderTop: line }}>
           <SignOutButton className={`${item} w-full cursor-pointer border-0 bg-transparent text-start font-semibold`}>
             <Glyph name="logout" size={18} />

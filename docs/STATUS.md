@@ -8,6 +8,13 @@ Last updated: 18 November 2026.
 
 ## Current release
 
+Roadmap 203 (Yallapp Business on the website): the owners' own app is on
+the App Store and Google Play, and its two store links (one module,
+`lib/business-app.ts`) are on the home page in a Yallapp Business section,
+in the footer, in its docs article, on the dashboard's Your phones and in
+Studio's account menu, as buttons of our own that open the store in a new
+tab; in English, Arabic and Turkish, light and dark.
+
 Roadmap 202 (old build files leave the files host): the daily job keeps
 only each app's latest ready build's files (per app and variant, Android
 and iPhone) and removes every older build's folder from
