@@ -7,6 +7,7 @@ import type { App } from "../data/types";
 import { deliverySettingsOf } from "../delivery/settings";
 import { isStudioDemo, type DemoId } from "../demo/constants";
 import { studioDemoOf } from "../studio/demo-templates";
+import { demoClothesProducts } from "../demo/clothes-entries";
 import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
 import { marketCuisines, marketplaceSamples, savingZadPictures } from "../demo/marketplace";
 import { savePicture } from "../demo/picture-assets";
@@ -107,6 +108,8 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   store: { products: products(false) },
   // 131.20 Leqaa's bouquets and add-ons.
   flowers: { products: async (m) => (await demoFlowerProducts(m.entries, m.app), true) },
+  // 206 Lujain's clothes, their categories and sub-categories.
+  clothes: { products: async (m) => (await demoClothesProducts(m.entries, m.app), true) },
   restaurant: { products: products(true) },
   booking: { services: bookings("salon") },
   clinic: { services: bookings("clinic") },

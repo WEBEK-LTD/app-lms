@@ -85,6 +85,7 @@ import {
   type StudioGallery,
   type StudioMarquee,
   STUDIO_CATEGORY_STYLES,
+  STUDIO_CATEGORY_MENU_LOOKS,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_DAYS,
@@ -1178,6 +1179,11 @@ function parseStudioHeader(ctx: Context, where: string, value: unknown): StudioH
     else if (v.collapse === false) header.collapse = false;
   }
   // ——— end 130.20 premium chrome ———
+  // 206 The page its menu button opens.
+  if (v.menu_page !== undefined && v.menu_page !== null && v.menu_page !== "") {
+    if (typeof v.menu_page !== "string" || !SLUG.test(v.menu_page) || v.menu_page.length > 40) c.fail(where, "choose the page the menu button opens.");
+    else header.menu_page = v.menu_page;
+  }
   const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studioHeader, { title: 80, subtitle: 80 });
   if (translations) header.translations = translations;
   return header;
@@ -1981,6 +1987,31 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       if (style && style !== "chips") node.style = style;
       const columns = num("columns", 1, L.maxColumns, "the columns");
       if (columns && style === "pictures") node.columns = Math.round(columns);
+      // 206 The category menu's look.
+      if (style === "rows" && v.category_menu !== undefined && v.category_menu !== null) {
+        const m = record(v.category_menu);
+        if (!m) bad("the category menu's options aren't valid.");
+        else {
+          const menu: NonNullable<StudioNode["category_menu"]> = {};
+          if (m.look !== undefined && m.look !== null) {
+            if (!oneOf(STUDIO_CATEGORY_MENU_LOOKS, m.look)) bad("choose how the category menu looks.");
+            else menu.look = m.look;
+          }
+          if (m.numbers === false) menu.numbers = false;
+          const radius = studioNumber(m.radius, 0, 40);
+          if (radius !== undefined && Number.isNaN(radius)) bad("the cards' corners are 0 to 40.");
+          else if (radius !== undefined) menu.radius = radius;
+          if (Object.keys(menu).length) node.category_menu = menu;
+        }
+      }
+      break;
+    }
+    case "size_chart": {
+      // 206 The shop's size chart; its title (optional) above it.
+      const text = c.optionalText(where, v.text, L.titleChars, "The size chart's title");
+      if (text) node.text = text;
+      const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.titleChars, title: L.titleChars });
+      if (translations) node.translations = translations;
       break;
     }
     case "form": {

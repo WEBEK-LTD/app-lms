@@ -1160,9 +1160,9 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
-  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null }): Promise<CatalogCategory> {
+  async createCatalogCategory(input: { appId: string; name: string; now: Date; sample?: boolean; names?: LangText | null; parentId?: number | null }): Promise<CatalogCategory> {
     const position = Math.max(0, ...[...this.catalogCategories.values()].filter((c) => c.appId === input.appId).map((c) => c.position + 1));
-    const category: CatalogCategory = { id: this.nextCatalogId++, appId: input.appId, name: input.name, position, ...(input.sample ? { sample: true } : {}), createdAt: input.now, ...(input.names ? { names: { ...input.names } } : {}) };
+    const category: CatalogCategory = { id: this.nextCatalogId++, appId: input.appId, name: input.name, position, ...(input.sample ? { sample: true } : {}), createdAt: input.now, ...(input.names ? { names: { ...input.names } } : {}), ...(input.parentId ? { parentId: input.parentId } : {}) };
     this.catalogCategories.set(category.id, clone(category));
     return category;
   }
@@ -1180,6 +1180,11 @@ export class MemoryStore implements DataStore {
     if (category && category.appId === appId) category.names = names ? { ...names } : null;
   }
 
+  async setCatalogCategoryParent(appId: string, id: number, parentId: number | null): Promise<void> {
+    const category = this.catalogCategories.get(id);
+    if (category && category.appId === appId) category.parentId = parentId;
+  }
+
   async reorderCatalogCategories(appId: string, ids: number[]): Promise<void> {
     const ordered = categoryOrder(await this.listCatalogCategories(appId), ids);
     ordered.forEach((id, position) => {
@@ -1192,6 +1197,8 @@ export class MemoryStore implements DataStore {
     const category = this.catalogCategories.get(id);
     if (!category || category.appId !== appId) return;
     this.catalogCategories.delete(id);
+    // 206 Its sub-categories become main categories.
+    for (const sub of this.catalogCategories.values()) if (sub.appId === appId && sub.parentId === id) sub.parentId = null;
     for (const product of this.catalogProducts.values()) {
       if (product.appId === appId && product.categoryIds.includes(id)) {
         product.categoryIds = product.categoryIds.filter((c) => c !== id);

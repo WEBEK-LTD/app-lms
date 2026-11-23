@@ -148,6 +148,11 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
       if (!list?.items && node.source === "products" && query) for (const next of productFallbacks(query)) if ((list = await listed(next))?.items) break;
       return list?.items ? ({ ...shown, items: list.items } as StudioNode) : null;
     }
+    // 206 The category menu (`rows`): each main category with its sub-categories.
+    if (node.type === "categories" && node.style === "rows") {
+      const rows = node.source && servable(pc.ctx.app, pc.ctx.connector, node.source) ? await listCategories(pc, node.source, true) : null;
+      return rows?.length ? ({ ...shown, categories: rows } as StudioNode) : null;
+    }
     if (node.type === "categories") {
       const list = (await resolveBlock(pc, { id: node.id, type: "categories", visibility: "everyone", title: null, source: node.source })) as { categories?: unknown[] } | null;
       return list?.categories ? ({ ...shown, categories: list.categories } as StudioNode) : null;
@@ -721,7 +726,16 @@ async function listArticles(pc: PageContext, query: ItemsQuery): Promise<Item[]>
     .filter((i): i is Item => i !== null);
 }
 
-async function listCategories(pc: PageContext, source: ItemSource): Promise<{ id: number; name: string; count: number; image_url?: string }[] | null> {
+/** A category as an element shows it; 206 with its sub-categories (`children`) for the category menu. */
+interface ShownCategory {
+  id: number;
+  name: string;
+  count: number;
+  image_url?: string;
+  children?: ShownCategory[];
+}
+
+async function listCategories(pc: PageContext, source: ItemSource, subs = false): Promise<ShownCategory[] | null> {
   const path =
     source === "courses"
       ? ["categories"]
@@ -733,11 +747,25 @@ async function listCategories(pc: PageContext, source: ItemSource): Promise<{ id
             ? ["news", "categories"]
             : null;
   if (!path) return null;
-  return list(await get(pc, path))
-    .filter((c) => c.parent_id === null || c.parent_id === undefined)
-    // 112.4 With its picture when it has one (a store's categories).
-    .map((c) => ({ id: Number(c.id), name: String(c.name ?? ""), count: Number(c.count ?? 0), ...(typeof c.image_url === "string" && c.image_url ? { image_url: c.image_url } : {}) }))
-    .filter((c) => Number.isSafeInteger(c.id) && c.name && Number.isInteger(c.count));
+  const all = list(await get(pc, path));
+  // 112.4 With its picture when it has one (a store's categories).
+  const shown = (c: Record<string, unknown>): ShownCategory => ({ id: Number(c.id), name: String(c.name ?? ""), count: Number(c.count ?? 0), ...(typeof c.image_url === "string" && c.image_url ? { image_url: c.image_url } : {}) });
+  const fine = (c: ShownCategory) => Number.isSafeInteger(c.id) && c.name !== "" && Number.isInteger(c.count);
+  const main = (c: Record<string, unknown>) => c.parent_id === null || c.parent_id === undefined || c.parent_id === 0;
+  return all
+    .filter(main)
+    .map((c) => {
+      const out = shown(c);
+      // 206 Its sub-categories in the shop's order, those with products (at most 12).
+      if (!subs) return out;
+      const children = all
+        .filter((x) => !main(x) && Number(x.parent_id) === out.id)
+        .map(shown)
+        .filter((x) => fine(x) && x.count > 0)
+        .slice(0, 12);
+      return { ...out, children };
+    })
+    .filter(fine);
 }
 
 /** The student's first course with progress that isn't finished (`MyCourse`). */

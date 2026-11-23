@@ -300,6 +300,19 @@ export const ICON_NAMES = [
   "public",
   "wb_sunny",
   "yard",
+  // 206 Studio's shop types (their sections and types), Lujain's looks and sections, the liability notice.
+  "apparel",
+  "chair",
+  "computer",
+  "format_list_numbered",
+  "gavel",
+  "living",
+  "menu_open",
+  "straighten",
+  "sync",
+  "table_chart",
+  "toys",
+  "view_list",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

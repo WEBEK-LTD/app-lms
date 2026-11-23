@@ -71,6 +71,8 @@ export const STUDIO_CONTENT_TYPES = [
   ...STUDIO_PREMIUM_CONTENT_TYPES,
   // 131 A flash sale: its products at their sale price with a live countdown and a stock bar.
   "flash_sale",
+  // 206 The shop's size chart (Store › Delivery & offers › Clothes), as a table.
+  "size_chart",
 ] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
@@ -240,7 +242,23 @@ export interface StudioStories {
 }
 // ——— end 129 premium motion & media ———
 /** 112.4 How a categories element draws them: chips, tiles, pictures in a grid, or round pictures in a row. */
-export const STUDIO_CATEGORY_STYLES = ["chips", "tiles", "pictures", "circles"] as const;
+/** 206 `rows`: the category menu, each main category a row of cards that slides (its own card first, "All …", then its sub-categories). */
+export const STUDIO_CATEGORY_STYLES = ["chips", "tiles", "pictures", "circles", "rows"] as const;
+/**
+ * 206 How the category menu (`rows`) draws its rows: `lead` a tall card of
+ * the main category first (its number, name, count and an arrow over its
+ * photo) then each sub-category's photo with its name under it; `label` the
+ * main category's number, name and count over the row, "All" on its first
+ * card, each card its photo with its name over it.
+ */
+export const STUDIO_CATEGORY_MENU_LOOKS = ["lead", "label"] as const;
+export interface StudioCategoryMenu {
+  look?: (typeof STUDIO_CATEGORY_MENU_LOOKS)[number];
+  /** Each main category's number (01, 02…); false: none. */
+  numbers?: boolean;
+  /** Each card's corners, 0 to 40; missing, 18. */
+  radius?: number;
+}
 /**
  * 174.1 Studio's "Pill" corners: fully rounded. Every renderer (the canvas's
  * CSS, the app's rounded rectangles) caps corners at half the element's side,
@@ -1419,6 +1437,8 @@ export interface StudioNode {
   place?: StudioPlace | null;
   /** 112.4 For `categories`: how they're drawn; missing, chips. */
   style?: (typeof STUDIO_CATEGORY_STYLES)[number];
+  /** 206 For `categories` drawn as `rows` (the category menu): its look. */
+  category_menu?: StudioCategoryMenu | null;
   /** 112.4 For `coupon`: the code people copy. */
   code?: string | null;
   // ——— 131 The flower shop ———
@@ -1523,6 +1543,11 @@ export interface StudioHeader {
   /** 130.20 `large`, `photo` and `search` collapse on scroll; false keeps them open. */
   collapse?: boolean;
   // ——— end 130.20 premium chrome ———
+  /**
+   * 206 The page its menu button opens (a page's address, the category menu's), full screen over
+   * the page; missing, the side menu as before (and in apps before it).
+   */
+  menu_page?: string | null;
   translations?: Translations;
 }
 

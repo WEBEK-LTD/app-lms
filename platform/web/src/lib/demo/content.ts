@@ -376,6 +376,16 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["leqaa-home", "leqaa-product", "leqaa-checkout"],
   },
+  // 206 Lujain, the clothes shop: a store in Studio, its two Signature looks, the category menu, sizes and colours.
+  clothes: {
+    summary: "A women's fashion house in Riyadh: dresses, abayas, coats, shoes, bags and accessories in their sizes and colours, with the stock of each, a size chart and what completes the look. Its photos are CC0, from StockSnap.",
+    tryThis: [
+      "Tap the menu at the top and slide through the categories, each with its own sub-categories",
+      "Open a dress, choose its size and colour (a size that's gone says so), and look at the size guide and what completes the look",
+      "Check out with the shop's code, follow your order in Orders, and switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["lujain-home", "lujain-menu", "lujain-product"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -768,6 +778,26 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Bouquets for every occasion, delivered across Cairo with a card in your words.",
     fullDescription: `Leqaa makes bouquets for every occasion: love, birthdays, a new baby, congratulations and sympathy.\n\nChoose a bouquet and its size, add a vase, chocolates or a card, and send it today or on the day you pick, with a message in your own words.\n\n${PRIVACY_NOTE}`,
     welcome: "Bouquets for every occasion, made on the day they are delivered.",
+  },
+  // 206 Lujain (لجين, "silver"), the clothes shop: its look A's black and white.
+  clothes: {
+    appName: "Lujain",
+    shortName: "Lujain",
+    primaryColor: "#121212",
+    splashColor: "#F8F6F1",
+    secondaryColor: "#9B2C2C",
+    template: "minimal",
+    font: "DM Sans",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-store",
+    banner: { picture: "banner-store", heading: "A house of women's fashion", subheading: "Dresses, abayas, coats and shoes in every size, delivered across Riyadh." },
+    androidPackage: "com.yallapp.demo.clothes",
+    storeTitle: "Lujain Fashion",
+    shortDescription: "Dresses, abayas, coats, shoes and bags in your size, delivered across Riyadh.",
+    fullDescription: `Lujain is a house of women's fashion: dresses, abayas, coats and jackets, tops, denim, shoes, bags and accessories.\n\nBrowse every category from the menu, choose your size and colour with the size guide at hand, and complete the look in a few taps. Exchanges are free within 14 days.\n\n${PRIVACY_NOTE}`,
+    welcome: "Dresses, abayas and coats in your size, with the size guide at hand.",
   },
 };
 

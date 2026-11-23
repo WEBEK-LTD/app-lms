@@ -32,6 +32,8 @@ import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasCo
 import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "../../selling/addons";
 // 162 Build your bouquet: its lines together, checked against the shop's settings.
 import { bouquetOf, bouquetOffers, bouquetPartJson, checkBouquetLines, onceEach } from "../../selling/bouquet";
+// 206 A clothes shop's size chart and "Complete the look"; sub-categories.
+import { completeLookFor, fashionOf, sizeChartJson } from "../../selling/fashion";
 import { appStageJson } from "../../catalog/stage-json";
 
 /**
@@ -177,6 +179,8 @@ export class CatalogConnector implements Connector {
         returns: !this.fulfilment && returnDays(this.settings) !== null ? { enabled: true, days: returnDays(this.settings)! } : null,
         // 91.4 Loyalty points.
         loyalty: loyaltyConfigJson(this.loyalty, this.settings.currency),
+        // 206 The size chart under a product's sizes; null: none.
+        size_chart: sizeChartJson(fashionOf(this.deps.app)?.sizeChart ?? null, this.lang),
       },
       features: { orders: true },
     };
@@ -307,11 +311,14 @@ export class CatalogConnector implements Connector {
     };
   }
 
-  /** 112.4 A category's picture: its first product's that has one. */
-  private category(c: CatalogCategory, count: number, products: CatalogProduct[] = []) {
-    const pictured = products.find((p) => p.categoryIds.includes(c.id) && p.imageAssetIds[0]);
+  /** 112.4 A category's picture: its first product's that has one; 206 a main category's, of its sub-categories' too. */
+  private category(c: CatalogCategory, count: number, products: CatalogProduct[] = [], all: readonly CatalogCategory[] = []) {
+    const ids = inside(all, c.id);
+    const pictured = products.find((p) => p.categoryIds.some((id) => ids.has(id)) && p.imageAssetIds[0]);
     // 175 In the app's language when the owner named it so.
-    return { id: c.id, name: categoryNameIn(c, this.lang), count, parent_id: null, image_url: pictured ? this.deps.assetUrl(pictured.imageAssetIds[0]!) : null };
+    // 206 Inside its main category, when that is one of the shop's.
+    const parent = c.parentId && all.some((x) => x.id === c.parentId) ? c.parentId : null;
+    return { id: c.id, name: categoryNameIn(c, this.lang), count, parent_id: parent, image_url: pictured ? this.deps.assetUrl(pictured.imageAssetIds[0]!) : null };
   }
 
   // Catalog
@@ -340,8 +347,17 @@ export class CatalogConnector implements Connector {
   /** The categories with products; 157 once the owner has their own, the demo's (an app started from one) left out. */
   private async categories() {
     const [categories, products] = await Promise.all([this.deps.store.listCatalogCategories(this.deps.app.id), this.listed()]);
-    const listed = categories.map((c) => this.category(c, products.filter((p) => p.categoryIds.includes(c.id)).length, products)).filter((c) => c.count > 0);
-    return shownCategories(listed, ownCategoryIds(categories, products));
+    // 206 A main category counts its sub-categories' products too.
+    const listed = categories
+      .map((c) => {
+        const ids = inside(categories, c.id);
+        return this.category(c, products.filter((p) => p.categoryIds.some((id) => ids.has(id))).length, products, categories);
+      })
+      .filter((c) => c.count > 0);
+    const shown = shownCategories(listed, ownCategoryIds(categories, products));
+    // A sub-category whose main category isn't shown stands on its own.
+    const ids = new Set(shown.map((c) => c.id));
+    return shown.map((c) => (c.parent_id !== null && !ids.has(c.parent_id) ? { ...c, parent_id: null } : c));
   }
 
   private sorted(products: CatalogProduct[], orderby: OrderBy): CatalogProduct[] {
@@ -378,13 +394,15 @@ export class CatalogConnector implements Connector {
     }
     const category = query.get("category") ? Number(query.get("category")) : null;
     if (category !== null && (!Number.isSafeInteger(category) || category < 1)) return error(400, "invalid_request", "Unknown category.");
+    // 206 A main category lists its sub-categories' products too.
+    const inCategory = category === null ? null : inside(await this.deps.store.listCatalogCategories(this.deps.app.id), category);
     const search = (query.get("search") ?? "").trim().toLocaleLowerCase("tr").slice(0, 100);
     const flag = (name: string) => query.get(name) === "true" || query.get(name) === "1";
     const orderParam = query.get("orderby") as OrderBy | null;
     const filtered = this.sorted(
       all.filter(
         (p) =>
-          (category === null || p.categoryIds.includes(category)) &&
+          (inCategory === null || p.categoryIds.some((id) => inCategory.has(id))) &&
           (!flag("featured") || p.featured) &&
           // 131 With the products of a flash sale on now.
           (!flag("on_sale") || priceOf(p) < p.priceCents || this.flashFor(p, p.priceCents, this.now) !== null) &&
@@ -428,6 +446,8 @@ export class CatalogConnector implements Connector {
       .slice(0, 8);
     // 131 "Add a little more": the add-ons offered with it (none on an add-on's own page).
     const addons = product.addon ? [] : ownAddonsFor(all, product);
+    // 206 "Complete the look": a product of each of the shop's other main categories, when the shop has it on.
+    const look = !product.addon && fashionOf(app)?.completeLook ? completeLookFor(product, all, categories) : [];
     const variants = variantsOf(product);
     return {
       status: 200,
@@ -477,6 +497,7 @@ export class CatalogConnector implements Connector {
         categories: categories.filter((c) => product.categoryIds.includes(c.id)).map((c) => this.category(c, 0)),
         related: related.map((p) => this.summary(p, now)),
         addons: addons.map((p) => this.summary(p, now)),
+        complete_look: look.map((p) => this.summary(p, now)),
         external_url: null,
         permalink: productUrl(this.deps.platformUrl, app.id, product.id),
         option_groups: optionGroupsJson(optionGroupsOf(product), this.settings.currency),
@@ -1019,4 +1040,9 @@ export class CatalogConnector implements Connector {
       },
     };
   }
+}
+
+/** 206 A category and its sub-categories' IDs. */
+function inside(categories: readonly Pick<CatalogCategory, "id" | "parentId">[], id: number): Set<number> {
+  return new Set([id, ...categories.filter((c) => c.parentId === id).map((c) => c.id)]);
 }

@@ -3,7 +3,7 @@ import type { StudioScreens } from "../studio/screens";
 import { ACADEMY_PROJECT } from "../studio/academy";
 import { demoDesignBar, signatureDesign } from "../studio/demo-designs";
 import { signatureScreensOf, type SignatureLook } from "../studio/demo-designs/signature";
-import { FLOWER_SHOP_DEMO, PREMIUM_ACADEMY_DEMO, type StudioDemoId } from "./constants";
+import { FLOWER_SHOP_DEMO, isStoreTemplateDemo, PREMIUM_ACADEMY_DEMO, type ShopTypeDemo, type StudioDemoId } from "./constants";
 
 /**
  * 118.3 Each Studio demo's sign-in screen and account menu, as an owner
@@ -27,7 +27,7 @@ interface DemoScreens {
 
 /** 123 The premium academy's are its template's (lib/studio/academy.ts), as a project started from it has them. */
 /** 131.20 Leqaa's are its looks' (lib/studio/demo-designs/leqaa-signature.ts), from the start. */
-export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO>, DemoScreens> = {
+export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO | ShopTypeDemo>, DemoScreens> = {
   delivery: {
     style: "card",
     photo: "/stories/delivery/delivery-shop-owner.jpg",
@@ -141,7 +141,7 @@ export function demoStudioScreens(id: StudioDemoId, platformUrl: string, look?: 
 /** 118.3 The screens 128 gave a demo, before its Signature looks. */
 function demoOwnScreens(id: StudioDemoId, platformUrl: string): StudioScreens {
   if (id === PREMIUM_ACADEMY_DEMO) return ACADEMY_PROJECT.screens(platformUrl);
-  if (id === FLOWER_SHOP_DEMO) return signatureScreensOf(signatureDesign(id, "a")!, platformUrl);
+  if (isStoreTemplateDemo(id)) return signatureScreensOf(signatureDesign(id, "a")!, platformUrl);
   const d = DEMO_SCREENS[id];
   return {
     sign_in: {
@@ -187,6 +187,8 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   premium_academy: demoDesignBar("premium_academy"),
   // 131.22 Leqaa's is its look A's petal bar (lib/studio/demo-designs/leqaa-signature.ts).
   flowers: demoDesignBar("flowers"),
+  // 206 Lujain's is its look A's floating bar (lib/studio/demo-designs/clothes-signature.ts).
+  clothes: demoDesignBar("clothes"),
 };
 
 /** 130 A demo's bar in one of its Signature looks (its look's premium bar); without a look, the demo's own (DEMO_TAB_BARS). */

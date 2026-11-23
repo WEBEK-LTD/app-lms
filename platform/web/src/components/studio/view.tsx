@@ -39,6 +39,8 @@ import { isPremiumContent, PREMIUM_WORDS_EN, PremiumElement, SurfaceExtras, surf
 import { PremiumHeader, SystemScreen } from "./premium-chrome";
 import { GiftCheckout } from "./gift-checkout";
 import { quickAddLabel } from "./quick-add";
+// 206 The category menu and the size chart.
+import { CategoryMenuCanvas, SizeChartCanvas } from "./category-menu";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -847,6 +849,9 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "coupon":
         // 112.4 The code in a dashed frame, with a button that copies it in the app; 131 a ticket or glass, the shop's own coupon when bound.
         return <CouponCanvas node={n} pickable={p.pickable} dark={dark} brand={look.brand} color={color ?? null} words={{ ...(p.commerceWords ?? COMMERCE_WORDS_EN), copy: p.words.copy }} />;
+      case "size_chart":
+        // 206 The shop's size chart.
+        return <SizeChartCanvas node={n} pickable={p.pickable} dark={dark} title={text || null} color={color} />;
       case "flash_sale":
         // 131 The flash sale: its products at their sale price, the live countdown and the stock bar.
         return <FlashSaleCanvas node={n} title={text} pickable={p.pickable} dark={dark} brand={look.brand} words={p.commerceWords ?? COMMERCE_WORDS_EN} />;
@@ -1013,6 +1018,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
           </span>
         );
       case "categories": {
+        // 206 The category menu: every main category a row of cards.
+        if (n.style === "rows") return <CategoryMenuCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} color={color} />;
         const cats = (n.source ? p.pickable.categories[n.source] : undefined) ?? [];
         const names = cats.length ? cats.slice(0, 6).map((c) => c.name) : ["[1]", "[2]", "[3]"];
         // 112.4 Tiles, pictures in a grid, or round pictures in a row; a category without a picture shows a colour.

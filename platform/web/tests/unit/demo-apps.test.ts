@@ -53,7 +53,7 @@ beforeEach(() => clearPlatformSettingsCache());
 
 // 27 Eight (28 nine, 29 ten) demo apps draw their pictures: slower when the whole suite runs at once.
 describe("creating the demo apps", { timeout: 20_000 }, () => {
-  it("makes the demo account with twenty apps (131.20 Leqaa too), their content, pages and a license that doesn't end", async () => {
+  it("makes the demo account with twenty-one apps (131.20 Leqaa and 206 Lujain too), their content, pages and a license that doesn't end", async () => {
     const store = new MemoryStore();
     const blobs = new Map<string, Buffer>();
     const result = await setupDemoApps(deps(store, NOW, blobs));
@@ -82,6 +82,8 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
       ["premium_academy", true],
       // 131.20 Leqaa, the flower shop, a template's demo too (the store's).
       ["flowers", true],
+      // 206 Lujain, the clothes shop: the first of Studio's shop types.
+      ["clothes", true],
     ]);
     const user = await store.getUserByEmail(DEMO_ACCOUNT.email);
     expect(user?.passwordHash).toBeNull();
@@ -97,7 +99,7 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(apps.at(-2)?.design).toBe("academy_premium");
     // 131.20 Leqaa, the flower shop: a shop that keeps its Signature look A.
     expect(apps.at(-1)?.design).toBe("flowers_signature_a");
-    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(20);
+    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(21);
     expect(new Set(apps.map((a) => a.template))).toEqual(new Set(["classic", "bold", "minimal"]));
     for (const app of apps) {
       expect(app).toMatchObject({ demo: true, backend: "hosted", publishingMode: "managed" });
@@ -255,8 +257,8 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(second.clientId).toBe(first.clientId);
     expect(second.apps.map((a) => a.appId)).toEqual(first.apps.map((a) => a.appId));
     expect(second.apps.every((a) => !a.created)).toBe(true);
-    expect(await store.listAppsByClient(first.clientId)).toHaveLength(20);
-    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(20);
+    expect(await store.listAppsByClient(first.clientId)).toHaveLength(21);
+    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(21);
     const food = second.apps.find((a) => a.type === "food")!.appId;
     expect(await store.listRestaurants(food)).toHaveLength(DEMO_RESTAURANTS.length);
     const parcels = second.apps.find((a) => a.type === "delivery")!.appId;
@@ -314,8 +316,9 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(demoTypeOfSlug("teachers")).toBe("instructors");
     expect(demoTypeOfSlug("premium-academy")).toBe("premium_academy");
     expect(DEMO_TYPES).not.toContain("rides");
-    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "marketplace", "rides", "taxi", "school", "instructors", "travel", "premium_academy", "flowers"]);
+    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "marketplace", "rides", "taxi", "school", "instructors", "travel", "premium_academy", "flowers", "clothes"]);
     expect(demoTypeOfSlug("flowers")).toBe("flowers");
+    expect(demoTypeOfSlug("clothes")).toBe("clothes");
     expect(demoTypeOfSlug("travel")).toBe("travel");
     expect(demoTypeOfSlug("nope")).toBeNull();
   });
@@ -735,7 +738,7 @@ describe("demo checkout and the daily clean-up", () => {
     expect((await cleanDemoActivity(store, new Date(NOW.getTime() + 2 * HOUR))).deleted).toBe(0);
 
     const report = await runDailyNotices({ store, baseUrl: "https://yallapp.test", mail: async () => undefined, now: new Date(NOW.getTime() + 25 * HOUR) });
-    expect(report.demo.apps).toBe(20);
+    expect(report.demo.apps).toBe(21);
     // An order, a conversation, a favorite, a device; 115.15 and Zad's courier job of yesterday (made again with its day).
     expect(report.demo.deleted).toBe(5);
     const left = await store.listCatalogOrders({ appId: shop.id, offset: 0, limit: 10 });

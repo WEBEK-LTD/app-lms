@@ -11,6 +11,7 @@ import { chooseApp, clientFor, mayUseDashboard } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { appDefaults } from "@/lib/pages/layout";
 import { makeStudioProject } from "@/lib/studio/new-project";
+import { liabilityDue, withAcceptance } from "@/lib/studio/liability";
 import { templatesFor, TEMPLATES } from "@/lib/studio/sections";
 import { appWords } from "@/lib/studio/app-words";
 import { studioSourcesFor, type StudioSource } from "@/lib/studio/section";
@@ -82,4 +83,21 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
   revalidatePath("/studio", "layout");
   // Content kept in Yallapp is ready; a website, platform or API is connected next.
   redirect(source === "catalog" ? "/studio/project" : "/studio/project/setup?step=website");
+}
+
+/**
+ * 206 The owner's "I read it and agree" to their shop type's liability
+ * notice (lib/studio/liability.ts): kept on the app with who and when, so
+ * the dashboard never shows it again. A team member can't accept it for the
+ * owner: it stays until the owner (or our team in their account) does.
+ */
+export async function acceptLiabilityAction(): Promise<void> {
+  const context = await requireClientFor("dashboard");
+  const app = context.app;
+  const due = liabilityDue(app);
+  if (!app || !due || context.member) return;
+  const now = new Date();
+  await (await getStore()).updateApp(app.id, { liabilityAccepted: withAcceptance(app.liabilityAccepted, due.kind, (context.staff ?? context.user).id, now) }, now);
+  await recordStaffChange(context, `Accepted the ${due.kind} liability notice`);
+  revalidatePath("/studio", "layout");
 }

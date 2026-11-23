@@ -111,7 +111,8 @@ describe("the demos the page shows", () => {
   it("group by business: the teaching demos with each other, every product's own", () => {
     expect(sameBusiness("lms")).toEqual(["premium_academy", "instructors"]);
     // 131.20 Leqaa, the flower shop, is a shop too.
-    expect(sameBusiness("store")).toEqual(["marketplace", "flowers"]);
+    // 206 And Lujain, the clothes shop.
+    expect(sameBusiness("store")).toEqual(["marketplace", "flowers", "clothes"]);
     expect(sameBusiness("restaurant")).toEqual(["food"]);
     expect(sameBusiness("rides")).toEqual(["taxi"]);
     for (const id of ALL_DEMO_TYPES) expect(sameBusiness(id)).not.toContain(id);
