@@ -104,6 +104,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   studio_market_payouts: "account",
   // 106.12 A designer's discounts on their templates: the template's, never an app's.
   studio_market_discounts: "account",
+  // 106.14 Buyers' ratings of templates (the buyer's and the designer's accounts', never an app's).
+  studio_market_ratings: "account",
 
   apps: "app",
 

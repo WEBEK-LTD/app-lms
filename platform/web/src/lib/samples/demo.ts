@@ -1,6 +1,7 @@
 // 126
 import { makeTravelSamples } from "../travel/samples";
 import { saveTravelPhoto } from "../demo/travel";
+import { syncClassSessions } from "../bookings/classes";
 import { bookingSetup } from "../bookings/setup";
 import { courseSetup } from "../courses/setup";
 import type { App } from "../data/types";
@@ -63,20 +64,17 @@ function bookings(which: BookingDemo): DemoSeeder {
     const setup = bookingSetup(m.app);
     const made = await demoBookingEntries(m.entries, { categories: setup.categories, nextId: setup.nextId, currency: setup.rules.currency }, which);
     const team = setup.staff.length === 0;
-    await m.deps.store.updateApp(
-      m.app.id,
-      {
-        bookingSetup: {
-          ...setup,
-          categories: made.categories,
-          services: [...setup.services, ...made.services],
-          staff: team ? made.staff : setup.staff,
-          classTemplates: [...(setup.classTemplates ?? []), ...(team ? made.classTemplates : [])],
-          nextId: made.nextId,
-        },
-      },
-      m.deps.now,
-    );
+    const next = {
+      ...setup,
+      categories: made.categories,
+      services: [...setup.services, ...made.services],
+      staff: team ? made.staff : setup.staff,
+      classTemplates: [...(setup.classTemplates ?? []), ...(team ? made.classTemplates : [])],
+      nextId: made.nextId,
+    };
+    await m.deps.store.updateApp(m.app.id, { bookingSetup: next }, m.deps.now);
+    // 180.22 The timetable's classes at once: an app started from the gym demo had none until the next day's job.
+    if (team && made.classTemplates.length) await syncClassSessions(m.deps.store, { id: m.app.id, bookingSetup: next }, m.deps.now);
     return made.services.length > 0;
   };
 }

@@ -50,6 +50,8 @@ export const ASSET_KINDS = [
   "salary_receipt",
   // 106.11 A designer's ID for their first payout: only Yallapp's team with `market.payouts` opens it.
   "designer_id_document",
+  // 106.14 A designer's photo on their public page (shown once the team approved it).
+  "designer_photo",
 ] as const;
 export type AssetKind = (typeof ASSET_KINDS)[number];
 /** The kinds only their own pages open, never at the public asset address nor copied into a design: a driver's papers, a salary's receipt, 106.11 a designer's ID. */
@@ -5763,6 +5765,8 @@ export interface RideQuery {
   userId?: number;
   /** Not this rider's (the store review account's). */
   notUserId?: number;
+  /** 178 Not the rides of a rider of this name (the review driver's sample rides, lib/rides/review.ts). */
+  notRiderName?: string;
   driverId?: number;
   offeredTo?: number;
   statuses?: RideStatus[];

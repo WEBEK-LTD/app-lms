@@ -10,7 +10,12 @@ import { RESIZE_START, resized, snapped } from "@/lib/studio/resize";
 import { autoSized, sizedByHand } from "@/lib/studio/auto-size";
 import { forTablet } from "@/lib/studio/tablet";
 import { mapTree } from "@/lib/studio/tree";
+import { shownWhen } from "@/lib/studio/signed-in";
 import { withShopCategoriesIn } from "@/lib/studio/shop-categories";
+import { withNewsTicker } from "@/lib/school/news-ticker";
+import { withFaculty } from "@/lib/teachers/faculty";
+import { withRideClassesIn } from "@/lib/studio/ride-classes";
+import { withMapWordsIn } from "@/lib/studio/map-words";
 import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
 import { splitTabs } from "@/lib/pages/tab-bar";
@@ -84,6 +89,10 @@ export interface StudioEditing {
   onAskByHand?: (id: string) => void;
   /** 159 A double click on a corner: the element back to its automatic size. */
   onAutoSize?: (id: string) => void;
+  /** 181 A part of the selected element picked on its own (a story's ring): which. */
+  part?: { id: string; index: number } | null;
+  /** 181 A part of an element clicked on the canvas (a story's ring): the element is selected with it. */
+  onSelectPart?: (id: string, index: number) => void;
   /**
    * 189 A slider's own buttons on the canvas, in the dashboard's language:
    * the slide before and after, "Slide 2 of 5" (`of`, with `{n}` and
@@ -128,6 +137,8 @@ interface ViewProps {
   premiumWords?: PremiumWords;
   /** 131 The flash sale's and the coupon's words (lib/studio/app-words.ts); missing, English. */
   commerceWords?: CommerceWords;
+  /** 180.11 The page as a person signed in (true) or signed out (false) sees it; missing, every element. */
+  signedIn?: boolean;
   /** 193 The app draws Add to cart under each product's card (a store on the gift checkout, Leqaa's looks). */
   quickAdd?: boolean;
 }
@@ -225,15 +236,35 @@ export function textGivingWay(kids: readonly StudioNode[]): string | null {
   return texts.length === 1 ? texts[0]!.id : null;
 }
 
+/** 179.7 The view's page with the school's news in the template's ticker and the academy's teachers in its faculty; the same props without them. */
+function withSchoolData(props: ViewProps, news: readonly string[] | undefined, faculty: Parameters<typeof withFaculty>[1] | undefined): ViewProps {
+  let body = props.page.body;
+  if (news?.length) body = withNewsTicker(body, news);
+  if (faculty?.length) body = withFaculty(body, faculty);
+  return body === props.page.body ? props : { ...props, page: { ...props.page, body } };
+}
+
 export function StudioView(givenProps: ViewProps) {
   // 165 The story elements from Dashboard › Stories show its stories, as the app does now.
   const storied = withDashboardStories(givenProps.page, givenProps.pickable?.stories, givenProps.lang, givenProps.defaultLang, new Date());
   const viewProps = storied === givenProps.page ? givenProps : { ...givenProps, page: storied };
   // 157 A template's lists of the shop's categories as the app shows them.
   const shop = viewProps.pickable.shopCategories;
-  const listed = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;
+  const shopped = shop ? { ...viewProps, page: { ...viewProps.page, body: withShopCategoriesIn(viewProps.page.body, shop) } } : viewProps;
+  // 179.7 Nakhla's ticker with the school's news and Rawaq's faculty with the academy's teachers, as the app shows them;
+  // with none yet, as the template made them, so they stay there to edit (the app hides them).
+  const schooled = withSchoolData(shopped, viewProps.pickable.schoolNews, viewProps.pickable.faculty);
+  // 178 A template's car classes as the company's vehicle types, as the app shows them.
+  const rides = schooled.pickable.rideClasses;
+  const classed = rides ? { ...schooled, page: { ...schooled.page, body: withRideClassesIn(schooled.page.body, rides, schooled.lang) } } : schooled;
+  // 178 A drawn map's template words in the language shown, as the app gets them.
+  const drawsMap = (n: StudioNode): boolean => !!n.map_drawing || (n.children ?? []).some(drawsMap);
+  const mapped = drawsMap(classed.page.body) ? mapTree(classed.page.body, (n) => withMapWordsIn(n, classed.lang)) : null;
+  const listed = mapped && mapped !== classed.page.body ? { ...classed, page: { ...classed.page, body: mapped } } : classed;
   // 159 At their automatic sizes, as the app draws them (a cover's top bar across the cover), unless sized by hand.
-  const body = autoSized(listed.tablet ? (mapTree(listed.page.body, forTablet) ?? listed.page.body) : listed.page.body);
+  // 180.11 Only what a signed-in or a signed-out person sees, when the canvas is told which.
+  const visible = listed.signedIn === undefined ? listed.page.body : shownWhen(listed.page.body, listed.signedIn);
+  const body = autoSized(listed.tablet ? (mapTree(visible, forTablet) ?? visible) : visible);
   const props = body === listed.page.body ? listed : { ...listed, page: { ...listed.page, body } };
   const { page, dark, look } = props;
   const bg = (dark ? (page.dark_background ?? page.background) : page.background) ?? (dark ? "#14121F" : "#FBF8F2");
@@ -893,7 +924,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return <GreetingText lang={lang} sample={p.greeting?.hello} own={textIn(n, lang, defaultLang) || null} />;
       // 129 Premium motion & media.
       case "stories":
-        return <StoriesRow node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} />;
+        // 181 Each ring picked on its own in the editor (a locked element's are left alone).
+        return <StoriesRow node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} pick={editing?.onSelectPart && !locked ? (i) => editing.onSelectPart!(n.id, i) : undefined} picked={editing?.part?.id === n.id ? editing.part.index : null} />;
       case "marquee":
         return <Marquee node={n} text={text} rtl={lang === "ar"} accent={look.accent} dark={dark} />;
       case "before_after":

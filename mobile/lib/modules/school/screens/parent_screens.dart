@@ -186,7 +186,8 @@ class _Day extends ConsumerWidget {
     );
     return ListView(
       key: const ValueKey('parent-day'),
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+      // 179 Above a tab bar floating over the list (roadmap 158).
+      padding: EdgeInsets.fromLTRB(20, 4, 20, endRoom(context, 24)),
       children: [
         AppCard(
           key: const ValueKey('parent-child'),

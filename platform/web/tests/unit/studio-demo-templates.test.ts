@@ -99,7 +99,7 @@ function whole(layout: Pick<LayoutContent, "pages" | "tabs" | "menu" | "appearan
 
 /** 124.7 A project as the demo shows it: the demo's own words in its home's brackets. */
 function withFacts(id: StudioDemoId, layout: LayoutContent): LayoutContent {
-  return { ...layout, pages: layout.pages.map((p) => (p.slug === "home" && p.studio ? { ...p, studio: withDemoFacts(id, p.studio) } : p)) };
+  return { ...layout, pages: layout.pages.map((p) => (p.studio ? { ...p, studio: withDemoFacts(id, p.studio) } : p)) };
 }
 
 const demoOf = async (id: StudioDemoId) => demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demoApp(id), "banner-asset");

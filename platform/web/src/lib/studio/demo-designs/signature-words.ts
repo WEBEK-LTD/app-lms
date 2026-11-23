@@ -117,6 +117,7 @@ export type SignatureWord =
   // B · Bento table: the evening's question, the cuisines' bento and the band of dishes.
   | "sofDinner"
   | "sofGrill"
+  | "sofGrillPlace"
   | "sofGrillChip"
   | "sofPizza"
   | "sofDesserts"

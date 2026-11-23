@@ -40,6 +40,14 @@ enum NotificationType {
   foodOrderUpdate,
   restaurantOrder,
 
+  /// 115.22 A marketplace's: one of the customer's orders moved on; a new
+  /// order for the vendor; support answered or decided a complaint; the
+  /// club's plan ends soon.
+  marketOrderUpdate,
+  vendorOrder,
+  complaintUpdate,
+  clubRenewal,
+
   /// 105.2 One of the rider's rides moved on; a ride offered or given to a
   /// driver.
   rideUpdate,
@@ -103,6 +111,8 @@ class InboxNotification {
     this.orderId,
     this.shipmentId,
     this.foodOrderId,
+    this.marketOrderId,
+    this.complaintId,
     this.rideId,
     this.studentId,
     this.homeworkId,
@@ -131,6 +141,8 @@ class InboxNotification {
     orderId: optInt(json, 'order_id'),
     shipmentId: optInt(json, 'shipment_id'),
     foodOrderId: optInt(json, 'food_order_id'),
+    marketOrderId: optInt(json, 'market_order_id'),
+    complaintId: optInt(json, 'complaint_id'),
     rideId: optInt(json, 'ride_id'),
     studentId: optInt(json, 'student_id'),
     homeworkId: optInt(json, 'homework_id'),
@@ -178,6 +190,11 @@ class InboxNotification {
   /// 105.1 For a food order update or a restaurant's new order: the order.
   final int? foodOrderId;
 
+  /// 115.22 For a marketplace order's update or a vendor's new order: the
+  /// order; for a complaint's: the complaint.
+  final int? marketOrderId;
+  final int? complaintId;
+
   /// 105.2 For a ride update or offer: the ride.
   final int? rideId;
 
@@ -205,6 +222,8 @@ class InboxNotification {
     'order_id': ?orderId,
     'shipment_id': ?shipmentId,
     'food_order_id': ?foodOrderId,
+    'market_order_id': ?marketOrderId,
+    'complaint_id': ?complaintId,
     'ride_id': ?rideId,
     'student_id': ?studentId,
     'report_id': ?reportId,

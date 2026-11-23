@@ -150,7 +150,28 @@ describe("106.13 which templates the website shows", () => {
   it("never gives the page a designer's account, email or payout details", async () => {
     const published = await template("published");
     const found = (await publicTemplate(store, published.template.slug))!;
-    expect(Object.keys(found.designer).sort()).toEqual(["bio", "clientId", "country", "createdAt", "id", "name", "slug", "status", "termsAcceptedAt", "updatedAt"]);
+    // 106.14 With the public page's own settings (the page shows the photo and line once approved, the country and links when chosen).
+    expect(Object.keys(found.designer).sort()).toEqual([
+      "bio",
+      "clientId",
+      "country",
+      "createdAt",
+      "id",
+      "links",
+      "name",
+      "pageLockedAt",
+      "pageLockedReason",
+      "photoAssetId",
+      "profileNote",
+      "profileReview",
+      "profileReviewedAt",
+      "showCountry",
+      "showLinks",
+      "slug",
+      "status",
+      "termsAcceptedAt",
+      "updatedAt",
+    ]);
     // The JSON-LD names the designer by their public name only.
     const ld = JSON.stringify(templateProductLd(BASE, "en", { slug: found.template.slug, title: "Peony House", description: "", designer: found.designer.name, kinds: [], freeName: "Free", plans: [] }));
     expect(ld).toContain(found.designer.name);

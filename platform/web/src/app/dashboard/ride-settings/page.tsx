@@ -74,7 +74,7 @@ export default async function RideSettingsPage({ searchParams }: { searchParams:
   const { t } = await dashboardText();
   if (!isRides(app)) return <NotRides title={t("rides.settings")} t={t} />;
   const store = await getStore();
-  const [saved, types, plan] = await Promise.all([store.getDeliverySettings(app.id), store.listVehicleTypes(app.id), appPlan(store, license, new Date())]);
+  const [saved, types, plan, builds] = await Promise.all([store.getDeliverySettings(app.id), store.listVehicleTypes(app.id), appPlan(store, license, new Date()), store.listBuildsByApp(app.id, 1)]);
   const settings = deliverySettingsOf(saved);
   const payments = settings.card || isOwnPayment(catalogSettings(app).payment);
   // 132.22 `?tab=` opens one (an old link to a part, `#payments`, too).
@@ -120,7 +120,7 @@ export default async function RideSettingsPage({ searchParams }: { searchParams:
           driverFirebaseIos={Boolean(settings.courierFirebaseIosAssetId)}
           yallappFirebase={usesYallappFirebase(app)}
           driverIconUrl={settings.courierIconAssetId ? `/api/v1/assets/${settings.courierIconAssetId}` : null}
-          before={workedInCustomersApp(settings)}
+          before={workedInCustomersApp(settings, builds.length > 0)}
         />
       </section>
       </TabPanel>

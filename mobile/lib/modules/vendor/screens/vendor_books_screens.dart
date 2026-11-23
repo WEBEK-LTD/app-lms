@@ -190,7 +190,7 @@ class _StatementView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 24),
             child: MessageView(
-              icon: Symbols.receipt_long,
+              icon: Symbols.receipt_long_rounded,
               title: l10n.vendorStatementEmpty,
             ),
           )
@@ -267,7 +267,7 @@ class VendorComplaintsScreen extends ConsumerWidget {
           child: ListView(
             children: [
               MessageView(
-                icon: Symbols.support_agent,
+                icon: Symbols.support_agent_rounded,
                 title: l10n.vendorComplaintsEmptyTitle,
                 message: l10n.vendorComplaintsEmptyMessage,
               ),

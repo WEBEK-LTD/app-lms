@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -160,7 +162,13 @@ class PremiumMyCourses extends ConsumerWidget {
                 const SliverToBoxAdapter(child: SkeletonList(count: 4))
               else
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 110),
+                  // 179 At least the design's room, and above a tab bar floating over it with the phone's own bar under it (roadmap 158).
+                  padding: EdgeInsets.fromLTRB(
+                    18,
+                    0,
+                    18,
+                    math.max(110, endRoom(context, 24)),
+                  ),
                   sliver: SliverGrid.count(
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,

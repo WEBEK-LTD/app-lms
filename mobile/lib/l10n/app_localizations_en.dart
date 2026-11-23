@@ -2049,6 +2049,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notSoldInApp => 'This item isn\'t sold in the app.';
 
   @override
+  String get orderingNotOpen => 'Ordering in the app isn\'t open yet.';
+
+  @override
   String get optionsLower => 'options';
 
   @override
@@ -12452,6 +12455,93 @@ class AppLocalizationsEn extends AppLocalizations {
   String categoryMenuRow(String name, String count) {
     return '$name, $count';
   }
+
+  @override
+  String get appointmentStatusApproved => 'Approved';
+
+  @override
+  String get appointmentStatusPending => 'Pending';
+
+  @override
+  String get appointmentStatusCancelled => 'Cancelled';
+
+  @override
+  String get appointmentStatusRejected => 'Rejected';
+
+  @override
+  String get appointmentStatusNoShow => 'No-show';
+
+  @override
+  String get appointmentStatusCompleted => 'Completed';
+
+  @override
+  String get propertyTypeApartment => 'Apartment';
+
+  @override
+  String get propertyTypeVilla => 'Villa';
+
+  @override
+  String get propertyTypeHouse => 'House';
+
+  @override
+  String get propertyTypeTownhouse => 'Townhouse';
+
+  @override
+  String get propertyTypeDuplex => 'Duplex';
+
+  @override
+  String get propertyTypePenthouse => 'Penthouse';
+
+  @override
+  String get propertyTypeStudio => 'Studio';
+
+  @override
+  String get propertyTypeChalet => 'Chalet';
+
+  @override
+  String get propertyTypeLand => 'Land';
+
+  @override
+  String get propertyTypeOffice => 'Office';
+
+  @override
+  String get propertyTypeShop => 'Shop';
+
+  @override
+  String get propertyTypeWarehouse => 'Warehouse';
+
+  @override
+  String get propertyTypeBuilding => 'Building';
+
+  @override
+  String get travelPower => 'Power outlet';
+
+  @override
+  String get travelEntertainment => 'Entertainment';
+
+  @override
+  String get travelLounge => 'Lounge';
+
+  @override
+  String get travelSeatsNotLoaded => 'The seats didn\'t load.';
+
+  @override
+  String get travelSeatsCantChange =>
+      'This flight\'s seats can\'t be changed in the app.';
+
+  @override
+  String get servicesNoneInCategory => 'No services in this category yet';
+
+  @override
+  String get servicesNoneInCategoryText =>
+      'Choose another category, or see every service.';
+
+  @override
+  String get servicesSeeAll => 'See all services';
+
+  @override
+  String get travelNoPaymentYet =>
+      'This can\'t be paid in the app yet. Choose a stay you pay at the hotel, or contact us.';
 
   @override
   String get productDimensions => 'Dimensions';

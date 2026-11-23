@@ -158,10 +158,14 @@ export function StudioEditor(props: StudioEditorProps) {
   const textStyleCount = useMemo(() => textStyleUse(layout), [layout]);
   const [slug, setSlug] = useState(() => layout.pages.find((p) => p.slug === props.startSlug)?.slug ?? layout.pages.find((p) => p.studio)?.slug ?? layout.pages[0]?.slug ?? "");
   const [selectedId, setSelectedId] = useState<string | null>(() => props.startSelect ?? null);
+  // 181 A story's ring picked on the canvas, or its fields in the inspector.
+  const [storyPicked, setStoryPicked] = useState<{ id: string; index: number } | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [device, setDevice] = useState<Device>("phone");
   const [lang, setLang] = useState<LanguageCode>(layout.languages.default);
   const [dark, setDark] = useState(false);
+  // 180.11 Signed out first: what a new customer sees.
+  const [signedIn, setSignedIn] = useState(false);
   const [zoom, setZoom] = useState<number>(100);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [leftTab, setLeftTab] = useState<LeftTab>("elements");
@@ -1204,6 +1208,13 @@ export function StudioEditor(props: StudioEditorProps) {
     drop,
     onSelect: (id) => {
       setSelectedId(id);
+      setStoryPicked(null);
+      setPagesOpen(false);
+    },
+    part: storyPicked && storyPicked.id === selectedId ? storyPicked : null,
+    onSelectPart: (id, index) => {
+      setSelectedId(id);
+      setStoryPicked({ id, index });
       setPagesOpen(false);
     },
     onHover: setHoveredId,
@@ -1513,7 +1524,7 @@ export function StudioEditor(props: StudioEditorProps) {
               <div className="overflow-x-hidden overflow-y-auto rounded-[26px]" style={{ width: 288, height: "min(560px, calc(100dvh - 260px))", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {/* Drawn at the phone's 360 pixels, then zoomed to fit: it scrolls as tall as it is. */}
                 <div style={{ width: 360, zoom: 0.8, pointerEvents: "none" }}>
-                  <StudioView page={previewing.page} lang={editLang} defaultLang={layout.languages.default} dark={dark} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} premiumWords={premiumWords} commerceWords={commerceWords} quickAdd={quickAdd} />
+                  <StudioView page={previewing.page} lang={editLang} defaultLang={layout.languages.default} dark={dark} signedIn={signedIn} look={look} pickable={props.pickable} market={props.market} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} premiumWords={premiumWords} commerceWords={commerceWords} quickAdd={quickAdd} />
                 </div>
               </div>
             </div>
@@ -1629,6 +1640,12 @@ export function StudioEditor(props: StudioEditorProps) {
               }} pressed={dark} label={dark ? t("studio.dark") : t("studio.light")}>
               {t("studio.lightDark")}
             </Chip>
+            <Chip icon={signedIn ? "account_circle" : "no_accounts"} onClick={(e) => {
+                e.stopPropagation();
+                setSignedIn((v) => !v);
+              }} pressed={signedIn} label={t("studio.canvasSignedHint")}>
+              <span data-canvas-signed={signedIn ? "in" : "out"}>{t(signedIn ? "studio.canvasSignedIn" : "studio.canvasSignedOut")}</span>
+            </Chip>
             <div className="relative">
               <Chip icon="keyboard" onClick={(e) => {
                   e.stopPropagation();
@@ -1644,7 +1661,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div data-studio-phone-frame="" style={{ position: "relative", width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.bar, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} quickAdd={quickAdd} />
+                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} signedIn={signedIn} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} commerceWords={commerceWords} quickAdd={quickAdd} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} dark={dark} />
                 ) : null}
@@ -1705,6 +1722,9 @@ export function StudioEditor(props: StudioEditorProps) {
             }
             page={studio}
             node={selected && device === "tablet" ? forTablet(selected) : selected}
+            // 181 The story whose ring was picked on the canvas; a story's fields used pick its ring there.
+            story={storyPicked && selected && storyPicked.id === selected.id ? storyPicked.index : null}
+            onStory={(index) => selected && setStoryPicked({ id: selected.id, index })}
             tablet={device === "tablet" && selected ? { changed: Boolean(selected.tablet), onReset: () => changePage((p) => updateNode(p, selected.id, { tablet: undefined })) } : undefined}
             headerSelected={selectedId === "header"}
             tabsSelected={selectedId === "tabs"}

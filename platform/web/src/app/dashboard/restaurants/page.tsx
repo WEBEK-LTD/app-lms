@@ -42,6 +42,8 @@ export default async function RestaurantsPage({ searchParams }: { searchParams: 
   const names = new Map(cuisines.map((c) => [c.id, c.name]));
   const timezone = settings.timezone ?? DEFAULT_FOOD_TIMEZONE;
   const sorted = [...restaurants].sort((a, b) => a.position - b.position || a.id - b.id);
+  // 177 A marketplace's places are its vendors (restaurants, supermarkets and shops), as its menu says.
+  const market = isMarketplaceApp(app);
 
   const rows = sorted.map((r) => {
     const state = restaurantState(r, timezone, now);
@@ -58,12 +60,12 @@ export default async function RestaurantsPage({ searchParams }: { searchParams: 
     <div className="flex flex-col gap-6">
       {/* The page kit: the header and its main action, the numbers, the form in a Sheet (in place for the first restaurant), then the list. */}
       <PageHeader
-        title={t("food.restaurants")}
-        description={t("food.restaurantsIntro")}
+        title={t(market ? "food.vendors" : "food.restaurants")}
+        description={t(market ? "food.vendorsIntro" : "food.restaurantsIntro")}
         actions={
           has ? (
             <SheetButton target="new-restaurant" icon="add">
-              {t("food.addRestaurant")}
+              {t(market ? "food.addVendor" : "food.addRestaurant")}
             </SheetButton>
           ) : null
         }
@@ -83,8 +85,8 @@ export default async function RestaurantsPage({ searchParams }: { searchParams: 
       <SampleEntries app={app} list="restaurants" query={await searchParams} />
 
       {has ? (
-        <StatRow label={t("food.restaurants")}>
-          <Stat icon="storefront" label={t("food.restaurants")} value={restaurants.length} />
+        <StatRow label={t(market ? "food.vendors" : "food.restaurants")}>
+          <Stat icon="storefront" label={t(market ? "food.vendors" : "food.restaurants")} value={restaurants.length} />
           <Stat icon="check_circle" tone="success" label={t("food.openNow")} value={count("open")} hint={count("busy") ? `${t("food.busyNow")}: ${count("busy")}` : undefined} />
           <Stat icon="restaurant_menu" tone="accent" label={t("food.statDishes")} value={rows.reduce((n, row) => n + row.dishes, 0)} />
           <Stat icon="groups" label={t("food.staff")} value={staff.length} />
@@ -92,7 +94,7 @@ export default async function RestaurantsPage({ searchParams }: { searchParams: 
       ) : null}
 
       {/* One place in the page either way, so the form that adds the first restaurant keeps its message. */}
-      <Sheet id="new-restaurant" inline={!has} title={t("food.addRestaurant")} description={t("food.addRestaurantHint")}>
+      <Sheet id="new-restaurant" inline={!has} title={t(market ? "food.addVendor" : "food.addRestaurant")} description={t(market ? "food.addVendorHint" : "food.addRestaurantHint")}>
         <RestaurantForm
           currency={settings.currency}
           cuisines={cuisines}
@@ -101,15 +103,15 @@ export default async function RestaurantsPage({ searchParams }: { searchParams: 
         />
       </Sheet>
 
-      <Section titleId="h-restaurants" title={t("food.restaurantCount", { count: restaurants.length })} flush>
+      <Section titleId="h-restaurants" title={t(market ? "food.vendorCount" : "food.restaurantCount", { count: restaurants.length })} flush>
         {sorted.length === 0 ? (
           <div className="p-5 sm:p-6">
-            <EmptyState icon="storefront" title={t("food.noRestaurants")} />
+            <EmptyState icon="storefront" title={t(market ? "food.noVendors" : "food.noRestaurants")} />
           </div>
         ) : (
           <FilterList
             allLabel={t("common.all")}
-            searchLabel={t("food.searchRestaurants")}
+            searchLabel={t(market ? "food.searchVendors" : "food.searchRestaurants")}
             noMatch={t("food.noRestaurantMatch")}
             filters={[
               { value: "open", label: t("food.openNow") },

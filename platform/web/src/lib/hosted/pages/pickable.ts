@@ -11,6 +11,8 @@ import { itemResolver } from "./items";
 import { itemSourcesFor } from "../../pages/sources";
 import type { ShopCategories } from "../../studio/shop-categories";
 import { readShopCategories } from "./shop-categories";
+import type { RideClasses } from "../../studio/ride-classes";
+import { rideClassesOf } from "./ride-classes";
 import "./sources";
 import type { Connector } from "../connectors/types";
 import { catalogSettings } from "../../catalog/settings";
@@ -19,6 +21,11 @@ import { giftMessagesJson, giftOccasionsOf } from "../../selling/gift-messages";
 import { appLanguagesOf, couponShown, publicCouponJson } from "../../selling/store";
 import { formatCents } from "../../catalog/money";
 import { bouquetOf } from "../../selling/bouquet";
+import { tickerLines } from "../../school/news-ticker";
+import { facultyOf, type FacultyMember } from "../../teachers/faculty";
+import { isPublished, isTeachersApp } from "../../teachers/service";
+import { isReviewTeacher } from "../../teachers/review";
+import { courseSetup } from "../../courses/setup";
 
 /** An entry as the app's list card shows it: its picture, its line under the title, its price and its badge (`Item`). */
 export interface PickableEntry {
@@ -61,10 +68,16 @@ export interface Pickable {
   commerce?: PickableCommerce;
   /** 157 The shop's categories a template's lists of them show (lib/studio/shop-categories.ts), as the app gets them. */
   shopCategories?: ShopCategories;
+  /** 178 The company's vehicle types and currency a template's car classes show (lib/studio/ride-classes.ts), as the app gets them. */
+  rideClasses?: RideClasses;
   /** 165 Dashboard › Stories, for Studio's canvas (the story elements whose source is the dashboard). */
   stories?: import("../../stories/view").StoryView[];
   /** 165 Whether the owner has saved them in Dashboard › Stories: until then the story elements follow this design (and stay editable here). */
   storiesSaved?: boolean;
+  /** 179.7 A school's news to everyone, the lines Nakhla's ticker runs in the app (lib/school/news-ticker.ts). */
+  schoolNews?: string[];
+  /** 179.7 An academy's active teachers, as Rawaq's faculty shows them in the app (lib/teachers/faculty.ts). */
+  faculty?: FacultyMember[];
 }
 
 /** 110 The cards the app shows for a source the platform fills (lib/hosted/pages/sources.ts), by entry. */
@@ -176,7 +189,18 @@ export async function pickableContent(
   const commerce = await pickableCommerce(deps.store, app, now).catch(() => undefined);
   // 157 The shop's categories for the template's lists of them, so the canvas draws them as the app does.
   const shopCategories = await pickableShopCategories(app, deps, now).catch(() => null);
-  return { ...content, ...(commerce ? { commerce } : {}), ...(shopCategories ? { shopCategories } : {}) };
+  // 179.7 A school's news and an academy's teachers, for the template's ticker and faculty on the canvas.
+  const schoolNews = app.appType === "school" ? tickerLines(await deps.store.listSchoolAnnouncements(app.id).catch(() => [])) : null;
+  const faculty = isTeachersApp(app)
+    ? facultyOf(
+        (await deps.store.listTeachers(app.id, { statuses: ["active"] }).catch(() => [])).filter((t) => !isReviewTeacher(app, t)),
+        courseSetup(app).courses,
+        isPublished,
+      )
+    : null;
+  // 178 The company's vehicle types for the template's car classes, likewise.
+  const rideClasses = app.backend === "hosted" ? await rideClassesOf(app, deps.store).catch(() => null) : null;
+  return { ...content, ...(commerce ? { commerce } : {}), ...(shopCategories ? { shopCategories } : {}), ...(schoolNews ? { schoolNews } : {}), ...(faculty ? { faculty } : {}), ...(rideClasses ? { rideClasses } : {}) };
 }
 
 /** 157 The shop's categories as hosted `GET /pages` gives the template's lists of them; none for an app whose pages its own site serves. */

@@ -161,7 +161,7 @@ class AcademyAccountLook extends ConsumerWidget {
                             ),
                           ),
                           if (look.phone.isNotEmpty)
-                            Text(
+                            OnePhoneLine(
                               look.phone,
                               style: const TextStyle(
                                 fontSize: 12.5,
