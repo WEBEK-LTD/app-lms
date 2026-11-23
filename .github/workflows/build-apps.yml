@@ -129,7 +129,7 @@ jobs:
     needs: queue
     # 142 No Mac for a build without the iOS app: the report says why.
     if: needs.queue.outputs.ios != '[]' && needs.queue.outputs.ios != ''
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 90
     strategy:
       fail-fast: false
@@ -165,14 +165,18 @@ jobs:
             echo '{"stages":{"ios":"skipped","upload_testflight":"skipped","app_review":"skipped"},"artifacts":[],"message":"No iOS app in this build: add your App Store Connect key in App setup › Publishing, on a plan with the iOS app."}' > "$RUNNER_TEMP/result/result.json"
             python3 build/scripts/platform.py status "${{ matrix.build.id }}" '{"stages":{"ios":"skipped","upload_testflight":"skipped","app_review":"skipped"}}'
           fi
-      # Apple takes uploads built with the iOS 26 SDK: use the newest
-      # Xcode 26 on the runner.
+      # From April 2027 Apple takes only uploads built with the iOS 27 SDK
+      # (ITMS-90725): use the newest released Xcode, 27 or later, on GitHub's
+      # xcode-27 runner.
       - if: steps.check.outputs.ios == 'yes'
-        name: Use Xcode 26
+        name: Use the newest Xcode (27 or later)
         run: |
-          xcode=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
-          if [ -z "$xcode" ]; then
-            echo "::error::This runner has no Xcode 26."
+          # The newest released Xcode on the runner (a beta or release candidate
+          # never counts), and never older than 27.
+          xcode=$(ls -d /Applications/Xcode_[0-9]*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
+          major=$(basename "$xcode" .app | sed -E 's/^Xcode_([0-9]+).*/\1/')
+          if [ -z "$xcode" ] || [ "${major:-0}" -lt 27 ]; then
+            echo "::error::This runner has no released Xcode 27 or later (a beta does not count)."
             ls -d /Applications/Xcode*.app
             exit 1
           fi
