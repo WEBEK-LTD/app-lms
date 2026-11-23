@@ -7786,6 +7786,54 @@ abstract class AppLocalizations {
   /// **'Choose the sound of each kind, and let new orders ring until opened'**
   String get pushRingtonesLinkHelp;
 
+  /// No description provided for @ringtonesMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money and sales'**
+  String get ringtonesMoney;
+
+  /// No description provided for @soundChaChing.
+  ///
+  /// In en, this message translates to:
+  /// **'Cha-ching'**
+  String get soundChaChing;
+
+  /// No description provided for @soundCoinDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins dropping'**
+  String get soundCoinDrop;
+
+  /// No description provided for @soundTillBell.
+  ///
+  /// In en, this message translates to:
+  /// **'Till and bell'**
+  String get soundTillBell;
+
+  /// No description provided for @soundCoinChime.
+  ///
+  /// In en, this message translates to:
+  /// **'Coin chime'**
+  String get soundCoinChime;
+
+  /// No description provided for @soundSaleJingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale made'**
+  String get soundSaleJingle;
+
+  /// No description provided for @soundPiggyBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Piggy bank'**
+  String get soundPiggyBank;
+
+  /// No description provided for @soundReceiptPrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt printer'**
+  String get soundReceiptPrinter;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

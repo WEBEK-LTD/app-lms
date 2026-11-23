@@ -50,6 +50,20 @@
 		05E304752E9D659832A318D3 /* yb_ring_sunrise_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = D425D49002E7E546DFDFB53D /* yb_ring_sunrise_long.caf */; };
 		D1772B01C2074B52F5A77FA1 /* yb_ring_xylophone.caf in Resources */ = {isa = PBXBuildFile; fileRef = 39F88D38D36134BF6ED9E704 /* yb_ring_xylophone.caf */; };
 		CF03DCD456B6B9F160E56D89 /* yb_ring_xylophone_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = BFF9B7C869B775A57D126018 /* yb_ring_xylophone_long.caf */; };
+		184DB298C2FBA853D401B622 /* yb_ring_cha_ching.caf in Resources */ = {isa = PBXBuildFile; fileRef = 0F6BB7BC478A83274105A50C /* yb_ring_cha_ching.caf */; };
+		0E3C064F1EABC0EC9AE57650 /* yb_ring_cha_ching_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = C38C2572A53B273DA6D6C346 /* yb_ring_cha_ching_long.caf */; };
+		F76E74123A073FBD377A918F /* yb_ring_coin_chime.caf in Resources */ = {isa = PBXBuildFile; fileRef = B18FCFB2C807B1C1C6D0150C /* yb_ring_coin_chime.caf */; };
+		CF6073C027C133B72E10AE9B /* yb_ring_coin_chime_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = A27EA6C451031F004651E923 /* yb_ring_coin_chime_long.caf */; };
+		212009DFADE2B779147ACC9F /* yb_ring_coin_drop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 7CB04CDFB39250FA54FEDC6B /* yb_ring_coin_drop.caf */; };
+		61916318660278330B536963 /* yb_ring_coin_drop_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = 3529722445A09AA77EE77FBC /* yb_ring_coin_drop_long.caf */; };
+		C47738600F06612CF2698A65 /* yb_ring_piggy_bank.caf in Resources */ = {isa = PBXBuildFile; fileRef = 51FE6C88040E39FF940B3265 /* yb_ring_piggy_bank.caf */; };
+		2F5A9F40C18373780CF94BC3 /* yb_ring_piggy_bank_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = 446FC30B4CF6482D57C138B3 /* yb_ring_piggy_bank_long.caf */; };
+		DD2350630B5E7927E2DE53D5 /* yb_ring_receipt_printer.caf in Resources */ = {isa = PBXBuildFile; fileRef = 6085AAC8F8F7A680F157B3C9 /* yb_ring_receipt_printer.caf */; };
+		F0C33FCDAF796C1883CFA1CD /* yb_ring_receipt_printer_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = C8C3BF326E73766782CEC570 /* yb_ring_receipt_printer_long.caf */; };
+		9E273536AC57BF96ABBC9C38 /* yb_ring_sale_jingle.caf in Resources */ = {isa = PBXBuildFile; fileRef = 51A4022E852E3CA7BDB64D1B /* yb_ring_sale_jingle.caf */; };
+		DB9BDCAFB400BA09FC3B2213 /* yb_ring_sale_jingle_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = 3225D712430009B83229276B /* yb_ring_sale_jingle_long.caf */; };
+		55CCBDBA34BD675DB8774045 /* yb_ring_till_bell.caf in Resources */ = {isa = PBXBuildFile; fileRef = E2C1807A8931AD0E56FC2479 /* yb_ring_till_bell.caf */; };
+		6B802EFDAABEAD580B198A47 /* yb_ring_till_bell_long.caf in Resources */ = {isa = PBXBuildFile; fileRef = DFC2AF08E7E3A2C20BBD5DDF /* yb_ring_till_bell_long.caf */; };
 		A33A98102517CFD6B46FFA0E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 4A0203815D6699792BE2E0AC /* PrivacyInfo.xcprivacy */; };
 		A719C0C687E9229CBB775C78 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3CD5478E326349514FE92CC4 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
@@ -117,6 +131,20 @@
 		D425D49002E7E546DFDFB53D /* yb_ring_sunrise_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_sunrise_long.caf; sourceTree = "<group>"; };
 		39F88D38D36134BF6ED9E704 /* yb_ring_xylophone.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_xylophone.caf; sourceTree = "<group>"; };
 		BFF9B7C869B775A57D126018 /* yb_ring_xylophone_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_xylophone_long.caf; sourceTree = "<group>"; };
+		0F6BB7BC478A83274105A50C /* yb_ring_cha_ching.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_cha_ching.caf; sourceTree = "<group>"; };
+		C38C2572A53B273DA6D6C346 /* yb_ring_cha_ching_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_cha_ching_long.caf; sourceTree = "<group>"; };
+		B18FCFB2C807B1C1C6D0150C /* yb_ring_coin_chime.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_coin_chime.caf; sourceTree = "<group>"; };
+		A27EA6C451031F004651E923 /* yb_ring_coin_chime_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_coin_chime_long.caf; sourceTree = "<group>"; };
+		7CB04CDFB39250FA54FEDC6B /* yb_ring_coin_drop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_coin_drop.caf; sourceTree = "<group>"; };
+		3529722445A09AA77EE77FBC /* yb_ring_coin_drop_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_coin_drop_long.caf; sourceTree = "<group>"; };
+		51FE6C88040E39FF940B3265 /* yb_ring_piggy_bank.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_piggy_bank.caf; sourceTree = "<group>"; };
+		446FC30B4CF6482D57C138B3 /* yb_ring_piggy_bank_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_piggy_bank_long.caf; sourceTree = "<group>"; };
+		6085AAC8F8F7A680F157B3C9 /* yb_ring_receipt_printer.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_receipt_printer.caf; sourceTree = "<group>"; };
+		C8C3BF326E73766782CEC570 /* yb_ring_receipt_printer_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_receipt_printer_long.caf; sourceTree = "<group>"; };
+		51A4022E852E3CA7BDB64D1B /* yb_ring_sale_jingle.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_sale_jingle.caf; sourceTree = "<group>"; };
+		3225D712430009B83229276B /* yb_ring_sale_jingle_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_sale_jingle_long.caf; sourceTree = "<group>"; };
+		E2C1807A8931AD0E56FC2479 /* yb_ring_till_bell.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_till_bell.caf; sourceTree = "<group>"; };
+		DFC2AF08E7E3A2C20BBD5DDF /* yb_ring_till_bell_long.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = yb_ring_till_bell_long.caf; sourceTree = "<group>"; };
 		4A0203815D6699792BE2E0AC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		4F1BBC32DE72F082D39A65DF /* ar */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -212,6 +240,20 @@
 		E12855D51ABE5E2CD83FEAF6 /* Sounds */ = {
 			isa = PBXGroup;
 			children = (
+				0F6BB7BC478A83274105A50C /* yb_ring_cha_ching.caf */,
+				C38C2572A53B273DA6D6C346 /* yb_ring_cha_ching_long.caf */,
+				B18FCFB2C807B1C1C6D0150C /* yb_ring_coin_chime.caf */,
+				A27EA6C451031F004651E923 /* yb_ring_coin_chime_long.caf */,
+				7CB04CDFB39250FA54FEDC6B /* yb_ring_coin_drop.caf */,
+				3529722445A09AA77EE77FBC /* yb_ring_coin_drop_long.caf */,
+				51FE6C88040E39FF940B3265 /* yb_ring_piggy_bank.caf */,
+				446FC30B4CF6482D57C138B3 /* yb_ring_piggy_bank_long.caf */,
+				6085AAC8F8F7A680F157B3C9 /* yb_ring_receipt_printer.caf */,
+				C8C3BF326E73766782CEC570 /* yb_ring_receipt_printer_long.caf */,
+				51A4022E852E3CA7BDB64D1B /* yb_ring_sale_jingle.caf */,
+				3225D712430009B83229276B /* yb_ring_sale_jingle_long.caf */,
+				E2C1807A8931AD0E56FC2479 /* yb_ring_till_bell.caf */,
+				DFC2AF08E7E3A2C20BBD5DDF /* yb_ring_till_bell_long.caf */,
 				9DDB8D98167DFB1FC0AAA09A /* yb_ring_arcade.caf */,
 				A298BA141A35D43BBB71084D /* yb_ring_arcade_long.caf */,
 				3F5E84ACE07967562F2FF97D /* yb_ring_cash_drawer.caf */,
@@ -355,6 +397,20 @@
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				A33A98102517CFD6B46FFA0E /* PrivacyInfo.xcprivacy in Resources */,
 				A719C0C687E9229CBB775C78 /* InfoPlist.strings in Resources */,
+				184DB298C2FBA853D401B622 /* yb_ring_cha_ching.caf in Resources */,
+				0E3C064F1EABC0EC9AE57650 /* yb_ring_cha_ching_long.caf in Resources */,
+				F76E74123A073FBD377A918F /* yb_ring_coin_chime.caf in Resources */,
+				CF6073C027C133B72E10AE9B /* yb_ring_coin_chime_long.caf in Resources */,
+				212009DFADE2B779147ACC9F /* yb_ring_coin_drop.caf in Resources */,
+				61916318660278330B536963 /* yb_ring_coin_drop_long.caf in Resources */,
+				C47738600F06612CF2698A65 /* yb_ring_piggy_bank.caf in Resources */,
+				2F5A9F40C18373780CF94BC3 /* yb_ring_piggy_bank_long.caf in Resources */,
+				DD2350630B5E7927E2DE53D5 /* yb_ring_receipt_printer.caf in Resources */,
+				F0C33FCDAF796C1883CFA1CD /* yb_ring_receipt_printer_long.caf in Resources */,
+				9E273536AC57BF96ABBC9C38 /* yb_ring_sale_jingle.caf in Resources */,
+				DB9BDCAFB400BA09FC3B2213 /* yb_ring_sale_jingle_long.caf in Resources */,
+				55CCBDBA34BD675DB8774045 /* yb_ring_till_bell.caf in Resources */,
+				6B802EFDAABEAD580B198A47 /* yb_ring_till_bell_long.caf in Resources */,
 				82F191293B838EB8C29F8FA9 /* yb_ring_arcade.caf in Resources */,
 				801BA8C05427704E20FD3BE5 /* yb_ring_arcade_long.caf in Resources */,
 				03EBA56EC052272FED8113F7 /* yb_ring_cash_drawer.caf in Resources */,

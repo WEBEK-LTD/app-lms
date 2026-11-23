@@ -8,6 +8,13 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 213 (Yallapp Business 1.0.5, the money sounds; in the code, not
+released: the release waits for the owner): seven more order sounds beside
+the 17 of 1.0.4, made from code the same way: Cha-ching, Coins dropping, Till
+and bell, Coin chime, Sale made, Piggy bank and Receipt printer, under Money
+and sales in Settings › Ringtones, on Android's channels, in iOS pushes and
+in the server's list. The 17 are unchanged.
+
 Roadmap 115.21–115.23 (the marketplace audit's three bugs,
 docs/plans/2026-11-18-marketplace-audit.md): orders for later reach their
 vendor from the frequent job at their time less the vendor's preparation
