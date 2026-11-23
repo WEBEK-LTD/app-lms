@@ -5,7 +5,7 @@ import { ACADEMY_PROJECT, academyHome, type TemplateProject } from "./academy";
 import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, studioDemoOf, studioNoteOf, translating } from "./demo-templates";
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
-import { demoDesignTemplate, signatureTemplates } from "./demo-designs";
+import { demoDesignTemplate, mainTemplateOf, signatureLooksOf, signatureTemplates } from "./demo-designs";
 // 130 The Signature looks: which look, and the words they write into the app.
 import type { SignatureLook } from "./demo-designs/signature";
 import type { SignatureWord } from "./demo-designs/signature-words";
@@ -1251,7 +1251,8 @@ const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["men
  */
 export function demoStudioPage(id: StudioDemoId, ctx: SectionContext, atEnd: readonly LayoutBlock[] = []): StudioPage {
   const { ctx: words, translate } = translating(ctx);
-  const own = DEMO_HOME_TEMPLATES[id];
+  // 223 A demo with Signature looks is its main look (C where it has one).
+  const own = signatureLooksOf(id).length ? mainTemplateOf(id) : DEMO_HOME_TEMPLATES[id];
   const page = TEMPLATES.find((t) => t.id === own)!.make({ ...words, demo: id });
   // 128 The demo's notes (how to sign in) last, a quiet card in its colours: the approved home stays whole above them.
   const inset = (page.body.padding?.start ?? 0) > 0 ? 0 : 16;

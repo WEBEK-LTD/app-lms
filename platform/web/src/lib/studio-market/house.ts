@@ -17,7 +17,7 @@ import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { itemSourcesFor } from "../pages/sources";
 import type { Appearance, Languages, LayoutContent, StudioNode, StudioPage } from "../pages/types";
 import { appWords } from "../studio/app-words";
-import { signatureLooksOf } from "../studio/demo-designs";
+import { mainLookOf, signatureLooksOf } from "../studio/demo-designs";
 import type { SignatureLook } from "../studio/demo-designs/signature";
 import { withDemoFacts } from "../studio/demo-templates";
 import { writeDesignFile, type DesignFile } from "../studio/design-file";
@@ -73,7 +73,7 @@ export interface HouseLook {
   look: SignatureLook;
 }
 
-/** Every Studio demo's looks, A (the demo itself) then B, in the registry's order: what /start?for=studio starts a project from. */
+/** Every Studio demo's looks in Studio's order (223 C, D, A, B; the main look, the demo itself, first): what /start?for=studio starts a project from. */
 export function houseLooks(): HouseLook[] {
   return STUDIO_DEMO_TYPES.flatMap((demo) => signatureLooksOf(demo).map((look) => ({ demo, look })));
 }
@@ -244,7 +244,8 @@ export function houseTexts(demo: StudioDemoId, look: SignatureLook): MarketTempl
     const own = lookWords(lang, demo, look);
     out[lang] = {
       title: m.title.replace("{app}", app).replace("{look}", own.name),
-      short: (look === "a" ? m.shortA : m.shortB).replace("{app}", app),
+      // 223 The demo itself is its main look (C where it has one); every other look another of its looks.
+      short: (look === mainLookOf(demo) ? m.shortA : m.shortB).replace("{app}", app),
       description: `${own.text}\n\n${m.about}`,
     };
   }

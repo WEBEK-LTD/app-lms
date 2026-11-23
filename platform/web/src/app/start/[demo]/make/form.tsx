@@ -6,6 +6,7 @@ import { uploadAssetAction } from "@/app/actions/dashboard";
 import { startFromDemoAction } from "@/app/actions/start";
 import { useDashT } from "@/components/dashboard-i18n";
 import { Icon } from "@/components/icon";
+import type { SignatureLook } from "@/lib/studio/demo-designs/signature";
 import { browserDeflate, dominantColour, encodeRgbPng, isDark, swatchesFor } from "@/lib/brand-colour";
 
 interface Swatch {
@@ -97,7 +98,7 @@ export function MakeForm({
   demo: { slug: string; name: string; colour: string; product: "editor" | "studio" };
   screen: string;
   /** 130 A Studio demo's chosen look and its words ("In the look: Look B · Horizon"). */
-  look?: { id: "a" | "b"; words: string } | null;
+  look?: { id: SignatureLook; words: string } | null;
   swatches: Swatch[];
   maxName: number;
   error: string | null;

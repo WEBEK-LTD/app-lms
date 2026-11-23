@@ -18,7 +18,7 @@ import { allSolutionsFor, demoGuideFor, kindNameFor, screenAltFor, solutionFor }
 import { siteMetadata } from "@/lib/seo";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
-import { StudioLooks } from "./studio-looks";
+import { otherLookKeys, StudioLooks } from "./studio-looks";
 
 export function demoMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).meta;
@@ -208,7 +208,7 @@ export function DemoAppSection({ type, lang, ready, tinted, secondReady = false 
         </div>
       </div>
       {/* 130.49 Look A is the demo above, its home first; its night, and look B by day and by night. */}
-      {isStudioDemo(type) ? <StudioLooks id={type} lang={lang} keys={["a-dark", "b", "b-dark"]} /> : null}
+      {isStudioDemo(type) ? <StudioLooks id={type} lang={lang} keys={otherLookKeys(type)} /> : null}
     </Section>
   );
 }

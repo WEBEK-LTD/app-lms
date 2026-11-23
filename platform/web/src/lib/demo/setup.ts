@@ -17,13 +17,13 @@ import { startLayout } from "../studio/start";
 import { demoPageTabs, demoScreenPages, demoTabPages } from "../studio/demo-pages";
 import { DEMO_HOME_TEMPLATES, withDemoFacts } from "../studio/demo-templates";
 // 130 A demo is its Signature look A: its colours and font too.
-import { signatureDesign } from "../studio/demo-designs";
+import { mainTemplateOf, signatureDesign } from "../studio/demo-designs";
 import { withLook } from "../fonts/look";
 import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
-import { ALL_DEMO_TYPES, BEAUTY_DEMO, CLOTHES_DEMO, KIDS_DEMO, TOYS_DEMO, MOBILES_DEMO, COMPUTERS_DEMO, ELECTRONICS_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
+import { ALL_DEMO_TYPES, BEAUTY_DEMO, CLOTHES_DEMO, KIDS_DEMO, TOYS_DEMO, MOBILES_DEMO, COMPUTERS_DEMO, ELECTRONICS_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, type DemoId } from "./constants";
 import { CLOTHES_COMMERCE, CLOTHES_CURRENCY, CLOTHES_FREE_SHIPPING_OVER_CENTS, CLOTHES_SHIPPING_CENTS } from "./clothes";
 // 209 Kids' clothes
 import { KIDS_COMMERCE, KIDS_CURRENCY, KIDS_FREE_SHIPPING_OVER_CENTS, KIDS_SHIPPING_CENTS } from "./kids";
@@ -182,12 +182,13 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     ...(isStudioDemo(id) ? { section: "studio" as const } : {}),
     // 123 The premium academy keeps the template it started from, which tells it apart from the academy's own demo.
     ...(id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : {}),
-    // 131.20 Leqaa keeps its look A, which tells it apart from the store's own demo; 208 so does each shop type's demo.
-    ...(isStoreTemplateDemo(id) ? { design: STORE_TEMPLATE_DEMOS[id] } : {}),
+    // 131.20 Leqaa keeps its look A, which tells it apart from the store's own demo; 208 so does each shop type's demo (223 its main look: C where it has one).
+    ...(isStoreTemplateDemo(id) ? { design: mainTemplateOf(id) } : {}),
     appName: brand.appName,
     shortName: brand.shortName,
     iconAssetId,
-    primaryColor: brand.primaryColor,
+    // 223 A main look of its own colour (a shop type's C) starts the demo in it.
+    primaryColor: (isStudioDemo(id) ? signatureDesign(id)?.project.primary : undefined) ?? brand.primaryColor,
     splashColor: brand.splashColor,
     template: brand.template,
     font: brand.font,
@@ -580,8 +581,8 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
         corners: brand.corners,
         cards: brand.cards,
       },
-      // 130 In its look A's second colour and font, as a project made from the look starts.
-      (isStudioDemo(id) ? signatureDesign(id, "a")?.project.appearance : undefined) ?? {},
+      // 130 In its main look's second colour and font (223 C where it has one), as a project made from the look starts.
+      (isStudioDemo(id) ? signatureDesign(id)?.project.appearance : undefined) ?? {},
     ),
     languages: { default: "en", available: [...brand.languages] },
     // 119 A Studio demo's bar in its own design.
