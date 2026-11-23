@@ -2830,6 +2830,14 @@
   "pushCancelledHelp": "When a customer cancels a food or marketplace order",
   "pushRingtonesLink": "Ringtones",
   "pushRingtonesLinkHelp": "Choose the sound of each kind, and let new orders ring until opened",
+  "ringtonesMoney": "Money and sales",
+  "soundChaChing": "Cha-ching",
+  "soundCoinDrop": "Coins dropping",
+  "soundTillBell": "Till and bell",
+  "soundCoinChime": "Coin chime",
+  "soundSaleJingle": "Sale made",
+  "soundPiggyBank": "Piggy bank",
+  "soundReceiptPrinter": "Receipt printer",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

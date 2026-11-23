@@ -28,6 +28,20 @@ const ringtoneIds = [
   'soft_drop',
   'pop',
   'knock',
+  // 213 The money sounds: a sale made, coins, the till.
+  ...moneyRingtoneIds,
+];
+
+/// 213 The money sounds (a cash register's ring, coins, the till), shown
+/// in a section of their own in the picker.
+const moneyRingtoneIds = [
+  'cha_ching',
+  'coin_drop',
+  'till_bell',
+  'coin_chime',
+  'sale_jingle',
+  'piggy_bank',
+  'receipt_printer',
 ];
 
 /// The phone's own notification sound, and none.
