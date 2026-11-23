@@ -2173,6 +2173,9 @@ enum StudioNodeType {
   flashSale,
   // 208 The shop's size chart (`StoreConfig.size_chart`), as a table.
   sizeChart,
+  // 212 The listing filters: the shop's sizes (or colours) as chips that
+  // open the shop filtered, and its Filters (`GET /store/filters`).
+  listingFilters,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order

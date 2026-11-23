@@ -1,5 +1,12 @@
 // 208 A clothes shop's size chart.
 import { fashionOf, sizeChartJson } from "../../selling/fashion";
+import { facetsJson } from "../../selling/filters";
+
+/** 212 The listing filters' first choice, as the editor's canvas draws it. */
+function firstFilter(f: ReturnType<typeof facetsJson>) {
+  const c = f.choices[0];
+  return c ? { name: c.name, values: c.values.slice(0, 12).map((v) => ({ label: v.label, swatch: (v as { swatch?: string | null }).swatch ?? null })) } : null;
+}
 import { readApiList } from "../../app/api-check";
 import type { DataStore } from "../../data/store";
 import { ENGINES, isAppType } from "../../app/kinds";
@@ -46,6 +53,8 @@ export interface PickableCommerce {
   bouquet?: boolean;
   /** 208 The shop's size chart (its titles in the shop's language); null: none set up. */
   sizeChart?: { headers: string[]; rows: string[][]; unit: "cm" | "in" } | null;
+  /** 212 The first choice the `listing_filters` element shows (the shop's sizes, else colours), from its products. */
+  listingFilter?: { name: string; values: { label: string; swatch: string | null }[] } | null;
 }
 
 /** Entries and categories the page editor offers to pick from. */
@@ -132,6 +141,8 @@ export async function pickableCommerce(store: DataStore, app: App, now: Date): P
     bouquet: bouquetOf(app) !== null,
     // 208 The size chart the `size_chart` element shows (Store › Delivery & offers › Clothes).
     sizeChart: sizeChartJson(fashionOf(app)?.sizeChart ?? null, null),
+    // 212 What the listing filters show, for Yallapp's own products.
+    listingFilter: app.connector?.kind === "catalog" ? firstFilter(facetsJson((await store.listCatalogProducts(app.id)).filter((p) => p.active && !p.addon), currency as CatalogCurrency, null)) : null,
   };
 }
 

@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.51
+Stable tag: 0.4.52
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,12 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.52 =
+* Store apps: customers save products to their wishlist with a heart; the list is kept with their account on your site, and the hearts they gave before signing in are added when they sign in.
+* Customers who bought a product can review it from the app (one review each, which they can edit), as WooCommerce's own reviews: held for approval when your site holds comments, and shown in the app with a first name and an initial only.
+* "Notify me when it's back": a customer can ask to be told when a product, or one size or colour of it, is back in stock. When WooCommerce puts it back in stock they get the app's notification and an email, once.
+* Filters in the app's shop: by your product attributes (size, colour and the others, as their terms), and by price.
 
 = 0.4.51 =
 * Studio pages: an element you sized by hand in Studio keeps your size in the app (a cover's top bar otherwise spans the cover), and the name you gave an element in Studio is what a screen reader says for a round button without words.

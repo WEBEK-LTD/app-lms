@@ -2006,8 +2006,9 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       }
       break;
     }
+    case "listing_filters":
     case "size_chart": {
-      // 208 The shop's size chart; its title (optional) above it.
+      // 208 The shop's size chart; its title (optional) above it. 212 The listing filters' too.
       const text = c.optionalText(where, v.text, L.titleChars, "The size chart's title");
       if (text) node.text = text;
       const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.titleChars, title: L.titleChars });

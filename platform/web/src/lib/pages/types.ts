@@ -73,6 +73,8 @@ export const STUDIO_CONTENT_TYPES = [
   "flash_sale",
   // 208 The shop's size chart (Store › Delivery & offers › Clothes), as a table.
   "size_chart",
+  // 212 The listing filters: the shop's sizes (or colours) as chips opening the shop filtered, and its Filters.
+  "listing_filters",
 ] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */

@@ -555,7 +555,7 @@ class AppFeatures {
   bool get catalog => products || courses || articles || listings;
 
   /// 63 The Inbox tab: a listing's conversations, course questions, reviews.
-  bool get inbox => inquiries || questions || reviews || productReviews;
+  bool get inbox => inquiries || questions || reviews;
 }
 
 class AppSummary {

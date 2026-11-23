@@ -151,13 +151,6 @@ class MoreScreen extends ConsumerWidget {
           catalogLabel(context, app),
           () => context.go(Paths.catalog),
         ),
-      // 212 A store's product reviews with photos, and who waits for what.
-      if (f.productReviews)
-        tile(
-          AppIcons.star,
-          l10n.inboxProductReviews,
-          () => context.go(Paths.inboxTab('product_reviews')),
-        ),
       if (f.media)
         tile(AppIcons.media, l10n.media, () => context.push(Paths.media)),
       if (f.appUsers)

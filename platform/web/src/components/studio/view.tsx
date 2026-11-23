@@ -40,7 +40,7 @@ import { PremiumHeader, SystemScreen } from "./premium-chrome";
 import { GiftCheckout } from "./gift-checkout";
 import { quickAddLabel } from "./quick-add";
 // 208 The category menu and the size chart.
-import { CategoryMenuCanvas, SizeChartCanvas } from "./category-menu";
+import { CategoryMenuCanvas, SizeChartCanvas, ListingFiltersCanvas } from "./category-menu";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -852,6 +852,9 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "size_chart":
         // 208 The shop's size chart.
         return <SizeChartCanvas node={n} pickable={p.pickable} dark={dark} title={text || null} color={color} />;
+      case "listing_filters":
+        // 212 The shop's listing filters: its sizes (or colours) as chips, and Filters.
+        return <ListingFiltersCanvas pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;
       case "flash_sale":
         // 131 The flash sale: its products at their sale price, the live countdown and the stock bar.
         return <FlashSaleCanvas node={n} title={text} pickable={p.pickable} dark={dark} brand={look.brand} words={p.commerceWords ?? COMMERCE_WORDS_EN} />;

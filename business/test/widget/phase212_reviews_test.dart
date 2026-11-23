@@ -52,6 +52,17 @@ void main() {
       expect(find.text('Saved by 9'), findsOneWidget);
     });
 
+    testWidgets('the catalog opens the product reviews', (tester) async {
+      final app = TestApp(appId: FakeOwnerApi.restaurantId);
+      await app.pump(tester);
+      await go(tester, app, '/catalog');
+      await tapOn(
+        tester,
+        find.byKey(const ValueKey('catalog-product-reviews')),
+      );
+      expect(find.text('Ahmed K.'), findsOneWidget);
+    });
+
     test('a push of a product review opens the product reviews', () {
       expect(
         pushTarget({

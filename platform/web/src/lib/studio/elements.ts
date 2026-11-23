@@ -93,6 +93,8 @@ export const ELEMENTS: readonly ElementInfo[] = [
   // 208 The category menu (every main category a row of cards, its sub-categories in the row) and the shop's size chart.
   { type: "categories", group: "premium", icon: "menu_open", keywords: "category menu categories sub-categories rows sliders cards all header menu drawer", only: "store", preset: "category_menu" },
   { type: "size_chart", group: "premium", icon: "table_chart", keywords: "size chart guide sizes measurements bust waist hips length table clothes fashion", only: "store" },
+  // 212 The listing filters, for every shop type: sizes, colours, price, brand.
+  { type: "listing_filters", group: "premium", icon: "tune", keywords: "filter filters sizes colours colors price brand sort refine listing shop products", only: "store" },
 ];
 
 export function elementInfo(type: StudioNodeType): ElementInfo {
@@ -181,6 +183,9 @@ export function newNode(
       if (options.preset === "category_menu") return { id, type, source: options.source ?? undefined, style: "rows", category_menu: { look: "lead" }, padding: { top: 6, end: 0, bottom: 6, start: 0 } };
       return { id, type, source: options.source ?? undefined, padding: { top: 6, end: 10, bottom: 6, start: 10 } };
     // 208 The shop's size chart, on a card.
+    // 212 The listing filters, under their title.
+    case "listing_filters":
+      return { id, type, padding: { top: 8, end: 16, bottom: 8, start: 16 } };
     case "size_chart":
       return { id, type, radius: 18, padding: { top: 12, end: 12, bottom: 12, start: 12 }, margin: { top: 8, end: 16, bottom: 8, start: 16 }, border_color: "#E4DFD6", border_width: 1 };
     case "video":

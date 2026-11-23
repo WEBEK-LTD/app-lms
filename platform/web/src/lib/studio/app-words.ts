@@ -1010,6 +1010,8 @@ export const en = {
   installmentsSoon: "Installments coming soon",
   // 208 The category menu's first card in each row (the main category itself).
   categoryAll: "All",
+  // 212 The listing filters' button.
+  filters: "Filters",
   // ——— end 208 ———
 } as const;
 
@@ -2006,6 +2008,7 @@ export const ar: Record<AppWord, string> = {
   clTrack4Text: "استمتعي بها. الاستبدال سهل من طلباتكِ.",
   installmentsSoon: "التقسيط قريبًا",
   categoryAll: "الكل",
+  filters: "الفلاتر",
   // ——— end 208 ———
 };
 
@@ -2998,6 +3001,7 @@ export const tr: Record<AppWord, string> = {
   clTrack4Text: "Keyfini çıkarın. Değişim siparişlerinizden kolayca yapılır.",
   installmentsSoon: "Taksit yakında",
   categoryAll: "Tümü",
+  filters: "Filtreler",
   // ——— end 208 ———
 };
 

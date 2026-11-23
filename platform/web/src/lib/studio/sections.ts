@@ -1108,6 +1108,14 @@ export const SECTIONS: readonly SectionInfo[] = [
   // 208 The clothes type's parts (the category menu, the peeking hero, the deal, shop the look, the size card and chart) and the installments tag.
   ...CLOTHES_SECTIONS,
   INSTALLMENTS_SECTION,
+  // 212 The listing filters (sizes, colours, price, brand), for every store and shop type.
+  {
+    id: "listing_filters",
+    icon: "tune",
+    isNew: true,
+    fits: { types: ["store"] },
+    make: (ctx) => ({ id: (ctx.newId ?? newNodeId)(), type: "listing_filters", padding: pad(8, 16) }),
+  },
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,
 ];
