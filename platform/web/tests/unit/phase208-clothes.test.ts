@@ -59,7 +59,7 @@ function deps(store: MemoryStore): DemoSetupDeps {
 }
 
 describe("208 the shop types: sections, then types, then templates", () => {
-  it("lists every type of the planning doc in its sections, Clothes ready and the others coming soon", () => {
+  it("lists every type of the planning doc in its sections, Clothes (210 furniture, decor and crochet) ready and the others coming soon", () => {
     expect([...SHOP_SECTIONS]).toEqual(["fashion", "beauty", "home", "kids", "shopping"]);
     expect(SHOP_TYPES.map((t) => t.id)).toEqual(["clothes", "kids_clothes", "cosmetics", "furniture", "decor", "crochet", "toys", "electronics", "mobiles", "computers"]);
     // 209 And Kids' clothes, Cosmetics and Toys.

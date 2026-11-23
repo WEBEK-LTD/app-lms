@@ -39,6 +39,12 @@ export interface ProductFormValues {
   sku: string;
   /** 131 Its weight in kg, as typed; missing: none. */
   weight?: string;
+  /** 210 Its width, depth and height in cm and the days it takes to make, as typed; missing: none. */
+  width?: string;
+  depth?: string;
+  height?: string;
+  makeMin?: string;
+  makeMax?: string;
   /** 131 Sold only as a gift add-on, and what it's offered with. */
   addon?: boolean;
   addonOfferWith?: "all" | "categories" | "products";

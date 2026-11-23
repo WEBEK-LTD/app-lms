@@ -3353,4 +3353,10 @@
 {"key":"quizAgain","en":"Start again","ar":"ابدأ من جديد","tr":"Yeniden başla","description":"209 A quiz's button: answer it again."},
 {"key":"quizResultTitle","en":"Your result","ar":"نتيجتك","tr":"Sonucunuz","description":"209 A quiz: over the result."},
 {"key":"sizeFinderFits","en":"The size that fits: {size}","ar":"المقاس المناسب: {size}","tr":"Uyan beden: {size}","description":"209 The size finder: the size of the shop's chart for the age chosen.","placeholders":{"size":"String"}},
-{"key":"swatchChosen","en":"{name}, chosen","ar":"{name}، مختارة","tr":"{name}, seçili","description":"209 A swatch chosen, as screen readers say it.","placeholders":{"name":"String"}}]}
+{"key":"swatchChosen","en":"{name}, chosen","ar":"{name}، مختارة","tr":"{name}, seçili","description":"209 A swatch chosen, as screen readers say it.","placeholders":{"name":"String"}},
+{"key":"productDimensions","en":"Dimensions","ar":"الأبعاد","tr":"Boyutlar","description":"210 Title of a product's size (width, depth, height in cm) on its page."},
+{"key":"productMadeToOrder","en":"Made to order","ar":"يُصنع حسب الطلب","tr":"Siparişe özel yapılır","description":"210 Title of how long a made-to-order product takes to make, on its page."},
+{"key":"deliverySlotsKept","en":"We'll keep this day and time for your checkout.","ar":"سنحفظ هذا اليوم والوقت لإتمام طلبك.","tr":"Bu günü ve saati ödemeniz için saklayacağız.","description":"210 Under the delivery days picked on a page: the cart keeps the day and time for checkout."},
+{"key":"deliverySlotsAssembly","en":"The team assembles it on the day.","ar":"يركّبها الفريق في يوم التوصيل.","tr":"Ekip, teslimat günü kurar.","description":"210 Under the delivery days of a furniture shop: the team assembles the piece on the day."},
+{"key":"deliverySlotsNone","en":"No delivery days are open right now.","ar":"لا توجد أيام توصيل متاحة الآن.","tr":"Şu anda açık teslimat günü yok.","description":"210 The delivery days element when no day is open."},
+{"key":"installmentsSoon","en":"Installments coming soon","ar":"التقسيط قريبًا","tr":"Taksit yakında","description":"210 A tag under a furniture or electronics product's price: installments are not offered yet."}]}

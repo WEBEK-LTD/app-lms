@@ -8085,6 +8085,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bouquet · {stems, plural, =1{1 stem} other{{stems} stems}}'**
   String bouquetGroup(int stems);
+
+  /// No description provided for @customOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom orders'**
+  String get customOrders;
+
+  /// No description provided for @customOrdersText.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests sent from your app\'s custom-order form'**
+  String get customOrdersText;
+
+  /// No description provided for @requestStatusNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get requestStatusNew;
+
+  /// No description provided for @requestStatusQuoted.
+  ///
+  /// In en, this message translates to:
+  /// **'Quoted'**
+  String get requestStatusQuoted;
+
+  /// No description provided for @requestStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get requestStatusAccepted;
+
+  /// No description provided for @requestStatusDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get requestStatusDeclined;
+
+  /// No description provided for @requestStatusDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get requestStatusDone;
+
+  /// No description provided for @requestsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get requestsOpen;
+
+  /// No description provided for @requestsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get requestsAll;
+
+  /// No description provided for @noRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No custom orders yet'**
+  String get noRequests;
+
+  /// No description provided for @noRequestsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the custom-order page or form to your app in Studio, and the requests your customers send show here.'**
+  String get noRequestsText;
+
+  /// No description provided for @noOpenRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No requests waiting for you'**
+  String get noOpenRequests;
+
+  /// No description provided for @requestSomeone.
+  ///
+  /// In en, this message translates to:
+  /// **'A customer'**
+  String get requestSomeone;
+
+  /// No description provided for @requestQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Quoted {price}'**
+  String requestQuote(String price);
+
+  /// No description provided for @requestAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'What they asked for'**
+  String get requestAsked;
+
+  /// No description provided for @requestCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get requestCustomer;
+
+  /// No description provided for @requestAnswerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer'**
+  String get requestAnswerTitle;
+
+  /// No description provided for @requestStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it is'**
+  String get requestStatusLabel;
+
+  /// No description provided for @requestPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price ({currency})'**
+  String requestPrice(String currency);
+
+  /// No description provided for @requestPriceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Like 450 or 450.50'**
+  String get requestPriceHint;
+
+  /// No description provided for @requestReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Your reply'**
+  String get requestReply;
+
+  /// No description provided for @requestReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The price, the time, a question'**
+  String get requestReplyHint;
+
+  /// No description provided for @requestSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the answer'**
+  String get requestSave;
+
+  /// No description provided for @requestSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved the answer.'**
+  String get requestSaved;
+
+  /// No description provided for @requestSentOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} · {date}'**
+  String requestSentOn(String title, String date);
+
+  /// No description provided for @requestsNewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 new request} other{{count} new requests}}'**
+  String requestsNewCount(int count);
 }
 
 class _AppLocalizationsDelegate

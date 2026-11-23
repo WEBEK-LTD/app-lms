@@ -13,7 +13,7 @@ export async function CatalogTabs({ app }: { app: App }) {
   const restaurant = app.vertical === "restaurant";
   const kind = restaurant ? "restaurant" : "shop";
   const store = await getStore();
-  const [products, categories, coupons] = await Promise.all([store.listCatalogProducts(app.id), store.listCatalogCategories(app.id), store.listCatalogCoupons(app.id)]);
+  const [products, categories, coupons, requests] = await Promise.all([store.listCatalogProducts(app.id), store.listCatalogCategories(app.id), store.listCatalogCoupons(app.id), restaurant ? Promise.resolve([]) : store.listStoreRequests(app.id, { statuses: ["new"] })]);
   return (
     <SectionTabs
       label={t("shop.page", { kind })}
@@ -21,6 +21,8 @@ export async function CatalogTabs({ app }: { app: App }) {
         { href: "/dashboard/catalog", label: t("shop.statItems", { kind }), icon: restaurant ? "restaurant_menu" : "inventory_2", count: products.length },
         { href: "/dashboard/catalog/categories", label: t("shop.categories"), icon: "category", count: categories.length },
         { href: "/dashboard/catalog/coupons", label: t("shop.coupons"), icon: "local_offer", count: coupons.length },
+        // 210 The custom-order requests, the new ones counted.
+        ...(restaurant ? [] : [{ href: "/dashboard/catalog/requests", label: t("shop.requests"), icon: "edit_note" as const, count: requests.length }]),
         ...(restaurant ? [{ href: "/dashboard/catalog/delivery", label: t("shop.pickupDelivery"), icon: "delivery_dining" as const }] : []),
         // 132.120 The one Payments page, a tab away (it isn't a copy).
         { href: "/dashboard/payments", label: t("manage.payments"), icon: "payments" },

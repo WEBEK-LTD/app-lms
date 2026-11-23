@@ -53,6 +53,8 @@ export interface PickableCommerce {
   bouquet?: boolean;
   /** 208 The shop's size chart (its titles in the shop's language); null: none set up. */
   sizeChart?: { headers: string[]; rows: string[][]; unit: "cm" | "in" } | null;
+  /** 210 The shop's delivery days and times the `delivery_slots` element shows (Store › Delivery & offers); null: off. */
+  deliverySlots?: { closedWeekdays: number[]; sameDay: boolean; slots: { start: string; end: string; full: boolean }[] } | null;
 }
 
 /** Entries and categories the page editor offers to pick from. */
@@ -145,6 +147,11 @@ export async function pickableCommerce(store: DataStore, app: App, now: Date): P
     bouquet: bouquetOf(app) !== null,
     // 208 The size chart the `size_chart` element shows (Store › Delivery & offers › Clothes).
     sizeChart: sizeChartJson(fashionOf(app)?.sizeChart ?? null, null),
+    // 210 The delivery days and times the `delivery_slots` element shows.
+    deliverySlots: (() => {
+      const d = app.catalogSettings?.delivery;
+      return d?.enabled ? { closedWeekdays: [...d.closedWeekdays], sameDay: d.sameDay, slots: d.slots.map((s) => ({ start: s.start, end: s.end, full: s.capacity === 0 })) } : null;
+    })(),
   };
 }
 

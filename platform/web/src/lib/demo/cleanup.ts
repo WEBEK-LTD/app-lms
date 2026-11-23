@@ -9,6 +9,8 @@ import { refreshBeautySale } from "./beauty-entries";
 import { refreshKidsSale } from "./kids-entries";
 // 209 Toys
 import { refreshToysSale } from "./toys-entries";
+import { refreshKitSale } from "./shop-kit";
+import { kitOf } from "./shop-kits";
 import { refreshFlowerSale } from "./entries";
 import { refreshMarketplaceDemo, savedZadPictures } from "./marketplace";
 import { refreshSchoolDay } from "./school";
@@ -58,6 +60,8 @@ export async function cleanDemoActivity(store: DataStore, now: Date): Promise<De
     // 209 Toys
     // 209 Toot: its toy of the day from today.
     if (id === TOYS_DEMO) await refreshToysSale(store, app, now);
+    // 210 The kits' shops (decor, crochet, furniture): their flash sale from today.
+    if (kitOf(id)) await refreshKitSale(store, app, now, kitOf(id)!);
     // 126 Safra: the flights twelve weeks ahead, and the demo number's trip from today.
     if (id === "travel") report.deleted += await refreshTravelDemo(store, app, await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164), now);
     // The shared account goes back to its name, should anything have changed it.

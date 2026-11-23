@@ -2042,5 +2042,536 @@ export const STORIES_EN: StoryCopy = {
         "toys-finale": "A family playing together on a living-room rug"
       }
     },
+    // 210 Ghurza, the crochet shop: a blanket ordered in her mother's colours, the days it takes, the maker, yarn and a workshop, in its look A (GHURZA) by day and by night; look B (HABKA) in its section.
+    crochet: {
+      navName: "Crochet shop app",
+      metaTitle: "A crochet and handmade shop app with custom orders, days to make, yarn and workshops, designed in Yallapp Studio",
+      metaDescription: "A day with Ghurza: a blanket ordered in her mother's colours, the days it takes to make, the maker behind it, a starter kit and a seat at Saturday's workshop.",
+      summary: "Custom orders with their own request page, the days each piece takes to make, the maker's story, yarn and tools, workshops and gift wrapping by hand, in two premium looks.",
+      eyebrow: "Yallapp Studio · The crochet shop",
+      title: "Olive and cream, in twelve days",
+      intro: "Laila's mother turns sixty in two weeks, and Laila wants to give her something nobody else could. It's Wednesday evening in Maadi. This is how a few minutes with her phone become a blanket made by hand in her mother's colours, and a seat at a workshop for herself.",
+      cast: "Laila orders from Ghurza, a crochet workshop in Cairo. Ghurza is the crochet and handmade template's demo: its pieces, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "21:30",
+          kicker: "Maadi, late evening",
+          title: "Something nobody else could give",
+          text: "Laila opens Ghurza on the balcony. The home is warm and quick: the search, the categories in circles, the winter collection in cards that slide, the next one peeking from the edge. Under them, a card says a piece to your taste is made just for you, ready in 7 to 14 days."
+        },
+        {
+          time: "21:34",
+          kicker: "The custom order",
+          title: "A blanket, in her mother's colours",
+          text: "She taps Start your order. The page says how it works in four steps, then asks: the piece, the size, the yarn's colour and the details. She chooses Blanket, writes 120 by 150 cm, olive and cream like her mother's sofa, and asks for her mother's name stitched in one corner. Her name, her phone, and she sends it."
+        },
+        {
+          time: "21:41",
+          kicker: "Days to make",
+          title: "Made in 3 to 4 days",
+          text: "While she waits, she opens the ribbed scarf from New from the workshop. Every card says how long its piece takes to make, and so does the page: 3 to 4 days in cinnamon, olive or sand. Under the price, the shop offers its gift wrap with a card written by the maker."
+        },
+        {
+          time: "22:05",
+          kicker: "The maker",
+          title: "Twenty-two years of stitches",
+          text: "The phone has gone dark for the night, and so has Ghurza, in coffee brown. Further down the home, Umm Youssef, who runs the workshop, says every piece takes days of her time and more of her heart. Twelve makers, 4,800 pieces, all of them by hand."
+        },
+        {
+          time: "22:10",
+          kicker: "Yarn and a workshop",
+          title: "Her own first stitch",
+          text: "Laila has always wanted to learn. She adds the scarf starter kit, yarn, needles and a pattern in Arabic and English, and books a seat at Crochet basics for beginners, on the first Saturday of the month in Zamalek. Four seats were left; now there are three."
+        },
+        {
+          time: "10:15",
+          kicker: "Thursday, at the workshop",
+          title: "Olive, cream, and a name",
+          text: "At Ghurza, Umm Youssef opens the morning's requests. Laila's says a blanket, 120 by 150 cm, olive and cream, her mother's name in a corner. She calls her with the price and the time, 12 days, and chooses the yarn from the shelf herself.",
+          push: {
+            app: "Ghurza",
+            title: "Your custom order",
+            body: "Umm Youssef has started your blanket. It will be ready in 12 days."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Olive and cream, the colours of her mother's sofa.",
+        text: "Everything in between was the shop's own: its pieces and the days each takes, its custom order and its questions, its yarn and tools, its workshops and their seats, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one blanket",
+      stats: [
+        "main categories in the demo's menu, workshops among them",
+        "pieces, yarn, tools and seats in the demo",
+        "days at most to make a blanket by hand",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "The custom order, the days to make, yarn, tools and workshops, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "The custom order",
+          title: "Made just for her",
+          text: "A card on the home opens the shop's own request page: how it works, then the questions.",
+          features: [
+            ["The piece", "A blanket, a cardigan, a scarf, a bag, a toy or something else."],
+            ["The size", "In centimetres, or her own measurements."],
+            ["The colour", "The yarn's colour in her own words."],
+            ["Sent to the shop", "The request arrives with every answer, her name and her phone."],
+            ["On the owner's phone", "The shop sees it in the dashboard and in Yallapp Business."]
+          ]
+        },
+        {
+          name: "Days to make",
+          title: "How long, on every card",
+          text: "A piece made to order says how many days it takes, on its card and its page.",
+          features: [
+            ["From and to", "3 to 4 days for a scarf, 10 to 14 for a blanket."],
+            ["Colours and sizes", "Each colour and size with its own stock of yarn."],
+            ["Ready to ship", "Yarn and tools say nothing: they leave the same day."],
+            ["Set once", "The shop writes the days on the product in the dashboard."]
+          ]
+        },
+        {
+          name: "Yarn, tools and workshops",
+          title: "Everything to make your own",
+          text: "The shop sells what it makes with, and teaches how.",
+          features: [
+            ["Shop by yarn", "Cotton, merino and raffia, each card opening its category."],
+            ["Hooks and kits", "Starter kits with the yarn, the hook and a pattern."],
+            ["Workshops", "Each workshop a seat in the shop, in the studio or online."],
+            ["Seats left", "A seat booked is one fewer, so no workshop is overbooked."],
+            ["Wrapped by hand", "A gift wrap and a card written by the maker, with any piece."]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Ghurza comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["GHURZA", "Look A: warm handmade, terracotta on beige paper, soft round corners."],
+            ["Light and dark", "Both looks have a designed night: coffee brown, and plum black."],
+            ["A compact hero", "The collections in cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one lit."],
+            ["HABKA", "Look B: colourful and playful, plum and berry, design your own piece."],
+            ["Three languages", "English, Arabic right to left, and Turkish."]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Ghurza works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            ["Products in Yallapp", "Everything on this page: categories inside categories, days to make and custom orders."],
+            ["WordPress and other platforms", "Their categories and products in the app."],
+            ["Coming next", "Days to make from a connected platform."]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Ghurza", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, pieces, custom orders and workshops"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"]
+      ],
+      bundleFlows: [
+        "A custom order arrives with every answer",
+        "Days to make show on every card",
+        "A workshop seat booked is one fewer",
+        "A gift wrap goes with any piece"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Twelve days later",
+        text: "The blanket arrives wrapped in cotton paper and tied with yarn, a card in Umm Youssef's hand on top. Her mother finds her name in the corner before anything else. On Saturday, in Zamalek, Laila makes her first stitch, and undoes it, and makes it again."
+      },
+      photos: {
+        "crochet-cozy-sweater": "A woman in a soft grey knitted sweater, holding its collar to her face",
+        "crochet-fluffy-blanket": "A cup of coffee and an open book on a fluffy white blanket",
+        "crochet-knit-flatlay": "A crochet piece in taupe yarn with a hook, beside a notebook and balls of yarn",
+        "crochet-knit-coffee": "A knitted piece on its needles beside a cup of coffee and a pattern",
+        "crochet-mittens-coffee": "Hands in grey knitted mittens around a steaming cup",
+        "crochet-scarves-stack": "Crocheted throws in olive, grey and cream, folded in a stack"
+      }
+    },
+    // 210 Sakan, the home decor shop.
+    decor: {
+      navName: "Home decor shop app",
+      metaTitle: "A home decor shop app with shop the look, rooms, styles and gifts with a card, designed in Yallapp Studio",
+      metaDescription: "A day with Sakan: a new flat, a styled dining corner bought piece by piece, a vase sent as a gift with a card, and the lanterns for Ramadan.",
+      summary: "Shop the look on a styled room, shop by room and by style, sizes in cm, gifts wrapped with a card and the seasons' banners, in two premium looks.",
+      eyebrow: "Yallapp Studio · The home decor shop",
+      title: "A corner for two, by Friday",
+      intro: "Hessa and her husband moved into a small flat in Riyadh last week. The dining corner is a table they borrowed and two boxes. It's Tuesday evening. This is how a few minutes with her phone become a corner they eat in, and a gift for her sister.",
+      cast: "Hessa shops at Sakan, a home decor house in Riyadh. Sakan is the home decor template's demo: its pieces, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Riyadh, after dinner",
+          title: "Two boxes and a borrowed table",
+          text: "Hessa opens Sakan on the sofa. The home is small and quick: the search, the categories, and the season's collections in wide photo cards that slide, the next one peeking from the edge. Under them, four rooms: the bedroom, the living room, the dining room and the reading corner."
+        },
+        {
+          time: "20:44",
+          kicker: "Complete the room",
+          title: "A tap on the orchid",
+          text: "Further down, a styled dining corner fills the screen: a white table, two white chairs, an orchid in a white pot. Each piece has a numbered label on the photo. She taps the orchid, and its page opens. Under the photo, the three pieces in a row, with their prices."
+        },
+        {
+          time: "20:47",
+          kicker: "The table's page",
+          title: "80 by 80, it fits",
+          text: "The table says its size in centimetres: 80 wide, 80 deep, 75 high. She measures the corner with the tape from a drawer: 85 centimetres. The chair comes in white, black and sage; black is almost gone, so she keeps white."
+        },
+        {
+          time: "20:52",
+          kicker: "The menu",
+          title: "Every room, a row",
+          text: "She taps the menu beside the bell. Every room of the shop is a row of cards with their photos: the living room with its vases, cushions and chairs, the bedroom with its linen and lamps, then the plants, the seasons and the gifts. She slides the living room row and taps Vases & bowls."
+        },
+        {
+          time: "20:58",
+          kicker: "A gift",
+          title: "Twin vases for Noura",
+          text: "Her sister Noura has a new home too. Hessa adds the twin vases on their oak tray, then gift wrapping with a card. At checkout she writes the card herself: \"For your first spring in the new flat.\" She copies the shop's code, SAKAN10, and pays."
+        },
+        {
+          time: "09:15",
+          kicker: "Wednesday, at the shop",
+          title: "Wrapped in olive paper",
+          text: "At Sakan, the morning's orders are open. Hessa's says a table, two chairs, an orchid, and the twin vases wrapped as a gift with a card. The card's words print on the packing slip. On the app's home, the Ramadan banner is already up, with the brass lanterns.",
+          push: {
+            app: "Sakan",
+            title: "Order 3124",
+            body: "Your pieces are on their way. Returns are free within 14 days."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Tuesday at nine. Friday's dinner at a real table.",
+        text: "Everything in between was the shop's own: its rooms and their rows, the styled corner and its pieces, the sizes in centimetres, the gift wrapping and the card, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one dining corner",
+      stats: [
+        "main categories in the demo's menu, its rooms first",
+        "sub-categories sliding in their rows",
+        "days to return a piece, picked up from the door",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Shop the look, rooms and styles, gifts and seasons, the two looks, and where the products come from.",
+      systems: [
+        {
+          name: "Shop the look",
+          title: "A styled room, each piece a tap away",
+          text: "A room photo with a label on each piece, and the pieces under it.",
+          features: [
+            [
+              "Spots on the photo",
+              "Each piece has a numbered label; a tap opens its page."
+            ],
+            [
+              "The pieces in a row",
+              "Under the photo, every piece in the look with its price."
+            ],
+            [
+              "Shop the look",
+              "One button to the pieces, to buy them together or one by one."
+            ],
+            [
+              "In the editor too",
+              "Shop the look is an element of Studio's library, for any store."
+            ]
+          ]
+        },
+        {
+          name: "Rooms and styles",
+          title: "Shop the way people think of a home",
+          text: "The shop's categories are its rooms, and the menu shows every one of them.",
+          features: [
+            [
+              "By room",
+              "Photo tiles for the living room, the bedroom, the dining room and the reading corner, each opening its room."
+            ],
+            [
+              "By style",
+              "Natural, minimal, warm earth, classic: a row of chips under the photos."
+            ],
+            [
+              "A row per room",
+              "The menu beside the bell: each room a row of cards, its sub-categories after it."
+            ],
+            [
+              "Search on top",
+              "One field searches every room."
+            ]
+          ]
+        },
+        {
+          name: "Gifts and seasons",
+          title: "Wrapped by hand, with a card",
+          text: "Any piece can leave the shop as a gift.",
+          features: [
+            [
+              "Gift wrapping",
+              "An add-on in the cart, offered with every piece."
+            ],
+            [
+              "The card message",
+              "Written at checkout, with ready beginnings to tap, in three languages."
+            ],
+            [
+              "The seasons",
+              "Ramadan and the new year as banners, each opening its own category."
+            ],
+            [
+              "Weekend offers",
+              "A flash sale with its countdown and how many are left."
+            ]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Sakan comes in two premium looks, built only from Studio's elements.",
+          features: [
+            [
+              "Teen",
+              "Look B: warm and calm, near-black ink on white and sand, oak and clay."
+            ],
+            [
+              "Light and dark",
+              "Both looks have a designed night."
+            ],
+            [
+              "A compact hero",
+              "The collections in cards about 210 points tall, the next one peeking."
+            ],
+            [
+              "A floating bar",
+              "Home, Shop, Cart, Orders and Account, the open one a pill with its name."
+            ],
+            [
+              "Ready sections",
+              "Complete the room, shop by style, the seasons, the collections and more, for any store."
+            ],
+            [
+              "Three languages",
+              "English, Arabic right to left, and Turkish."
+            ]
+          ]
+        },
+        {
+          name: "Where the products come from",
+          title: "Your products, or your shop's platform",
+          text: "Sakan works with products kept in Yallapp, or with the online shop you already have.",
+          features: [
+            [
+              "Products in Yallapp",
+              "Everything on this page: rooms inside rooms, colours with their stock, sizes in cm and the gift add-on."
+            ],
+            [
+              "WordPress and other platforms",
+              "Their categories and sub-categories in the menu, their stock on the page."
+            ],
+            [
+              "Sizes in centimetres",
+              "Width, depth and height on the card and the page."
+            ]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        [
+          "Sakan",
+          "Customers, on Android and iPhone"
+        ],
+        [
+          "Yallapp Studio",
+          "The shop: its look, rooms, styled corners and offers"
+        ],
+        [
+          "The shop's website",
+          "WooCommerce, Shopify or another, if it has one"
+        ]
+      ],
+      bundleFlows: [
+        "A new piece shows in its room's row of the menu",
+        "A colour sold out can't be chosen in the app",
+        "The gift card's words arrive with the order",
+        "The season's banner opens its category"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Friday, at eight",
+        text: "The table fits the corner with five centimetres to spare. The orchid has opened two more flowers. Noura sends a photo of the twin vases on her windowsill, the card propped against them."
+      },
+      photos: {
+        "decor-hero": "Dried wheat in a small clay vase beside a white pumpkin on a linen cloth",
+        "decor-room": "A white dining table with two white chairs and an orchid",
+        "decor-vases": "Two white vases with pink blossoms on an oak tray",
+        "decor-lantern": "A brass and glass lantern with a candle on a table",
+        "decor-pottery": "Shelves of handmade ceramic bowls and cups",
+        "decor-reading": "A reading corner with a bentwood armchair and a black side table"
+      }
+    },
+    furniture: {
+      navName: "Furniture shop app",
+      metaTitle: "A furniture shop app with rooms, sizes in cm, delivery and assembly on your day, designed in Yallapp Studio",
+      metaDescription: "A week with Rukn: a first living room, a sofa in the right fabric, 220 cm on a 240 cm wall, delivery and assembly on Saturday, and a unit made to measure.",
+      summary: "Rooms and their pieces, fabrics and colours with the stock of each, sizes in cm, delivery and assembly on the customer's day, made-to-measure requests, in two premium looks.",
+      eyebrow: "Yallapp Studio · The furniture shop",
+      title: "A sofa that fits the wall",
+      intro: "Sara has the keys to her first flat in Riyadh and a living room with nothing in it but a rug. It's Wednesday evening. This is how a week with her phone becomes a sofa in the right fabric, delivered and assembled on the day she chose.",
+      cast: "Sara shops at Rukn, a furniture house in Riyadh. Rukn is the furniture shop template's demo: its furniture, names and prices are made up, its photos are real, and every screen below is the real app.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Riyadh, an empty room",
+          title: "A living room with nothing in it",
+          text: "Sara opens Rukn sitting on the floor. The home is quiet and quick: the search, the rooms in circles, the season's collection in cards that slide. Under them, four promises side by side: free delivery and assembly, the warranty, a delivery day of her choosing, and a small tag that says installments are coming soon."
+        },
+        {
+          time: "20:44",
+          kicker: "The menu",
+          title: "Every room, a row",
+          text: "The menu beside the bell opens the whole house: Living room first, with Sofas, Armchairs, Coffee tables and TV units sliding after it, then Bedroom, Dining room, Office and Outdoor. She taps Sofas."
+        },
+        {
+          time: "20:52",
+          kicker: "The sofa's page",
+          title: "Bouclé or velvet",
+          text: "The Sadeer sofa comes in bouclé, velvet or linen, in ivory, olive or sand. Olive velvet is down to the last two. She can't decide from a screen, so she asks for the free fabric samples on the home: five swatches, at her door in three days."
+        },
+        {
+          time: "21:05",
+          kicker: "With a tape measure",
+          title: "220 cm on a 240 cm wall",
+          text: "Under the name, every card says its size: W 220 × D 95 × H 82 cm. She measures the wall between the window and the door: 240. Ten centimetres on each side. The Najd coffee table goes on the photo of the complete set, its spot one tap away."
+        },
+        {
+          time: "Saturday",
+          kicker: "Her day, her time",
+          title: "Saturday, nine to twelve",
+          text: "The samples came on Sunday; olive velvet it is. At checkout she picks Saturday, nine to twelve, before the afternoon's one place goes. Assembly is free over 1,500 SAR, and she adds the removal of the old armchair for 199."
+        },
+        {
+          time: "09:20",
+          kicker: "At Rukn's workshop",
+          title: "A unit to the centimetre",
+          text: "The TV wall is 186 cm, and no unit fits it. Sara sends a made-to-measure request with the piece, its size W × D × H, oak and a few words. At Rukn, Faisal finds it in the requests beside the morning's orders and calls her with a price before noon.",
+          push: {
+            app: "Rukn",
+            title: "Order 3104",
+            body: "Your sofa arrives Saturday between 9 and 12. The team will assemble it."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Measured on Wednesday. Sitting on it on Saturday.",
+        text: "Everything in between was the shop's own: its rooms and their pieces, the fabrics and colours and the stock of each, the sizes in cm, the delivery days and times, the assembly and the requests, set once in the dashboard."
+      },
+      statsTitle: "Small facts behind one sofa",
+      stats: [
+        "rooms in the demo's menu, each a row of cards",
+        "kinds of piece sliding in their rows",
+        "days ahead a customer can pick for delivery",
+        "languages, Arabic right to left"
+      ],
+      systemsTitle: "Every part, explained",
+      systemsText: "Rooms and the menu, fabrics and sizes, delivery and assembly, made to measure, and the two looks.",
+      systems: [
+        {
+          name: "Shop by room",
+          title: "Every room, one row each",
+          text: "The shop's rooms are its main categories: the circles, the tiles and the menu open them.",
+          features: [
+            ["Rooms as categories", "Living room, Bedroom, Dining room, Office and Outdoor, each with its kinds of piece."],
+            ["A row per room", "The menu shows each room as a row of cards that slides."],
+            ["Tiles that open", "A room's tile opens that room in the shop."],
+            ["Search on top", "One field searches every room."]
+          ]
+        },
+        {
+          name: "Fabrics, colours and sizes",
+          title: "The stock of every fabric",
+          text: "A piece comes in its fabrics or materials and its colours, and the shop keeps the stock of each.",
+          features: [
+            ["Fabric and material", "Bouclé, velvet, linen, oak or walnut: each a choice on the page."],
+            ["Colour by colour", "Every fabric in every colour is its own piece of stock."],
+            ["Sizes in cm", "Width, depth and height on every card and on the page."],
+            ["Gone is gone", "A combination with none left is greyed out."],
+            ["Made to order", "A piece made in the workshop says how many days it takes."]
+          ]
+        },
+        {
+          name: "Delivery and assembly",
+          title: "On the customer's day",
+          text: "The customer picks the day and the time; the shop's team brings the piece and assembles it.",
+          features: [
+            ["Days and times", "The shop's next days and its slots, a full one shown as full."],
+            ["Free over an amount", "Delivery and assembly free over the shop's amount."],
+            ["Services as add-ons", "Assembly and the old furniture's removal, offered with the pieces they fit."],
+            ["Warranty and returns", "The warranty in the promises, returns within the shop's days."]
+          ]
+        },
+        {
+          name: "Made to measure",
+          title: "A request, not a guess",
+          text: "A made-to-measure page with its steps and a form the shop keeps as a request.",
+          features: [
+            ["The request form", "The piece, its size W × D × H, the material or fabric, the colour and the details."],
+            ["Sizes that fit", "The customer writes the wall's size; the workshop makes to it."],
+            ["In the dashboard", "Each request arrives in the dashboard and in Yallapp Business."],
+            ["Installments coming soon", "A tag in the promises; the app takes no installments yet."]
+          ]
+        },
+        {
+          name: "Designed in Yallapp Studio",
+          title: "Two looks, every part yours to change",
+          text: "Rukn comes in two premium looks, built only from Studio's elements.",
+          features: [
+            ["RUKN", "Look A: modern white and walnut, round corners and warm photos."],
+            ["Light and dark", "Both looks have a designed night."],
+            ["A compact hero", "The collections in cards about 210 points tall, the next one peeking."],
+            ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one marked."],
+            ["KANAF", "Look B: quiet luxury in deep green, build your sofa piece by piece and the showroom on a map."],
+            ["Three languages", "English, Arabic right to left, and Turkish."]
+          ]
+        }
+      ],
+      bundleTitle: "One app, your dashboard, and your shop if you have one",
+      bundleText: "The customers' app is built and published under the shop's name from one Studio project. Its products come from Yallapp, or from the shop's own platform.",
+      bundleNodes: [
+        ["Rukn", "Customers, on Android and iPhone"],
+        ["Yallapp Studio", "The shop: its look, rooms, fabrics and delivery days"],
+        ["The shop's website", "WooCommerce, Shopify or another, if it has one"]
+      ],
+      bundleFlows: [
+        "A new piece shows in its room's row",
+        "A fabric sold out is greyed out in the app",
+        "A delivery slot that fills up shows as full",
+        "A made-to-measure request arrives in the dashboard"
+      ],
+      compareTitle: "How it compares",
+      compareText: "Companies that make apps for online shops, as their own sites describe them, next to Yallapp and to having an agency build an app for you.",
+      finale: {
+        title: "Saturday, at eleven",
+        text: "The team leaves with the boxes and the old armchair. The olive velvet looks warmer than on the screen. Faisal has already added a new armchair to the Living room row, and somewhere in Riyadh someone is measuring a wall."
+      },
+      photos: {
+        "furniture-hero": "A pale blue loveseat with patterned cushions by a bright window",
+        "furniture-fabric": "A mid-century armchair in an orange floral fabric",
+        "furniture-measure": "A long white TV unit on a wall in a bright living room",
+        "furniture-custom": "A long wooden dining table with grey upholstered chairs under a chandelier",
+        "furniture-terrace": "A covered terrace with wooden chairs looking out to the sea",
+        "furniture-home": "A white leather sofa with checked cushions under a painting"
+      }
+    },
   },
 };

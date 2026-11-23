@@ -213,8 +213,9 @@ describe("130.62 six new premium landings (131.27 and Leqaa's petal), for every 
       expect(x.isNew).toBe(true);
       expect(x.fits).toBeUndefined();
     }
-    // Nothing that was is marked new (131.26 but Leqaa's sections; 208 Lujain's and the installments tag), and every kind's template list is as it was.
-    expect([...SECTIONS.slice(0, -7), ...PAGE_TEMPLATES.slice(0, -7)].filter((x) => x.isNew && !x.id.startsWith("lq_") && !x.id.startsWith("cl_") && !x.id.startsWith("bt_") && !x.id.startsWith("kd_") && !x.id.startsWith("ty_") && x.id !== "installments_soon")).toEqual([]);
+    // Nothing that was is marked new (131.26 but Leqaa's sections; 208 Lujain's and the installments tag; 209 Toota's, Velours' and Toot's; 210 the shop types' shared ones and Sakan's, Ghurza's and Rukn's), and every kind's template list is as it was.
+    const shopTypes = ["lq_", "cl_", "kd_", "bt_", "ty_", "sk_", "dc_", "cr_", "fu_"];
+    expect([...SECTIONS.slice(0, -7), ...PAGE_TEMPLATES.slice(0, -7)].filter((x) => x.isNew && !shopTypes.some((p) => x.id.startsWith(p)) && x.id !== "installments_soon")).toEqual([]);
     for (const kind of KINDS) {
       expect(templatesFor(kindOf(kind)).some((t) => t.id.startsWith("land_"))).toBe(false);
       expect(sectionsFor(kindOf(kind)).slice(-7).map((s) => s.id)).toEqual([...LANDING_IDS]);

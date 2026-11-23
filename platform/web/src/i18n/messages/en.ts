@@ -62,6 +62,12 @@ export const en = {
     // 209 Toys
     storyToys: "Toy shop app",
     storyToysText: "Shop by age, safety and materials, birthday gifts with a card",
+    storyDecor: "Home decor shop app",
+    storyDecorText: "Shop the look, by room and by style, gifts with a card",
+    storyCrochet: "Crochet shop app",
+    storyCrochetText: "Custom orders, days to make, yarn and workshops",
+    storyFurniture: "Furniture shop app",
+    storyFurnitureText: "Shop by room, sizes in cm, delivery and assembly on your day",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -837,6 +843,12 @@ export const en = {
       // 209 Toys
       toys_a: { name: "TOOT, playful", text: "The whole toy shop, playful and colourful: plum and gold on cream, the small header whose menu opens the category menu, the search, the categories in circles, the hero carousel with the next card peeking, shop by age, safety first, what's new, the toy of the day, the perfect gift in 3 steps with the wraps, the most loved, gifts under 100, learn through play and the parents' guide; every page, the floating bar and the account." },
       toys_b: { name: "MUKAAB, Montessori", text: "The whole toy shop, calm and educational: one clear blue on grey, your child's age under the search, the explorers' collection, the categories as tiles, the science lab, trending now, the toy of the day, the birthday gift assistant, the top rated, gifts under 200, the newborn box and the safety promises; the category menu, every page, the floating bar and the account." },
+      decor_a: { name: "SAKAN, the decor magazine", text: "The whole home decor shop as a magazine: olive green on warm paper, wide photos, the category menu, the hero carousel with the next card peeking, shop by room, new arrivals, the weekend's offers, complete the room with a spot on each piece, shop by style, the most loved, gifts with a card, the seasons' banners and reviews; the shop, the cart and orders in the look, with a deep olive night." },
+      decor_b: { name: "TEEN, warm earth tones", text: "The whole home decor shop warm and calm: near-black ink on white and sand with oak and clay, curated collections with a tall first tile, the numbered best sellers, the house's story and numbers, shop the corner, a gift card, the pieces that last and the promises; every page, the bar, the account, the shop, the cart and orders in the look, with a warm charcoal night." },
+      crochet_a: { name: "GHURZA, warm handmade", text: "The whole crochet shop warm and handmade: terracotta on beige paper, the categories in circles, the winter hero with the next card peeking, the custom order card that opens its own request page, new pieces from the workshop with the days each takes to make, the maker's story and numbers, shop by yarn with its shades, the most loved, the workshop card, reviews and gift wrapping by hand; the category menu, the custom order, the shop, the cart and orders in the look, with a coffee-brown night." },
+      crochet_b: { name: "HABKA, colourful and playful", text: "The whole crochet shop colourful and playful: plum and berry on a soft pink-grey, a greeting, the search with a Design button, the categories as chips, the customer's custom order step by step, design your own piece with the yarn's shades, new arrivals, the colour of the season, the crochet toolkit, the workshop's story, the month's workshops, customers' photos and the promises; every page in the look, with a plum-black night." },
+      furniture_a: { name: "RUKN, white and wood", text: "The whole furniture shop modern and warm: linen white with espresso walnut, the rooms in circles, the season's hero with the next card peeking, the promises with installments coming soon, shop by room, new arrivals with their size in cm, a complete set to shop from its photo, fabric samples, the weekend offers, the delivery and assembly booking and the most loved; the category menu, the made-to-measure request, the shop, the cart and orders in the look, with a deep walnut night." },
+      furniture_b: { name: "KANAF, quiet luxury", text: "The whole furniture shop in deep green and stone: the rooms as tiles, delivered within 48 hours, whole spaces, build your sofa piece by piece, the services with installments coming soon, inspiration from customers' homes, pieces worth their place, the rating and the showroom on a map; every page, the bar, the account, the shop, the cart and orders in the look, with a near-black green night." },
     },
   },
   meta: {

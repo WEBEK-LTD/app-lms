@@ -97,6 +97,8 @@ export const ELEMENTS: readonly ElementInfo[] = [
   { type: "size_finder", group: "premium", icon: "straighten", keywords: "size finder age height which size fits child kids baby chart recommend", only: "store" },
   { type: "swatches", group: "premium", icon: "palette", keywords: "swatches shades colours colors shade finder foundation lipstick tones palette" },
   { type: "quiz", group: "premium", icon: "quiz", keywords: "quiz questions answers result skin type test gift finder recommend personality" },
+  // 210 The shop's next delivery days and times to pick (and the assembly), kept for the checkout.
+  { type: "delivery_slots", group: "premium", icon: "event_available", keywords: "delivery date day time slot book booking assembly furniture schedule appointment checkout", only: "store" },
 ];
 
 export function elementInfo(type: StudioNodeType): ElementInfo {
@@ -224,6 +226,9 @@ export function newNode(
         padding: { top: 16, end: 16, bottom: 16, start: 16 },
         margin: { top: 10, end: 16, bottom: 10, start: 16 },
       };
+    // 210 The shop's next delivery days and times, on a card.
+    case "delivery_slots":
+      return { id, type, delivery_slots: { days: 5 }, radius: 18, padding: { top: 12, end: 12, bottom: 12, start: 12 }, margin: { top: 8, end: 16, bottom: 8, start: 16 } };
     case "video":
       return { id, type, video_url: null, aspect_ratio: 16 / 9, radius: 14 };
     case "form":

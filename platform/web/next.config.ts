@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["mysql2", "nodemailer", "pdfkit"],
   // 32 The share images (opengraph-image) and 71 the receipts' PDFs read their font files at runtime,
   // and the Zad demo its photos (lib/demo/zad-photos.ts), the academy its (lib/demo/academy-photos.ts), Safra its hotels' (lib/demo/travel.ts).
-  outputFileTracingIncludes: { "/**": ["./src/app/fonts/og/*.ttf", "./public/demo-photos/*.jpg", "./public/stories/academy/*.jpg", "./public/travel-photos/*.jpg", "./public/flower-photos/*.jpg", "./public/clothes-photos/*.jpg", "./public/kids-photos/*.jpg", "./public/beauty-photos/*.jpg", "./public/toys-photos/*.jpg"] },
+  outputFileTracingIncludes: { "/**": ["./src/app/fonts/og/*.ttf", "./public/demo-photos/*.jpg", "./public/stories/academy/*.jpg", "./public/travel-photos/*.jpg", "./public/flower-photos/*.jpg", "./public/clothes-photos/*.jpg", "./public/kids-photos/*.jpg", "./public/beauty-photos/*.jpg", "./public/toys-photos/*.jpg", "./public/decor-photos/*.jpg", "./public/crochet-photos/*.jpg", "./public/furniture-photos/*.jpg"] },
   experimental: {
     // Turbopack's build cache stores a snapshot of the environment, secrets included.
     // Builds are fast enough without it, and no secret is ever written to disk.

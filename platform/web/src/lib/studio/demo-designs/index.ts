@@ -35,6 +35,10 @@ import { MINIMO_B, TOOTA_A } from "./kids-signature";
 // 209 Toys
 // 209 Toot, the toy shop: A Toot playful and colourful, B Mukaab calm and educational.
 import { MUKAAB_B, TOOT_A } from "./toys-signature";
+// 210 Sakan (home decor), Ghurza (crochet and handmade), Rukn (furniture).
+import { DECOR_A, DECOR_B } from "./decor-signature";
+import { CROCHET_A, CROCHET_B } from "./crochet-signature";
+import { FURNITURE_A, FURNITURE_B } from "./furniture-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -179,6 +183,10 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   // 209 Toys
   // 209 Toot, the toy shop (a store): A Toot, playful and colourful; B Mukaab, calm and educational.
   toys: { a: TOOT_A, b: MUKAAB_B },
+  // 210 Sakan, home decor: A the decor magazine, B Teen's warm earth. Ghurza, crochet: A warm handmade, B Habka's colours. Rukn, furniture: A white and wood, B KANAF.
+  decor: { a: DECOR_A, b: DECOR_B },
+  crochet: { a: CROCHET_A, b: CROCHET_B },
+  furniture: { a: FURNITURE_A, b: FURNITURE_B },
 };
 
 /** A look with its demo's own tabs when it has none of its own. */

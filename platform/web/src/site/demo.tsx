@@ -9,7 +9,7 @@ import { getContact } from "@/lib/contact";
 import { WhatsAppLink } from "@/components/whatsapp-link";
 import { getStore } from "@/lib/data";
 import { demoDownloadBuild, demoSecondAppBuild, listDemoApps } from "@/lib/demo/apps";
-import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind, FLOWER_SHOP_DEMO, CLOTHES_DEMO, KIDS_DEMO, BEAUTY_DEMO, TOYS_DEMO, isStudioDemo, PREMIUM_ACADEMY_DEMO, type DemoId } from "@/lib/demo/constants";
+import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, STORE_TEMPLATE_LABELS, PREMIUM_ACADEMY_DEMO, type DemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS, DEMO_SECOND_APP_STEP } from "@/lib/demo/content";
 import { staffAppNameOf } from "@/lib/school/staff-app";
 import { appUrl } from "@/lib/env";
@@ -140,7 +140,7 @@ export function DemoAppSection({ type, lang, ready, tinted, secondReady = false 
   // 115.15 A kind whose own name stays off public pages has its demo's name, and its solution page by the demo's slug.
   // 123 The premium academy is a template's demo: its own name.
   // 131.20 Leqaa too: a flower shop.
-  const label = type === PREMIUM_ACADEMY_DEMO ? "Premium academy" : type === FLOWER_SHOP_DEMO ? "Flower shop" : type === CLOTHES_DEMO ? "Clothes shop" : type === KIDS_DEMO ? "Kids' clothes shop" : type === BEAUTY_DEMO ? "Cosmetics shop" : type === TOYS_DEMO ? "Toy shop" : (kind.demo?.name ?? kind.name);
+  const label = type === PREMIUM_ACADEMY_DEMO ? "Premium academy" : type === FLOWER_SHOP_DEMO ? "Flower shop" : isStoreTemplateDemo(type) ? STORE_TEMPLATE_LABELS[type] : (kind.demo?.name ?? kind.name);
   const solution = allSolutionsFor(lang).find((s) => s.demoSlug === slug && s.kind === kind.id) ?? solutionFor(lang, kind.marketing.slug);
   const page = solution && solutionPage(solution.id) ? solution.id : solutionPage(kind.marketing.slug) ? kind.marketing.slug : null;
   return (

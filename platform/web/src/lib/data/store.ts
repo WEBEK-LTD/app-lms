@@ -146,6 +146,8 @@ import type {
   SchoolHomework,
   SchoolLeave,
   SchoolExcuse,
+  StoreRequest,
+  StoreRequestStatus,
   SchoolPickup,
   SchoolPickupNote,
   SchoolSlip,
@@ -1248,6 +1250,11 @@ export interface DataStore {
   listSchoolExcuses(appId: string, filter?: { studentId?: number; studentIds?: number[]; statuses?: SchoolExcuse["status"][]; from?: string; to?: string }): Promise<SchoolExcuse[]>;
   getSchoolExcuse(appId: string, id: number): Promise<SchoolExcuse | null>;
   createSchoolExcuse(input: Omit<SchoolExcuse, "id">): Promise<SchoolExcuse>;
+  // 210 Custom-order requests (lib/selling/requests.ts), newest first.
+  listStoreRequests(appId: string, filter?: { statuses?: StoreRequestStatus[] }): Promise<StoreRequest[]>;
+  getStoreRequest(appId: string, id: number): Promise<StoreRequest | null>;
+  createStoreRequest(input: Omit<StoreRequest, "id">): Promise<StoreRequest>;
+  updateStoreRequest(appId: string, id: number, patch: Partial<Pick<StoreRequest, "status" | "reply" | "quoteCents" | "updatedAt">>): Promise<boolean>;
   /** Only while the excuse is in one of `statuses`; false when it wasn't changed. */
   updateSchoolExcuse(appId: string, id: number, patch: Partial<Pick<SchoolExcuse, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolExcuse["status"][]): Promise<boolean>;
   getSchoolPickup(appId: string, studentId: number): Promise<SchoolPickup | null>;

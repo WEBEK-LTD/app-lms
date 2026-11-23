@@ -45,7 +45,7 @@ import { PremiumHeader, SystemScreen } from "./premium-chrome";
 import { GiftCheckout } from "./gift-checkout";
 import { quickAddLabel } from "./quick-add";
 // 208 The category menu and the size chart.
-import { CategoryMenuCanvas, SizeChartCanvas } from "./category-menu";
+import { CategoryMenuCanvas, DeliverySlotsCanvas, SizeChartCanvas } from "./category-menu";
 import { QuizCanvas, SizeFinderCanvas, SwatchesCanvas } from "./shop-helpers";
 
 /**
@@ -891,6 +891,9 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return <SwatchesCanvas node={n} lang={lang} def={defaultLang} dark={dark} brand={look.brand} color={color} title={text} button={titleIn(n, lang, defaultLang)} />;
       case "quiz":
         return <QuizCanvas node={n} lang={lang} def={defaultLang} dark={dark} brand={look.brand} color={color} title={text} button={titleIn(n, lang, defaultLang)} />;
+      case "delivery_slots":
+        // 210 The shop's next delivery days and times, kept for the checkout.
+        return <DeliverySlotsCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} color={color} />;
       case "flash_sale":
         // 131 The flash sale: its products at their sale price, the live countdown and the stock bar.
         return <FlashSaleCanvas node={n} title={text} pickable={p.pickable} dark={dark} brand={look.brand} words={p.commerceWords ?? COMMERCE_WORDS_EN} />;

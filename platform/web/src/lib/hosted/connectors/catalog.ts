@@ -33,6 +33,9 @@ import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasCo
 import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "../../selling/addons";
 // 162 Build your bouquet: its lines together, checked against the shop's settings.
 import { bouquetOf, bouquetOffers, bouquetPartJson, checkBouquetLines, onceEach } from "../../selling/bouquet";
+import { shopTypeOfDesign } from "../../studio/shop-types";
+// 210 A product's size in cm and its days to make.
+import { dimensionsLine, makeDaysLine, productLine } from "../../catalog/product-details";
 // 208 A clothes shop's size chart and "Complete the look"; sub-categories.
 import { completeLookFor, fashionOf, sizeChartJson } from "../../selling/fashion";
 import { appStageJson } from "../../catalog/stage-json";
@@ -184,6 +187,8 @@ export class CatalogConnector implements Connector {
         loyalty: loyaltyConfigJson(this.loyalty, this.settings.currency),
         // 208 The size chart under a product's sizes; null: none.
         size_chart: sizeChartJson(fashionOf(this.deps.app)?.sizeChart ?? null, this.lang),
+        // 210 "Installments coming soon" under a product's price: a shop made from a type that sells on installments elsewhere (furniture, electronics); never a way to pay.
+        installments_soon: shopTypeOfDesign(this.deps.app.design)?.installmentsSoon === true,
       },
       features: { orders: true },
     };
@@ -311,6 +316,8 @@ export class CatalogConnector implements Connector {
       digital: p.digital,
       // 131 A gift add-on: offered with other products, never on its own.
       addon: Boolean(p.addon),
+      // 210 Its line on a card: the days it takes to make, else its size in cm ("W 220 × D 95 × H 82 cm"); null for neither.
+      subtitle: productLine(p, this.lang),
     };
   }
 
@@ -518,6 +525,9 @@ export class CatalogConnector implements Connector {
         external_url: null,
         permalink: productUrl(this.deps.platformUrl, app.id, product.id),
         option_groups: optionGroupsJson(optionGroupsOf(product), this.settings.currency),
+        // 210 Its size in cm and the days it takes to make (the app's product page); null: none.
+        dimensions: product.dimensions ? { width: product.dimensions.width, depth: product.dimensions.depth, height: product.dimensions.height, unit: "cm", text: dimensionsLine(product.dimensions, this.lang) } : null,
+        make_days: product.makeDays ? { min: product.makeDays.min, max: product.makeDays.max, text: makeDaysLine(product.makeDays, this.lang) } : null,
       },
     };
   }

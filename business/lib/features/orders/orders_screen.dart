@@ -16,6 +16,7 @@ import '../studio/studio_widgets.dart' show IconLine, SearchBarField;
 import 'order_actions.dart';
 import 'order_stages.dart';
 import 'order_screen.dart' show deliveryWhen;
+import 'requests_screen.dart';
 
 /// 59 Orders by status, newest first; a restaurant's new orders can be
 /// accepted or declined right from the list.
@@ -69,6 +70,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
     ref.listen(pushEventsProvider, (_, notice) {
       if (notice?.data['kind'] == 'new_order' && mounted) {
         setState(() => _version++);
+        // 210 A custom-order request comes as a new order too.
+        ref.invalidate(requestsSummaryProvider);
       }
     });
     final labels = [
@@ -108,6 +111,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
       ),
       body: Column(
         children: [
+          // 210 The shop's custom-order requests, once it has one.
+          const RequestsCard(),
           if (_searching)
             Padding(
               padding: const EdgeInsets.only(top: 10),

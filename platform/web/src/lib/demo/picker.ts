@@ -24,6 +24,9 @@ import { BEAUTY_PRODUCTS } from "./beauty";
 import { KIDS_PRODUCTS } from "./kids";
 // 209 Toys
 import { TOYS_ADDONS, TOYS_PRODUCTS } from "./toys";
+import { CROCHET_KIT } from "./kits/crochet";
+import { DECOR_KIT } from "./kits/decor";
+import { FURNITURE_KIT } from "./kits/furniture";
 import { SCHOOL_CLASSES } from "./school";
 import { TRAVEL_HOTELS } from "@/lib/travel/samples";
 
@@ -94,6 +97,10 @@ const DEMO_BUSINESS: Partial<Record<DemoId, string>> = {
   // 209 Toys
   // 209 Toot, the toy shop, too.
   toys: "shop",
+  // 210 Sakan, Ghurza and Rukn, shops too.
+  decor: "shop",
+  crochet: "shop",
+  furniture: "shop",
 };
 
 export function businessOf(id: DemoId): string {
@@ -179,6 +186,10 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   // 209 Toys
   // 209 Toot: its toys and gift boxes, the wraps and the card.
   toys: () => ({ list: "products", noun: "products", count: TOYS_PRODUCTS.length + TOYS_ADDONS.length }),
+  // 210 The kits' products (decor, crochet and handmade, furniture) and their add-ons, as Leqaa's: what an app started from them gets.
+  decor: () => ({ list: "products", noun: "products", count: DECOR_KIT.products.length }),
+  crochet: () => ({ list: "products", noun: "products", count: CROCHET_KIT.products.length }),
+  furniture: () => ({ list: "products", noun: "products", count: FURNITURE_KIT.products.length }),
 };
 
 export function demoItems(id: DemoId): DemoItems {

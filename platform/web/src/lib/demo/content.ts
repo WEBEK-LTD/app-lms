@@ -418,6 +418,36 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["toot-home", "toot-menu", "toot-product"],
   },
+  // 210 Sakan (سكن), home decor: a store in Studio, its two Signature looks, shop the look, by room and by style, gifts and the seasons.
+  decor: {
+    summary: "A home decor house in Riyadh: vases and ceramics, lighting, textiles, wall decor and a few pieces of furniture, shopped by room, by style or straight from a styled room, wrapped as a gift with a card. Its photos are CC0, from StockSnap.",
+    tryThis: [
+      "Tap a spot on the styled room in Shop the look to open that piece, then shop by room or by style",
+      "Open a vase or a lamp, see its size in cm and its colours, and add gift wrapping with a card in the cart",
+      "Check out with the shop's code, follow your order in Orders, and switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["sakan-home", "sakan-menu", "sakan-product"],
+  },
+  // 210 Ghurza (غُرزة), crochet and handmade: custom orders, days to make, the maker's story, yarn and tools, workshops.
+  crochet: {
+    summary: "A crochet workshop in Cairo: blankets, cardigans, toys and bags made by hand, each with the days it takes to make, yarn and tools to make your own, workshops with its makers, and custom orders in your size and colour. Its photos are CC0, from StockSnap.",
+    tryThis: [
+      "Start a custom order from the home: what you'd like made, its size and colour, and send it (it reaches the shop's dashboard and Yallapp Business)",
+      "Open a piece to see how many days it takes to make, then browse the yarn and tools",
+      "Read the maker's story, look at the workshops, and switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["ghurza-home", "ghurza-custom", "ghurza-product"],
+  },
+  // 210 Rukn (رُكن), furniture: materials and colours, dimensions in cm, delivery and assembly on your day, shop by room, made to order.
+  furniture: {
+    summary: "A furniture house in Riyadh: sofas, beds, dining tables, chairs and storage in their materials and colours, with dimensions in cm, delivery and assembly on the day you pick, shop by room and pieces made to order. Installments are coming soon. Its photos are CC0, from StockSnap.",
+    tryThis: [
+      "Shop by room, open a sofa and choose its fabric and colour; its width, depth and height are in cm",
+      "Book the delivery and assembly from the home: pick the day and the time, and the cart keeps it for checkout",
+      "Ask for a piece made to your size from the custom order, then switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["rukn-home", "rukn-menu", "rukn-product"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -891,6 +921,66 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Safe, beautiful toys for every age, gift-wrapped with a card and delivered across Dubai.",
     fullDescription: `Toot is a toy shop for every age: wooden toys, plush friends, building sets, puzzles and games, science kits, arts and music, and toys for outdoors.\n\nShop by your child's age or by the type of toy, read each toy's age, safety and materials, and let the gift finder suggest a birthday present. Add gift wrapping and a card in your words; returns are free within 30 days.\n\n${PRIVACY_NOTE}`,
     welcome: "Safe, beautiful toys for every age, wrapped with a card.",
+  },
+  // 210 Sakan (سكن, "a home to rest in"), home decor: its look A's olive on warm paper.
+  decor: {
+    appName: "Sakan",
+    shortName: "Sakan",
+    primaryColor: "#4F5D2F",
+    splashColor: "#F4F1EA",
+    secondaryColor: "#B5835A",
+    template: "minimal",
+    font: "DM Sans",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-decor",
+    banner: { picture: "banner-store", heading: "Calm, warm homes", subheading: "Vases, lighting and textiles, shopped by room and delivered across Riyadh." },
+    androidPackage: "com.yallapp.demo.decor",
+    storeTitle: "Sakan Home Decor",
+    shortDescription: "Vases, lighting and textiles for every room, shopped straight from a styled room.",
+    fullDescription: `Sakan is a home decor house: vases and ceramics, lighting, textiles, wall decor and a few pieces of furniture.\n\nShop a styled room piece by piece, browse by room or by style, and send any piece as a gift, wrapped by hand with a card in your words.\n\n${PRIVACY_NOTE}`,
+    welcome: "Vases, lighting and textiles for every room, shopped straight from a styled room.",
+  },
+  // 210 Ghurza (غُرزة, "a stitch"), crochet and handmade: its look A's terracotta on cream.
+  crochet: {
+    appName: "Ghurza",
+    shortName: "Ghurza",
+    primaryColor: "#B5532F",
+    splashColor: "#F8F1E9",
+    secondaryColor: "#E7B8A9",
+    template: "minimal",
+    font: "DM Sans",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-crochet",
+    banner: { picture: "banner-store", heading: "Made by hand, stitch by stitch", subheading: "Blankets, cardigans and toys, yarn and tools, and pieces made to your order." },
+    androidPackage: "com.yallapp.demo.crochet",
+    storeTitle: "Ghurza Crochet",
+    shortDescription: "Handmade crochet, yarn and tools, workshops, and pieces made to your order.",
+    fullDescription: `Ghurza is a crochet workshop: blankets, cardigans, scarves, toys and bags made by hand, each with the days it takes to make.\n\nOrder a piece in your size and colour, buy the yarn and tools to make your own, and learn in our workshops.\n\n${PRIVACY_NOTE}`,
+    welcome: "Handmade crochet, and pieces made just for you.",
+  },
+  // 210 Rukn (رُكن, "a corner"), furniture: its look A's walnut brown on white and wood.
+  furniture: {
+    appName: "Rukn",
+    shortName: "Rukn",
+    primaryColor: "#4A3426",
+    splashColor: "#F6F2EC",
+    secondaryColor: "#A8743F",
+    template: "minimal",
+    font: "DM Sans",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-furniture",
+    banner: { picture: "banner-store", heading: "Furniture that lasts", subheading: "Sofas, beds and dining tables, delivered and assembled on the day you pick." },
+    androidPackage: "com.yallapp.demo.furniture",
+    storeTitle: "Rukn Furniture",
+    shortDescription: "Sofas, beds and dining tables with their dimensions, delivered and assembled on your day.",
+    fullDescription: `Rukn is a furniture house: sofas, beds, dining tables, chairs and storage in their materials and colours, each with its dimensions in cm.\n\nShop by room, book the delivery and assembly on the day you pick, and ask for a piece made to your size. Installments are coming soon.\n\n${PRIVACY_NOTE}`,
+    welcome: "Sofas, beds and dining tables, delivered and assembled on your day.",
   },
 };
 

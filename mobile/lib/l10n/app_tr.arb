@@ -3355,5 +3355,11 @@
   "quizAgain": "Yeniden başla",
   "quizResultTitle": "Sonucunuz",
   "sizeFinderFits": "Uyan beden: {size}",
-  "swatchChosen": "{name}, seçili"
+  "swatchChosen": "{name}, seçili",
+  "productDimensions": "Boyutlar",
+  "productMadeToOrder": "Siparişe özel yapılır",
+  "deliverySlotsKept": "Bu günü ve saati ödemeniz için saklayacağız.",
+  "deliverySlotsAssembly": "Ekip, teslimat günü kurar.",
+  "deliverySlotsNone": "Şu anda açık teslimat günü yok.",
+  "installmentsSoon": "Taksit yakında"
 }

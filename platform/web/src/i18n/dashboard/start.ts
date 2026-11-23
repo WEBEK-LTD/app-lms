@@ -65,6 +65,9 @@ export const en = {
     kids: { name: "Kids' clothes shop", line: "Sizes by age, newborn gifts with a card and ready sets" },
     // 209 Toys
     toys: { name: "Toy shop", line: "Shop by age, safety and materials, birthday gifts with a card" },
+    decor: { name: "Home decor shop", line: "Complete the room, shop by room and style, and gifts" },
+    crochet: { name: "Crochet shop", line: "Custom orders, the days to make and workshops" },
+    furniture: { name: "Furniture shop", line: "Sizes in cm, delivery and assembly on your day, made to order" },
   },
   business: {
     teaching: "Teaching and courses",
@@ -260,6 +263,9 @@ export const ar: Messages = {
     kids: { name: "محل هدوم أطفال", line: "مقاسات حسب السن، وهدايا المواليد بكارت، وأطقم جاهزة" },
     // 209 Toys
     toys: { name: "محل لعب أطفال", line: "حسب السن، والأمان والخامات، وهدايا أعياد الميلاد بكارت" },
+    decor: { name: "محل ديكور", line: "كمّل الأوضة، وتسوّق حسب الأوضة والستايل، وهدايا" },
+    crochet: { name: "محل كروشيه", line: "طلبات خاصة، وأيام الشغل، وورش" },
+    furniture: { name: "محل موبيليا", line: "المقاسات بالسنتي، والتوصيل والتركيب في يومك، وتفصيل على المقاس" },
   },
   business: {
     teaching: "تعليم وكورسات",
@@ -451,6 +457,9 @@ export const tr: Messages = {
     kids: { name: "Çocuk giyim mağazası", line: "Yaşa göre bedenler, kartlı yenidoğan hediyeleri ve hazır takımlar" },
     // 209 Toys
     toys: { name: "Oyuncak mağazası", line: "Yaşa göre, güvenlik ve malzemeler, kartlı doğum günü hediyeleri" },
+    decor: { name: "Ev dekorasyonu mağazası", line: "Odayı tamamla, odaya ve tarza göre gez, hediyeler" },
+    crochet: { name: "Örgü mağazası", line: "Özel siparişler, yapım günleri ve atölyeler" },
+    furniture: { name: "Mobilya mağazası", line: "Ölçüler cm cinsinden, seçtiğin gün teslimat ve kurulum, ölçüye özel" },
   },
   business: {
     teaching: "Eğitim ve kurslar",

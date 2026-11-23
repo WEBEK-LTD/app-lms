@@ -196,6 +196,10 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   // 209 Toys
   // 209 Toot's is its look A's floating bar (lib/studio/demo-designs/toys-signature.ts).
   toys: demoDesignBar("toys"),
+  // 210 Sakan's, Ghurza's and Rukn's: their look A's floating bar.
+  decor: demoDesignBar("decor"),
+  crochet: demoDesignBar("crochet"),
+  furniture: demoDesignBar("furniture"),
 };
 
 /** 130 A demo's bar in one of its Signature looks (its look's premium bar); without a look, the demo's own (DEMO_TAB_BARS). */

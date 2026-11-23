@@ -463,6 +463,93 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "toys-finale", screen: "toot-home" },
   },
+  // 210 Sakan, the home decor shop: a new flat in Riyadh furnished from one styled corner, a gift wrapped with a card, in its look A (the decor magazine) by day and by night; look B (Teen) in its section.
+  decor: {
+    id: "decor",
+    icon: "chair",
+    // Sakan's olive, lighter on its night.
+    accent: "#B9C98F",
+    demos: ["decor"],
+    solutions: [],
+    hero: { photo: "decor-hero", screens: ["sakan-home", "sakan-product"] },
+    chapters: [
+      { screen: "sakan-home", icon: "home" },
+      { photo: "decor-room", screen: "sakan-home", icon: "touch_app" },
+      { screen: "sakan-product", icon: "straighten" },
+      { screen: "sakan-menu", icon: "menu_open" },
+      { photo: "decor-vases", screen: "sakan-product", icon: "redeem" },
+      { photo: "decor-lantern", screen: "decor-sig-a-home-dark", icon: "nights_stay" },
+    ],
+    interlude: { photo: "decor-pottery" },
+    stats: [{ value: 7 }, { value: 19 }, { value: 14 }, { value: 3 }],
+    systems: [
+      { icon: "touch_app", screens: ["sakan-home"], features: ["touch_app", "format_list_numbered", "shopping_bag", "dashboard_customize"] },
+      { icon: "chair", screens: ["sakan-menu"], features: ["chair", "auto_awesome", "view_list", "search"] },
+      { icon: "redeem", screens: [], features: ["redeem", "edit_note", "celebration", "nights_stay"] },
+      { icon: "palette", screens: ["decor-sig-b-home", "decor-sig-b-home-dark"], features: ["spa", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "straighten"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "decor-reading", screen: "sakan-home" },
+  },
+  // 210 Ghurza, the crochet shop: a blanket ordered in her mother's colours, the days to make, the maker, yarn and a workshop, in its look A (GHURZA) by day and by night; look B (HABKA) in its section.
+  crochet: {
+    id: "crochet",
+    icon: "spa",
+    // GHURZA's terracotta, lighter on its coffee night.
+    accent: "#E8A27F",
+    demos: ["crochet"],
+    solutions: [],
+    hero: { photo: "crochet-cozy-sweater", screens: ["ghurza-home", "ghurza-custom"] },
+    chapters: [
+      { screen: "ghurza-home", icon: "home" },
+      { photo: "crochet-fluffy-blanket", screen: "ghurza-custom", icon: "edit_note" },
+      { screen: "ghurza-product", icon: "schedule" },
+      { photo: "crochet-knit-flatlay", screen: "crochet-sig-a-home-dark", icon: "format_quote" },
+      { photo: "crochet-knit-coffee", screen: "ghurza-home", icon: "school" },
+      { screen: "ghurza-custom", icon: "inventory_2" },
+    ],
+    interlude: { photo: "crochet-mittens-coffee" },
+    stats: [{ value: 7 }, { value: 36 }, { value: 14 }, { value: 3 }],
+    systems: [
+      { icon: "edit_note", screens: ["ghurza-custom"], features: ["edit_note", "straighten", "auto_awesome", "check_circle", "smartphone"] },
+      { icon: "schedule", screens: ["ghurza-product"], features: ["schedule", "palette", "local_shipping", "dashboard_customize"] },
+      { icon: "spa", screens: [], features: ["spa", "category", "school", "event_available", "redeem"] },
+      { icon: "palette", screens: ["crochet-sig-b-home", "crochet-sig-b-home-dark"], features: ["spa", "dark_mode", "view_carousel", "tab", "auto_awesome", "translate"] },
+      { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "crochet-scarves-stack", screen: "ghurza-home" },
+  },
+  // 210 Rukn, the furniture shop: a first living room in Riyadh, its fabric and colour, a sofa that fits the wall, delivery and assembly on her day and a unit made to measure, in its look A (RUKN) by day and by night; look B (KANAF) in its section.
+  furniture: {
+    id: "furniture",
+    icon: "living",
+    // RUKN's sand, as on its walnut night.
+    accent: "#E2C29F",
+    demos: ["furniture"],
+    solutions: [],
+    hero: { photo: "furniture-hero", screens: ["rukn-home", "rukn-product"] },
+    chapters: [
+      { screen: "rukn-home", icon: "home" },
+      { screen: "rukn-menu", icon: "menu_open" },
+      { photo: "furniture-fabric", screen: "rukn-product", icon: "format_paint" },
+      { photo: "furniture-measure", screen: "rukn-product", icon: "straighten" },
+      { screen: "furniture-sig-a-home-dark", icon: "event_available" },
+      { photo: "furniture-custom", screen: "furniture-sig-b-home", icon: "edit_note" },
+    ],
+    interlude: { photo: "furniture-terrace" },
+    stats: [{ value: 5 }, { value: 13 }, { value: 21 }, { value: 3 }],
+    systems: [
+      { icon: "living", screens: ["rukn-menu"], features: ["living", "view_list", "touch_app", "search"] },
+      { icon: "straighten", screens: ["rukn-product"], features: ["format_paint", "palette", "straighten", "inventory_2", "schedule"] },
+      { icon: "event_available", screens: [], features: ["event_available", "local_shipping", "build", "verified"] },
+      { icon: "edit_note", screens: [], features: ["edit_note", "straighten", "notifications", "schedule"] },
+      { icon: "palette", screens: ["furniture-sig-b-home", "furniture-sig-b-home-dark"], features: ["chair", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "furniture-home", screen: "rukn-home" },
+  },
 };
 
 /** Every photo slot of a story, each once. */

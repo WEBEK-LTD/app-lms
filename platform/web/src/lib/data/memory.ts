@@ -203,6 +203,8 @@ import type {
   SchoolHomework,
   SchoolLeave,
   SchoolExcuse,
+  StoreRequest,
+  StoreRequestStatus,
   SchoolPickup,
   SchoolPickupNote,
   SchoolSlip,
@@ -3464,6 +3466,34 @@ export class MemoryStore implements DataStore {
     return found && found.appId === appId ? clone(found) : null;
   }
 
+  private storeRequests = new Map<number, StoreRequest>();
+  private nextStoreRequestId = 1;
+
+  async listStoreRequests(appId: string, filter: { statuses?: StoreRequestStatus[] } = {}): Promise<StoreRequest[]> {
+    return [...this.storeRequests.values()]
+      .filter((x) => x.appId === appId && (!filter.statuses || filter.statuses.includes(x.status)))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getStoreRequest(appId: string, id: number): Promise<StoreRequest | null> {
+    const found = this.storeRequests.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createStoreRequest(input: Omit<StoreRequest, "id">): Promise<StoreRequest> {
+    const made: StoreRequest = { ...clone(input), id: this.nextStoreRequestId++ };
+    this.storeRequests.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateStoreRequest(appId: string, id: number, patch: Partial<Pick<StoreRequest, "status" | "reply" | "quoteCents" | "updatedAt">>): Promise<boolean> {
+    const found = this.storeRequests.get(id);
+    if (!found || found.appId !== appId) return false;
+    this.storeRequests.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
   async createSchoolExcuse(input: Omit<SchoolExcuse, "id">): Promise<SchoolExcuse> {
     const made: SchoolExcuse = { ...clone(input), id: this.nextSchoolId++ };
     this.schoolExcuses.set(made.id, clone(made));
@@ -6352,6 +6382,8 @@ export class MemoryStore implements DataStore {
       for (const [messageId, message] of this.listingMessages) if (message.inquiryId === id) this.listingMessages.delete(messageId);
       counts.inquiries++;
     }
+    // 210 Visitors' custom-order requests.
+    for (const [id, request] of this.storeRequests) if (request.appId === appId && old(request.createdAt)) this.storeRequests.delete(id);
     const favorites = this.listingFavorites.length;
     this.listingFavorites = this.listingFavorites.filter((f) => !(f.appId === appId && old(f.createdAt)));
     counts.favorites = favorites - this.listingFavorites.length;
@@ -7436,7 +7468,7 @@ export class MemoryStore implements DataStore {
     "travelSaved", "travelAlerts", "rides", "listingFavorites", "listingInquiries", "listingMessages", "storePurchases", "billingSessions",
     "storePurchaseEvents", "ownerNotices", "crashIssues", "scheduledNotifications", "hostedCarts", "orderWatches", "loyaltyEntries",
     "notificationCampaigns", "campaignSends", "chatMembers", "chatConversations", "chatParticipants", "chatMessages", "chatReports", "chatBlocks",
-    "chatSessions", "chatUploads", "appErrors", "uniStudents", "uniRegistrations", "uniEnrolments", "uniAttendance",
+    "chatSessions", "chatUploads", "appErrors", "uniStudents", "uniRegistrations", "uniEnrolments", "uniAttendance", "storeRequests",
   ] as const;
 
   async repointAppRows(fromAppId: string, toAppId: string, group: "plan" | "payments" | "builds" | "data", now: Date): Promise<void> {

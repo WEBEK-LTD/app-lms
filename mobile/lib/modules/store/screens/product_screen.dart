@@ -508,6 +508,100 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                   const SizedBox(height: 12),
                   ProductBadges(product: product),
                 ],
+                // 210 Installments coming soon (furniture and electronics
+                // shops): a tag, never a way to pay.
+                if (store?.installmentsSoon ?? false) ...[
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Container(
+                      key: const ValueKey('product-installments-soon'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: p.surfaceMuted,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AppIcon(
+                            AppIcons.schedule,
+                            size: 15,
+                            color: p.textSecondary,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            context.l10n.installmentsSoon,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: p.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                // 210 Its size in cm and the days it takes to make.
+                for (final (key, title, line, icon) in [
+                  (
+                    'product-dimensions',
+                    context.l10n.productDimensions,
+                    product.dimensions,
+                    AppIcons.sizeGuide,
+                  ),
+                  (
+                    'product-make-days',
+                    context.l10n.productMadeToOrder,
+                    product.makeDays,
+                    AppIcons.schedule,
+                  ),
+                ])
+                  if (line != null) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      key: ValueKey(key),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: p.surfaceMuted,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Row(
+                        children: [
+                          AppIcon(icon, size: 20, color: p.text),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: p.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  line,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: p.text,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 if (product.shortDescriptionHtml != null) ...[
                   const SizedBox(height: 12),
                   HtmlContent(html: product.shortDescriptionHtml!),

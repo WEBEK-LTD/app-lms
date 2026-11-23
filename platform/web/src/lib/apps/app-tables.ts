@@ -280,6 +280,8 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   payment_refunds: "orders",
   travel_bookings: "orders",
   listing_inquiries: "orders",
+  // 210 A shop's custom-order requests, like a listing's inquiries.
+  store_requests: "orders",
 
   // Messages.
   hosted_notifications: "messages",

@@ -4830,4 +4830,97 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return 'Buket · $_temp0';
   }
+
+  @override
+  String get customOrders => 'Özel siparişler';
+
+  @override
+  String get customOrdersText =>
+      'Uygulamanızın özel sipariş formundan gelen talepler';
+
+  @override
+  String get requestStatusNew => 'Yeni';
+
+  @override
+  String get requestStatusQuoted => 'Fiyat verildi';
+
+  @override
+  String get requestStatusAccepted => 'Kabul edildi';
+
+  @override
+  String get requestStatusDeclined => 'Reddedildi';
+
+  @override
+  String get requestStatusDone => 'Tamamlandı';
+
+  @override
+  String get requestsOpen => 'Açık';
+
+  @override
+  String get requestsAll => 'Tümü';
+
+  @override
+  String get noRequests => 'Henüz özel sipariş yok';
+
+  @override
+  String get noRequestsText =>
+      'Studio\'da uygulamanıza özel sipariş sayfasını ya da formunu ekleyin; müşterilerinizin gönderdiği talepler burada görünür.';
+
+  @override
+  String get noOpenRequests => 'Sizi bekleyen talep yok';
+
+  @override
+  String get requestSomeone => 'Bir müşteri';
+
+  @override
+  String requestQuote(String price) {
+    return 'Fiyat $price';
+  }
+
+  @override
+  String get requestAsked => 'İstenenler';
+
+  @override
+  String get requestCustomer => 'Müşteri';
+
+  @override
+  String get requestAnswerTitle => 'Yanıtınız';
+
+  @override
+  String get requestStatusLabel => 'Durumu';
+
+  @override
+  String requestPrice(String currency) {
+    return 'Fiyat ($currency)';
+  }
+
+  @override
+  String get requestPriceHint => 'Örneğin 450 veya 450.50';
+
+  @override
+  String get requestReply => 'Yanıtınız';
+
+  @override
+  String get requestReplyHint => 'Fiyat, süre, bir soru';
+
+  @override
+  String get requestSave => 'Yanıtı kaydet';
+
+  @override
+  String get requestSaved => 'Yanıt kaydedildi.';
+
+  @override
+  String requestSentOn(String title, String date) {
+    return '$title · $date';
+  }
+
+  @override
+  String requestsNewCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yeni talep',
+    );
+    return '$_temp0';
+  }
 }

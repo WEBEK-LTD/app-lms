@@ -1,4 +1,4 @@
-import type { LiabilityAcceptance } from "../data/types";
+import type { LiabilityAcceptance, ProductDimensions, ProductMakeDays, StoreRequestAnswer, StoreRequestCustomer, StoreRequestStatus } from "../data/types";
 import type { OrderMoney } from "../market/money";
 import type {
   AppAuthKey,
@@ -867,6 +867,9 @@ export const catalogProducts = mysqlTable(
     variants: jsonText<CatalogVariants>("variants"),
     // 131 Its weight, for shipping priced by weight.
     weightGrams: int("weight_grams"),
+    // 210 Its size in cm and the days it takes to make (JSON); null: none.
+    dimensions: jsonText<ProductDimensions>("dimensions"),
+    makeDays: jsonText<ProductMakeDays>("make_days"),
     // 131 A gift add-on (never listed or bought alone), and what it's offered with (JSON; null: everything).
     addon: boolean("addon").notNull().default(false),
     addonFor: jsonText<AddonRule>("addon_for"),
@@ -4857,6 +4860,29 @@ export const schoolSlipAnswers = mysqlTable(
     answeredAt: time("answered_at").notNull(),
   },
   (t) => [primaryKey({ columns: [t.slipId, t.studentId] }), index("school_slip_answers_student_idx").on(t.appId, t.studentId)],
+);
+
+/** 210 The custom-order requests sent from an app's forms (lib/selling/requests.ts). */
+export const storeRequests = mysqlTable(
+  "store_requests",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    title: varchar("title", { length: 200 }).notNull(),
+    answers: jsonText<StoreRequestAnswer[]>("answers").notNull(),
+    customer: jsonText<StoreRequestCustomer>("customer").notNull(),
+    status: varchar("status", { length: 12 }).notNull().$type<StoreRequestStatus>(),
+    reply: varchar("reply", { length: 2000 }),
+    quoteCents: bigint("quote_cents", { mode: "number", unsigned: true }),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    lang: varchar("lang", { length: 8 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("store_requests_app_idx").on(t.appId, t.status, t.createdAt)],
 );
 
 export const schoolExcuses = mysqlTable(

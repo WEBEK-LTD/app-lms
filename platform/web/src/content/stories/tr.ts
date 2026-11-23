@@ -2037,5 +2037,536 @@ export const STORIES_TR: StoryCopy = {
         "toys-finale": "Oturma odası halısında birlikte oynayan bir aile"
       }
     },
+    // 210 Ghurza, the crochet shop.
+    crochet: {
+      navName: "Tığ işi mağazası uygulaması",
+      metaTitle: "Özel siparişler, yapım günleri, ipler ve atölyelerle bir tığ işi ve el yapımı mağaza uygulaması, Yallapp Studio'da tasarlandı",
+      metaDescription: "Ghurza ile bir gün: annesinin renklerinde sipariş edilen bir battaniye, kaç günde yapıldığı, onu ören usta, bir başlangıç seti ve cumartesi atölyesinde bir yer.",
+      summary: "Kendi talep sayfasıyla özel siparişler, her parçanın kaç günde yapıldığı, ustanın hikâyesi, ipler ve aletler, atölyeler ve elle hediye paketi, iki premium görünümde.",
+      eyebrow: "Yallapp Studio · Tığ işi mağazası",
+      title: "Zeytin yeşili ve krem, on iki günde",
+      intro: "Leyla'nın annesi iki hafta sonra altmış yaşına giriyor ve Leyla ona kimsenin veremeyeceği bir şey vermek istiyor. Maadi'de bir çarşamba akşamı. Telefonla geçen birkaç dakika, annesinin renklerinde elde örülen bir battaniyeye ve kendisi için bir atölye yerine böyle dönüşüyor.",
+      cast: "Leyla, Kahire'deki bir tığ işi atölyesi olan Ghurza'dan sipariş veriyor. Ghurza, tığ işi ve el yapımı şablonunun demosudur: parçaları, adları ve fiyatları uydurmadır, fotoğrafları gerçektir ve aşağıdaki her ekran gerçek uygulamadır.",
+      chapters: [
+        {
+          time: "21:30",
+          kicker: "Maadi, akşamın geç saati",
+          title: "Kimsenin veremeyeceği bir şey",
+          text: "Leyla Ghurza'yı balkonda açıyor. Ana sayfa sıcak ve hızlı: arama, yuvarlak kategoriler ve kayan kartlarda kış koleksiyonu, sonraki kart kenardan görünüyor. Altında bir kart, zevkinize göre bir parçanın size özel örüldüğünü, 7 ila 14 günde hazır olduğunu söylüyor."
+        },
+        {
+          time: "21:34",
+          kicker: "Özel sipariş",
+          title: "Annesinin renklerinde bir battaniye",
+          text: "Siparişe başla'ya dokunuyor. Sayfa nasıl çalıştığını dört adımda anlatıyor, sonra soruyor: parça, beden, ipin rengi ve ayrıntılar. Battaniye'yi seçiyor, 120'ye 150 cm yazıyor, annesinin kanepesi gibi zeytin yeşili ve krem, bir köşeye de annesinin adının işlenmesini istiyor. Adı, telefonu ve gönderiyor."
+        },
+        {
+          time: "21:41",
+          kicker: "Yapım günleri",
+          title: "3 ila 4 günde yapılır",
+          text: "Beklerken Atölyeden yeni'deki fitilli atkıyı açıyor. Her kart parçasının kaç günde yapıldığını söylüyor, sayfası da: tarçın, zeytin yeşili ya da kum renginde 3 ila 4 gün. Fiyatın altında mağaza, ustanın yazdığı bir kartla hediye paketini sunuyor."
+        },
+        {
+          time: "22:05",
+          kicker: "Usta",
+          title: "Yirmi iki yıllık ilmekler",
+          text: "Telefon gece için karardı, Ghurza da kahve rengiyle. Ana sayfanın aşağısında atölyeyi yöneten Ümmü Yusuf, her parçanın günlerini, kalbinden de fazlasını aldığını söylüyor. On iki usta, 4.800 parça, hepsi elde."
+        },
+        {
+          time: "22:10",
+          kicker: "İp ve bir atölye",
+          title: "Kendi ilk ilmeği",
+          text: "Leyla hep öğrenmek istemişti. Atkı başlangıç setini, yani ipi, şişleri ve Arapça ile İngilizce bir modeli ekliyor ve ayın ilk cumartesi Zamalek'teki Yeni başlayanlar için tığ işi atölyesinde bir yer ayırtıyor. Dört yer kalmıştı; şimdi üç."
+        },
+        {
+          time: "10:15",
+          kicker: "Perşembe, atölyede",
+          title: "Zeytin yeşili, krem ve bir ad",
+          text: "Ghurza'da Ümmü Yusuf sabahın taleplerini açıyor. Leyla'nınki şunu söylüyor: 120'ye 150 cm battaniye, zeytin yeşili ve krem, bir köşede annesinin adı. Fiyatı ve süreyi, 12 günü söylemek için onu arıyor ve ipi raftan kendisi seçiyor.",
+          push: {
+            app: "Ghurza",
+            title: "Özel siparişiniz",
+            body: "Ümmü Yusuf battaniyenizi örmeye başladı. 12 gün içinde hazır olacak."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Zeytin yeşili ve krem, annesinin kanepesinin renkleri.",
+        text: "Aradaki her şey mağazanın kendisindendi: parçaları ve her birinin kaç günde yapıldığı, özel siparişi ve soruları, ipleri ve aletleri, atölyeleri ve yerleri; panelde bir kez ayarlandı."
+      },
+      statsTitle: "Bir battaniyenin ardındaki küçük gerçekler",
+      stats: [
+        "demonun menüsündeki ana kategori, atölyeler dahil",
+        "demodaki parça, ip, alet ve atölye yeri",
+        "bir battaniyeyi elde örmek için en fazla gün",
+        "dil, Arapça sağdan sola"
+      ],
+      systemsTitle: "Her parça, ayrıntısıyla",
+      systemsText: "Özel sipariş, yapım günleri, ipler, aletler ve atölyeler, iki görünüm ve ürünlerin nereden geldiği.",
+      systems: [
+        {
+          name: "Özel sipariş",
+          title: "Sadece onun için yapılır",
+          text: "Ana sayfadaki bir kart mağazanın kendi talep sayfasını açar: önce nasıl çalıştığı, sonra sorular.",
+          features: [
+            ["Parça", "Battaniye, hırka, atkı, çanta, oyuncak ya da başka bir şey."],
+            ["Beden", "Santimetre olarak ya da kendi ölçüleri."],
+            ["Renk", "İpin rengi, kendi sözleriyle."],
+            ["Mağazaya gider", "Talep her cevap, adı ve telefonuyla gelir."],
+            ["Sahibinin telefonunda", "Mağaza onu panelde ve Yallapp Business'ta görür."]
+          ]
+        },
+        {
+          name: "Yapım günleri",
+          title: "Ne kadar sürdüğü, her kartta",
+          text: "Siparişle yapılan bir parça, kaç günde yapıldığını kartında ve sayfasında söyler.",
+          features: [
+            ["Şu kadar ile şu kadar", "Bir atkı için 3 ila 4 gün, bir battaniye için 10 ila 14."],
+            ["Renkler ve bedenler", "Her renk ve beden kendi ip stokuyla."],
+            ["Gönderime hazır", "İpler ve aletler gün söylemez: aynı gün yola çıkar."],
+            ["Bir kez ayarlanır", "Mağaza günleri panelde ürüne yazar."]
+          ]
+        },
+        {
+          name: "İpler, aletler ve atölyeler",
+          title: "Kendinizinkini yapmak için her şey",
+          text: "Mağaza, örerken kullandığını satar ve nasıl yapıldığını öğretir.",
+          features: [
+            ["İpe göre alışveriş", "Pamuk, merinos ve rafya; her kart kendi kategorisini açar."],
+            ["Tığlar ve setler", "İp, tığ ve modelle başlangıç setleri."],
+            ["Atölyeler", "Her atölye mağazada bir yer; atölyede ya da çevrim içi."],
+            ["Kalan yerler", "Ayırtılan her yer bir eksiltir; hiçbir atölye fazla dolmaz."],
+            ["Elle paketlenir", "Her parçayla bir hediye paketi ve ustanın yazdığı bir kart."]
+          ]
+        },
+        {
+          name: "Yallapp Studio'da tasarlandı",
+          title: "İki görünüm, her parçası sizin değiştirmeniz için",
+          text: "Ghurza, yalnızca Studio'nun öğeleriyle kurulmuş iki premium görünümle gelir.",
+          features: [
+            ["GHURZA", "A görünümü: sıcak el emeği, bej kâğıt üzerinde kiremit rengi, yumuşak yuvarlak köşeler."],
+            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var: kahve rengi ve mürdüm siyahı."],
+            ["Kompakt vitrin", "Koleksiyonlar yaklaşık 210 nokta yüksekliğinde kartlarda, sonraki görünüyor."],
+            ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan vurgulu."],
+            ["HABKA", "B görünümü: renkli ve eğlenceli, mürdüm ve böğürtlen, kendi parçanı tasarla."],
+            ["Üç dil", "İngilizce, sağdan sola Arapça ve Türkçe."]
+          ]
+        },
+        {
+          name: "Ürünlerin geldiği yer",
+          title: "Sizin ürünleriniz ya da mağazanızın platformu",
+          text: "Ghurza, Yallapp'ta tutulan ürünlerle ya da zaten sahip olduğunuz online mağazayla çalışır.",
+          features: [
+            ["Yallapp'taki ürünler", "Bu sayfadaki her şey: kategori içinde kategoriler, yapım günleri ve özel siparişler."],
+            ["WordPress ve diğer platformlar", "Kategorileri ve ürünleri uygulamada."],
+            ["Sırada", "Bağlı bir platformdan yapım günleri."]
+          ]
+        }
+      ],
+      bundleTitle: "Tek uygulama, paneliniz ve varsa mağazanız",
+      bundleText: "Müşterilerin uygulaması tek bir Studio projesinden mağazanın adıyla oluşturulup yayımlanır. Ürünleri Yallapp'tan ya da mağazanın kendi platformundan gelir.",
+      bundleNodes: [
+        ["Ghurza", "Müşteriler, Android ve iPhone'da"],
+        ["Yallapp Studio", "Mağaza: görünümü, parçaları, özel siparişleri ve atölyeleri"],
+        ["Mağazanın web sitesi", "Varsa WooCommerce, Shopify ya da başka biri"]
+      ],
+      bundleFlows: [
+        "Özel sipariş her cevabıyla gelir",
+        "Yapım günleri her kartta görünür",
+        "Ayırtılan her atölye yeri bir eksiltir",
+        "Hediye paketi her parçayla sunulur"
+      ],
+      compareTitle: "Nasıl karşılaştırılır",
+      compareText: "Online mağazalar için uygulama yapan şirketler, kendi sitelerinin anlattığı gibi; Yallapp'ın ve bir ajansa uygulama yaptırmanın yanında.",
+      finale: {
+        title: "On iki gün sonra",
+        text: "Battaniye pamuk kâğıda sarılmış, iple bağlanmış olarak geliyor; üstünde Ümmü Yusuf'un el yazısıyla bir kart. Annesi her şeyden önce köşedeki adını buluyor. Cumartesi Zamalek'te Leyla ilk ilmeğini atıyor, sonra söküyor, sonra yeniden atıyor."
+      },
+      photos: {
+        "crochet-cozy-sweater": "Gri örgü kazağının yakasını yüzüne tutan bir kadın",
+        "crochet-fluffy-blanket": "Kabarık beyaz bir battaniyenin üzerinde bir fincan kahve ve açık bir kitap",
+        "crochet-knit-flatlay": "Bir defter ve yumak iplerin yanında, tığıyla vizon renkli bir tığ işi",
+        "crochet-knit-coffee": "Bir fincan kahve ve bir modelin yanında şişlerindeki örgü",
+        "crochet-mittens-coffee": "Gri örgü eldivenli eller, buharı tüten bir fincanın çevresinde",
+        "crochet-scarves-stack": "Zeytin yeşili, gri ve krem tığ işi şallar, üst üste katlanmış"
+      }
+    },
+    // 210 Sakan, the home decor shop.
+    decor: {
+      navName: "Ev dekorasyonu mağazası uygulaması",
+      metaTitle: "Görünümü satın al, odalar, tarzlar ve kartlı hediyelerle bir ev dekorasyonu mağazası uygulaması, Yallapp Studio'da tasarlandı",
+      metaDescription: "Sakan ile bir gün: yeni bir daire, parça parça alınan bir yemek köşesi, kartıyla hediye gönderilen bir vazo ve Ramazan fenerleri.",
+      summary: "Düzenlenmiş bir odada görünümü satın al, odaya ve tarza göre alışveriş, santimetre ölçüler, kartlı hediye paketi ve mevsim afişleri, iki premium görünümde.",
+      eyebrow: "Yallapp Studio · Ev dekorasyonu mağazası",
+      title: "Cumaya kadar iki kişilik bir köşe",
+      intro: "Hessa ve eşi geçen hafta Riyad'da küçük bir daireye taşındı. Yemek köşesi ödünç bir masa ve iki koliden ibaret. Salı akşamı. Telefonla geçen birkaç dakika, yemek yiyecekleri bir köşeye ve kız kardeşine bir hediyeye böyle dönüşüyor.",
+      cast: "Hessa, Riyad'daki bir ev dekorasyonu evi olan Sakan'dan alışveriş yapıyor. Sakan, ev dekorasyonu şablonunun demosu: parçaları, adları ve fiyatları uydurma, fotoğrafları gerçek ve aşağıdaki her ekran gerçek uygulama.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Riyad, akşam yemeğinden sonra",
+          title: "İki koli ve ödünç bir masa",
+          text: "Hessa koltukta Sakan'ı açıyor. Ana sayfa küçük ve hızlı: arama, kategoriler ve kayan geniş fotoğraf kartlarında mevsimin koleksiyonları, bir sonraki kenardan görünüyor. Altında dört oda: yatak odası, oturma odası, yemek odası ve okuma köşesi."
+        },
+        {
+          time: "20:44",
+          kicker: "Odayı tamamla",
+          title: "Orkideye bir dokunuş",
+          text: "Aşağıda düzenlenmiş bir yemek köşesi ekranı dolduruyor: beyaz bir masa, iki beyaz sandalye, beyaz saksıda bir orkide. Fotoğraftaki her parçanın numaralı bir etiketi var. Orkideye dokunuyor ve sayfası açılıyor. Fotoğrafın altında üç parça fiyatlarıyla yan yana."
+        },
+        {
+          time: "20:47",
+          kicker: "Masanın sayfası",
+          title: "80'e 80, sığıyor",
+          text: "Masa ölçüsünü santimetre olarak söylüyor: 80 en, 80 derinlik, 75 yükseklik. Hessa çekmeceden aldığı metreyle köşeyi ölçüyor: 85 santimetre. Sandalye beyaz, siyah ve adaçayı yeşili; siyah bitmek üzere, beyazda kalıyor."
+        },
+        {
+          time: "20:52",
+          kicker: "Menü",
+          title: "Her oda bir sıra",
+          text: "Zilin yanındaki menüye dokunuyor. Mağazanın her odası fotoğraflı kartlardan bir sıra: vazoları, yastıkları ve koltuklarıyla oturma odası, nevresim ve lambalarıyla yatak odası, sonra bitkiler, mevsimler ve hediyeler. Oturma odası sırasını kaydırıp Vazolar ve kâseler'e dokunuyor."
+        },
+        {
+          time: "20:58",
+          kicker: "Bir hediye",
+          title: "Noura için ikiz vazolar",
+          text: "Kız kardeşi Noura'nın da yeni bir evi var. Hessa meşe tepsideki ikiz vazoları, ardından kartlı hediye paketini ekliyor. Ödemede kartı kendisi yazıyor: \"Yeni evindeki ilk baharın için.\" Mağazanın kodu SAKAN10'u kopyalayıp ödüyor."
+        },
+        {
+          time: "09:15",
+          kicker: "Çarşamba, mağazada",
+          title: "Zeytin yeşili kâğıda sarılı",
+          text: "Sakan'da sabahın siparişleri açılıyor. Hessa'nınkinde bir masa, iki sandalye, bir orkide ve hediye olarak kartıyla paketlenmiş ikiz vazolar var. Kartın sözleri paket fişine basılıyor. Uygulamanın ana sayfasında Ramazan afişi pirinç fenerlerle çoktan yerinde.",
+          push: {
+            app: "Sakan",
+            title: "Sipariş 3124",
+            body: "Parçalarınız yolda. İade 14 gün içinde ücretsiz."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Salı saat dokuz. Cuma akşam yemeği gerçek bir masada.",
+        text: "Arada olan her şey mağazanın kendisindi: odaları ve sıraları, düzenlenmiş köşe ve parçaları, santimetre ölçüler, hediye paketi ve kart; panelde bir kez ayarlandı."
+      },
+      statsTitle: "Bir yemek köşesinin arkasındaki küçük gerçekler",
+      stats: [
+        "demonun menüsündeki ana kategori, önce odalar",
+        "sıralarında kayan alt kategori",
+        "gün içinde iade, kapıdan alınır",
+        "dil, Arapça sağdan sola"
+      ],
+      systemsTitle: "Her parça, ayrıntılı",
+      systemsText: "Görünümü satın al, odalar ve tarzlar, hediyeler ve mevsimler, iki görünüm ve ürünlerin nereden geldiği.",
+      systems: [
+        {
+          name: "Görünümü satın al",
+          title: "Düzenlenmiş bir oda, her parça bir dokunuş uzakta",
+          text: "Her parçasında bir etiket olan bir oda fotoğrafı ve altında parçalar.",
+          features: [
+            [
+              "Fotoğrafta noktalar",
+              "Her parçanın numaralı bir etiketi var; bir dokunuş sayfasını açar."
+            ],
+            [
+              "Parçalar bir sırada",
+              "Fotoğrafın altında görünümdeki her parça fiyatıyla."
+            ],
+            [
+              "Görünümü satın al",
+              "Parçalara tek bir düğme; birlikte ya da tek tek almak için."
+            ],
+            [
+              "Editörde de",
+              "Görünümü satın al, her mağaza için Studio kitaplığında bir öğe."
+            ]
+          ]
+        },
+        {
+          name: "Odalar ve tarzlar",
+          title: "İnsanların evini düşündüğü gibi alışveriş",
+          text: "Mağazanın kategorileri odaları ve menü hepsini gösteriyor.",
+          features: [
+            [
+              "Odaya göre",
+              "Oturma odası, yatak odası, yemek odası ve okuma köşesi için fotoğraf kutuları, her biri kendi odasını açar."
+            ],
+            [
+              "Tarza göre",
+              "Doğal, minimal, toprak tonları, klasik: fotoğrafların altında bir sıra seçenek."
+            ],
+            [
+              "Her oda bir sıra",
+              "Zilin yanındaki menü: her oda bir kart sırası, alt kategorileri ardından."
+            ],
+            [
+              "Üstte arama",
+              "Tek bir alan tüm odalarda arar."
+            ]
+          ]
+        },
+        {
+          name: "Hediyeler ve mevsimler",
+          title: "Elle paketlenir, kartıyla",
+          text: "Her parça mağazadan hediye olarak çıkabilir.",
+          features: [
+            [
+              "Hediye paketi",
+              "Sepette her parçayla sunulan bir ek."
+            ],
+            [
+              "Kart mesajı",
+              "Ödemede yazılır, üç dilde dokunarak seçilen hazır başlangıçlarla."
+            ],
+            [
+              "Mevsimler",
+              "Ramazan ve yılbaşı afişleri, her biri kendi kategorisini açar."
+            ],
+            [
+              "Hafta sonu fırsatları",
+              "Geri sayımı ve kalan adediyle bir flaş indirim."
+            ]
+          ]
+        },
+        {
+          name: "Yallapp Studio'da tasarlandı",
+          title: "İki görünüm, her parçası sizin",
+          text: "Sakan, yalnızca Studio öğeleriyle kurulmuş iki premium görünümle gelir.",
+          features: [
+            [
+              "Teen",
+              "B görünümü: sıcak ve sakin, beyaz ve kum rengi üzerinde siyaha yakın mürekkep, meşe ve kil."
+            ],
+            [
+              "Açık ve koyu",
+              "İki görünümün de tasarlanmış bir gecesi var."
+            ],
+            [
+              "Kompakt vitrin",
+              "Koleksiyonlar yaklaşık 210 nokta yüksekliğinde kartlarda, sonraki görünüyor."
+            ],
+            [
+              "Yüzen çubuk",
+              "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan adıyla bir kapsül."
+            ],
+            [
+              "Hazır bölümler",
+              "Odayı tamamla, tarza göre alışveriş, mevsimler, koleksiyonlar ve dahası, her mağaza için."
+            ],
+            [
+              "Üç dil",
+              "İngilizce, sağdan sola Arapça ve Türkçe."
+            ]
+          ]
+        },
+        {
+          name: "Ürünlerin nereden geldiği",
+          title: "Ürünleriniz ya da mağazanızın platformu",
+          text: "Sakan, Yallapp'ta tutulan ürünlerle ya da zaten sahip olduğunuz online mağazayla çalışır.",
+          features: [
+            [
+              "Yallapp'taki ürünler",
+              "Bu sayfadaki her şey: oda içinde odalar, stoklu renkler, santimetre ölçüler ve hediye eki."
+            ],
+            [
+              "WordPress ve diğer platformlar",
+              "Kategorileri ve alt kategorileri menüde, stokları sayfada."
+            ],
+            [
+              "Santimetre ölçüler",
+              "Kartta ve sayfada genişlik, derinlik ve yükseklik."
+            ]
+          ]
+        }
+      ],
+      bundleTitle: "Tek uygulama, paneliniz ve varsa mağazanız",
+      bundleText: "Müşteri uygulaması tek bir Studio projesinden mağazanın adıyla yapılır ve yayınlanır. Ürünleri Yallapp'tan ya da mağazanın kendi platformundan gelir.",
+      bundleNodes: [
+        [
+          "Sakan",
+          "Müşteriler, Android ve iPhone'da"
+        ],
+        [
+          "Yallapp Studio",
+          "Mağaza: görünümü, odaları, düzenlenmiş köşeleri ve fırsatları"
+        ],
+        [
+          "Mağazanın web sitesi",
+          "Varsa WooCommerce, Shopify ya da bir başkası"
+        ]
+      ],
+      bundleFlows: [
+        "Yeni bir parça menüde odasının sırasında görünür",
+        "Tükenen bir renk uygulamada seçilemez",
+        "Hediye kartının sözleri siparişle gelir",
+        "Mevsim afişi kendi kategorisini açar"
+      ],
+      compareTitle: "Nasıl karşılaştırılır",
+      compareText: "Online mağazalar için uygulama yapan şirketler, kendi sitelerinin anlattığı gibi; Yallapp'ın ve bir ajansa uygulama yaptırmanın yanında.",
+      finale: {
+        title: "Cuma, saat sekiz",
+        text: "Masa köşeye beş santimetre payla sığıyor. Orkide iki çiçek daha açmış. Noura ikiz vazoların pencere kenarındaki fotoğrafını gönderiyor, kart onlara yaslanmış."
+      },
+      photos: {
+        "decor-hero": "Keten örtü üzerinde beyaz bir balkabağının yanında küçük kil vazoda kuru buğday",
+        "decor-room": "İki beyaz sandalye ve bir orkideyle beyaz bir yemek masası",
+        "decor-vases": "Meşe tepside pembe çiçekli iki beyaz vazo",
+        "decor-lantern": "Masada içinde mum olan pirinç ve camdan bir fener",
+        "decor-pottery": "El yapımı seramik kâse ve fincan rafları",
+        "decor-reading": "Bükme ahşap koltuk ve siyah yan sehpalı bir okuma köşesi"
+      }
+    },
+    furniture: {
+      navName: "Mobilya mağazası uygulaması",
+      metaTitle: "Odalar, cm ölçüler, istediğiniz gün teslimat ve kurulumla bir mobilya mağazası uygulaması, Yallapp Studio'da tasarlandı",
+      metaDescription: "Rukn ile bir hafta: ilk oturma odası, doğru kumaşta bir kanepe, 240 cm'lik duvara 220 cm, cumartesi teslimat ve kurulum, ölçüye özel bir ünite.",
+      summary: "Odalar ve parçaları, her birinin stokuyla kumaşlar ve renkler, cm ölçüler, müşterinin gününde teslimat ve kurulum, ölçüye özel talepler; iki premium görünümde.",
+      eyebrow: "Yallapp Studio · Mobilya mağazası",
+      title: "Duvara tam oturan bir kanepe",
+      intro: "Sara, Riyad'daki ilk dairesinin anahtarlarını aldı; oturma odasında bir halıdan başka bir şey yok. Çarşamba akşamı. Telefonuyla geçen bir hafta, doğru kumaşta, seçtiği gün teslim edilip kurulan bir kanepeye böyle dönüşüyor.",
+      cast: "Sara, Riyad'da bir mobilya evi olan Rukn'dan alışveriş yapıyor. Rukn, mobilya mağazası şablonunun demosu: mobilyaları, adları ve fiyatları uydurma, fotoğrafları gerçek; aşağıdaki her ekran gerçek uygulama.",
+      chapters: [
+        {
+          time: "20:40",
+          kicker: "Riyad, boş bir oda",
+          title: "İçi bomboş bir oturma odası",
+          text: "Sara, Rukn'u yerde otururken açıyor. Ana sayfa sakin ve hızlı: arama, yuvarlak odalar, kayan kartlarda sezonun koleksiyonu. Altında yan yana dört vaat: ücretsiz teslimat ve kurulum, garanti, seçtiği teslimat günü ve taksitin yakında geleceğini söyleyen küçük bir etiket."
+        },
+        {
+          time: "20:44",
+          kicker: "Menü",
+          title: "Her oda bir satır",
+          text: "Zilin yanındaki menü bütün evi açıyor: önce Oturma odası, ardından kayan Kanepeler, Berjerler, Sehpalar ve TV üniteleri; sonra Yatak odası, Yemek odası, Çalışma odası ve Bahçe. Kanepeler'e dokunuyor."
+        },
+        {
+          time: "20:52",
+          kicker: "Kanepenin sayfası",
+          title: "Bukle mi, kadife mi",
+          text: "Sadeer kanepe bukle, kadife ya da keten; fildişi, zeytin ya da kum renginde. Zeytin kadifeden son iki tane kalmış. Ekrandan karar veremiyor; ana sayfadan ücretsiz kumaş örneklerini istiyor: beş örnek, üç günde kapısında."
+        },
+        {
+          time: "21:05",
+          kicker: "Elde şerit metre",
+          title: "240 cm'lik duvara 220 cm",
+          text: "Her kart adının altında ölçüsünü yazıyor: W 220 × D 95 × H 82 cm. Pencereyle kapı arasındaki duvarı ölçüyor: 240. Her yanda on santim. Najd orta sehpa da komple takımın fotoğrafında, noktası bir dokunuş uzakta."
+        },
+        {
+          time: "Cumartesi",
+          kicker: "Onun günü, onun saati",
+          title: "Cumartesi, dokuzdan on ikiye",
+          text: "Örnekler pazar günü geldi; karar zeytin kadife. Ödemede, öğleden sonrasının tek yeri de dolmadan cumartesi dokuzla on iki arasını seçiyor. 1.500 SAR üzerinde kurulum ücretsiz; eski berjerin götürülmesini de 199'a ekliyor."
+        },
+        {
+          time: "09:20",
+          kicker: "Rukn'un atölyesinde",
+          title: "Santimine kadar bir ünite",
+          text: "TV duvarı 186 cm ve hiçbir hazır ünite sığmıyor. Sara ölçüye özel bir talep gönderiyor: parça, G × D × Y ölçüsü, meşe ve birkaç kelime. Rukn'da Faisal talebi sabahın siparişlerinin yanında buluyor ve öğleden önce fiyatla arıyor.",
+          push: {
+            app: "Rukn",
+            title: "Sipariş 3104",
+            body: "Kanepeniz cumartesi 9 ile 12 arasında geliyor. Ekip kurulumunu yapacak."
+          }
+        }
+      ],
+      interlude: {
+        quote: "Çarşamba ölçüldü. Cumartesi üstüne oturuldu.",
+        text: "Aradaki her şey mağazanın kendisindendi: odaları ve parçaları, kumaşlar, renkler ve her birinin stoku, cm ölçüler, teslimat günleri ve saatleri, kurulum ve talepler; panelde bir kez ayarlandı."
+      },
+      statsTitle: "Bir kanepenin ardındaki küçük gerçekler",
+      stats: [
+        "oda, demonun menüsünde, her biri bir kart satırı",
+        "parça türü, satırlarında kayıyor",
+        "gün öncesine kadar teslimat günü seçilebiliyor",
+        "dil, Arapça sağdan sola"
+      ],
+      systemsTitle: "Her parça, tek tek",
+      systemsText: "Odalar ve menü, kumaşlar ve ölçüler, teslimat ve kurulum, ölçüye özel üretim ve iki görünüm.",
+      systems: [
+        {
+          name: "Odaya göre alışveriş",
+          title: "Her oda bir satır",
+          text: "Mağazanın odaları ana kategorileridir: yuvarlaklar, kutular ve menü onları açar.",
+          features: [
+            ["Kategori olarak odalar", "Oturma odası, Yatak odası, Yemek odası, Çalışma odası ve Bahçe; her biri kendi parça türleriyle."],
+            ["Her odaya bir satır", "Menü her odayı yana kayan bir kart satırı olarak gösterir."],
+            ["Açılan kutular", "Bir odanın kutusu o odayı mağazada açar."],
+            ["Üstte arama", "Tek alan tüm odalarda arar."]
+          ]
+        },
+        {
+          name: "Kumaşlar, renkler ve ölçüler",
+          title: "Her kumaşın stoku",
+          text: "Bir parça kumaşları ya da malzemeleri ve renkleriyle gelir; mağaza her birinin stokunu tutar.",
+          features: [
+            ["Kumaş ve malzeme", "Bukle, kadife, keten, meşe ya da ceviz: her biri sayfada bir seçenek."],
+            ["Renk renk", "Her renkteki her kumaşın kendi stoku var."],
+            ["cm ölçüler", "Genişlik, derinlik ve yükseklik her kartta ve sayfada."],
+            ["Biten bitti", "Hiç kalmayan bir seçenek soluk görünür."],
+            ["Siparişe özel", "Atölyede yapılan parça kaç günde hazır olduğunu söyler."]
+          ]
+        },
+        {
+          name: "Teslimat ve kurulum",
+          title: "Müşterinin gününde",
+          text: "Müşteri günü ve saati seçer; mağazanın ekibi parçayı getirip kurar.",
+          features: [
+            ["Günler ve saatler", "Mağazanın sonraki günleri ve saat dilimleri; dolanı dolu görünür."],
+            ["Bir tutarın üstünde ücretsiz", "Mağazanın belirlediği tutarın üstünde teslimat ve kurulum ücretsiz."],
+            ["Ek hizmetler", "Kurulum ve eski mobilyanın götürülmesi, uydukları parçalarla sunulur."],
+            ["Garanti ve iade", "Garanti vaatlerde, iade mağazanın günleri içinde."]
+          ]
+        },
+        {
+          name: "Ölçüye özel",
+          title: "Tahmin değil, talep",
+          text: "Adımlarıyla bir ölçüye özel sayfası ve mağazanın talep olarak sakladığı bir form.",
+          features: [
+            ["Talep formu", "Parça, G × D × Y ölçüsü, malzeme ya da kumaş, renk ve ayrıntılar."],
+            ["Oturan ölçüler", "Müşteri duvarın ölçüsünü yazar, atölye ona göre yapar."],
+            ["Panelde", "Her talep panele ve Yallapp Business'a düşer."],
+            ["Taksit yakında", "Vaatlerde bir etiket; uygulama henüz taksit almıyor."]
+          ]
+        },
+        {
+          name: "Yallapp Studio'da tasarlandı",
+          title: "İki görünüm, her parçası değiştirilebilir",
+          text: "Rukn, yalnızca Studio öğeleriyle kurulmuş iki premium görünümde gelir.",
+          features: [
+            ["RUKN", "Görünüm A: modern beyaz ve ceviz, yuvarlak köşeler ve sıcak fotoğraflar."],
+            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var."],
+            ["Kompakt vitrin", "Koleksiyonlar yaklaşık 210 nokta yüksekliğinde kartlarda, sonraki kenardan görünür."],
+            ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan işaretli."],
+            ["KANAF", "Görünüm B: koyu yeşilde sessiz lüks, kanepeni parça parça tasarla ve haritada showroom."],
+            ["Üç dil", "İngilizce, sağdan sola Arapça ve Türkçe."]
+          ]
+        }
+      ],
+      bundleTitle: "Tek uygulama, paneliniz ve varsa mağazanız",
+      bundleText: "Müşteri uygulaması tek bir Studio projesinden mağazanın adıyla yapılır ve yayınlanır. Ürünleri Yallapp'ten ya da mağazanın kendi platformundan gelir.",
+      bundleNodes: [
+        ["Rukn", "Müşteriler, Android ve iPhone'da"],
+        ["Yallapp Studio", "Mağaza: görünümü, odaları, kumaşları ve teslimat günleri"],
+        ["Mağazanın sitesi", "Varsa WooCommerce, Shopify ya da bir başkası"]
+      ],
+      bundleFlows: [
+        "Yeni bir parça odasının satırında görünür",
+        "Biten bir kumaş uygulamada soluk görünür",
+        "Dolan bir teslimat dilimi dolu görünür",
+        "Ölçüye özel bir talep panele düşer"
+      ],
+      compareTitle: "Karşılaştırma",
+      compareText: "Çevrim içi mağazalara uygulama yapan şirketler, kendi sitelerinin anlattığı gibi; Yallapp'in ve bir ajansa uygulama yaptırmanın yanında.",
+      finale: {
+        title: "Cumartesi, saat on bir",
+        text: "Ekip kutularla ve eski berjerle çıkıyor. Zeytin kadife ekrandakinden daha sıcak duruyor. Faisal Oturma odası satırına yeni bir berjer eklemiş bile; Riyad'ın bir yerinde biri bir duvarı ölçüyor."
+      },
+      photos: {
+        "furniture-hero": "Aydınlık bir pencerenin yanında desenli minderli açık mavi bir ikili kanepe",
+        "furniture-fabric": "Turuncu çiçekli kumaşla kaplı, yüzyıl ortası tarzı bir berjer",
+        "furniture-measure": "Aydınlık bir oturma odasında duvarda uzun beyaz bir TV ünitesi",
+        "furniture-custom": "Bir avizenin altında gri döşemeli sandalyelerle uzun ahşap bir yemek masası",
+        "furniture-terrace": "Denize bakan, ahşap sandalyeli üstü kapalı bir teras",
+        "furniture-home": "Bir tablonun altında ekoseli minderli beyaz deri bir kanepe"
+      }
+    },
   },
 };

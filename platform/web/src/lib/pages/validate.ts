@@ -2061,7 +2061,17 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         send_to: send ?? "email",
         submit_label: c.optionalText(where, f.submit_label, 40, "The button text") || null,
         success_text: c.optionalText(where, f.success_text, 200, "The text after sending") || null,
+        // 210 A custom-order request: kept as the shop's request (by email too, so it is sent the same way).
+        ...(f.request === "custom_order" && (send ?? "email") === "email" ? { request: "custom_order" as const } : {}),
       };
+      break;
+    }
+    case "delivery_slots": {
+      // 210 The shop's next delivery days and times; how many days, and the assembly line.
+      const d = record(v.delivery_slots) ?? {};
+      const days = studioNumber(d.days, 3, 10);
+      if (Number.isNaN(days)) bad("show 3 to 10 days.");
+      node.delivery_slots = { ...(days !== undefined && !Number.isNaN(days) ? { days: Math.round(days) } : {}), ...(d.assembly === true ? { assembly: true } : {}) };
       break;
     }
     case "map": {

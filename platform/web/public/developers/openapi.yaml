@@ -15198,6 +15198,9 @@ components:
             addons: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 }, example: { en: Make it extra special, ar: أضف لمسة أخرى } }
             gift_card: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
             delivery: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
+        installments_soon:
+          type: boolean
+          description: "210 \"Installments coming soon\" under a product's price: the shop was made from a type that sells on installments elsewhere (furniture, electronics). A tag only, never a way to pay. Missing (older servers, connected platforms): false."
         size_chart:
           description: |
             208 The shop's size chart (a clothes shop's, Store › Delivery &
@@ -15810,6 +15813,7 @@ components:
         stock_status: { type: string, enum: [in_stock, out_of_stock, on_backorder] }
         purchasable: { type: boolean, description: "Whether it can go in the app's cart: a purchasable simple or variable product." }
         digital: { type: boolean, description: "Virtual or downloadable. iOS apps don't sell digital products." }
+        subtitle: { type: [string, 'null'], maxLength: 80, description: "210 Its line on a card, in the language asked for: the days a made-to-order piece takes (\"Made in 3–5 days\"), else its size in cm (\"W 220 × D 95 × H 82 cm\"). Null or missing (none, connected platforms, WordPress, older servers): no line. Studio cards show it as the `subtitle` bind." }
         sale: { $ref: '#/components/schemas/ProductSale' }
         addon:
           type: boolean
@@ -15899,6 +15903,22 @@ components:
               properties:
                 min: { type: integer, minimum: 0, maximum: 216 }
                 max: { type: [integer, 'null'], minimum: 0, maximum: 216 }
+            dimensions:
+              type: [object, 'null']
+              description: "210 Its size in cm (furniture, decor), each side 0.1 to 10,000 or null when not given; `text` written in the language asked for (\"W 220 × D 95 × H 82 cm\"). The app shows `text` on the product's page. Null or missing: none."
+              properties:
+                width: { type: [number, 'null'] }
+                depth: { type: [number, 'null'] }
+                height: { type: [number, 'null'] }
+                unit: { type: string, enum: [cm] }
+                text: { type: [string, 'null'] }
+            make_days:
+              type: [object, 'null']
+              description: "210 Made to order: the days it takes to make (1 to 365, `min` ≤ `max`), `text` written in the language asked for (\"Made in 3–5 days\"). Null or missing: ready to send."
+              properties:
+                min: { type: integer, minimum: 1, maximum: 365 }
+                max: { type: integer, minimum: 1, maximum: 365 }
+                text: { type: [string, 'null'] }
             complete_look:
               type: array
               maxItems: 4
@@ -16848,7 +16868,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale, size_chart, size_finder, swatches, quiz]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale, size_chart, size_finder, swatches, quiz, delivery_slots]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app. 159 What a screen reader says for an element that opens something without words of its own (a round search or bag); without it, what it opens, in the app's language." }
         children:
           type: array
@@ -17030,6 +17050,12 @@ components:
                 properties:
                   title: { type: string }
                   text: { type: string }
+        delivery_slots:
+          type: [object, 'null']
+          description: "210 For `delivery_slots`: the shop's next delivery days (`StoreConfig.delivery_date`, from its own today) as chips and the chosen day's times (`GET /store/delivery-slots`, full ones dimmed); what the person picks is the cart's delivery day and time at checkout. `days`: how many days (3 to 10, 5); `assembly`: a line that the team assembles the piece on the day. `color` is its ink, `border_color` the chosen chip's fill. Nothing when the shop has no delivery days; apps before it skip the element."
+          properties:
+            days: { type: integer, minimum: 3, maximum: 10, default: 5 }
+            assembly: { type: boolean, default: false }
         category_menu:
           type: [object, 'null']
           description: "208 For `categories` drawn as `rows`: `lead` a tall card of the main category first (its number, name, count and an arrow over its photo), the sub-categories' photos with their names under them; `label` the number, name and count over the row, \"All\" on its first card. `numbers` false: no 01, 02. `radius`: the cards' corners (0 to 40, 18)."
@@ -17446,6 +17472,10 @@ components:
         submit_label: { type: [string, 'null'] }
         success_text: { type: [string, 'null'] }
         send_to: { type: string, enum: [email, chat] }
+        request:
+          type: [string, 'null']
+          enum: [custom_order, null]
+          description: "210 `custom_order` (with `send_to` `email`): the answers are also kept as the shop's custom-order request (Store › Custom orders in the dashboard, and Yallapp Business). The app sends them as any form's, so older apps send them too."
 
     StudioLearning:
       type: [object, 'null']

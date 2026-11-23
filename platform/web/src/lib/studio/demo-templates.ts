@@ -57,6 +57,10 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   // 209 Toys
   // 209 Toot, the toy shop, is its Signature look A, playful and colourful (lib/studio/demo-designs/toys-signature.ts).
   toys: "toys_signature_a",
+  // 210 Sakan, Ghurza and Rukn are their Signature looks A (lib/studio/demo-designs/decor-, crochet-, furniture-signature.ts).
+  decor: "decor_signature_a",
+  crochet: "crochet_signature_a",
+  furniture: "furniture_signature_a",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -126,6 +130,10 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   // 209 Toys
   // 209 Toot's, its look A's (lib/studio/demo-designs/toys-signature.ts TOOT_INK).
   toys: { surface: "#FFFCF7", nightSurface: "#1E1A1D", line: "#E9E0D3", nightLine: "#2E282B", muted: "#685D57", nightMuted: "#BCB2AD" },
+  // 210 Sakan's, Ghurza's and Rukn's: their look A's.
+  decor: { surface: "#FBFAF6", nightSurface: "#1B1C18", line: "#E1DBCF", nightLine: "#2C2E26", muted: "#62635A", nightMuted: "#B4B3A7" },
+  crochet: { surface: "#FFFCF7", nightSurface: "#221A16", line: "#EADFD1", nightLine: "#3A2E26", muted: "#6B5D52", nightMuted: "#C4B5A8" },
+  furniture: { surface: "#FFFFFF", nightSurface: "#211C18", line: "#E8E1D8", nightLine: "#36302A", muted: "#6B625A", nightMuted: "#B8AEA4" },
 };
 
 /**
@@ -378,6 +386,49 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     tyEditTitle: { en: "Free delivery over 200 AED", ar: "توصيل مجاني فوق 200 د.إ", tr: "200 AED üzeri ücretsiz teslimat" },
     tyCartNote: { en: "Gift wrapping and a card in the cart · Free returns within 30 days", ar: "التغليف والبطاقة من السلة · إرجاع مجاني خلال 30 يومًا", tr: "Hediye paketi ve kart sepette · 30 gün içinde ücretsiz iade" },
   },
+  // 210 Rukn's own words where its looks leave the owner brackets: its district in Riyadh, the Najd set, its promises, its rating and showroom (lib/demo/kits/furniture.ts).
+  furniture: {
+    fuLocation: { en: "Delivering to Riyadh, Al Yasmin", ar: "التوصيل إلى الرياض، حي الياسمين", tr: "Riyad, Al Yasmin'e teslimat" },
+    fuLocationB: { en: "Riyadh · Delivery tomorrow", ar: "الرياض · التوصيل غدًا", tr: "Riyad · Yarın teslimat" },
+    skLookName: { en: "The Najd majlis set", ar: "طقم المجلس «نجد»", tr: "Najd oturma takımı" },
+    skPromiseDeliveryLine: { en: "On orders over 1,500 SAR", ar: "للطلبات فوق 1,500 ر.س", tr: "1.500 SAR üzeri siparişlerde" },
+    skPromiseWarrantyLine: { en: "10 years on the wooden frames", ar: "10 سنوات على الهياكل الخشبية", tr: "Ahşap iskelette 10 yıl" },
+    fuFabricTime: { en: "Arrives in 3 days", ar: "تصلك خلال 3 أيام", tr: "3 günde elinizde" },
+    fuSofaTime: { en: "Made in 14–21 days", ar: "تُصنع خلال 14–21 يومًا", tr: "14–21 günde yapılır" },
+    fuRatingValue: { en: "4.8", ar: "4.8", tr: "4,8" },
+    fuRatingTitle: { en: "From more than 2,400 verified ratings", ar: "من أكثر من 2,400 تقييم موثّق", tr: "2.400'den fazla doğrulanmış puandan" },
+    fuRatingQuote: { en: "“The assembly was quick and the team very professional.” Lama, Riyadh", ar: "«كان التركيب سريعًا والفريق محترفًا جدًا.» لمى، الرياض", tr: "“Kurulum hızlıydı, ekip çok profesyoneldi.” Lama, Riyad" },
+    fuShowroom: { en: "Rukn showroom, Al Yasmin, Riyadh", ar: "معرض ركن، حي الياسمين، الرياض", tr: "Rukn showroomu, Al Yasmin, Riyad" },
+    fuShowroomLine: { en: "Open today until 11 pm", ar: "مفتوح اليوم حتى 11 مساءً", tr: "Bugün 23.00'e kadar açık" },
+    fuContactLine: { en: "Customer care every day, 9 am to 11 pm", ar: "خدمة العملاء يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Müşteri hizmetleri her gün 09.00–23.00" },
+  },
+  // 210 Sakan's own words where its looks leave the owner brackets: its styled corner, its story and numbers, its promises (lib/demo/kits/decor.ts).
+  decor: {
+    skLookName: { en: "The Sabah dining corner", ar: "زاوية «صباح» للطعام", tr: "Sabah yemek köşesi" },
+    skPromiseDeliveryLine: { en: "Over 1,000 SAR", ar: "فوق 1,000 ر.س", tr: "1.000 SAR üzeri" },
+    dcStoryQuote: { en: "Every piece is chosen from small studios across the region and tested to last for years, not seasons.", ar: "نختار كل قطعة من مشاغل صغيرة في المنطقة، ونختبرها لتدوم سنوات لا مواسم.", tr: "Her parçayı bölgedeki küçük atölyelerden seçiyor, mevsimlerce değil yıllarca dayanması için deniyoruz." },
+    skStoryName: { en: "Hessa Al-Rashid", ar: "حصة الراشد", tr: "Hessa Al-Rashid" },
+    skStoryRole: { en: "Founder of Sakan", ar: "مؤسِّسة سكن", tr: "Sakan'ın kurucusu" },
+    dcStatStudios: { en: "30", ar: "30", tr: "30" },
+    dcStatRating: { en: "4.8", ar: "4.8", tr: "4.8" },
+    dcContactLine: { en: "Customer care every day, 9 am to 11 pm", ar: "خدمة العملاء يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Müşteri hizmetleri her gün 09.00–23.00" },
+  },
+  // 210 Ghurza's own words where its looks leave the owner brackets: its name and city, its maker and numbers, its workshop, its delivery (lib/demo/kits/crochet.ts).
+  crochet: {
+    crWordmark: { en: "Ghurza", ar: "غُرزة", tr: "Ghurza" },
+    crWordmarkLine: { en: "Handmade crochet · Cairo", ar: "كروشيه يدوي · القاهرة", tr: "El yapımı tığ işi · Kahire" },
+    skCustomTime: { en: "Ready in 7–14 days", ar: "جاهزة خلال 7–14 يومًا", tr: "7–14 günde hazır" },
+    skStoryQuote: { en: "Every piece takes days of my time, and more of my heart. I love knowing it will keep a home warm.", ar: "كل قطعة تأخذ من وقتي أيامًا، ومن قلبي أكثر. أحب أن أعرف أنها ستُدفئ بيتًا ما.", tr: "Her parça günlerimi, kalbimden de fazlasını alıyor. Bir evi ısıtacağını bilmek hoşuma gidiyor." },
+    skStoryName: { en: "Umm Youssef · Head of the workshop", ar: "أم يوسف · رئيسة المشغل", tr: "Ümmü Yusuf · Atölye şefi" },
+    skStoryRole: { en: "Crocheting for 22 years · Mansoura", ar: "تحيك منذ 22 عامًا · المنصورة", tr: "22 yıldır örüyor · Mansure" },
+    skStat2: { en: "4,800", ar: "4,800", tr: "4.800" },
+    skStat3: { en: "12", ar: "12", tr: "12" },
+    crWorkshopDate: { en: "Every first Saturday · 4 pm", ar: "أول سبت من كل شهر · 4 مساءً", tr: "Her ayın ilk cumartesi · 16.00" },
+    crWorkshop1Place: { en: "Zamalek", ar: "الزمالك", tr: "Zamalek" },
+    crReviewsLine: { en: "4.9 from 2,300 reviews", ar: "4.9 من 2,300 تقييم", tr: "2.300 yorumdan 4,9" },
+    crPromiseShipLine: { en: "In 2 to 4 days", ar: "خلال 2 إلى 4 أيام", tr: "2–4 gün içinde" },
+    crContactLine: { en: "WhatsApp · 10 am to 10 pm", ar: "واتساب · من 10 صباحًا إلى 10 مساءً", tr: "WhatsApp · 10.00–22.00" },
+  },
   // 130.12 Safra's own stays on its look B's bento (lib/travel/samples.ts TRAVEL_HOTELS): their names and their nights' prices.
   travel: {
     sigStayOne: { en: "Safra Caldera Suites", ar: "Safra Caldera Suites", tr: "Safra Caldera Suites" },
@@ -435,5 +486,5 @@ export function withDemoFacts(id: StudioDemoId, page: StudioPage, lang: DemoLang
 }
 
 /** 131.20 The demos whose words carry the app's name, by that name (the demo app's). */
-// 209 Kids' clothes and cosmetics: Toota's, Velours' and Toot's too.
-const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", kids: "Toota", beauty: "Velours", toys: "Toot" };
+// 209 Kids' clothes, cosmetics and toys: Toota's, Velours' and Toot's too; 210 home decor's, crochet's and furniture's.
+const DEMO_APP_NAMES: Partial<Record<StudioDemoId, string>> = { flowers: "Leqaa", clothes: "Lujain", kids: "Toota", beauty: "Velours", toys: "Toot", decor: "Sakan", crochet: "Ghurza", furniture: "Rukn" };

@@ -91,6 +91,10 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
       // 209 Toys
       // 209 Toot, the toy shop.
       ["toys", true],
+      // 210 Sakan (home decor), Ghurza (crochet) and Rukn (furniture): the next shop types.
+      ["decor", true],
+      ["crochet", true],
+      ["furniture", true],
     ]);
     const user = await store.getUserByEmail(DEMO_ACCOUNT.email);
     expect(user?.passwordHash).toBeNull();
@@ -337,6 +341,9 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
     expect(demoTypeOfSlug("kids")).toBe("kids");
     // 209 Toys
     expect(demoTypeOfSlug("toys")).toBe("toys");
+    expect(demoTypeOfSlug("decor")).toBe("decor");
+    expect(demoTypeOfSlug("crochet")).toBe("crochet");
+    expect(demoTypeOfSlug("furniture")).toBe("furniture");
     expect(demoTypeOfSlug("travel")).toBe("travel");
     expect(demoTypeOfSlug("nope")).toBeNull();
   });

@@ -58,6 +58,12 @@ const VEHICLE: Record<StoryId, "two_wheeler" | "local_taxi" | "directions_bus" |
   // 209 Toys
   // 209 Nor the toy shop's.
   toys: "two_wheeler",
+  // 210 Nor the home decor shop's.
+  decor: "two_wheeler",
+  // 210 Nor the crochet shop's.
+  crochet: "two_wheeler",
+  // 210 Nor the furniture shop's: its own team delivers and assembles.
+  furniture: "two_wheeler",
 };
 
 const primary =

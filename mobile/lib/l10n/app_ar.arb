@@ -3355,5 +3355,11 @@
   "quizAgain": "ابدأ من جديد",
   "quizResultTitle": "نتيجتك",
   "sizeFinderFits": "المقاس المناسب: {size}",
-  "swatchChosen": "{name}، مختارة"
+  "swatchChosen": "{name}، مختارة",
+  "productDimensions": "الأبعاد",
+  "productMadeToOrder": "يُصنع حسب الطلب",
+  "deliverySlotsKept": "سنحفظ هذا اليوم والوقت لإتمام طلبك.",
+  "deliverySlotsAssembly": "يركّبها الفريق في يوم التوصيل.",
+  "deliverySlotsNone": "لا توجد أيام توصيل متاحة الآن.",
+  "installmentsSoon": "التقسيط قريبًا"
 }

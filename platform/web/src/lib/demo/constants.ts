@@ -94,6 +94,12 @@ export const SHOP_TYPE_DEMOS = {
   // 209 Toys
   // 209 Toot (تُوت), the toy shop: A playful and colourful (Toot), B calm and educational (Mukaab).
   toys: "toys_signature_a",
+  // 210 Sakan (سكن), home decor: A the decor magazine, B Teen's warm earth tones.
+  decor: "decor_signature_a",
+  // 210 Ghurza (غُرزة), crochet and handmade: A warm handmade, B Habka's colours.
+  crochet: "crochet_signature_a",
+  // 210 Rukn (رُكن), furniture: A modern white and wood, B KANAF's quiet luxury.
+  furniture: "furniture_signature_a",
 } as const;
 export type ShopTypeDemo = keyof typeof SHOP_TYPE_DEMOS;
 export const CLOTHES_DEMO = "clothes" as const satisfies ShopTypeDemo;
@@ -103,11 +109,17 @@ export const BEAUTY_DEMO = "beauty" as const satisfies ShopTypeDemo;
 export const KIDS_DEMO = "kids" as const satisfies ShopTypeDemo;
 // 209 Toys
 export const TOYS_DEMO = "toys" as const satisfies ShopTypeDemo;
+export const DECOR_DEMO = "decor" as const satisfies ShopTypeDemo;
+export const CROCHET_DEMO = "crochet" as const satisfies ShopTypeDemo;
+export const FURNITURE_DEMO = "furniture" as const satisfies ShopTypeDemo;
 
 export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school" | "travel"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO | ShopTypeDemo;
 
 /** 208 The Studio demos of a template rather than a kind (a store told apart by its look A): Leqaa and the shop types', their look A by their id. */
 export const STORE_TEMPLATE_DEMOS: Readonly<Record<typeof FLOWER_SHOP_DEMO | ShopTypeDemo, string>> = { [FLOWER_SHOP_DEMO]: FLOWER_SHOP_TEMPLATE, ...SHOP_TYPE_DEMOS };
+
+/** 210 What Admin › Demo apps and /demo call each store template demo. */
+export const STORE_TEMPLATE_LABELS: Readonly<Record<typeof FLOWER_SHOP_DEMO | ShopTypeDemo, string>> = { [FLOWER_SHOP_DEMO]: "Flower shop", clothes: "Clothes shop", kids: "Kids' clothes shop", beauty: "Cosmetics shop", toys: "Toy shop", decor: "Home decor shop", crochet: "Crochet shop", furniture: "Furniture shop" };
 
 /** 208 Whether a demo is a store's template demo (Leqaa, a shop type's). */
 export function isStoreTemplateDemo(id: string): id is typeof FLOWER_SHOP_DEMO | ShopTypeDemo {

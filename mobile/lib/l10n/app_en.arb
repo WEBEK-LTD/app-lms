@@ -13904,5 +13904,29 @@
         "type": "String"
       }
     }
+  },
+  "productDimensions": "Dimensions",
+  "@productDimensions": {
+    "description": "210 Title of a product's size (width, depth, height in cm) on its page."
+  },
+  "productMadeToOrder": "Made to order",
+  "@productMadeToOrder": {
+    "description": "210 Title of how long a made-to-order product takes to make, on its page."
+  },
+  "deliverySlotsKept": "We'll keep this day and time for your checkout.",
+  "@deliverySlotsKept": {
+    "description": "210 Under the delivery days picked on a page: the cart keeps the day and time for checkout."
+  },
+  "deliverySlotsAssembly": "The team assembles it on the day.",
+  "@deliverySlotsAssembly": {
+    "description": "210 Under the delivery days of a furniture shop: the team assembles the piece on the day."
+  },
+  "deliverySlotsNone": "No delivery days are open right now.",
+  "@deliverySlotsNone": {
+    "description": "210 The delivery days element when no day is open."
+  },
+  "installmentsSoon": "Installments coming soon",
+  "@installmentsSoon": {
+    "description": "210 A tag under a furniture or electronics product's price: installments are not offered yet."
   }
 }

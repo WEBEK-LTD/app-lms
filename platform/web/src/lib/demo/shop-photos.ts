@@ -3,6 +3,7 @@ import path from "node:path";
 import { sha256Hex } from "../crypto/tokens";
 import type { AssetKind } from "../data/types";
 import { idFrom, type PictureDeps } from "./picture-assets";
+import { SHOP_KITS } from "./shop-kits";
 
 /**
  * 208 The premium shop types' real photos (CC0, from StockSnap; credited in
@@ -274,7 +275,12 @@ const SHOP_PHOTO_SETS: readonly ShopPhotoSet<string>[] = [
   BEAUTY_PHOTOS,
   // 209 Toys
   TOYS_PHOTOS,
+  // 210 And each kit's (lib/demo/shop-kits.ts).
+  ...Object.values(SHOP_KITS).map((k) => k.photos),
 ];
+
+/** 210 A kit's photo (decor `dc-`, crochet `cr-`, furniture `fu-`; lib/demo/shop-kits.ts). */
+export type KitPhoto = `${"dc" | "cr" | "fu"}-${string}`;
 
 /** A shop type's photo as a demo's picture: `cl-rust-1`. */
 export type ShopPhoto =
@@ -284,7 +290,9 @@ export type ShopPhoto =
   // 209 Cosmetics
   | BeautyPhoto
   // 209 Toys
-  | ToysPhoto;
+  | ToysPhoto
+  // 210 The kits'
+  | KitPhoto;
 
 function setOf(name: string): { set: ShopPhotoSet<string>; file: string } | null {
   for (const set of SHOP_PHOTO_SETS) {

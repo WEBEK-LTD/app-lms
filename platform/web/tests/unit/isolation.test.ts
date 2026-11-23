@@ -314,6 +314,9 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     const inquiry = await store.createListingInquiry({ appId: theirs.estate.id, listingId: listing.id, userId: buyer.id, status: "open", createdAt: NOW, updatedAt: NOW });
     ids.listing_id = String(listing.id);
     ids.inquiry_id = String(inquiry.id);
+    // 210 A custom-order request sent to their shop.
+    const request = await store.createStoreRequest({ appId: theirs.shop.id, userId: customer.id, title: `${MARK} custom order`, answers: [{ label: "Size", value: `${MARK} 40 cm` }], customer: { name: `${MARK} customer`, phone: null, email: null }, status: "new", reply: null, quoteCents: null, currency: "TRY", lang: "en", createdAt: NOW, updatedAt: NOW });
+    ids.request_id = String(request.id);
 
     const mediaId = randomUUID();
     await store.createMediaFile({

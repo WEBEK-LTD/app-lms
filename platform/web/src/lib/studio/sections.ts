@@ -24,6 +24,11 @@ import { KIDS_SECTIONS } from "./demo-designs/kids-signature";
 // 209 Toys
 import { TOYS_SECTIONS } from "./demo-designs/toys-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
+// 210 The shop types' shared parts (shop the look, rooms, the custom order, delivery and assembly, the maker's story…) and each type's own.
+import { SHOP_KIT_SECTIONS } from "./demo-designs/shop-kit-parts";
+import { DECOR_SECTIONS } from "./demo-designs/decor-signature";
+import { CROCHET_SECTIONS } from "./demo-designs/crochet-signature";
+import { FURNITURE_SECTIONS } from "./demo-designs/furniture-signature";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -329,7 +334,9 @@ export type SectionWord =
   // 209 Toys
   // 209 Toot's looks, pages and sections (lib/studio/demo-designs/toys-signature.ts).
   | Extract<AppWord, `ty${string}`>
-  | "installmentsSoon";
+  | "installmentsSoon"
+  // 210 The shop types' shared parts (lib/studio/demo-designs/shop-kit-parts.ts), home decor's, crochet's and furniture's looks.
+  | Extract<AppWord, `sk${string}` | `dc${string}` | `cr${string}` | `fu${string}`>;
 
 export interface SectionContext {
   brand: string;
@@ -1128,6 +1135,11 @@ export const SECTIONS: readonly SectionInfo[] = [
   // 209 The toys type's parts (the category menu, shopping by age, safety first, the gift finder and wraps, gifts under a price, the lab, the ready box).
   ...TOYS_SECTIONS,
   INSTALLMENTS_SECTION,
+  // 210 The shop types' shared parts, then home decor's, crochet's and furniture's.
+  ...SHOP_KIT_SECTIONS,
+  ...DECOR_SECTIONS,
+  ...CROCHET_SECTIONS,
+  ...FURNITURE_SECTIONS,
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,
 ];

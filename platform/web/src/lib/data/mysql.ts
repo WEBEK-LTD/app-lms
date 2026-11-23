@@ -174,6 +174,8 @@ import type {
   SchoolHomework,
   SchoolLeave,
   SchoolExcuse,
+  StoreRequest,
+  StoreRequestStatus,
   SchoolPickup,
   SchoolPickupNote,
   SchoolSlip,
@@ -4451,6 +4453,36 @@ export class MysqlStore implements DataStore {
     return row ?? null;
   }
 
+  async listStoreRequests(appId: string, filter: { statuses?: StoreRequestStatus[] } = {}): Promise<StoreRequest[]> {
+    const t = schema.storeRequests;
+    if (filter.statuses && filter.statuses.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), filter.statuses ? inArray(t.status, filter.statuses) : undefined))
+        .orderBy(desc(t.createdAt), desc(t.id))
+        .limit(500),
+    );
+  }
+
+  async getStoreRequest(appId: string, id: number): Promise<StoreRequest | null> {
+    const t = schema.storeRequests;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createStoreRequest(input: Omit<StoreRequest, "id">): Promise<StoreRequest> {
+    const [result] = await this.run((db) => db.insert(schema.storeRequests).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async updateStoreRequest(appId: string, id: number, patch: Partial<Pick<StoreRequest, "status" | "reply" | "quoteCents" | "updatedAt">>): Promise<boolean> {
+    const t = schema.storeRequests;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows === 1;
+  }
+
   async createSchoolExcuse(input: Omit<SchoolExcuse, "id">): Promise<SchoolExcuse> {
     const [result] = await this.run((db) => db.insert(schema.schoolExcuses).values(input));
     return { id: Number(result.insertId), ...input };
@@ -7596,6 +7628,8 @@ export class MysqlStore implements DataStore {
     );
     await this.run((db) => db.delete(s.travelSaved).where(and(inArray(s.travelSaved.appId, ids), lt(s.travelSaved.createdAt, before))));
     await this.run((db) => db.delete(s.travelAlerts).where(and(inArray(s.travelAlerts.appId, ids), lt(s.travelAlerts.createdAt, before))));
+    // 210 Visitors' custom-order requests.
+    await this.run((db) => db.delete(s.storeRequests).where(and(inArray(s.storeRequests.appId, ids), lt(s.storeRequests.createdAt, before))));
     return {
       travelBookings: travelBookings.affectedRows,
       teacherFollows: teacherFollows.affectedRows,

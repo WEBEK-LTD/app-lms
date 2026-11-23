@@ -12538,4 +12538,23 @@ class AppLocalizationsTr extends AppLocalizations {
   String swatchChosen(String name) {
     return '$name, seçili';
   }
+
+  @override
+  String get productDimensions => 'Boyutlar';
+
+  @override
+  String get productMadeToOrder => 'Siparişe özel yapılır';
+
+  @override
+  String get deliverySlotsKept =>
+      'Bu günü ve saati ödemeniz için saklayacağız.';
+
+  @override
+  String get deliverySlotsAssembly => 'Ekip, teslimat günü kurar.';
+
+  @override
+  String get deliverySlotsNone => 'Şu anda açık teslimat günü yok.';
+
+  @override
+  String get installmentsSoon => 'Taksit yakında';
 }

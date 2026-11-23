@@ -1,0 +1,4790 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/crochet-photos/hero.jpg",
+   "title": {
+    "en": "Welcome to the workshop",
+    "ar": "أهلًا بكِ في المشغل",
+    "tr": "Atölyeye hoş geldiniz"
+   },
+   "subtitle": {
+    "en": "Sign in to follow your orders and your custom pieces.",
+    "ar": "سجّلي الدخول لتتابعي طلباتكِ وقطعكِ الخاصة.",
+    "tr": "Siparişlerinizi ve size özel parçalarınızı takip etmek için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "cover",
+   "items": [
+    {
+     "key": "orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "glass"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "minimal",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "DM Sans",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#5E6B4E",
+   "font_family": "El Messiri",
+   "dark_background": "#16110E",
+   "dark_surface": "#221A16",
+   "font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/elmessiri/ElMessiri%5Bwght%5D.ttf",
+     "weight": null
+    }
+   ]
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shop",
+    "label": "Shop",
+    "icon": "grid_view",
+    "target": {
+     "type": "page",
+     "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المتجر"
+     },
+     "tr": {
+      "label": "Mağaza"
+     }
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Cart",
+    "icon": "shopping_bag",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "السلة"
+     },
+     "tr": {
+      "label": "Sepet"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "package_2",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطلبات"
+     },
+     "tr": {
+      "label": "Siparişler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_actions",
+      "title": "Ghurza",
+      "subtitle": "Handmade crochet · [Your city]",
+      "translations": {
+       "ar": {
+        "title": "غُرزة",
+        "subtitle": "كروشيه يدوي · [مدينتك]"
+       },
+       "tr": {
+        "title": "Ghurza",
+        "subtitle": "El yapımı tığ işi · [Şehriniz]"
+       }
+      },
+      "buttons": [
+       "menu",
+       "notifications",
+       "cart"
+      ],
+      "menu_page": "menu",
+      "background": "#F7F1E8",
+      "dark_background": "#16110E",
+      "color": "#2B211B",
+      "dark_color": "#F4EAE1",
+      "style": "glass"
+     },
+     "background": "#F7F1E8",
+     "dark_background": "#16110E",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 96,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "search",
+        "name": "Search for a bag, a blanket, a bear…",
+        "text": "Search for a bag, a blanket, a bear…",
+        "source": "products",
+        "radius": 26,
+        "height": 50,
+        "background": "#FFFCF7",
+        "dark_background": "#221A16",
+        "color": "#6B5D52",
+        "dark_color": "#C4B5A8",
+        "border_color": "#EADFD1",
+        "dark_border_color": "#3A2E26",
+        "border_width": 1,
+        "margin": {
+         "top": 4,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحثي عن حقيبة، بطانية، دبدوب…"
+         },
+         "tr": {
+          "text": "Çanta, battaniye, ayıcık ara…"
+         }
+        }
+       },
+       {
+        "id": "sig-3",
+        "type": "categories",
+        "name": "Categories",
+        "source": "products",
+        "style": "circles",
+        "color": "#2B211B",
+        "dark_color": "#F4EAE1",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-4",
+        "type": "slider",
+        "name": "The season's collections",
+        "height": 210,
+        "per_view": 1.12,
+        "gap": 10,
+        "autoplay": true,
+        "interval_ms": 5000,
+        "dots": true,
+        "indicator": "dots",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-5",
+          "type": "photo_hero",
+          "name": "Warmth crocheted stitch by stitch",
+          "image_url": "http://localhost:3000/crochet-photos/wide-cozy-sweater.jpg",
+          "height": 210,
+          "radius": 26,
+          "background": "#16110E",
+          "scrim": {
+           "color": "#000000",
+           "from": 0.05,
+           "middle": 0.2,
+           "at": 45,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-6",
+            "type": "text",
+            "text": "Winter collection",
+            "font": {
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 0.4
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.9,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مجموعة الشتاء"
+             },
+             "tr": {
+              "text": "Kış koleksiyonu"
+             }
+            }
+           },
+           {
+            "id": "sig-7",
+            "type": "text",
+            "text": "Warmth crocheted stitch by stitch",
+            "font": {
+             "family": "El Messiri",
+             "size": 24,
+             "weight": 700,
+             "line_height": 1.15
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "دفء محاك غرزة بغرزة"
+             },
+             "tr": {
+              "text": "İlmek ilmek örülen sıcaklık"
+             }
+            }
+           },
+           {
+            "id": "sig-8",
+            "type": "text",
+            "text": "Merino cardigans and scarves",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "كارديغان وأوشحة من صوف الميرينو"
+             },
+             "tr": {
+              "text": "Merinos hırkalar ve atkılar"
+             }
+            }
+           },
+           {
+            "id": "sig-9",
+            "type": "button",
+            "name": "Shop the collection",
+            "text": "Shop the collection",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 19,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#A4502F",
+            "dark_background": "#B85C39",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّقي المجموعة"
+             },
+             "tr": {
+              "text": "Koleksiyonu keşfet"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-10",
+          "type": "photo_hero",
+          "name": "Blankets made to be handed down",
+          "image_url": "http://localhost:3000/crochet-photos/wide-scarves-stack.jpg",
+          "height": 210,
+          "radius": 26,
+          "background": "#16110E",
+          "scrim": {
+           "color": "#000000",
+           "from": 0.05,
+           "middle": 0.2,
+           "at": 45,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-11",
+            "type": "text",
+            "text": "New throws",
+            "font": {
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 0.4
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.9,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "رميات جديدة"
+             },
+             "tr": {
+              "text": "Yeni şallar"
+             }
+            }
+           },
+           {
+            "id": "sig-12",
+            "type": "text",
+            "text": "Blankets made to be handed down",
+            "font": {
+             "family": "El Messiri",
+             "size": 24,
+             "weight": 700,
+             "line_height": 1.15
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "بطانيات تُحاك لتُورَّث"
+             },
+             "tr": {
+              "text": "Kuşaktan kuşağa kalacak battaniyeler"
+             }
+            }
+           },
+           {
+            "id": "sig-13",
+            "type": "text",
+            "text": "In the colours of your home",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "بألوان بيتك"
+             },
+             "tr": {
+              "text": "Evinizin renklerinde"
+             }
+            }
+           },
+           {
+            "id": "sig-14",
+            "type": "button",
+            "name": "Shop the collection",
+            "text": "Shop the collection",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 19,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#A4502F",
+            "dark_background": "#B85C39",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّقي المجموعة"
+             },
+             "tr": {
+              "text": "Koleksiyonu keşfet"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-15",
+          "type": "photo_hero",
+          "name": "Scarves for cold mornings",
+          "image_url": "http://localhost:3000/crochet-photos/wide-red-scarf.jpg",
+          "height": 210,
+          "radius": 26,
+          "background": "#16110E",
+          "scrim": {
+           "color": "#000000",
+           "from": 0.05,
+           "middle": 0.2,
+           "at": 45,
+           "to": 0.72
+          },
+          "align": "end",
+          "padding": {
+           "top": 16,
+           "end": 18,
+           "bottom": 16,
+           "start": 18
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-16",
+            "type": "text",
+            "text": "Made for gifting",
+            "font": {
+             "size": 11.5,
+             "weight": 600,
+             "letter_spacing": 0.4
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.9,
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "للإهداء"
+             },
+             "tr": {
+              "text": "Hediyelik"
+             }
+            }
+           },
+           {
+            "id": "sig-17",
+            "type": "text",
+            "text": "Scarves for cold mornings",
+            "font": {
+             "family": "El Messiri",
+             "size": 24,
+             "weight": 700,
+             "line_height": 1.15
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "أوشحة للصباحات الباردة"
+             },
+             "tr": {
+              "text": "Soğuk sabahlar için atkılar"
+             }
+            }
+           },
+           {
+            "id": "sig-18",
+            "type": "text",
+            "text": "Wrapped by hand, with a card",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "opacity": 0.88,
+            "max_lines": 1,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "مغلّفة يدويًا مع بطاقة"
+             },
+             "tr": {
+              "text": "Elle paketlenir, kartıyla"
+             }
+            }
+           },
+           {
+            "id": "sig-19",
+            "type": "button",
+            "name": "Shop the collection",
+            "text": "Shop the collection",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 38,
+            "radius": 19,
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#A4502F",
+            "dark_background": "#B85C39",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "translations": {
+             "ar": {
+              "text": "تسوّقي المجموعة"
+             },
+             "tr": {
+              "text": "Koleksiyonu keşfet"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-20",
+        "type": "column",
+        "name": "A piece to your taste, made just for you",
+        "gap": 14,
+        "radius": 30,
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 18,
+         "start": 16
+        },
+        "margin": {
+         "top": 22,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#F4E4D8",
+        "dark_background": "#33231B",
+        "children": [
+         {
+          "id": "sig-21",
+          "type": "row",
+          "gap": 12,
+          "cross": "start",
+          "children": [
+           {
+            "id": "sig-22",
+            "type": "column",
+            "width": "fill",
+            "gap": 6,
+            "children": [
+             {
+              "id": "sig-23",
+              "type": "text",
+              "text": "A piece to your taste, made just for you",
+              "font": {
+               "family": "El Messiri",
+               "size": 19,
+               "weight": 700,
+               "line_height": 1.2
+              },
+              "color": "#2B211B",
+              "dark_color": "#F4EAE1",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "قطعة على ذوقك… نحيكها لكِ خصيصًا"
+               },
+               "tr": {
+                "text": "Zevkinize göre, size özel örülür"
+               }
+              }
+             },
+             {
+              "id": "sig-24",
+              "type": "text",
+              "text": "Choose the design, the colour and the size, and our makers start within two days.",
+              "font": {
+               "size": 13,
+               "line_height": 1.45
+              },
+              "color": "#6B5D52",
+              "dark_color": "#C4B5A8",
+              "max_lines": 3,
+              "translations": {
+               "ar": {
+                "text": "اختاري التصميم واللون والمقاس، وتبدأ حرفيّاتنا العمل خلال يومين."
+               },
+               "tr": {
+                "text": "Modeli, rengi ve bedeni seçin; ustalarımız iki gün içinde örmeye başlasın."
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-25",
+            "type": "image",
+            "image_url": "http://localhost:3000/crochet-photos/hoop-yarn.jpg",
+            "width": 72,
+            "height": 72,
+            "radius": 18,
+            "fit": "cover"
+           }
+          ]
+         },
+         {
+          "id": "sig-26",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "sig-27",
+            "type": "column",
+            "name": "Design",
+            "width": "fill",
+            "gap": 4,
+            "cross": "center",
+            "radius": 16,
+            "padding": {
+             "top": 12,
+             "end": 6,
+             "bottom": 12,
+             "start": 6
+            },
+            "background": "#FFFCF7",
+            "dark_background": "#221A16",
+            "children": [
+             {
+              "id": "sig-28",
+              "type": "icon",
+              "icon": "edit_note",
+              "icon_size": 22,
+              "color": "#A4502F",
+              "dark_color": "#E8A27F"
+             },
+             {
+              "id": "sig-29",
+              "type": "text",
+              "text": "Design",
+              "font": {
+               "size": 12.5,
+               "weight": 700
+              },
+              "color": "#2B211B",
+              "dark_color": "#F4EAE1",
+              "text_align": "center",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "التصميم"
+               },
+               "tr": {
+                "text": "Model"
+               }
+              }
+             },
+             {
+              "id": "sig-30",
+              "type": "text",
+              "text": "Yours or ours",
+              "font": {
+               "size": 10.5
+              },
+              "color": "#6B5D52",
+              "dark_color": "#C4B5A8",
+              "text_align": "center",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "تصميمك أو تصميمنا"
+               },
+               "tr": {
+                "text": "Sizinki ya da bizimki"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-31",
+            "type": "column",
+            "name": "Colour & yarn",
+            "width": "fill",
+            "gap": 4,
+            "cross": "center",
+            "radius": 16,
+            "padding": {
+             "top": 12,
+             "end": 6,
+             "bottom": 12,
+             "start": 6
+            },
+            "background": "#FFFCF7",
+            "dark_background": "#221A16",
+            "children": [
+             {
+              "id": "sig-32",
+              "type": "icon",
+              "icon": "auto_awesome",
+              "icon_size": 22,
+              "color": "#A4502F",
+              "dark_color": "#E8A27F"
+             },
+             {
+              "id": "sig-33",
+              "type": "text",
+              "text": "Colour & yarn",
+              "font": {
+               "size": 12.5,
+               "weight": 700
+              },
+              "color": "#2B211B",
+              "dark_color": "#F4EAE1",
+              "text_align": "center",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "اللون والخيط"
+               },
+               "tr": {
+                "text": "Renk ve ip"
+               }
+              }
+             },
+             {
+              "id": "sig-34",
+              "type": "text",
+              "text": "Any shade we have",
+              "font": {
+               "size": 10.5
+              },
+              "color": "#6B5D52",
+              "dark_color": "#C4B5A8",
+              "text_align": "center",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "أي لون لدينا"
+               },
+               "tr": {
+                "text": "Elimizdeki her renk"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-35",
+            "type": "column",
+            "name": "Size",
+            "width": "fill",
+            "gap": 4,
+            "cross": "center",
+            "radius": 16,
+            "padding": {
+             "top": 12,
+             "end": 6,
+             "bottom": 12,
+             "start": 6
+            },
+            "background": "#FFFCF7",
+            "dark_background": "#221A16",
+            "children": [
+             {
+              "id": "sig-36",
+              "type": "icon",
+              "icon": "straighten",
+              "icon_size": 22,
+              "color": "#A4502F",
+              "dark_color": "#E8A27F"
+             },
+             {
+              "id": "sig-37",
+              "type": "text",
+              "text": "Size",
+              "font": {
+               "size": 12.5,
+               "weight": 700
+              },
+              "color": "#2B211B",
+              "dark_color": "#F4EAE1",
+              "text_align": "center",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "المقاس"
+               },
+               "tr": {
+                "text": "Beden"
+               }
+              }
+             },
+             {
+              "id": "sig-38",
+              "type": "text",
+              "text": "Or your measurements",
+              "font": {
+               "size": 10.5
+              },
+              "color": "#6B5D52",
+              "dark_color": "#C4B5A8",
+              "text_align": "center",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "أو مقاساتك الخاصة"
+               },
+               "tr": {
+                "text": "Ya da kendi ölçünüz"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-39",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "sig-40",
+            "type": "button",
+            "name": "Start your order",
+            "text": "Start your order",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 44,
+            "radius": 22,
+            "padding": {
+             "top": 0,
+             "end": 18,
+             "bottom": 0,
+             "start": 18
+            },
+            "background": "#A4502F",
+            "dark_background": "#B85C39",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "size": 13.5,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "page",
+             "page_slug": "custom-order"
+            },
+            "translations": {
+             "ar": {
+              "text": "ابدأ طلبك"
+             },
+             "tr": {
+              "text": "Siparişini başlat"
+             }
+            }
+           },
+           {
+            "id": "sig-41",
+            "type": "row",
+            "width": "fill",
+            "gap": 5,
+            "cross": "center",
+            "align": "end",
+            "children": [
+             {
+              "id": "sig-42",
+              "type": "icon",
+              "icon": "schedule",
+              "icon_size": 16,
+              "color": "#6B5D52",
+              "dark_color": "#C4B5A8"
+             },
+             {
+              "id": "sig-43",
+              "type": "text",
+              "text": "Ready in 7–14 days",
+              "font": {
+               "size": 12
+              },
+              "color": "#6B5D52",
+              "dark_color": "#C4B5A8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "جاهزة خلال 7–14 يومًا"
+               },
+               "tr": {
+                "text": "7–14 günde hazır"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-44",
+        "type": "row",
+        "name": "New from the workshop",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-45",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-46",
+            "type": "text",
+            "text": "New from the workshop",
+            "font": {
+             "family": "El Messiri",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "جديد من المشغل"
+             },
+             "tr": {
+              "text": "Atölyeden yeni"
+             }
+            }
+           },
+           {
+            "id": "sig-47",
+            "type": "text",
+            "text": "Pieces off the hook this week",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#6B5D52",
+            "dark_color": "#C4B5A8",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "قطع خرجت من الإبرة هذا الأسبوع"
+             },
+             "tr": {
+              "text": "Bu hafta tığdan çıkan parçalar"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-48",
+          "type": "row",
+          "name": "See all",
+          "gap": 2,
+          "cross": "center",
+          "padding": {
+           "top": 4,
+           "end": 0,
+           "bottom": 4,
+           "start": 4
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-49",
+            "type": "text",
+            "text": "See all",
+            "font": {
+             "size": 13,
+             "weight": 700
+            },
+            "color": "#A4502F",
+            "dark_color": "#E8A27F",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "عرض الكل"
+             },
+             "tr": {
+              "text": "Tümünü gör"
+             }
+            }
+           },
+           {
+            "id": "sig-50",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#A4502F",
+            "dark_color": "#E8A27F"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-51",
+        "type": "items",
+        "name": "New from the workshop",
+        "source": "products",
+        "layout": "carousel",
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 8,
+         "category_id": null,
+         "featured": false,
+         "sort": "newest",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-52",
+         "type": "column",
+         "width": 158,
+         "gap": 5,
+         "children": [
+          {
+           "id": "sig-53",
+           "type": "stack",
+           "width": 158,
+           "height": 196,
+           "children": [
+            {
+             "id": "sig-54",
+             "type": "image",
+             "bind": "image",
+             "width": 158,
+             "height": 196,
+             "radius": 22,
+             "fit": "cover",
+             "background": "#F4E4D8",
+             "dark_background": "#33231B"
+            },
+            {
+             "id": "sig-55",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "size": 11,
+              "weight": 800
+             },
+             "color": "#FFFFFF",
+             "background": "#A4502F",
+             "dark_color": "#FFFFFF",
+             "dark_background": "#B85C39",
+             "radius": 8,
+             "padding": {
+              "top": 3,
+              "end": 7,
+              "bottom": 3,
+              "start": 7
+             },
+             "place": {
+              "x": 6,
+              "y": 5
+             }
+            },
+            {
+             "id": "sig-56",
+             "type": "row",
+             "name": "Add",
+             "width": 34,
+             "height": 34,
+             "radius": 17,
+             "align": "center",
+             "cross": "center",
+             "background": "#FFFCF7",
+             "dark_background": "#221A16",
+             "shadow": "light",
+             "place": {
+              "x": 88,
+              "y": 86
+             },
+             "children": [
+              {
+               "id": "sig-57",
+               "type": "icon",
+               "icon": "add",
+               "icon_size": 20,
+               "color": "#2B211B",
+               "dark_color": "#F4EAE1"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "sig-58",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 1,
+           "color": "#2B211B",
+           "dark_color": "#F4EAE1",
+           "font": {
+            "family": "El Messiri",
+            "size": 13.5,
+            "weight": 600
+           }
+          },
+          {
+           "id": "sig-59",
+           "type": "text",
+           "bind": "subtitle",
+           "max_lines": 1,
+           "color": "#6B5D52",
+           "dark_color": "#C4B5A8",
+           "font": {
+            "size": 11.5
+           }
+          },
+          {
+           "id": "sig-60",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-61",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "color": "#2B211B",
+             "dark_color": "#F4EAE1",
+             "font": {
+              "family": "El Messiri",
+              "size": 14,
+              "weight": 800
+             }
+            },
+            {
+             "id": "sig-62",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#6B5D52",
+             "dark_color": "#C4B5A8",
+             "font": {
+              "size": 12
+             }
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-63",
+        "type": "row",
+        "name": "Hands that tell the story",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-64",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-65",
+            "type": "text",
+            "text": "Hands that tell the story",
+            "font": {
+             "family": "El Messiri",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "أيادٍ تصنع الحكاية"
+             },
+             "tr": {
+              "text": "Hikâyeyi ören eller"
+             }
+            }
+           },
+           {
+            "id": "sig-66",
+            "type": "text",
+            "text": "Meet the makers of Ghurza",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#6B5D52",
+            "dark_color": "#C4B5A8",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "تعرّفي على حرفيّات Ghurza"
+             },
+             "tr": {
+              "text": "Ghurza ustalarıyla tanışın"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-67",
+        "type": "column",
+        "name": "[Your name]",
+        "gap": 0,
+        "radius": 30,
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#FFFCF7",
+        "dark_background": "#221A16",
+        "border_color": "#EADFD1",
+        "dark_border_color": "#3A2E26",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-68",
+          "type": "image",
+          "image_url": "http://localhost:3000/crochet-photos/wide-knit-flatlay.jpg",
+          "height": 190,
+          "fit": "cover"
+         },
+         {
+          "id": "sig-69",
+          "type": "column",
+          "gap": 10,
+          "padding": {
+           "top": 16,
+           "end": 16,
+           "bottom": 16,
+           "start": 16
+          },
+          "children": [
+           {
+            "id": "sig-70",
+            "type": "icon",
+            "icon": "format_quote",
+            "icon_size": 28,
+            "color": "#A4502F",
+            "dark_color": "#E8A27F"
+           },
+           {
+            "id": "sig-71",
+            "type": "text",
+            "text": "Every piece takes days of my time, and more of my heart. I love knowing it will keep a home warm.",
+            "font": {
+             "family": "El Messiri",
+             "size": 15.5,
+             "weight": 500,
+             "line_height": 1.6
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 5,
+            "translations": {
+             "ar": {
+              "text": "كل قطعة تأخذ من وقتي أيامًا، ومن قلبي أكثر. أحب أن أعرف أنها ستُدفئ بيتًا ما."
+             },
+             "tr": {
+              "text": "Her parça günlerimi, kalbimden de fazlasını alıyor. Bir evi ısıtacağını bilmek hoşuma gidiyor."
+             }
+            }
+           },
+           {
+            "id": "sig-72",
+            "type": "column",
+            "gap": 2,
+            "children": [
+             {
+              "id": "sig-73",
+              "type": "text",
+              "text": "Umm Youssef · Head of the workshop",
+              "font": {
+               "size": 13.5,
+               "weight": 700
+              },
+              "color": "#2B211B",
+              "dark_color": "#F4EAE1",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "أم يوسف · رئيسة المشغل"
+               },
+               "tr": {
+                "text": "Ümmü Yusuf · Atölye şefi"
+               }
+              }
+             },
+             {
+              "id": "sig-74",
+              "type": "text",
+              "text": "Crocheting for 22 years · Mansoura",
+              "font": {
+               "size": 12
+              },
+              "color": "#6B5D52",
+              "dark_color": "#C4B5A8",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "تحيك منذ 22 عامًا · المنصورة"
+               },
+               "tr": {
+                "text": "22 yıldır örüyor · Mansure"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-75",
+            "type": "row",
+            "gap": 8,
+            "margin": {
+             "top": 4,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "children": [
+             {
+              "id": "sig-76",
+              "type": "column",
+              "width": "fill",
+              "gap": 2,
+              "cross": "center",
+              "radius": 14,
+              "padding": {
+               "top": 10,
+               "end": 4,
+               "bottom": 10,
+               "start": 4
+              },
+              "background": "#F4E4D8",
+              "dark_background": "#33231B",
+              "children": [
+               {
+                "id": "sig-77",
+                "type": "text",
+                "text": "12",
+                "font": {
+                 "family": "El Messiri",
+                 "size": 18,
+                 "weight": 700,
+                 "line_height": 1.2
+                },
+                "color": "#A4502F",
+                "dark_color": "#E8A27F",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "12"
+                 },
+                 "tr": {
+                  "text": "12"
+                 }
+                }
+               },
+               {
+                "id": "sig-78",
+                "type": "text",
+                "text": "Makers",
+                "font": {
+                 "size": 11
+                },
+                "color": "#6B5D52",
+                "dark_color": "#C4B5A8",
+                "text_align": "center",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "حرفية"
+                 },
+                 "tr": {
+                  "text": "Usta"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-79",
+              "type": "column",
+              "width": "fill",
+              "gap": 2,
+              "cross": "center",
+              "radius": 14,
+              "padding": {
+               "top": 10,
+               "end": 4,
+               "bottom": 10,
+               "start": 4
+              },
+              "background": "#F4E4D8",
+              "dark_background": "#33231B",
+              "children": [
+               {
+                "id": "sig-80",
+                "type": "text",
+                "text": "4,800",
+                "font": {
+                 "family": "El Messiri",
+                 "size": 18,
+                 "weight": 700,
+                 "line_height": 1.2
+                },
+                "color": "#A4502F",
+                "dark_color": "#E8A27F",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "4,800"
+                 },
+                 "tr": {
+                  "text": "4.800"
+                 }
+                }
+               },
+               {
+                "id": "sig-81",
+                "type": "text",
+                "text": "Pieces made",
+                "font": {
+                 "size": 11
+                },
+                "color": "#6B5D52",
+                "dark_color": "#C4B5A8",
+                "text_align": "center",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "قطعة صُنعت"
+                 },
+                 "tr": {
+                  "text": "Yapılan parça"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-82",
+              "type": "column",
+              "width": "fill",
+              "gap": 2,
+              "cross": "center",
+              "radius": 14,
+              "padding": {
+               "top": 10,
+               "end": 4,
+               "bottom": 10,
+               "start": 4
+              },
+              "background": "#F4E4D8",
+              "dark_background": "#33231B",
+              "children": [
+               {
+                "id": "sig-83",
+                "type": "text",
+                "text": "100%",
+                "font": {
+                 "family": "El Messiri",
+                 "size": 18,
+                 "weight": 700,
+                 "line_height": 1.2
+                },
+                "color": "#A4502F",
+                "dark_color": "#E8A27F",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "100%"
+                 },
+                 "tr": {
+                  "text": "%100"
+                 }
+                }
+               },
+               {
+                "id": "sig-84",
+                "type": "text",
+                "text": "Handmade",
+                "font": {
+                 "size": 11
+                },
+                "color": "#6B5D52",
+                "dark_color": "#C4B5A8",
+                "text_align": "center",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "صناعة يدوية"
+                 },
+                 "tr": {
+                  "text": "El yapımı"
+                 }
+                }
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-85",
+        "type": "row",
+        "name": "Shop by yarn",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-86",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-87",
+            "type": "text",
+            "text": "Shop by yarn",
+            "font": {
+             "family": "El Messiri",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "تسوّقي حسب الخيط"
+             },
+             "tr": {
+              "text": "İpe göre alışveriş"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-88",
+          "type": "row",
+          "name": "Yarn guide",
+          "gap": 2,
+          "cross": "center",
+          "padding": {
+           "top": 4,
+           "end": 0,
+           "bottom": 4,
+           "start": 4
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-89",
+            "type": "text",
+            "text": "Yarn guide",
+            "font": {
+             "size": 13,
+             "weight": 700
+            },
+            "color": "#A4502F",
+            "dark_color": "#E8A27F",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "دليل الخيوط"
+             },
+             "tr": {
+              "text": "İp rehberi"
+             }
+            }
+           },
+           {
+            "id": "sig-90",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#A4502F",
+            "dark_color": "#E8A27F"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-91",
+        "type": "row",
+        "name": "Shop by yarn",
+        "gap": 10,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-92",
+          "type": "column",
+          "name": "Cotton yarn",
+          "width": 150,
+          "gap": 6,
+          "radius": 22,
+          "padding": {
+           "top": 8,
+           "end": 8,
+           "bottom": 12,
+           "start": 8
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#221A16",
+          "border_color": "#EADFD1",
+          "dark_border_color": "#3A2E26",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-93",
+            "type": "image",
+            "image_url": "http://localhost:3000/crochet-photos/yarn-ball-white.jpg",
+            "width": 134,
+            "height": 110,
+            "radius": 16,
+            "fit": "cover"
+           },
+           {
+            "id": "sig-94",
+            "type": "text",
+            "text": "Cotton yarn",
+            "font": {
+             "family": "El Messiri",
+             "size": 15.5,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 1,
+            "padding": {
+             "top": 4,
+             "end": 2,
+             "bottom": 0,
+             "start": 2
+            },
+            "translations": {
+             "ar": {
+              "text": "خيوط قطن"
+             },
+             "tr": {
+              "text": "Pamuk ipler"
+             }
+            }
+           },
+           {
+            "id": "sig-95",
+            "type": "text",
+            "text": "Soft and washable",
+            "font": {
+             "size": 11.5
+            },
+            "color": "#6B5D52",
+            "dark_color": "#C4B5A8",
+            "max_lines": 1,
+            "padding": {
+             "top": 0,
+             "end": 2,
+             "bottom": 0,
+             "start": 2
+            },
+            "translations": {
+             "ar": {
+              "text": "ناعم وقابل للغسل"
+             },
+             "tr": {
+              "text": "Yumuşak ve yıkanabilir"
+             }
+            }
+           },
+           {
+            "id": "sig-96",
+            "type": "row",
+            "gap": 5,
+            "children": [
+             {
+              "id": "sig-97",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#D9837B",
+              "dark_background": "#D9837B",
+              "children": []
+             },
+             {
+              "id": "sig-98",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#9DB89A",
+              "dark_background": "#9DB89A",
+              "children": []
+             },
+             {
+              "id": "sig-99",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#DDBE8C",
+              "dark_background": "#DDBE8C",
+              "children": []
+             },
+             {
+              "id": "sig-100",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#EDE5D8",
+              "dark_background": "#EDE5D8",
+              "children": []
+             }
+            ],
+            "padding": {
+             "top": 4,
+             "end": 2,
+             "bottom": 0,
+             "start": 2
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-101",
+          "type": "column",
+          "name": "Merino & wool",
+          "width": 150,
+          "gap": 6,
+          "radius": 22,
+          "padding": {
+           "top": 8,
+           "end": 8,
+           "bottom": 12,
+           "start": 8
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#221A16",
+          "border_color": "#EADFD1",
+          "dark_border_color": "#3A2E26",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-102",
+            "type": "image",
+            "image_url": "http://localhost:3000/crochet-photos/knit-textures.jpg",
+            "width": 134,
+            "height": 110,
+            "radius": 16,
+            "fit": "cover"
+           },
+           {
+            "id": "sig-103",
+            "type": "text",
+            "text": "Merino & wool",
+            "font": {
+             "family": "El Messiri",
+             "size": 15.5,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 1,
+            "padding": {
+             "top": 4,
+             "end": 2,
+             "bottom": 0,
+             "start": 2
+            },
+            "translations": {
+             "ar": {
+              "text": "صوف وميرينو"
+             },
+             "tr": {
+              "text": "Merinos ve yün"
+             }
+            }
+           },
+           {
+            "id": "sig-104",
+            "type": "text",
+            "text": "Warm and light",
+            "font": {
+             "size": 11.5
+            },
+            "color": "#6B5D52",
+            "dark_color": "#C4B5A8",
+            "max_lines": 1,
+            "padding": {
+             "top": 0,
+             "end": 2,
+             "bottom": 0,
+             "start": 2
+            },
+            "translations": {
+             "ar": {
+              "text": "دافئ وخفيف"
+             },
+             "tr": {
+              "text": "Sıcak ve hafif"
+             }
+            }
+           },
+           {
+            "id": "sig-105",
+            "type": "row",
+            "gap": 5,
+            "children": [
+             {
+              "id": "sig-106",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#1E2B4A",
+              "dark_background": "#1E2B4A",
+              "children": []
+             },
+             {
+              "id": "sig-107",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#C2382F",
+              "dark_background": "#C2382F",
+              "children": []
+             },
+             {
+              "id": "sig-108",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#8E8A85",
+              "dark_background": "#8E8A85",
+              "children": []
+             },
+             {
+              "id": "sig-109",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#3B3B3D",
+              "dark_background": "#3B3B3D",
+              "children": []
+             }
+            ],
+            "padding": {
+             "top": 4,
+             "end": 2,
+             "bottom": 0,
+             "start": 2
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-110",
+          "type": "column",
+          "name": "Raffia",
+          "width": 150,
+          "gap": 6,
+          "radius": 22,
+          "padding": {
+           "top": 8,
+           "end": 8,
+           "bottom": 12,
+           "start": 8
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#221A16",
+          "border_color": "#EADFD1",
+          "dark_border_color": "#3A2E26",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-111",
+            "type": "image",
+            "image_url": "http://localhost:3000/crochet-photos/straw-close.jpg",
+            "width": 134,
+            "height": 110,
+            "radius": 16,
+            "fit": "cover"
+           },
+           {
+            "id": "sig-112",
+            "type": "text",
+            "text": "Raffia",
+            "font": {
+             "family": "El Messiri",
+             "size": 15.5,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 1,
+            "padding": {
+             "top": 4,
+             "end": 2,
+             "bottom": 0,
+             "start": 2
+            },
+            "translations": {
+             "ar": {
+              "text": "رافيا"
+             },
+             "tr": {
+              "text": "Rafya"
+             }
+            }
+           },
+           {
+            "id": "sig-113",
+            "type": "text",
+            "text": "For bags and hats",
+            "font": {
+             "size": 11.5
+            },
+            "color": "#6B5D52",
+            "dark_color": "#C4B5A8",
+            "max_lines": 1,
+            "padding": {
+             "top": 0,
+             "end": 2,
+             "bottom": 0,
+             "start": 2
+            },
+            "translations": {
+             "ar": {
+              "text": "للحقائب والقبعات"
+             },
+             "tr": {
+              "text": "Çanta ve şapkalar için"
+             }
+            }
+           },
+           {
+            "id": "sig-114",
+            "type": "row",
+            "gap": 5,
+            "children": [
+             {
+              "id": "sig-115",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#B58E5A",
+              "dark_background": "#B58E5A",
+              "children": []
+             },
+             {
+              "id": "sig-116",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#D9C29A",
+              "dark_background": "#D9C29A",
+              "children": []
+             },
+             {
+              "id": "sig-117",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#6B4A2B",
+              "dark_background": "#6B4A2B",
+              "children": []
+             },
+             {
+              "id": "sig-118",
+              "type": "row",
+              "width": 28,
+              "height": 8,
+              "radius": 4,
+              "background": "#2A2420",
+              "dark_background": "#2A2420",
+              "children": []
+             }
+            ],
+            "padding": {
+             "top": 4,
+             "end": 2,
+             "bottom": 0,
+             "start": 2
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-119",
+        "type": "row",
+        "name": "Most loved",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-120",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-121",
+            "type": "text",
+            "text": "Most loved",
+            "font": {
+             "family": "El Messiri",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "الأكثر طلبًا"
+             },
+             "tr": {
+              "text": "En sevilenler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-122",
+          "type": "row",
+          "name": "See all",
+          "gap": 2,
+          "cross": "center",
+          "padding": {
+           "top": 4,
+           "end": 0,
+           "bottom": 4,
+           "start": 4
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-123",
+            "type": "text",
+            "text": "See all",
+            "font": {
+             "size": 13,
+             "weight": 700
+            },
+            "color": "#A4502F",
+            "dark_color": "#E8A27F",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "عرض الكل"
+             },
+             "tr": {
+              "text": "Tümünü gör"
+             }
+            }
+           },
+           {
+            "id": "sig-124",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#A4502F",
+            "dark_color": "#E8A27F"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-125",
+        "type": "items",
+        "name": "Most loved",
+        "source": "products",
+        "layout": "grid",
+        "columns": 2,
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 4,
+         "category_id": null,
+         "featured": false,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-126",
+         "type": "column",
+         "width": 166,
+         "gap": 5,
+         "children": [
+          {
+           "id": "sig-127",
+           "type": "stack",
+           "width": 166,
+           "height": 196,
+           "children": [
+            {
+             "id": "sig-128",
+             "type": "image",
+             "bind": "image",
+             "width": 166,
+             "height": 196,
+             "radius": 22,
+             "fit": "cover",
+             "background": "#F4E4D8",
+             "dark_background": "#33231B"
+            },
+            {
+             "id": "sig-129",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "size": 11,
+              "weight": 800
+             },
+             "color": "#FFFFFF",
+             "background": "#A4502F",
+             "dark_color": "#FFFFFF",
+             "dark_background": "#B85C39",
+             "radius": 8,
+             "padding": {
+              "top": 3,
+              "end": 7,
+              "bottom": 3,
+              "start": 7
+             },
+             "place": {
+              "x": 6,
+              "y": 5
+             }
+            },
+            {
+             "id": "sig-130",
+             "type": "row",
+             "name": "Add",
+             "width": 34,
+             "height": 34,
+             "radius": 17,
+             "align": "center",
+             "cross": "center",
+             "background": "#FFFCF7",
+             "dark_background": "#221A16",
+             "shadow": "light",
+             "place": {
+              "x": 88,
+              "y": 86
+             },
+             "children": [
+              {
+               "id": "sig-131",
+               "type": "icon",
+               "icon": "add",
+               "icon_size": 20,
+               "color": "#2B211B",
+               "dark_color": "#F4EAE1"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "sig-132",
+           "type": "text",
+           "bind": "title",
+           "max_lines": 1,
+           "color": "#2B211B",
+           "dark_color": "#F4EAE1",
+           "font": {
+            "family": "El Messiri",
+            "size": 13.5,
+            "weight": 600
+           }
+          },
+          {
+           "id": "sig-133",
+           "type": "text",
+           "bind": "subtitle",
+           "max_lines": 1,
+           "color": "#6B5D52",
+           "dark_color": "#C4B5A8",
+           "font": {
+            "size": 11.5
+           }
+          },
+          {
+           "id": "sig-134",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "children": [
+            {
+             "id": "sig-135",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 1,
+             "color": "#2B211B",
+             "dark_color": "#F4EAE1",
+             "font": {
+              "family": "El Messiri",
+              "size": 14,
+              "weight": 800
+             }
+            },
+            {
+             "id": "sig-136",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#6B5D52",
+             "dark_color": "#C4B5A8",
+             "font": {
+              "size": 12
+             }
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-137",
+        "type": "row",
+        "name": "Crochet workshops",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-138",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-139",
+            "type": "text",
+            "text": "Crochet workshops",
+            "font": {
+             "family": "El Messiri",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "ورش الكروشيه"
+             },
+             "tr": {
+              "text": "Tığ işi atölyeleri"
+             }
+            }
+           },
+           {
+            "id": "sig-140",
+            "type": "text",
+            "text": "Learn your first stitch with our makers",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#6B5D52",
+            "dark_color": "#C4B5A8",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "تعلّمي أول غرزة مع حرفيّاتنا"
+             },
+             "tr": {
+              "text": "İlk ilmeğinizi ustalarımızla atın"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-141",
+          "type": "row",
+          "name": "All workshops",
+          "gap": 2,
+          "cross": "center",
+          "padding": {
+           "top": 4,
+           "end": 0,
+           "bottom": 4,
+           "start": 4
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-142",
+            "type": "text",
+            "text": "All workshops",
+            "font": {
+             "size": 13,
+             "weight": 700
+            },
+            "color": "#A4502F",
+            "dark_color": "#E8A27F",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "كل الورش"
+             },
+             "tr": {
+              "text": "Tüm atölyeler"
+             }
+            }
+           },
+           {
+            "id": "sig-143",
+            "type": "icon",
+            "icon": "arrow_forward",
+            "icon_size": 18,
+            "color": "#A4502F",
+            "dark_color": "#E8A27F"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-144",
+        "type": "row",
+        "name": "Workshops",
+        "gap": 0,
+        "radius": 26,
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#2B211B",
+        "dark_background": "#2A1F19",
+        "border_color": "#2B211B",
+        "dark_border_color": "#3A2E26",
+        "border_width": 1,
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "sig-145",
+          "type": "column",
+          "width": "fill",
+          "gap": 8,
+          "padding": {
+           "top": 16,
+           "end": 14,
+           "bottom": 16,
+           "start": 16
+          },
+          "children": [
+           {
+            "id": "sig-146",
+            "type": "row",
+            "gap": 5,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-147",
+              "type": "icon",
+              "icon": "calendar_month",
+              "icon_size": 15,
+              "color": "#E8A27F",
+              "dark_color": "#E8A27F"
+             },
+             {
+              "id": "sig-148",
+              "type": "text",
+              "text": "Every first Saturday · 4 pm",
+              "font": {
+               "size": 12,
+               "weight": 600
+              },
+              "color": "#E8A27F",
+              "dark_color": "#E8A27F",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "أول سبت من كل شهر · 4 مساءً"
+               },
+               "tr": {
+                "text": "Her ayın ilk cumartesi · 16.00"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-149",
+            "type": "text",
+            "text": "Crochet basics for beginners",
+            "font": {
+             "family": "El Messiri",
+             "size": 18,
+             "weight": 700,
+             "line_height": 1.3
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "أساسيات الكروشيه للمبتدئات"
+             },
+             "tr": {
+              "text": "Yeni başlayanlar için tığ işi"
+             }
+            }
+           },
+           {
+            "id": "sig-150",
+            "type": "row",
+            "gap": 6,
+            "scroll": true,
+            "children": [
+             {
+              "id": "sig-151",
+              "type": "row",
+              "name": "3 hours",
+              "gap": 5,
+              "cross": "center",
+              "radius": 12,
+              "padding": {
+               "top": 5,
+               "end": 10,
+               "bottom": 5,
+               "start": 8
+              },
+              "background": "#45362D",
+              "dark_background": "#3B2D25",
+              "children": [
+               {
+                "id": "sig-152",
+                "type": "icon",
+                "icon": "schedule",
+                "icon_size": 15,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               },
+               {
+                "id": "sig-153",
+                "type": "text",
+                "text": "3 hours",
+                "font": {
+                 "size": 12,
+                 "weight": 600
+                },
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "3 ساعات"
+                 },
+                 "tr": {
+                  "text": "3 saat"
+                 }
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-154",
+              "type": "row",
+              "name": "[Your studio]",
+              "gap": 5,
+              "cross": "center",
+              "radius": 12,
+              "padding": {
+               "top": 5,
+               "end": 10,
+               "bottom": 5,
+               "start": 8
+              },
+              "background": "#45362D",
+              "dark_background": "#3B2D25",
+              "children": [
+               {
+                "id": "sig-155",
+                "type": "icon",
+                "icon": "location_on",
+                "icon_size": 15,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF"
+               },
+               {
+                "id": "sig-156",
+                "type": "text",
+                "text": "Zamalek",
+                "font": {
+                 "size": 12,
+                 "weight": 600
+                },
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "الزمالك"
+                 },
+                 "tr": {
+                  "text": "Zamalek"
+                 }
+                }
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "sig-157",
+            "type": "row",
+            "name": "Yarn and tools included",
+            "gap": 5,
+            "cross": "center",
+            "radius": 12,
+            "padding": {
+             "top": 5,
+             "end": 10,
+             "bottom": 5,
+             "start": 8
+            },
+            "background": "#45362D",
+            "dark_background": "#3B2D25",
+            "children": [
+             {
+              "id": "sig-158",
+              "type": "icon",
+              "icon": "inventory_2",
+              "icon_size": 15,
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF"
+             },
+             {
+              "id": "sig-159",
+              "type": "text",
+              "text": "Yarn and tools included",
+              "font": {
+               "size": 12,
+               "weight": 600
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#FFFFFF",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "الخيوط والأدوات مشمولة"
+               },
+               "tr": {
+                "text": "İp ve malzemeler dahil"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-160",
+            "type": "button",
+            "name": "Book your seat",
+            "text": "Book your seat",
+            "width": "hug",
+            "height": 40,
+            "radius": 22,
+            "padding": {
+             "top": 0,
+             "end": 18,
+             "bottom": 0,
+             "start": 18
+            },
+            "background": "#A4502F",
+            "dark_background": "#B85C39",
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "font": {
+             "family": "El Messiri",
+             "size": 14,
+             "weight": 700
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "احجزي مقعدك"
+             },
+             "tr": {
+              "text": "Yerinizi ayırtın"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-161",
+          "type": "image",
+          "image_url": "http://localhost:3000/crochet-photos/knit-coffee.jpg",
+          "width": 118,
+          "height": 236,
+          "fit": "cover",
+          "corners": {
+           "top_end": 26,
+           "bottom_end": 26
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-162",
+        "type": "row",
+        "name": "From our customers' homes",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-163",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-164",
+            "type": "text",
+            "text": "From our customers' homes",
+            "font": {
+             "family": "El Messiri",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "من بيوت عميلاتنا"
+             },
+             "tr": {
+              "text": "Müşterilerimizin evlerinden"
+             }
+            }
+           },
+           {
+            "id": "sig-165",
+            "type": "text",
+            "text": "4.9 from 2,300 reviews",
+            "font": {
+             "size": 12.5
+            },
+            "color": "#6B5D52",
+            "dark_color": "#C4B5A8",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "4.9 من 2,300 تقييم"
+             },
+             "tr": {
+              "text": "2.300 yorumdan 4,9"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-166",
+        "type": "testimonials",
+        "name": "What our customers say",
+        "testimonials": {
+         "style": "carousel"
+        },
+        "color": "#2B211B",
+        "dark_color": "#F4EAE1",
+        "background": "#FFFCF7",
+        "dark_background": "#221A16",
+        "radius": 28,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "entries": [
+         {
+          "text": "I ordered slippers in the exact colours of our home. They came within a week with a card written by the maker.",
+          "title": "Mariam A.",
+          "subtitle": "Alexandria · Custom order",
+          "value": 5,
+          "translations": {
+           "ar": {
+            "text": "طلبتُ خُفًّا بألوان بيتنا بالضبط، فوصل خلال أسبوع ومعه بطاقة بخط يد الحرفية.",
+            "title": "مريم ع.",
+            "subtitle": "الإسكندرية · طلب خاص"
+           },
+           "tr": {
+            "text": "Evimizin renklerinde patik istedim; bir hafta içinde ustanın el yazısıyla bir kartla geldi.",
+            "title": "Meryem A.",
+            "subtitle": "İskenderiye · Özel sipariş"
+           }
+          }
+         },
+         {
+          "text": "The scarf is so soft and doesn't itch at all. The wrapping is a gift in itself.",
+          "title": "Reem E.",
+          "subtitle": "Mansoura",
+          "value": 5,
+          "translations": {
+           "ar": {
+            "text": "الوشاح ناعم جدًا ولا يسبب أي حكة، والتغليف هدية بحد ذاته.",
+            "title": "ريم ع.",
+            "subtitle": "المنصورة"
+           },
+           "tr": {
+            "text": "Atkı çok yumuşak, hiç kaşındırmıyor. Paketi bile başlı başına bir hediye.",
+            "title": "Rim E.",
+            "subtitle": "Mansure"
+           }
+          }
+         },
+         {
+          "text": "My daughter hasn't let go of her bear since it arrived. Neat, careful work.",
+          "title": "Noha S.",
+          "subtitle": "Giza",
+          "value": 5,
+          "translations": {
+           "ar": {
+            "text": "لم تترك ابنتي دبدوبها منذ وصوله. عمل نظيف ومتقن.",
+            "title": "نهى س.",
+            "subtitle": "الجيزة"
+           },
+           "tr": {
+            "text": "Kızım ayıcığı geldiğinden beri elinden bırakmadı. Temiz ve özenli bir iş.",
+            "title": "Nuha S.",
+            "subtitle": "Giza"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-167",
+        "type": "row",
+        "name": "Wrapped by hand as a gift",
+        "gap": 12,
+        "cross": "center",
+        "radius": 26,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#FFFCF7",
+        "dark_background": "#221A16",
+        "border_color": "#A4502F",
+        "dark_border_color": "#E8A27F",
+        "border_width": 1,
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "sig-168",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-169",
+            "type": "text",
+            "text": "Wrapped by hand as a gift",
+            "font": {
+             "size": 15,
+             "weight": 700
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "تغليف هدية يدوي"
+             },
+             "tr": {
+              "text": "Elle hediye paketi"
+             }
+            }
+           },
+           {
+            "id": "sig-170",
+            "type": "text",
+            "text": "With a card written by the maker, on any order",
+            "font": {
+             "size": 12
+            },
+            "color": "#6B5D52",
+            "dark_color": "#C4B5A8",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "مع بطاقة بخط يد الحرفية على أي طلب"
+             },
+             "tr": {
+              "text": "Her siparişte ustanın yazdığı bir kartla"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-171",
+          "type": "icon",
+          "icon": "redeem",
+          "icon_size": 28,
+          "color": "#A4502F",
+          "dark_color": "#E8A27F"
+         }
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "shop",
+    "title": "Shop",
+    "translations": {
+     "ar": {
+      "title": "المتجر"
+     },
+     "tr": {
+      "title": "Mağaza"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-209",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-210",
+        "type": "categories",
+        "name": "Categories",
+        "source": "products",
+        "padding": {
+         "top": 4,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-211",
+        "type": "photo_hero",
+        "name": "Warmth crocheted stitch by stitch",
+        "image_url": "http://localhost:3000/crochet-photos/wide-scarves-stack.jpg",
+        "height": 150,
+        "radius": 26,
+        "background": "#16110E",
+        "scrim": {
+         "color": "#000000",
+         "from": 0.05,
+         "middle": 0.2,
+         "at": 45,
+         "to": 0.72
+        },
+        "align": "end",
+        "padding": {
+         "top": 16,
+         "end": 18,
+         "bottom": 16,
+         "start": 18
+        },
+        "action": {
+         "type": "screen",
+         "screen": "search"
+        },
+        "children": [
+         {
+          "id": "sig-212",
+          "type": "text",
+          "text": "Winter collection",
+          "font": {
+           "size": 11.5,
+           "weight": 600,
+           "letter_spacing": 0.4
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "opacity": 0.9,
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "مجموعة الشتاء"
+           },
+           "tr": {
+            "text": "Kış koleksiyonu"
+           }
+          }
+         },
+         {
+          "id": "sig-213",
+          "type": "text",
+          "text": "Warmth crocheted stitch by stitch",
+          "font": {
+           "family": "El Messiri",
+           "size": 24,
+           "weight": 700,
+           "line_height": 1.15
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "max_lines": 2,
+          "margin": {
+           "top": 4,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "translations": {
+           "ar": {
+            "text": "دفء محاك غرزة بغرزة"
+           },
+           "tr": {
+            "text": "İlmek ilmek örülen sıcaklık"
+           }
+          }
+         },
+         {
+          "id": "sig-214",
+          "type": "button",
+          "name": "Shop now",
+          "text": "Shop now",
+          "icon": "arrow_forward",
+          "icon_position": "end",
+          "width": "hug",
+          "height": 38,
+          "radius": 19,
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 16
+          },
+          "self_align": "start",
+          "margin": {
+           "top": 10,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "background": "#A4502F",
+          "dark_background": "#B85C39",
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "font": {
+           "size": 13.5,
+           "weight": 700
+          },
+          "motion": {
+           "press": "shrink"
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "تسوّق الآن"
+           },
+           "tr": {
+            "text": "Alışverişe başla"
+           }
+          }
+         }
+        ],
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "Shop",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المتجر"
+       },
+       "tr": {
+        "title": "Mağaza"
+       }
+      },
+      "background": "#F7F1E8",
+      "color": "#2B211B",
+      "dark_background": "#16110E",
+      "dark_color": "#F4EAE1",
+      "style": "glass"
+     },
+     "background": "#F7F1E8",
+     "dark_background": "#16110E"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "cart",
+    "title": "Cart",
+    "translations": {
+     "ar": {
+      "title": "السلة"
+     },
+     "tr": {
+      "title": "Sepet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-215",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-216",
+        "type": "coupon",
+        "name": "Your code",
+        "code": "GHURZA10",
+        "coupon": {
+         "look": "ticket",
+         "bind": "public"
+        },
+        "radius": 18,
+        "color": "#A4502F",
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-217",
+        "type": "row",
+        "name": "Add gift wrap and a handwritten card to any piece.",
+        "gap": 12,
+        "cross": "center",
+        "radius": 18,
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#F4E4D8",
+        "dark_background": "#33231B",
+        "children": [
+         {
+          "id": "sig-218",
+          "type": "icon",
+          "icon": "redeem",
+          "icon_size": 22,
+          "color": "#2B211B",
+          "dark_color": "#F4EAE1"
+         },
+         {
+          "id": "sig-219",
+          "type": "text",
+          "text": "Add gift wrap and a handwritten card to any piece.",
+          "font": {
+           "size": 13,
+           "weight": 600,
+           "line_height": 1.4
+          },
+          "color": "#2B211B",
+          "dark_color": "#F4EAE1",
+          "width": "fill",
+          "max_lines": 3,
+          "translations": {
+           "ar": {
+            "text": "أضيفي تغليف هدية وبطاقة بخط اليد إلى أي قطعة."
+           },
+           "tr": {
+            "text": "Her parçaya hediye paketi ve el yazısı bir kart ekleyin."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "السلة"
+       },
+       "tr": {
+        "title": "Sepet"
+       }
+      },
+      "background": "#F7F1E8",
+      "color": "#2B211B",
+      "dark_background": "#16110E",
+      "dark_color": "#F4EAE1",
+      "style": "glass"
+     },
+     "background": "#F7F1E8",
+     "dark_background": "#16110E"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "Orders",
+    "translations": {
+     "ar": {
+      "title": "الطلبات"
+     },
+     "tr": {
+      "title": "Siparişler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-220",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-221",
+        "type": "row",
+        "name": "Your order's journey",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-222",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-223",
+            "type": "text",
+            "text": "Your order's journey",
+            "font": {
+             "family": "El Messiri",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "رحلة طلبك"
+             },
+             "tr": {
+              "text": "Siparişinizin yolculuğu"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-224",
+        "type": "timeline",
+        "name": "Your order's journey",
+        "timeline": {
+         "style": "vertical",
+         "source": "latest_order"
+        },
+        "color": "#2B211B",
+        "dark_color": "#F4EAE1",
+        "background": "#FFFCF7",
+        "dark_background": "#221A16",
+        "radius": 22,
+        "padding": {
+         "top": 16,
+         "end": 14,
+         "bottom": 16,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "border_color": "#EADFD1",
+        "dark_border_color": "#3A2E26",
+        "border_width": 1,
+        "entries": [
+         {
+          "title": "Order received",
+          "text": "We confirm the colour and the size with you.",
+          "highlight": true,
+          "translations": {
+           "ar": {
+            "title": "استلمنا الطلب",
+            "text": "نؤكد معكِ اللون والمقاس."
+           },
+           "tr": {
+            "title": "Sipariş alındı",
+            "text": "Rengi ve bedeni sizinle teyit ediyoruz."
+           }
+          }
+         },
+         {
+          "title": "On the hook",
+          "text": "Your maker is crocheting your piece by hand.",
+          "translations": {
+           "ar": {
+            "title": "قيد الحياكة",
+            "text": "تحيك الحرفية قطعتكِ بيدها."
+           },
+           "tr": {
+            "title": "Tığda",
+            "text": "Ustanız parçanızı elde örüyor."
+           }
+          }
+         },
+         {
+          "title": "Wrapped",
+          "text": "Your piece is checked and wrapped, its card written.",
+          "translations": {
+           "ar": {
+            "title": "تم التغليف",
+            "text": "فُحصت قطعتكِ وغُلّفت وكُتبت بطاقتها."
+           },
+           "tr": {
+            "title": "Paketlendi",
+            "text": "Parçanız kontrol edildi, paketlendi ve kartı yazıldı."
+           }
+          }
+         },
+         {
+          "title": "On its way",
+          "text": "Your piece is on its way to your door.",
+          "translations": {
+           "ar": {
+            "title": "في الطريق",
+            "text": "قطعتكِ في طريقها إلى بابك."
+           },
+           "tr": {
+            "title": "Yolda",
+            "text": "Parçanız kapınıza doğru yolda."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      },
+      "background": "#F7F1E8",
+      "color": "#2B211B",
+      "dark_background": "#16110E",
+      "dark_color": "#F4EAE1",
+      "style": "glass"
+     },
+     "background": "#F7F1E8",
+     "dark_background": "#16110E"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-226",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-225",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "account",
+     "background": "#F7F1E8",
+     "dark_background": "#16110E"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "menu",
+    "title": "All categories",
+    "translations": {
+     "ar": {
+      "title": "كل الأقسام"
+     },
+     "tr": {
+      "title": "Tüm kategoriler"
+     }
+    },
+    "studio": {
+     "background": "#F7F1E8",
+     "dark_background": "#16110E",
+     "body": {
+      "id": "sig-172",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-173",
+        "type": "search",
+        "name": "Search our handmade pieces…",
+        "text": "Search our handmade pieces…",
+        "source": "products",
+        "radius": 26,
+        "height": 50,
+        "background": "#FFFCF7",
+        "dark_background": "#221A16",
+        "color": "#6B5D52",
+        "dark_color": "#C4B5A8",
+        "border_color": "#EADFD1",
+        "dark_border_color": "#3A2E26",
+        "border_width": 1,
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحثي في قطعنا اليدوية…"
+         },
+         "tr": {
+          "text": "El yapımı parçalarımızda ara…"
+         }
+        }
+       },
+       {
+        "id": "sig-174",
+        "type": "row",
+        "name": "Quick links",
+        "gap": 8,
+        "scroll": true,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-175",
+          "type": "row",
+          "name": "New from the workshop",
+          "height": 42,
+          "radius": 21,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#A4502F",
+          "dark_background": "#B85C39",
+          "children": [
+           {
+            "id": "sig-176",
+            "type": "icon",
+            "icon": "new_releases",
+            "icon_size": 18,
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF"
+           },
+           {
+            "id": "sig-177",
+            "type": "text",
+            "text": "New from the workshop",
+            "max_lines": 1,
+            "font": {
+             "size": 13.5,
+             "weight": 700
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "translations": {
+             "ar": {
+              "text": "جديد من المشغل"
+             },
+             "tr": {
+              "text": "Atölyeden yeni"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-178",
+          "type": "row",
+          "name": "Workshops",
+          "height": 42,
+          "radius": 21,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#221A16",
+          "border_color": "#EADFD1",
+          "dark_border_color": "#3A2E26",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-179",
+            "type": "icon",
+            "icon": "school",
+            "icon_size": 18,
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1"
+           },
+           {
+            "id": "sig-180",
+            "type": "text",
+            "text": "Workshops",
+            "max_lines": 1,
+            "font": {
+             "size": 13.5,
+             "weight": 700
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "translations": {
+             "ar": {
+              "text": "ورش"
+             },
+             "tr": {
+              "text": "Atölyeler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-181",
+          "type": "row",
+          "name": "Shop by yarn",
+          "height": 42,
+          "radius": 21,
+          "gap": 7,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#221A16",
+          "border_color": "#EADFD1",
+          "dark_border_color": "#3A2E26",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-182",
+            "type": "icon",
+            "icon": "spa",
+            "icon_size": 18,
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1"
+           },
+           {
+            "id": "sig-183",
+            "type": "text",
+            "text": "Shop by yarn",
+            "max_lines": 1,
+            "font": {
+             "size": 13.5,
+             "weight": 700
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "translations": {
+             "ar": {
+              "text": "تسوّقي حسب الخيط"
+             },
+             "tr": {
+              "text": "İpe göre alışveriş"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-184",
+        "type": "categories",
+        "name": "All categories",
+        "source": "products",
+        "style": "rows",
+        "category_menu": {
+         "look": "lead",
+         "radius": 24
+        },
+        "color": "#2B211B",
+        "dark_color": "#F4EAE1",
+        "padding": {
+         "top": 6,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-185",
+        "type": "divider",
+        "height": 1,
+        "background": "#EADFD1",
+        "dark_background": "#3A2E26",
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-186",
+        "type": "row",
+        "name": "Your account",
+        "gap": 8,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-187",
+          "type": "column",
+          "name": "Account",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 18,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#221A16",
+          "border_color": "#EADFD1",
+          "dark_border_color": "#3A2E26",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-188",
+            "type": "icon",
+            "icon": "person",
+            "icon_size": 22,
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1"
+           },
+           {
+            "id": "sig-189",
+            "type": "text",
+            "text": "Account",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "translations": {
+             "ar": {
+              "text": "حسابي"
+             },
+             "tr": {
+              "text": "Hesabım"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-190",
+          "type": "column",
+          "name": "Orders",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 18,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#221A16",
+          "border_color": "#EADFD1",
+          "dark_border_color": "#3A2E26",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "orders"
+          },
+          "children": [
+           {
+            "id": "sig-191",
+            "type": "icon",
+            "icon": "package_2",
+            "icon_size": 22,
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1"
+           },
+           {
+            "id": "sig-192",
+            "type": "text",
+            "text": "Orders",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "translations": {
+             "ar": {
+              "text": "طلباتي"
+             },
+             "tr": {
+              "text": "Siparişlerim"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-193",
+          "type": "column",
+          "name": "Language",
+          "width": "fill",
+          "gap": 6,
+          "cross": "center",
+          "radius": 18,
+          "padding": {
+           "top": 14,
+           "end": 6,
+           "bottom": 12,
+           "start": 6
+          },
+          "background": "#FFFCF7",
+          "dark_background": "#221A16",
+          "border_color": "#EADFD1",
+          "dark_border_color": "#3A2E26",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "settings"
+          },
+          "children": [
+           {
+            "id": "sig-194",
+            "type": "icon",
+            "icon": "language",
+            "icon_size": 22,
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1"
+           },
+           {
+            "id": "sig-195",
+            "type": "text",
+            "text": "Language",
+            "max_lines": 1,
+            "text_align": "center",
+            "font": {
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "translations": {
+             "ar": {
+              "text": "اللغة"
+             },
+             "tr": {
+              "text": "Dil"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-196",
+        "type": "row",
+        "name": "Contact us",
+        "gap": 12,
+        "cross": "center",
+        "radius": 20,
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#F4E4D8",
+        "dark_background": "#33231B",
+        "action": {
+         "type": "screen",
+         "screen": "account"
+        },
+        "children": [
+         {
+          "id": "sig-197",
+          "type": "icon",
+          "icon": "support_agent",
+          "icon_size": 22,
+          "color": "#2B211B",
+          "dark_color": "#F4EAE1"
+         },
+         {
+          "id": "sig-198",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-199",
+            "type": "text",
+            "text": "Contact us",
+            "font": {
+             "size": 14,
+             "weight": 700
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "translations": {
+             "ar": {
+              "text": "تواصل معنا"
+             },
+             "tr": {
+              "text": "Bize ulaşın"
+             }
+            }
+           },
+           {
+            "id": "sig-200",
+            "type": "text",
+            "text": "WhatsApp · 10 am to 10 pm",
+            "font": {
+             "size": 12
+            },
+            "color": "#6B5D52",
+            "dark_color": "#C4B5A8",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "واتساب · من 10 صباحًا إلى 10 مساءً"
+             },
+             "tr": {
+              "text": "WhatsApp · 10.00–22.00"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-201",
+          "type": "icon",
+          "icon": "chat",
+          "icon_size": 20,
+          "color": "#2B211B",
+          "dark_color": "#F4EAE1"
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "All categories",
+      "translations": {
+       "ar": {
+        "title": "كل الأقسام"
+       },
+       "tr": {
+        "title": "Tüm kategoriler"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#F7F1E8",
+      "color": "#2B211B",
+      "dark_background": "#16110E",
+      "dark_color": "#F4EAE1",
+      "style": "glass"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "custom-order",
+    "title": "Order a custom piece",
+    "translations": {
+     "ar": {
+      "title": "اطلبي قطعة خاصة"
+     },
+     "tr": {
+      "title": "Özel parça sipariş et"
+     }
+    },
+    "studio": {
+     "background": "#F7F1E8",
+     "dark_background": "#16110E",
+     "body": {
+      "id": "sig-202",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-203",
+        "type": "text",
+        "text": "Tell us what you'd like us to make: the piece, its size and its colour. A maker contacts you with the price and the days it takes.",
+        "font": {
+         "size": 14,
+         "line_height": 1.55
+        },
+        "color": "#6B5D52",
+        "dark_color": "#C4B5A8",
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "أخبرينا بما تريدين أن نصنعه لكِ: القطعة ومقاسها ولونها، وتتواصل معكِ حرفية بالسعر وعدد أيام الصنع."
+         },
+         "tr": {
+          "text": "Ne örmemizi istediğinizi anlatın: parçayı, bedenini ve rengini. Bir usta fiyatı ve kaç günde biteceğini size bildirir."
+         }
+        }
+       },
+       {
+        "id": "sig-204",
+        "type": "timeline",
+        "name": "How it works",
+        "timeline": {
+         "style": "vertical"
+        },
+        "color": "#2B211B",
+        "dark_color": "#F4EAE1",
+        "background": "#FFFCF7",
+        "dark_background": "#221A16",
+        "radius": 28,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "entries": [
+         {
+          "title": "Tell us about your piece",
+          "text": "The piece, the size and the colour you'd like.",
+          "highlight": true,
+          "translations": {
+           "ar": {
+            "title": "أخبرينا عن قطعتك",
+            "text": "القطعة والمقاس واللون الذي تحبينه."
+           },
+           "tr": {
+            "title": "Parçanızı anlatın",
+            "text": "İstediğiniz parça, beden ve renk."
+           }
+          }
+         },
+         {
+          "title": "We agree on the price and the time",
+          "text": "A maker calls you within a day.",
+          "translations": {
+           "ar": {
+            "title": "نتفق على السعر والموعد",
+            "text": "تتصل بكِ حرفية خلال يوم."
+           },
+           "tr": {
+            "title": "Fiyat ve tarihte anlaşalım",
+            "text": "Bir usta bir gün içinde sizi arar."
+           }
+          }
+         },
+         {
+          "title": "We make it by hand",
+          "text": "Stitch by stitch; we send you a photo when it's ready.",
+          "translations": {
+           "ar": {
+            "title": "نصنعها باليد",
+            "text": "غرزة بغرزة، ونرسل لكِ صورتها حين تجهز."
+           },
+           "tr": {
+            "title": "Elde öreriz",
+            "text": "İlmek ilmek; hazır olunca fotoğrafını göndeririz."
+           }
+          }
+         },
+         {
+          "title": "It comes to your door",
+          "text": "Wrapped by hand, with a card.",
+          "translations": {
+           "ar": {
+            "title": "تصل إلى بابك",
+            "text": "مغلّفة يدويًا مع بطاقة."
+           },
+           "tr": {
+            "title": "Kapınıza gelir",
+            "text": "Elle paketlenmiş, kartıyla."
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-205",
+        "type": "row",
+        "name": "Your custom order",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 24,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-206",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-207",
+            "type": "text",
+            "text": "Your custom order",
+            "font": {
+             "family": "El Messiri",
+             "size": 21,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#2B211B",
+            "dark_color": "#F4EAE1",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "طلبك الخاص"
+             },
+             "tr": {
+              "text": "Özel siparişiniz"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-208",
+        "type": "form",
+        "name": "Your custom order",
+        "form": {
+         "fields": [
+          {
+           "id": "f1",
+           "kind": "choice",
+           "label": "What should we make?",
+           "required": true,
+           "options": [
+            "Blanket",
+            "Cardigan",
+            "Scarf",
+            "Bag",
+            "Toy",
+            "Something else"
+           ]
+          },
+          {
+           "id": "f2",
+           "kind": "text",
+           "label": "Size or measurements",
+           "required": false,
+           "options": null
+          },
+          {
+           "id": "f3",
+           "kind": "text",
+           "label": "Yarn colour",
+           "required": true,
+           "options": null
+          },
+          {
+           "id": "f4",
+           "kind": "long_text",
+           "label": "The details",
+           "required": false,
+           "options": null
+          },
+          {
+           "id": "f5",
+           "kind": "text",
+           "label": "Your name",
+           "required": true,
+           "options": null
+          },
+          {
+           "id": "f6",
+           "kind": "phone",
+           "label": "Your phone",
+           "required": true,
+           "options": null
+          }
+         ],
+         "submit_label": "Send my request",
+         "success_text": "Thank you! We have your request and will contact you soon with the price and the time.",
+         "send_to": "email",
+         "request": "custom_order"
+        },
+        "color": "#2B211B",
+        "dark_color": "#F4EAE1",
+        "background": "#FFFCF7",
+        "dark_background": "#221A16",
+        "border_color": "#EADFD1",
+        "dark_border_color": "#3A2E26",
+        "border_width": 1,
+        "radius": 28,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Order a custom piece",
+      "translations": {
+       "ar": {
+        "title": "اطلبي قطعة خاصة"
+       },
+       "tr": {
+        "title": "Özel parça sipariş et"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#F7F1E8",
+      "color": "#2B211B",
+      "dark_background": "#16110E",
+      "dark_color": "#F4EAE1",
+      "style": "glass"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-227",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#F7F1E8",
+      "color": "#2B211B",
+      "dark_background": "#16110E",
+      "dark_color": "#F4EAE1",
+      "style": "glass"
+     },
+     "background": "#F7F1E8",
+     "dark_background": "#16110E"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-228",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#F7F1E8",
+      "color": "#2B211B",
+      "dark_background": "#16110E",
+      "dark_color": "#F4EAE1",
+      "style": "glass"
+     },
+     "background": "#F7F1E8",
+     "dark_background": "#16110E"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-229",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#F7F1E8",
+      "color": "#2B211B",
+      "dark_background": "#16110E",
+      "dark_color": "#F4EAE1",
+      "style": "glass"
+     },
+     "background": "#F7F1E8",
+     "dark_background": "#16110E"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-230",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#F7F1E8",
+      "color": "#2B211B",
+      "dark_background": "#16110E",
+      "dark_color": "#F4EAE1",
+      "style": "glass"
+     },
+     "background": "#F7F1E8",
+     "dark_background": "#16110E"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-231",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#F7F1E8",
+     "dark_background": "#16110E"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-232",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#F7F1E8",
+     "dark_background": "#16110E"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#FFFCF7",
+   "dark_background": "#241C18",
+   "active": "#A4502F",
+   "dark_active": "#E8A27F",
+   "inactive": "#6B5D52",
+   "dark_inactive": "#A8998D",
+   "design": "float",
+   "labels": "active",
+   "radius": 30,
+   "margin": 12
+  }
+ }
+}

@@ -25,6 +25,7 @@ class StoreConfig {
     this.bouquet,
     this.sizeChart,
     this.orderingOpen,
+    this.installmentsSoon = false,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -54,7 +55,12 @@ class StoreConfig {
     orderingOpen: json['ordering_open'] is bool
         ? json['ordering_open'] as bool
         : null,
+    installmentsSoon: json['installments_soon'] == true,
   );
+
+  /// 210 "Installments coming soon" under a product's price (furniture and
+  /// electronics shops): a tag, never a way to pay; false from older servers.
+  final bool installmentsSoon;
 
   /// 208 The shop's size chart, under a product's sizes ("Size guide") and
   /// on a Studio page (`size_chart`); null: none.
@@ -690,6 +696,8 @@ class ProductDetail {
     this.badges = const [],
     this.expiry,
     this.ages,
+    this.dimensions,
+    this.makeDays,
   });
 
   factory ProductDetail.fromJson(Json json) => ProductDetail(
@@ -728,6 +736,8 @@ class ProductDetail {
       _ => null,
     },
     ages: ProductAges.tryParse(json['age_months']),
+    dimensions: _lineOf(json['dimensions']),
+    makeDays: _lineOf(json['make_days']),
   );
 
   /// 209 Its parts in its own words (ingredients, how to use it, safety,
@@ -748,6 +758,21 @@ class ProductDetail {
     for (final a in attributes)
       if (!a.variation && a.options.isNotEmpty) a,
   ];
+
+  /// 210 A part's words as the shop's API writes them (`text`), or null.
+  static String? _lineOf(Object? value) {
+    if (value is! Map) return null;
+    final text = value['text'];
+    return text is String && text.trim().isNotEmpty ? text.trim() : null;
+  }
+
+  /// 210 Its size in cm as the server words it ("W 220 × D 95 × H 82 cm");
+  /// null for none (and from older servers).
+  final String? dimensions;
+
+  /// 210 Made to order: the days it takes ("Made in 3–5 days"); null when
+  /// it is ready to send.
+  final String? makeDays;
 
   /// 208 "Complete the look": a product of each of the shop's other main
   /// categories; empty when the shop has it off.

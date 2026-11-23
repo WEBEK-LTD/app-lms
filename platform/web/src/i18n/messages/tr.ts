@@ -57,6 +57,12 @@ export const tr: Messages = {
     // 209 Toys
     storyToys: "Oyuncak mağazası uygulaması",
     storyToysText: "Yaşa göre alışveriş, güvenlik ve malzemeler, kartlı doğum günü hediyeleri",
+    storyDecor: "Ev dekorasyonu mağazası uygulaması",
+    storyDecorText: "Görünümü satın al, odaya ve tarza göre, kartlı hediyeler",
+    storyCrochet: "Tığ işi mağazası uygulaması",
+    storyCrochetText: "Özel siparişler, yapım günleri, ipler ve atölyeler",
+    storyFurniture: "Mobilya mağazası uygulaması",
+    storyFurnitureText: "Odaya göre alışveriş, cm ölçüler, istediğiniz gün teslimat ve kurulum",
     studioDemo: "Studio demosu",
     studioDemoText: "Studio uygulamalarını telefonunda dene",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -816,6 +822,12 @@ export const tr: Messages = {
       // 209 Toys
       toys_a: { name: "TOOT, neşeli", text: "Neşeli ve renkli bütün oyuncak mağazası: krem üstünde mürdüm ve altın, menüsü kategori menüsünü açan küçük başlık, arama, yuvarlak kategoriler, bir sonraki kartın göründüğü vitrin, yaşa göre alışveriş, önce güvenlik, yeniler, günün oyuncağı, paketleriyle 3 adımda mükemmel hediye, en sevilenler, 100'ün altında hediyeler, oynayarak öğren ve ebeveyn rehberi; her sayfa, yüzen çubuk ve hesap." },
       toys_b: { name: "MUKAAB, Montessori", text: "Sakin ve eğitici bütün oyuncak mağazası: gri üstünde tek bir berrak mavi, aramanın altında çocuğunuzun yaşı, kâşifler koleksiyonu, kare kategoriler, bilim laboratuvarı, şu an popüler olanlar, günün oyuncağı, doğum günü hediye asistanı, en beğenilenler, 200'ün altında hediyeler, yenidoğan kutusu ve güvenlik sözleri; kategori menüsü, her sayfa, yüzen çubuk ve hesap." },
+      decor_a: { name: "SAKAN, dekor dergisi", text: "Dergi gibi tüm ev dekorasyonu mağazası: sıcak kâğıt üzerinde zeytin yeşili, geniş fotoğraflar, kategori menüsü, sonraki kartı görünen vitrin, odaya göre alışveriş, yeni gelenler, hafta sonu fırsatları, her parçada bir noktayla odayı tamamla, tarza göre alışveriş, en sevilenler, kartlı hediyeler, mevsim afişleri ve yorumlar; mağaza, sepet ve siparişler aynı görünümde, derin zeytin rengi bir gece moduyla." },
+      decor_b: { name: "TEEN, sıcak toprak tonları", text: "Sıcak ve sakin tüm ev dekorasyonu mağazası: beyaz ve kum rengi üzerinde siyaha yakın mürekkep, meşe ve kil, ilk kutusu uzun seçilmiş koleksiyonlar, numaralı çok satanlar, evin hikâyesi ve rakamları, köşeyi satın al, hediye kartı, kalıcı parçalar ve vaatler; her sayfa, çubuk, hesap, mağaza, sepet ve siparişler aynı görünümde, sıcak kömür rengi bir gece moduyla." },
+      crochet_a: { name: "GHURZA, sıcak el emeği", text: "Sıcak ve el yapımı tüm tığ işi mağazası: bej kâğıt üzerinde kiremit rengi, yuvarlak kategoriler, sonraki kartı görünen kış vitrini, kendi talep sayfasını açan özel sipariş kartı, her birinin kaç günde yapıldığıyla atölyeden yeniler, ustanın hikâyesi ve rakamları, tonlarıyla ipe göre alışveriş, en sevilenler, atölye kartı, yorumlar ve elle hediye paketi; kategori menüsü, özel sipariş, mağaza, sepet ve siparişler aynı görünümde, kahve rengi bir gece moduyla." },
+      crochet_b: { name: "HABKA, renkli ve eğlenceli", text: "Renkli ve eğlenceli tüm tığ işi mağazası: yumuşak pembe-gri üzerinde mürdüm ve böğürtlen, bir selam, Tasarla düğmeli arama, çip kategoriler, müşterinin özel siparişi adım adım, ip tonlarıyla kendi parçanı tasarla, yeni gelenler, sezonun rengi, örgü çantası, atölyenin hikâyesi, ayın atölyeleri, müşteri fotoğrafları ve vaatler; her sayfa aynı görünümde, mürdüm-siyah bir gece moduyla." },
+      furniture_a: { name: "RUKN, beyaz ve ahşap", text: "Modern ve sıcak tüm mobilya mağazası: keten beyazı ve koyu ceviz, yuvarlak odalar, sonraki kartı görünen sezon vitrini, Taksit yakında etiketli vaatler, odaya göre alışveriş, cm ölçüleriyle yeni gelenler, fotoğrafından alınan komple takım, kumaş örnekleri, hafta sonu fırsatları, teslimat ve kurulum randevusu ve en sevilenler; kategori menüsü, ölçüye özel talep, mağaza, sepet ve siparişler aynı görünümde, koyu ceviz bir gece moduyla." },
+      furniture_b: { name: "KANAF, sessiz lüks", text: "Koyu yeşil ve taş renginde tüm mobilya mağazası: kutu kutu odalar, 48 saatte teslimat, bütün alanlar, kanepeni parça parça tasarla, Taksit yakında etiketli hizmetler, müşterilerin evlerinden ilham, yerini hak eden parçalar, puan ve haritada showroom; her sayfa, çubuk, hesap, mağaza, sepet ve siparişler aynı görünümde, siyaha yakın yeşil bir gece moduyla." },
     },
   },
   meta: {

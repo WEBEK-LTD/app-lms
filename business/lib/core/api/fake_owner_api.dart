@@ -76,6 +76,8 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   final _media = <String, List<MediaFile>>{};
   final uploads = <String, ({String appId, int size, List<int> bytes})>{};
   final _inquiries = <String, List<InquiryDetail>>{};
+  // 210 Custom-order requests, as the server's JSON.
+  final _requests = <String, List<Json>>{};
   final _users = <String, List<AppUser>>{};
   final _sent = <String, List<SentNotification>>{};
   final _scheduled = <String, List<ScheduledNotification>>{};
@@ -380,6 +382,7 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     _seedCommunity();
     _seedGym();
     _seedStudio();
+    _seedRequests();
     _orders[flowersId] = _flowerOrders();
 
     devicesList
@@ -1409,6 +1412,175 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
       }
     }
     return updatesList.where((u) => u.unread && u.current).length;
+  }
+
+  // 210 Custom-order requests: a crochet blanket, a sofa made to measure
+  // and two cushion covers, in each shop with orders.
+  void _seedRequests() {
+    for (final app in apps.where((a) => a.features.orders)) {
+      final currency = app.id == flowersId ? 'EGP' : 'TRY';
+      Json request(
+        String id,
+        String status,
+        Duration ago, {
+        required Json customer,
+        required List<(String, String)> answers,
+        String? reply,
+        int? quoteCents,
+      }) => {
+        'id': id,
+        'title': 'Custom order',
+        'status': status,
+        'answers': [
+          for (final (label, value) in answers)
+            {'label': label, 'value': value},
+        ],
+        'customer': customer,
+        'reply': reply,
+        'quote_cents': quoteCents,
+        'currency': currency,
+        'lang': 'en',
+        'created_at': _at(ago),
+        'updated_at': _at(ago),
+        'quote': quoteCents == null
+            ? null
+            : _FakeStudio._money(quoteCents, currency),
+      };
+      _requests[app.id] = [
+        request(
+          '31',
+          'new',
+          const Duration(hours: 2),
+          customer: {
+            'name': 'Nadia Samir',
+            'phone': '+20 100 555 0142',
+            'email': 'nadia@example.com',
+          },
+          answers: [
+            ('What would you like?', 'A crochet baby blanket'),
+            ('Size', '90 × 110 cm'),
+            ('Colour', 'Sage green with a cream border'),
+            ('Needed by', '15 December'),
+          ],
+        ),
+        request(
+          '30',
+          'quoted',
+          const Duration(days: 2),
+          customer: {
+            'name': 'Mert Aydın',
+            'phone': '+90 532 555 0199',
+            'email': null,
+          },
+          answers: [
+            ('What would you like?', 'A three-seat sofa made to measure'),
+            ('Measurements', '230 × 95 cm, seat height 45 cm'),
+            ('Fabric', 'Dark grey linen'),
+          ],
+          reply: 'We can make it in three weeks, delivery included.',
+          quoteCents: 4500000,
+        ),
+        request(
+          '29',
+          'done',
+          const Duration(days: 9),
+          customer: {'name': 'Elif', 'phone': null, 'email': null},
+          answers: [
+            ('What would you like?', 'Two cushion covers to match'),
+            ('Size', '45 × 45 cm'),
+          ],
+          reply: 'Ready, thank you!',
+          quoteCents: 90000,
+        ),
+      ];
+    }
+  }
+
+  @override
+  Future<Paged<StoreRequest>> requests(
+    String appId, {
+    String status = 'open',
+    int page = 1,
+  }) async {
+    await _call('requests:$status');
+    _app(appId, (f) => f.orders);
+    const open = {'new', 'quoted', 'accepted'};
+    const all = {...open, 'declined', 'done'};
+    if (status != 'all' && status != 'open' && !all.contains(status)) {
+      _FakeStudio._invalid("The request isn't valid.", {
+        'status': "The request isn't valid.",
+      });
+    }
+    bool wanted(Json j) => switch (status) {
+      'all' => true,
+      'open' => open.contains(j['status']),
+      _ => j['status'] == status,
+    };
+    final matching = (_requests[appId] ?? const <Json>[]).where(wanted);
+    return _pageOf(
+      [
+        ...matching.where((j) => j['status'] == 'new'),
+        ...matching.where((j) => j['status'] != 'new'),
+      ],
+      StoreRequest.fromJson,
+      page,
+    );
+  }
+
+  @override
+  Future<StoreRequest> request(String appId, String id) async {
+    await _call('request');
+    _app(appId, (f) => f.orders);
+    return StoreRequest.fromJson(_one(_requests, appId, id));
+  }
+
+  @override
+  Future<StoreRequest> answerRequest(
+    String appId,
+    String id, {
+    required String status,
+    String? reply,
+    String? quote,
+  }) async {
+    await _call('answerRequest:$status');
+    _app(appId, (f) => f.orders);
+    final j = _one(_requests, appId, id);
+    if (!const {
+      'new',
+      'quoted',
+      'accepted',
+      'declined',
+      'done',
+    }.contains(status)) {
+      _FakeStudio._invalid('Choose where the request is.', {
+        'status': 'Choose one of: new, quoted, accepted, declined, done.',
+      });
+    }
+    final text = reply?.trim() ?? '';
+    if (text.length > 2000) {
+      _FakeStudio._invalid('Keep the reply under 2000 characters.', {
+        'reply': 'Keep it under 2000 characters.',
+      });
+    }
+    int? cents;
+    final typed = typedAmount(quote ?? '');
+    if (typed.isNotEmpty) {
+      final value = double.tryParse(typed);
+      if (value == null || value <= 0) {
+        _FakeStudio._invalid('Enter a price, like 450 or 450.50.', {
+          'quote': 'Enter a price, like 450 or 450.50.',
+        });
+      }
+      cents = (value * 100).round();
+    }
+    final currency = '${j['currency']}';
+    j
+      ..['status'] = status
+      ..['reply'] = text.isEmpty ? null : text
+      ..['quote_cents'] = cents
+      ..['quote'] = cents == null ? null : _FakeStudio._money(cents, currency)
+      ..['updated_at'] = now.toUtc().toIso8601String();
+    return StoreRequest.fromJson(j);
   }
 
   // Today
