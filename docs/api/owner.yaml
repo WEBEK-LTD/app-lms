@@ -588,7 +588,7 @@ paths:
             schema:
               type: object
               properties:
-                start_token: { type: string, nullable: true, example: 'a1b2…' }
+                start_token: { type: [string, 'null'], example: 'a1b2…' }
                 orders:
                   type: array
                   maxItems: 20
@@ -599,7 +599,7 @@ paths:
                       app_id: { type: string }
                       kind: { type: string, enum: [new_order, new_food_order, new_market_order] }
                       order_id: { type: string, example: '42' }
-                      token: { type: string, nullable: true }
+                      token: { type: [string, 'null'] }
       responses:
         '200':
           description: Saved
