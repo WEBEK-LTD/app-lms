@@ -249,6 +249,8 @@ describe("105.1 food delivery apps on the hosted API", () => {
       ratings_count: 0,
       open: true,
       opens_at: null,
+      // 214 Not paused.
+      paused: null,
       busy: false,
       prep_minutes: 20,
       // 20 minutes, 10 more, then 1.2 km at 25 km/h.

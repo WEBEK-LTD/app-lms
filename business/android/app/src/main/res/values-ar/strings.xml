@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_name">مبيعات اليوم</string>
+    <string name="widget_description">المبيعات والطلبات والطلبات الجديدة المنتظرة</string>
+    <string name="widget_sales">مبيعات اليوم</string>
+    <string name="widget_orders">الطلبات</string>
+    <string name="widget_waiting">بانتظارك</string>
+    <string name="widget_sign_in">افتح يلا اب بيزنس لتسجيل الدخول</string>
+    <string name="widget_offline">تعذّر التحديث. اضغط للفتح.</string>
+    <string name="widget_choose">أي متجر؟</string>
+    <string name="widget_updated">آخر تحديث %1$s</string>
+</resources>
