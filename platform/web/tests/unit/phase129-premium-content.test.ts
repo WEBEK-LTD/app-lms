@@ -59,8 +59,8 @@ describe("129.11–129.20 the premium library in the editor", () => {
     const premium = ELEMENTS.filter((e) => e.group === "premium");
     // The one Premium group also holds the premium motion & media elements (129.1–129.8, studio-premium-motion.test.ts).
     expect(premium.map((e) => e.preset ?? e.type)).toEqual(expect.arrayContaining([...TYPES, "glass_card"]));
-    // 131 The flash sale is offered in apps that sell products only; 208 so are the category menu and the size chart (and no premium element is for another kind only).
-    expect(premium.every((e) => !e.only || (["flash_sale", "categories", "size_chart"].includes(e.type) && e.only === "store"))).toBe(true);
+    // 131 The flash sale is offered in apps that sell products only; 208 so are the category menu and the size chart, 209 and the size finder (and no premium element is for another kind only).
+    expect(premium.every((e) => !e.only || (["flash_sale", "categories", "size_chart", "size_finder"].includes(e.type) && e.only === "store"))).toBe(true);
     for (const dict of [en, ar, tr] as Record<string, unknown>[]) {
       expect(typeof dict.groupPremium).toBe("string");
       expect(typeof dict.el_glass_card).toBe("string");
