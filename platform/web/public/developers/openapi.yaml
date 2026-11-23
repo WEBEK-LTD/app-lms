@@ -3830,6 +3830,7 @@ paths:
                   sections:
                     type: array
                     items: { $ref: '#/components/schemas/StoreHomeSection' }
+                  paused: { $ref: '#/components/schemas/ShopPaused' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
@@ -15338,6 +15339,16 @@ components:
           description: Times a scheduled order can be for, soonest first; empty when scheduled orders are off.
           maxItems: 500
           items: { type: string, format: date-time }
+        paused: { $ref: '#/components/schemas/ShopPaused' }
+
+    ShopPaused:
+      type: [object, 'null']
+      description: "Release 16 (Yallapp Business's Pause the shop): not taking new orders for now, until `until` (null: until the shop reopens), with the reason it gave; null when it takes orders. Checkout answers 409 `shop_paused` (a shop), `restaurant_closed` or `vendor_closed` (a place) meanwhile."
+      required: [until, reason, since]
+      properties:
+        until: { type: [string, 'null'], format: date-time }
+        reason: { type: [string, 'null'], maxLength: 80 }
+        since: { type: string, format: date-time }
 
     DeliveryAddress:
       type: [object, 'null']
@@ -19291,6 +19302,7 @@ components:
         open: { type: boolean, description: 'Taking orders now: within its hours and not busy.' }
         opens_at: { type: [string, 'null'], format: date-time, description: 'While closed: when it opens next, within the next 7 days.' }
         busy: { type: boolean, description: 'Open hours, but not taking orders for a while.' }
+        paused: { $ref: '#/components/schemas/ShopPaused' }
         prep_minutes: { type: integer, description: 'How long it usually takes to prepare an order.' }
         delivery_minutes: { type: [integer, 'null'], description: 'Preparing and delivering, with the customer''s position; null without it.' }
         min_order: { type: [string, 'null'], description: 'The smallest subtotal, as a decimal string; null for none.', example: '100.00' }
@@ -19690,6 +19702,7 @@ components:
         open: { type: boolean, description: 'Taking orders now: within its hours, not busy and not paused.' }
         opens_at: { type: [string, 'null'], format: date-time }
         busy: { type: boolean }
+        pause: { $ref: '#/components/schemas/ShopPaused' }
         delivery_by: { type: string, enum: [app, vendor], description: '`app`: the app''s couriers (followed on the map); `vendor`: its own drivers (followed by stages).' }
         delivery_minutes:
           type: [object, 'null']

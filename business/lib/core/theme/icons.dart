@@ -175,6 +175,11 @@ abstract final class AppIcons {
   static const silent = Symbols.notifications_off_rounded;
   static const volume = Symbols.volume_up_rounded;
   static const share = Symbols.share_rounded;
+  // 214
+  static const remove = Symbols.remove_rounded;
+  static const pauseShop = Symbols.pause_circle_rounded;
+  static const summary = Symbols.insights_rounded;
+  static const trendFlat = Symbols.trending_flat_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

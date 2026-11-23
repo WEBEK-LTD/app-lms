@@ -37,6 +37,7 @@ import { parseVendorAreaForm, serviceAreasOf } from "@/lib/market/areas";
 import { isMarketplaceApp } from "@/lib/market/plan";
 import type { TeamPermission } from "@/lib/team/permissions";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
+import { placePause, reopen } from "@/lib/shop/pause";
 
 /**
  * 105.1 The Restaurants and Food orders pages of food delivery apps: each
@@ -138,7 +139,10 @@ export async function openRestaurantAction(formData: FormData): Promise<void> {
   const context = await requireFoodApp("orders");
   const restaurant = await restaurantOf(context.app, formData);
   if (!restaurant) return;
-  await (await getStore()).updateRestaurant(context.app.id, restaurant.id, { busyUntil: null }, new Date());
+  const store = await getStore();
+  await store.updateRestaurant(context.app.id, restaurant.id, { busyUntil: null }, new Date());
+  // 214 A pause from Yallapp Business ends with it.
+  if (placePause(context.app, restaurant.id, new Date())) await reopen(store, context.app, restaurant.id, new Date());
   refresh();
 }
 

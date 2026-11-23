@@ -22,6 +22,7 @@ import { productPhotos } from "./photos";
 import type { OrderMoney, PriceLineKind } from "./money";
 import type { Statement } from "./statement";
 import { activeDelay, delayJson, mayEditPlace, upcomingClosedDates } from "./vendor-controls";
+import type { pauseJson } from "../shop/pause";
 
 /**
  * 115 The marketplace's JSON, as the contract writes it (docs/api/openapi.yaml,
@@ -78,6 +79,8 @@ export interface VendorNear {
   clubBenefit: string | null;
   /** 115.20 Running late at the time it was read: its minutes are in `minutes` already. */
   delay?: ReturnType<typeof delayJson>;
+  /** 214 Paused from Yallapp Business or the dashboard (lib/shop/pause.ts): until, reason. */
+  paused?: ReturnType<typeof pauseJson>;
 }
 
 export function vendorSummaryJson(v: Restaurant, near: VendorNear, currency: string, assetUrl: AssetUrl) {
@@ -95,6 +98,8 @@ export function vendorSummaryJson(v: Restaurant, near: VendorNear, currency: str
     open: near.open,
     opens_at: near.opensAt ? near.opensAt.toISOString() : null,
     busy: near.busy,
+    // 214 Not taking orders for now (Pause the shop): until (null until it reopens) and why; null otherwise.
+    pause: near.paused ?? null,
     delivery_by: terms.by,
     // 115 Outside the delivery area: no time and no fee.
     delivery_minutes: near.minutes === null || near.delivers === false ? null : { min: Math.max(5, near.minutes - 5), max: near.minutes + 10 },

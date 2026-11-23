@@ -22,6 +22,8 @@ import * as school from "./school";
 import * as vip from "./vip";
 import { teamCan } from "../team/permissions";
 import { getPlans } from "../settings/platform";
+import * as pause from "./pause";
+import { getDaySummary } from "./daily-summary";
 
 /**
  * 58 The Owner API (docs/api/owner.yaml), the server side of Yallapp
@@ -140,6 +142,12 @@ export const ROUTES: Route[] = [
   route("POST", "apps/:app_id/food-orders/:food_order_id/step", engines.stepFoodOrder),
   route("GET", "apps/:app_id/restaurants", engines.listRestaurants),
   route("POST", "apps/:app_id/restaurants/:restaurant_id/open", engines.openRestaurant),
+  // 214 Pause the shop.
+  route("GET", "apps/:app_id/pause", pause.getPause),
+  route("PUT", "apps/:app_id/pause", pause.setPause),
+  route("DELETE", "apps/:app_id/pause", pause.deletePause),
+  // 214 The end-of-day summary the push opens.
+  route("GET", "apps/:app_id/day-summary", getDaySummary),
   route("POST", "apps/:app_id/restaurants/:restaurant_id/end-delay", engines.endRestaurantDelay),
   route("GET", "apps/:app_id/shipments", engines.listShipments),
   route("GET", "apps/:app_id/shipments/:shipment_id", engines.getShipment),

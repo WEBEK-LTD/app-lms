@@ -33,6 +33,7 @@ import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "..
 // 162 Build your bouquet: its lines together, checked against the shop's settings.
 import { bouquetOf, bouquetOffers, bouquetPartJson, checkBouquetLines, onceEach } from "../../selling/bouquet";
 import { appStageJson } from "../../catalog/stage-json";
+import { appPause, pauseJson, pauseMessage } from "../../shop/pause";
 
 /**
  * The shop of an app without a website: products, categories and orders the
@@ -222,7 +223,8 @@ export class CatalogConnector implements Connector {
     if (map) return map;
     switch (route) {
       case "GET /store/home":
-        return { status: 200, body: { sections: await this.home() } };
+        // 214 `paused`: the shop isn't taking orders now (until, reason); null otherwise.
+        return { status: 200, body: { sections: await this.home(), paused: pauseJson(appPause(this.deps.app, request.now)) } };
       case "GET /store/categories":
         return { status: 200, body: { items: await this.categories() } };
       case "GET /store/products":
@@ -236,7 +238,7 @@ export class CatalogConnector implements Connector {
       case "GET /me/points":
         return this.points(request);
       case "GET /store/order-times":
-        return this.fulfilment ? { status: 200, body: orderTimesJson(this.fulfilment, request.now) } : error(404, "not_found", "Not found.");
+        return this.fulfilment ? { status: 200, body: pausedTimes(orderTimesJson(this.fulfilment, request.now), appPause(this.deps.app, request.now)) } : error(404, "not_found", "Not found.");
       case "GET /store/addons":
         return this.addons(request.query);
     }
@@ -750,6 +752,9 @@ export class CatalogConnector implements Connector {
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
     if (this.deps.cardPayments === false) return error(403, "feature_disabled", "Ordering isn't available in this app.");
     if (this.fulfilment && !request.user) return error(401, "unauthorized", "Please sign in to order.");
+    // 214 Paused from Yallapp Business or the dashboard: no new orders until it reopens.
+    const paused = appPause(this.deps.app, request.now);
+    if (paused) return error(409, "shop_paused", pauseMessage(paused));
     // 16 A demo shop takes orders without a payment account: its payment page charges nothing. 96.2 Bank transfer or the shop's own method will do too.
     if (!paymentsSetUp(this.deps.app)) {
       return error(503, "shop_unavailable", "This shop can't take orders yet. Please try again later.");
@@ -1021,4 +1026,19 @@ export class CatalogConnector implements Connector {
       },
     };
   }
+}
+
+/** 214 A paused shop's order times: closed until it reopens (no time for now, the slots before it gone). */
+function pausedTimes(times: ReturnType<typeof orderTimesJson>, pause: ReturnType<typeof appPause>) {
+  if (!pause) return { ...times, paused: null };
+  const until = pause.until?.getTime() ?? Infinity;
+  return {
+    ...times,
+    open_now: false,
+    asap: false,
+    opens_at: pause.until ? pause.until.toISOString() : null,
+    closes_at: null,
+    slots: times.slots.filter((s) => new Date(s).getTime() >= until),
+    paused: pauseJson(pause),
+  };
 }

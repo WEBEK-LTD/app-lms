@@ -8,6 +8,7 @@ import 'api_exception.dart';
 import 'json.dart';
 import 'models.dart';
 import 'owner_api.dart';
+import 'shop_models.dart';
 
 const _publicKey = 'yb.public';
 const _retriedKey = 'yb.retried';
@@ -300,6 +301,40 @@ class HttpOwnerApi implements OwnerApi {
   @override
   Future<Order> order(String appId, int orderId) async =>
       Order.fromJson(await _get('${_app(appId)}/orders/$orderId'));
+
+  @override
+  Future<ShopPauseState> shopPause(String appId) async =>
+      ShopPauseState.fromJson(await _get('${_app(appId)}/pause'));
+
+  @override
+  Future<ShopPauseState> pauseShop(
+    String appId, {
+    required int? minutes,
+    String? reason,
+    String? placeId,
+  }) async => ShopPauseState.fromJson(
+    await _put('${_app(appId)}/pause', {
+      'minutes': minutes,
+      'reason': ?reason,
+      'place_id': placeId == null ? 'all' : (int.tryParse(placeId) ?? placeId),
+    }),
+  );
+
+  @override
+  Future<ShopPauseState> reopenShop(String appId, {String? placeId}) async =>
+      ShopPauseState.fromJson(
+        await _send(
+          'DELETE',
+          '${_app(appId)}/pause',
+          query: {'place_id': placeId ?? 'all'},
+        ),
+      );
+
+  @override
+  Future<DaySummary> daySummary(String appId, {String? date}) async =>
+      DaySummary.fromJson(
+        await _get('${_app(appId)}/day-summary', query: {'date': ?date}),
+      );
 
   @override
   Future<Order> shipOrder(

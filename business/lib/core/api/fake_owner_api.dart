@@ -3,6 +3,7 @@ import 'dart:async';
 import '../widgets/digits.dart';
 import 'api_exception.dart';
 import 'models.dart';
+import 'shop_models.dart';
 import 'owner_api.dart';
 
 part 'fake_studio_api.dart';
@@ -1656,6 +1657,113 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     await _call('order');
     _app(appId, (f) => f.orders);
     return _detail(appId, _shippable(_find(appId, orderId)));
+  }
+
+  /// 214 Pause the shop: the whole app's (a shop), and each place's by id.
+  final shopPauses = <String, ShopPause>{};
+  final placePauses = <String, Map<String, ShopPause>>{};
+
+  /// 214 The demo's day summaries by app (today's when not set).
+  final daySummaries = <String, DaySummary>{};
+
+  bool _byPlace(AppSummary app) =>
+      !app.features.orders && (app.features.restaurants || app.features.market);
+
+  ShopPause? _live(ShopPause? p) =>
+      p == null || (p.until != null && !p.until!.isAfter(DateTime.now()))
+      ? null
+      : p;
+
+  Future<ShopPauseState> _pauseState(String appId) async {
+    final app = _app(appId);
+    if (!_byPlace(app)) {
+      return ShopPauseState(places: const [], shop: _live(shopPauses[appId]));
+    }
+    final places = app.features.restaurants
+        ? [for (final r in await restaurants(appId)) (r.id, r.name)]
+        : [for (final v in await vendors(appId)) (v.id, v.name)];
+    final paused = placePauses[appId] ?? const {};
+    return ShopPauseState(
+      byPlace: true,
+      places: [
+        for (final (id, name) in places)
+          PausePlace(id: id, name: name, paused: _live(paused[id])),
+      ],
+    );
+  }
+
+  @override
+  Future<ShopPauseState> shopPause(String appId) async {
+    await _call('shopPause');
+    return _pauseState(appId);
+  }
+
+  @override
+  Future<ShopPauseState> pauseShop(
+    String appId, {
+    required int? minutes,
+    String? reason,
+    String? placeId,
+  }) async {
+    await _call('pauseShop');
+    if (minutes != null && ![15, 30, 60].contains(minutes)) {
+      throw const ApiException(code: 'invalid_request', statusCode: 400);
+    }
+    final pause = ShopPause(
+      until: minutes == null
+          ? null
+          : DateTime.now().add(Duration(minutes: minutes)),
+      reason: (reason?.trim().isEmpty ?? true) ? null : reason!.trim(),
+      since: DateTime.now(),
+    );
+    final state = await _pauseState(appId);
+    if (!state.byPlace) {
+      shopPauses[appId] = pause;
+    } else {
+      final paused = placePauses.putIfAbsent(appId, () => {});
+      for (final p in state.places) {
+        if (placeId == null || p.id == placeId) paused[p.id] = pause;
+      }
+    }
+    return _pauseState(appId);
+  }
+
+  @override
+  Future<ShopPauseState> reopenShop(String appId, {String? placeId}) async {
+    await _call('reopenShop');
+    shopPauses.remove(appId);
+    final paused = placePauses[appId];
+    if (paused != null) {
+      if (placeId == null) {
+        paused.clear();
+      } else {
+        paused.remove(placeId);
+      }
+    }
+    return _pauseState(appId);
+  }
+
+  @override
+  Future<DaySummary> daySummary(String appId, {String? date}) async {
+    await _call('daySummary');
+    _app(appId);
+    final today = DateTime.now();
+    final d =
+        date ??
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    return daySummaries[appId] ??
+        DaySummary(
+          date: d,
+          sales: const DayAmount(242500, '₺2,425.00'),
+          orders: 5,
+          average: const DayAmount(48500, '₺485.00'),
+          bestSeller: 'Chicken shawarma',
+          compareDate: d,
+          compareWeekday: 'Monday',
+          compareSales: const DayAmount(202000, '₺2,020.00'),
+          compareOrders: 4,
+          changePct: 20,
+        );
   }
 
   /// 207 The orders with something a carrier ships (the server knows from

@@ -77,7 +77,7 @@ describe("58 pushes to the owner's phone", () => {
       [["token-22222222-2222-4222-8222-222222222222"], "طلب جديد 1042", `Moda Café: ${formatCents(1250_00, "TRY", "ar")}`],
     ]);
     // 64 With the business it is about, for the app to switch to it.
-    expect(sent[0]!.data).toEqual({ type: "owner", kind: "new_order", app_id: app.id, order_id: "42", business_id: app.clientId, business_name: "Moda Café" });
+    expect(sent[0]!.data).toEqual({ type: "owner", kind: "new_order", app_id: app.id, order_id: "42", order_value: "1250", business_id: app.clientId, business_name: "Moda Café" });
   });
 
   it("follows the dashboard language the person chose, forgets tokens the service refuses, and skips demo apps", async () => {

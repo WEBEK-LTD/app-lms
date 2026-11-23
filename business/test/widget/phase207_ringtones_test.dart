@@ -79,6 +79,9 @@ void main() {
         'alarm_volume': false,
         'quiet': {'from': '23:00', 'to': '07:00'},
         'time_zone': 'Europe/Istanbul',
+        // 214 The same sound for every order; the summary at 23:00.
+        'by_value': null,
+        'summary': {'on': true, 'at': '23:00'},
       });
       // Back from what the phone keeps; unknown sounds and groups dropped.
       expect(RingSettings.fromJson(json), isA<RingSettings>());

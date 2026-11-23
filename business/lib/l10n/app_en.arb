@@ -2838,6 +2838,163 @@
   "soundSaleJingle": "Sale made",
   "soundPiggyBank": "Piggy bank",
   "soundReceiptPrinter": "Receipt printer",
+  "ringByValueTitle": "New orders' sound",
+  "ringSameForEvery": "Same sound for every order",
+  "ringByValue": "By order value",
+  "ringByValueHelp": "Up to 3 bands, each with its own sound, so a big order sounds different.",
+  "ringBandUnder": "Under {amount}",
+  "@ringBandUnder": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ringBandBetween": "{from} to under {to}",
+  "@ringBandBetween": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "ringBandFrom": "{amount} and more",
+  "@ringBandFrom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ringBandSound": "Sound for this band",
+  "ringBandFromTitle": "Where this band starts",
+  "ringBandFromHelp": "In your shop's currency, the order's total",
+  "ringBandFromInvalid": "Enter an amount between the bands before and after it.",
+  "ringBandAdd": "Add a band",
+  "ringBandRemove": "Remove the last band",
+  "summarySetting": "End-of-day summary",
+  "summarySettingOn": "Every day at {time}, in your shop's time zone, when there were orders",
+  "@summarySettingOn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "summarySettingHelp": "Today's sales, orders and best seller, against the same day last week",
+  "summaryTime": "At {time}",
+  "@summaryTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "daySummaryTitle": "Day summary",
+  "daySummarySales": "Sales",
+  "daySummaryOrders": "Orders",
+  "daySummaryAverage": "Average order",
+  "daySummaryBest": "Best seller",
+  "daySummaryNoBest": "None yet",
+  "daySummaryUp": "{pct}% more than last {day}",
+  "@daySummaryUp": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "daySummaryDown": "{pct}% less than last {day}",
+  "@daySummaryDown": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "daySummarySame": "The same as last {day}",
+  "@daySummarySame": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "daySummaryNoCompare": "No sales last {day} to compare with",
+  "@daySummaryNoCompare": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "daySummaryLastWeek": "Last {day}: {sales}, {orders} orders",
+  "@daySummaryLastWeek": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "sales": {
+        "type": "String"
+      },
+      "orders": {
+        "type": "String"
+      }
+    }
+  },
+  "daySummaryBefore": "The day before",
+  "daySummaryAfter": "The day after",
+  "pauseShop": "Pause new orders",
+  "pauseHelp": "Customers see you're not taking orders for now, and when you're back. Orders already placed stay.",
+  "pauseWhich": "Which place",
+  "pauseAllPlaces": "All of them",
+  "pauseHowLong": "For how long",
+  "pauseFor15": "15 min",
+  "pauseFor30": "30 min",
+  "pauseFor60": "1 hour",
+  "pauseUntilReopen": "Until I reopen",
+  "pauseReason": "Reason (optional)",
+  "pauseReasonHelp": "Customers read it, e.g. Back after prayers",
+  "pauseConfirm": "Pause",
+  "pausedNow": "New orders are paused",
+  "pausedShopNow": "Not taking new orders",
+  "pausedPlacesNow": "{count} paused",
+  "@pausedPlacesNow": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "pausedUntil": "Until {time}",
+  "@pausedUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pausedUntilReopen": "Until you reopen",
+  "pauseReasonShown": "Customers read: {reason}",
+  "@pauseReasonShown": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "pauseMore": "Pause another place",
+  "reopenNow": "Reopen now",
+  "reopenedNow": "Taking orders again",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

@@ -93,6 +93,8 @@ class PushSettingsScreen extends ConsumerWidget {
               trailing: const DirectionalIcon(AppIcons.forward, size: 20),
               onTap: () => context.push(Paths.ringtones),
             ),
+            // 214 The end-of-day summary, at the time chosen.
+            const SummarySettings(),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
               child: Text(l10n.pushSettingsHelp),
@@ -116,6 +118,66 @@ class PushSettingsScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 214 The end-of-day summary: on or off, and its time in the shop's time
+/// zone (23:00 unless chosen); kept with the phone's ringtones and sent to
+/// the server.
+class SummarySettings extends ConsumerWidget {
+  const SummarySettings({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final s = ref.watch(ringSettingsProvider);
+    final time = MaterialLocalizations.of(context).formatTimeOfDay(
+      TimeOfDay(hour: s.summaryAt ~/ 60, minute: s.summaryAt % 60),
+      alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
+    );
+    return Column(
+      children: [
+        SwitchListTile(
+          key: const ValueKey('summary-on'),
+          secondary: const Icon(AppIcons.summary),
+          title: Text(l10n.summarySetting),
+          subtitle: Text(
+            s.summaryOn ? l10n.summarySettingOn(time) : l10n.summarySettingHelp,
+          ),
+          value: s.summaryOn,
+          onChanged: (on) => ref
+              .read(ringSettingsProvider.notifier)
+              .set(s.copyWith(summaryOn: on)),
+        ),
+        if (s.summaryOn)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(72, 0, 16, 8),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: OutlinedButton.icon(
+                key: const ValueKey('summary-time'),
+                icon: const Icon(AppIcons.timer),
+                label: Text(l10n.summaryTime(time)),
+                onPressed: () async {
+                  final picked = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay(
+                      hour: s.summaryAt ~/ 60,
+                      minute: s.summaryAt % 60,
+                    ),
+                  );
+                  if (picked == null) return;
+                  await ref
+                      .read(ringSettingsProvider.notifier)
+                      .set(
+                        s.copyWith(summaryAt: picked.hour * 60 + picked.minute),
+                      );
+                },
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

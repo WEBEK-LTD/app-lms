@@ -157,7 +157,12 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
     if (notice.data['kind'] == 'test') return false;
     final settings = ref.read(ringSettingsProvider);
     final group = soundGroupOf(notice.data);
-    final sound = settings.soundAt(group, DateTime.now());
+    // 214 A new order's value picks its band's sound.
+    final sound = settings.soundAt(
+      group,
+      DateTime.now(),
+      value: double.tryParse('${notice.data['order_value'] ?? ''}'),
+    );
     final ringer = ref.read(ringerProvider);
     if (!settings.rings(group) || sound == soundSilent) {
       unawaited(ringer.play(sound, volume: settings.volume));

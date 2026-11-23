@@ -16,6 +16,7 @@ import '../prime/prime_state.dart';
 import '../prime/prime_more.dart' show GoalCard;
 import '../prime/prime_today.dart';
 import '../studio/studio_widgets.dart';
+import 'pause_card.dart';
 
 final todayProvider = FutureProvider.autoDispose<Today>(
   (ref) => ref.watch(apiProvider).today(ref.watch(appIdProvider)),
@@ -78,6 +79,9 @@ class TodayScreen extends ConsumerWidget {
                 SliverToBoxAdapter(
                   child: _ExpiredBanner(dashboard: me.links.dashboard),
                 ),
+              // 214 Pause new orders, or reopen.
+              if (canPause(app) && app.state != AccountState.expired)
+                const SliverToBoxAdapter(child: PauseCard()),
               ...today.when(
                 skipLoadingOnRefresh: true,
                 skipError: true,

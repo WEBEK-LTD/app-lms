@@ -145,6 +145,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
             _ => Paths.today,
           },
           'morning_brief' => Paths.today,
+          // 214 The end-of-day summary opens its day.
+          'daily_summary' => Paths.daySummary(value('date')),
           _ => Paths.today,
         };
   return PushTarget(

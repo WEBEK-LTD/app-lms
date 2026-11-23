@@ -421,6 +421,21 @@ describe("58 the Owner API", () => {
       expect((await search("nobody")).body).toMatchObject({ total: 0, items: [] });
     });
 
+    it("214 pauses the shop and reopens it, and gives a day's summary, as the contract says", async () => {
+      const { access_token: token } = await signIn();
+      const params = { app_id: kitchen.id };
+      expect((await call("GET", "/apps/{app_id}/pause", { token, params })).body).toMatchObject({ kind: "shop", shop: null, places: [] });
+      expect(await call("PUT", "/apps/{app_id}/pause", { token, params, body: { minutes: 45 } })).toMatchObject({ status: 400 });
+      const paused = await call("PUT", "/apps/{app_id}/pause", { token, params, body: { minutes: 30, reason: "Back soon" } });
+      expect(paused.body).toMatchObject({ kind: "shop", shop: { until: new Date(NOW.getTime() + 30 * 60_000).toISOString(), reason: "Back soon" } });
+      expect((await store.getAppById(kitchen.id))!.shopPause?.app).toMatchObject({ reason: "Back soon" });
+      expect((await call("DELETE", "/apps/{app_id}/pause", { token, params })).body).toMatchObject({ shop: null });
+      await paidOrder(store, kitchen, { totalCents: 30000 });
+      const day = await call("GET", "/apps/{app_id}/day-summary", { token, params });
+      expect(day.body).toMatchObject({ orders: 1, sales: { amount_cents: 30000 }, compare: { orders: 0, change_pct: null } });
+      expect(await call("GET", "/apps/{app_id}/day-summary", { token, params, query: { date: "2020-01-01" } })).toMatchObject({ status: 400 });
+    });
+
     it("80.4 ships a shop's order with any carrier, and only orders with something to ship", async () => {
       const { access_token: token } = await signIn();
       const order = await paidOrder(store, shop);

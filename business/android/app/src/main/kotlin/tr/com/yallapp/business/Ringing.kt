@@ -88,6 +88,8 @@ object Ringing {
         var sound = s.optJSONObject("sounds")?.optString(group, "")?.takeIf { it == "default" || it == "silent" || it in ringtones }
             ?: defaults[group] ?: "default"
         if (group != "orders" && inQuietHours(s.optJSONObject("quiet"))) sound = "silent"
+        // 214 Ring by order value: the band of the order's total.
+        if (group == "orders") soundByValue(s.optJSONArray("by_value"), data["order_value"]?.toDoubleOrNull())?.let { sound = it }
         val ringGroups = s.optJSONArray("ring")
         var ring = false
         if (ringGroups != null) for (i in 0 until ringGroups.length()) if (ringGroups.optString(i) == group) ring = true
@@ -98,6 +100,17 @@ object Ringing {
             vibrate = s.optBoolean("vibrate", true),
             alarm = s.optBoolean("alarm_volume", false),
         )
+    }
+
+    /** 214 The sound of the band the value falls in (bands from 0, each above the one before), or null. */
+    private fun soundByValue(bands: org.json.JSONArray?, value: Double?): String? {
+        if (bands == null || value == null) return null
+        var chosen: String? = null
+        for (i in 0 until bands.length()) {
+            val band = bands.optJSONObject(i) ?: continue
+            if (value >= band.optDouble("from", Double.MAX_VALUE)) chosen = band.optString("sound")
+        }
+        return chosen?.takeIf { it == "default" || it == "silent" || it in ringtones }
     }
 
     private fun minutesOf(hhmm: String): Int? {

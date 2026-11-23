@@ -4372,6 +4372,188 @@ class AppLocalizationsAr extends AppLocalizations {
   String get soundReceiptPrinter => 'طابعة الإيصالات';
 
   @override
+  String get ringByValueTitle => 'صوت الطلبات الجديدة';
+
+  @override
+  String get ringSameForEvery => 'الصوت نفسه لكل طلب';
+
+  @override
+  String get ringByValue => 'حسب قيمة الطلب';
+
+  @override
+  String get ringByValueHelp =>
+      'حتى 3 فئات، لكل منها صوتها، ليبدو الطلب الكبير مختلفًا.';
+
+  @override
+  String ringBandUnder(String amount) {
+    return 'أقل من $amount';
+  }
+
+  @override
+  String ringBandBetween(String from, String to) {
+    return 'من $from إلى أقل من $to';
+  }
+
+  @override
+  String ringBandFrom(String amount) {
+    return '$amount فأكثر';
+  }
+
+  @override
+  String get ringBandSound => 'صوت هذه الفئة';
+
+  @override
+  String get ringBandFromTitle => 'بداية هذه الفئة';
+
+  @override
+  String get ringBandFromHelp => 'إجمالي الطلب بعملة متجرك';
+
+  @override
+  String get ringBandFromInvalid => 'أدخل مبلغًا بين الفئتين السابقة واللاحقة.';
+
+  @override
+  String get ringBandAdd => 'إضافة فئة';
+
+  @override
+  String get ringBandRemove => 'حذف الفئة الأخيرة';
+
+  @override
+  String get summarySetting => 'ملخّص نهاية اليوم';
+
+  @override
+  String summarySettingOn(String time) {
+    return 'كل يوم الساعة $time بتوقيت متجرك، إذا كانت هناك طلبات';
+  }
+
+  @override
+  String get summarySettingHelp =>
+      'مبيعات اليوم وطلباته والأكثر مبيعًا، مقارنةً باليوم نفسه من الأسبوع الماضي';
+
+  @override
+  String summaryTime(String time) {
+    return 'الساعة $time';
+  }
+
+  @override
+  String get daySummaryTitle => 'ملخّص اليوم';
+
+  @override
+  String get daySummarySales => 'المبيعات';
+
+  @override
+  String get daySummaryOrders => 'الطلبات';
+
+  @override
+  String get daySummaryAverage => 'متوسط الطلب';
+
+  @override
+  String get daySummaryBest => 'الأكثر مبيعًا';
+
+  @override
+  String get daySummaryNoBest => 'لا يوجد بعد';
+
+  @override
+  String daySummaryUp(String pct, String day) {
+    return 'أكثر بنسبة $pct% من $day الماضي';
+  }
+
+  @override
+  String daySummaryDown(String pct, String day) {
+    return 'أقل بنسبة $pct% من $day الماضي';
+  }
+
+  @override
+  String daySummarySame(String day) {
+    return 'مثل $day الماضي';
+  }
+
+  @override
+  String daySummaryNoCompare(String day) {
+    return 'لا مبيعات في $day الماضي للمقارنة';
+  }
+
+  @override
+  String daySummaryLastWeek(String day, String sales, String orders) {
+    return '$day الماضي: $sales، وعدد الطلبات $orders';
+  }
+
+  @override
+  String get daySummaryBefore => 'اليوم السابق';
+
+  @override
+  String get daySummaryAfter => 'اليوم التالي';
+
+  @override
+  String get pauseShop => 'إيقاف الطلبات الجديدة مؤقتًا';
+
+  @override
+  String get pauseHelp =>
+      'يرى العملاء أنك لا تستقبل طلبات حاليًا، ومتى تعود. وتبقى الطلبات المقدَّمة كما هي.';
+
+  @override
+  String get pauseWhich => 'أي فرع';
+
+  @override
+  String get pauseAllPlaces => 'الجميع';
+
+  @override
+  String get pauseHowLong => 'لمدة';
+
+  @override
+  String get pauseFor15 => '15 دقيقة';
+
+  @override
+  String get pauseFor30 => '30 دقيقة';
+
+  @override
+  String get pauseFor60 => 'ساعة';
+
+  @override
+  String get pauseUntilReopen => 'حتى أعيد الفتح';
+
+  @override
+  String get pauseReason => 'السبب (اختياري)';
+
+  @override
+  String get pauseReasonHelp => 'يقرؤه العملاء، مثل: نعود بعد الصلاة';
+
+  @override
+  String get pauseConfirm => 'إيقاف مؤقت';
+
+  @override
+  String get pausedNow => 'تم إيقاف الطلبات الجديدة مؤقتًا';
+
+  @override
+  String get pausedShopNow => 'لا تستقبل طلبات جديدة';
+
+  @override
+  String pausedPlacesNow(String count) {
+    return '$count متوقف مؤقتًا';
+  }
+
+  @override
+  String pausedUntil(String time) {
+    return 'حتى $time';
+  }
+
+  @override
+  String get pausedUntilReopen => 'حتى تعيد الفتح';
+
+  @override
+  String pauseReasonShown(String reason) {
+    return 'يقرأ العملاء: $reason';
+  }
+
+  @override
+  String get pauseMore => 'إيقاف فرع آخر';
+
+  @override
+  String get reopenNow => 'إعادة الفتح الآن';
+
+  @override
+  String get reopenedNow => 'عاد استقبال الطلبات';
+
+  @override
   String minutesAgo(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

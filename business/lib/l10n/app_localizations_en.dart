@@ -4390,6 +4390,189 @@ class AppLocalizationsEn extends AppLocalizations {
   String get soundReceiptPrinter => 'Receipt printer';
 
   @override
+  String get ringByValueTitle => 'New orders\' sound';
+
+  @override
+  String get ringSameForEvery => 'Same sound for every order';
+
+  @override
+  String get ringByValue => 'By order value';
+
+  @override
+  String get ringByValueHelp =>
+      'Up to 3 bands, each with its own sound, so a big order sounds different.';
+
+  @override
+  String ringBandUnder(String amount) {
+    return 'Under $amount';
+  }
+
+  @override
+  String ringBandBetween(String from, String to) {
+    return '$from to under $to';
+  }
+
+  @override
+  String ringBandFrom(String amount) {
+    return '$amount and more';
+  }
+
+  @override
+  String get ringBandSound => 'Sound for this band';
+
+  @override
+  String get ringBandFromTitle => 'Where this band starts';
+
+  @override
+  String get ringBandFromHelp => 'In your shop\'s currency, the order\'s total';
+
+  @override
+  String get ringBandFromInvalid =>
+      'Enter an amount between the bands before and after it.';
+
+  @override
+  String get ringBandAdd => 'Add a band';
+
+  @override
+  String get ringBandRemove => 'Remove the last band';
+
+  @override
+  String get summarySetting => 'End-of-day summary';
+
+  @override
+  String summarySettingOn(String time) {
+    return 'Every day at $time, in your shop\'s time zone, when there were orders';
+  }
+
+  @override
+  String get summarySettingHelp =>
+      'Today\'s sales, orders and best seller, against the same day last week';
+
+  @override
+  String summaryTime(String time) {
+    return 'At $time';
+  }
+
+  @override
+  String get daySummaryTitle => 'Day summary';
+
+  @override
+  String get daySummarySales => 'Sales';
+
+  @override
+  String get daySummaryOrders => 'Orders';
+
+  @override
+  String get daySummaryAverage => 'Average order';
+
+  @override
+  String get daySummaryBest => 'Best seller';
+
+  @override
+  String get daySummaryNoBest => 'None yet';
+
+  @override
+  String daySummaryUp(String pct, String day) {
+    return '$pct% more than last $day';
+  }
+
+  @override
+  String daySummaryDown(String pct, String day) {
+    return '$pct% less than last $day';
+  }
+
+  @override
+  String daySummarySame(String day) {
+    return 'The same as last $day';
+  }
+
+  @override
+  String daySummaryNoCompare(String day) {
+    return 'No sales last $day to compare with';
+  }
+
+  @override
+  String daySummaryLastWeek(String day, String sales, String orders) {
+    return 'Last $day: $sales, $orders orders';
+  }
+
+  @override
+  String get daySummaryBefore => 'The day before';
+
+  @override
+  String get daySummaryAfter => 'The day after';
+
+  @override
+  String get pauseShop => 'Pause new orders';
+
+  @override
+  String get pauseHelp =>
+      'Customers see you\'re not taking orders for now, and when you\'re back. Orders already placed stay.';
+
+  @override
+  String get pauseWhich => 'Which place';
+
+  @override
+  String get pauseAllPlaces => 'All of them';
+
+  @override
+  String get pauseHowLong => 'For how long';
+
+  @override
+  String get pauseFor15 => '15 min';
+
+  @override
+  String get pauseFor30 => '30 min';
+
+  @override
+  String get pauseFor60 => '1 hour';
+
+  @override
+  String get pauseUntilReopen => 'Until I reopen';
+
+  @override
+  String get pauseReason => 'Reason (optional)';
+
+  @override
+  String get pauseReasonHelp => 'Customers read it, e.g. Back after prayers';
+
+  @override
+  String get pauseConfirm => 'Pause';
+
+  @override
+  String get pausedNow => 'New orders are paused';
+
+  @override
+  String get pausedShopNow => 'Not taking new orders';
+
+  @override
+  String pausedPlacesNow(String count) {
+    return '$count paused';
+  }
+
+  @override
+  String pausedUntil(String time) {
+    return 'Until $time';
+  }
+
+  @override
+  String get pausedUntilReopen => 'Until you reopen';
+
+  @override
+  String pauseReasonShown(String reason) {
+    return 'Customers read: $reason';
+  }
+
+  @override
+  String get pauseMore => 'Pause another place';
+
+  @override
+  String get reopenNow => 'Reopen now';
+
+  @override
+  String get reopenedNow => 'Taking orders again';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

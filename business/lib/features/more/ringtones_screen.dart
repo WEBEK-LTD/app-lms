@@ -8,6 +8,7 @@ import '../../core/providers.dart';
 import '../../core/services/ringtones.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
+import '../../core/widgets/digits.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../../l10n/app_localizations.dart';
@@ -197,6 +198,40 @@ class _RingtonesScreenState extends ConsumerState<RingtonesScreen> {
                 ),
               ),
             ),
+          // 214 New orders: the same sound, or by the order's value.
+          SectionTitle(l10n.ringByValueTitle),
+          RadioGroup<bool>(
+            groupValue: s.byValue != null,
+            onChanged: (byValue) {
+              if (byValue == null) return;
+              _set(
+                byValue
+                    ? s.copyWith(byValue: defaultBands(s))
+                    : s.copyWith(clearByValue: true),
+              );
+            },
+            child: Column(
+              children: [
+                RadioListTile<bool>(
+                  key: const ValueKey('ring-mode-same'),
+                  value: false,
+                  title: Text(l10n.ringSameForEvery),
+                  subtitle: Text(soundName(l10n, s.soundOf(SoundGroup.orders))),
+                ),
+                RadioListTile<bool>(
+                  key: const ValueKey('ring-mode-value'),
+                  value: true,
+                  title: Text(l10n.ringByValue),
+                  subtitle: Text(l10n.ringByValueHelp),
+                ),
+              ],
+            ),
+          ),
+          if (s.byValue case final bands?)
+            ValueBandsEditor(
+              bands: bands,
+              onChanged: (next) => _set(s.copyWith(byValue: next)),
+            ),
           SectionTitle(l10n.ringRingingTitle),
           SwitchListTile(
             key: const ValueKey('ring-orders'),
@@ -363,9 +398,13 @@ class _RingtonesScreenState extends ConsumerState<RingtonesScreen> {
 /// 207 The sounds of one group: each with a play button, Yallapp's
 /// ringtones first, then the phone's own sound and silent.
 class RingtonePickerScreen extends ConsumerStatefulWidget {
-  const RingtonePickerScreen({super.key, required this.group});
+  const RingtonePickerScreen({super.key, required this.group, this.choose});
 
   final SoundGroup group;
+
+  /// 214 Choosing for a value band: the sound chosen now; the screen pops
+  /// with the one tapped instead of saving the group's.
+  final String? choose;
 
   @override
   ConsumerState<RingtonePickerScreen> createState() =>
@@ -399,7 +438,7 @@ class _RingtonePickerScreenState extends ConsumerState<RingtonePickerScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final s = ref.watch(ringSettingsProvider);
-    final chosen = s.soundOf(widget.group);
+    final chosen = widget.choose ?? s.soundOf(widget.group);
     Widget row(String id) {
       final name = soundName(l10n, id);
       final selected = id == chosen;
@@ -421,6 +460,10 @@ class _RingtonePickerScreenState extends ConsumerState<RingtonePickerScreen> {
                 onPressed: () => _preview(id, s.volume),
               ),
         onTap: () async {
+          if (widget.choose != null) {
+            Navigator.of(context).pop(id);
+            return;
+          }
           final next = {...s.sounds, widget.group: id};
           await ref
               .read(ringSettingsProvider.notifier)
@@ -431,7 +474,13 @@ class _RingtonePickerScreenState extends ConsumerState<RingtonePickerScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(groupName(l10n, widget.group))),
+      appBar: AppBar(
+        title: Text(
+          widget.choose != null
+              ? l10n.ringBandSound
+              : groupName(l10n, widget.group),
+        ),
+      ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
@@ -457,3 +506,184 @@ class _RingtonePickerScreenState extends ConsumerState<RingtonePickerScreen> {
 /// 207 What Settings shows under Ringtones.
 String ringSubtitle(AppLocalizations l10n, RingSettings s) =>
     l10n.ringtonesSubtitle(soundName(l10n, s.soundOf(SoundGroup.orders)));
+
+/// 214 The bands a phone starts from when it turns on Ring by order value:
+/// under 500 with the orders' sound, 500 and more Cash drawer, 2,000 and
+/// more Cha-ching.
+List<ValueBand> defaultBands(RingSettings s) => [
+  ValueBand(0, s.soundOf(SoundGroup.orders)),
+  const ValueBand(500, 'cash_drawer'),
+  const ValueBand(2000, 'cha_ching'),
+];
+
+/// 214 Up to three bands of Ring by order value: where each starts (the
+/// first from 0) and its sound, each with its own picker; a third band can
+/// be added or taken away.
+class ValueBandsEditor extends StatelessWidget {
+  const ValueBandsEditor({
+    super.key,
+    required this.bands,
+    required this.onChanged,
+  });
+
+  final List<ValueBand> bands;
+  final ValueChanged<List<ValueBand>> onChanged;
+
+  String _amount(BuildContext context, double v) =>
+      NumberFormat.decimalPattern(Localizations.localeOf(context).toString())
+          .format(v);
+
+  Future<void> _from(BuildContext context, int i) async {
+    final min = bands[i - 1].from;
+    final max = i + 1 < bands.length ? bands[i + 1].from : double.infinity;
+    final value = await showDialog<double>(
+      context: context,
+      builder: (_) =>
+          _BandAmountDialog(from: bands[i].from, min: min, max: max),
+    );
+    if (value == null) return;
+    onChanged([
+      for (final (j, b) in bands.indexed)
+        j == i ? ValueBand(value, b.sound) : b,
+    ]);
+  }
+
+  Future<void> _sound(BuildContext context, int i) async {
+    final id = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => RingtonePickerScreen(
+          group: SoundGroup.orders,
+          choose: bands[i].sound,
+        ),
+      ),
+    );
+    if (id == null) return;
+    onChanged([
+      for (final (j, b) in bands.indexed) j == i ? ValueBand(b.from, id) : b,
+    ]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Column(
+      children: [
+        for (final (i, band) in bands.indexed)
+          ListTile(
+            key: ValueKey('ring-band-$i'),
+            contentPadding: const EdgeInsetsDirectional.fromSTEB(56, 0, 8, 0),
+            title: Text(
+              i == 0
+                  ? l10n.ringBandUnder(_amount(context, bands[1].from))
+                  : i + 1 < bands.length
+                  ? l10n.ringBandBetween(
+                      _amount(context, band.from),
+                      _amount(context, bands[i + 1].from),
+                    )
+                  : l10n.ringBandFrom(_amount(context, band.from)),
+            ),
+            subtitle: Text(soundName(l10n, band.sound)),
+            onTap: () => _sound(context, i),
+            trailing: i == 0
+                ? null
+                : IconButton(
+                    key: ValueKey('ring-band-edit-$i'),
+                    tooltip: l10n.ringBandFromTitle,
+                    icon: const Icon(AppIcons.edit),
+                    onPressed: () => _from(context, i),
+                  ),
+          ),
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(56, 0, 16, 0),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: bands.length < RingSettings.maxBands
+                ? TextButton.icon(
+                    key: const ValueKey('ring-band-add'),
+                    icon: const Icon(AppIcons.add),
+                    label: Text(l10n.ringBandAdd),
+                    onPressed: () => onChanged([
+                      ...bands,
+                      ValueBand(bands.last.from * 4, 'cha_ching'),
+                    ]),
+                  )
+                : TextButton.icon(
+                    key: const ValueKey('ring-band-remove'),
+                    icon: const Icon(AppIcons.remove),
+                    label: Text(l10n.ringBandRemove),
+                    onPressed: () =>
+                        onChanged(bands.sublist(0, bands.length - 1)),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 214 Where a band starts: above the band before it, below the one after.
+class _BandAmountDialog extends StatefulWidget {
+  const _BandAmountDialog({
+    required this.from,
+    required this.min,
+    required this.max,
+  });
+
+  final double from;
+  final double min;
+  final double max;
+
+  @override
+  State<_BandAmountDialog> createState() => _BandAmountDialogState();
+}
+
+class _BandAmountDialogState extends State<_BandAmountDialog> {
+  late final _controller = TextEditingController(
+    text: widget.from == widget.from.roundToDouble()
+        ? '${widget.from.round()}'
+        : '${widget.from}',
+  );
+  String? _error;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AlertDialog(
+      title: Text(l10n.ringBandFromTitle),
+      content: TextField(
+        key: const ValueKey('ring-band-amount'),
+        controller: _controller,
+        autofocus: true,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(
+          helperText: l10n.ringBandFromHelp,
+          errorText: _error,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          key: const ValueKey('ring-band-save'),
+          onPressed: () {
+            final v = double.tryParse(typedAmount(_controller.text));
+            if (v == null || v <= widget.min || v >= widget.max) {
+              setState(() => _error = l10n.ringBandFromInvalid);
+              return;
+            }
+            Navigator.pop(context, v);
+          },
+          child: Text(l10n.save),
+        ),
+      ],
+    );
+  }
+}

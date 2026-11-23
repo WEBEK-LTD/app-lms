@@ -56,6 +56,7 @@ import type {
   StaffAppPlace,
   OwnerPushPreferences,
   OwnerPushSounds,
+  ShopPauses,
   ScheduledNotificationStatus,
   CourseQuestionStatus,
   MoreStoresRow,
@@ -378,6 +379,8 @@ export const apps = mysqlTable(
     connector: jsonText<ConnectorConfig>("connector"),
     hostedSettings: jsonText<HostedSettings>("hosted_settings"),
     catalogSettings: jsonText<CatalogSettings>("catalog_settings"),
+    // 214 Pause the shop (lib/shop/pause.ts).
+    shopPause: jsonText<ShopPauses>("shop_pause"),
     // 77 The chat's settings (null: on when the plan has chat, without course groups).
     chatSettings: jsonText<ChatSettings>("chat_settings"),
     // 83.3 The switches turned off for the app (lib/app/switches.ts).

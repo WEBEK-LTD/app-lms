@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { MovedAppNotice } from "@/components/moved-app";
+import { ShopPauseNotice } from "@/components/shop-pause";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { isStudioProject } from "@/lib/studio/section";
@@ -20,7 +21,13 @@ export default async function StudioProjectLayout({ children }: { children: Reac
   const text = await dashboardText();
   return (
     // 132.112 An app that moved to another account stays to read.
-    <StudioConsole context={context} text={text} notice={<MovedAppNotice app={app} text={text} />}>
+    <StudioConsole context={context} text={text} notice={
+        <>
+          <MovedAppNotice app={app} text={text} />
+          {/* 214 Paused from Yallapp Business, with Reopen now. */}
+          <ShopPauseNotice app={app} text={text} />
+        </>
+      }>
       {children}
     </StudioConsole>
   );

@@ -7834,6 +7834,312 @@ abstract class AppLocalizations {
   /// **'Receipt printer'**
   String get soundReceiptPrinter;
 
+  /// No description provided for @ringByValueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New orders\' sound'**
+  String get ringByValueTitle;
+
+  /// No description provided for @ringSameForEvery.
+  ///
+  /// In en, this message translates to:
+  /// **'Same sound for every order'**
+  String get ringSameForEvery;
+
+  /// No description provided for @ringByValue.
+  ///
+  /// In en, this message translates to:
+  /// **'By order value'**
+  String get ringByValue;
+
+  /// No description provided for @ringByValueHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 3 bands, each with its own sound, so a big order sounds different.'**
+  String get ringByValueHelp;
+
+  /// No description provided for @ringBandUnder.
+  ///
+  /// In en, this message translates to:
+  /// **'Under {amount}'**
+  String ringBandUnder(String amount);
+
+  /// No description provided for @ringBandBetween.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to under {to}'**
+  String ringBandBetween(String from, String to);
+
+  /// No description provided for @ringBandFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} and more'**
+  String ringBandFrom(String amount);
+
+  /// No description provided for @ringBandSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound for this band'**
+  String get ringBandSound;
+
+  /// No description provided for @ringBandFromTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where this band starts'**
+  String get ringBandFromTitle;
+
+  /// No description provided for @ringBandFromHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'In your shop\'s currency, the order\'s total'**
+  String get ringBandFromHelp;
+
+  /// No description provided for @ringBandFromInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount between the bands before and after it.'**
+  String get ringBandFromInvalid;
+
+  /// No description provided for @ringBandAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a band'**
+  String get ringBandAdd;
+
+  /// No description provided for @ringBandRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the last band'**
+  String get ringBandRemove;
+
+  /// No description provided for @summarySetting.
+  ///
+  /// In en, this message translates to:
+  /// **'End-of-day summary'**
+  String get summarySetting;
+
+  /// No description provided for @summarySettingOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day at {time}, in your shop\'s time zone, when there were orders'**
+  String summarySettingOn(String time);
+
+  /// No description provided for @summarySettingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s sales, orders and best seller, against the same day last week'**
+  String get summarySettingHelp;
+
+  /// No description provided for @summaryTime.
+  ///
+  /// In en, this message translates to:
+  /// **'At {time}'**
+  String summaryTime(String time);
+
+  /// No description provided for @daySummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Day summary'**
+  String get daySummaryTitle;
+
+  /// No description provided for @daySummarySales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get daySummarySales;
+
+  /// No description provided for @daySummaryOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get daySummaryOrders;
+
+  /// No description provided for @daySummaryAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average order'**
+  String get daySummaryAverage;
+
+  /// No description provided for @daySummaryBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Best seller'**
+  String get daySummaryBest;
+
+  /// No description provided for @daySummaryNoBest.
+  ///
+  /// In en, this message translates to:
+  /// **'None yet'**
+  String get daySummaryNoBest;
+
+  /// No description provided for @daySummaryUp.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% more than last {day}'**
+  String daySummaryUp(String pct, String day);
+
+  /// No description provided for @daySummaryDown.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% less than last {day}'**
+  String daySummaryDown(String pct, String day);
+
+  /// No description provided for @daySummarySame.
+  ///
+  /// In en, this message translates to:
+  /// **'The same as last {day}'**
+  String daySummarySame(String day);
+
+  /// No description provided for @daySummaryNoCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales last {day} to compare with'**
+  String daySummaryNoCompare(String day);
+
+  /// No description provided for @daySummaryLastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last {day}: {sales}, {orders} orders'**
+  String daySummaryLastWeek(String day, String sales, String orders);
+
+  /// No description provided for @daySummaryBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'The day before'**
+  String get daySummaryBefore;
+
+  /// No description provided for @daySummaryAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'The day after'**
+  String get daySummaryAfter;
+
+  /// No description provided for @pauseShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause new orders'**
+  String get pauseShop;
+
+  /// No description provided for @pauseHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers see you\'re not taking orders for now, and when you\'re back. Orders already placed stay.'**
+  String get pauseHelp;
+
+  /// No description provided for @pauseWhich.
+  ///
+  /// In en, this message translates to:
+  /// **'Which place'**
+  String get pauseWhich;
+
+  /// No description provided for @pauseAllPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'All of them'**
+  String get pauseAllPlaces;
+
+  /// No description provided for @pauseHowLong.
+  ///
+  /// In en, this message translates to:
+  /// **'For how long'**
+  String get pauseHowLong;
+
+  /// No description provided for @pauseFor15.
+  ///
+  /// In en, this message translates to:
+  /// **'15 min'**
+  String get pauseFor15;
+
+  /// No description provided for @pauseFor30.
+  ///
+  /// In en, this message translates to:
+  /// **'30 min'**
+  String get pauseFor30;
+
+  /// No description provided for @pauseFor60.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour'**
+  String get pauseFor60;
+
+  /// No description provided for @pauseUntilReopen.
+  ///
+  /// In en, this message translates to:
+  /// **'Until I reopen'**
+  String get pauseUntilReopen;
+
+  /// No description provided for @pauseReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get pauseReason;
+
+  /// No description provided for @pauseReasonHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers read it, e.g. Back after prayers'**
+  String get pauseReasonHelp;
+
+  /// No description provided for @pauseConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get pauseConfirm;
+
+  /// No description provided for @pausedNow.
+  ///
+  /// In en, this message translates to:
+  /// **'New orders are paused'**
+  String get pausedNow;
+
+  /// No description provided for @pausedShopNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not taking new orders'**
+  String get pausedShopNow;
+
+  /// No description provided for @pausedPlacesNow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} paused'**
+  String pausedPlacesNow(String count);
+
+  /// No description provided for @pausedUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Until {time}'**
+  String pausedUntil(String time);
+
+  /// No description provided for @pausedUntilReopen.
+  ///
+  /// In en, this message translates to:
+  /// **'Until you reopen'**
+  String get pausedUntilReopen;
+
+  /// No description provided for @pauseReasonShown.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers read: {reason}'**
+  String pauseReasonShown(String reason);
+
+  /// No description provided for @pauseMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause another place'**
+  String get pauseMore;
+
+  /// No description provided for @reopenNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen now'**
+  String get reopenNow;
+
+  /// No description provided for @reopenedNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Taking orders again'**
+  String get reopenedNow;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

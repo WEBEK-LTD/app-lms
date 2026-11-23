@@ -804,6 +804,8 @@ export interface App {
   storiesSavedAt?: Date | null;
   /** Shop settings when the products are managed in the dashboard (connector "catalog"). */
   catalogSettings: CatalogSettings | null;
+  /** 214 "Pause the shop" (lib/shop/pause.ts): the whole app's, and each restaurant's or marketplace place's. */
+  shopPause?: ShopPauses | null;
   /** 77 The chat's settings; null: on (when the plan has chat), without course groups. */
   chatSettings?: ChatSettings | null;
   /** 83.3 The switches the team turned off for the app (lib/app/switches.ts); null or missing: all on. */
@@ -5839,6 +5841,23 @@ export interface PlatformSettingValues {
   storagePacks: StoragePacksSetting;
 }
 
+// 214 Pause the shop (lib/shop/pause.ts)
+
+/** One pause: until then (ISO; null until reopened), with the reason customers read. */
+export interface ShopPause {
+  until: string | null;
+  reason: string | null;
+  /** When it was paused (ISO). */
+  at: string;
+}
+
+export interface ShopPauses {
+  /** The whole app (a catalog shop). */
+  app?: ShopPause | null;
+  /** Restaurants and marketplace places by id. */
+  places?: Record<string, ShopPause>;
+}
+
 // 58 Yallapp Business: the owners' own app (lib/owner)
 
 /** 58 The kinds of push Yallapp Business sends to an owner's phone; each can be turned off per device. */
@@ -5861,6 +5880,8 @@ export const OWNER_PUSH_KINDS = [
   // 207 A marketplace order reached its vendor; a customer cancelled an order.
   "new_market_order",
   "order_cancelled",
+  // 214 The end-of-day summary.
+  "daily_summary",
 ] as const;
 export type OwnerPushKind = (typeof OWNER_PUSH_KINDS)[number];
 /** Missing kinds are on. */
@@ -5881,6 +5902,14 @@ export interface OwnerPushSounds {
   quiet: { from: string; to: string } | null;
   /** The phone's time zone, for the quiet hours. */
   timeZone: string | null;
+  /**
+   * 214 Ring by order value: up to 3 bands, each from an amount (in the
+   * order's currency, whole units; the first from 0) with its own sound, for
+   * new orders. Null or missing: the orders' sound for every order.
+   */
+  byValue?: { from: number; sound: string }[] | null;
+  /** 214 The end-of-day summary: on, at this time (HH:MM) in the shop's time zone. Missing: on at 23:00. */
+  summary?: { on: boolean; at: string } | null;
 }
 
 /**

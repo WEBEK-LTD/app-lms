@@ -82,7 +82,7 @@ export interface Words {
 const wordsFor = (lang: Lang): Words => ({ lang, t: getDashT(lang), k: knownTranslator(lang) });
 const clip = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
 
-interface Recipient {
+export interface Recipient {
   language: string | null | undefined;
   device: OwnerDevice;
   /** 64 The business's name as this person knows it (`Business.name`). */
@@ -96,7 +96,7 @@ interface Recipient {
  * the person still works on), so someone on several businesses hears of all
  * of them. Each with its person's language and the business's name.
  */
-async function devicesFor(store: DataStore, clientId: string, kind: OwnerPushKind, permission: TeamPermission, appId: string | null, now: Date, only: readonly string[] | null = null): Promise<Recipient[]> {
+export async function devicesFor(store: DataStore, clientId: string, kind: OwnerPushKind, permission: TeamPermission, appId: string | null, now: Date, only: readonly string[] | null = null): Promise<Recipient[]> {
   const client = await store.getClientById(clientId);
   const owner = client ? await store.getUserById(client.userId) : null;
   if (!client || !owner) return [];
@@ -137,9 +137,11 @@ export async function pushToOwner(
   permission: TeamPermission = PUSH_PERMISSION[kind],
   /** 125 Only these people (user IDs): a person's own Prime alerts. */
   only: readonly string[] | null = null,
+  /** 214 Only these phones (device IDs): each phone's end-of-day summary at its own time. */
+  phones: readonly string[] | null = null,
 ): Promise<number> {
   try {
-    const found = await devicesFor(deps.store, clientId, kind, permission, data.app_id ?? null, deps.now, only);
+    const found = (await devicesFor(deps.store, clientId, kind, permission, data.app_id ?? null, deps.now, only)).filter((r) => !phones || phones.includes(r.device.id));
     if (found.length === 0) return 0;
     // 64 One message per language and business name, with the name first on phones working on another business.
     // 207 And per sound: each phone's ringtones (as before for a phone that never chose).
@@ -147,7 +149,9 @@ export async function pushToOwner(
     for (const { language, device, business } of found) {
       const lang = ownerLang(language, device.language);
       const other = device.clientId !== clientId;
-      const delivery = pushDelivery(device, kind, deps.now);
+      // 214 A new order's value picks its sound on phones that ring by value.
+      const value = data.order_value !== undefined ? Number(data.order_value) : null;
+      const delivery = pushDelivery(device, kind, deps.now, Number.isFinite(value) ? value : null);
       const key = JSON.stringify([lang, business, other, delivery]);
       const group = groups.get(key) ?? { lang, business, other, delivery, devices: [] };
       group.devices.push(device);
@@ -211,8 +215,13 @@ export function pushNewOrder(deps: OwnerPushDeps, app: App, order: CatalogOrder)
     app.clientId,
     "new_order",
     (w) => ({ title: w.t("owner.push.newOrder", { number: orderNumber(order) }), body: w.t("owner.push.newOrderBody", { app: appName(app, w), total: formatCents(order.totalCents, order.currency, w.lang) }) }),
-    { app_id: app.id, order_id: String(order.id) },
+    { app_id: app.id, order_id: String(order.id), order_value: orderValue(order.totalCents) },
   );
+}
+
+/** 214 An order's total in whole units ("1250.5"), for ringing by order value. */
+export function orderValue(cents: number): string {
+  return String(Math.round(cents) / 100);
 }
 
 /** 91.3 A customer asked to return an order. */
@@ -395,7 +404,7 @@ export function pushNewFoodOrder(deps: OwnerPushDeps, app: App, order: FoodOrder
       title: w.t("owner.push.newFoodOrder", { reference: foodOrderReference(order) }),
       body: w.t("owner.push.newFoodOrderBody", { restaurant: order.restaurantName, total: formatCents(order.totalCents, order.currency, w.lang) }),
     }),
-    { app_id: app.id, food_order_id: String(order.id) },
+    { app_id: app.id, food_order_id: String(order.id), order_value: orderValue(order.totalCents) },
   );
 }
 
@@ -465,7 +474,7 @@ export function pushNewMarketOrder(deps: OwnerPushDeps, app: App, order: Pick<Ma
       title: w.t("owner.push.newMarketOrder", { reference: marketOrderReference(order) }),
       body: w.t("owner.push.newMarketOrderBody", { vendor: order.vendorName, total: formatCents(order.money.total, order.currency, w.lang) }),
     }),
-    { app_id: app.id, market_order_id: String(order.id) },
+    { app_id: app.id, market_order_id: String(order.id), order_value: orderValue(order.money.total) },
   );
 }
 

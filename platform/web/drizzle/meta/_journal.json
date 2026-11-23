@@ -1023,6 +1023,13 @@
       "when": 1795416835798,
       "tag": "0146_owner_push_sounds",
       "breakpoints": true
+    },
+    {
+      "idx": 153,
+      "version": "5",
+      "when": 1795431368228,
+      "tag": "0153_shop_pause",
+      "breakpoints": true
     }
   ]
 }
