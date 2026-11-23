@@ -142,7 +142,17 @@ const dollars = (cents: number) => (cents / 100).toFixed(2);
 export function templateProductLd(
   base: string,
   lang: Lang,
-  input: { slug: string; title: string; description: string; designer: string; kinds: string[]; freeName: string; plans: readonly (Pick<PlanPriceNow, "period" | "cents" | "flashEndsAt"> & { name: string })[] },
+  input: {
+    slug: string;
+    title: string;
+    description: string;
+    designer: string;
+    kinds: string[];
+    freeName: string;
+    plans: readonly (Pick<PlanPriceNow, "period" | "cents" | "flashEndsAt"> & { name: string })[];
+    /** 106.14 Its buyers' visible ratings (an AggregateRating once it has one). */
+    rating?: { average: number | null; count: number };
+  },
 ): JsonLd {
   const url = `${base}${localePath(lang, templatePath(input.slug))}`;
   const offer = (name: string, cents: number, until: string | null) => ({
@@ -166,6 +176,7 @@ export function templateProductLd(
     category: "App design template",
     ...(input.kinds.length ? { keywords: input.kinds.join(", ") } : {}),
     brand: { "@type": "Brand", name: input.designer },
+    ...(input.rating?.count && input.rating.average !== null ? { aggregateRating: { "@type": "AggregateRating", ratingValue: input.rating.average.toFixed(1), ratingCount: input.rating.count, bestRating: 5, worstRating: 1 } } : {}),
     offers: input.plans.length ? input.plans.map((p) => offer(p.name, p.cents, p.flashEndsAt)) : [offer(input.freeName, 0, null)],
   };
 }

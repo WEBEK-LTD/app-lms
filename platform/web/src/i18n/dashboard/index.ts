@@ -79,6 +79,7 @@ import * as studioMarket from "./studio-market";
 // 106.11 The designer's money.
 import * as marketMoney from "./market-money";
 import * as marketDiscounts from "./market-discounts";
+import * as marketPage from "./market-page";
 // 132.30 The owner's payment gateways: Stripe's setup, Test connection.
 import * as gateways from "./gateways";
 // 132.50–132.99 Studio's finishing touches.
@@ -121,7 +122,7 @@ import * as stories from "./stories";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery, food, market, rides, teachers, school, taxi, samples, lms, reports, bus, library, salaries, schoolLife, learning, parents, university, bot, start, travel, selling, studioMarket, marketMoney, gateways, studioKit, studioPage, manage, working, addons, money, inAppPay, zones, apns, autoShots, stories, marketDiscounts } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery, food, market, rides, teachers, school, taxi, samples, lms, reports, bus, library, salaries, schoolLife, learning, parents, university, bot, start, travel, selling, studioMarket, marketMoney, gateways, studioKit, studioPage, manage, working, addons, money, inAppPay, zones, apns, autoShots, stories, marketDiscounts, marketPage } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };

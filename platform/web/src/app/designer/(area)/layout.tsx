@@ -60,6 +60,8 @@ export default async function DesignerLayout({ children }: { children: React.Rea
         },
         // 106.12 Price drops, flash sales and coupon codes.
         { href: "/designer/discounts", label: t("marketDiscounts.nav"), icon: "sell" },
+        // 106.14 The buyers' ratings and the designer's answers.
+        { href: "/designer/ratings", label: t("marketPage.navRatings"), icon: "reviews" },
       ],
     },
     {
@@ -72,7 +74,8 @@ export default async function DesignerLayout({ children }: { children: React.Rea
     {
       label: t("studioMarket.groupAccount"),
       items: [
-        { href: "/designer/join", label: t("studioMarket.profileStep"), icon: "person" },
+        // 106.14 Their public page: the photo, name, address, line, country and links.
+        { href: "/designer/profile", label: t("marketPage.nav"), icon: "person", ...(designer.pageLockedAt || designer.profileReview === "declined" ? { badge: { count: 1, label: t(designer.pageLockedAt ? "marketPage.locked" : "marketPage.reviewDeclined") } } : {}) },
         { href: "/dashboard/account", label: t("studioMarket.navAccount"), icon: "account_circle" },
         { href: contact.whatsappUrl, label: t("studioMarket.navSupport"), icon: "support_agent", external: true },
       ],

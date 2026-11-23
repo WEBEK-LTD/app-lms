@@ -43,8 +43,8 @@ const EXACT_PAGES = new Set([
   "/reset-password",
 ]);
 
-/** Sections whose every page has a version in every language: /solutions/<id>, /docs/<article>, the Studio story pages /yallapp-studio/<story>, 106.13 Studio Market's templates /templates/<slug>. */
-const SECTIONS = ["/solutions/", "/docs/", "/compare/", "/yallapp-studio/", "/templates/"];
+/** Sections whose every page has a version in every language: /solutions/<id>, /docs/<article>, the Studio story pages /yallapp-studio/<story>, 106.13 Studio Market's templates /templates/<slug>, 106.14 its designers' pages /designers/<handle>. */
+const SECTIONS = ["/solutions/", "/docs/", "/compare/", "/yallapp-studio/", "/templates/", "/designers/"];
 
 /** Splits "/docs/x?y#z" into the path and what follows it. */
 function splitSuffix(href: string): [string, string] {

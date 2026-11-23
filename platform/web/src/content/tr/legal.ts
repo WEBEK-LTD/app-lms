@@ -4,7 +4,7 @@ import type { LegalTranslation } from "../translation-types";
 export const TR_LEGAL: Partial<Record<"privacy" | "terms" | "refund", LegalTranslation>> = {
   privacy: {
     title: "Gizlilik politikası",
-    updated: "18 Kasım 2026",
+    updated: "23 Kasım 2026",
     body: `## 1. Biz kimiz
 
 Yallapp'in merkezi Kahire, Mısır'dadır ve burada açıklanan kişisel verilerin veri sorumlusudur. Pek çok ülkede işletmelerle çalışıyoruz; bu yüzden işlediğimiz verilere uygulanan veri koruma yasalarına uyuyoruz: Mısır Kişisel Verilerin Korunması Kanunu (2020 tarihli 151 sayılı Kanun) ve uygulandıkları durumlarda AB Genel Veri Koruma Tüzüğü (GDPR) ile 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK). İletişim: [{{contact_email}}](mailto:{{contact_email}}).
@@ -18,6 +18,8 @@ Yallapp'in merkezi Kahire, Mısır'dadır ve burada açıklanan kişisel veriler
 - Bize gönderdiğiniz **mesajlar** ve IP adresi, tarayıcı ve giriş zamanları gibi **teknik kayıtlar**.
 - **Bizi nasıl buldunuz:** kaydolurken geldiğiniz bağlantının kaynağı, ortamı ve kampanyası, sizi gönderen web sitesinin adı (sayfası değil) ve demo uygulamalarımıza bakıp bakmadığınız. Bunu yalnızca hangi sayfaların ve kampanyaların bize müşteri getirdiğini öğrenmek için kullanırız; bunun için tarayıcınızda hiçbir şey saklanmaz.
 - **Studio Market tasarımcılarının bilgileri:** Studio Market'te şablon satıyorsanız, kazançlarınızın ilk ödemesinden önce sizden şunları isteriz: kimliğinizdeki adınız, ülkeniz, kimliğinizin türü, numarası ve bir kopyası, banka hesabı sahibinin adı, IBAN ya da hesap numarası, SWIFT/BIC kodu, bankanın adı ve ülkesi ve adresiniz. Bu bilgileri yalnızca kimliğinizi doğrulamak ve kazançlarınızı ödemek için kullanırız. Kimlik numarası ve hesap numarası şifreli olarak saklanır ve bunları yalnızca ilgili ödeme ekibimiz görebilir.
+- **Studio Market tasarımcısının herkese açık sayfası:** Studio Market'e tasarımcı olarak katılırsanız yallapp.com.tr/designers/adresiniz sayfanız herkese açıktır. Sayfada fotoğrafınız, seçtiğiniz ad ve hakkınızdaki satır (ekibimiz bunlara bir kez baktıktan sonra), şablonlarınız ve fiyatları, puanlarınız ve alıcılarınızın sayısı görünür; ülkeniz ve bağlantılarınız yalnızca göstermeyi seçerseniz görünür. Bunları tasarımcı alanından istediğiniz zaman değiştirebilir ya da kaldırabilirsiniz.
+- **Studio Market şablonlarının puanları:** aldığınız bir şablona puan verdiğinizde yıldızlarınız, yorumunuz ve adınız (adınız ve soyadınızın ilk harfi) şablonun sayfasında ve tasarımcının sayfasında, tasarımcının yanıtıyla birlikte herkese açıktır. Puanınızı istediğiniz zaman değiştirebilirsiniz. Ekibimiz kurallarımıza uymayan bir puanı gizleyebilir.
 
 ## 3. Uygulamanızın kullanıcılarına ait veriler
 
@@ -52,7 +54,7 @@ Hesabınızla ilgili e-postaların yanı sıra, Yallapp hesaplarının sahipleri
 
 ## 6. Kimlerle paylaşıyoruz
 
-Verileri yalnızca Yallapp'i çalıştırmamıza yardım eden sağlayıcılarla paylaşırız: web sitesi, veritabanı, web sitesi olmayan uygulamalar ve derleme dosyaları için barındırma (webek.org), giriş kodları için WhatsApp mesajlaşması (waabek.com), uygulamalarınızı derleyen derleme hizmeti ve sizin adınıza yayınladığımızda ya da uygulamanızın uygulama içi satın almalarını doğruladığımızda Apple veya Google. Yasa gerektirdiğinde verileri profesyonel danışmanlarla veya yetkili makamlarla da paylaşabiliriz. Ödeme bilgilerini bankamıza yalnızca tasarımcıların kazançlarının ödemesini tamamlamak için göndeririz. Kişisel verileri asla satmayız.
+Verileri yalnızca Yallapp'i çalıştırmamıza yardım eden sağlayıcılarla paylaşırız: web sitesi, veritabanı, web sitesi olmayan uygulamalar ve derleme dosyaları için barındırma (webek.org), giriş kodları için WhatsApp mesajlaşması (waabek.com), uygulamalarınızı derleyen derleme hizmeti ve sizin adınıza yayınladığımızda ya da uygulamanızın uygulama içi satın almalarını doğruladığımızda Apple veya Google. Yasa gerektirdiğinde verileri profesyonel danışmanlarla veya yetkili makamlarla da paylaşabiliriz. Ödeme bilgilerini bankamıza yalnızca tasarımcıların kazançlarının ödemesini tamamlamak için göndeririz. Studio Market tasarımcısının herkese açık sayfası ile Studio Market'teki puanlar ve yanıtlar herkese açıktır ve herkes görebilir. Kişisel verileri asla satmayız.
 
 ## 7. Uluslararası aktarımlar
 

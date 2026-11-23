@@ -25,6 +25,12 @@ import { templateKinds } from "@/lib/studio-market/kinds";
 import { knowLines, planChoices, planPrices, priceWords, soonestFlashEnd } from "@/lib/studio-market/listing";
 import { continueHref, MARKET_PATH, marketItemListLd, marketNextPath, publicTemplate, templatePath, templateProductLd } from "@/lib/studio-market/public";
 import { versionDesign } from "@/lib/studio-market/snapshot";
+import { designerPath, DESIGNER_PATH, publicProfile } from "@/lib/studio-market/designer-page";
+import { templateRatings } from "@/lib/studio-market/designer-public";
+import { RatingLine } from "@/components/studio-market/parts";
+import { RatingList } from "@/components/studio-market/ratings";
+import { designersText } from "./designers-text";
+import { ratingWords } from "./designers";
 import { templateText } from "@/lib/studio-market/templates";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 import { templatesText } from "./templates-text";
@@ -254,7 +260,7 @@ export async function TemplatesPage({ lang, params }: { lang: Lang; params: Reco
     <div className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-4 md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 lg:grid-cols-4">
       {list.map((card, i) => (
         <div key={card.id} className="w-[236px] flex-none md:w-auto">
-          <TemplateCardView card={card} rank={options.ranks ? i + 1 : undefined} pool={options.pool} base={cardBase} />
+          <TemplateCardView card={card} rank={options.ranks ? i + 1 : undefined} pool={options.pool} base={cardBase} designerBase={lp(DESIGNER_PATH)} />
         </div>
       ))}
     </div>
@@ -298,7 +304,7 @@ export async function TemplatesPage({ lang, params }: { lang: Lang; params: Reco
           {shown.length ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {shown.map((card) => (
-                <TemplateCardView key={card.id} card={card} base={cardBase} />
+                <TemplateCardView key={card.id} card={card} base={cardBase} designerBase={lp(DESIGNER_PATH)} />
               ))}
             </div>
           ) : (
@@ -334,7 +340,13 @@ export async function TemplatesPage({ lang, params }: { lang: Lang; params: Reco
                   ) : null}
                   <span className="flex flex-wrap items-center gap-2.5 text-[15px]">
                     <DesignerAvatar designer={featured.designer} size="sm" />
-                    <b dir="auto">{featured.designer.name}</b>
+                    {featured.designer.page ? (
+                      <Link href={lp(designerPath(featured.designer.slug))} dir="auto" className="font-bold text-[var(--mk-ink)] hover:text-[var(--mk-ink)]">
+                        {featured.designer.name}
+                      </Link>
+                    ) : (
+                      <b dir="auto">{featured.designer.name}</b>
+                    )}
                     <span className="opacity-40">·</span>
                     <span className="mk-muted">{x.featuredHint}</span>
                   </span>
@@ -411,7 +423,7 @@ export async function TemplatesPage({ lang, params }: { lang: Lang; params: Reco
                 <ul className="m-0 flex list-none flex-wrap gap-3 p-0" data-top-designers>
                   {catalog.designers.slice(0, 6).map((d) => (
                     <li key={d.id}>
-                      <Link href={`${lp(MARKET_PATH)}?designer=${d.slug}`} className="mk-panel flex items-center gap-3 rounded-full py-2.5 ps-2.5 pe-5 text-[var(--mk-ink)] no-underline hover:text-[var(--mk-ink)]">
+                      <Link href={d.page ? lp(designerPath(d.slug)) : `${lp(MARKET_PATH)}?designer=${d.slug}`} className="mk-panel flex items-center gap-3 rounded-full py-2.5 ps-2.5 pe-5 text-[var(--mk-ink)] no-underline hover:text-[var(--mk-ink)]">
                         <DesignerAvatar designer={d} size="md" />
                         <span className="flex flex-col">
                           <b dir="auto" className="text-[15px]">
@@ -507,6 +519,11 @@ export async function TemplatePublicPage({ lang, slug, demo }: { lang: Lang; slu
   const chip = designerChip(designer);
   const designerTemplates = (await store.listMarketTemplates({ designerId: designer.id, statuses: ["published"] })).filter((o) => o.currentVersionId);
   const base = siteUrl();
+  // 106.14 The designer's photo and line once the team approved them; the buyers' ratings with the designer's answers.
+  const profile = publicProfile(designer);
+  const y = designersText(lang);
+  const { ratings, stats } = await templateRatings(store, template, text.title);
+  const designerHref = chip.page ? lp(designerPath(designer.slug)) : `${lp(MARKET_PATH)}?designer=${designer.slug}`;
 
   const pageTitle = (p: (typeof file.pages)[number]) => (p.translations?.[lang as "ar"]?.title as string | undefined) || p.title;
   const pages: DemoPage[] = file.pages.flatMap((p) => {
@@ -541,10 +558,13 @@ export async function TemplatePublicPage({ lang, slug, demo }: { lang: Lang; slu
       </h1>
       <div className="flex flex-wrap items-center gap-2.5 text-[15px]">
         <DesignerAvatar designer={chip} size="sm" />
-        <b dir="auto">{designer.name}</b>
+        <Link href={designerHref} dir="auto" data-designer-link={designer.slug} className="font-bold text-[var(--mk-ink)] hover:text-[var(--mk-ink)]">
+          {designer.name}
+        </Link>
         <span className="opacity-40">·</span>
         <span className="mk-muted">{fmt(lang, x.usedBy, { count: used })}</span>
       </div>
+      <RatingLine rating={stats} size={18} className="text-[14px]" />
       {text.short ? (
         <p dir="auto" className="mk-lead m-0 max-w-[460px] md:text-[17px]">
           {text.short}
@@ -653,6 +673,7 @@ export async function TemplatePublicPage({ lang, slug, demo }: { lang: Lang; slu
     kinds: kinds.map((k) => k.name),
     freeName: t("studioMarket.free"),
     plans: paid.map((p, i) => ({ period: p.period, cents: p.cents, flashEndsAt: p.flashEndsAt, name: rows[i]!.name })),
+    rating: stats,
   });
 
   return (
@@ -727,18 +748,23 @@ export async function TemplatePublicPage({ lang, slug, demo }: { lang: Lang; slu
                   ) : null}
                   <section aria-labelledby="h-designer" className="mk-panel grid overflow-hidden rounded-[28px] md:grid-cols-[220px_minmax(0,1fr)]" data-designer="">
                     <div className="mk-mono h-[180px] rounded-none md:h-full md:min-h-[280px]">
-                      <span className="flex h-[110px] w-[110px] items-center justify-center rounded-full text-[42px] font-extrabold tracking-[-0.04em] shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)]" style={{ background: chip.bg, color: chip.fg }} aria-hidden="true">
-                        {chip.initials}
-                      </span>
+                      {chip.photoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- The designer's approved photo, served by the platform's own asset route.
+                        <img src={chip.photoUrl} alt="" className="h-[110px] w-[110px] rounded-full object-cover shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)]" />
+                      ) : (
+                        <span className="flex h-[110px] w-[110px] items-center justify-center rounded-full text-[42px] font-extrabold tracking-[-0.04em] shadow-[0_0_0_8px_rgba(255,255,255,0.35),0_20px_40px_-14px_rgba(14,13,36,0.6)]" style={{ background: chip.bg, color: chip.fg }} aria-hidden="true">
+                          {chip.initials}
+                        </span>
+                      )}
                     </div>
                     <div className="flex min-w-0 flex-col gap-4 px-5 py-6 md:px-8 md:py-[30px]">
                       <span className="mk-eyebrow">{x.designerEyebrow}</span>
                       <h2 id="h-designer" dir="auto" className="m-0 text-[28px] font-extrabold tracking-[-0.03em]">
                         {designer.name}
                       </h2>
-                      {designer.bio ? (
+                      {profile.bio ? (
                         <p dir="auto" className="m-0 text-base leading-relaxed text-[var(--mk-ink2)]">
-                          {designer.bio}
+                          {profile.bio}
                         </p>
                       ) : null}
                       <div className="flex flex-wrap items-center gap-2.5">
@@ -755,12 +781,23 @@ export async function TemplatePublicPage({ lang, slug, demo }: { lang: Lang; slu
                             </Link>
                           );
                         })}
-                        <Link href={`${lp(MARKET_PATH)}?designer=${designer.slug}`} className="mk-link text-sm">
+                        <Link href={designerHref} className="mk-link text-sm">
                           {fmt(lang, x.seeDesigner, { count: designerTemplates.length })}
                           <Icon name="arrow_forward" size={16} />
                         </Link>
                       </div>
                     </div>
+                  </section>
+                  {/* 106.14 The buyers' ratings, with the designer's answer under each. */}
+                  <section aria-labelledby="h-ratings" className="flex flex-col gap-4" data-template-ratings="">
+                    <div className="flex flex-wrap items-end justify-between gap-3">
+                      <h2 id="h-ratings" className="mk-h2 text-[28px] md:text-[38px]">
+                        {y.templateRatings}
+                      </h2>
+                      <RatingLine rating={stats} size={18} className="text-[14px]" />
+                    </div>
+                    <RatingList ratings={ratings} words={{ ...ratingWords(lang), onTemplate: undefined }} designerName={designer.name} empty={y.templateNoRatings} />
+                    <p className="mk-muted m-0 text-[13px]">{y.rateInDashboard}</p>
                   </section>
                 </div>
               </div>
