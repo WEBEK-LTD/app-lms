@@ -4,9 +4,32 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 18 November 2026.
+Last updated: 23 November 2026.
 
 ## Current release
+
+Roadmap 208 (Studio's shop types, stage 1: the foundation and Clothes):
+the planning doc's shop types are in one registry (`lib/studio/shop-types.ts`)
+by section (Fashion; Beauty & care; Home & living; Kids & toys; Shopping &
+stores) on /start?for=studio and Studio's new project, Clothes ready and
+the other nine coming soon (not to choose). Clothes is Lujain, a Studio demo
+of the store kind with its two looks, A LUJAIN (black and white) and B NOUN
+(streetwear), light and dark, 62 CC0 StockSnap photos, 46 pieces in their
+sizes and colours with the stock of each, 8 categories and 17
+sub-categories, its story page and its drawn icon. New for every store: sub-categories
+in Store › Categories (migration 0148), the category menu element (every
+main category a row of cards with its sub-categories, opened by the
+header's menu button through `StudioHeader.menu_page`), the size chart
+element and a product's size guide, sizes gone in the colour chosen,
+"Complete the look", the shop's exchanges under the price (Store ›
+Delivery & offers › Clothes for the chart and Complete the look), the
+"Installments coming soon" tag, and the liability notice a shop type's
+project accepts once ("قرأت وموافق", `App.liabilityAccepted`). The app's
+preview is rebuilt; no `CLIENT_APP_RELEASE` change (older apps skip the new
+element, draw the menu as chips and keep the side menu). Not yet: a
+store's wishlist, reviews with photos, back in stock, filters by size,
+colour and price, and the size chart and Complete the look from WordPress
+and connected platforms (208.19).
 
 Roadmap 203 (Yallapp Business on the website): the owners' own app is on
 the App Store and Google Play, and its two store links (one module,

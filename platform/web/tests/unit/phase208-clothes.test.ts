@@ -1,11 +1,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
+import { kindById } from "@/lib/app/kinds";
+import { registerClient } from "@/lib/auth/accounts";
 import { MemoryStore } from "@/lib/data/memory";
 import type { App } from "@/lib/data/types";
 import { CLOTHES_DEMO, demoIdOf, demoKind, DEMO_SLUGS, isStoreTemplateDemo, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
 import { CLOTHES_CATEGORIES, CLOTHES_PRODUCTS, CLOTHES_SIZE_CHART, clothesMainOf, clothesVariants } from "@/lib/demo/clothes";
 import { DEMO_BRANDS, DEMO_GUIDES } from "@/lib/demo/content";
+import { clothesPartsForSamples } from "@/lib/demo/clothes-entries";
 import { CLOTHES_PHOTO_NAMES, isShopPhoto } from "@/lib/demo/shop-photos";
 import { setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
@@ -23,6 +26,7 @@ import { INSTALLMENTS_SECTION, showsInstallmentsSoon } from "@/lib/studio/instal
 import { liabilityDue, withAcceptance } from "@/lib/studio/liability";
 import { SECTIONS, TEMPLATES, templatesFor, type SectionContext } from "@/lib/studio/sections";
 import { SECTION_DEMOS, SHOP_SECTIONS, SHOP_TYPES, shopTypeById, shopTypeOfDesign, shopTypeReady, shopTypesIn, shopTypeTemplate } from "@/lib/studio/shop-types";
+import { makeStudioProject } from "@/lib/studio/new-project";
 import { allNodes } from "@/lib/studio/tree";
 import { appUrl } from "@/lib/env";
 import { en as shopTypesEn, ar as shopTypesAr, tr as shopTypesTr } from "@/i18n/dashboard/shop-types";
@@ -289,6 +293,10 @@ describe("208 Lujain, the clothes shop's demo", () => {
       expect(rows[0]!.children.map((c) => c.name)).toEqual(["Midi dresses", "Maxi dresses", "Mini dresses"]);
       const size = (await call("/pages/{slug}", {}, "en", [SIZE_PAGE])).body as { studio: { body: StudioNode } };
       expect(allNodes({ body: size.studio.body }).some((n) => n.type === "size_chart")).toBe(true);
+      // The search fields (made without a source, as the editor makes them) search the shop's products, which the app needs to show them.
+      const menuSearch = allNodes({ body: page.studio.body }).filter((n) => n.type === "search");
+      expect(menuSearch.length).toBeGreaterThan(0);
+      for (const n of menuSearch) expect(n.source).toBe("products");
     });
   });
 });
@@ -360,4 +368,22 @@ describe("208 Lujain's two looks: LUJAIN the boutique and NOUN streetwear", () =
       ["Rings", []],
     ]);
   });
+
+  it("starts a project from NOUN with Lujain's pieces as samples, its size chart and Complete the look", async () => {
+    const store = new MemoryStore();
+    const { client } = await registerClient(store, { name: "Noun", email: "owner@noun.test", whatsapp: "+966500000000", siteUrl: "", password: null }, NOW);
+    const noun = TEMPLATES.find((t) => t.id === "clothes_signature_b")!;
+    const made = await makeStudioProject(store, { clientId: client.id, name: "Noun Street", kind: kindById("store")!, source: "catalog", template: noun, words: appWords("en", "Noun Street"), lang: "en" }, NOW);
+    const app = (await store.getAppById(made.id))!;
+    expect(app.design).toBe("clothes_signature_b");
+    const products = await store.listCatalogProducts(app.id);
+    expect(products.length).toBe(CLOTHES_PRODUCTS.length);
+    expect(products.every((p) => p.sample)).toBe(true);
+    expect(fashionOf(app)).toEqual({ sizeChart: CLOTHES_SIZE_CHART, completeLook: true });
+    // An own chart is kept when the samples come again.
+    await store.updateApp(app.id, { catalogSettings: { ...app.catalogSettings!, fashion: { sizeChart: null, completeLook: false } } }, NOW);
+    await clothesPartsForSamples({ store, now: NOW }, (await store.getAppById(app.id))!);
+    expect((await store.getAppById(app.id))!.catalogSettings?.fashion).toEqual({ sizeChart: null, completeLook: false });
+  });
 });
+

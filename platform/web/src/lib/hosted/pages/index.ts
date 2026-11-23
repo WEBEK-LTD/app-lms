@@ -153,6 +153,11 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
       const rows = node.source && servable(pc.ctx.app, pc.ctx.connector, node.source) ? await listCategories(pc, node.source, true) : null;
       return rows?.length ? ({ ...shown, categories: rows } as StudioNode) : null;
     }
+    // 208 A search field the editor made has no source: it searches the app's own list (a shop its products), which the app needs to open it.
+    if (node.type === "search" && !node.source) {
+      const source = itemSourcesFor(pc.ctx.app).find((s) => SEARCHED.includes(s));
+      return source && servable(pc.ctx.app, pc.ctx.connector, source) ? ({ ...shown, source } as StudioNode) : shown;
+    }
     if (node.type === "categories") {
       const list = (await resolveBlock(pc, { id: node.id, type: "categories", visibility: "everyone", title: null, source: node.source })) as { categories?: unknown[] } | null;
       return list?.categories ? ({ ...shown, categories: list.categories } as StudioNode) : null;
@@ -422,6 +427,9 @@ export function shownNow(show: LayoutBlock["show"], now: Date, platform: "androi
 }
 
 /** Whether the hosted API can fill lists and searches of this source for the app. */
+/** 208 The lists the app's search field opens (`searchLocation` in the app). */
+const SEARCHED: readonly ItemSource[] = ["products", "courses", "services", "listings", "articles", "events", "hotels"];
+
 function servable(app: App, connector: Connector | null | undefined, source: ItemSource | undefined): boolean {
   if (!source || !itemSourcesFor(app).includes(source)) return false;
   // The engine's own list, read from its connector (lib/app/kinds.ts); others (listings, posts) have their own resolvers.

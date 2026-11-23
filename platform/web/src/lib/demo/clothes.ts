@@ -58,7 +58,7 @@ export const CLOTHES_CATEGORIES: readonly ClothesCategory[] = [
   { ...named("Abayas", "عبايات", "Abayalar"), subs: [named("Classic abayas", "كلاسيكية", "Klasik"), named("Kimono abayas", "كيمونو", "Kimono")] },
   { ...named("Coats & jackets", "معاطف وجاكيتات", "Mont ve ceketler"), subs: [named("Trench coats", "ترنش", "Trençkotlar"), named("Wool coats", "صوف", "Yün kabanlar"), named("Jackets", "جاكيتات", "Ceketler")] },
   { ...named("Tops & knitwear", "بلوزات وتريكو", "Bluz ve triko"), subs: [named("Tops", "بلوزات", "Bluzlar"), named("Knitwear", "تريكو", "Triko")] },
-  { ...named("Denim", "دنيم", "Denim"), subs: [named("Jeans", "جينز", "Kot pantolonlar")] },
+  { ...named("Denim", "دنيم", "Kot ve denim"), subs: [named("Jeans", "جينز", "Kot pantolonlar")] },
   { ...named("Shoes", "أحذية", "Ayakkabılar"), subs: [named("Heels", "كعب عالٍ", "Topuklular"), named("Sneakers", "سنيكرز", "Spor ayakkabılar")] },
   { ...named("Bags", "حقائب", "Çantalar"), subs: [named("Handbags", "حقائب يد", "El çantaları"), named("Backpacks", "حقائب ظهر", "Sırt çantaları")] },
   { ...named("Accessories", "إكسسوارات", "Aksesuarlar"), subs: [named("Sunglasses", "نظارات", "Güneş gözlükleri"), named("Jewellery", "مجوهرات", "Takılar")] },

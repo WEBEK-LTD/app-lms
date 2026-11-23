@@ -215,7 +215,7 @@ export function signatureTemplates(): TemplateInfo[] {
       ...(d.isNew ? { isNew: true } : {}),
       project: signatureProject(d),
       make: (ctx: SectionContext) => {
-        const { ctx: words, page } = translating({ ...ctx, demo: d.demo, look: d.variant });
+        const { ctx: words, page } = translating({ ...ctx, demo: d.demo, look: d.variant, ownPages: ctx.demo === d.demo });
         return page(chromedHome(d, d.home(words)));
       },
     }),

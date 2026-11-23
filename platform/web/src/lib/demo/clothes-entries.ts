@@ -3,7 +3,7 @@ import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
 import { unchanged } from "./rows";
 import { priceFor, type EntryDeps } from "./entries";
-import { CLOTHES_CATEGORIES, CLOTHES_COUPON, CLOTHES_CURRENCY, CLOTHES_FLASH_SALE, CLOTHES_PRODUCTS, clothesMainOf, clothesVariants } from "./clothes";
+import { CLOTHES_CATEGORIES, CLOTHES_COMMERCE, CLOTHES_COUPON, CLOTHES_CURRENCY, CLOTHES_FLASH_SALE, CLOTHES_PRODUCTS, clothesMainOf, clothesVariants } from "./clothes";
 import type { ClothesPhotoName } from "./shop-photos";
 
 /**
@@ -100,4 +100,14 @@ export async function refreshClothesSale(store: DataStore, app: Pick<App, "id">,
   const terms = { productIds: ids, categoryId: null, discount: { kind: "percent" as const, percent: CLOTHES_FLASH_SALE.percent }, startsAt: now, endsAt, limit: CLOTHES_FLASH_SALE.limit, platformCode: null, active: true, titles: { ...CLOTHES_FLASH_SALE.titles } };
   const made = sale ?? (await store.createFlashSale({ appId: app.id, title: CLOTHES_FLASH_SALE.title, ...terms, createdAt: now, updatedAt: now }));
   await store.updateFlashSale(app.id, made.id, { ...terms, sold: CLOTHES_FLASH_SALE.sold, updatedAt: now });
+}
+
+/**
+ * 208 A project started from Lujain (its template, or the demo on /start)
+ * gets the demo's size chart and "Complete the look" with its samples, as
+ * its size guide page and products show them; a shop with its own keeps them.
+ */
+export async function clothesPartsForSamples(deps: Pick<EntryDeps, "store" | "now">, app: App): Promise<void> {
+  if (app.catalogSettings?.fashion) return;
+  await deps.store.updateApp(app.id, { catalogSettings: { ...catalogSettings(app), fashion: structuredClone(CLOTHES_COMMERCE.fashion) } }, deps.now);
 }

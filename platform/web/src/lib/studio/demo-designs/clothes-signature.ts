@@ -86,6 +86,8 @@ const P = (name: string) => `/clothes-photos/${name}.jpg`;
 
 const shop: Action = screen("search");
 const pageOf = (slug: string): Action => ({ type: "page", page_slug: slug });
+/** One of the look's own pages (the category menu, the size guide) where the whole look is made (the demo, a project started from it); where its home is made alone (another store's template) the shop, as a page that isn't there can't be opened. */
+const ownPage = (ctx: SectionContext, slug: string): Action => (ctx.ownPages === false ? shop : pageOf(slug));
 /** The category menu's page and the size guide's (both looks have them). */
 export const MENU_PAGE = "menu";
 export const SIZE_PAGE = "size-guide";
@@ -179,7 +181,7 @@ function categoryCircles(ctx: SectionContext, l: Look): StudioNode {
   return { id: idOf(ctx)(), type: "categories", name: ctx.w("clCategories"), source: "products", style: "circles", color: l.k.ink, dark_color: l.k.darkInk, padding: sides(8, 12, 4, 12) };
 }
 
-/** One hero card: a photo under a shade, its kicker, headline and a glass button. */
+/** One hero card: a photo under a shade, its kicker, headline and a white button. */
 function heroCard(ctx: SectionContext, l: Look, photo: string, kicker: SectionWord, title: SectionWord, button: SectionWord): StudioNode {
   const id = idOf(ctx);
   const shade = l.look === "a" ? "#121212" : "#0B0B0C";
@@ -212,7 +214,7 @@ function heroCard(ctx: SectionContext, l: Look, photo: string, kicker: SectionWo
         self_align: "start",
         margin: sides(12, 0, 0, 0),
         ...(l.look === "a"
-          ? { color: "#FFFFFF", dark_color: "#FFFFFF", border_color: "#FFFFFF", border_width: 1, surface: { glass: 14, tint: 0.16 } }
+          ? { background: "#FFFFFF", dark_background: "#FFFFFF", color: "#121212", dark_color: "#121212" }
           : { background: B.fill, dark_background: B.darkFill, color: "#FFFFFF", dark_color: "#FFFFFF" }),
         font: { size: 13.5, weight: 700 },
         motion: { press: "shrink" },
@@ -472,7 +474,7 @@ function fitCard(ctx: SectionContext, l: Look): StudioNode {
         dark_color: l.k.darkOnFill,
         font: { size: 13.5, weight: 700 },
         motion: { press: "shrink" },
-        action: pageOf(SIZE_PAGE),
+        action: ownPage(ctx, SIZE_PAGE),
       },
     ],
   };
@@ -634,7 +636,7 @@ export function nounHome(ctx: SectionContext): StudioPage {
           [40, 76],
         ]),
         dealCard(ctx, l, "banner"),
-        headOf(ctx, l, "clByCategory", { word: "clSeeAll", action: pageOf(MENU_PAGE) }, undefined, "clByCategoryKicker"),
+        headOf(ctx, l, "clByCategory", { word: "clSeeAll", action: ownPage(ctx, MENU_PAGE) }, undefined, "clByCategoryKicker"),
         collectionTiles(ctx, l, [
           ["dark-coat", "clOuterwear", "clCoats"],
           ["fleece", "clDenimKicker", "clDenim"],
@@ -995,8 +997,8 @@ export const CLOTHES_SECTIONS: readonly SectionInfo[] = [
   { id: "cl_deal", icon: "bolt", isNew: true, fits: STORE_PLAIN, make: one((ctx) => dealCard(ctx, LOOK_A, "carousel")) },
   // Shop the look: numbered spots on a photo, the pieces under it.
   { id: "cl_shop_look", icon: "checkroom", isNew: true, fits: STORE_PLAIN, make: one((ctx) => shopTheLook(ctx, LOOK_A, "look", [[62, 30], [52, 70], [30, 52]])) },
-  // The size confidence card, opening the size guide.
-  { id: "cl_fit", icon: "straighten", isNew: true, fits: STORE_PLAIN, make: one((ctx) => fitCard(ctx, LOOK_A)) },
+  // The size confidence card: on its own in any store's page it opens the shop (a store has no size guide page of its own); in the looks, the size guide.
+  { id: "cl_fit", icon: "straighten", isNew: true, fits: STORE_PLAIN, make: one((ctx) => fitCard({ ...ctx, ownPages: false }, LOOK_A)) },
   // The shop's size chart.
   { id: "cl_size_chart", icon: "table_chart", isNew: true, fits: STORE_PLAIN, make: one((ctx) => sizeGuidePage(ctx, LOOK_A).body.children!.find((n) => n.type === "size_chart")!) },
   // The collections as photo tiles, and B's numbered best sellers and ticker.

@@ -111,6 +111,14 @@
     "target": {
      "type": "page",
      "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المتجر"
+     },
+     "tr": {
+      "label": "Mağaza"
+     }
     }
    },
    {
@@ -1561,7 +1569,7 @@
               "text": "دنيم"
              },
              "tr": {
-              "text": "Denim"
+              "text": "Kot ve denim"
              }
             }
            },
@@ -1583,7 +1591,7 @@
               "text": "دنيم"
              },
              "tr": {
-              "text": "Denim"
+              "text": "Kot ve denim"
              }
             }
            }
@@ -2553,6 +2561,14 @@
    {
     "slug": "shop",
     "title": "Shop",
+    "translations": {
+     "ar": {
+      "title": "المتجر"
+     },
+     "tr": {
+      "title": "Mağaza"
+     }
+    },
     "studio": {
      "body": {
       "id": "sig-167",
@@ -2711,6 +2727,14 @@
       "buttons": [
        "notifications"
       ],
+      "translations": {
+       "ar": {
+        "title": "المتجر"
+       },
+       "tr": {
+        "title": "Mağaza"
+       }
+      },
       "background": "#EEEEEA",
       "color": "#0B0B0C",
       "dark_background": "#0A0A0B",

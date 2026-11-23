@@ -122,6 +122,14 @@
     "target": {
      "type": "page",
      "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المتجر"
+     },
+     "tr": {
+      "label": "Mağaza"
+     }
     }
    },
    {
@@ -382,14 +390,10 @@
              "bottom": 0,
              "start": 0
             },
-            "color": "#FFFFFF",
-            "dark_color": "#FFFFFF",
-            "border_color": "#FFFFFF",
-            "border_width": 1,
-            "surface": {
-             "glass": 14,
-             "tint": 0.16
-            },
+            "background": "#FFFFFF",
+            "dark_background": "#FFFFFF",
+            "color": "#121212",
+            "dark_color": "#121212",
             "font": {
              "size": 13.5,
              "weight": 700
@@ -512,14 +516,10 @@
              "bottom": 0,
              "start": 0
             },
-            "color": "#FFFFFF",
-            "dark_color": "#FFFFFF",
-            "border_color": "#FFFFFF",
-            "border_width": 1,
-            "surface": {
-             "glass": 14,
-             "tint": 0.16
-            },
+            "background": "#FFFFFF",
+            "dark_background": "#FFFFFF",
+            "color": "#121212",
+            "dark_color": "#121212",
             "font": {
              "size": 13.5,
              "weight": 700
@@ -642,14 +642,10 @@
              "bottom": 0,
              "start": 0
             },
-            "color": "#FFFFFF",
-            "dark_color": "#FFFFFF",
-            "border_color": "#FFFFFF",
-            "border_width": 1,
-            "surface": {
-             "glass": 14,
-             "tint": 0.16
-            },
+            "background": "#FFFFFF",
+            "dark_background": "#FFFFFF",
+            "color": "#121212",
+            "dark_color": "#121212",
             "font": {
              "size": 13.5,
              "weight": 700
@@ -2093,6 +2089,14 @@
    {
     "slug": "shop",
     "title": "Shop",
+    "translations": {
+     "ar": {
+      "title": "المتجر"
+     },
+     "tr": {
+      "title": "Mağaza"
+     }
+    },
     "studio": {
      "body": {
       "id": "sig-137",
@@ -2210,14 +2214,10 @@
            "bottom": 0,
            "start": 0
           },
-          "color": "#FFFFFF",
-          "dark_color": "#FFFFFF",
-          "border_color": "#FFFFFF",
-          "border_width": 1,
-          "surface": {
-           "glass": 14,
-           "tint": 0.16
-          },
+          "background": "#FFFFFF",
+          "dark_background": "#FFFFFF",
+          "color": "#121212",
+          "dark_color": "#121212",
           "font": {
            "size": 13.5,
            "weight": 700
@@ -2255,6 +2255,14 @@
       "buttons": [
        "notifications"
       ],
+      "translations": {
+       "ar": {
+        "title": "المتجر"
+       },
+       "tr": {
+        "title": "Mağaza"
+       }
+      },
       "background": "#F8F6F1",
       "color": "#121212",
       "dark_background": "#0F0F0E",
