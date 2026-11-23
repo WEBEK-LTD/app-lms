@@ -18,7 +18,8 @@ The home-screen widget on Android and iPhone (sales today, orders today,
 new orders waiting; its own read-only token for `GET /widget`), and a new
 order until it is answered: Android's ongoing notification with Accept and
 Open, the iPhone's Live Activity on the Lock Screen and in the Dynamic
-Island, started and ended by the server's pushes (migration 0154). New
+Island, started and ended by the server's pushes (migration 0154); the
+New order card on Today with Accept and Reject. New
 iPhone extension: `tr.com.yallapp.business.ShopWidget`, its App ID and
 profile made by fastlane on the first release. Time Sensitive is ready
 but off (open item below).

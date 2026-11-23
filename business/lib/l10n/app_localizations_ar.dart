@@ -4554,6 +4554,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reopenedNow => 'عاد استقبال الطلبات';
 
   @override
+  String newOrderMore(String count) {
+    return '+$count أخرى';
+  }
+
+  @override
   String get ringFocusTitle => 'تنبيهات الطلبات أثناء وضع التركيز';
 
   @override

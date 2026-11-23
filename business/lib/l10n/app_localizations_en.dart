@@ -4573,6 +4573,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reopenedNow => 'Taking orders again';
 
   @override
+  String newOrderMore(String count) {
+    return '+$count more';
+  }
+
+  @override
   String get ringFocusTitle => 'Order alerts through Focus';
 
   @override

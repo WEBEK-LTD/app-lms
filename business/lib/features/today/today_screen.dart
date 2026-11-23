@@ -16,6 +16,7 @@ import '../prime/prime_state.dart';
 import '../prime/prime_more.dart' show GoalCard;
 import '../prime/prime_today.dart';
 import '../studio/studio_widgets.dart';
+import 'new_order_card.dart';
 import 'pause_card.dart';
 
 final todayProvider = FutureProvider.autoDispose<Today>(
@@ -90,6 +91,9 @@ class TodayScreen extends ConsumerWidget {
                     SliverToBoxAdapter(
                       child: _Kpis(app: app, today: data),
                     ),
+                  // 214 The newest order waiting, with Accept and Reject.
+                  if (app.state != AccountState.expired)
+                    const SliverToBoxAdapter(child: TodayNewOrder()),
                   if (prime)
                     SliverToBoxAdapter(
                       child: _PrimeToday(app: app, me: me, today: data),

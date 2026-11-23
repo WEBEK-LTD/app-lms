@@ -2995,6 +2995,14 @@
   "pauseMore": "Pause another place",
   "reopenNow": "Reopen now",
   "reopenedNow": "Taking orders again",
+  "newOrderMore": "+{count} more",
+  "@newOrderMore": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "ringFocusTitle": "Order alerts through Focus",
   "ringFocusHelp": "On iPhone, new order alerts are Time Sensitive. To hear them during Focus or Do Not Disturb, turn on Time Sensitive Notifications for Yallapp Business in its notification settings, and allow it in your Focus.",
   "ringFocusOpen": "Open notification settings",

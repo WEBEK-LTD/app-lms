@@ -107,6 +107,7 @@ void main() {
       expect(app.api.calls, isNot(contains('today')));
       bio.succeed = true;
       await tapOn(tester, find.text('Unlock with fingerprint'));
+      await seeOnToday(tester, find.text('Needs you now'));
       expect(find.text('Needs you now'), findsOneWidget);
     },
   );
@@ -124,6 +125,7 @@ void main() {
     bio.result = null;
     await tapOn(tester, find.text('Use phone PIN'));
     expect(bio.pinOnly.last, isTrue);
+    await seeOnToday(tester, find.text('Needs you now'));
     expect(find.text('Needs you now'), findsOneWidget);
   });
 
@@ -150,6 +152,7 @@ void main() {
     );
     bio.result = UnlockResult.success;
     await tapOn(tester, find.text('Use phone PIN'));
+    await seeOnToday(tester, find.text('Needs you now'));
     expect(find.text('Needs you now'), findsOneWidget);
   });
 
@@ -241,6 +244,7 @@ void main() {
       );
       await app.pump(tester);
       // The phone said it's them as the lock opened.
+      await seeOnToday(tester, find.text('Needs you now'));
       expect(find.text('Needs you now'), findsOneWidget);
       expect(app.privacy.secure, isTrue);
       // Leaving: the cover hides the business at once.
@@ -283,6 +287,7 @@ void main() {
       tester.binding.handleAppLifecycleStateChanged(state);
     }
     await settle(tester);
+    await seeOnToday(tester, find.text('Needs you now'));
     expect(find.text('Needs you now'), findsOneWidget);
   });
 
