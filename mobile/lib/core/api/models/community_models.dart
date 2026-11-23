@@ -667,6 +667,7 @@ class Review {
     required this.status,
     required this.mine,
     this.reply,
+    this.photos = const [],
   });
 
   factory Review.fromJson(Json json) => Review(
@@ -682,7 +683,14 @@ class Review {
     ),
     mine: boolOr(json, 'mine', false),
     reply: optObject(json, 'reply', ReviewReply.fromJson),
+    photos: [
+      for (final p in listOf(json, 'photos', (j) => optString(j, 'url')))
+        if (p != null && p.isNotEmpty) p,
+    ],
   );
+
+  /// 212 A product review's photos (Yallapp's hosted API); empty: none.
+  final List<String> photos;
 
   final int id;
   final int rating;

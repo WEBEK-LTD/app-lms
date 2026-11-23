@@ -5048,4 +5048,75 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return 'باقة · $_temp0';
   }
+
+  @override
+  String get inboxProductReviews => 'تقييمات المنتجات';
+
+  @override
+  String onProduct(String product) {
+    return 'على $product';
+  }
+
+  @override
+  String get reviewsWithPhotos => 'بالصور';
+
+  @override
+  String get reviewPhotos => 'صور مع التقييم';
+
+  @override
+  String photoNumber(int n) {
+    return 'الصورة $n';
+  }
+
+  @override
+  String get noProductReviewsText =>
+      'يستطيع العملاء الذين اشتروا منتجًا تقييمه في تطبيقك، مع الصور.';
+
+  @override
+  String get shopWishes => 'المنتظرون والمحفوظ';
+
+  @override
+  String get shopWaiting => 'بانتظار المخزون';
+
+  @override
+  String get shopWaitingHint => 'حين يعود المنتج يصل إلى كل منهم إشعار واحد.';
+
+  @override
+  String get shopWaitingNone => 'لا أحد ينتظر منتجًا الآن.';
+
+  @override
+  String shopWaitingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ينتظره $count',
+      one: 'ينتظره عميل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shopSaved => 'المحفوظ في المفضلة';
+
+  @override
+  String get shopSavedNone => 'لم يحفظ أي عميل منتجًا بعد.';
+
+  @override
+  String shopSavedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'حفظه $count',
+      one: 'حفظه عميل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String variationNumber(int id) {
+    return 'الاختيار رقم $id';
+  }
+
+  @override
+  String get productNoLongerSold => 'منتج لم يعد يُباع';
 }

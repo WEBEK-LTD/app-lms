@@ -75,6 +75,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
   // 63 A course question opens itself; a review, the Inbox's reviews.
   final question = id('question_id');
   final review = value('review_id');
+  // 212 A store's product review: the Inbox's product reviews.
+  final productReview = value('product_review_id');
   // 77 A chat message opens its conversation.
   final conversation = value('conversation_id');
   // 125 Studio apps: a food order, a shipment, a ride, a complaint, a
@@ -111,6 +113,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
       ? Paths.inquiry(inquiry)
       : question != null
       ? Paths.question(question)
+      : productReview != null
+      ? Paths.inboxTab('product_reviews')
       : review != null
       ? Paths.inboxTab('reviews')
       : conversation != null

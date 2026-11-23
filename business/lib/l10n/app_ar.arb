@@ -1330,5 +1330,21 @@
   "lowStockAlertHint": "{count, plural, =0{فعّل تنبيه المخزون المنخفض في التنبيهات الذكية لتعرف حين تنفد الكمية.} =1{يخبرك تنبيه المخزون المنخفض حين يتبقى واحد.} =2{يخبرك تنبيه المخزون المنخفض حين يتبقى اثنان.} few{يخبرك تنبيه المخزون المنخفض حين يتبقى {count}.} many{يخبرك تنبيه المخزون المنخفض حين يتبقى {count}.} other{يخبرك تنبيه المخزون المنخفض حين يتبقى {count}.}}",
   "lockAfterMinutes": "{minutes, plural, =1{بعد دقيقة من الخروج} =2{بعد دقيقتين من الخروج} few{بعد {minutes} دقائق من الخروج} many{بعد {minutes} دقيقة من الخروج} other{بعد {minutes} دقيقة من الخروج}}",
   "needsAwaitingPayment": "{count, plural, =1{طلب واحد بانتظار الدفع} =2{طلبان بانتظار الدفع} few{{count} طلبات بانتظار الدفع} many{{count} طلبًا بانتظار الدفع} other{{count} طلب بانتظار الدفع}}",
-  "bouquetGroup": "باقة · {stems, plural, =0{بلا سيقان} =1{ساق واحدة} =2{ساقان} few{{stems} سيقان} many{{stems} ساقًا} other{{stems} ساق}}"
+  "bouquetGroup": "باقة · {stems, plural, =0{بلا سيقان} =1{ساق واحدة} =2{ساقان} few{{stems} سيقان} many{{stems} ساقًا} other{{stems} ساق}}",
+  "inboxProductReviews": "تقييمات المنتجات",
+  "onProduct": "على {product}",
+  "reviewsWithPhotos": "بالصور",
+  "reviewPhotos": "صور مع التقييم",
+  "photoNumber": "الصورة {n}",
+  "noProductReviewsText": "يستطيع العملاء الذين اشتروا منتجًا تقييمه في تطبيقك، مع الصور.",
+  "shopWishes": "المنتظرون والمحفوظ",
+  "shopWaiting": "بانتظار المخزون",
+  "shopWaitingHint": "حين يعود المنتج يصل إلى كل منهم إشعار واحد.",
+  "shopWaitingNone": "لا أحد ينتظر منتجًا الآن.",
+  "shopWaitingCount": "{count, plural, =1{ينتظره عميل واحد} other{ينتظره {count}}}",
+  "shopSaved": "المحفوظ في المفضلة",
+  "shopSavedNone": "لم يحفظ أي عميل منتجًا بعد.",
+  "shopSavedCount": "{count, plural, =1{حفظه عميل واحد} other{حفظه {count}}}",
+  "variationNumber": "الاختيار رقم {id}",
+  "productNoLongerSold": "منتج لم يعد يُباع"
 }

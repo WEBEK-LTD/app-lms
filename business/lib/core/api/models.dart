@@ -441,6 +441,7 @@ class AppFeatures {
     this.inquiries = false,
     this.questions = false,
     this.reviews = false,
+    this.productReviews = false,
     this.memberCheckIn = false,
     this.chat = false,
     this.appUsers = false,
@@ -473,6 +474,7 @@ class AppFeatures {
     inquiries: boolean(json, 'inquiries'),
     questions: boolean(json, 'questions'),
     reviews: boolean(json, 'reviews'),
+    productReviews: boolean(json, 'product_reviews'),
     memberCheckIn: boolean(json, 'member_check_in'),
     chat: boolean(json, 'chat'),
     appUsers: boolean(json, 'app_users'),
@@ -508,6 +510,10 @@ class AppFeatures {
 
   /// 63 Reviews of courses managed in Yallapp (Catalog & content).
   final bool reviews;
+
+  /// 212 A store's product reviews with photos, and who waits for what and
+  /// saved what (Catalog & content). Missing on older servers: false.
+  final bool productReviews;
 
   /// 63 A gym's members checked in at the door (Bookings).
   final bool memberCheckIn;
@@ -549,7 +555,7 @@ class AppFeatures {
   bool get catalog => products || courses || articles || listings;
 
   /// 63 The Inbox tab: a listing's conversations, course questions, reviews.
-  bool get inbox => inquiries || questions || reviews;
+  bool get inbox => inquiries || questions || reviews || productReviews;
 }
 
 class AppSummary {
@@ -3156,7 +3162,36 @@ class Review {
     required this.hidden,
     required this.createdAt,
     this.reply,
+    this.productId,
+    this.photos = const [],
   });
+
+  /// 212 A customer's review of a store's product: its product's name in
+  /// the course's place, and its photos.
+  factory Review.fromProductJson(Json json) {
+    final reply = optObject(json, 'reply');
+    return Review(
+      id: integer(json, 'id'),
+      courseId: 0,
+      courseTitle: str(json, 'product_name'),
+      person: str(json, 'person'),
+      rating: integer(json, 'rating', 5).clamp(1, 5),
+      text: str(json, 'text'),
+      hidden: boolean(json, 'hidden'),
+      createdAt: date(json, 'created_at'),
+      productId: integer(json, 'product_id'),
+      photos: [
+        for (final p in jsonList(json, 'photos'))
+          if (str(p, 'url').isNotEmpty) str(p, 'url'),
+      ],
+      reply: reply == null
+          ? null
+          : ReviewReply(
+              text: str(reply, 'text'),
+              createdAt: date(reply, 'created_at'),
+            ),
+    );
+  }
 
   factory Review.fromJson(Json json) {
     final reply = optObject(json, 'reply');
@@ -3189,6 +3224,76 @@ class Review {
   final bool hidden;
   final DateTime createdAt;
   final ReviewReply? reply;
+
+  /// 212 A store's product review: its product (null for a course's).
+  final int? productId;
+
+  /// 212 The photos the customer sent with it.
+  final List<String> photos;
+
+  bool get isProduct => productId != null;
+
+  Review copyWith({
+    bool? hidden,
+    ReviewReply? reply,
+    bool clearReply = false,
+  }) => Review(
+    id: id,
+    courseId: courseId,
+    courseTitle: courseTitle,
+    person: person,
+    rating: rating,
+    text: text,
+    hidden: hidden ?? this.hidden,
+    createdAt: createdAt,
+    reply: clearReply ? null : (reply ?? this.reply),
+    productId: productId,
+    photos: photos,
+  );
+}
+
+/// 212 A product customers wait for to be back in stock, or saved.
+class ShopWish {
+  const ShopWish({
+    required this.productId,
+    required this.name,
+    required this.count,
+    this.variationId,
+    this.imageUrl,
+  });
+
+  factory ShopWish.fromJson(Json json) => ShopWish(
+    productId: integer(json, 'product_id'),
+    variationId: optInt(json, 'variation_id'),
+    name: str(json, 'product_name'),
+    imageUrl: optStr(json, 'product_image_url'),
+    count: integer(json, 'count'),
+  );
+
+  final int productId;
+  final int? variationId;
+  final String name;
+  final String? imageUrl;
+  final int count;
+}
+
+/// 212 Who waits for what to be back in stock, and the products saved most.
+class ShopWishes {
+  const ShopWishes({
+    required this.waiting,
+    required this.waitingTotal,
+    required this.saved,
+  });
+
+  factory ShopWishes.fromJson(Json json) => ShopWishes(
+    waiting: listOf(json, 'waiting', ShopWish.fromJson),
+    waitingTotal: integer(json, 'waiting_total'),
+    saved: listOf(json, 'saved', ShopWish.fromJson),
+  );
+
+  final List<ShopWish> waiting;
+  final int waitingTotal;
+  final List<ShopWish> saved;
 }
 
 class ReviewsPage {
@@ -3200,6 +3305,13 @@ class ReviewsPage {
 
   factory ReviewsPage.fromJson(Json json) => ReviewsPage(
     page: Paged.fromJson(json, Review.fromJson),
+    rating: optNumber(json, 'rating'),
+    ratingCount: integer(json, 'rating_count'),
+  );
+
+  /// 212 A store's product reviews.
+  factory ReviewsPage.fromProductJson(Json json) => ReviewsPage(
+    page: Paged.fromJson(json, Review.fromProductJson),
     rating: optNumber(json, 'rating'),
     ratingCount: integer(json, 'rating_count'),
   );

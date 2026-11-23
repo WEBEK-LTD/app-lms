@@ -4830,4 +4830,76 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return 'Buket · $_temp0';
   }
+
+  @override
+  String get inboxProductReviews => 'Ürün değerlendirmeleri';
+
+  @override
+  String onProduct(String product) {
+    return '$product için';
+  }
+
+  @override
+  String get reviewsWithPhotos => 'Fotoğraflı';
+
+  @override
+  String get reviewPhotos => 'Değerlendirmenin fotoğrafları';
+
+  @override
+  String photoNumber(int n) {
+    return 'Fotoğraf $n';
+  }
+
+  @override
+  String get noProductReviewsText =>
+      'Bir ürünü satın alan müşteriler onu uygulamanızda fotoğraflarla değerlendirebilir.';
+
+  @override
+  String get shopWishes => 'Bekleyenler ve kaydedilenler';
+
+  @override
+  String get shopWaiting => 'Stok bekleyenler';
+
+  @override
+  String get shopWaitingHint =>
+      'Geri geldiğinde her biri bir kez bildirim alır.';
+
+  @override
+  String get shopWaitingNone => 'Şu anda bir ürünü bekleyen yok.';
+
+  @override
+  String shopWaitingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi bekliyor',
+      one: '1 kişi bekliyor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shopSaved => 'İstek listelerinde';
+
+  @override
+  String get shopSavedNone => 'Henüz hiçbir müşteri ürün kaydetmedi.';
+
+  @override
+  String shopSavedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi kaydetti',
+      one: '1 kişi kaydetti',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String variationNumber(int id) {
+    return 'Seçenek #$id';
+  }
+
+  @override
+  String get productNoLongerSold => 'Artık satılmayan bir ürün';
 }

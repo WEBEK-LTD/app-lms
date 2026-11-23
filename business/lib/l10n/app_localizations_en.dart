@@ -4903,4 +4903,76 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return 'Bouquet · $_temp0';
   }
+
+  @override
+  String get inboxProductReviews => 'Product reviews';
+
+  @override
+  String onProduct(String product) {
+    return 'on $product';
+  }
+
+  @override
+  String get reviewsWithPhotos => 'With photos';
+
+  @override
+  String get reviewPhotos => 'Photos with the review';
+
+  @override
+  String photoNumber(int n) {
+    return 'Photo $n';
+  }
+
+  @override
+  String get noProductReviewsText =>
+      'Customers who bought a product can review it in your app, with photos.';
+
+  @override
+  String get shopWishes => 'Waiting & saved';
+
+  @override
+  String get shopWaiting => 'Waiting for stock';
+
+  @override
+  String get shopWaitingHint =>
+      'When it\'s back, each of them gets a notification once.';
+
+  @override
+  String get shopWaitingNone => 'Nobody is waiting for a product right now.';
+
+  @override
+  String shopWaitingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wait',
+      one: '1 waits',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shopSaved => 'Saved to wishlists';
+
+  @override
+  String get shopSavedNone => 'No customer saved a product yet.';
+
+  @override
+  String shopSavedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Saved by $count',
+      one: 'Saved by 1',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String variationNumber(int id) {
+    return 'Choice #$id';
+  }
+
+  @override
+  String get productNoLongerSold => 'A product no longer sold';
 }

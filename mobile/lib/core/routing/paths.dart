@@ -255,6 +255,9 @@ abstract final class Paths {
   /// 26 One order, for following it.
   static String order(int id) => '$orders/$id';
   static String productReviews(int id) => '/product/$id/reviews';
+
+  /// 212 A store's wishlist.
+  static const wishlist = '/wishlist';
   static String service(int id) => '/service/$id';
   static String appointment(int id) => '/appointment/$id';
   static String listing(int id) => '/listing/$id';

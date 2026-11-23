@@ -1093,8 +1093,154 @@ class FakeApi implements YallappApi {
   });
 
   @override
-  Future<ReviewPage> listProductReviews(int productId, {int page = 1}) =>
-      _answer('listProductReviews', () => ReviewPage.fromJson(reviews));
+  Future<ReviewPage> listProductReviews(
+    int productId, {
+    int page = 1,
+    bool photos = false,
+  }) => _answer('listProductReviews', () => ReviewPage.fromJson(reviews));
+
+  // 212 A store's wishlist, reviews with photos, back in stock, filters.
+
+  /// The signed-in customer's saved products on the server.
+  final wishlistIds = <int>[];
+
+  /// Products the server serves for the wishlist (by id).
+  Map<int, Map<String, dynamic>> wishlistProducts = {};
+
+  @override
+  Future<WishlistPage> getWishlist({int page = 1}) => _answer(
+    'getWishlist',
+    () => WishlistPage.fromJson({
+      'ids': wishlistIds,
+      'page': 1,
+      'per_page': 50,
+      'total': wishlistIds.length,
+      'total_pages': 1,
+      'items': [
+        for (final id in wishlistIds)
+          if (wishlistProducts[id] != null) wishlistProducts[id],
+      ],
+    }),
+  );
+
+  @override
+  Future<void> addToShopWishlist(int productId) =>
+      _answer('addToShopWishlist', () {
+        if (!wishlistIds.contains(productId)) wishlistIds.insert(0, productId);
+      });
+
+  @override
+  Future<void> removeFromShopWishlist(int productId) =>
+      _answer('removeFromShopWishlist', () => wishlistIds.remove(productId));
+
+  @override
+  Future<List<int>> mergeWishlist(List<int> productIds) =>
+      _answer('mergeWishlist', () {
+        for (final id in productIds) {
+          if (!wishlistIds.contains(id)) wishlistIds.add(id);
+        }
+        return [...wishlistIds];
+      });
+
+  /// The reviews saved with `saveProductReview`: rating, text, photo ids.
+  final savedReviews =
+      <({int productId, int rating, String text, List<String> photoIds})>[];
+
+  @override
+  Future<Review> saveProductReview(
+    int productId, {
+    required int rating,
+    String text = '',
+    List<String> photoIds = const [],
+  }) => _answer('saveProductReview', () {
+    savedReviews.add((
+      productId: productId,
+      rating: rating,
+      text: text,
+      photoIds: photoIds,
+    ));
+    return Review.fromJson({
+      'id': 900 + savedReviews.length,
+      'rating': rating,
+      'text': text,
+      'author': {'name': 'Sara Y.', 'instructor': false},
+      'created_at': '2026-11-23T10:00:00Z',
+      'status': 'approved',
+      'mine': true,
+      'photos': [
+        for (final id in photoIds) {'url': 'https://yallapp.test/m/$id'},
+      ],
+    });
+  });
+
+  @override
+  Future<void> deleteProductReview(int productId) =>
+      _answer('deleteProductReview', () {});
+
+  final reviewUploads = <String>[];
+
+  @override
+  Future<ChatUpload> startReviewUpload({
+    required String name,
+    required int size,
+    required String type,
+  }) => _answer('startReviewUpload', () {
+    reviewUploads.add(name);
+    return ChatUpload.fromJson({
+      'id': '00000000-0000-4000-8000-00000000030${reviewUploads.length}',
+      'kind': 'image',
+      'upload_url': 'https://media.test/u/r',
+      'chunk_bytes': 1024,
+      'size': size,
+    });
+  });
+
+  @override
+  Future<ChatUpload> resumeReviewUpload(String uploadId) => _answer(
+    'resumeReviewUpload',
+    () => ChatUpload.fromJson({
+      'id': uploadId,
+      'kind': 'image',
+      'upload_url': 'https://media.test/u/r',
+      'chunk_bytes': 1024,
+      'size': 10,
+    }),
+  );
+
+  @override
+  Future<void> completeReviewUpload(String uploadId) =>
+      _answer('completeReviewUpload', () {});
+
+  /// What the customer asked to be told about: (product, variation or null).
+  final stockWaits = <(int, int?)>[];
+
+  @override
+  Future<void> waitForStock(int productId, {int? variationId}) =>
+      _answer('waitForStock', () => stockWaits.add((productId, variationId)));
+
+  @override
+  Future<void> stopWaitingForStock(int productId, {int? variationId}) =>
+      _answer(
+        'stopWaitingForStock',
+        () => stockWaits.remove((productId, variationId)),
+      );
+
+  /// `GET /store/filters`; null answers 404 (an older server).
+  Map<String, dynamic>? shopFilters;
+
+  @override
+  Future<ShopFilters> getShopFilters({int? category, String? search}) =>
+      _answer('getShopFilters', () {
+        final json = shopFilters;
+        if (json == null) {
+          throw const ApiException(
+            code: 'not_found',
+            message: 'Not found.',
+            statusCode: 404,
+          );
+        }
+        return ShopFilters.fromJson(json);
+      });
 
   Map<String, dynamic> cartQuote = cartQuoteJson();
   List<CartLineInput>? lastCartLines;

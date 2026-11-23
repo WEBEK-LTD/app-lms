@@ -25,6 +25,7 @@ import '../widgets/addon_widgets.dart';
 import '../widgets/gift_checkout.dart' show ownedTitle;
 import '../widgets/option_sheet.dart';
 import '../widgets/product_widgets.dart';
+import '../widgets/shop_features.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/services/share_links.dart';
 import '../../../core/l10n/vertical_wording.dart';
@@ -341,6 +342,8 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             backgroundColor: p.surface,
             leading: const AppBarBackButton(),
             actions: [
+              // 212 The wishlist's heart.
+              WishlistHeart(productId: product.id, onImage: false, size: 24),
               // 46 A link that opens the product in the app.
               ShareLinkButton(
                 kind: 'product',
@@ -627,6 +630,15 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                   const SizedBox(height: 8),
                   HtmlContent(html: product.descriptionHtml),
                 ],
+                // 212 Its reviews: the bars, the customers' photos, the first
+                // ones and the customer's own.
+                if (product.reviewsPreview case final preview?) ...[
+                  const SizedBox(height: 24),
+                  ProductReviewsSection(
+                    productId: product.id,
+                    preview: preview,
+                  ),
+                ],
                 // 208 Complete the look: a piece of each of the shop's other
                 // main categories.
                 if (product.completeLook.isNotEmpty) ...[
@@ -710,10 +722,28 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             label: context.l10n.chooseOptions(_missing(product)),
             onPressed: null,
           ),
+          // 212 Out of stock in the choice made, or altogether: Notify me
+          // when it's back, where the shop offers it.
+          ProductCta.unavailableOption
+              when store?.backInStock == true &&
+                  product.backInStock != null &&
+                  variation != null =>
+            BackInStockButton(
+              productId: product.id,
+              variationId: variation.id,
+              waiting: product.backInStock!.waitsFor(variation.id),
+            ),
           ProductCta.unavailableOption => PrimaryButton(
             label: context.l10n.notAvailableInOptions,
             onPressed: null,
           ),
+          ProductCta.outOfStock
+              when store?.backInStock == true && product.backInStock != null =>
+            BackInStockButton(
+              productId: product.id,
+              variationId: variation?.id,
+              waiting: product.backInStock!.waitsFor(variation?.id),
+            ),
           ProductCta.outOfStock => PrimaryButton(
             label: context.l10n.outOfStock,
             onPressed: null,

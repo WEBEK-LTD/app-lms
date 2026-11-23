@@ -25,6 +25,8 @@ export 'food_models.dart';
 export 'donation_models.dart';
 export 'delivery_models.dart';
 export 'json.dart' show Json;
+// 212
+export 'shop_features_models.dart';
 export 'launch_models.dart';
 export 'learning_models.dart';
 export 'lms_more_models.dart';

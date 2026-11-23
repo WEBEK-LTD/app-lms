@@ -20,6 +20,7 @@ import 'screens/product_reviews_screen.dart';
 import 'screens/product_screen.dart';
 import 'screens/shop_screen.dart';
 import 'screens/store_home_screen.dart';
+import 'screens/wishlist_screen.dart';
 
 /// The Store module: home, shop, cart and the account as tabs, and the
 /// product pages.
@@ -39,8 +40,9 @@ final storeModule = AppModule(
     BuiltInScreen.notifications => Paths.notifications,
     BuiltInScreen.cart => Paths.cart,
     BuiltInScreen.orders => Paths.orders,
+    // 212 A store's favourites are its wishlist.
+    BuiltInScreen.favorites => Paths.wishlist,
     BuiltInScreen.myCourses ||
-    BuiltInScreen.favorites ||
     BuiltInScreen.messages ||
     BuiltInScreen.services ||
     BuiltInScreen.appointments ||
@@ -109,6 +111,19 @@ List<TabScreen> _screens() => [
       initialCategory: int.tryParse(q['category'] ?? ''),
       initialOnSale: q['sale'] == '1',
       initialOrder: productOrderFrom(q['sort']),
+      // 212 A Studio filter element's choice (`size`, `colour`, `f.<key>`,
+      // the price, the brand).
+      initialFilters: {
+        for (final e in q.entries)
+          if (e.value.isNotEmpty &&
+              (e.key == 'size' ||
+                  e.key == 'colour' ||
+                  e.key == 'brand' ||
+                  e.key == 'min_price' ||
+                  e.key == 'max_price' ||
+                  e.key.startsWith('f.')))
+            e.key: e.value,
+      },
     );
   }),
   TabScreen(Paths.cart, (state) => const CartScreen()),
@@ -140,6 +155,11 @@ class _MenuOrShop extends ConsumerWidget {
 }
 
 List<RouteBase> _pushedRoutes() => [
+  // 212 The wishlist.
+  GoRoute(
+    path: Paths.wishlist,
+    pageBuilder: (context, state) => appPage(state, const WishlistScreen()),
+  ),
   // 162 Build your bouquet.
   GoRoute(
     path: Paths.bouquet,

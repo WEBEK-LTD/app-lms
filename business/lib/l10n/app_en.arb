@@ -3235,5 +3235,56 @@
         "type": "int"
       }
     }
-  }
+  },
+  "inboxProductReviews": "Product reviews",
+  "onProduct": "on {product}",
+  "@onProduct": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewsWithPhotos": "With photos",
+  "reviewPhotos": "Photos with the review",
+  "photoNumber": "Photo {n}",
+  "@photoNumber": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "noProductReviewsText": "Customers who bought a product can review it in your app, with photos.",
+  "shopWishes": "Waiting & saved",
+  "shopWaiting": "Waiting for stock",
+  "shopWaitingHint": "When it's back, each of them gets a notification once.",
+  "shopWaitingNone": "Nobody is waiting for a product right now.",
+  "shopWaitingCount": "{count, plural, =1{1 waits} other{{count} wait}}",
+  "@shopWaitingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shopSaved": "Saved to wishlists",
+  "shopSavedNone": "No customer saved a product yet.",
+  "shopSavedCount": "{count, plural, =1{Saved by 1} other{Saved by {count}}}",
+  "@shopSavedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "variationNumber": "Choice #{id}",
+  "@variationNumber": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "productNoLongerSold": "A product no longer sold"
 }

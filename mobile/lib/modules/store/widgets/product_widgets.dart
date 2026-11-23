@@ -12,6 +12,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/widgets/sale_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 import 'quick_add.dart';
+import 'shop_features.dart';
 
 /// The price as the shop shows it, with the regular price struck through
 /// when on sale. 135.5 With the customer's currency: the price in it first
@@ -174,9 +175,13 @@ class ProductCard extends StatelessWidget {
     this.plain = false,
     this.fill = false,
     this.quickAdd = false,
+    this.heart = true,
   });
 
   final ProductSummary product;
+
+  /// 212 With the wishlist's heart on its picture.
+  final bool heart;
 
   /// 193 With its own Add to cart under it ([quickAddShown]); a fixed-height
   /// cell makes room for it with [quickAddHeight].
@@ -328,7 +333,20 @@ class ProductCard extends StatelessWidget {
             ),
           )
         : AppCard(onTap: onTap, semanticLabel: _a11y(product), child: body);
-    return width == null ? card : SizedBox(width: width, child: card);
+    // 212 The wishlist's heart on the picture's top corner, read on its own.
+    final hearted = heart && !product.addon
+        ? Stack(
+            children: [
+              card,
+              PositionedDirectional(
+                top: plain ? 2 : 0,
+                end: plain ? 2 : 0,
+                child: WishlistHeart(productId: product.id),
+              ),
+            ],
+          )
+        : card;
+    return width == null ? hearted : SizedBox(width: width, child: hearted);
   }
 }
 

@@ -76,6 +76,9 @@ abstract final class AppIcons {
   static const add = Symbols.add_rounded;
   static const edit = Symbols.edit_rounded;
   static const star = Symbols.star_rounded;
+
+  /// 212 A product saved to customers' wishlists.
+  static const favorite = Symbols.favorite_rounded;
   static const refund = Symbols.currency_exchange_rounded;
   static const location = Symbols.location_on_rounded;
   static const person = Symbols.person_rounded;

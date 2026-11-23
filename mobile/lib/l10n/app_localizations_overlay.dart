@@ -13194,4 +13194,87 @@ class OverlayLocalizations extends AppLocalizations {
   String categoryMenuRow(String name, String count) =>
       overlay.format('categoryMenuRow', {'name': name, 'count': count}) ??
       base.categoryMenuRow(name, count);
+
+  @override
+  String get saveToWishlist =>
+      overlay.text('saveToWishlist') ?? base.saveToWishlist;
+
+  @override
+  String get wishlistOnPhone =>
+      overlay.text('wishlistOnPhone') ?? base.wishlistOnPhone;
+
+  @override
+  String get wishlistFailed =>
+      overlay.text('wishlistFailed') ?? base.wishlistFailed;
+
+  @override
+  String get reviewAddPhotos =>
+      overlay.text('reviewAddPhotos') ?? base.reviewAddPhotos;
+
+  @override
+  String reviewPhotosCount(int count, int max) =>
+      overlay.format('reviewPhotosCount', {'count': count, 'max': max}) ??
+      base.reviewPhotosCount(count, max);
+
+  @override
+  String get reviewPhotoRemove =>
+      overlay.text('reviewPhotoRemove') ?? base.reviewPhotoRemove;
+
+  @override
+  String reviewPhotoTooBig(String size) =>
+      overlay.format('reviewPhotoTooBig', {'size': size}) ??
+      base.reviewPhotoTooBig(size);
+
+  @override
+  String get reviewPhotoType =>
+      overlay.text('reviewPhotoType') ?? base.reviewPhotoType;
+
+  @override
+  String get reviewOnlyBuyers =>
+      overlay.text('reviewOnlyBuyers') ?? base.reviewOnlyBuyers;
+
+  @override
+  String reviewsSeeAll(int count) =>
+      overlay.format('reviewsSeeAll', {'count': count}) ??
+      base.reviewsSeeAll(count);
+
+  @override
+  String get reviewPhotosTitle =>
+      overlay.text('reviewPhotosTitle') ?? base.reviewPhotosTitle;
+
+  @override
+  String reviewPhotoOf(int n) =>
+      overlay.format('reviewPhotoOf', {'n': n}) ?? base.reviewPhotoOf(n);
+
+  @override
+  String get notifyMeBack => overlay.text('notifyMeBack') ?? base.notifyMeBack;
+
+  @override
+  String get notifyMeWaiting =>
+      overlay.text('notifyMeWaiting') ?? base.notifyMeWaiting;
+
+  @override
+  String get notifyMeStop => overlay.text('notifyMeStop') ?? base.notifyMeStop;
+
+  @override
+  String get notifyMeSaved =>
+      overlay.text('notifyMeSaved') ?? base.notifyMeSaved;
+
+  @override
+  String get notifyMeSignIn =>
+      overlay.text('notifyMeSignIn') ?? base.notifyMeSignIn;
+
+  @override
+  String get filterPrice => overlay.text('filterPrice') ?? base.filterPrice;
+
+  @override
+  String get filterBrand => overlay.text('filterBrand') ?? base.filterBrand;
+
+  @override
+  String filterPriceRange(String min, String max) =>
+      overlay.format('filterPriceRange', {'min': min, 'max': max}) ??
+      base.filterPriceRange(min, max);
+
+  @override
+  String get filterOpen => overlay.text('filterOpen') ?? base.filterOpen;
 }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/providers.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
@@ -254,6 +255,11 @@ class ReviewCard extends StatelessWidget {
               style: TextStyle(fontSize: 14, height: 1.5, color: p.textBody),
             ),
           ],
+          // 212 A product review's photos.
+          if (review.photos.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            ReviewPhotoRow(urls: review.photos),
+          ],
           if (review.status == ReviewStatus.pending) ...[
             const SizedBox(height: 6),
             Text(
@@ -316,3 +322,68 @@ class ReviewCard extends StatelessWidget {
     );
   }
 }
+
+/// 212 A review's photos in a row, each opening full size.
+class ReviewPhotoRow extends StatelessWidget {
+  const ReviewPhotoRow({super.key, required this.urls, this.size = 72});
+
+  final List<String> urls;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: size,
+    child: ListView.separated(
+      scrollDirection: Axis.horizontal,
+      itemCount: urls.length,
+      separatorBuilder: (_, _) => const SizedBox(width: 8),
+      itemBuilder: (context, i) => Semantics(
+        button: true,
+        label: context.l10n.reviewPhotoOf(i + 1),
+        excludeSemantics: true,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => showReviewPhoto(context, urls[i]),
+          child: AppNetworkImage(
+            url: urls[i],
+            width: size,
+            height: size,
+            radius: 12,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// 212 A review's photo full size, to zoom in.
+Future<void> showReviewPhoto(BuildContext context, String url) =>
+    showDialog<void>(
+      context: context,
+      builder: (context) => Dialog.fullscreen(
+        backgroundColor: Colors.black,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: InteractiveViewer(
+                child: Center(
+                  child: AppNetworkImage(url: url, fit: BoxFit.contain),
+                ),
+              ),
+            ),
+            PositionedDirectional(
+              top: 8,
+              end: 8,
+              child: SafeArea(
+                child: IconButton(
+                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                  color: Colors.white,
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const AppIcon(AppIcons.close, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );

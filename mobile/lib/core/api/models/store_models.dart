@@ -5,6 +5,7 @@ import 'config_models.dart';
 import 'json.dart';
 import 'money_models.dart';
 import 'restaurant_models.dart';
+import 'shop_features_models.dart';
 
 /// `Config.store`: the shop's settings for Store apps.
 class StoreConfig {
@@ -24,6 +25,9 @@ class StoreConfig {
     this.payInApp = false,
     this.bouquet,
     this.sizeChart,
+    this.wishlist = false,
+    this.backInStock = false,
+    this.reviewPhotos,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -50,7 +54,20 @@ class StoreConfig {
     payInApp: json['checkout_payment'] == 'in_app',
     bouquet: BouquetRules.tryParse(json['bouquet']),
     sizeChart: SizeChart.tryParse(json['size_chart']),
+    wishlist: boolOr(json, 'wishlist', false),
+    backInStock: boolOr(json, 'back_in_stock', false),
+    reviewPhotos: ReviewPhotoRules.tryParse(json['review_photos']),
   );
+
+  /// 212 The wishlist is synced for signed-in customers (`/store/wishlist`);
+  /// false: the hearts stay on the phone.
+  final bool wishlist;
+
+  /// 212 "Notify me when it's back" for what's out of stock.
+  final bool backInStock;
+
+  /// 212 Photos with reviews; null: reviews without photos.
+  final ReviewPhotoRules? reviewPhotos;
 
   /// 208 The shop's size chart, under a product's sizes ("Size guide") and
   /// on a Studio page (`size_chart`); null: none.
@@ -612,6 +629,9 @@ class ProductDetail {
     this.defaultAttributes = const {},
     this.addons = const [],
     this.completeLook = const [],
+    this.reviewsPreview,
+    this.backInStock,
+    this.brand,
   });
 
   factory ProductDetail.fromJson(Json json) => ProductDetail(
@@ -636,7 +656,20 @@ class ProductDetail {
     },
     addons: listOf(json, 'addons', ProductSummary.fromJson),
     completeLook: listOf(json, 'complete_look', ProductSummary.fromJson),
+    reviewsPreview: ReviewsPreview.tryParse(json['reviews_preview']),
+    backInStock: BackInStock.tryParse(json['back_in_stock']),
+    brand: optString(json, 'brand'),
   );
+
+  /// 212 Its reviews on its page (the bars, the photos, the first ones);
+  /// null on older servers.
+  final ReviewsPreview? reviewsPreview;
+
+  /// 212 What the signed-in customer waits for; null: not offered.
+  final BackInStock? backInStock;
+
+  /// 212 Its brand, when the shop gave one.
+  final String? brand;
 
   /// 208 "Complete the look": a product of each of the shop's other main
   /// categories; empty when the shop has it off.

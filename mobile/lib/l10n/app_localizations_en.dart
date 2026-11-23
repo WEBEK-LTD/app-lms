@@ -1619,7 +1619,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wishlistEmptyMessage =>
-      'Tap the heart on a course to save it for later.';
+      'Tap the heart on a product to keep it here.';
 
   @override
   String get courseComplete => 'Course complete. Well done!';
@@ -12452,4 +12452,86 @@ class AppLocalizationsEn extends AppLocalizations {
   String categoryMenuRow(String name, String count) {
     return '$name, $count';
   }
+
+  @override
+  String get saveToWishlist => 'Save to wishlist';
+
+  @override
+  String get wishlistOnPhone =>
+      'Your hearts are kept on this phone. Sign in to keep them on all your phones.';
+
+  @override
+  String get wishlistFailed => 'Your wishlist couldn\'t be changed. Try again.';
+
+  @override
+  String get reviewAddPhotos => 'Add photos';
+
+  @override
+  String reviewPhotosCount(int count, int max) {
+    return '$count of $max photos';
+  }
+
+  @override
+  String get reviewPhotoRemove => 'Remove this photo';
+
+  @override
+  String reviewPhotoTooBig(String size) {
+    return 'This photo is too big. Choose one up to $size.';
+  }
+
+  @override
+  String get reviewPhotoType => 'Choose a photo (JPEG, PNG or WebP).';
+
+  @override
+  String get reviewOnlyBuyers =>
+      'Customers who bought this product can review it.';
+
+  @override
+  String reviewsSeeAll(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'See all $count reviews',
+      one: 'See the review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reviewPhotosTitle => 'Photos from customers';
+
+  @override
+  String reviewPhotoOf(int n) {
+    return 'Customer photo $n';
+  }
+
+  @override
+  String get notifyMeBack => 'Notify me when it\'s back';
+
+  @override
+  String get notifyMeWaiting => 'We\'ll tell you when it\'s back';
+
+  @override
+  String get notifyMeStop => 'Don\'t notify me';
+
+  @override
+  String get notifyMeSaved =>
+      'Done. You\'ll get a notification when it\'s back in stock.';
+
+  @override
+  String get notifyMeSignIn => 'Sign in to be told when it\'s back.';
+
+  @override
+  String get filterPrice => 'Price';
+
+  @override
+  String get filterBrand => 'Brand';
+
+  @override
+  String filterPriceRange(String min, String max) {
+    return '$min to $max';
+  }
+
+  @override
+  String get filterOpen => 'Filter the products';
 }

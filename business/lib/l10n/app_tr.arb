@@ -1330,5 +1330,21 @@
   "lowStockAlertHint": "{count, plural, =0{Bir ürün tükendiğinde haber almak için Akıllı uyarılar'da Düşük stok'u açın.} other{Akıllı uyarılar'daki Düşük stok, {count} kaldığında haber verir.}}",
   "lockAfterMinutes": "{minutes, plural, =1{1 dakika uzaktayken} other{{minutes} dakika uzaktayken}}",
   "needsAwaitingPayment": "{count, plural, =1{Ödemesi beklenen 1 sipariş} other{Ödemesi beklenen {count} sipariş}}",
-  "bouquetGroup": "Buket · {stems, plural, other{{stems} dal}}"
+  "bouquetGroup": "Buket · {stems, plural, other{{stems} dal}}",
+  "inboxProductReviews": "Ürün değerlendirmeleri",
+  "onProduct": "{product} için",
+  "reviewsWithPhotos": "Fotoğraflı",
+  "reviewPhotos": "Değerlendirmenin fotoğrafları",
+  "photoNumber": "Fotoğraf {n}",
+  "noProductReviewsText": "Bir ürünü satın alan müşteriler onu uygulamanızda fotoğraflarla değerlendirebilir.",
+  "shopWishes": "Bekleyenler ve kaydedilenler",
+  "shopWaiting": "Stok bekleyenler",
+  "shopWaitingHint": "Geri geldiğinde her biri bir kez bildirim alır.",
+  "shopWaitingNone": "Şu anda bir ürünü bekleyen yok.",
+  "shopWaitingCount": "{count, plural, =1{1 kişi bekliyor} other{{count} kişi bekliyor}}",
+  "shopSaved": "İstek listelerinde",
+  "shopSavedNone": "Henüz hiçbir müşteri ürün kaydetmedi.",
+  "shopSavedCount": "{count, plural, =1{1 kişi kaydetti} other{{count} kişi kaydetti}}",
+  "variationNumber": "Seçenek #{id}",
+  "productNoLongerSold": "Artık satılmayan bir ürün"
 }

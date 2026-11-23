@@ -1492,7 +1492,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get questionsAndAnswers => 'الأسئلة والأجوبة';
 
   @override
-  String get removeFromWishlist => 'إزالة من قائمة الرغبات';
+  String get removeFromWishlist => 'أزل من المفضلة';
 
   @override
   String get addToWishlist => 'إضافة إلى قائمة الرغبات';
@@ -1699,11 +1699,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get wishlistEmptyTitle => 'قائمة رغباتك فارغة';
+  String get wishlistEmptyTitle => 'قائمة المفضلة فارغة';
 
   @override
-  String get wishlistEmptyMessage =>
-      'اضغط على القلب في أي دورة لحفظها لوقت لاحق.';
+  String get wishlistEmptyMessage => 'اضغط على القلب في أي منتج ليبقى هنا.';
 
   @override
   String get courseComplete => 'اكتملت الدورة. أحسنت!';
@@ -12849,4 +12848,85 @@ class AppLocalizationsAr extends AppLocalizations {
   String categoryMenuRow(String name, String count) {
     return '$name، $count';
   }
+
+  @override
+  String get saveToWishlist => 'أضف إلى المفضلة';
+
+  @override
+  String get wishlistOnPhone =>
+      'تُحفظ مفضلتك على هذا الهاتف. سجّل الدخول لتبقى على كل هواتفك.';
+
+  @override
+  String get wishlistFailed => 'تعذّر تغيير المفضلة. حاول مرة أخرى.';
+
+  @override
+  String get reviewAddPhotos => 'أضف صورًا';
+
+  @override
+  String reviewPhotosCount(int count, int max) {
+    return '$count من $max صور';
+  }
+
+  @override
+  String get reviewPhotoRemove => 'أزل هذه الصورة';
+
+  @override
+  String reviewPhotoTooBig(String size) {
+    return 'هذه الصورة كبيرة جدًا. اختر صورة حتى $size.';
+  }
+
+  @override
+  String get reviewPhotoType => 'اختر صورة (JPEG أو PNG أو WebP).';
+
+  @override
+  String get reviewOnlyBuyers =>
+      'يستطيع تقييم هذا المنتج العملاءُ الذين اشتروه.';
+
+  @override
+  String reviewsSeeAll(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'اعرض كل التقييمات ($count)',
+      one: 'اعرض التقييم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reviewPhotosTitle => 'صور من العملاء';
+
+  @override
+  String reviewPhotoOf(int n) {
+    return 'صورة العميل $n';
+  }
+
+  @override
+  String get notifyMeBack => 'أبلغني عند توفره';
+
+  @override
+  String get notifyMeWaiting => 'سنبلغك عند توفره';
+
+  @override
+  String get notifyMeStop => 'لا تبلغني';
+
+  @override
+  String get notifyMeSaved => 'تم. سيصلك إشعار عندما يعود إلى المخزون.';
+
+  @override
+  String get notifyMeSignIn => 'سجّل الدخول ليصلك إشعار عند توفره.';
+
+  @override
+  String get filterPrice => 'السعر';
+
+  @override
+  String get filterBrand => 'العلامة التجارية';
+
+  @override
+  String filterPriceRange(String min, String max) {
+    return 'من $min إلى $max';
+  }
+
+  @override
+  String get filterOpen => 'صفِّ المنتجات';
 }
