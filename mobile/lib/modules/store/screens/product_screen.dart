@@ -35,6 +35,10 @@ import '../widgets/product_details.dart';
 import '../widgets/quick_add.dart';
 import '../widgets/tech_widgets.dart';
 import '../../shared/pages/studio_size_chart.dart' show showSizeGuide;
+// 228 The shop's Studio product page.
+import '../../shared/pages/page_providers.dart' show pageProvider;
+import '../../shared/pages/studio_page.dart' show StudioPageView;
+import '../../shared/pages/studio_product.dart';
 
 /// A product: images, price, options, quantity and Add to cart.
 class ProductScreen extends ConsumerWidget {
@@ -55,7 +59,8 @@ class ProductScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final product = ref.watch(productProvider(productId));
     return switch (product) {
-      AsyncData(:final value) => _ProductView(product: value),
+      // 228 The shop's own product page from Studio, when it has one.
+      AsyncData(:final value) => _ProductOrPage(product: value),
       AsyncError(:final error) when orShop && _gone(error) => const _ToShop(),
       AsyncError(:final error) => Scaffold(
         appBar: AppBar(leading: const AppBarBackButton()),
@@ -70,6 +75,107 @@ class ProductScreen extends ConsumerWidget {
       ),
     };
   }
+}
+
+/// 228 The slug of the shop's product page: the Studio page drawn for the
+/// product screen (`PageSummary.screen` `product`); null without one.
+final productPageSlugProvider = Provider<String?>(
+  (ref) => ref
+      .watch(navigationProvider)
+      ?.pages
+      .where((p) => p.screen == 'product')
+      .firstOrNull
+      ?.slug,
+);
+
+/// 228 The product on the shop's Studio product page, bound to it; without
+/// one (every app before it, and a shop that has none), when it is empty
+/// or can't be loaded, the app's own product screen as before.
+class _ProductOrPage extends ConsumerWidget {
+  const _ProductOrPage({required this.product});
+
+  final ProductDetail product;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final slug = ref.watch(productPageSlugProvider);
+    if (slug == null) return _ProductView(product: product);
+    return switch (ref.watch(pageProvider(slug))) {
+      AsyncData(:final value)
+          when value.studio != null && value.studio!.body.children.isNotEmpty =>
+        ProductStudioPage(product: product, page: value.studio!, slug: slug),
+      AsyncLoading() => Scaffold(
+        appBar: AppBar(leading: const AppBarBackButton()),
+        body: SkeletonDetail(label: context.l10n.loadingProduct),
+      ),
+      _ => _ProductView(product: product),
+    };
+  }
+}
+
+/// 228 A product drawn on the shop's Studio product page: its elements
+/// share what the customer chooses ([ProductPageController]).
+class ProductStudioPage extends ConsumerStatefulWidget {
+  const ProductStudioPage({
+    super.key,
+    required this.product,
+    required this.page,
+    required this.slug,
+  });
+
+  final ProductDetail product;
+  final StudioPage page;
+  final String slug;
+
+  @override
+  ConsumerState<ProductStudioPage> createState() => _ProductStudioPageState();
+}
+
+class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
+  late ProductPageController _controller = ProductPageController(
+    widget.product,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    // 112.4 Kept on the phone for the home page's "seen lately".
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref
+            .read(recentlyViewedProvider.notifier)
+            .opened(widget.product.summary);
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(ProductStudioPage old) {
+    super.didUpdateWidget(old);
+    if (old.product != widget.product) {
+      _controller.dispose();
+      _controller = ProductPageController(widget.product);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: context.palette.surface,
+    body: ProductPageScope(
+      controller: _controller,
+      child: StudioPageView(
+        page: widget.page,
+        pageSlug: widget.slug,
+        pushed: true,
+      ),
+    ),
+  );
 }
 
 /// 152 Whether [error] says the shop has no such product (anymore).

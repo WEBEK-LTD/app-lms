@@ -3444,5 +3444,8 @@
   "filterPrice": "السعر",
   "filterBrand": "العلامة التجارية",
   "filterPriceRange": "من {min} إلى {max}",
-  "filterOpen": "صفِّ المنتجات"
+  "filterOpen": "صفِّ المنتجات",
+  "productBuyNow": "اشترِ الآن",
+  "productPriceFrom": "ابتداءً من {price}",
+  "productDeliveryReturns": "التوصيل والإرجاع"
 }

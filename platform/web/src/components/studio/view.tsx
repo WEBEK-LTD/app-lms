@@ -49,6 +49,8 @@ import { CategoryMenuCanvas, DeliverySlotsCanvas, ListingFiltersCanvas, SizeChar
 import { QuizCanvas, SizeFinderCanvas, SwatchesCanvas } from "./shop-helpers";
 // 211 The electronics shops' elements.
 import { CompareCanvas, PcBuilderCanvas, SpecFilterCanvas, SpecTableCanvas, TradeInCanvas } from "./tech";
+// 228 The product page's elements.
+import { ProductPartCanvas } from "./product-page";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -226,7 +228,8 @@ function sizeStyle(size: StudioSize | undefined, axis: "width" | "height", paren
 export function startsWithCover(body: StudioNode): boolean {
   const first = (body.children ?? []).find((n) => (n.pin ?? "none") === "none" && !n.hidden);
   // 130 And 129's video hero and parallax banner, covers too.
-  return !!first && (first.type === "photo_hero" || first.type === "map_header" || first.type === "video_hero" || first.type === "parallax_banner" || !!first.scrim);
+  // 228 And the product page's photos as a full-bleed pager.
+  return !!first && (first.type === "photo_hero" || first.type === "map_header" || first.type === "video_hero" || first.type === "parallax_banner" || !!first.scrim || (first.type === "product_gallery" && (first.product_part?.look ?? "pager") === "pager"));
 }
 
 /**
@@ -907,6 +910,19 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return <TradeInCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;
       case "pc_builder":
         return <PcBuilderCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;
+      // 228 The product page's elements, bound to the shop's first product (else a sample).
+      case "product_gallery":
+      case "product_title":
+      case "product_price":
+      case "product_variants":
+      case "product_quantity":
+      case "product_buy":
+      case "product_description":
+      case "product_specs":
+      case "product_reviews":
+      case "product_related":
+      case "product_delivery":
+        return <ProductPartCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} brand={look.brand} color={color} title={text} second={titleIn(n, lang, defaultLang)} />;
       case "listing_filters":
         // 212 The shop's listing filters: its sizes (or colours) as chips, and Filters.
         return <ListingFiltersCanvas pickable={p.pickable} dark={dark} lang={lang} title={text || null} color={color} />;

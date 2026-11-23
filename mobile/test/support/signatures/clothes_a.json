@@ -2099,11 +2099,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-137",
+      "id": "sig-150",
       "type": "column",
       "children": [
        {
-        "id": "sig-138",
+        "id": "sig-151",
         "type": "categories",
         "name": "Categories",
         "source": "products",
@@ -2115,7 +2115,7 @@
         }
        },
        {
-        "id": "sig-139",
+        "id": "sig-152",
         "type": "photo_hero",
         "name": "[Your offer in a line]",
         "image_url": "http://localhost:3000/clothes-photos/camel-dress.jpg",
@@ -2142,7 +2142,7 @@
         },
         "children": [
          {
-          "id": "sig-140",
+          "id": "sig-153",
           "type": "text",
           "text": "The season's edit",
           "font": {
@@ -2164,7 +2164,7 @@
           }
          },
          {
-          "id": "sig-141",
+          "id": "sig-154",
           "type": "text",
           "text": "Day dresses, the new season",
           "font": {
@@ -2192,7 +2192,7 @@
           }
          },
          {
-          "id": "sig-142",
+          "id": "sig-155",
           "type": "button",
           "name": "Shop the edit",
           "text": "Shop the edit",
@@ -2289,11 +2289,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-143",
+      "id": "sig-156",
       "type": "column",
       "children": [
        {
-        "id": "sig-144",
+        "id": "sig-157",
         "type": "coupon",
         "name": "Your code",
         "code": "LUJAIN10",
@@ -2311,7 +2311,7 @@
         }
        },
        {
-        "id": "sig-145",
+        "id": "sig-158",
         "type": "row",
         "name": "[Your exchange policy, like: free exchange within 14 days]",
         "gap": 12,
@@ -2333,7 +2333,7 @@
         "dark_background": "#23221F",
         "children": [
          {
-          "id": "sig-146",
+          "id": "sig-159",
           "type": "icon",
           "icon": "sync",
           "icon_size": 22,
@@ -2341,7 +2341,7 @@
           "dark_color": "#F3F0EA"
          },
          {
-          "id": "sig-147",
+          "id": "sig-160",
           "type": "text",
           "text": "Free exchange within 14 days, picked up from your door.",
           "font": {
@@ -2407,11 +2407,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-148",
+      "id": "sig-161",
       "type": "column",
       "children": [
        {
-        "id": "sig-149",
+        "id": "sig-162",
         "type": "row",
         "name": "Your order, step by step",
         "cross": "end",
@@ -2424,13 +2424,13 @@
         },
         "children": [
          {
-          "id": "sig-150",
+          "id": "sig-163",
           "type": "column",
           "width": "fill",
           "gap": 3,
           "children": [
            {
-            "id": "sig-151",
+            "id": "sig-164",
             "type": "text",
             "text": "Your order, step by step",
             "font": {
@@ -2456,7 +2456,7 @@
         ]
        },
        {
-        "id": "sig-152",
+        "id": "sig-165",
         "type": "timeline",
         "name": "Your order, step by step",
         "timeline": {
@@ -2586,11 +2586,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-154",
+      "id": "sig-167",
       "type": "column",
       "children": [
        {
-        "id": "sig-153",
+        "id": "sig-166",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -3417,6 +3417,246 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#F8F6F1",
+     "dark_background": "#0F0F0E",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-137",
+      "type": "column",
+      "gap": 0,
+      "children": [
+       {
+        "id": "sig-138",
+        "type": "product_gallery",
+        "aspect_ratio": 0.8,
+        "product_part": {
+         "look": "pager"
+        }
+       },
+       {
+        "id": "sig-139",
+        "type": "product_title",
+        "font": {
+         "family": "IBM Plex Sans Arabic",
+         "size": 24,
+         "weight": 600,
+         "line_height": 1.25
+        },
+        "margin": {
+         "top": 20,
+         "end": 20,
+         "bottom": 4,
+         "start": 20
+        },
+        "product_part": {
+         "look": "rating",
+         "accent": "#9B2C2C",
+         "dark_accent": "#E58C84"
+        },
+        "color": "#121212",
+        "dark_color": "#F3F0EA"
+       },
+       {
+        "id": "sig-140",
+        "type": "product_price",
+        "font": {
+         "family": "IBM Plex Sans Arabic",
+         "size": 20,
+         "weight": 700,
+         "line_height": 1.2
+        },
+        "margin": {
+         "top": 6,
+         "end": 20,
+         "bottom": 4,
+         "start": 20
+        },
+        "product_part": {
+         "look": "sale"
+        },
+        "color": "#121212",
+        "dark_color": "#F3F0EA"
+       },
+       {
+        "id": "sig-141",
+        "type": "product_variants",
+        "margin": {
+         "top": 20,
+         "end": 20,
+         "bottom": 4,
+         "start": 20
+        },
+        "product_part": {
+         "look": "grid",
+         "accent": "#121212",
+         "dark_accent": "#F3F0EA"
+        },
+        "color": "#121212",
+        "dark_color": "#F3F0EA"
+       },
+       {
+        "id": "sig-142",
+        "type": "product_quantity",
+        "margin": {
+         "top": 14,
+         "end": 20,
+         "bottom": 4,
+         "start": 20
+        },
+        "product_part": {
+         "look": "pill"
+        },
+        "color": "#121212",
+        "dark_color": "#F3F0EA"
+       },
+       {
+        "id": "sig-143",
+        "type": "product_delivery",
+        "margin": {
+         "top": 18,
+         "end": 20,
+         "bottom": 4,
+         "start": 20
+        },
+        "product_part": {
+         "look": "card",
+         "accent": "#9B2C2C",
+         "dark_accent": "#E58C84"
+        },
+        "color": "#121212",
+        "dark_color": "#F3F0EA",
+        "radius": 18,
+        "background": "#EEEAE3",
+        "dark_background": "#23221F"
+       },
+       {
+        "id": "sig-144",
+        "type": "product_description",
+        "margin": {
+         "top": 18,
+         "end": 20,
+         "bottom": 4,
+         "start": 20
+        },
+        "product_part": {
+         "look": "accordion"
+        },
+        "color": "#121212",
+        "dark_color": "#F3F0EA",
+        "border_color": "#E4DFD6",
+        "dark_border_color": "#2E2C28"
+       },
+       {
+        "id": "sig-145",
+        "type": "product_specs",
+        "margin": {
+         "top": 18,
+         "end": 20,
+         "bottom": 4,
+         "start": 20
+        },
+        "product_part": {
+         "look": "table"
+        },
+        "color": "#121212",
+        "dark_color": "#F3F0EA",
+        "background": "#EEEAE3",
+        "dark_background": "#23221F"
+       },
+       {
+        "id": "sig-146",
+        "type": "product_reviews",
+        "margin": {
+         "top": 24,
+         "end": 20,
+         "bottom": 4,
+         "start": 20
+        },
+        "product_part": {
+         "look": "bars",
+         "accent": "#9B2C2C",
+         "dark_accent": "#E58C84"
+        },
+        "color": "#121212",
+        "dark_color": "#F3F0EA"
+       },
+       {
+        "id": "sig-147",
+        "type": "product_related",
+        "margin": {
+         "top": 28,
+         "end": 0,
+         "bottom": 4,
+         "start": 0
+        },
+        "product_part": {
+         "look": "carousel",
+         "related": "complete_look",
+         "rows": 6
+        },
+        "color": "#121212",
+        "dark_color": "#F3F0EA"
+       },
+       {
+        "id": "sig-148",
+        "type": "product_related",
+        "margin": {
+         "top": 24,
+         "end": 0,
+         "bottom": 16,
+         "start": 0
+        },
+        "product_part": {
+         "look": "carousel",
+         "rows": 8
+        },
+        "color": "#121212",
+        "dark_color": "#F3F0EA"
+       },
+       {
+        "id": "sig-149",
+        "type": "product_buy",
+        "pin": "bottom",
+        "radius": 14,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "product_part": {
+         "look": "buy_now",
+         "accent": "#121212",
+         "dark_accent": "#F3F0EA"
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#191917",
+        "border_color": "#E4DFD6",
+        "dark_border_color": "#2E2C28",
+        "border_width": 1,
+        "color": "#121212",
+        "dark_color": "#F3F0EA"
+       }
+      ]
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "settings",
     "title": "Settings",
     "translations": {
@@ -3429,7 +3669,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-155",
+      "id": "sig-168",
       "type": "column",
       "children": []
      },
@@ -3471,7 +3711,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-156",
+      "id": "sig-169",
       "type": "column",
       "children": []
      },
@@ -3513,7 +3753,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-157",
+      "id": "sig-170",
       "type": "column",
       "children": []
      },
@@ -3555,7 +3795,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-158",
+      "id": "sig-171",
       "type": "column",
       "children": []
      },
@@ -3597,7 +3837,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-159",
+      "id": "sig-172",
       "type": "column",
       "children": []
      },
@@ -3631,7 +3871,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-160",
+      "id": "sig-173",
       "type": "column",
       "children": []
      },
@@ -3648,7 +3888,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-161",
+      "id": "sig-174",
       "type": "column",
       "children": []
      },

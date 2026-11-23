@@ -14356,5 +14356,22 @@
   "filterOpen": "Filter the products",
   "@filterOpen": {
     "description": "212 A Studio listing filter's button: opens the shop with its filters."
+  },
+  "productBuyNow": "Buy now",
+  "@productBuyNow": {
+    "description": "228 A Studio product page's second button: adds the product and opens the cart."
+  },
+  "productPriceFrom": "From {price}",
+  "@productPriceFrom": {
+    "description": "228 A Studio product page's price when it starts from its lowest size's.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "productDeliveryReturns": "Delivery & returns",
+  "@productDeliveryReturns": {
+    "description": "228 The title of a Studio product page's delivery and returns card."
   }
 }

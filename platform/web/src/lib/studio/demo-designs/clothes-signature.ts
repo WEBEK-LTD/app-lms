@@ -2,6 +2,7 @@ import type { Action, LayoutTab, StudioEntry, StudioFont, StudioNode, StudioPage
 import type { SectionContext, SectionInfo, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
+import { productPageOf } from "../product-page";
 import { inked, sides, sigEntry, sigPhoto, sigTexts, signatureBar, signatureHeader, type SignatureInk } from "./food-signature-parts";
 
 /**
@@ -891,10 +892,58 @@ function clothesOver(l: Look) {
   };
 }
 
+/**
+ * 228 Look A's own product page (lib/studio/product-page.ts), the pilot of
+ * the looks' product pages: the photos as a tall full-bleed pager under the
+ * back button, the name and its stars in the house's face, the sale price,
+ * the sizes as a grid of equal cells with the size guide, the quantity as a
+ * quiet pill, the exchanges and delivery lines, the description that opens,
+ * the details as a table, the reviews' bars, Complete the look and You may
+ * also like as tall cards, and Add to cart beside Buy now fixed at the foot,
+ * black on paper by day and ivory on charcoal by night.
+ */
+function lujainProductPage(ctx: SectionContext, l: Look) {
+  const k = l.k;
+  const ink = { color: k.ink, dark_color: k.darkInk } as const;
+  const accent = { accent: k.fill, dark_accent: k.darkFill } as const;
+  const gap = (top: number, bottom = 4) => sides(top, 20, bottom, 20);
+  return productPageOf(ctx, {
+    background: k.page,
+    dark_background: k.darkPage,
+    parts: [
+      { type: "product_gallery", look: "pager", node: { aspect_ratio: 4 / 5 } },
+      { type: "product_title", look: "rating", accent: k.accent, dark_accent: k.darkAccent, node: { ...ink, font: face(l, 24, { weight: 600, line_height: 1.25 }), margin: gap(20) } },
+      { type: "product_price", look: "sale", node: { ...ink, font: face(l, 20, { weight: 700 }), margin: gap(6) } },
+      { type: "product_variants", look: "grid", ...accent, node: { ...ink, margin: gap(20) } },
+      { type: "product_quantity", look: "pill", node: { ...ink, margin: gap(14) } },
+      {
+        type: "product_delivery",
+        look: "card",
+        accent: k.accent,
+        dark_accent: k.darkAccent,
+        node: { ...ink, margin: gap(18), radius: 18, background: l.tint.day, dark_background: l.tint.night },
+      },
+      { type: "product_description", look: "accordion", node: { ...ink, margin: gap(18), border_color: k.line, dark_border_color: k.darkLine } },
+      { type: "product_specs", look: "table", node: { ...ink, margin: gap(18), background: l.tint.day, dark_background: l.tint.night } },
+      { type: "product_reviews", look: "bars", accent: k.accent, dark_accent: k.darkAccent, node: { ...ink, margin: gap(24) } },
+      { type: "product_related", look: "carousel", related: "complete_look", rows: 6, node: { ...ink, margin: sides(28, 0, 4, 0) } },
+      { type: "product_related", look: "carousel", rows: 8, node: { ...ink, margin: sides(24, 0, 16, 0) } },
+      {
+        type: "product_buy",
+        look: "buy_now",
+        ...accent,
+        node: { pin: "bottom", radius: 14, padding: sides(10, 16, 10, 16), background: k.surface, dark_background: k.darkSurface, border_color: k.line, dark_border_color: k.darkLine, border_width: 1, ...ink },
+      },
+    ],
+  });
+}
+
 function clothesPages(l: Look) {
   return (ctx: SectionContext) => [
     { slug: MENU_PAGE, title: "clCategoryMenu" as SectionWord, studio: categoryMenuPage(ctx, l) },
     { slug: SIZE_PAGE, title: "clFitButton" as SectionWord, studio: sizeGuidePage(ctx, l) },
+    // 228 Look A draws its own product page; look B keeps the app's product screen.
+    ...(l.look === "a" ? [lujainProductPage(ctx, l)] : []),
   ];
 }
 

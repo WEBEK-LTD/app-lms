@@ -17376,6 +17376,8 @@ components:
             the page is sent opening the screen (`target.type` `screen`), so
             an app that doesn't know pages around screens still shows it.
             Missing for the other pages.
+            228 `product`: the shop's product page, which the app draws for
+            every product it opens, in place of its own product screen.
 
     AppPage:
       allOf:
@@ -17417,7 +17419,7 @@ components:
         show_tabs: { type: boolean, default: true, description: "The app's bottom tabs under the page, when it is one of them." }
         screen:
           type: string
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, club, ride, my_rides, driver, teachers, school, explore, stays, flights, trips, saved, price_alerts, edit_profile, devices, change_password, chat_conversation, shipment, restaurant_menu, food_order, food_cart, market_vendor, market_list, market_checkout, market_orders, market_order, market_wallet, market_complain, market_complaint, ride_follow, course, bundle, lesson, quiz, assignment, live, question, learning_paths, learning_path, leaderboard, course_notes, lesson_discussion, teacher_profile, teach_apply, certificates, quiz_results, live_classes, achievements, downloads, parent, parent_slips, parent_excuses, parent_excuse_new, parent_pickup, school_checkin, school_timetable, school_homework, school_grades, school_attendance, school_fees, school_news, school_report_card, school_messages, school_bus, school_library, school_library_loans, school_library_book, school_calendar, school_exams, school_behaviour, school_reports, uni_registration, uni_timetable, uni_results, uni_transcript, uni_plan, travel_hotel, hotel_results, hotel_map, hotel_rooms, hotel_checkout, flight_results, flight_fares, price_calendar, seat_map, flight_extras, trip_bundle, trip_checkout, travel_trip, boarding_pass, manage_booking, review_stay]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, club, ride, my_rides, driver, teachers, school, explore, stays, flights, trips, saved, price_alerts, product, edit_profile, devices, change_password, chat_conversation, shipment, restaurant_menu, food_order, food_cart, market_vendor, market_list, market_checkout, market_orders, market_order, market_wallet, market_complain, market_complaint, ride_follow, course, bundle, lesson, quiz, assignment, live, question, learning_paths, learning_path, leaderboard, course_notes, lesson_discussion, teacher_profile, teach_apply, certificates, quiz_results, live_classes, achievements, downloads, parent, parent_slips, parent_excuses, parent_excuse_new, parent_pickup, school_checkin, school_timetable, school_homework, school_grades, school_attendance, school_fees, school_news, school_report_card, school_messages, school_bus, school_library, school_library_loans, school_library_book, school_calendar, school_exams, school_behaviour, school_reports, uni_registration, uni_timetable, uni_results, uni_transcript, uni_plan, travel_hotel, hotel_results, hotel_map, hotel_rooms, hotel_checkout, flight_results, flight_fares, price_calendar, seat_map, flight_extras, trip_bundle, trip_checkout, travel_trip, boarding_pass, manage_booking, review_stay]
           description: |
             120.4 After the screens a tab or a button opens come those opened
             from them, which show one thing (`shipment`, `restaurant_menu`,
@@ -17432,6 +17434,12 @@ components:
             The app shows this page wherever it shows that screen: a tab or
             a button opening the screen, and the page itself. One page per
             screen. Apps that don't know it show the page's elements alone.
+            228 `product` (a shop's): the product page, drawn in place of the
+            app's own product screen for every product the app opens, its
+            `product_*` elements bound to that product (`ProductDetail`). It
+            can have the header that lies over the page (its photos under
+            it). A tab or a button never opens it. Apps before it, and apps
+            without such a page, show their own product screen.
 
     StudioHeader:
       type: [object, 'null']
@@ -17562,7 +17570,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale, size_chart, size_finder, swatches, quiz, delivery_slots, spec_table, compare, spec_filter, trade_in, pc_builder, listing_filters]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments, testimonials, pricing, stats, progress, timeline, profile_card, bento, badge_text, cta_bar, flash_sale, size_chart, size_finder, swatches, quiz, delivery_slots, spec_table, compare, spec_filter, trade_in, pc_builder, listing_filters, product_gallery, product_title, product_price, product_variants, product_quantity, product_buy, product_description, product_specs, product_reviews, product_related, product_delivery]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app. 159 What a screen reader says for an element that opens something without words of its own (a round search or bag); without it, what it opens, in the app's language." }
         children:
           type: array
@@ -17779,6 +17787,54 @@ components:
             spec: { type: [string, 'null'] }
             look: { type: string, enum: [card, full], default: card }
             accent: { type: [string, 'null'] }
+        product_part:
+          type: [object, 'null']
+          description: |
+            228 For the product page's elements (`product_*`), drawn only on a
+            page whose `screen` is `product`, from the product it is opened on
+            (`ProductDetail`); anywhere else, and in apps before them, nothing.
+            `look`, missing the first of each:
+            `product_gallery` its photos (`pager` a full-bleed pager, `card`
+            an inset card, `thumbs` the photo with its thumbnails under it,
+            `stacked` one under the other; `aspect_ratio` theirs, `radius`
+            their corners, 0 to 40);
+            `product_title` its name (`plain`, `rating` with its stars and
+            count);
+            `product_price` (`single` its price, `from` "From" the lowest of
+            its variations', `sale` the sale price with the one before it
+            struck through and the share off);
+            `product_variants` its choices (`chips`, `swatches` a choice with
+            colours as swatches, `grid` equal cells; a size or colour with
+            none left dimmed; the size guide beside sizes the
+            `StoreConfig.size_chart` has; `text` the title over a single
+            choice);
+            `product_quantity` (`stepper` its word and − +, `pill`);
+            `product_buy` Add to cart (`cart`; `buy_now` with Buy now beside
+            it, which adds and opens the cart; `price` the price beside it;
+            `text` and `title` the two buttons' words; pinned at the bottom
+            with `pin`; out of stock, Notify me where the shop offers it);
+            `product_description` (`plain`, `accordion`);
+            `product_specs` its specs and facts (`table`, `list`; `rows` at
+            most);
+            `product_reviews` (`summary` its rating, count and a link to its
+            reviews; `bars` the stars' bars, photos and first reviews of
+            `ProductDetail.reviews_preview`);
+            `product_related` (`carousel`, `grid`; `related` `related` the
+            shop's "You may also like" or `complete_look`; `rows` at most);
+            `product_delivery` the shop's exchanges and returns
+            (`StoreConfig.returns`), its size and the days it takes to make,
+            installments coming soon, and the shop's own lines (`title`, one
+            per line, up to 4) (`rows`, `card`).
+            `text` the title over it; missing, the app's own words.
+            `accent` the highlights' colour (`dark_accent` in dark mode). Each is left out when the
+            product has nothing for it (no specs, no reviews, no related).
+          properties:
+            look: { type: string, enum: [pager, card, thumbs, stacked, plain, rating, single, from, sale, chips, swatches, grid, stepper, pill, cart, buy_now, price, accordion, table, list, summary, bars, carousel, rows] }
+            related: { type: string, enum: [related, complete_look], default: related }
+            rows: { type: integer, minimum: 1, maximum: 40 }
+            accent: { type: [string, 'null'] }
+            dark_accent: { type: [string, 'null'] }
+            radius: { type: number, minimum: 0, maximum: 40 }
         tech_served:
           type: [object, 'null']
           description: "211 Sent by the servers only: a `spec_table`'s product (one) or a `compare`'s (two or three), each with its specs in the language asked for; a `spec_filter`'s spec, its name and its values with how many products have each."

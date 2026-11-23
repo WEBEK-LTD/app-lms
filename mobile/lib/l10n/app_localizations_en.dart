@@ -12973,4 +12973,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filterOpen => 'Filter the products';
+
+  @override
+  String get productBuyNow => 'Buy now';
+
+  @override
+  String productPriceFrom(String price) {
+    return 'From $price';
+  }
+
+  @override
+  String get productDeliveryReturns => 'Delivery & returns';
 }
