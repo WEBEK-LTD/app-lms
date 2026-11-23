@@ -119,7 +119,7 @@ export async function cancelMarketOrder(deps: FlowDeps, order: MarketOrder, by: 
   const moved = await move(deps.store, order, { status: "cancelled" }, by, deps.now);
   if (!moved.ok) return moved;
   await giveBack(deps.store, moved.order, deps.now);
-  // 206 A customer's cancellation reaches the owner's phones (not one still waiting for its payment).
+  // 207 A customer's cancellation reaches the owner's phones (not one still waiting for its payment).
   if (by === "customer" && order.status !== "awaiting_payment") {
     await (deps.pushOwner ?? pushOwnerSafely)((d) => pushOrderCancelled(d, deps.app, { reference: marketOrderReference(order), place: order.vendorName, ids: { market_order_id: String(order.id) } }), deps.store).catch(() => undefined);
   }
@@ -280,7 +280,7 @@ export async function payMarketOrder(store: DataStore, app: App, paid: CatalogOr
   return changed ? { ...order, status, paymentStatus: "paid", timeline, updatedAt: now } : null;
 }
 
-/** Orders for later reach their vendor when their preparation should start (206 `released`: each one, for the owner's phones). */
+/** Orders for later reach their vendor when their preparation should start (207 `released`: each one, for the owner's phones). */
 export async function releaseScheduled(store: DataStore, appId: string, now: Date, released_?: (order: MarketOrder) => Promise<void>): Promise<number> {
   const due = await store.listMarketOrders({ appId, statuses: ["scheduled"], order: "oldest", limit: 200, offset: 0 });
   let released = 0;

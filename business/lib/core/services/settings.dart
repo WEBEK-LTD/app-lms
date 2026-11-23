@@ -70,7 +70,7 @@ class LocalSettings {
   Future<void> setPrimeHeader(String appId, bool on) =>
       _prefs.setBool('yb.prime_header.$appId', on);
 
-  /// 206 Settings › Ringtones (kept on this phone, sent to the server).
+  /// 207 Settings › Ringtones (kept on this phone, sent to the server).
   static const _ring = 'yb.ring_settings';
   static const _ringSent = 'yb.ring_settings_sent';
 
@@ -95,7 +95,7 @@ class LocalSettings {
     if (!sent) await _prefs.setBool(_ringSent, false);
   }
 
-  /// 206 Whether the server has this phone's latest choices.
+  /// 207 Whether the server has this phone's latest choices.
   bool get ringSettingsSent => _prefs.getBool(_ringSent) ?? false;
   Future<void> setRingSettingsSent(bool sent) =>
       _prefs.setBool(_ringSent, sent);
@@ -125,7 +125,7 @@ class LocalSettings {
     await _prefs.remove(_app);
     await _prefs.remove(_business);
     await _prefs.remove(_uploads);
-    // 206 The ringtones stay on the phone; the next account gets them again.
+    // 207 The ringtones stay on the phone; the next account gets them again.
     await _prefs.remove(_ringSent);
   }
 }

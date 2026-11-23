@@ -502,7 +502,7 @@ export class MarketConnector {
       }
     }
     const payUrl = status === "awaiting_payment" ? (await this.payLink(created, request.now)).url : null;
-    // 206 An order the vendor can take now rings on the owner's phones (one paid online when it's paid).
+    // 207 An order the vendor can take now rings on the owner's phones (one paid online when it's paid).
     if (status === "placed") await pushOwnerSafely((d) => pushNewMarketOrder(d, app, created), store);
     return { status: 201, body: { order: await this.customerJson(created, request.now), pay_url: payUrl } };
   }

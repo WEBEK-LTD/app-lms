@@ -273,7 +273,7 @@ String primaryStage(Order order) {
 }
 
 /// The foot of a store order with stages: the next stage filled, the
-/// others outlined, Cancel order last. 206 One tap at a time.
+/// others outlined, Cancel order last. 207 One tap at a time.
 class StageActions extends ConsumerStatefulWidget {
   const StageActions({super.key, required this.order, required this.onChanged});
 

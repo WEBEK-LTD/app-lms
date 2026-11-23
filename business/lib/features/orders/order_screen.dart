@@ -41,7 +41,7 @@ class OrderScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(loaded?.label ?? l10n.order),
-        // 206 Copy or send the order's details.
+        // 207 Copy or send the order's details.
         actions: [if (loaded != null) OrderShareButton(order: loaded)],
       ),
       bottomNavigationBar: loaded == null
@@ -287,7 +287,7 @@ class _OrderBody extends ConsumerWidget {
           SectionTitle(l10n.notes),
           Panel(child: IconText(AppIcons.note, to!.notes!)),
         ],
-        // 206 Shipped with any carrier from the phone, as on the dashboard.
+        // 207 Shipped with any carrier from the phone, as on the dashboard.
         if (order.shipment == null &&
             order.shippable &&
             order.status == 'processing') ...[
@@ -1018,7 +1018,7 @@ String? signerOf(String? signedBy, String? buyer) {
   return null;
 }
 
-/// 206 The ship sheet; the order shows what changed.
+/// 207 The ship sheet; the order shows what changed.
 Future<void> _ship(BuildContext context, WidgetRef ref, Order order) async {
   final updated = await showModalBottomSheet<Order>(
     context: context,

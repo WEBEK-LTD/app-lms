@@ -670,7 +670,7 @@ enum PushKind {
   newComplaint('new_complaint'),
   primeAlert('prime_alert'),
   morningBrief('morning_brief'),
-  // 206 A marketplace order reached its vendor; a customer cancelled one.
+  // 207 A marketplace order reached its vendor; a customer cancelled one.
   newMarketOrder('new_market_order'),
   orderCancelled('order_cancelled');
 
@@ -1479,7 +1479,7 @@ class Order {
     );
   }
 
-  /// 206 Something in it is shipped by a carrier (80.4): it can be marked
+  /// 207 Something in it is shipped by a carrier (80.4): it can be marked
   /// shipped with the tracking from the app.
   final bool shippable;
 
@@ -1591,7 +1591,7 @@ class Order {
   );
 }
 
-/// 206 What marks an order shipped (`PUT …/orders/{id}/shipment`): the
+/// 207 What marks an order shipped (`PUT …/orders/{id}/shipment`): the
 /// tracking link, the tracking number or the waybill, with the carrier.
 class ShipmentInput {
   const ShipmentInput({this.carrier, this.trackingNumber, this.trackingUrl});

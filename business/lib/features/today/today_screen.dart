@@ -34,7 +34,7 @@ class TodayScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final app = ref.watch(currentAppProvider);
     final me = ref.watch(meProvider);
-    // 206 An order, booking or payment while Today is open counts at once.
+    // 207 An order, booking or payment while Today is open counts at once.
     ref.listen(pushEventsProvider, (_, notice) {
       if (notice != null && notice.data['kind'] != 'morning_brief') {
         ref.invalidate(todayProvider);

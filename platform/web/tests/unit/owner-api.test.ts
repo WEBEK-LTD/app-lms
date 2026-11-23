@@ -406,7 +406,7 @@ describe("58 the Owner API", () => {
       expect(done.body).toMatchObject({ status: "completed", kitchen: { step: "completed" }, next_statuses: [] });
     });
 
-    it("206 finds an order by its number or who ordered, Arabic digits too", async () => {
+    it("207 finds an order by its number or who ordered, Arabic digits too", async () => {
       const { access_token: token } = await signIn();
       const first = await paidOrder(store, shop);
       const second = await paidOrder(store, shop);
@@ -654,7 +654,7 @@ describe("58 the Owner API", () => {
     expect((await call("GET", "/me/push-preferences", { token: pixel.access_token })).body).toEqual(prefs.body);
   });
 
-  it("206 keeps each device's ringtones, as the contract says", async () => {
+  it("207 keeps each device's ringtones, as the contract says", async () => {
     const { access_token: token, device_id } = await signIn();
     const first = await call("GET", "/me/push-sounds", { token });
     expect(first.body).toMatchObject({ saved: false, sounds: { orders: "counter_bell", messages: "pop", other: "default" }, ring: ["orders"], ring_minutes: 3 });

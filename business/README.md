@@ -194,7 +194,7 @@ and customers). An app given Prime as a gift by Yallapp
 (`AppSummary.prime_gift`) shows "Prime · Gift from Yallapp"; a regular app's
 Prime page lists all of it, with nothing to buy.
 
-Roadmap 206 (Yallapp Business 1.0.4): ringtones. Seventeen of Yallapp's
+Roadmap 207 (Yallapp Business 1.0.4): ringtones. Seventeen of Yallapp's
 own, made from code by `tool/ringtones.py` (AAC in `assets/sounds/` for the
 app, Vorbis in `android/app/src/main/res/raw/` for Android's channels, IMA4
 CAF in `ios/Runner/Sounds/` for iOS pushes, one ring and 25 seconds; run it

@@ -62,7 +62,7 @@ class _FoodOrdersScreenState extends ConsumerState<FoodOrdersScreen> {
     final l10n = context.l10n;
     final app = ref.watch(currentAppProvider);
     if (app == null) return const SizedBox.shrink();
-    // 206 A push about it while the list is open shows at once.
+    // 207 A push about it while the list is open shows at once.
     ref.listen(pushEventsProvider, (_, notice) {
       final kind = notice?.data['kind'];
       if ((kind == 'new_food_order' || kind == 'order_cancelled') && mounted) {
@@ -319,7 +319,7 @@ class _FoodOrderCardState extends ConsumerState<FoodOrderCard> {
       if (o.distanceKm != null) km(context, o.distanceKm!),
     ];
     return Box(
-      // 206 Back from the order: the list shows what changed there.
+      // 207 Back from the order: the list shows what changed there.
       onTap: () async {
         await context.push(Paths.foodOrder(o.id));
         widget.onChanged();

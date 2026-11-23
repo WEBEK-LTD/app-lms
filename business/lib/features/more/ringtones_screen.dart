@@ -12,7 +12,7 @@ import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../../l10n/app_localizations.dart';
 
-/// 206 A ringtone's name in the app's language.
+/// 207 A ringtone's name in the app's language.
 String soundName(AppLocalizations l10n, String id) => switch (id) {
   'chime' => l10n.soundChime,
   'counter_bell' => l10n.soundCounterBell,
@@ -68,7 +68,7 @@ Map<String, String> ringWords(AppLocalizations l10n) => {
   'quiet_channel': l10n.ringQuietChannel,
 };
 
-/// 206 Settings › Ringtones: a sound for each kind of notification, new
+/// 207 Settings › Ringtones: a sound for each kind of notification, new
 /// orders (and bookings) ringing until opened for at most a while,
 /// vibration, Android's alarm volume, the in-app volume, quiet hours, and a
 /// test ring.
@@ -352,7 +352,7 @@ class _RingtonesScreenState extends ConsumerState<RingtonesScreen> {
   }
 }
 
-/// 206 The sounds of one group: each with a play button, Yallapp's
+/// 207 The sounds of one group: each with a play button, Yallapp's
 /// ringtones first, then the phone's own sound and silent.
 class RingtonePickerScreen extends ConsumerStatefulWidget {
   const RingtonePickerScreen({super.key, required this.group});
@@ -442,6 +442,6 @@ class _RingtonePickerScreenState extends ConsumerState<RingtonePickerScreen> {
   }
 }
 
-/// 206 What Settings shows under Ringtones.
+/// 207 What Settings shows under Ringtones.
 String ringSubtitle(AppLocalizations l10n, RingSettings s) =>
     l10n.ringtonesSubtitle(soundName(l10n, s.soundOf(SoundGroup.orders)));

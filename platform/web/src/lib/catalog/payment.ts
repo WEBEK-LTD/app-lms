@@ -494,7 +494,7 @@ export async function deliverPaidOrder(store: DataStore, app: App, order: Catalo
   if (placed) await announceOrder({ store, app, now }, placed);
   // 115 A marketplace order paid online reaches its vendor.
   const marketOrder = await payMarketOrder(store, app, order, now);
-  // 206 And its owner's phones ring (an order for later rings when it is released).
+  // 207 And its owner's phones ring (an order for later rings when it is released).
   if (marketOrder?.status === "placed") await pushOwnerSafely((d) => pushNewMarketOrder(d, app, marketOrder), store);
   // 115.11 And a club plan paid online starts the membership.
   await payClubMembership(store, app, order, now);

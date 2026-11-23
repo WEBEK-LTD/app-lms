@@ -44,7 +44,7 @@ export const ROUTES: Route[] = [
   route("DELETE", "me/push-token", account.deletePushToken, { anyState: true }),
   route("GET", "me/push-preferences", account.getPushPreferences, { anyState: true }),
   route("PUT", "me/push-preferences", account.setPushPreferences, { anyState: true }),
-  // 206 Ringtones.
+  // 207 Ringtones.
   route("GET", "me/push-sounds", account.getPushSounds, { anyState: true }),
   route("PUT", "me/push-sounds", account.setPushSounds, { anyState: true }),
   // 125 VIP: a call with the account manager.

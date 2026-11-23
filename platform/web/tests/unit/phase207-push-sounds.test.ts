@@ -13,12 +13,12 @@ import { KEY, NOW, days } from "./helpers";
 import { readdirSync } from "node:fs";
 import path from "node:path";
 
-/** 206 Yallapp Business's ringtones: what a phone chose, and how each push sounds on it. */
+/** 207 Yallapp Business's ringtones: what a phone chose, and how each push sounds on it. */
 
 const ACCOUNT: ServiceAccount = { project_id: "yallapp-business", client_email: "push@yallapp-business.test", private_key: "-----BEGIN PRIVATE KEY-----\n-----END PRIVATE KEY-----" };
 const SOUNDS: OwnerPushSounds = { ...defaultPushSounds(), sounds: { orders: "rush_hour", messages: "pop" }, ring: ["orders"], ringMinutes: 5, quiet: { from: "23:00", to: "07:00" }, timeZone: "Europe/Istanbul" };
 
-describe("206 ringtones", () => {
+describe("207 ringtones", () => {
   it("has every ringtone the app bundles, for Android and iOS, and a group for every kind of push", () => {
     const business = path.join(__dirname, "../../../../business");
     const raw = readdirSync(path.join(business, "android/app/src/main/res/raw"));
@@ -80,7 +80,7 @@ describe("206 ringtones", () => {
   });
 });
 
-describe("206 pushes with ringtones", () => {
+describe("207 pushes with ringtones", () => {
   let store: MemoryStore;
   let user: User;
   let client: Client;

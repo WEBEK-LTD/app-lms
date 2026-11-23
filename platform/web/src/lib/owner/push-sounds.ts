@@ -1,7 +1,7 @@
 import type { OwnerDevice, OwnerPushKind, OwnerPushSounds } from "../data/types";
 
 /**
- * 206 Yallapp Business's ringtones: which sound each kind of push plays on a
+ * 207 Yallapp Business's ringtones: which sound each kind of push plays on a
  * phone, whether an order rings on until it is opened, and the quiet hours.
  * The phone chooses (Settings › Ringtones, `PUT /me/push-sounds`); the
  * server only words the push for it:
@@ -42,7 +42,7 @@ export type OwnerRingtone = (typeof OWNER_RINGTONES)[number];
 /** A ringtone, the phone's own notification sound, or none. */
 export type OwnerSoundChoice = OwnerRingtone | "default" | "silent";
 
-/** 206 The groups a sound is chosen for. */
+/** 207 The groups a sound is chosen for. */
 export const OWNER_SOUND_GROUPS = ["orders", "bookings", "cancelled", "messages", "other"] as const;
 export type OwnerSoundGroup = (typeof OWNER_SOUND_GROUPS)[number];
 /** The groups that may ring on until opened. */

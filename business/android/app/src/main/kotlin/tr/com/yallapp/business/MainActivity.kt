@@ -15,7 +15,7 @@ import java.util.TimeZone
 class MainActivity : FlutterFragmentActivity() {
     private var ring: MethodChannel? = null
 
-    /** 206 The push of the notification that opened the app, until the app asks for it. */
+    /** 207 The push of the notification that opened the app, until the app asks for it. */
     private var launchPush: Map<String, String>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +45,7 @@ class MainActivity : FlutterFragmentActivity() {
                     result.notImplemented()
                 }
             }
-        // 206 The ringtones (lib/core/services/ringtones.dart, Ringing.kt).
+        // 207 The ringtones (lib/core/services/ringtones.dart, Ringing.kt).
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "tr.com.yallapp.business/ring")
         ring = channel
         channel.setMethodCallHandler { call, result ->

@@ -43,7 +43,7 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen>
     WidgetsBinding.instance.addObserver(this);
     unawaited(_wake.open());
     _load();
-    // 206 Only while the app is in front, and one load at a time.
+    // 207 Only while the app is in front, and one load at a time.
     _timer = Timer.periodic(widget.interval, (_) {
       if (_inFront) _load();
     });

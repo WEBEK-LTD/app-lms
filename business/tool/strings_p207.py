@@ -1,4 +1,4 @@
-"""206 Yallapp Business 1.0.4: ringtones for orders and everything else (Settings › Ringtones), the in-app ring, new pushes for marketplace orders and cancelled orders, and the review's fixes and additions."""
+"""207 Yallapp Business 1.0.4: ringtones for orders and everything else (Settings › Ringtones), the in-app ring, new pushes for marketplace orders and cancelled orders, and the review's fixes and additions."""
 
 S = [
 # Settings › Ringtones

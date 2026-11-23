@@ -5856,7 +5856,7 @@ export const OWNER_PUSH_KINDS = [
   "new_complaint",
   "prime_alert",
   "morning_brief",
-  // 206 A marketplace order reached its vendor; a customer cancelled an order.
+  // 207 A marketplace order reached its vendor; a customer cancelled an order.
   "new_market_order",
   "order_cancelled",
 ] as const;
@@ -5864,7 +5864,7 @@ export type OwnerPushKind = (typeof OWNER_PUSH_KINDS)[number];
 /** Missing kinds are on. */
 export type OwnerPushPreferences = Partial<Record<OwnerPushKind, boolean>>;
 
-/** 206 A phone's ringtones (lib/owner/push-sounds.ts): a sound per group, the groups that ring until opened, the quiet hours. */
+/** 207 A phone's ringtones (lib/owner/push-sounds.ts): a sound per group, the groups that ring until opened, the quiet hours. */
 export interface OwnerPushSounds {
   /** Group (orders, bookings, cancelled, messages, other) → a ringtone's id, "default" or "silent"; missing: the group's default. */
   sounds: Partial<Record<"orders" | "bookings" | "cancelled" | "messages" | "other", string>>;
@@ -5902,7 +5902,7 @@ export interface OwnerDevice {
   pushToken: string | null;
   pushProvider: PushProvider;
   pushPreferences: OwnerPushPreferences | null;
-  /** 206 Its ringtones; null or missing: it never chose (an older app), and gets pushes as before. */
+  /** 207 Its ringtones; null or missing: it never chose (an older app), and gets pushes as before. */
   pushSounds?: OwnerPushSounds | null;
   createdAt: Date;
   lastSeenAt: Date;

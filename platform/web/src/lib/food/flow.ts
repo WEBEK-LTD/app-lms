@@ -121,7 +121,7 @@ export async function cancelOrder(deps: FlowDeps, order: FoodOrder, by: FoodOrde
     if (job && ["pending", "assigned", "failed"].includes(job.status)) await moveShipment(deps, job, "cancelled", "company", "The food order was cancelled.");
   }
   await tellFoodCustomer(notifyDeps(deps), moved.order, await timezoneOf(deps));
-  // 206 A customer's cancellation reaches the company's phones (not one still waiting for its payment).
+  // 207 A customer's cancellation reaches the company's phones (not one still waiting for its payment).
   if (by === "customer" && order.status !== "awaiting_payment") {
     await (deps.pushOwner ?? pushOwnerSafely)((d) => pushOrderCancelled(d, deps.app, { reference: foodOrderReference(order), place: order.restaurantName, ids: { food_order_id: String(order.id) } }), deps.store).catch(() => undefined);
   }

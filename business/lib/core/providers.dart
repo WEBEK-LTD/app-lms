@@ -64,7 +64,7 @@ final chimeProvider = Provider<Chime>(
   ),
 );
 
-/// 206 The ringtones: the native side (Android shows its pushes itself),
+/// 207 The ringtones: the native side (Android shows its pushes itself),
 /// the in-app ringer, and the choices.
 final ringNativeProvider = Provider<RingNative>((ref) => const NoRingNative());
 

@@ -55,7 +55,7 @@ export interface OwnerPushMessage {
   title: string;
   body: string;
   data: Record<string, string>;
-  /** 206 How it sounds on the phones it goes to (lib/owner/push-sounds.ts); missing on phones that never chose. */
+  /** 207 How it sounds on the phones it goes to (lib/owner/push-sounds.ts); missing on phones that never chose. */
   dataOnly?: boolean;
   apnsSound?: string | null;
   timeSensitive?: boolean;
@@ -142,7 +142,7 @@ export async function pushToOwner(
     const found = await devicesFor(deps.store, clientId, kind, permission, data.app_id ?? null, deps.now, only);
     if (found.length === 0) return 0;
     // 64 One message per language and business name, with the name first on phones working on another business.
-    // 206 And per sound: each phone's ringtones (as before for a phone that never chose).
+    // 207 And per sound: each phone's ringtones (as before for a phone that never chose).
     const groups = new Map<string, { lang: Lang; business: string; other: boolean; delivery: PushDelivery | null; devices: OwnerDevice[] }>();
     for (const { language, device, business } of found) {
       const lang = ownerLang(language, device.language);
@@ -452,7 +452,7 @@ export function pushMorningBrief(deps: OwnerPushDeps, app: App, userId: string, 
   return pushToOwner(deps, app.clientId, "morning_brief", word, { app_id: app.id, alert: "morning_brief" }, PUSH_PERMISSION.morning_brief, [userId]);
 }
 
-// 206 Marketplace orders, and orders a customer cancelled
+// 207 Marketplace orders, and orders a customer cancelled
 
 /** A marketplace order reached its vendor (placed with cash or the wallet, paid online, or a scheduled one released). */
 export function pushNewMarketOrder(deps: OwnerPushDeps, app: App, order: Pick<MarketOrder, "id" | "vendorName" | "money" | "currency">): Promise<number> {

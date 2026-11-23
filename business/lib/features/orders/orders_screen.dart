@@ -38,14 +38,14 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
   );
   int _version = 0;
 
-  /// 206 Searching by number or who ordered.
+  /// 207 Searching by number or who ordered.
   bool _searching = false;
   String? _query;
 
   @override
   void didUpdateWidget(OrdersScreen old) {
     super.didUpdateWidget(old);
-    // 206 A link to another tab (?status=) on the same screen.
+    // 207 A link to another tab (?status=) on the same screen.
     final i = statuses.indexOf(widget.initialStatus ?? '');
     if (widget.initialStatus != old.initialStatus && i >= 0) {
       _tabs.index = i;
@@ -65,7 +65,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
     if (app == null) return const SizedBox.shrink();
     final appId = app.id;
     final api = ref.watch(apiProvider);
-    // 206 A new order while the list is open shows at once.
+    // 207 A new order while the list is open shows at once.
     ref.listen(pushEventsProvider, (_, notice) {
       if (notice?.data['kind'] == 'new_order' && mounted) {
         setState(() => _version++);
@@ -184,7 +184,7 @@ class OrderCard extends ConsumerWidget {
         : null;
     final to = order.deliverTo;
     return Panel(
-      // 206 Back from the order: the list shows what changed there.
+      // 207 Back from the order: the list shows what changed there.
       onTap: () async {
         await context.push(Paths.order(order.id));
         onChanged(order);

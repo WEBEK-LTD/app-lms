@@ -257,12 +257,12 @@ export async function setPushPreferences(ctx: OwnerContext): Promise<OwnerResult
   return { status: 200, body: preferencesJson(next) };
 }
 
-/** 206 This phone's ringtones (Settings › Ringtones); `saved: false` until it chose. */
+/** 207 This phone's ringtones (Settings › Ringtones); `saved: false` until it chose. */
 export async function getPushSounds(ctx: OwnerContext): Promise<OwnerResult> {
   return { status: 200, body: pushSoundsJson(ctx.device.pushSounds ?? null) };
 }
 
-/** 206 Saves this phone's ringtones (only the fields sent change); from then on its pushes carry them. */
+/** 207 Saves this phone's ringtones (only the fields sent change); from then on its pushes carry them. */
 export async function setPushSounds(ctx: OwnerContext): Promise<OwnerResult> {
   const read = readPushSounds(bodyObject(ctx.req.body), ctx.device.pushSounds ?? null);
   if (!read.ok) throw invalid({ [read.field]: read.error });

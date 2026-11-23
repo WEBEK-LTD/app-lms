@@ -164,7 +164,7 @@ abstract final class AppIcons {
   static const face = Symbols.face_rounded;
   static const pin = Symbols.pin_rounded;
   static const timer = Symbols.timer_rounded;
-  // 206 Ringtones.
+  // 207 Ringtones.
   static const ringtone = Symbols.music_note_rounded;
   static const ringing = Symbols.notifications_active_rounded;
   static const vibrate = Symbols.vibration_rounded;

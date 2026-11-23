@@ -104,7 +104,7 @@ void main() {
   });
 
   testWidgets('a push while the app is open shows with Open', (tester) async {
-    // 206 A message shows at the bottom; a new order rings with its banner.
+    // 207 A message shows at the bottom; a new order rings with its banner.
     final push = FakePush();
     final app = TestApp(push: push);
     await app.pump(tester);

@@ -1,6 +1,6 @@
 import 'ringtones.dart';
 
-/// 59 The sound Kitchen mode plays when a new order arrives: 206 the
+/// 59 The sound Kitchen mode plays when a new order arrives: 207 the
 /// ringtone chosen for new orders (Settings › Ringtones), unless the app is
 /// already ringing for it.
 abstract class Chime {

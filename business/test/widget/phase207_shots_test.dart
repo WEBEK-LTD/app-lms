@@ -13,15 +13,15 @@ import 'package:yallapp_business/core/services/push.dart';
 import '../support/nav.dart';
 import '../support/test_app.dart';
 
-/// 206 The new screens, light and dark, English and Arabic: Settings ›
+/// 207 The new screens, light and dark, English and Arabic: Settings ›
 /// Ringtones, a group's sounds, the ringing card over Today, and Mark as
 /// shipped. Every case lays out without overflowing;
 ///
-/// `YB_SHOTS_DIR=<dir> flutter test test/widget/phase206_shots_test.dart`
+/// `YB_SHOTS_DIR=<dir> flutter test test/widget/phase207_shots_test.dart`
 /// also writes them at 2x as `<dir>/<name>.png`.
 
 final _shots = Platform.environment['YB_SHOTS_DIR'] ?? '';
-const _frame = ValueKey('phase206-shot');
+const _frame = ValueKey('phase207-shot');
 
 Future<void> _loadFonts() async {
   final manifest =

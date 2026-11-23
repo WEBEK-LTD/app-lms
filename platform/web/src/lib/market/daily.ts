@@ -23,7 +23,7 @@ export async function runMarketDaily(store: DataStore, now: Date): Promise<{ app
     const due = await clubDue(store, app.id, now);
     expired += due.expired;
     renewals += due.renewals.length;
-    // 206 Each released order rings on the owner's phones.
+    // 207 Each released order rings on the owner's phones.
     released += await releaseScheduled(store, app.id, now, (order) => pushOwnerSafely((d) => pushNewMarketOrder(d, app, order), store));
   }
   return { apps, expired, renewals, released };

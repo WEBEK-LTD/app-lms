@@ -103,7 +103,7 @@ class _ProductsTab extends ConsumerStatefulWidget {
 }
 
 class _ProductsTabState extends ConsumerState<_ProductsTab> {
-  /// 206 Find a product by its name, to mark it sold out quickly.
+  /// 207 Find a product by its name, to mark it sold out quickly.
   String _query = '';
 
   @override
@@ -268,7 +268,7 @@ class _ProductSheetState extends ConsumerState<ProductSheet> {
 
   Future<void> _save() async {
     final l10n = context.l10n;
-    // 206 Digits typed on an Arabic keyboard too.
+    // 207 Digits typed on an Arabic keyboard too.
     final stockText = latinDigits(_stock.text).trim();
     final stock = int.tryParse(stockText);
     if (stockText.isNotEmpty && stock == null) {

@@ -735,7 +735,7 @@ class _BusyModeState extends ConsumerState<_BusyMode> {
           .setRestaurantBusy(ref.read(appIdProvider), r.id, minutes);
       if (!mounted) return;
       setState(() => _until[r.id] = until);
-      // 206 Food orders' busy banner says the same.
+      // 207 Food orders' busy banner says the same.
       ref.invalidate(restaurantsProvider);
       if (mounted) {
         showMessage(
@@ -760,7 +760,7 @@ class _BusyModeState extends ConsumerState<_BusyMode> {
       title: l10n.busyMode,
       empty: l10n.noRestaurants,
       rows: [
-        // 206 Loading, or what went wrong with Try again; never "No
+        // 207 Loading, or what went wrong with Try again; never "No
         // restaurants" before they came.
         if (!value.hasValue && value.isLoading)
           const Padding(

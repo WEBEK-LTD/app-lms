@@ -667,7 +667,7 @@ paths:
           schema: { type: string, example: processing }
         - name: q
           in: query
-          description: '206 Search the latest 500 orders by number (with or without #) or by who ordered: name, email, or at least 4 digits of the phone. Arabic-Indic digits work too.'
+          description: '207 Search the latest 500 orders by number (with or without #) or by who ordered: name, email, or at least 4 digits of the phone. Arabic-Indic digits work too.'
           schema: { type: string, maxLength: 100, example: '1042' }
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
@@ -4652,7 +4652,7 @@ components:
         `food_order_id`, `market_order_id`, `shipment_id`, `ride_id`,
         `complaint_id`, `inquiry_id`, `review_id`); `morning_brief` the
         person's morning brief (`alert: morning_brief`). School pushes carry
-        `school_excuse_id`, `school_report_id` and `leave_id`. Roadmap 206:
+        `school_excuse_id`, `school_report_id` and `leave_id`. Roadmap 207:
         `new_market_order` a marketplace order reached its vendor
         (`market_order_id`); `order_cancelled` a customer cancelled a food or
         marketplace order (`food_order_id` or `market_order_id`). A device that
@@ -4690,7 +4690,7 @@ components:
     PushSounds:
       type: object
       description: |
-        206 This device's ringtones: a sound for each group of pushes (orders:
+        207 This device's ringtones: a sound for each group of pushes (orders:
         new_order, new_food_order, new_market_order, shipment_waiting;
         bookings; cancelled: order_cancelled; messages: new_message,
         new_chat_message, new_review, new_complaint; other: the rest), the

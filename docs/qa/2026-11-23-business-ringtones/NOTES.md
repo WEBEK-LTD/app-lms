@@ -1,10 +1,10 @@
-# QA 2026-11-23: Yallapp Business 1.0.4, ringtones (Phase 206)
+# QA 2026-11-23: Yallapp Business 1.0.4, ringtones (Phase 207)
 
 Branch `wip-business-1-0-4`. The pictures are drawn by the widget tests on
 the demo's data with the app's own fonts, 400 × 860 logical pixels at 2x:
 
     cd business
-    YB_SHOTS_DIR=<dir> flutter test test/widget/phase206_shots_test.dart
+    YB_SHOTS_DIR=<dir> flutter test test/widget/phase207_shots_test.dart
 
 The test framework draws shadows as solid black outlines (Flutter's
 `debugDisableShadows` in tests): the black frame round the ringing card is
@@ -22,4 +22,4 @@ its shadow on a phone.
 Not seen here: a real notification on a phone (Android's ringing notification
 with Silence, iOS's bundled sound). Those need a device with a build that has
 Yallapp Business's Firebase options; see the checks in docs/ROADMAP.md
-Phase 206.
+Phase 207.

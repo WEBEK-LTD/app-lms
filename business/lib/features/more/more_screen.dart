@@ -357,7 +357,7 @@ class MoreScreen extends ConsumerWidget {
               l10n.notificationSettings,
               () => context.push(Paths.notifications),
             ),
-            // 206 A sound for each kind; new orders ring until opened.
+            // 207 A sound for each kind; new orders ring until opened.
             tile(
               AppIcons.ringtone,
               l10n.ringtones,

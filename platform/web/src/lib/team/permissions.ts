@@ -263,7 +263,7 @@ export const PUSH_PERMISSION: Record<OwnerPushKind, TeamPermission> = {
   new_complaint: "orders",
   prime_alert: "analytics",
   morning_brief: "analytics",
-  // 206
+  // 207
   new_market_order: "orders",
   order_cancelled: "orders",
 };

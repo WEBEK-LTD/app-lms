@@ -251,7 +251,7 @@ class FakeWake implements ScreenWake {
   Future<void> release() async => on = false;
 }
 
-/// 206 The in-app ringer: what it played and whether it rings on.
+/// 207 The in-app ringer: what it played and whether it rings on.
 class FakeRinger implements Ringer {
   final played = <String>[];
   final rang = <(String, Duration)>[];
@@ -282,7 +282,7 @@ class FakeRinger implements Ringer {
   }
 }
 
-/// 206 Android's side: what it was told.
+/// 207 Android's side: what it was told.
 class FakeRingNative implements RingNative {
   RingSettings? configured;
   Map<String, String> words = const {};

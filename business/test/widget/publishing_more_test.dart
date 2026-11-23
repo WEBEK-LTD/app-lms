@@ -162,7 +162,7 @@ void main() {
     await app.pump(tester);
     await push(tester, app, '/settings/notifications');
     expect(find.text('New orders'), findsOneWidget);
-    // 206 Ringtones are a page of their own.
+    // 207 Ringtones are a page of their own.
     expect(find.byKey(const ValueKey('push-ringtones')), findsOneWidget);
     // 63 Reviews of courses push too now.
     await tester.scrollUntilVisible(find.text('New reviews'), 200);

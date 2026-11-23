@@ -28,7 +28,7 @@ abstract class OwnerApi {
   Future<PushPreferences> pushPreferences();
   Future<PushPreferences> setPushPreferences(PushPreferences preferences);
 
-  /// 206 This phone's ringtones on the server (`PUT /me/push-sounds`):
+  /// 207 This phone's ringtones on the server (`PUT /me/push-sounds`):
   /// from then on its pushes carry them.
   Future<void> setPushSounds(Map<String, dynamic> sounds);
   Future<AppSummary> app(String appId);
@@ -61,7 +61,7 @@ abstract class OwnerApi {
   Future<Today> today(String appId);
 
   // Orders
-  /// 206 [query]: the order's number or who ordered (name, phone, email).
+  /// 207 [query]: the order's number or who ordered (name, phone, email).
   Future<Paged<Order>> orders(
     String appId, {
     List<String> statuses = const [],
@@ -71,7 +71,7 @@ abstract class OwnerApi {
   });
   Future<Order> order(String appId, int orderId);
 
-  /// 206 Marks it shipped with the carrier and the tracking; the customer
+  /// 207 Marks it shipped with the carrier and the tracking; the customer
   /// is emailed (80.4). Again changes the tracking.
   Future<Order> shipOrder(String appId, int orderId, ShipmentInput shipment);
 

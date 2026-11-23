@@ -8,7 +8,7 @@ Last updated: 23 November 2026.
 
 ## Current release
 
-Roadmap 206 (Yallapp Business 1.0.4, ringtones; in the code, not released:
+Roadmap 207 (Yallapp Business 1.0.4, ringtones; in the code, not released:
 the release waits for the owner): new orders ring until opened, like a call.
 Seventeen ringtones of Yallapp's own, made from code
 (`business/tool/ringtones.py`), and Settings › Ringtones: a sound for new

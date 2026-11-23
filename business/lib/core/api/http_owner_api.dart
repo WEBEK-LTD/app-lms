@@ -291,7 +291,7 @@ class HttpOwnerApi implements OwnerApi {
     Order.fromJson,
   );
 
-  /// 206 A search as typed, digits of an Arabic keyboard as Latin ones.
+  /// 207 A search as typed, digits of an Arabic keyboard as Latin ones.
   static String? _search(String? query) {
     final q = latinDigits(query ?? '').trim();
     return q.isEmpty ? null : q;

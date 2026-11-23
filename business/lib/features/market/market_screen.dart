@@ -72,7 +72,7 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
     final l10n = context.l10n;
     final app = ref.watch(currentAppProvider);
     if (app == null) return const SizedBox.shrink();
-    // 206 A push about it while the list is open shows at once.
+    // 207 A push about it while the list is open shows at once.
     ref.listen(pushEventsProvider, (_, notice) {
       final kind = notice?.data['kind'];
       if ((kind == 'new_market_order' ||

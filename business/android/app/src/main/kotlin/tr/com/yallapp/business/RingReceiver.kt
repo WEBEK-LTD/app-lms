@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 
 /**
- * 206 Receives Yallapp Business's pushes beside Firebase's own receiver
+ * 207 Receives Yallapp Business's pushes beside Firebase's own receiver
  * (the same broadcast firebase_messaging listens to, sent only by Google
  * Play services): a data-only push with `yb_title` is shown by [Ringing];
  * any other push is left to Firebase as before.
@@ -28,7 +28,7 @@ class RingReceiver : BroadcastReceiver() {
     }
 }
 
-/** 206 Silence on a ringing notification, its time running out, and a swipe away (the app's own, not exported). */
+/** 207 Silence on a ringing notification, its time running out, and a swipe away (the app's own, not exported). */
 class RingActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getIntExtra(Ringing.EXTRA_ID, 0)

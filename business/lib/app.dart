@@ -45,7 +45,7 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
       ..add(push.opened.listen(_open))
       ..add(push.foreground.listen(_foreground));
     unawaited(push.initial().then((data) => data == null ? null : _open(data)));
-    // 206 Android's own notifications (the ringing ones) open their screen too.
+    // 207 Android's own notifications (the ringing ones) open their screen too.
     final native = ref.read(ringNativeProvider);
     _subscriptions.add(native.opened.listen(_open));
     unawaited(
@@ -87,7 +87,7 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
       if (!session.authenticating) _backgroundAt ??= DateTime.now();
     } else if (state == AppLifecycleState.resumed) {
       session.settled();
-      // 206 The app is open: a notification ringing in the background stops.
+      // 207 The app is open: a notification ringing in the background stops.
       unawaited(ref.read(ringNativeProvider).stopRinging());
       final since = _backgroundAt;
       _backgroundAt = null;
@@ -103,7 +103,7 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
   /// A tapped push: switch to its app and open its screen (after the lock
   /// or the sign-in when needed).
   Future<void> _open(Map<String, dynamic> data) async {
-    // 206 Opened: whatever was ringing for it stops.
+    // 207 Opened: whatever was ringing for it stops.
     _stopRing();
     final target = pushTarget(data);
     final switched = await openTarget(ref, target);
@@ -130,7 +130,7 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
     final l10n = _messenger.currentContext == null
         ? null
         : AppLocalizations.of(_messenger.currentContext!);
-    // 206 It sounds as chosen in Settings › Ringtones; a new order (or
+    // 207 It sounds as chosen in Settings › Ringtones; a new order (or
     // booking) rings on until opened or silenced.
     if (_ring(notice, l10n)) return;
     final text = [
@@ -149,10 +149,10 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
     );
   }
 
-  /// 206 The push ringing in the app now, shown over every screen.
+  /// 207 The push ringing in the app now, shown over every screen.
   RemoteNotice? _ringing;
 
-  /// 206 Plays a push's sound; true when it rings on, with its card.
+  /// 207 Plays a push's sound; true when it rings on, with its card.
   bool _ring(RemoteNotice notice, AppLocalizations? l10n) {
     if (notice.data['kind'] == 'test') return false;
     final settings = ref.read(ringSettingsProvider);
@@ -216,7 +216,7 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
       themeMode: ref.watch(themeModeProvider),
       // 132 The cover over everything while the app isn't in front.
       builder: (context, child) {
-        // 206 Android's channels and Silence in the app's language.
+        // 207 Android's channels and Silence in the app's language.
         final words = ringWords(AppLocalizations.of(context));
         WidgetsBinding.instance.addPostFrameCallback(
           (_) => ref.read(ringSettingsProvider.notifier).setWords(words),
@@ -311,7 +311,7 @@ Future<bool> openTarget(WidgetRef ref, PushTarget target) async {
   return switched;
 }
 
-/// 206 A new order (or booking) ringing while the app is open: over every
+/// 207 A new order (or booking) ringing while the app is open: over every
 /// screen at the top, with Silence and Open.
 class RingCard extends StatelessWidget {
   const RingCard({

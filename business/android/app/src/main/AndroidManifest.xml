@@ -32,7 +32,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- 206 Yallapp Business's own pushes (data only) with the chosen
+        <!-- 207 Yallapp Business's own pushes (data only) with the chosen
              ringtone, ringing until opened; Silence and the time running
              out. Firebase's own receiver still gets every push. -->
         <receiver

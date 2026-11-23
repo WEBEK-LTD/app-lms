@@ -7,7 +7,7 @@ import '../../core/theme/icons.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 
-/// 206 An order as text, to send to a courier, a colleague or a printer
+/// 207 An order as text, to send to a courier, a colleague or a printer
 /// app: its number, each item, the total, who ordered and where it goes.
 String orderText(BuildContext context, Order order) {
   final l10n = context.l10n;
@@ -36,7 +36,7 @@ String orderText(BuildContext context, Order order) {
   ].join('\n');
 }
 
-/// 206 The order page's Share: copy the details, or send them on WhatsApp
+/// 207 The order page's Share: copy the details, or send them on WhatsApp
 /// to whoever the owner picks there.
 class OrderShareButton extends ConsumerWidget {
   const OrderShareButton({super.key, required this.order});

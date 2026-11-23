@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 207 The ringtones are found by name at run time
+     (android.resource://…/raw/yb_ring_<id>, Ringing.kt): release builds'
+     resource shrinking keeps them. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@raw/yb_ring_*" />

@@ -175,7 +175,7 @@ Future<bool?> askCancelRefund(BuildContext context, Order order, Money amount) {
 }
 
 /// The next-status buttons: the step forward filled, cancelling outlined.
-/// 206 One tap at a time: the buttons wait while a change is sent.
+/// 207 One tap at a time: the buttons wait while a change is sent.
 class OrderActions extends ConsumerStatefulWidget {
   const OrderActions({
     super.key,

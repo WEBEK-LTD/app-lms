@@ -48,7 +48,7 @@ class PushSettingsScreen extends ConsumerWidget {
         (PushKind.shipmentWaiting, l10n.pushShipment, l10n.pushShipmentHelp),
       if (any((f) => f.market))
         (PushKind.newComplaint, l10n.pushComplaint, l10n.pushComplaintHelp),
-      // 206 Marketplace orders, and orders a customer cancelled.
+      // 207 Marketplace orders, and orders a customer cancelled.
       if (any((f) => f.market))
         (
           PushKind.newMarketOrder,
@@ -84,7 +84,7 @@ class PushSettingsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-            // 206 The sounds are on their own page.
+            // 207 The sounds are on their own page.
             ListTile(
               key: const ValueKey('push-ringtones'),
               leading: const Icon(AppIcons.ringtone),
