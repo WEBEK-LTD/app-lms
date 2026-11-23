@@ -79,7 +79,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
       {has ? (
         <StatRow label={t("donations.campaigns")}>
           <Stat icon="campaign" label={t("donations.open")} value={campaigns.filter((c) => groupOf(c) === "open").length} tone="success" />
-          <Stat icon="volunteer_activism" tone="accent" label={t("donations.statRaised")} value={formatCents(campaigns.reduce((sum, c) => sum + c.raisedCents, 0), settings.currency)} />
+          <Stat icon="volunteer_activism" tone="accent" label={t("donations.statRaised")} value={formatCents(campaigns.reduce((sum, c) => sum + c.raisedCents, 0), settings.currency, lang)} />
           <Stat icon="groups" label={t("donations.donorsTitle")} value={campaigns.reduce((sum, c) => sum + c.donorCount, 0)} href="/dashboard/donations/donors" />
         </StatRow>
       ) : null}
@@ -118,7 +118,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
                       {c.featured ? <Badge tone="info">{t("donations.featured")}</Badge> : null}
                     </>
                   }
-                  meta={[raisedLine(c, settings.currency, itemWords(lang)), t("donations.donors", { count: c.donorCount }), c.endsAt ? t("donations.ends", { date: date(c.endsAt, ENDS) }) : null]
+                  meta={[raisedLine(c, settings.currency, itemWords(lang), lang), t("donations.donors", { count: c.donorCount }), c.endsAt ? t("donations.ends", { date: date(c.endsAt, ENDS) }) : null]
                     .filter(Boolean)
                     .join(" · ")}
                   extra={c.goalCents ? <span className="block w-full max-w-[320px]"><ProgressBar value={c.raisedCents} max={c.goalCents} label={t("donations.raisedSoFar", { title: c.title })} tone="success" /></span> : null}

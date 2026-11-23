@@ -150,13 +150,12 @@ class StudioTrackingView extends ConsumerWidget {
             style: look,
             facts: rideLiveLook(context.l10n, ride),
             color: DefaultTextStyle.of(context).style.color,
+            elementPhoto: false,
           );
         }
-        return _Live(
-          look: tracking.look,
-          live: _rideLive(context, ride),
-          photo: node.imageUrl,
-        );
+        // 220 The driver's own photo, else a neutral icon: never the
+        // element's (a template's stock photo of a stranger).
+        return _Live(look: tracking.look, live: _rideLive(context, ride));
     }
   }
 }

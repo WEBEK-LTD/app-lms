@@ -24,6 +24,20 @@ iPhone extension: `tr.com.yallapp.business.ShopWidget`, its App ID and
 profile made by fastlane on the first release. Time Sensitive is ready
 but off (open item below).
 
+Roadmap 220 (the code items earlier phases left open): every amount on the
+dashboard's pages (courses, school fees and salaries, rides, deliveries,
+food orders, events, donations, bookings, travel, Analytics) is written in
+the dashboard's language, as the shop's pages were since 175; the
+marketplace's checkout says "Cash at pickup" with Pick up chosen, in
+English, Arabic and Turkish (app release 16); `POST /food/quote`'s 503 is in
+the contract; the store review driver's sample ride has a real fare (the
+company's fares, else 50), stays out of the drivers' statements and reads in
+the dashboard's language, and Masar's driver card shows a neutral icon for a
+driver without a photo, not the template's stock face (app release 16).
+The phones by the app's country were already 206.2's. Zad's department
+tiles still open the search: the marketplace has no departments of its own
+to open (220.6).
+
 Roadmap 206 (the follow-ups of 157, 158 and 160): plugin 0.4.52 never
 makes WordPress wait on Yallapp when an account is deleted (the chat's
 forget is queued in WP-Cron with a short timeout and retried), and its

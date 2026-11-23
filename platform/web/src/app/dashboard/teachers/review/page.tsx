@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /** 105.3 Teachers' courses waiting for the academy: publish, or send back with a note; and those sent back. */
 export default async function ReviewPage() {
   const { app } = await requireClient("catalog");
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   if (!isTeachers(app)) return <NotTeachers title={t("teachers.review")} t={t} />;
   const setup = courseSetup(app);
   const teachers = new Map((await (await getStore()).listTeachers(app.id)).map((teacher) => [teacher.id, teacher]));
@@ -30,7 +30,7 @@ export default async function ReviewPage() {
     t("teachers.reviewLine", {
       teacher: teachers.get(c.teacherId!)?.name ?? c.instructorName ?? "",
       lessons: lessonsOf(c).length,
-      price: c.priceCents ? formatCents(c.priceCents, setup.currency) : t("common.free"),
+      price: c.priceCents ? formatCents(c.priceCents, setup.currency, lang) : t("common.free"),
     });
 
   return (

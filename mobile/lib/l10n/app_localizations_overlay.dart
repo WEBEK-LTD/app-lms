@@ -9288,6 +9288,10 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('marketPayCash') ?? base.marketPayCash;
 
   @override
+  String get marketPayCashPickup =>
+      overlay.text('marketPayCashPickup') ?? base.marketPayCashPickup;
+
+  @override
   String get marketPayCard =>
       overlay.text('marketPayCard') ?? base.marketPayCard;
 

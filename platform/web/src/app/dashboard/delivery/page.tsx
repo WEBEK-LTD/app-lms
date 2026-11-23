@@ -77,7 +77,7 @@ async function DeliveryPayments({ app }: { app: App }) {
 /** 104 Delivery settings: prices, payment, tracking, jobs, where couriers work (104.8.3 their own app or Yallapp Courier), services and card payments. */
 export default async function DeliverySettingsPage({ searchParams }: { searchParams: Promise<SampleQuery & { tab?: string }> }) {
   const { app, license } = await requireClient("settings");
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   if (!isDelivery(app)) return <NotDelivery title={t("delivery.settings")} t={t} />;
   const store = await getStore();
   const [saved, services, plan, builds] = await Promise.all([store.getDeliverySettings(app.id), store.listDeliveryServices(app.id), appPlan(store, license, new Date()), store.listBuildsByApp(app.id, 1)]);
@@ -198,7 +198,7 @@ export default async function DeliverySettingsPage({ searchParams }: { searchPar
                           {s.active ? null : <Badge tone="neutral">{t("delivery.hidden")}</Badge>}
                         </>
                       }
-                      meta={[s.extraCents > 0 ? `+${formatCents(s.extraCents, settings.currency)}` : null, s.eta].filter(Boolean).join(" · ") || undefined}
+                      meta={[s.extraCents > 0 ? `+${formatCents(s.extraCents, settings.currency, lang)}` : null, s.eta].filter(Boolean).join(" · ") || undefined}
                       extra={s.description ? <span className="line-clamp-1">{s.description}</span> : null}
                       actions={
                         <>

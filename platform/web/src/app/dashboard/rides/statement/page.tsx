@@ -25,7 +25,7 @@ function monthRange(month: string, timezone: string): { since: Date; until: Date
 /** 105.2 Each driver's completed rides in a month: the fares, the company's share, the cash they collected and the balance either way. */
 export default async function RideStatementPage({ searchParams }: { searchParams: Promise<{ month?: string }> }) {
   const { app } = await requireClient("orders");
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   if (!isRides(app)) return <NotRides title={t("rides.statements")} t={t} />;
   const query = await searchParams;
   const store = await getStore();
@@ -37,7 +37,7 @@ export default async function RideStatementPage({ searchParams }: { searchParams
   const month = query.month && /^\d{4}-(0[1-9]|1[0-2])$/.test(query.month) ? query.month : thisMonth;
   const range = monthRange(month, timezone);
   const rows = await store.rideStatement(app.id, range.since, range.until);
-  const money = (cents: number) => formatCents(cents, settings.currency);
+  const money = (cents: number) => formatCents(cents, settings.currency, lang);
   // What the driver keeps: the fares less the company's share. They collected the cash: the rest is the company's.
   const balance = (r: (typeof rows)[number]) => r.cashCents - (r.faresCents - r.commissionCents);
   const balanceText = (cents: number) => (cents > 0 ? t("rides.owesYou", { amount: money(cents) }) : cents < 0 ? t("rides.youOwe", { amount: money(-cents) }) : t("rides.settled"));

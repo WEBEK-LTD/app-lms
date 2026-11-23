@@ -112,7 +112,7 @@ export async function CampaignPage({ id, cannotDelete }: { id: number | null; ca
         </Notice>
       ) : null}
       <StatRow label={t("events.status")}>
-        <Stat icon="volunteer_activism" tone="success" label={t("donations.statRaised")} value={formatCents(campaign.raisedCents, currency)} hint={campaign.goalCents ? t("donations.statGoal", { goal: formatCents(campaign.goalCents, currency) }) : undefined} />
+        <Stat icon="volunteer_activism" tone="success" label={t("donations.statRaised")} value={formatCents(campaign.raisedCents, currency, lang)} hint={campaign.goalCents ? t("donations.statGoal", { goal: formatCents(campaign.goalCents, currency, lang) }) : undefined} />
         <Stat icon="groups" tone="accent" label={t("donations.donorsTitle")} value={campaign.donorCount} href={`/dashboard/donations?campaign=${campaign.id}`} />
       </StatRow>
       <DetailLayout
@@ -143,7 +143,7 @@ export async function CampaignPage({ id, cannotDelete }: { id: number | null; ca
           >
             <p className="m-0 text-[15px] leading-relaxed text-ink-4">
               {status === null ? t("donations.isDraft") : status === "open" ? t("donations.isOpen") : t("donations.isEnded")}{" "}
-              {t("donations.raisedFrom", { raised: raisedLine(campaign, currency, itemWords(lang)), count: campaign.donorCount })}
+              {t("donations.raisedFrom", { raised: raisedLine(campaign, currency, itemWords(lang), lang), count: campaign.donorCount })}
             </p>
             {campaign.goalCents ? <ProgressBar value={campaign.raisedCents} max={campaign.goalCents} label={t("donations.raisedBar")} tone="success" /> : null}
             <div className="flex flex-col gap-2.5">
