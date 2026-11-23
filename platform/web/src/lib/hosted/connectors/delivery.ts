@@ -1,3 +1,4 @@
+import { appPhoneCode } from "../country-code";
 import { paymentsSetUp } from "../../catalog/settings";
 import type { DataStore } from "../../data/store";
 import type { App, Courier, DeliverySettings, HostedUser, Shipment } from "../../data/types";
@@ -27,7 +28,6 @@ import { deliverySettingsOf, pricesSet } from "../../delivery/settings";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { hitRateLimit, RATE_LIMITS } from "../../rate-limit";
 import { platformSetting } from "../../settings/platform";
-import { hostedSettings } from "../service";
 import { error, intParam } from "./common";
 import type { MapDeps } from "../../taxi/maps";
 import { handleMapRequest, isMapRequest, platformMapEndpoints } from "./maps";
@@ -175,7 +175,7 @@ export class DeliveryConnector implements Connector {
     const platform = request.query.get("platform");
     if (platform !== "android" && platform !== "ios") return error(400, "invalid_request", "Unknown platform.");
     const { store, app } = this.deps;
-    const read = readShipmentRequest(request.body, hostedSettings(app).defaultCountryCode);
+    const read = readShipmentRequest(request.body, appPhoneCode(app));
     if (!read.ok) return error(400, "invalid_request", read.error);
     const settings = await this.settings();
     if (!pricesSet(settings)) return unavailable();

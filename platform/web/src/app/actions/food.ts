@@ -1,5 +1,6 @@
 "use server";
 
+import { appPhoneCode } from "@/lib/hosted/country-code";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
@@ -30,7 +31,6 @@ import { utcToLocal } from "@/lib/bookings/time";
 import { afterOwnerEdit, parseClosedDates, undoPlaceChangePatch, upcomingClosedDates } from "@/lib/market/vendor-controls";
 import { formValues, type FormState } from "@/lib/forms";
 import { parseAnyPhone } from "@/lib/hosted/phone";
-import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { imageType } from "@/lib/images";
 import { parseVendorAreaForm, serviceAreasOf } from "@/lib/market/areas";
@@ -95,7 +95,7 @@ export async function saveRestaurantAction(_: FormState, formData: FormData): Pr
   const existing = await restaurantOf(app, formData);
   if (formData.get("restaurant") && !existing) return { message: "This restaurant doesn't exist anymore." };
   const settings = deliverySettingsOf(await store.getDeliverySettings(app.id));
-  const country = hostedSettings(app).defaultCountryCode;
+  const country = appPhoneCode(app, context.client.country);
   const parsed = parseRestaurantForm(values, (settings.cuisines ?? []).map((c) => c.id), (text) => parseAnyPhone(text, country)?.e164 ?? null);
   // 115 In a marketplace, every place sets where it delivers.
   const area = isMarketplaceApp(app) ? parseVendorAreaForm(values, serviceAreasOf(settings)) : null;
@@ -332,7 +332,7 @@ export async function addStaffAction(_: FormState, formData: FormData): Promise<
   const restaurant = await restaurantOf(app, formData);
   if (!restaurant) return { message: "This restaurant doesn't exist anymore." };
   const methods = hostedSignInMethods(app);
-  const parsed = parseCourierForm({ ...values, vehicle: "" }, hostedSettings(app).defaultCountryCode, methods.length === 1 && methods[0] === "email");
+  const parsed = parseCourierForm({ ...values, vehicle: "" }, appPhoneCode(app, context.client.country), methods.length === 1 && methods[0] === "email");
   if (!parsed.ok) return { errors: parsed.errors, values };
   if ((await store.listRestaurantStaff(app.id, restaurant.id)).length >= FOOD_LIMITS.staff) return { message: `A restaurant can have up to ${FOOD_LIMITS.staff} staff.`, values };
   const created = await store.createRestaurantStaff({ appId: app.id, restaurantId: restaurant.id, name: parsed.value.name, phone: parsed.value.phone, email: parsed.value.email, active: true }, new Date());

@@ -1,3 +1,4 @@
+import { appPhoneCode } from "../hosted/country-code";
 import { allocate } from "../market/currency";
 import { centsStep } from "../money/currencies";
 import { announceWaiting } from "../delivery/flow";
@@ -18,7 +19,6 @@ import { spendOrderPoints } from "./loyalty";
 import { taxLabel } from "./tax";
 import { bookingSetup } from "../bookings/setup";
 import { parseAnyPhone } from "../hosted/phone";
-import { hostedSettings } from "../hosted/service";
 import type { DataStore } from "../data/store";
 import type { App, CatalogCustomer, CatalogFulfilment, CatalogOrder } from "../data/types";
 import { PaymentError } from "../payments/errors";
@@ -59,7 +59,7 @@ export function readCustomer(
   const errors: Record<string, string> = {};
   const name = text("name", 80);
   if (name.length < 3 || !name.includes(" ")) errors.name = "Enter your first and last name.";
-  const phone = parseAnyPhone(text("phone", 24), hostedSettings(app).defaultCountryCode);
+  const phone = parseAnyPhone(text("phone", 24), appPhoneCode(app));
   if (!phone) errors.phone = "Enter a valid mobile number.";
   const email = text("email", 191);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Enter a valid email address.";

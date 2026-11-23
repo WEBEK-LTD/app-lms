@@ -1,3 +1,4 @@
+import { appPhoneCode } from "../country-code";
 import { paymentsSetUp } from "../../catalog/settings";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import type { DeliverySettings, FoodOrder, HostedUser, Restaurant } from "../../data/types";
@@ -28,7 +29,6 @@ import {
 import { FOOD_REJECTIONS, type FoodRejection } from "../../data/types";
 import { parseAnyPhone } from "../phone";
 import { platformSetting } from "../../settings/platform";
-import { hostedSettings } from "../service";
 import { error, intParam } from "./common";
 import { handleMapRequest, isMapRequest, platformMapEndpoints } from "./maps";
 import { DeliveryConnector, type DeliveryDeps } from "./delivery";
@@ -252,7 +252,7 @@ export class FoodConnector implements Connector {
     const read = readFoodOrder(request.body);
     if (!read.ok) return error(400, "invalid_request", read.error);
     const input = read.value;
-    const phone = input.phone ? parseAnyPhone(input.phone, hostedSettings(app).defaultCountryCode)?.e164 : request.user.phone;
+    const phone = input.phone ? parseAnyPhone(input.phone, appPhoneCode(app))?.e164 : request.user.phone;
     if (!phone) return error(400, "invalid_request", "Enter your mobile number so the courier can call you.");
     const settings = await this.settings();
     if (!pricesSet(settings)) return unavailable();

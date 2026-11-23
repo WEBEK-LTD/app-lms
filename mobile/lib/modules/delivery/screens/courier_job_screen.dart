@@ -165,7 +165,7 @@ class _CourierJobScreenState extends ConsumerState<CourierJobScreen> {
               ref.invalidate(courierJobProvider(widget.jobId)),
           child: ListView(
             key: const ValueKey('job-view'),
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+            padding: EdgeInsets.fromLTRB(20, 12, 20, endRoom(context, 24)),
             children: [
               Text(
                 shipmentStatusLabel(l10n, j.status),

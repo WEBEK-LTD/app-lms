@@ -1,5 +1,6 @@
 "use server";
 
+import { appPhoneCode } from "@/lib/hosted/country-code";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
@@ -11,7 +12,6 @@ import type { App, DriverDocument } from "@/lib/data/types";
 import { courierPlistProblem } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { formValues, type FormState } from "@/lib/forms";
-import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { imageType } from "@/lib/images";
 import { assignRide, cancelByCompany } from "@/lib/rides/flow";
@@ -89,7 +89,7 @@ export async function saveRideSettingsAction(_: FormState, formData: FormData): 
   const values = formValues(formData);
   const now = new Date();
   const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
-  const parsed = parseRideSettings(values, saved, hostedSettings(app).defaultCountryCode);
+  const parsed = parseRideSettings(values, saved, appPhoneCode(app, context.client.country));
   if (!parsed.ok) return { errors: parsed.errors, values };
   // 112.3 The drivers' app's own icon.
   const icon = await saveSecondAppIcon(store, context.client.id, formData.get("driverIcon"), now);
@@ -195,7 +195,7 @@ export async function saveDriverAction(_: FormState, formData: FormData): Promis
   const existing = id !== null && Number.isSafeInteger(id) ? await store.getCourier(app.id, id) : null;
   if (id !== null && !existing) return { message: "This driver doesn't exist anymore." };
   const types = await store.listVehicleTypes(app.id);
-  const parsed = parseDriverForm(values, hostedSettings(app).defaultCountryCode, signsInByEmailOnly(app), types.map((t) => t.id));
+  const parsed = parseDriverForm(values, appPhoneCode(app, context.client.country), signsInByEmailOnly(app), types.map((t) => t.id));
   if (!parsed.ok) return { errors: parsed.errors, values };
   if (!existing && (await store.listCouriers(app.id)).length >= RIDES_LIMITS.drivers) return { message: `You can have up to ${RIDES_LIMITS.drivers} drivers.`, values };
   const photo = await picture(context, formData.get("photo"), now);

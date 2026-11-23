@@ -1,5 +1,6 @@
 "use server";
 
+import { appPhoneCode } from "@/lib/hosted/country-code";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
@@ -19,7 +20,6 @@ import { offersDownloads, parseDownloadsChoice } from "@/lib/courses/downloads";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import type { FormState } from "@/lib/forms";
 import { parseAnyPhone } from "@/lib/hosted/phone";
-import { hostedSettings } from "@/lib/hosted/service";
 import { imageType } from "@/lib/images";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { notifyNewLesson } from "@/lib/hosted/auto-notifications";
@@ -253,11 +253,12 @@ export async function deleteQuizAction(formData: FormData): Promise<void> {
 
 /** Our client adds a student who paid another way, by the phone number they sign in with. */
 export async function addStudentAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireCoursesApp();
+  const context = await requireCoursesApp();
+  const { app } = context;
   const courseId = Number(formData.get("courseId"));
   const phoneText = String(formData.get("phone") ?? "").trim();
   if (!courseSetup(app).courses.some((c) => c.id === courseId)) return { message: "This course no longer exists." };
-  const phone = parseAnyPhone(phoneText, hostedSettings(app).defaultCountryCode);
+  const phone = parseAnyPhone(phoneText, appPhoneCode(app, context.client.country));
   if (!phone) return { errors: { phone: "Enter the student's mobile number." }, values: { phone: phoneText } };
   const store = await getStore();
   const user = await store.getHostedUserByPhone(app.id, phone.e164);
@@ -392,11 +393,12 @@ export async function gradeSubmissionAction(_: FormState, formData: FormData): P
 
 /** 112.5 Several students at once, by the phone numbers they sign in with (pasted from a sheet). */
 export async function addStudentsAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireCoursesApp();
+  const context = await requireCoursesApp();
+  const { app } = context;
   const courseId = Number(formData.get("courseId"));
   const text = String(formData.get("phones") ?? "");
   if (!courseSetup(app).courses.some((c) => c.id === courseId)) return { message: "This course no longer exists." };
-  const phones = parsePhones(text, hostedSettings(app).defaultCountryCode);
+  const phones = parsePhones(text, appPhoneCode(app, context.client.country));
   if (!phones.ok) return { errors: { phones: phones.error }, values: { phones: text } };
   const store = await getStore();
   let added = 0;

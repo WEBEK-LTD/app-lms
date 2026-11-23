@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.51
+Stable tag: 0.4.52
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,10 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.52 =
+* Deleting an account never waits on Yallapp: telling Yallapp the person's chat is gone now happens in the background (WP-Cron), with a short timeout, and is tried again later, up to five times, when Yallapp can't be reached.
+* Your shop's categories on the flower templates' pages: the occasions' rings, chips and ticker and the collections' tiles, arches and cards that came with the template show your WooCommerce categories (the top ones, in your order, with their pictures), each opening its products, as soon as your shop has categories. A ring, tile or button named like one of your categories opens it. An app opened again asks for its pages again once you change your categories.
 
 = 0.4.51 =
 * Studio pages: an element you sized by hand in Studio keeps your size in the app (a cover's top bar otherwise spans the cover), and the name you gave an element in Studio is what a screen reader says for a round button without words.
