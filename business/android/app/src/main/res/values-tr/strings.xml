@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_name">Bugünün satışları</string>
+    <string name="widget_description">Satışlar, siparişler ve bekleyen yeni siparişler</string>
+    <string name="widget_sales">Bugünkü satışlar</string>
+    <string name="widget_orders">Siparişler</string>
+    <string name="widget_waiting">Bekleyen</string>
+    <string name="widget_sign_in">Giriş yapmak için Yallapp Business\'ı açın</string>
+    <string name="widget_offline">Yenilenemedi. Açmak için dokunun.</string>
+    <string name="widget_choose">Hangi mağaza?</string>
+    <string name="widget_updated">Güncellendi: %1$s</string>
+</resources>

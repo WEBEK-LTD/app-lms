@@ -44,6 +44,7 @@ void main() {
       findsOneWidget,
     );
     await settle(tester);
+    await seeOnToday(tester, find.text('Needs you now'));
     expect(find.text('Needs you now'), findsOneWidget);
   });
 
@@ -61,6 +62,7 @@ void main() {
     expect(find.text('Business'), findsOneWidget);
     expect(tester.hasRunningAnimations, isFalse);
     await settle(tester, 3);
+    await seeOnToday(tester, find.text('Needs you now'));
     expect(find.text('Needs you now'), findsOneWidget);
   });
 

@@ -1,0 +1,1 @@
+ALTER TABLE `apps` ADD `shop_pause` longtext;

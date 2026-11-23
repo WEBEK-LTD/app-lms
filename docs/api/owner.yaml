@@ -545,6 +545,8 @@ paths:
                 alarm_volume: { type: boolean }
                 quiet: { type: [object, 'null'] }
                 time_zone: { type: [string, 'null'] }
+                by_value: { type: [array, 'null'] }
+                summary: { type: object }
       responses:
         '200':
           description: Saved
@@ -553,6 +555,200 @@ paths:
               schema: { $ref: '#/components/schemas/PushSounds' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/widget-token:
+    post:
+      tags: [Account]
+      operationId: getWidgetToken
+      summary: 214 A token for the home-screen widget
+      description: Read-only, for `GET /widget` only, for 30 days; it stops when this device is signed out. The app asks for a new one each time it opens and hands it to the widget (Android's own storage; on iOS a keychain item shared with the widget extension).
+      responses:
+        '200':
+          description: The token
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, expires_at]
+                properties:
+                  token: { type: string, example: 'yw1.…' }
+                  expires_at: { type: string, format: date-time }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/live-activity:
+    put:
+      tags: [Account]
+      operationId: setLiveActivity
+      summary: 214 This iPhone's Live Activity push tokens
+      description: "The push-to-start token (iOS 17.2) and the tokens of the new orders' Live Activities on this phone (hex). A new order (new_order, new_food_order, new_market_order) starts its Live Activity on the iPhones that hear of it; accepted, turned down or cancelled anywhere, it ends on every one. Only the fields sent change; an order's `token: null` forgets it. Tokens over 12 hours old are dropped, 20 at most are kept."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_token: { type: [string, 'null'], example: 'a1b2…' }
+                orders:
+                  type: array
+                  maxItems: 20
+                  items:
+                    type: object
+                    required: [app_id, kind, order_id, token]
+                    properties:
+                      app_id: { type: string }
+                      kind: { type: string, enum: [new_order, new_food_order, new_market_order] }
+                      order_id: { type: string, example: '42' }
+                      token: { type: [string, 'null'] }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [start, orders]
+                properties:
+                  start: { type: boolean, description: A push-to-start token is kept. }
+                  orders: { type: integer, description: The order activities' tokens kept. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /widget:
+    get:
+      tags: [Today]
+      operationId: getWidget
+      summary: 214 The home-screen widget's figures
+      description: "With the widget token (`Authorization: Bearer yw1.…`), not the access token. The apps the widget may show (those whose orders the person sees) and the chosen one's sales today (its main currency), orders today and new orders waiting; the first app when `app_id` is missing or not one of them."
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: app_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: The figures
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [apps, app, updated_at]
+                properties:
+                  apps:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, name]
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+                  app:
+                    oneOf:
+                      - type: 'null'
+                      - type: object
+                        required: [id, name, date, sales, orders, waiting]
+                        properties:
+                          id: { type: string }
+                          name: { type: string }
+                          date: { type: string }
+                          sales:
+                            oneOf:
+                              - type: 'null'
+                              - type: object
+                                required: [amount_cents, currency, formatted]
+                                properties:
+                                  amount_cents: { type: integer }
+                                  currency: { type: string }
+                                  formatted: { type: string }
+                          orders: { type: integer }
+                          waiting: { type: integer }
+                  updated_at: { type: string, format: date-time }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /apps/{app_id}/pause:
+    get:
+      tags: [Orders]
+      operationId: getShopPause
+      summary: 214 Whether the shop, or each of its places, takes new orders
+      description: A shop (catalog app) pauses as a whole (`kind` shop); a food app's restaurants and a marketplace's places one by one (`kind` places). For those who may move the app's orders.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: The pauses in force
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ShopPauseState' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Orders]
+      operationId: setShopPause
+      summary: 214 Pause new orders
+      description: For 15, 30 or 60 minutes, or until reopened (`minutes` null), with a reason customers read. A place (`place_id`, or `all`) for a food app or a marketplace. Orders already placed, scheduled ones too, stay. Checkout refuses new orders (`shop_paused`, `restaurant_closed`, `vendor_closed`) until it ends.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [minutes]
+              properties:
+                minutes: { type: [integer, 'null'], enum: [15, 30, 60, null] }
+                reason: { type: [string, 'null'], maxLength: 80 }
+                place_id: { oneOf: [{ type: integer }, { type: string, enum: [all] }] }
+      responses:
+        '200':
+          description: Paused
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ShopPauseState' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Orders]
+      operationId: reopenShop
+      summary: 214 Reopen now
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: place_id
+          in: query
+          description: A place's id, or `all` (food apps and marketplaces).
+          schema: { type: string }
+      responses:
+        '200':
+          description: Reopened
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ShopPauseState' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/day-summary:
+    get:
+      tags: [Analytics]
+      operationId: getDaySummary
+      summary: 214 A day's summary (the end-of-day push opens it)
+      description: Sales, orders, the average order and the best seller, against the same weekday last week. For those with Analytics.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: date
+          in: query
+          description: YYYY-MM-DD in the shop's time zone; today by default, at most 60 days back.
+          schema: { type: string, example: '2026-11-23' }
+      responses:
+        '200':
+          description: The day
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DaySummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /updates:
     get:
@@ -4630,7 +4826,7 @@ components:
 
     PushKind:
       type: string
-      enum: [new_order, new_booking, new_message, new_chat_message, new_review, payment_received, build_finished, yallapp_updates, account_notices, new_food_order, shipment_waiting, new_complaint, prime_alert, morning_brief, new_market_order, order_cancelled]
+      enum: [new_order, new_booking, new_message, new_chat_message, new_review, payment_received, build_finished, yallapp_updates, account_notices, new_food_order, shipment_waiting, new_complaint, prime_alert, morning_brief, new_market_order, order_cancelled, daily_summary]
       description: |
         `new_order` a catalog order was paid (125: never for a delivery, food,
         ride or school app's payment links; a school fee paid by card is
@@ -4681,6 +4877,7 @@ components:
         morning_brief: { type: boolean }
         new_market_order: { type: boolean }
         order_cancelled: { type: boolean }
+        daily_summary: { type: boolean }
 
     SoundChoice:
       type: string
@@ -4696,7 +4893,7 @@ components:
         new_chat_message, new_review, new_complaint; other: the rest), the
         groups that ring on until opened and for how long at most, and the
         quiet hours (everything but orders without a sound, in `time_zone`).
-      required: [saved, sounds, ring, ring_minutes, vibrate, alarm_volume, quiet, time_zone, ringtones]
+      required: [saved, sounds, ring, ring_minutes, vibrate, alarm_volume, quiet, time_zone, by_value, summary, ringtones]
       properties:
         saved: { type: boolean, description: False until this device saved its choices (it gets pushes as before). }
         sounds:
@@ -4721,7 +4918,80 @@ components:
                 from: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$' }
                 to: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$' }
         time_zone: { type: [string, 'null'], example: Europe/Istanbul }
+        by_value:
+          description: '214 Ring by order value: 2 or 3 bands, each from an amount in whole units of the order''s currency (the first from 0), each with its sound; null: the orders'' sound for every order.'
+          oneOf:
+            - type: 'null'
+            - type: array
+              minItems: 2
+              maxItems: 3
+              items:
+                type: object
+                required: [from, sound]
+                properties:
+                  from: { type: number, minimum: 0 }
+                  sound: { $ref: '#/components/schemas/SoundChoice' }
+        summary:
+          type: object
+          description: 214 The end-of-day summary (`daily_summary`), at this time in the shop's time zone; on at 23:00 until chosen.
+          required: [on, at]
+          properties:
+            on: { type: boolean }
+            at: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$' }
         ringtones: { type: array, items: { type: string } }
+
+    ShopPause:
+      type: [object, 'null']
+      required: [until, reason, since]
+      properties:
+        until: { type: [string, 'null'], format: date-time, description: Null until reopened. }
+        reason: { type: [string, 'null'] }
+        since: { type: string, format: date-time }
+
+    ShopPauseState:
+      type: object
+      required: [kind, shop, places, minutes]
+      properties:
+        kind: { type: string, enum: [shop, places] }
+        shop: { $ref: '#/components/schemas/ShopPause' }
+        places:
+          type: array
+          items:
+            type: object
+            required: [id, name, paused]
+            properties:
+              id: { type: integer }
+              name: { type: string }
+              paused: { $ref: '#/components/schemas/ShopPause' }
+        minutes: { type: array, items: { type: [integer, 'null'] } }
+
+    DayAmount:
+      type: object
+      required: [amount_cents, formatted]
+      properties:
+        amount_cents: { type: integer }
+        formatted: { type: string }
+
+    DaySummary:
+      type: object
+      required: [date, currency, sales, orders, average, best_seller, compare]
+      properties:
+        date: { type: string }
+        currency: { type: [string, 'null'] }
+        sales: { $ref: '#/components/schemas/DayAmount' }
+        orders: { type: integer }
+        average: { oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/DayAmount' }] }
+        best_seller: { type: [string, 'null'] }
+        compare:
+          type: object
+          description: The same weekday a week before.
+          required: [date, weekday, sales, orders, change_pct]
+          properties:
+            date: { type: string }
+            weekday: { type: string }
+            sales: { $ref: '#/components/schemas/DayAmount' }
+            orders: { type: integer }
+            change_pct: { type: [number, 'null'] }
 
     Update:
       type: object

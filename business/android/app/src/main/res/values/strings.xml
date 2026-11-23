@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 214 The home-screen widget's words (Flutter's own strings are in lib/l10n). -->
+<resources>
+    <string name="widget_name">Today\'s sales</string>
+    <string name="widget_description">Sales, orders and new orders waiting</string>
+    <string name="widget_sales">Sales today</string>
+    <string name="widget_orders">Orders</string>
+    <string name="widget_waiting">Waiting</string>
+    <string name="widget_sign_in">Open Yallapp Business to sign in</string>
+    <string name="widget_offline">Couldn\'t refresh. Tap to open.</string>
+    <string name="widget_choose">Which shop?</string>
+    <string name="widget_updated">Updated %1$s</string>
+</resources>
