@@ -94,5 +94,22 @@
 	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>YBKeychainGroup</key>
+	<string>$(AppIdentifierPrefix)tr.com.yallapp.business.shared</string>
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>tr.com.yallapp.business</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>yallappbusiness</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

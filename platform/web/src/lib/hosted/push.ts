@@ -72,17 +72,57 @@ export interface PushMessage {
   apnsSound?: string | null;
   /** 207 iOS: time-sensitive (shown at once, through a Focus that allows it). */
   timeSensitive?: boolean;
+  /** 214 iOS: also wakes the app in the background (`content-available`), for its widget. */
+  contentAvailable?: boolean;  /** 214 iOS: a Live Activity's push (FCM's `apns.live_activity_token`) instead of a notification. */
+  liveActivity?: LiveActivityPush | null;
+}
+
+/** 214 What a Live Activity push says (ActivityKit's `aps`): start one, update it or end it. */
+export interface LiveActivityPush {
+  /** The activity's token, or the app's push-to-start token for "start" (hex). */
+  token: string;
+  event: "start" | "update" | "end";
+  /** Seconds since 1970. */
+  timestamp: number;
+  contentState: Record<string, unknown>;
+  /** "start": the ActivityAttributes type and its fields. */
+  attributesType?: string;
+  attributes?: Record<string, unknown>;
+  /** "start": what the phone shows (and says) as it starts. */
+  alert?: { title: string; body: string } | null;
+  /** "end": when it leaves the lock screen (seconds since 1970). */
+  dismissalDate?: number;
+}
+
+/** 214 The `aps` of a Live Activity push. */
+export function liveActivityAps(live: LiveActivityPush): Record<string, unknown> {
+  return {
+    timestamp: live.timestamp,
+    event: live.event,
+    "content-state": live.contentState,
+    ...(live.attributesType ? { "attributes-type": live.attributesType, attributes: live.attributes ?? {} } : {}),
+    ...(live.alert ? { alert: { title: live.alert.title, body: live.alert.body } } : {}),
+    ...(live.dismissalDate !== undefined ? { "dismissal-date": live.dismissalDate } : {}),
+  };
 }
 
 /** 207 The `aps` of a push: its sound and, when asked, time-sensitive. */
-export function apsOf(message: Pick<PushMessage, "apnsSound" | "timeSensitive">): Record<string, string> {
+export function apsOf(message: Pick<PushMessage, "apnsSound" | "timeSensitive" | "contentAvailable">): Record<string, string | number> {
   const sound = message.apnsSound === undefined ? "default" : message.apnsSound;
-  return { ...(sound ? { sound } : {}), ...(message.timeSensitive ? { "interruption-level": "time-sensitive" } : {}) };
+  return {
+    ...(sound ? { sound } : {}),
+    // 214 Through Focus once the app has the entitlement (iOS treats it as active until then), first among the app's notifications.
+    ...(message.timeSensitive ? { "interruption-level": "time-sensitive", "relevance-score": 1 } : {}),
+    ...(message.contentAvailable ? { "content-available": 1 } : {}),
+  };
 }
 
 /** 207 The FCM v1 message for one token. */
 export function fcmMessage(deviceToken: string, message: PushMessage) {
   const android = { priority: "high", ...(message.restrictedPackage ? { restricted_package_name: message.restrictedPackage } : {}) };
+  if (message.liveActivity) {
+    return { token: deviceToken, apns: { live_activity_token: message.liveActivity.token, headers: { "apns-priority": "10" }, payload: { aps: liveActivityAps(message.liveActivity) } } };
+  }
   if (message.dataOnly) return { token: deviceToken, data: { ...message.data, yb_title: message.title, yb_body: message.body }, android };
   return {
     token: deviceToken,

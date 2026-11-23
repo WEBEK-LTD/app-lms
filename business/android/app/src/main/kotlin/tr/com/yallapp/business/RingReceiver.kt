@@ -15,6 +15,10 @@ class RingReceiver : BroadcastReceiver() {
         when (intent.action) {
             "com.google.android.c2dm.intent.RECEIVE" -> {
                 val extras = intent.extras ?: return
+                // 214 A new order's push (any app version's): the home-screen widget counts it.
+                if (extras.getString("kind") in setOf("new_order", "new_food_order", "new_market_order", "shipment_waiting", "order_cancelled")) {
+                    runCatching { WidgetData.refreshAll(context) }
+                }
                 if (!extras.containsKey("yb_title")) return
                 val data = HashMap<String, String>()
                 for (key in extras.keySet()) {

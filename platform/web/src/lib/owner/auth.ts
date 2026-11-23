@@ -11,7 +11,7 @@ import { OwnerError, bodyObject, invalid, rateLimited, type OwnerContext, type O
 import { acceptedLang, ownerLang } from "./lang";
 import { businessesOf, businessFor, type Business } from "../team/service";
 import { scopedApps } from "../team/permissions";
-import { accessKey, createAccessToken, newRefreshToken, readAccessToken, refreshHash } from "./tokens";
+import { accessKey, createAccessToken, newRefreshToken, readAccessToken, refreshHash, readWidgetToken, widgetKey } from "./tokens";
 
 /**
  * 58 Signing in to Yallapp Business with the dashboard's account. Each
@@ -146,8 +146,9 @@ export async function refresh(deps: OwnerDeps, req: OwnerRequest) {
 }
 
 /** The person on a request with an access token, or 401. */
-export async function authenticateRequest(deps: OwnerDeps, req: OwnerRequest): Promise<OwnerContext> {
-  const deviceId = readAccessToken(req.token, accessKey(deps.signingSecret), deps.now);
+/** `widget`: 214 the home-screen widget's own token (`GET /widget` only), else the access token. */
+export async function authenticateRequest(deps: OwnerDeps, req: OwnerRequest, widget = false): Promise<OwnerContext> {
+  const deviceId = widget ? readWidgetToken(req.token, widgetKey(deps.signingSecret), deps.now) : readAccessToken(req.token, accessKey(deps.signingSecret), deps.now);
   const device = deviceId ? await deps.store.getOwnerDevice(deviceId) : null;
   if (!device) throw invalidToken();
   const user = await deps.store.getUserById(device.userId);

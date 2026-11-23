@@ -1,0 +1,13 @@
+/* 214 أداة الشاشة الرئيسية والنشاط المباشر للطلب الجديد. */
+"widget.name" = "مبيعات اليوم";
+"widget.description" = "مبيعات اليوم وطلبات اليوم والطلبات الجديدة المنتظرة.";
+"widget.choose" = "اختر المتجر";
+"widget.shop" = "المتجر";
+"widget.sales" = "مبيعات اليوم";
+"widget.orders" = "طلبات اليوم";
+"widget.waiting" = "بانتظارك";
+"widget.signIn" = "سجّل الدخول إلى Yallapp Business لترى يومك.";
+"widget.offline" = "تعذّر التحديث. تُعرض آخر الأرقام.";
+"widget.updated" = "آخر تحديث %@";
+"live.newOrder" = "طلب جديد %@";
+"live.waiting" = "في الانتظار";

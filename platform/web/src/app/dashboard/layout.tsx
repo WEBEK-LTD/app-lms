@@ -11,6 +11,7 @@ import { DashboardLanguage } from "@/components/dashboard-language";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SignOutButton } from "@/components/sign-out";
 import { MovedAppNotice } from "@/components/moved-app";
+import { ShopPauseNotice } from "@/components/shop-pause";
 import { WorkingInAccount } from "@/components/working-in-account";
 import { AppSwitcher } from "@/components/app-switcher";
 import { SectionSwitch } from "@/components/section-switch";
@@ -261,6 +262,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <WorkingInAccount context={context} text={text} />
               {/* 132.112 An app that moved to another account stays to read. */}
               <MovedAppNotice app={app} text={text} />
+              {/* 214 Paused from Yallapp Business, with Reopen now. */}
+              <ShopPauseNotice app={app} text={text} />
               {children}
             </div>
           </main>
