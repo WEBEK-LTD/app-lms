@@ -520,6 +520,86 @@
       }
     }
   ],
+  "electronics": [
+    {
+      "slot": "electronics-hero",
+      "src": "/stories/electronics/electronics-hero.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Leeroy",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/macbook-laptop-UDIGU0A2SN",
+        "title": "Macbook Laptop"
+      }
+    },
+    {
+      "slot": "electronics-phone",
+      "src": "/stories/electronics/electronics-phone.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Retro 56",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/smartphone-camera-TBGNSSQV6B",
+        "title": "Smartphone Camera"
+      }
+    },
+    {
+      "slot": "electronics-compare",
+      "src": "/stories/electronics/electronics-compare.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Lauren Mancke",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/tablet-ipad-M6XC5T3JY3",
+        "title": "Tablet Ipad"
+      }
+    },
+    {
+      "slot": "electronics-desk",
+      "src": "/stories/electronics/electronics-desk.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "Leeroy",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/laptop-macbook-SSGTHB82F6",
+        "title": "Laptop Macbook"
+      }
+    },
+    {
+      "slot": "electronics-glow",
+      "src": "/stories/electronics/electronics-glow.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "One Idea LLC",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/laptop-keyboard-QGU10TMNPE",
+        "title": "Laptop Keyboard"
+      }
+    },
+    {
+      "slot": "electronics-buds",
+      "src": "/stories/electronics/electronics-buds.jpg",
+      "width": 960,
+      "height": 640,
+      "credit": {
+        "creator": "FOCA Stock",
+        "license": "CC0 1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "source": "https://stocksnap.io/photo/iphone-device-KRMOSAYCZ4",
+        "title": "Iphone Device"
+      }
+    }
+  ],
   "mobiles": [
     {
       "slot": "mobiles-hero",

@@ -307,6 +307,8 @@ const BY_STORY: Record<StoryId, (keyof typeof COLUMNS)[]> = {
   flowers: ["tapcart", "appmysite", "mobiloud", "deondeFlowers"],
   // 208 The clothes shop: the companies that make apps for online shops (Tapcart's are fashion brands').
   clothes: ["tapcart", "appmysite", "mobiloud"],
+  // 211 The electronics shop: the same companies that make apps for online shops.
+  electronics: ["tapcart", "appmysite", "mobiloud"],
   // 211 The mobiles shop: the same companies that make apps for online shops.
   mobiles: ["tapcart", "appmysite", "mobiloud"],
   // 211 The computers shop: the same companies that make apps for online shops.
@@ -381,6 +383,14 @@ export const YALLAPP: Record<StoryId, Pick<CompareColumn, "kind" | "apps" | "own
   },
   // 208 Lujain, the clothes shop: a template, as Leqaa is.
   clothes: {
+    kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
+    apps: { en: "The shop's own app for its customers, and Studio for you", ar: "تطبيق المتجر الخاص لعملائه، وStudio لك", tr: "Mağazanın müşterileri için kendi uygulaması ve sizin için Studio" },
+    ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },
+    pricing: { en: "A Studio plan; no share of your sales", ar: "باقة Studio؛ بلا نسبة من مبيعاتك", tr: "Bir Studio paketi; satışlarınızdan pay yok" },
+    arabic: { en: "Yes: Arabic, right to left, in the app and in Studio", ar: "نعم: العربية من اليمين لليسار، في التطبيق وفي Studio", tr: "Evet: Arapça, sağdan sola, uygulamada ve Studio'da" },
+  },
+  // 211 Madar, the electronics shop: a template, as Lujain is.
+  electronics: {
     kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
     apps: { en: "The shop's own app for its customers, and Studio for you", ar: "تطبيق المتجر الخاص لعملائه، وStudio لك", tr: "Mağazanın müşterileri için kendi uygulaması ve sizin için Studio" },
     ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },

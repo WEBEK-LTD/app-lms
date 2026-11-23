@@ -58,6 +58,7 @@ describe("32 the website's menu", () => {
       "/yallapp-studio/academy",
       "/yallapp-studio/flowers",
     "/yallapp-studio/clothes",
+    "/yallapp-studio/electronics",
     "/yallapp-studio/mobiles",
     "/yallapp-studio/computers",
       "/demo/studio",

@@ -140,6 +140,12 @@ export const TR_MARKETING: MarketingTranslation = {
     "clothes-sig-b-home": "Lujain ikinci görünümüyle, NOUN'un sokak stili: drop'un vitrini, bu haftanın yenileri, görünümü al ve kategoriler",
     "clothes-sig-a-home-dark": "Lujain birinci görünümüyle, butik, karanlık modda: arama, kategoriler, sezon koleksiyonları ve yeniler",
     "clothes-sig-b-home-dark": "Lujain ikinci görünümüyle, NOUN'un sokak stili, karanlık modda: drop'un vitrini, bu haftanın yenileri, görünümü al ve kategoriler",
+    "madar-home": "Bir elektronik mağazası olan Madar ilk görünümüyle: arama, kategoriler, bir sonraki kartı görünen lansmanlar, taksit yakında ile hizmetler ve yeni gelenler",
+    "madar-menu": "Madar'ın kategori menüsü: her kategori kayan bir kart satırı, alt kategorileri ardından, takas ve hesap altta",
+    "madar-product": "Madar'da bir telefon: renkleri ve depolamaları, her depolamanın kendi fiyatı, tablo hâlinde özellikleri, eklenecek garanti ve uyumlu aksesuarlar",
+    "electronics-sig-b-home": "Madar ikinci görünümüyle, NABD: koyu üzerinde limon yeşili, ilk 5, üretici paketi ve takas kartı",
+    "electronics-sig-a-home-dark": "Madar ilk görünümüyle karanlık modda: arama, kategoriler, lansmanlar ve hizmetler",
+    "electronics-sig-b-home-dark": "Madar ikinci görünümüyle, NABD, karanlık modda: lansmanlar, fotoğraflı kategoriler ve günün fırsatı",
     "nova-home": "Nova telefon mağazası birinci görünümüyle: arama, kategoriler, bir sonrakinin göründüğü kamera telefonu vitrini, en yeni telefonlar ve eski telefonunuzun değeri",
     "nova-menu": "Nova'nın kategori menüsü: telefonlar, garantili ikinci el, tabletler, saatler, kulaklıklar ve aksesuarlar, her biri kaydırılan bir kart sırası",
     "nova-product": "Nova'da bir telefon: fotoğrafları, depolaması, rengi ve garantisi, teknik özellikleri ve yanına yakışan aksesuarlar",
@@ -1833,6 +1839,14 @@ export const TR_MARKETING: MarketingTranslation = {
       tryThis: [
         "Üstteki menüye dokunun ve kategoriler arasında kaydırın, her birinin alt kategorileri var",
         "Bir elbise açın, bedenini ve rengini seçin (biten beden öyle görünür), beden rehberine ve görünümü tamamlayanlara bakın",
+        "Mağazanın koduyla ödeyin, siparişinizi Siparişler'de izleyin, uygulamayı hesaptan Arapçaya ya da koyu moda geçirin",
+      ],
+    },
+    electronics: {
+      summary: "Riyad'da her şeyin bulunduğu bir elektronik mağazası: telefonlar, dizüstüler, tabletler ve saatler, TV'ler, ses, kameralar ve dronlar, oyun ve ev aletleri; her birinin özellikleri, renkleri ve depolamaları, garantisi ve eklenecek koruması. Fotoğrafları StockSnap'ten, CC0.",
+      tryThis: [
+        "Bir telefon açın, rengini ve depolamasını seçin (her depolamanın kendi fiyatı), özelliklerini okuyun ve bir yıl daha garanti ekleyin",
+        "İki telefonu yan yana, özellik özellik karşılaştırın ve takas sayfasında eski telefonunuzun ne ettiğini görün",
         "Mağazanın koduyla ödeyin, siparişinizi Siparişler'de izleyin, uygulamayı hesaptan Arapçaya ya da koyu moda geçirin",
       ],
     },

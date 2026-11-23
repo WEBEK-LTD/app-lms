@@ -22,6 +22,8 @@ import { MOBILES_SECTIONS } from "./demo-designs/mobiles-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
 // 211 Nawah's sections (Build your PC, the spec filters, ready builds, the device of the week).
 import { COMPUTERS_SECTIONS } from "./demo-designs/computers-signature";
+// 211 Madar's sections.
+import { ELECTRONICS_SECTIONS } from "./demo-designs/electronics-signature";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -324,7 +326,9 @@ export type SectionWord =
   // 211 Nova's looks, pages and sections (lib/studio/demo-designs/mobiles-signature.ts).
   | Extract<AppWord, `mb${string}`>
   // 211 Nawah's looks, pages and sections (lib/studio/demo-designs/computers-signature.ts).
-  | Extract<AppWord, `pc${string}`>;
+  | Extract<AppWord, `pc${string}`>
+  // 211 Madar's looks, pages and sections (lib/studio/demo-designs/electronics-signature.ts).
+  | Extract<AppWord, `el${string}`>;
 
 export interface SectionContext {
   brand: string;
@@ -1115,6 +1119,8 @@ export const SECTIONS: readonly SectionInfo[] = [
   ...LEQAA_SECTIONS,
   // 208 The clothes type's parts (the category menu, the peeking hero, the deal, shop the look, the size card and chart) and the installments tag.
   ...CLOTHES_SECTIONS,
+  // 211 The electronics type's parts (trade-in, compare, specs, the services, the star, the brands, the top five, the bundle).
+  ...ELECTRONICS_SECTIONS,
   INSTALLMENTS_SECTION,
   // 211 The mobiles type's parts (trade-in, compare, by storage, certified used, accessories, brands, bundle, numbers).
   ...MOBILES_SECTIONS,

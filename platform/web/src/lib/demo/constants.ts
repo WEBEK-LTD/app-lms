@@ -87,6 +87,8 @@ export const FLOWER_SHOP_TEMPLATE = "flowers_signature_a";
 export const SHOP_TYPE_DEMOS = {
   // 208 Lujain (لجين), the clothes shop: A a black and white boutique, B streetwear (NOUN).
   clothes: "clothes_signature_a",
+  // 211 Madar (مدار), the electronics shop: A MADAR in white and deep blue, B NABD in lime on near black.
+  electronics: "electronics_signature_a",
   // 211 Nova (نوفا), the mobiles shop: A a white and blue phone store, B deep green on warm stone.
   mobiles: "mobiles_signature_a",
   // 211 Nawah (نواة), computers and gaming: A NAWAH (white and one strong blue), B SILICA (deep green on warm stone).
@@ -94,6 +96,7 @@ export const SHOP_TYPE_DEMOS = {
 } as const;
 export type ShopTypeDemo = keyof typeof SHOP_TYPE_DEMOS;
 export const CLOTHES_DEMO = "clothes" as const satisfies ShopTypeDemo;
+export const ELECTRONICS_DEMO = "electronics" as const satisfies ShopTypeDemo;
 export const MOBILES_DEMO = "mobiles" as const satisfies ShopTypeDemo;
 export const COMPUTERS_DEMO = "computers" as const satisfies ShopTypeDemo;
 

@@ -32,6 +32,8 @@ import { LUJAIN_A, NOUN_B } from "./clothes-signature";
 import { EMERALD_B, NOVA_A } from "./mobiles-signature";
 // 211 Nawah, computers and gaming: A NAWAH white and blue, B SILICA green on stone.
 import { NAWAH_A, SILICA_B } from "./computers-signature";
+// 211 Madar, the electronics shop: A MADAR white and deep blue, B NABD lime on near black.
+import { MADAR_A, NABD_B } from "./electronics-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -169,6 +171,8 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   flowers: { a: LEQAA_A, b: LEQAA_B },
   // 208 Lujain, the clothes shop (a store): A the black and white boutique, B NOUN's streetwear.
   clothes: { a: LUJAIN_A, b: NOUN_B },
+  // 211 Madar, the electronics shop (a store): A MADAR in white and deep blue, B NABD in lime on near black.
+  electronics: { a: MADAR_A, b: NABD_B },
   // 211 Nova, the mobiles shop (a store): A NOVA's ink and cobalt, B emerald on warm stone.
   mobiles: { a: NOVA_A, b: EMERALD_B },
   // 211 Nawah, computers and gaming (a store): A NAWAH in white and one strong blue, B SILICA in deep green on stone.

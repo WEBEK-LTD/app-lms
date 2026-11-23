@@ -151,7 +151,7 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="flex flex-col gap-0.5">
                     <h2 className="m-0 text-[19px] font-bold">{DEMO_BRANDS[type].appName}</h2>
-                    <span className="text-sm text-muted">{type === PREMIUM_ACADEMY_DEMO ? "Premium academy" : type === FLOWER_SHOP_DEMO ? "Flower shop" : isStoreTemplateDemo(type) ? (type === "mobiles" ? "Phone shop" : "Clothes shop") : demoKind(type).name} demo</span>
+                    <span className="text-sm text-muted">{type === PREMIUM_ACADEMY_DEMO ? "Premium academy" : type === FLOWER_SHOP_DEMO ? "Flower shop" : type === "electronics" ? "Electronics shop" : isStoreTemplateDemo(type) ? (type === "mobiles" ? "Phone shop" : type === "computers" ? "Computers shop" : "Clothes shop") : demoKind(type).name} demo</span>
                   </div>
                   <span className="text-sm font-semibold">{app ? (live ? "Download live" : `Coming soon on ${family === "studio" ? "/demo/studio" : "/demo"}`) : "Not created yet"}</span>
                 </div>

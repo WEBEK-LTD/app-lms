@@ -63,7 +63,7 @@ describe("208 the shop types: sections, then types, then templates", () => {
     expect([...SHOP_SECTIONS]).toEqual(["fashion", "beauty", "home", "kids", "shopping"]);
     expect(SHOP_TYPES.map((t) => t.id)).toEqual(["clothes", "kids_clothes", "cosmetics", "furniture", "decor", "crochet", "toys", "electronics", "mobiles", "computers"]);
     // 211 Mobiles ready too (and the types other stages make ready beside it).
-    expect(SHOP_TYPES.filter(shopTypeReady).map((t) => t.id)).toEqual(expect.arrayContaining(["clothes", "mobiles"]));
+    expect(SHOP_TYPES.filter(shopTypeReady).map((t) => t.id)).toEqual(expect.arrayContaining(["clothes", "electronics", "mobiles", "computers"]));
     // Kids' clothes in Fashion and in Kids & toys, the same type once.
     expect(shopTypesIn("fashion").map((t) => t.id)).toEqual(["clothes", "kids_clothes"]);
     expect(shopTypesIn("kids").map((t) => t.id)).toEqual(["kids_clothes", "toys"]);

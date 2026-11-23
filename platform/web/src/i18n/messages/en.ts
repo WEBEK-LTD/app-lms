@@ -58,6 +58,8 @@ export const en = {
     storyMobilesText: "Trade-in, certified used, specs and compare",
     storyComputers: "Computers shop app",
     storyComputersText: "Build your PC, filters by spec and compare",
+    storyElectronics: "Electronics shop app",
+    storyElectronicsText: "Specs, compare, warranty and trade-in",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
@@ -829,6 +831,8 @@ export const en = {
       mobiles_b: { name: "Emerald on stone", text: "The whole phone shop in deep green on warm stone: the categories as tiles, the trade-in hero, the best sellers, trade-in in three steps, renewed devices with a warranty, the deal, a ready bundle with installments coming soon, two phones compared and your numbers." },
       computers_a: { name: "NAWAH, white and blue", text: "The whole computers and gaming shop in white and one strong blue: the small header whose menu opens the category menu, the search, the categories, the hero with the next card peeking, Build your PC part by part, the hour deals, laptops with their key specs, shop by use, the gamer zone, the most wanted parts, the filters by spec and the services with installments coming soon; the category menu, Build your PC, find by spec, the shop, the cart and orders in the look, with a graphite night." },
       computers_b: { name: "SILICA, green on stone", text: "The whole computers and gaming shop in deep green on warm stone, its sections numbered: the search with spec chips, the categories in circles, let us suggest your device, the device of the week with its spec table, the gamer corner, parts prices this week, ready builds side by side and Build your PC; every page, the bar, the account, the shop, the cart and orders in the look, with a green-black night." },
+      electronics_a: { name: "MADAR, all in one", text: "The whole electronics shop in clean white and one deep blue: the small header whose menu opens the category menu, the search, the categories, the launches with the next card peeking, the services with installments coming soon, what just arrived, the deal of the day, shop by interest, the star of the season, the trade-in card, the brands, the best sellers and two products compared spec by spec; the category menu, trade-in and compare pages, the shop, the cart and orders in the look, with a near-black night." },
+      electronics_b: { name: "NABD, lime on black", text: "The whole electronics shop in lime on near-black cards over warm stone: where it delivers, the search with its filters, the launches, the categories as photos, the deal of the day, the top five, the creator's bundle, the trade-in card, compare and the services; every page, the bar, the account, the shop, the cart and orders in the look, with a near-black night." },
     },
   },
   meta: {

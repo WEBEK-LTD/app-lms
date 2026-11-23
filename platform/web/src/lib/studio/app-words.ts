@@ -13,6 +13,8 @@
 import type { PremiumText } from "./premium-content";
 import type { PremiumMapWords } from "./premium-maps";
 import type { PremiumWord } from "./premium-motion";
+// 211 Madar's words (the electronics type), in a file of their own.
+import { EL_AR, EL_EN, EL_TR } from "./demo-designs/electronics-words";
 
 export const en = {
   seeAll: "See all",
@@ -1279,6 +1281,8 @@ export const en = {
   pcTrack4: "Delivered",
   pcTrack4Text: "Enjoy it. Your warranty starts today.",
   // ——— end 211 Nawah ———
+  // 211 Madar, the electronics shop (lib/studio/demo-designs/electronics-words.ts).
+  ...EL_EN,
 } as const;
 
 /** A word a template writes into the app. */
@@ -2543,6 +2547,7 @@ export const ar: Record<AppWord, string> = {
   pcTrack4: "تم التوصيل",
   pcTrack4Text: "استمتع به. يبدأ ضمانك من اليوم.",
   // ——— end 211 Nawah ———
+  ...EL_AR,
 };
 
 export const tr: Record<AppWord, string> = {
@@ -3803,6 +3808,7 @@ export const tr: Record<AppWord, string> = {
   pcTrack4: "Teslim edildi",
   pcTrack4Text: "Keyfini çıkarın. Garantiniz bugün başlıyor.",
   // ——— end 211 Nawah ———
+  ...EL_TR,
 };
 
 /** The languages templates are written in; another one gets English. */

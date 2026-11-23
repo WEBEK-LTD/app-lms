@@ -20,6 +20,7 @@ import { FLOWER_PRODUCTS } from "./flowers";
 import { CLOTHES_PRODUCTS } from "./clothes";
 import { MOBILES_PRODUCTS } from "./mobiles";
 import { COMPUTERS_PRODUCTS } from "./computers";
+import { ELECTRONICS_PRODUCTS } from "./electronics";
 import { SCHOOL_CLASSES } from "./school";
 import { TRAVEL_HOTELS } from "@/lib/travel/samples";
 
@@ -87,6 +88,8 @@ const DEMO_BUSINESS: Partial<Record<DemoId, string>> = {
   mobiles: "shop",
   // 211 Nawah, computers and gaming, too.
   computers: "shop",
+  // 211 Madar, the electronics shop, too.
+  electronics: "shop",
 };
 
 export function businessOf(id: DemoId): string {
@@ -169,6 +172,8 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   mobiles: () => ({ list: "products", noun: "products", count: MOBILES_PRODUCTS.length }),
   // 211 Nawah: its laptops, builds, monitors, parts and gaming gear.
   computers: () => ({ list: "products", noun: "products", count: COMPUTERS_PRODUCTS.length }),
+  // 211 Madar: its phones, laptops, screens, audio, cameras and appliances.
+  electronics: () => ({ list: "products", noun: "products", count: ELECTRONICS_PRODUCTS.length }),
 };
 
 export function demoItems(id: DemoId): DemoItems {
