@@ -132,6 +132,10 @@ class Checkout {
 			'guest_checkout'    => 'yes' === get_option( 'woocommerce_enable_guest_checkout' ),
 			'checkout_opens_in' => (string) $this->settings->get( 'checkout_opens_in' ),
 			'reviews'           => wc_reviews_enabled(),
+			// 212 The wishlist and Notify me when it's back (photos with reviews are Yallapp's hosted shops').
+			'wishlist'          => true,
+			'back_in_stock'     => true,
+			'review_photos'     => null,
 			'delivery_date'     => array(
 				'enabled'         => (bool) $this->settings->get( 'store_delivery_date' ),
 				'required'        => (bool) $this->settings->get( 'store_delivery_date' ) && (bool) $this->settings->get( 'store_delivery_date_required' ),

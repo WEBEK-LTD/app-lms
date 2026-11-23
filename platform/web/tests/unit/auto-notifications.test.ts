@@ -87,7 +87,7 @@ describe("85.3 automatic notifications", () => {
     expect(autoKindsFor(app("booking", "fitness", "bookings"))).toEqual(["appointment_confirmed", "appointment_reminder", "class_soon", "membership_ending"]);
     expect(autoKindsFor(app("booking", null, "bookings"))).toEqual(["appointment_confirmed", "appointment_reminder"]);
     expect(autoKindsFor(app("events", null, "events"))).toEqual(["event_soon"]);
-    expect(autoKindsFor(app("store", null, "catalog"))).toEqual(["cart_left", "order_update"]);
+    expect(autoKindsFor(app("store", null, "catalog"))).toEqual(["cart_left", "order_update", "back_in_stock"]);
     // WordPress apps send theirs from the plugin.
     expect(autoKindsFor({ ...app("lms", null, "courses"), backend: "wordpress" })).toEqual([]);
   });

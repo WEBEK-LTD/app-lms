@@ -28,6 +28,23 @@ import { ZAD_A, ZAD_B } from "./zad-signature";
 import { LEQAA_A, LEQAA_B } from "./leqaa-signature";
 // 208 Lujain, the clothes shop: A LUJAIN the boutique, B NOUN streetwear.
 import { LUJAIN_A, NOUN_B } from "./clothes-signature";
+// 209 Cosmetics: Velours, A VELOURS plum and gold, B NAQA LAB the clinic.
+import { VELOURS_A, NAQA_B } from "./beauty-signature";
+// 209 Kids' clothes: Toota, A TOOTA soft pastels, B MINIMO playful navy.
+import { MINIMO_B, TOOTA_A } from "./kids-signature";
+// 209 Toys
+// 209 Toot, the toy shop: A Toot playful and colourful, B Mukaab calm and educational.
+import { MUKAAB_B, TOOT_A } from "./toys-signature";
+// 210 Sakan (home decor), Ghurza (crochet and handmade), Rukn (furniture).
+import { DECOR_A, DECOR_B } from "./decor-signature";
+import { CROCHET_A, CROCHET_B } from "./crochet-signature";
+import { FURNITURE_A, FURNITURE_B } from "./furniture-signature";
+// 211 Nova, the mobiles shop: A NOVA ink and cobalt, B emerald on stone.
+import { EMERALD_B, NOVA_A } from "./mobiles-signature";
+// 211 Nawah, computers and gaming: A NAWAH white and blue, B SILICA green on stone.
+import { NAWAH_A, SILICA_B } from "./computers-signature";
+// 211 Madar, the electronics shop: A MADAR white and deep blue, B NABD lime on near black.
+import { MADAR_A, NABD_B } from "./electronics-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -165,6 +182,23 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   flowers: { a: LEQAA_A, b: LEQAA_B },
   // 208 Lujain, the clothes shop (a store): A the black and white boutique, B NOUN's streetwear.
   clothes: { a: LUJAIN_A, b: NOUN_B },
+  // 209 Cosmetics: Velours (a store), A VELOURS plum and gold, B NAQA LAB the clinic.
+  beauty: { a: VELOURS_A, b: NAQA_B },
+  // 209 Kids' clothes: Toota (a store): A TOOTA's soft pastels, B MINIMO's playful navy.
+  kids: { a: TOOTA_A, b: MINIMO_B },
+  // 209 Toys
+  // 209 Toot, the toy shop (a store): A Toot, playful and colourful; B Mukaab, calm and educational.
+  toys: { a: TOOT_A, b: MUKAAB_B },
+  // 210 Sakan, home decor: A the decor magazine, B Teen's warm earth. Ghurza, crochet: A warm handmade, B Habka's colours. Rukn, furniture: A white and wood, B KANAF.
+  decor: { a: DECOR_A, b: DECOR_B },
+  crochet: { a: CROCHET_A, b: CROCHET_B },
+  furniture: { a: FURNITURE_A, b: FURNITURE_B },
+  // 211 Madar, the electronics shop (a store): A MADAR in white and deep blue, B NABD in lime on near black.
+  electronics: { a: MADAR_A, b: NABD_B },
+  // 211 Nova, the mobiles shop (a store): A NOVA's ink and cobalt, B emerald on warm stone.
+  mobiles: { a: NOVA_A, b: EMERALD_B },
+  // 211 Nawah, computers and gaming (a store): A NAWAH in white and one strong blue, B SILICA in deep green on stone.
+  computers: { a: NAWAH_A, b: SILICA_B },
 };
 
 /** A look with its demo's own tabs when it has none of its own. */

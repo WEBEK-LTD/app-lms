@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,6 +19,7 @@ import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/vertical_wording.dart';
 import '../widgets/quick_add.dart';
+import '../widgets/shop_features.dart';
 
 Map<ProductOrder, String> get orderLabels => {
   ProductOrder.newest: currentL10n.sortNewest,
@@ -45,7 +47,11 @@ class ShopScreen extends ConsumerStatefulWidget {
     this.initialCategory,
     this.initialOnSale = false,
     this.initialOrder,
+    this.initialFilters = const {},
   });
+
+  /// 212 The listing filters it opens with (a Studio filter element's).
+  final Map<String, String> initialFilters;
 
   final int? initialCategory;
   final bool initialOnSale;
@@ -77,6 +83,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     category: widget.initialCategory,
     onSale: widget.initialOnSale,
     orderBy: widget.initialOrder ?? ProductOrder.newest,
+    filters: widget.initialFilters,
   );
 
   @override
@@ -85,7 +92,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     // Links from Home (a category, the sale list) arrive as new parameters.
     if (old.initialCategory != widget.initialCategory ||
         old.initialOnSale != widget.initialOnSale ||
-        old.initialOrder != widget.initialOrder) {
+        old.initialOrder != widget.initialOrder ||
+        !mapEquals(old.initialFilters, widget.initialFilters)) {
       _search.clear();
       setState(() => _query = _initial());
     }
@@ -140,17 +148,36 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     }
   }
 
-  /// Whether a filter is on (a category, On sale or words searched).
+  /// Whether a filter is on (a category, On sale or words searched; 212
+  /// the listing filters).
   bool get _filtered =>
       _query.category != null ||
       _query.onSale ||
+      _query.filters.isNotEmpty ||
       (_query.search ?? '').trim().isNotEmpty;
+
+  /// 212 The listing filters' sheet: sizes, colours, price and brands.
+  Future<void> _chooseFilters(ShopFilters filters) async {
+    final chosen = await showListingFilters(
+      context,
+      filters: filters,
+      current: _query.filters,
+    );
+    if (chosen != null && mounted) _filter(_query.copyWith(filters: chosen));
+  }
 
   /// 158 Every filter off, the order kept.
   void _clearFilters() {
     _debounce?.cancel();
     _search.clear();
-    _filter(_query.copyWith(clearCategory: true, onSale: false, search: ''));
+    _filter(
+      _query.copyWith(
+        clearCategory: true,
+        onSale: false,
+        search: '',
+        filters: const {},
+      ),
+    );
   }
 
   /// 158 A filter changed: the row goes back to its start, where the
@@ -222,6 +249,17 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final filters = _chips(context, categories);
     final state = ref.watch(productsProvider(_query));
     final controller = ref.read(productsProvider(_query).notifier);
+    // 212 What this listing can be filtered by (none on an older server).
+    final listing =
+        ref
+            .watch(
+              shopFiltersProvider((
+                category: _query.category,
+                search: _query.search,
+              )),
+            )
+            .value ??
+        ShopFilters.none;
 
     return Scaffold(
       body: SafeArea(
@@ -253,6 +291,20 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       ),
                     ),
                   ),
+                  if (listing.any) ...[
+                    const SizedBox(width: 10),
+                    SquareIconButton(
+                      key: const ValueKey('shop-filters-button'),
+                      icon: AppIcons.filters,
+                      label: _query.filterCount > 0
+                          ? context.l10n.filtersActive(_query.filterCount)
+                          : context.l10n.filters,
+                      size: 50,
+                      badge: _query.filterCount > 0,
+                      radius: context.shapes.button,
+                      onPressed: () => _chooseFilters(listing),
+                    ),
+                  ],
                   const SizedBox(width: 10),
                   SquareIconButton(
                     icon: AppIcons.sort,

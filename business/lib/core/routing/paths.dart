@@ -22,6 +22,9 @@ abstract final class Paths {
   // Full screens.
   static const updates = '/updates';
   static String order(int id) => '/orders/$id';
+  // 210 The shop's custom-order requests and one of them.
+  static const requests = '/requests';
+  static String request(String id) => '/requests/${Uri.encodeComponent(id)}';
   static String moveAppointment(int id) => '/appointments/$id/move';
   static const kitchen = '/kitchen';
   static String scan([int? eventId]) =>

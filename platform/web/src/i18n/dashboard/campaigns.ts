@@ -115,6 +115,8 @@ export const en = {
   auto_live_class_soon_text: "In the hour before a live class starts, to its course's students.",
   auto_assignment_graded: "Assignment graded",
   auto_assignment_graded_text: "When you grade an assignment or send it back, to the student who handed it in.",
+  auto_back_in_stock: "Back in stock",
+  auto_back_in_stock_text: "When a product someone asked about is in stock again, to them once. They asked for it, so it always goes.",
   lastResult: "Last result",
   known: {
     nobody: "No one is in this audience yet. Choose other people, or send it later.",
@@ -250,6 +252,8 @@ export const ar: Strings<typeof en> = {
   auto_live_class_soon_text: "في الساعة التي تسبق بدء الحصة المباشرة، لطلاب دورتها.",
   auto_assignment_graded: "تقييم الواجب",
   auto_assignment_graded_text: "عندما تقيّم واجبًا أو تعيده للطالب، إلى الطالب الذي سلّمه.",
+  auto_back_in_stock: "رجع للمخزون",
+  auto_back_in_stock_text: "لما منتج حد طلب يتبلّغ بيه يرجع متوفر، بيوصله مرة واحدة. هو اللي طلبه، فبيتبعت دايمًا.",
   lastResult: "آخر نتيجة",
   known: {
     nobody: "لا أحد ضمن هذا الجمهور بعد. اختر أشخاصًا آخرين، أو أرسلها لاحقًا.",
@@ -385,6 +389,8 @@ export const tr: Strings<typeof en> = {
   auto_live_class_soon_text: "Canlı ders başlamadan önceki bir saat içinde, kursun öğrencilerine.",
   auto_assignment_graded: "Ödev notlandırıldı",
   auto_assignment_graded_text: "Bir ödevi notlandırdığınızda ya da geri gönderdiğinizde, onu teslim eden öğrenciye.",
+  auto_back_in_stock: "Yeniden stokta",
+  auto_back_in_stock_text: "Birinin haber istediği ürün yeniden stoka girdiğinde, ona bir kez. Kendisi istediği için her zaman gider.",
   lastResult: "Son sonuç",
   known: {
     nobody: "Bu kitlede henüz kimse yok. Başka kişiler seçin ya da daha sonra gönderin.",

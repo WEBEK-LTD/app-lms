@@ -51,6 +51,25 @@ const VEHICLE: Record<StoryId, "two_wheeler" | "local_taxi" | "directions_bus" |
   flowers: "two_wheeler",
   // 208 Nor the clothes shop's.
   clothes: "two_wheeler",
+  // 209 Nor the cosmetics shop's.
+  beauty: "two_wheeler",
+  // 209 Nor the kids' clothes shop's.
+  kids: "two_wheeler",
+  // 209 Toys
+  // 209 Nor the toy shop's.
+  toys: "two_wheeler",
+  // 210 Nor the home decor shop's.
+  decor: "two_wheeler",
+  // 210 Nor the crochet shop's.
+  crochet: "two_wheeler",
+  // 210 Nor the furniture shop's: its own team delivers and assembles.
+  furniture: "two_wheeler",
+  // 211 Nor the mobiles shop's.
+  mobiles: "two_wheeler",
+  // 211 Nor the computers shop's.
+  computers: "two_wheeler",
+  // 211 Nor the electronics shop's.
+  electronics: "two_wheeler",
 };
 
 const primary =

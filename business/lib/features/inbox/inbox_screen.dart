@@ -12,6 +12,7 @@ import '../../core/widgets/l10n.dart';
 import '../../core/widgets/paged_list.dart';
 import '../../core/widgets/states.dart';
 import 'reviews.dart';
+import 'shop_wishes.dart';
 
 /// 59 Inbox: the conversations about the app's listings, newest message
 /// first. 63 Also the questions students ask in courses managed in Yallapp
@@ -20,7 +21,8 @@ import 'reviews.dart';
 class InboxScreen extends ConsumerStatefulWidget {
   const InboxScreen({super.key, this.initialTab});
 
-  /// `messages`, `questions` or `reviews` (a push or Today opens one).
+  /// `messages`, `questions`, `reviews` or 212 `product_reviews` (a push or
+  /// Today opens one).
   final String? initialTab;
 
   @override
@@ -49,6 +51,8 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
       if (f.inquiries) ('messages', l10n.inboxMessages),
       if (f.questions) ('questions', l10n.inboxQuestions),
       if (f.reviews) ('reviews', l10n.inboxReviews),
+      // 212 A store's product reviews with photos.
+      if (f.productReviews) ('product_reviews', l10n.inboxProductReviews),
     ];
     if (tabs.isEmpty) return Scaffold(appBar: AppBar(title: Text(l10n.inbox)));
     final wanted = _tab ?? widget.initialTab;
@@ -116,6 +120,43 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
         ),
         itemBuilder: (context, r) => ReviewCard(review: r, onChanged: _reload),
       ),
+      'product_reviews' => PagedList<Review>(
+        key: ValueKey('$appId-pr-$_reviewFilter-$_version'),
+        load: (page) async {
+          final result = await api.productReviews(
+            appId,
+            filter: _reviewFilter,
+            page: page,
+          );
+          if (page == 1 && mounted) setState(() => _reviewsHead = result);
+          return result.page;
+        },
+        header: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (_reviewsHead != null) _Average(head: _reviewsHead!),
+            // 212 Who waits for what to be back in stock, and saved what.
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ShopWishesScreen(),
+                  ),
+                ),
+                icon: const Icon(AppIcons.favorite, size: 18),
+                label: Text(l10n.shopWishes),
+              ),
+            ),
+          ],
+        ),
+        empty: EmptyState(
+          icon: AppIcons.star,
+          title: l10n.noReviews,
+          text: l10n.noProductReviewsText,
+        ),
+        itemBuilder: (context, r) => ReviewCard(review: r, onChanged: _reload),
+      ),
       _ => PagedList<Inquiry>(
         key: ValueKey('$appId-$_status-$_version'),
         load: (page) async =>
@@ -151,6 +192,16 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
               [
                 ('all', l10n.reviewsAll),
                 ('unreplied', l10n.reviewsUnreplied),
+                ('hidden', l10n.hidden),
+              ],
+              _reviewFilter,
+              (v) => setState(() => _reviewFilter = v),
+            ),
+            'product_reviews' => segments(
+              [
+                ('all', l10n.reviewsAll),
+                ('unreplied', l10n.reviewsUnreplied),
+                ('photos', l10n.reviewsWithPhotos),
                 ('hidden', l10n.hidden),
               ],
               _reviewFilter,

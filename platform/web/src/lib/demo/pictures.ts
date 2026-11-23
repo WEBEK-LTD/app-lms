@@ -760,6 +760,18 @@ export const PICTURES = {
       p([[42, 46], [45.5, 51], [50, 45], [54.5, 51], [58, 46], [58, 54], [50, 60], [42, 54]], "#B03A5B"),
     ],
   },
+  // 211 Madar, the electronics shop: a white phone on deep blue, an orbit round it in light blue.
+  "icon-electronics": {
+    from: "#2F5BEA",
+    to: "#16244F",
+    shapes: [
+      ...stroke([[80.8, 35.6], [81.1, 38.9], [79.2, 43.0], [75.4, 47.5], [69.8, 52.2], [62.9, 56.8], [55.1, 60.9], [46.9, 64.2], [39.0, 66.6], [31.8, 67.9], [25.8, 67.9], [21.5, 66.7], [19.2, 64.4], [18.9, 61.1], [20.8, 57.0], [24.6, 52.5], [30.2, 47.8], [37.1, 43.2], [44.9, 39.1], [53.1, 35.8], [61.0, 33.4], [68.2, 32.1], [74.2, 32.1], [78.5, 33.3], [80.8, 35.6]], 2.6, "#93AEFF"),
+      r(38, 24, 24, 52, 6, WHITE),
+      r(41, 28, 18, 41, 3, "#16244F"),
+      c(50, 72.5, 1.8, "#16244F"),
+      c(82, 36, 3.4, "#C9D6FF"),
+    ],
+  },
   // 208 Lujain, the clothes shop: a white hanger on black, its hook in its sale red.
   "icon-clothes": {
     from: "#2A2724",
@@ -768,6 +780,98 @@ export const PICTURES = {
       ...stroke([[50, 36], [50, 31], [54, 28], [54, 23], [50, 20], [46, 22]], 3.6, "#E58C84"),
       ...stroke([[50, 36], [22, 62], [78, 62], [50, 36]], 4.2, WHITE),
       r(30, 68, 40, 4, 2, "#F3F0EA", 0.55),
+    ],
+  },
+  // 209 Cosmetics: Velours, a serum bottle in blush with its gold dropper, on plum.
+  "icon-beauty": {
+    from: "#9B3A60",
+    to: "#4A1028",
+    shapes: [r(45, 16, 10, 14, 5, "#D9A85E"), r(42, 29, 16, 8, 2, "#D9A85E"), r(34, 37, 32, 40, 9, "#F4ECEE"), r(40, 52, 20, 3, 1.5, "#9B3A60", 0.7), r(40, 58, 14, 3, 1.5, "#9B3A60", 0.45)],
+  },
+  // 209 Kids' clothes: Toota, a little white bodysuit on its terracotta, a mulberry leaf over it.
+  "icon-kids": {
+    from: "#C46A57",
+    to: "#9E4C3C",
+    shapes: [
+      p([[38, 28], [44, 26], [50, 31], [56, 26], [62, 28], [74, 38], [68, 46], [64, 42], [64, 66], [56, 74], [44, 74], [36, 66], [36, 42], [32, 46], [26, 38]], WHITE),
+      r(44, 70, 12, 6, 3, "#F5E2DA"),
+      p([[50, 20], [54, 13], [61, 12], [58, 18]], "#F4EACB"),
+    ],
+  },
+  // 209 Toys
+  // 209 Toot, the toy shop: a smiling white mulberry with its gold leaf, on plum.
+  "icon-toys": {
+    from: "#97436C",
+    to: "#5E2139",
+    shapes: [
+      c(50, 56, 27, WHITE),
+      p([[50, 31], [55, 21], [66, 15], [64, 26], [55, 31]], "#E0B066"),
+      c(40, 52, 4.4, "#7B2D4E"),
+      c(60, 52, 4.4, "#7B2D4E"),
+      ...stroke([[41, 64], [50, 69], [59, 64]], 3.6, "#7B2D4E"),
+    ],
+  },
+  // 210 Sakan, home decor: a white vase with an olive branch on olive.
+  "icon-decor": {
+    from: "#66763D",
+    to: "#3B4622",
+    shapes: [
+      ...stroke([[50, 40], [50, 22]], 2.6, "#E6EDD3"),
+      c(44, 26, 4, "#E6EDD3"),
+      c(56, 30, 4, "#E6EDD3"),
+      c(45, 34, 3.4, "#E6EDD3"),
+      p([[42, 40], [58, 40], [56, 46], [64, 58], [60, 76], [40, 76], [36, 58], [44, 46]], WHITE),
+      r(30, 78, 40, 3, 1.5, "#F4F1EA", 0.6),
+    ],
+  },
+  // 210 Ghurza, crochet: a ball of yarn and its hook on terracotta.
+  "icon-crochet": {
+    from: "#C96A44",
+    to: "#8E3A1E",
+    shapes: [
+      c(46, 54, 20, WHITE),
+      ...stroke([[30, 46], [62, 62]], 2.4, "#E7B8A9"),
+      ...stroke([[34, 38], [64, 52]], 2.4, "#E7B8A9"),
+      ...stroke([[30, 58], [52, 70]], 2.4, "#E7B8A9"),
+      ...stroke([[62, 24], [76, 70]], 3.4, "#F8F1E9"),
+      ...stroke([[66, 54], [76, 72], [82, 74]], 2.4, WHITE),
+    ],
+  },
+  // 210 Rukn, furniture: a white armchair on walnut.
+  "icon-furniture": {
+    from: "#5C4330",
+    to: "#33241A",
+    shapes: [
+      r(30, 34, 40, 24, 8, WHITE),
+      r(24, 48, 12, 20, 5, WHITE),
+      r(64, 48, 12, 20, 5, WHITE),
+      r(32, 56, 36, 10, 4, "#E9DCCB"),
+      r(30, 68, 3, 10, 1.5, "#C9A27A"),
+      r(67, 68, 3, 10, 1.5, "#C9A27A"),
+    ],
+  },
+  // 211 Nova, the mobiles shop: a white phone on ink, its camera's ring and a trade-in arrow in its cobalt.
+  "icon-mobiles": {
+    from: "#1E2128",
+    to: "#0E1014",
+    shapes: [
+      r(33, 18, 34, 64, 9, WHITE),
+      r(37, 24, 26, 46, 4, "#0E1014"),
+      r(44, 74, 12, 3, 1.5, "#0E1014", 0.6),
+      c(50, 44, 8, "#2A55E5"),
+      c(50, 44, 4, "#0E1014"),
+      c(58, 31, 2.2, "#8FA8FF"),
+    ],
+  },
+  // 211 Nawah, computers and gaming: a white processor on blue, its pins on every side, its core lit.
+  "icon-computers": {
+    from: "#3D66F0",
+    to: "#1C3BB8",
+    shapes: [
+      ...[34, 44, 54, 64].flatMap((x) => [r(x - 2, 18, 4, 10, 2, WHITE, 0.85), r(x - 2, 72, 4, 10, 2, WHITE, 0.85), r(18, x - 2, 10, 4, 2, WHITE, 0.85), r(72, x - 2, 10, 4, 2, WHITE, 0.85)]),
+      r(26, 26, 48, 48, 10, WHITE),
+      r(37, 37, 26, 26, 6, "#2F5BEA"),
+      c(50, 50, 5, "#AFC2FF"),
     ],
   },
   "icon-bookings": {

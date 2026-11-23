@@ -17,7 +17,24 @@ import { LANDING_SECTIONS } from "./premium-landings";
 import { LEQAA_SECTIONS } from "./demo-designs/leqaa-signature";
 // 208 Lujain's sections, and the installments tag.
 import { CLOTHES_SECTIONS } from "./demo-designs/clothes-signature";
+// 209 Cosmetics: Velours's sections.
+import { BEAUTY_SECTIONS } from "./demo-designs/beauty-signature";
+// 209 Kids' clothes
+import { KIDS_SECTIONS } from "./demo-designs/kids-signature";
+// 209 Toys
+import { TOYS_SECTIONS } from "./demo-designs/toys-signature";
+// 211 Nova's sections.
+import { MOBILES_SECTIONS } from "./demo-designs/mobiles-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
+// 210 The shop types' shared parts (shop the look, rooms, the custom order, delivery and assembly, the maker's story…) and each type's own.
+import { SHOP_KIT_SECTIONS } from "./demo-designs/shop-kit-parts";
+import { DECOR_SECTIONS } from "./demo-designs/decor-signature";
+import { CROCHET_SECTIONS } from "./demo-designs/crochet-signature";
+import { FURNITURE_SECTIONS } from "./demo-designs/furniture-signature";
+// 211 Nawah's sections (Build your PC, the spec filters, ready builds, the device of the week).
+import { COMPUTERS_SECTIONS } from "./demo-designs/computers-signature";
+// 211 Madar's sections.
+import { ELECTRONICS_SECTIONS } from "./demo-designs/electronics-signature";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -316,7 +333,22 @@ export type SectionWord =
   | Extract<AppWord, `lq${string}`>
   // 208 Lujain's looks, pages and sections (lib/studio/demo-designs/clothes-signature.ts), and the installments tag.
   | Extract<AppWord, `cl${string}`>
-  | "installmentsSoon";
+  // 209 Cosmetics: Velours's looks, pages and sections (lib/studio/demo-designs/beauty-signature.ts).
+  | Extract<AppWord, `bt${string}`>
+  // 209 Kids' clothes: Toota's looks, pages and sections (lib/studio/demo-designs/kids-signature.ts).
+  | Extract<AppWord, `kd${string}`>
+  // 209 Toys
+  // 209 Toot's looks, pages and sections (lib/studio/demo-designs/toys-signature.ts).
+  | Extract<AppWord, `ty${string}`>
+  | "installmentsSoon"
+  // 210 The shop types' shared parts (lib/studio/demo-designs/shop-kit-parts.ts), home decor's, crochet's and furniture's looks.
+  | Extract<AppWord, `sk${string}` | `dc${string}` | `cr${string}` | `fu${string}`>
+  // 211 Nova's looks, pages and sections (lib/studio/demo-designs/mobiles-signature.ts).
+  | Extract<AppWord, `mb${string}`>
+  // 211 Nawah's looks, pages and sections (lib/studio/demo-designs/computers-signature.ts).
+  | Extract<AppWord, `pc${string}`>
+  // 211 Madar's looks, pages and sections (lib/studio/demo-designs/electronics-signature.ts).
+  | Extract<AppWord, `el${string}`>;
 
 export interface SectionContext {
   brand: string;
@@ -1107,7 +1139,33 @@ export const SECTIONS: readonly SectionInfo[] = [
   ...LEQAA_SECTIONS,
   // 208 The clothes type's parts (the category menu, the peeking hero, the deal, shop the look, the size card and chart) and the installments tag.
   ...CLOTHES_SECTIONS,
+  // 209 Cosmetics: the shade finder, the skin quiz, the routine, the rituals, the brands, the trust strip and B's clinic parts.
+  ...BEAUTY_SECTIONS,
+  // 209 Kids' clothes: Toota's parts (the category menu, the peeking heroes, shopping by age, the size finder and chart, the worlds, the gifts, the occasions, the deal, the best loved and the promises).
+  ...KIDS_SECTIONS,
+  // 209 Toys
+  // 209 The toys type's parts (the category menu, shopping by age, safety first, the gift finder and wraps, gifts under a price, the lab, the ready box).
+  ...TOYS_SECTIONS,
+  // 211 The electronics type's parts (trade-in, compare, specs, the services, the star, the brands, the top five, the bundle).
+  ...ELECTRONICS_SECTIONS,
   INSTALLMENTS_SECTION,
+  // 210 The shop types' shared parts, then home decor's, crochet's and furniture's.
+  ...SHOP_KIT_SECTIONS,
+  ...DECOR_SECTIONS,
+  ...CROCHET_SECTIONS,
+  ...FURNITURE_SECTIONS,
+  // 211 The mobiles type's parts (trade-in, compare, by storage, certified used, accessories, brands, bundle, numbers).
+  ...MOBILES_SECTIONS,
+  // 211 The computers type's parts: Build your PC, the spec filters, ready builds compared, the device of the week, the services.
+  ...COMPUTERS_SECTIONS,
+  // 212 The listing filters (sizes, colours, price, brand), for every store and shop type.
+  {
+    id: "listing_filters",
+    icon: "tune",
+    isNew: true,
+    fits: { types: ["store"] },
+    make: (ctx) => ({ id: (ctx.newId ?? newNodeId)(), type: "listing_filters", padding: pad(8, 16) }),
+  },
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,
 ];

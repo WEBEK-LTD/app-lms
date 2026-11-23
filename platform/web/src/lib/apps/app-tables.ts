@@ -209,6 +209,10 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   quiz_attempts: "customers",
   assignment_submissions: "customers",
   course_reviews: "customers",
+  // 212 A store's customers' saved products, product reviews and back-in-stock requests.
+  shop_wishlist: "customers",
+  product_reviews: "customers",
+  stock_alerts: "customers",
   course_questions: "customers",
   course_answers: "customers",
   teacher_follows: "customers",
@@ -280,6 +284,10 @@ export const APP_TABLES: Record<string, AppTableRole> = {
   payment_refunds: "orders",
   travel_bookings: "orders",
   listing_inquiries: "orders",
+  // 210 A shop's custom-order requests, like a listing's inquiries.
+  store_requests: "orders",
+  // 211 Trade-in requests from a store's app.
+  trade_in_requests: "orders",
 
   // Messages.
   hosted_notifications: "messages",

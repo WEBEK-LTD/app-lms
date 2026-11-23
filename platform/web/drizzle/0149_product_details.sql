@@ -1,0 +1,1 @@
+ALTER TABLE `catalog_products` ADD `details` longtext;

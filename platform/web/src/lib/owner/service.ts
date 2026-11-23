@@ -11,8 +11,10 @@ import * as insights from "./insights";
 import { acceptedLang, ownerLang } from "./lang";
 import * as library from "./library";
 import * as community from "./community";
+import * as productReviews from "./product-reviews";
 import * as members from "./members";
 import * as sales from "./sales";
+import * as requests from "./requests";
 import * as team from "./team";
 import * as engines from "./engines";
 import * as market from "./market";
@@ -108,6 +110,12 @@ export const ROUTES: Route[] = [
   route("PUT", "apps/:app_id/ratings/:source/:rating_id/reply", ratings.replyRating),
   route("DELETE", "apps/:app_id/ratings/:source/:rating_id/reply", ratings.deleteRatingReply),
   route("DELETE", "apps/:app_id/reviews/:review_id/reply", community.deleteReviewReply),
+  // 212 A store's product reviews with photos, and who waits for what and saved what.
+  route("GET", "apps/:app_id/product-reviews", productReviews.listProductReviews),
+  route("PATCH", "apps/:app_id/product-reviews/:review_id", productReviews.updateProductReview),
+  route("PUT", "apps/:app_id/product-reviews/:review_id/reply", productReviews.replyProductReview),
+  route("DELETE", "apps/:app_id/product-reviews/:review_id/reply", productReviews.deleteProductReviewReply),
+  route("GET", "apps/:app_id/shop-wishes", productReviews.shopWishes),
   route("GET", "apps/:app_id/members", members.listMembers),
   route("POST", "apps/:app_id/members/check-in", members.checkInMember),
   route("GET", "apps/:app_id/members/check-ins", members.listCheckIns),
@@ -172,6 +180,10 @@ export const ROUTES: Route[] = [
   route("POST", "apps/:app_id/market/complaints/:complaint_id/reply", market.replyComplaint),
   route("POST", "apps/:app_id/market/complaints/:complaint_id/decide", market.decideOneComplaint),
   route("GET", "apps/:app_id/market/vendors", market.listVendors),
+  // 210 The shop's custom-order requests.
+  route("GET", "apps/:app_id/requests", requests.listRequests),
+  route("GET", "apps/:app_id/requests/:request_id", requests.getRequest),
+  route("POST", "apps/:app_id/requests/:request_id/answer", requests.answerRequest),
   route("GET", "apps/:app_id/school/today", school.getSchoolToday),
   route("GET", "apps/:app_id/school/excuses", school.listExcuses),
   route("GET", "apps/:app_id/school/excuses/:excuse_id", school.getExcuse),

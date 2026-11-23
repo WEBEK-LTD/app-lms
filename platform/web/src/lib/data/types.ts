@@ -1360,6 +1360,8 @@ export interface CatalogSettings {
   bouquet?: BouquetSettings | null;
   /** 208 A clothes shop's own parts (lib/selling/fashion.ts): its size chart and "Complete the look"; null or missing: none. */
   fashion?: FashionSettings | null;
+  /** 211 An electronics, mobiles or computers shop's own parts (lib/selling/tech.ts): matching accessories, trade-in and Build your PC; null or missing: none. */
+  tech?: TechSettings | null;
   /** 134 The last "Test connection" that passed on the saved gateway keys: when, the gateway, and a fingerprint of those keys (new keys need a new test). */
   gatewayTested?: { at: string; provider: PaymentProviderId; keys: string } | null;
 }
@@ -1386,6 +1388,73 @@ export interface FashionSettings {
   sizeChart: SizeChart | null;
   /** "Complete the look": products of the shop's other main categories on a product's page. */
   completeLook: boolean;
+}
+
+/**
+ * 211 One specification of a product: its words as the owner wrote them and,
+ * when it is one Yallapp knows (lib/selling/specs.ts `SPEC_KEYS`), its key,
+ * which names it in the app's language and lets the shop be filtered and
+ * compared by it, and Build your PC check parts against each other.
+ */
+export interface ProductSpec {
+  key?: string | null;
+  label: string;
+  value: string;
+}
+
+/** 211 The parts Build your PC is made of, in its order. */
+export const PC_PARTS = ["cpu", "board", "ram", "gpu", "storage", "cooler", "psu", "case"] as const;
+export type PcPart = (typeof PC_PARTS)[number];
+
+/** 211 Trade-in's grades, best first: what the customer says the old device is like. */
+export const TRADE_IN_GRADES = ["like_new", "good", "fair", "broken"] as const;
+export type TradeInGrade = (typeof TRADE_IN_GRADES)[number];
+
+/**
+ * 211 An electronics shop's own parts (lib/selling/tech.ts), kept in the
+ * app's `catalogSettings` (JSON): the category whose products are offered
+ * as matching accessories on a product's page; trade-in (the models the
+ * shop takes, each storage's top price and the share each grade gets); Build
+ * your PC (a category for each part). Each null: off.
+ */
+export interface TechSettings {
+  accessoriesCategoryId: number | null;
+  tradeIn: TradeInSettings | null;
+  pcBuilder: PcBuilderSettings | null;
+}
+
+export interface TradeInSettings {
+  /** The devices the shop takes, each with its storages and the most it pays for each (a like-new one). */
+  models: { name: string; storages: { label: string; cents: number }[] }[];
+  /** The share of that price each grade gets, in percent (like new 100 at most). */
+  grades: Record<TradeInGrade, number>;
+}
+
+export interface PcBuilderSettings {
+  /** A category of the shop for each part, in the order chosen; a part left out isn't asked for. */
+  steps: { part: PcPart; categoryId: number; required: boolean }[];
+}
+
+/** 211 A trade-in request from the app: the old device, what it is worth and how to reach the customer (Store › Trade-in). */
+export const TRADE_IN_STATUSES = ["new", "contacted", "done", "declined"] as const;
+export type TradeInStatus = (typeof TRADE_IN_STATUSES)[number];
+export interface TradeInRequest {
+  id: number;
+  appId: string;
+  /** The app's user who sent it, when signed in. */
+  userId: number | null;
+  name: string;
+  phone: string;
+  model: string;
+  storage: string;
+  grade: TradeInGrade;
+  /** The estimate the app showed, in the shop's currency's cents. */
+  estimateCents: number;
+  currency: string;
+  note: string | null;
+  status: TradeInStatus;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /** 131 Shipping by weight: `perKgCents` a kg over the first `includedKg`. */
@@ -1939,6 +2008,10 @@ export interface CatalogProduct {
   variants?: CatalogVariants | null;
   /** 131 Its weight in grams, for shipping priced by weight; null or missing: none. */
   weightGrams?: number | null;
+  /** 210 Its size in cm (furniture, decor: width, depth, height), on its page and its cards; null or missing: none. */
+  dimensions?: ProductDimensions | null;
+  /** 210 Made to order: the days it takes to make (crochet, a made-to-order sofa), on its page and its cards; null or missing: ready to send. */
+  makeDays?: ProductMakeDays | null;
   /**
    * 131 A gift add-on (chocolates, a card, a vase): never listed on its own,
    * never bought alone, offered as "Add a little more" with the products of
@@ -1947,11 +2020,104 @@ export interface CatalogProduct {
   addon?: boolean;
   /** 131 Which products an add-on goes with; null or missing: all of them. */
   addonFor?: AddonRule | null;
+  /** 209 What its page tells besides its description (lib/catalog/details.ts): facts, ingredients, how to use, safety, badges, expiry, age and swatches; null or missing: none. */
+  details?: ProductDetails | null;
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
+  /** 211 Its specifications (a phone's screen, a laptop's processor), in the owner's order; null or missing: none (lib/selling/specs.ts). */
+  specs?: ProductSpec[] | null;
+  /** 212 Its name, description and choices in the app's other languages; null or missing: none. */
+  translations?: import("./shop-features-types").ProductTranslations | null;
+  /** 212 Its brand, for the shop's filters; null or missing: none. */
+  brand?: string | null;
   salesCount: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** 209 A product page's parts that tell more (each in the product's own words, its titles the app's). */
+export const PRODUCT_INFO_KINDS = ["ingredients", "how_to_use", "safety", "materials", "care", "in_the_box"] as const;
+export type ProductInfoKind = (typeof PRODUCT_INFO_KINDS)[number];
+/** 209 The promises a product page shows as badges (the app's words): genuine, tested for children's safety, organic, handmade, not tested on animals, gift wrapping on offer. */
+export const PRODUCT_BADGES = ["genuine", "safety_tested", "organic", "handmade", "cruelty_free", "gift_wrap"] as const;
+export type ProductBadge = (typeof PRODUCT_BADGES)[number];
+
+/**
+ * 209 What a product's page tells besides its description (a cosmetic's
+ * ingredients, how to use it and its expiry; a toy's safety, materials and
+ * age; any product's facts), kept with the product as JSON; read through
+ * lib/catalog/details.ts, bounded, whatever was saved.
+ */
+export interface ProductDetails {
+  /** Name and value lines (Brand, Skin type, Volume, Material), shown as a table. */
+  facts?: { name: string; value: string }[];
+  /** Its parts in the product's words, each once, in this order on its page. */
+  info?: { kind: ProductInfoKind; text: string }[];
+  badges?: ProductBadge[];
+  /** The batch's expiry, "YYYY-MM"; null or missing: none shown. */
+  expiry?: string | null;
+  /** The ages it is for, in months (`max` null: and up); null or missing: none shown. */
+  ageMonths?: { min: number; max: number | null } | null;
+  /** A swatch colour ("#RRGGBB") for each value of its choices that has one (a lipstick's shades). */
+  swatches?: Record<string, string>;
+}
+
+/** 210 Where a custom-order request is: new, answered with a price and time (quoted), accepted, declined or done. */
+export type StoreRequestStatus = "new" | "quoted" | "accepted" | "declined" | "done";
+export const STORE_REQUEST_STATUSES: readonly StoreRequestStatus[] = ["new", "quoted", "accepted", "declined", "done"];
+
+/** 210 One answer of a custom-order request, as the form asked it (its label in the app's default language). */
+export interface StoreRequestAnswer {
+  label: string;
+  value: string;
+}
+
+/** 210 Who asked: the signed-in person's name and email, else what they wrote in the form. */
+export interface StoreRequestCustomer {
+  name: string | null;
+  phone: string | null;
+  email: string | null;
+}
+
+/**
+ * 210 A custom-order request (crochet in a size and colour, a sofa made to
+ * measure): the answers to a form element marked as one
+ * (`StudioForm.request`), kept for the shop besides the email. The owner
+ * sees it in Store › Custom orders and in Yallapp Business, answers with a
+ * price and a time and moves it on.
+ */
+export interface StoreRequest {
+  id: number;
+  appId: string;
+  /** The person who sent it, when signed in. */
+  userId: number | null;
+  /** The form's title (its page's) when it was sent ("Your custom order"). */
+  title: string;
+  answers: StoreRequestAnswer[];
+  customer: StoreRequestCustomer;
+  status: StoreRequestStatus;
+  /** The shop's answer (the price, the time, a question). */
+  reply: string | null;
+  /** The price the shop quoted, in cents of the shop's currency; null: none yet. */
+  quoteCents: number | null;
+  currency: string;
+  /** The app's language it was sent in. */
+  lang: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 210 A product's size in cm (each 1 to 10,000, at most one decimal); a missing one isn't shown ("W 200 × D 90 cm"). */
+export interface ProductDimensions {
+  width: number | null;
+  depth: number | null;
+  height: number | null;
+}
+
+/** 210 The days a made-to-order product takes to make: from `min` to `max` (1 to 365, `min` ≤ `max`; equal: one number). */
+export interface ProductMakeDays {
+  min: number;
+  max: number;
 }
 
 export type CatalogProductInput = Omit<CatalogProduct, "id" | "salesCount" | "createdAt" | "updatedAt">;
@@ -7946,3 +8112,6 @@ export * from "./travel-types";
 
 // 106 Studio Market: designers, templates, their versions and reviews, buyers' licences and applications
 export * from "./studio-market-types";
+
+// 212 A store's wishlist, reviews with photos, back in stock and product languages
+export * from "./shop-features-types";

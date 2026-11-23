@@ -81,12 +81,17 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
   final _media = <String, List<MediaFile>>{};
   final uploads = <String, ({String appId, int size, List<int> bytes})>{};
   final _inquiries = <String, List<InquiryDetail>>{};
+  // 210 Custom-order requests, as the server's JSON.
+  final _requests = <String, List<Json>>{};
   final _users = <String, List<AppUser>>{};
   final _sent = <String, List<SentNotification>>{};
   final _scheduled = <String, List<ScheduledNotification>>{};
   // 63 Course questions and reviews, a gym's members and today's check-ins.
   final _questions = <String, List<QuestionDetail>>{};
   final _reviews = <String, List<Review>>{};
+
+  /// 212 A store's product reviews (the restaurant's dishes here).
+  final _productReviews = <String, List<Review>>{};
   final _members = <String, List<Member>>{};
   final _visits = <String, List<MemberVisit>>{};
   final _memberCodes = <String, int>{};
@@ -231,6 +236,8 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
           orders: true,
           kitchen: true,
           products: true,
+          // 212 Its customers' reviews with photos, and who waits for what.
+          productReviews: true,
           // 77 Its customers write to it.
           chat: true,
           appUsers: true,
@@ -385,6 +392,7 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     _seedCommunity();
     _seedGym();
     _seedStudio();
+    _seedRequests();
     _orders[flowersId] = _flowerOrders();
 
     devicesList
@@ -1414,6 +1422,179 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
       }
     }
     return updatesList.where((u) => u.unread && u.current).length;
+  }
+
+  // 210 Custom-order requests: a crochet blanket, a sofa made to measure
+  // and two cushion covers, in each shop with orders. Never a restaurant's
+  // or another kind's: the server has requests for shops only.
+  void _seedRequests() {
+    for (final app in apps.where(
+      (a) =>
+          a.features.orders && a.type == 'store' && a.vertical != 'restaurant',
+    )) {
+      final currency = app.id == flowersId ? 'EGP' : 'TRY';
+      Json request(
+        String id,
+        String status,
+        Duration ago, {
+        required Json customer,
+        required List<(String, String)> answers,
+        String? reply,
+        int? quoteCents,
+      }) => {
+        'id': id,
+        'title': 'Custom order',
+        'status': status,
+        'answers': [
+          for (final (label, value) in answers)
+            {'label': label, 'value': value},
+        ],
+        'customer': customer,
+        'reply': reply,
+        'quote_cents': quoteCents,
+        'currency': currency,
+        'lang': 'en',
+        'created_at': _at(ago),
+        'updated_at': _at(ago),
+        'quote': quoteCents == null
+            ? null
+            : _FakeStudio._money(quoteCents, currency),
+      };
+      _requests[app.id] = [
+        request(
+          '31',
+          'new',
+          const Duration(hours: 2),
+          customer: {
+            'name': 'Nadia Samir',
+            'phone': '+20 100 555 0142',
+            'email': 'nadia@example.com',
+          },
+          answers: [
+            ('What would you like?', 'A crochet baby blanket'),
+            ('Size', '90 × 110 cm'),
+            ('Colour', 'Sage green with a cream border'),
+            ('Needed by', '15 December'),
+          ],
+        ),
+        request(
+          '30',
+          'quoted',
+          const Duration(days: 2),
+          customer: {
+            'name': 'Mert Aydın',
+            'phone': '+90 532 555 0199',
+            'email': null,
+          },
+          answers: [
+            ('What would you like?', 'A three-seat sofa made to measure'),
+            ('Measurements', '230 × 95 cm, seat height 45 cm'),
+            ('Fabric', 'Dark grey linen'),
+          ],
+          reply: 'We can make it in three weeks, delivery included.',
+          quoteCents: 4500000,
+        ),
+        request(
+          '29',
+          'done',
+          const Duration(days: 9),
+          customer: {'name': 'Elif', 'phone': null, 'email': null},
+          answers: [
+            ('What would you like?', 'Two cushion covers to match'),
+            ('Size', '45 × 45 cm'),
+          ],
+          reply: 'Ready, thank you!',
+          quoteCents: 90000,
+        ),
+      ];
+    }
+  }
+
+  @override
+  Future<Paged<StoreRequest>> requests(
+    String appId, {
+    String status = 'open',
+    int page = 1,
+  }) async {
+    await _call('requests:$status');
+    _app(appId, (f) => f.orders);
+    const open = {'new', 'quoted', 'accepted'};
+    const all = {...open, 'declined', 'done'};
+    if (status != 'all' && status != 'open' && !all.contains(status)) {
+      _FakeStudio._invalid("The request isn't valid.", {
+        'status': "The request isn't valid.",
+      });
+    }
+    bool wanted(Json j) => switch (status) {
+      'all' => true,
+      'open' => open.contains(j['status']),
+      _ => j['status'] == status,
+    };
+    final matching = (_requests[appId] ?? const <Json>[]).where(wanted);
+    return _pageOf(
+      [
+        ...matching.where((j) => j['status'] == 'new'),
+        ...matching.where((j) => j['status'] != 'new'),
+      ],
+      StoreRequest.fromJson,
+      page,
+    );
+  }
+
+  @override
+  Future<StoreRequest> request(String appId, String id) async {
+    await _call('request');
+    _app(appId, (f) => f.orders);
+    return StoreRequest.fromJson(_one(_requests, appId, id));
+  }
+
+  @override
+  Future<StoreRequest> answerRequest(
+    String appId,
+    String id, {
+    required String status,
+    String? reply,
+    String? quote,
+  }) async {
+    await _call('answerRequest:$status');
+    _app(appId, (f) => f.orders);
+    final j = _one(_requests, appId, id);
+    if (!const {
+      'new',
+      'quoted',
+      'accepted',
+      'declined',
+      'done',
+    }.contains(status)) {
+      _FakeStudio._invalid('Choose where the request is.', {
+        'status': 'Choose one of: new, quoted, accepted, declined, done.',
+      });
+    }
+    final text = reply?.trim() ?? '';
+    if (text.length > 2000) {
+      _FakeStudio._invalid('Keep the reply under 2000 characters.', {
+        'reply': 'Keep it under 2000 characters.',
+      });
+    }
+    int? cents;
+    final typed = typedAmount(quote ?? '');
+    if (typed.isNotEmpty) {
+      final value = double.tryParse(typed);
+      if (value == null || value <= 0) {
+        _FakeStudio._invalid('Enter a price, like 450 or 450.50.', {
+          'quote': 'Enter a price, like 450 or 450.50.',
+        });
+      }
+      cents = (value * 100).round();
+    }
+    final currency = '${j['currency']}';
+    j
+      ..['status'] = status
+      ..['reply'] = text.isEmpty ? null : text
+      ..['quote_cents'] = cents
+      ..['quote'] = cents == null ? null : _FakeStudio._money(cents, currency)
+      ..['updated_at'] = now.toUtc().toIso8601String();
+    return StoreRequest.fromJson(j);
   }
 
   // Today
@@ -3228,6 +3409,147 @@ class FakeOwnerApi with _FakeStudio implements OwnerApi {
     await _call('deleteReviewReply');
     _app(appId, (f) => f.reviews);
     return _saveReview(appId, _ownReview(appId, reviewId), clearReply: true);
+  }
+
+  // 212 A store's product reviews with photos, and who waits for what
+
+  List<Review> _productReviewsOf(String appId) =>
+      _productReviews[appId] ??= appId == restaurantId
+      ? [
+          Review(
+            id: 501,
+            courseId: 0,
+            courseTitle: 'Chicken shawarma plate',
+            person: 'Ahmed K.',
+            rating: 5,
+            text: 'Generous plate, still hot when it came.',
+            hidden: false,
+            createdAt: now.subtract(const Duration(hours: 5)).toUtc(),
+            productId: 1,
+            photos: const ['https://yallapp.test/m/review-photo-1'],
+          ),
+          Review(
+            id: 502,
+            courseId: 0,
+            courseTitle: 'Fattoush',
+            person: 'Mona H.',
+            rating: 3,
+            text: 'Good, a little too much lemon for me.',
+            hidden: false,
+            createdAt: now.subtract(const Duration(days: 2)).toUtc(),
+            productId: 2,
+          ),
+        ]
+      : <Review>[];
+
+  Review _ownProductReview(String appId, int reviewId) {
+    final found = _productReviewsOf(appId)
+        .where((r) => r.id == reviewId)
+        .firstOrNull;
+    if (found == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    return found;
+  }
+
+  Review _saveProductReview(String appId, Review updated) {
+    final list = _productReviewsOf(appId);
+    final i = list.indexWhere((r) => r.id == updated.id);
+    list[i] = updated;
+    return updated;
+  }
+
+  @override
+  Future<ReviewsPage> productReviews(
+    String appId, {
+    String filter = 'all',
+    int page = 1,
+  }) async {
+    await _call('productReviews');
+    _app(appId, (f) => f.productReviews);
+    final every = _productReviewsOf(appId);
+    final all = [
+      for (final r in every)
+        if (filter == 'all' ||
+            (filter == 'hidden' && r.hidden) ||
+            (filter == 'photos' && r.photos.isNotEmpty) ||
+            (filter == 'unreplied' && !r.hidden && r.reply == null))
+          r,
+    ];
+    final shown = every.where((r) => !r.hidden).toList();
+    final sum = shown.fold(0, (n, r) => n + r.rating);
+    return ReviewsPage(
+      page: _page(all, page, 20),
+      rating: shown.isEmpty ? null : (sum / shown.length * 10).round() / 10,
+      ratingCount: shown.length,
+    );
+  }
+
+  @override
+  Future<Review> setProductReviewHidden(
+    String appId,
+    int reviewId,
+    bool hidden,
+  ) async {
+    await _call('setProductReviewHidden');
+    _app(appId, (f) => f.productReviews);
+    return _saveProductReview(
+      appId,
+      _ownProductReview(appId, reviewId).copyWith(hidden: hidden),
+    );
+  }
+
+  @override
+  Future<Review> replyProductReview(
+    String appId,
+    int reviewId,
+    String text,
+  ) async {
+    await _call('replyProductReview');
+    _app(appId, (f) => f.productReviews);
+    final value = text.trim();
+    if (value.isEmpty) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        message: 'Write your reply.',
+        statusCode: 400,
+      );
+    }
+    return _saveProductReview(
+      appId,
+      _ownProductReview(appId, reviewId).copyWith(
+        reply: ReviewReply(text: value, createdAt: DateTime.now().toUtc()),
+      ),
+    );
+  }
+
+  @override
+  Future<Review> deleteProductReviewReply(String appId, int reviewId) async {
+    await _call('deleteProductReviewReply');
+    _app(appId, (f) => f.productReviews);
+    return _saveProductReview(
+      appId,
+      _ownProductReview(appId, reviewId).copyWith(clearReply: true),
+    );
+  }
+
+  @override
+  Future<ShopWishes> shopWishes(String appId) async {
+    await _call('shopWishes');
+    _app(appId, (f) => f.productReviews);
+    return const ShopWishes(
+      waiting: [
+        ShopWish(productId: 3, name: 'Kunafa tray', count: 4),
+        ShopWish(
+          productId: 1,
+          variationId: 12,
+          name: 'Chicken shawarma plate',
+          count: 1,
+        ),
+      ],
+      waitingTotal: 5,
+      saved: [ShopWish(productId: 1, name: 'Chicken shawarma plate', count: 9)],
+    );
   }
 
   // 63 A gym's members at the door

@@ -1,5 +1,5 @@
 import type { IconName } from "../../components/icon-names";
-import { CLOTHES_DEMO, type StudioDemoId } from "../demo/constants";
+import { BEAUTY_DEMO, CLOTHES_DEMO, CROCHET_DEMO, DECOR_DEMO, FURNITURE_DEMO, KIDS_DEMO, TOYS_DEMO, ELECTRONICS_DEMO, MOBILES_DEMO, COMPUTERS_DEMO, type StudioDemoId } from "../demo/constants";
 
 /**
  * 208 Yallapp Studio's premium shop types (the owner's planning doc, 23
@@ -43,15 +43,16 @@ export interface ShopType {
 
 export const SHOP_TYPES: readonly ShopType[] = [
   { id: "clothes", sections: ["fashion"], icon: "checkroom", demo: CLOTHES_DEMO, liability: "general" },
-  { id: "kids_clothes", sections: ["fashion", "kids"], icon: "child_care", liability: "kids" },
-  { id: "cosmetics", sections: ["beauty"], icon: "spa", liability: "cosmetics" },
-  { id: "furniture", sections: ["home"], icon: "chair", liability: "warranty", installmentsSoon: true },
-  { id: "decor", sections: ["home"], icon: "living", liability: "general" },
-  { id: "crochet", sections: ["home"], icon: "palette", liability: "general" },
-  { id: "toys", sections: ["kids"], icon: "toys", liability: "kids" },
-  { id: "electronics", sections: ["shopping"], icon: "devices", liability: "warranty", installmentsSoon: true },
-  { id: "mobiles", sections: ["shopping"], icon: "smartphone", liability: "warranty", installmentsSoon: true },
-  { id: "computers", sections: ["shopping"], icon: "computer", liability: "warranty", installmentsSoon: true },
+  { id: "kids_clothes", sections: ["fashion", "kids"], icon: "child_care", demo: KIDS_DEMO, liability: "kids" },
+  { id: "cosmetics", sections: ["beauty"], icon: "spa", demo: BEAUTY_DEMO, liability: "cosmetics" },
+  { id: "furniture", sections: ["home"], icon: "chair", demo: FURNITURE_DEMO, liability: "warranty", installmentsSoon: true },
+  { id: "decor", sections: ["home"], icon: "living", demo: DECOR_DEMO, liability: "general" },
+  { id: "crochet", sections: ["home"], icon: "palette", demo: CROCHET_DEMO, liability: "general" },
+  // 209 Toys
+  { id: "toys", sections: ["kids"], icon: "toys", demo: TOYS_DEMO, liability: "kids" },
+  { id: "electronics", sections: ["shopping"], icon: "devices", demo: ELECTRONICS_DEMO, liability: "warranty", installmentsSoon: true },
+  { id: "mobiles", sections: ["shopping"], icon: "smartphone", demo: MOBILES_DEMO, liability: "warranty", installmentsSoon: true },
+  { id: "computers", sections: ["shopping"], icon: "computer", demo: COMPUTERS_DEMO, liability: "warranty", installmentsSoon: true },
 ];
 
 /**

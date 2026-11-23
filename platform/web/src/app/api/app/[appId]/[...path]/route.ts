@@ -39,7 +39,7 @@ import { isLanguageCode } from "@/lib/i18n/locales";
 import { stringPack } from "@/lib/i18n/packs";
 import { etagValues } from "@/lib/pages/plugin";
 import { receiveCrashReports } from "@/lib/crashes/service";
-import { pushNewBooking, pushNewMessage, pushNewQuestion, pushNewReview, pushReturnRequested } from "@/lib/owner/push";
+import { pushNewBooking, pushNewMessage, pushNewQuestion, pushNewReview, pushNewProductReview, pushReturnRequested } from "@/lib/owner/push";
 import { pushOwnerSafely } from "@/lib/owner/push-env";
 import { chatPushes } from "@/lib/chat/push-env";
 import { chatBusiness } from "@/lib/chat/hosted";
@@ -248,6 +248,10 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         },
         onReview: async ({ review, course, user }) => {
           await pushOwnerSafely((d) => pushNewReview(d, app, { review, course, name: user.name }));
+        },
+        // 212 A customer's first review of a product.
+        onProductReview: async ({ review, productName }) => {
+          await pushOwnerSafely((d) => pushNewProductReview(d, app, { review, productName }));
         },
         // 105.3 A teacher's students and the teacher hear of each other's questions and answers.
         onTeacherQuestion: async ({ teacher, question, course, text }) => {

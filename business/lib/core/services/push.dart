@@ -75,6 +75,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
   // 63 A course question opens itself; a review, the Inbox's reviews.
   final question = id('question_id');
   final review = value('review_id');
+  // 212 A store's product review: the Inbox's product reviews.
+  final productReview = value('product_review_id');
   // 77 A chat message opens its conversation.
   final conversation = value('conversation_id');
   // 125 Studio apps: a food order, a shipment, a ride, a complaint, a
@@ -87,6 +89,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
   final excuse = value('school_excuse_id');
   final report = value('school_report_id');
   final leave = value('leave_id');
+  // 210 A custom-order request (kind new_order) opens itself.
+  final storeRequest = value('store_request_id');
   final location = foodOrder != null
       ? Paths.foodOrder(foodOrder)
       : shipment != null
@@ -103,6 +107,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
       ? Paths.schoolReview('reports', report)
       : leave != null
       ? Paths.schoolReview('leave', leave)
+      : storeRequest != null
+      ? Paths.request(storeRequest)
       : order != null
       ? Paths.order(order)
       : appointment != null
@@ -111,6 +117,8 @@ PushTarget pushTarget(Map<String, dynamic> data) {
       ? Paths.inquiry(inquiry)
       : question != null
       ? Paths.question(question)
+      : productReview != null
+      ? Paths.inboxTab('product_reviews')
       : review != null
       ? Paths.inboxTab('reviews')
       : conversation != null

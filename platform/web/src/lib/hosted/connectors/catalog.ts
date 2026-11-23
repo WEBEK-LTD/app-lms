@@ -1,3 +1,4 @@
+import { detailsJson, factAttributesJson, productDetails, swatchFor } from "../../catalog/details";
 import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
 import { categoryNameIn } from "../../catalog/category-names";
 import { serverMessage } from "../../i18n/builtin";
@@ -32,9 +33,17 @@ import { checkStoreCheckout, handleStoreExtras, quoteDeliveryJson, storeExtrasCo
 import { ADDON_NEEDS_ITEM, checkAddonLines, offeredWith, ownAddonsFor } from "../../selling/addons";
 // 162 Build your bouquet: its lines together, checked against the shop's settings.
 import { bouquetOf, bouquetOffers, bouquetPartJson, checkBouquetLines, onceEach } from "../../selling/bouquet";
+import { shopTypeOfDesign } from "../../studio/shop-types";
+// 210 A product's size in cm and its days to make.
+import { dimensionsLine, makeDaysLine, productLine } from "../../catalog/product-details";
 // 208 A clothes shop's size chart and "Complete the look"; sub-categories.
 import { completeLookFor, fashionOf, sizeChartJson } from "../../selling/fashion";
+// 211 An electronics shop's specs, accessories, trade-in and Build your PC; "Installments coming soon".
+import { isSpecKey, sameSpecValue, specFacets, specJson, specLabel, specLine, specValue } from "../../selling/specs";
+import { pcBuilderJson, techOf, tradeInJson } from "../../selling/tech";
 import { appStageJson } from "../../catalog/stage-json";
+import { productDescriptionIn, productNameIn, translatedAttributes, translatedOptionGroups, wordIn } from "../../catalog/product-langs";
+import { facetsJson, matchesFilters, readListingFilters } from "../../selling/filters";
 import { appPause, pauseJson, pauseMessage } from "../../shop/pause";
 
 /**
@@ -164,6 +173,8 @@ export class CatalogConnector implements Connector {
   private now: Date = new Date();
   /** 175 The language the app asks in, for the categories' names. */
   private lang: string | null = null;
+  /** 211 A list asked `with_specs` (Build your PC's parts): each product's specs too. */
+  private withSpecs = false;
 
   async config() {
     return {
@@ -184,6 +195,11 @@ export class CatalogConnector implements Connector {
         loyalty: loyaltyConfigJson(this.loyalty, this.settings.currency),
         // 208 The size chart under a product's sizes; null: none.
         size_chart: sizeChartJson(fashionOf(this.deps.app)?.sizeChart ?? null, this.lang),
+        // 210 "Installments coming soon" under a product's price: a shop made from a type that sells on installments elsewhere (furniture, electronics); never a way to pay.
+        installments_soon: shopTypeOfDesign(this.deps.app.design)?.installmentsSoon === true,
+        // 211 Trade-in (the devices the shop takes and what each grade gets) and Build your PC (a category per part); null: off.
+        trade_in: tradeInJson(techOf(this.deps.app)?.tradeIn ?? null),
+        pc_builder: pcBuilderJson(techOf(this.deps.app)?.pcBuilder ?? null),
       },
       features: { orders: true },
     };
@@ -195,6 +211,7 @@ export class CatalogConnector implements Connector {
     this.now = request.now;
     // 175 The categories' names in the app's language.
     this.lang = request.lang ?? null;
+    this.withSpecs = request.query.get("with_specs") === "1" || request.query.get("with_specs") === "true";
     // 149 Never in a currency the owner left out of the app's, nor with the switch off (the hosted API sends none then too).
     const display = request.display && customerCurrencyAllowed(customerCurrencyRule(this.settings), request.display.currency) ? request.display : null;
     this.shown = Shown.for(this.settings.currency, display);
@@ -233,6 +250,8 @@ export class CatalogConnector implements Connector {
         return { status: 200, body: { items: await this.categories() } };
       case "GET /store/products":
         return this.products(request.query);
+      case "GET /store/filters":
+        return this.filters(request.query);
       case "POST /store/cart":
         return this.quote(request);
       case "POST /store/checkout-link":
@@ -245,6 +264,8 @@ export class CatalogConnector implements Connector {
         return this.fulfilment ? { status: 200, body: pausedTimes(orderTimesJson(this.fulfilment, request.now), appPause(this.deps.app, request.now)) } : error(404, "not_found", "Not found.");
       case "GET /store/addons":
         return this.addons(request.query);
+      case "GET /store/spec-values":
+        return this.specValues(request.query);
     }
     if (request.method === "GET" && request.path.length === 3 && request.path[0] === "me" && request.path[1] === "orders") {
       return this.order(request, Number(request.path[2]));
@@ -261,6 +282,31 @@ export class CatalogConnector implements Connector {
       }
     }
     return null;
+  }
+
+  /** 211 The values a spec takes in the shop (or a category of it) and how many products have each: the `spec_filter` element's chips. */
+  private async specValues(query: URLSearchParams): Promise<ConnectorResult> {
+    const key = query.get("spec");
+    if (!isSpecKey(key)) return error(400, "invalid_request", "Unknown specification.");
+    const category = query.get("category") ? Number(query.get("category")) : null;
+    if (category !== null && (!Number.isSafeInteger(category) || category < 1)) return error(400, "invalid_request", "Unknown category.");
+    const ids = category === null ? null : inside(await this.deps.store.listCatalogCategories(this.deps.app.id), category);
+    const products = (await this.listed()).filter((p) => ids === null || p.categoryIds.some((c) => ids.has(c)));
+    return { status: 200, body: { key, label: specLabel({ key, label: key }, this.lang ?? "en"), values: specFacets(products, key) } };
+  }
+
+  /** 211 The shop's matching accessories for a product: its accessories category's products (none on an accessory's own page). */
+  private accessoriesFor(product: CatalogProduct, all: readonly CatalogProduct[], categories: readonly CatalogCategory[]): CatalogProduct[] {
+    const id = techOf(this.deps.app)?.accessoriesCategoryId ?? null;
+    if (id === null || product.addon) return [];
+    // Its sub-categories' too.
+    const ids = inside(categories, id);
+    const isAccessory = (p: CatalogProduct) => p.categoryIds.some((c) => ids.has(c));
+    if (isAccessory(product)) return [];
+    return all
+      .filter((p) => p.id !== product.id && isAccessory(p) && !p.addon)
+      .sort((a, b) => Number(b.featured) - Number(a.featured) || b.salesCount - a.salesCount || b.id - a.id)
+      .slice(0, ACCESSORIES);
   }
 
   // Mapping
@@ -301,7 +347,8 @@ export class CatalogConnector implements Connector {
     const inStock = variable ? sellableVariants(p).length > 0 : p.stock === null || p.stock > 0;
     return {
       id: p.id,
-      name: p.name,
+      // 212 In the app's language when the owner wrote it so.
+      name: productNameIn(p, this.lang),
       type: variable ? "variable" : "simple",
       image_url: p.imageAssetIds[0] ? this.deps.assetUrl(p.imageAssetIds[0]) : null,
       price: this.price(p),
@@ -312,6 +359,11 @@ export class CatalogConnector implements Connector {
       digital: p.digital,
       // 131 A gift add-on: offered with other products, never on its own.
       addon: Boolean(p.addon),
+      // 210 Its line on a card: the days it takes to make, else its size in cm ("W 220 × D 95 × H 82 cm"); null for neither.
+      subtitle: productLine(p, this.lang),
+      // 211 Its main specs on one line ("256 GB · 6.7″ OLED · 5G"); null: none.
+      spec_line: specLine(p.specs ?? null),
+      ...(this.withSpecs ? { specs: (p.specs ?? []).map((x) => specJson(x, this.lang)) } : {}),
     };
   }
 
@@ -405,15 +457,23 @@ export class CatalogConnector implements Connector {
     const inCategory = category === null ? null : inside(await this.deps.store.listCatalogCategories(this.deps.app.id), category);
     const search = (query.get("search") ?? "").trim().toLocaleLowerCase("tr").slice(0, 100);
     const flag = (name: string) => query.get(name) === "true" || query.get(name) === "1";
+    // 212 The listing's filters: sizes, colours and other choices, the price, the brand.
+    const filters = readListingFilters(query);
     const orderParam = query.get("orderby") as OrderBy | null;
+    // 211 Filtered by a spec ("spec=ram&spec_value=16 GB").
+    const specKey = query.get("spec");
+    const specWanted = (query.get("spec_value") ?? "").trim().slice(0, 120);
+    if (specKey !== null && (!isSpecKey(specKey) || !specWanted)) return error(400, "invalid_request", "Unknown specification.");
     const filtered = this.sorted(
       all.filter(
         (p) =>
           (inCategory === null || p.categoryIds.some((id) => inCategory.has(id))) &&
+          (specKey === null || (isSpecKey(specKey) && sameSpecValue(specValue(p.specs, specKey) ?? "", specWanted))) &&
           (!flag("featured") || p.featured) &&
           // 131 With the products of a flash sale on now.
           (!flag("on_sale") || priceOf(p) < p.priceCents || this.flashFor(p, p.priceCents, this.now) !== null) &&
-          (search === "" || `${p.name} ${p.description}`.toLocaleLowerCase("tr").includes(search)),
+          (search === "" || this.searchText(p).includes(search)) &&
+          (filters === null || matchesFilters(p, filters)),
       ),
       orderParam && ORDERS.includes(orderParam) ? orderParam : "newest",
     );
@@ -428,6 +488,24 @@ export class CatalogConnector implements Connector {
         items: filtered.slice(start, start + perPage).map((p) => this.summary(p)),
       },
     };
+  }
+
+  /** 212 What a search looks in: the name and description, in every language the owner wrote them in. */
+  private searchText(p: CatalogProduct): string {
+    const more = Object.values(p.translations ?? {}).map((t) => `${t.name ?? ""} ${t.description ?? ""}`);
+    // 211 And its specs' values ("256 GB", "OLED").
+    return [p.name, p.description, p.brand ?? "", ...more, ...(p.specs ?? []).map((x) => x.value)].join(" ").toLocaleLowerCase("tr");
+  }
+
+  /** 212 `GET /store/filters` (of a category, a search): what its products can be filtered by. */
+  private async filters(query: URLSearchParams): Promise<ConnectorResult> {
+    const all = await this.listed();
+    const category = query.get("category") ? Number(query.get("category")) : null;
+    if (category !== null && (!Number.isSafeInteger(category) || category < 1)) return error(400, "invalid_request", "Unknown category.");
+    const inCategory = category === null ? null : inside(await this.deps.store.listCatalogCategories(this.deps.app.id), category);
+    const search = (query.get("search") ?? "").trim().toLocaleLowerCase("tr").slice(0, 100);
+    const products = all.filter((p) => (inCategory === null || p.categoryIds.some((id) => inCategory.has(id))) && (search === "" || this.searchText(p).includes(search)));
+    return { status: 200, body: facetsJson(products, this.settings.currency, this.lang) };
   }
 
   private async home() {
@@ -456,17 +534,27 @@ export class CatalogConnector implements Connector {
     // 208 "Complete the look": a product of each of the shop's other main categories, when the shop has it on.
     const look = !product.addon && fashionOf(app)?.completeLook ? completeLookFor(product, all, categories) : [];
     const variants = variantsOf(product);
+    // 209 What its page tells besides its description: facts, its parts, badges, expiry, ages and swatches.
+    const details = productDetails(product);
     return {
       status: 200,
       body: {
         ...this.summary(product, now),
-        description_html: descriptionHtml(product.description),
+        description_html: descriptionHtml(productDescriptionIn(product, this.lang)),
         short_description_html: null,
-        images: product.imageAssetIds.map((assetId) => ({ url: this.deps.assetUrl(assetId), alt: product.name })),
+        images: product.imageAssetIds.map((assetId) => ({ url: this.deps.assetUrl(assetId), alt: productNameIn(product, this.lang) })),
+        // 212 Its brand, when the owner gave one.
+        brand: product.brand ?? null,
         sku: product.sku,
         max_quantity: product.stock !== null && product.stock > 0 ? product.stock : null,
         // 91.5 Its variations, as WooCommerce's.
-        attributes: variants ? attributesJson(variants) : [],
+        // 212 Their names and labels in the app's language; their values stay the main ones.
+        // 209 Each option's swatch colour where it has one, then its facts as attributes not chosen.
+        attributes: [
+          ...(variants ? translatedAttributes(product, this.lang, attributesJson(variants)) : []).map((a) => ({ ...a, options: a.options.map((o) => (swatchFor(details, o.value) ? { ...o, swatch: swatchFor(details, o.value) } : o)) })),
+          ...factAttributesJson(details),
+        ],
+        ...detailsJson(details),
         // 131 The one chosen when its page opens (a bouquet's Deluxe), when the shop set one it sells.
         ...(() => {
           const chosen = variants?.defaultId != null ? variants.items.find((v) => v.id === variants.defaultId && v.active) : undefined;
@@ -505,9 +593,15 @@ export class CatalogConnector implements Connector {
         related: related.map((p) => this.summary(p, now)),
         addons: addons.map((p) => this.summary(p, now)),
         complete_look: look.map((p) => this.summary(p, now)),
+        // 211 Its specifications in the app's language, and the shop's matching accessories (its accessories category's, the featured and best selling first).
+        specs: (product.specs ?? []).map((x) => specJson(x, this.lang)),
+        accessories: this.accessoriesFor(product, all, categories).map((p) => this.summary(p, now)),
         external_url: null,
         permalink: productUrl(this.deps.platformUrl, app.id, product.id),
-        option_groups: optionGroupsJson(optionGroupsOf(product), this.settings.currency),
+        option_groups: optionGroupsJson(translatedOptionGroups(product, this.lang, optionGroupsOf(product)), this.settings.currency),
+        // 210 Its size in cm and the days it takes to make (the app's product page); null: none.
+        dimensions: product.dimensions ? { width: product.dimensions.width, depth: product.dimensions.depth, height: product.dimensions.height, unit: "cm", text: dimensionsLine(product.dimensions, this.lang) } : null,
+        make_days: product.makeDays ? { min: product.makeDays.min, max: product.makeDays.max, text: makeDaysLine(product.makeDays, this.lang) } : null,
       },
     };
   }
@@ -721,6 +815,8 @@ export class CatalogConnector implements Connector {
       status: 200,
       body: {
         ...priced.cart,
+        // 212 The cart's names in the app's language (the order keeps the shop's own).
+        lines: priced.out.map((o) => (o.product && this.lang ? { ...o.line, name: o.variant ? `${productNameIn(o.product, this.lang)} - ${o.variant.values.map((v) => wordIn(o.product!, this.lang, v)).join(", ")}` : productNameIn(o.product, this.lang) } : o.line)),
         coupon: coupon.json,
         discount: coupon.discountCents > 0 ? this.money(coupon.discountCents) : null,
         points: points.json,
@@ -1052,6 +1148,8 @@ export class CatalogConnector implements Connector {
   }
 }
 
+/** 211 At most this many matching accessories on a product's page. */
+const ACCESSORIES = 6;
 /** 214 A paused shop's order times: closed until it reopens (no time for now, the slots before it gone). */
 function pausedTimes(times: ReturnType<typeof orderTimesJson>, pause: ReturnType<typeof appPause>) {
   if (!pause) return { ...times, paused: null };

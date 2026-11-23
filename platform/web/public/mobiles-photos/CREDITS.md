@@ -1,0 +1,54 @@
+# Photo credits
+
+211 Nova's (the mobiles shop demo's) photos, for its looks A and B. All come from StockSnap (found through Openverse, `source=stocksnap`) and are dedicated to the public domain (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/); each file's StockSnap page has the terms. They were cut to 4:5 around the device and resized to 720 × 900; the `-wide` ones, used as banners, were only resized to 900 wide. The shop, its devices, their brands (Veyra, Orbit, Lumen) and their prices are fictional.
+
+- **box-1.jpg**: "Phone Cellphone" by Thorn Yang, CC0 1.0. https://stocksnap.io/photo/phone-cellphone-FAGBZK62M3
+- **box-1-wide.jpg**: "Phone Cellphone" by Thorn Yang, CC0 1.0. https://stocksnap.io/photo/phone-cellphone-FAGBZK62M3
+- **box-2.jpg**: "Phone Cellphone" by Thorn Yang, CC0 1.0. https://stocksnap.io/photo/phone-cellphone-EOSW1UTFK9
+- **box-3.jpg**: "Black Pocket" by Thorn Yang, CC0 1.0. https://stocksnap.io/photo/black-pocket-84JWISZKZ8
+- **box-3-wide.jpg**: "Black Pocket" by Thorn Yang, CC0 1.0. https://stocksnap.io/photo/black-pocket-84JWISZKZ8
+- **buds-fabric.jpg**: "Headphones Desk" by FOCA Stock, CC0 1.0. https://stocksnap.io/photo/headphones-desk-IJNKVI0ELP
+- **buds-purple.jpg**: "Headphones Desk" by Birch Landing Home, CC0 1.0. https://stocksnap.io/photo/headphones-desk-HW0F1MGKHV
+- **case-red.jpg**: "Black Leather" by Daria Nepriakhina, CC0 1.0. https://stocksnap.io/photo/black-leather-XKXKC5A8VO
+- **case-red-wide.jpg**: "Black Leather" by Daria Nepriakhina, CC0 1.0. https://stocksnap.io/photo/black-leather-XKXKC5A8VO
+- **flatlay-white.jpg**: "Watch Desk" by Jess Watters, CC0 1.0. https://stocksnap.io/photo/watch-desk-UAWNE8NVOX
+- **hp-black.jpg**: "Headphones Desk" by FOCA Stock, CC0 1.0. https://stocksnap.io/photo/headphones-desk-KKOQ2ZWHO1
+- **hp-white.jpg**: "Wireless Headphones" by Burst, CC0 1.0. https://stocksnap.io/photo/wireless-headphones-EXCBJA3FFQ
+- **hp-woman.jpg**: "Woman Headphones" by Burst, CC0 1.0. https://stocksnap.io/photo/woman-headphones-NOLZXJLYKF
+- **hp-woman-wide.jpg**: "Woman Headphones" by Burst, CC0 1.0. https://stocksnap.io/photo/woman-headphones-NOLZXJLYKF
+- **phone-bokeh.jpg**: "Mobile Phone" by Torsten Dettlaff, CC0 1.0. https://stocksnap.io/photo/mobile-phone-MYTHXFJQ2W
+- **phone-cam.jpg**: "Iphone Studio" by Retro 56, CC0 1.0. https://stocksnap.io/photo/iphone-studio-EKVPRXZ2YS
+- **phone-cam-wide.jpg**: "Iphone Studio" by Retro 56, CC0 1.0. https://stocksnap.io/photo/iphone-studio-EKVPRXZ2YS
+- **phone-dark.jpg**: "Phone Cellphone" by Thorn Yang, CC0 1.0. https://stocksnap.io/photo/phone-cellphone-0I7WR7X0AK
+- **phone-dark-wide.jpg**: "Phone Cellphone" by Thorn Yang, CC0 1.0. https://stocksnap.io/photo/phone-cellphone-0I7WR7X0AK
+- **phone-desk.jpg**: "Laptop Apple" by Lukas, CC0 1.0. https://stocksnap.io/photo/laptop-apple-TO31C10FT4
+- **phone-desk-wide.jpg**: "Laptop Apple" by Lukas, CC0 1.0. https://stocksnap.io/photo/laptop-apple-TO31C10FT4
+- **phone-earbuds.jpg**: "Iphone Device" by FOCA Stock, CC0 1.0. https://stocksnap.io/photo/iphone-device-KRMOSAYCZ4
+- **phone-earbuds-wide.jpg**: "Iphone Device" by FOCA Stock, CC0 1.0. https://stocksnap.io/photo/iphone-device-KRMOSAYCZ4
+- **phone-food.jpg**: "Food Plate" by Toronto Eaters, CC0 1.0. https://stocksnap.io/photo/food-plate-YEBI1N2K7S
+- **phone-food-wide.jpg**: "Food Plate" by Toronto Eaters, CC0 1.0. https://stocksnap.io/photo/food-plate-YEBI1N2K7S
+- **phone-hand-grey.jpg**: "Mobile Phone" by NeONBRAND, CC0 1.0. https://stocksnap.io/photo/mobile-phone-LJNJVQC18S
+- **phone-sea.jpg**: "Phone Cellphone" by Jef Pawlikowski, CC0 1.0. https://stocksnap.io/photo/phone-cellphone-QJXZMNO92D
+- **phone-sea-wide.jpg**: "Phone Cellphone" by Jef Pawlikowski, CC0 1.0. https://stocksnap.io/photo/phone-cellphone-QJXZMNO92D
+- **phone-sunset.jpg**: "Mobile Phone" by Jenu Prasad, CC0 1.0. https://stocksnap.io/photo/mobile-phone-OTXXTGE7H1
+- **phone-vintage.jpg**: "Smartphone Camera" by Retro 56, CC0 1.0. https://stocksnap.io/photo/smartphone-camera-TBGNSSQV6B
+- **phone-vintage-wide.jpg**: "Smartphone Camera" by Retro 56, CC0 1.0. https://stocksnap.io/photo/smartphone-camera-TBGNSSQV6B
+- **phone-wood.jpg**: "Mobile Phone" by John Tekeridis, CC0 1.0. https://stocksnap.io/photo/mobile-phone-DYWPAMD1PF
+- **phone-wood-wide.jpg**: "Mobile Phone" by John Tekeridis, CC0 1.0. https://stocksnap.io/photo/mobile-phone-DYWPAMD1PF
+- **tab-coffee.jpg**: "Touchscreen Stylus" by Photo Mix, CC0 1.0. https://stocksnap.io/photo/touchscreen-stylus-ROMFW7JF4X
+- **tab-marble.jpg**: "Tablet Ipad" by Lauren Mancke, CC0 1.0. https://stocksnap.io/photo/tablet-ipad-M6XC5T3JY3
+- **tab-pen.jpg**: "Tablet Computer" by Birch Landing Home, CC0 1.0. https://stocksnap.io/photo/tablet-computer-KCEVT4PCQ1
+- **tab-stand.jpg**: "Ipad Tablet" by Burak Kebapci, CC0 1.0. https://stocksnap.io/photo/ipad-tablet-TCVFK79LAW
+- **tab-stand-wide.jpg**: "Ipad Tablet" by Burak Kebapci, CC0 1.0. https://stocksnap.io/photo/ipad-tablet-TCVFK79LAW
+- **tracker-crouch.jpg**: "Cold Weather" by Matthew Henry, CC0 1.0. https://stocksnap.io/photo/cold-weather-Z86OD8RAAI
+- **tracker-crouch-wide.jpg**: "Cold Weather" by Matthew Henry, CC0 1.0. https://stocksnap.io/photo/cold-weather-Z86OD8RAAI
+- **tracker-rail.jpg**: "Green Band" by Matthew Henry, CC0 1.0. https://stocksnap.io/photo/green-band-0TVKV3UWKK
+- **watch-earbuds.jpg**: "Smart Watch" by Design by Matt, CC0 1.0. https://stocksnap.io/photo/smart-watch-IVWZ4IZI5Q
+- **watch-fabric.jpg**: "Smart Watch" by Design by Matt, CC0 1.0. https://stocksnap.io/photo/smart-watch-HN5PDS7HLL
+- **watch-man.jpg**: "Watch Fitness" by Direct Media, CC0 1.0. https://stocksnap.io/photo/watch-fitness-FOSQTVLFGD
+- **watch-man-wide.jpg**: "Watch Fitness" by Direct Media, CC0 1.0. https://stocksnap.io/photo/watch-fitness-FOSQTVLFGD
+- **watch-pink.jpg**: "Apple Watch" by One Idea LLC, CC0 1.0. https://stocksnap.io/photo/apple-watch-6EMBFCXU0J
+- **watch-rugged.jpg**: "Smartwatch Gps" by 50Fish, CC0 1.0. https://stocksnap.io/photo/smartwatch-gps-XW2IM1GSYM
+- **watch-white.jpg**: "Watch Technology" by Design by Matt, CC0 1.0. https://stocksnap.io/photo/watch-technology-OJYGY9OEB9
+- **wireless-pad.jpg**: "Top Workspace" by Design by Matt, CC0 1.0. https://stocksnap.io/photo/top-workspace-NY0SW7KPUR
+- **wireless-pad-wide.jpg**: "Top Workspace" by Design by Matt, CC0 1.0. https://stocksnap.io/photo/top-workspace-NY0SW7KPUR

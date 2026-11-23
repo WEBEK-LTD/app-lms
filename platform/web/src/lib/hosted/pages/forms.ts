@@ -6,6 +6,7 @@ import type { FormField, LayoutBlock } from "../../pages/types";
 import { hitRateLimit, type RateLimitRule } from "../../rate-limit";
 import { findNode } from "../../studio/tree";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
+import { createStoreRequest } from "../../selling/requests";
 
 /**
  * 99.4 POST /forms/{slug}/{block_id} on the hosted API: the answers to a
@@ -66,6 +67,8 @@ export async function handleFormAnswers(ctx: HostedContext, req: HostedRequest, 
   const block: LayoutBlock | undefined =
     page?.blocks.find((b) => b.id === blockId) ??
     (node?.type === "form" && node.form ? ({ id: node.id, type: "form", fields: node.form.fields, send_to: node.form.send_to } as LayoutBlock) : undefined);
+  // 210 A custom-order request's form: its answers are kept as the shop's request too.
+  const request = node?.type === "form" && node.form?.request === "custom_order";
   if (!page || !block || block.type !== "form" || !block.fields?.length) return error(404, "not_found", "This form isn't available anymore.");
   if (block.send_to !== "email") return error(400, "invalid_request", "This form can't be sent this way.");
   const body = req.body && typeof req.body === "object" ? (req.body as Record<string, unknown>) : {};
@@ -83,6 +86,15 @@ export async function handleFormAnswers(ctx: HostedContext, req: HostedRequest, 
   // The email in the app's default language, as the owner wrote the form.
   const shown = translatedBlock(block, layout.languages.default, layout.languages.default);
   const replyTo = block.fields.find((f) => f.kind === "email" && checked.lines.some((l) => l.label === f.label));
+  // 210 Kept as the shop's custom-order request (Store › Custom orders, Yallapp Business); the email goes too.
+  if (request) {
+    try {
+      const lang = pickLanguage(req.headers?.get("accept-language"), layout.languages);
+      await createStoreRequest({ store: ctx.store, app: ctx.app, now: ctx.now }, { title: shown.title?.trim() || page.title, lines: checked.lines, kinds: new Map(block.fields.map((f) => [f.label, f.kind])), user, lang });
+    } catch {
+      return error(503, "send_failed", "The answers couldn't be sent. Please try again.");
+    }
+  }
   try {
     await ctx.onFormAnswers?.({
       title: shown.title?.trim() || page.title,

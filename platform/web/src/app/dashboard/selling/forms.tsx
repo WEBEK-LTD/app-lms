@@ -1,12 +1,12 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { saveFashionAction } from "@/app/actions/selling";
+import { saveFashionAction, saveTechAction } from "@/app/actions/selling";
 import { saveAddonsAction, saveAreasAction, saveBouquetAction, saveCheckoutModeAction, saveDeliveryAction, saveFlashSaleAction, saveGiftsAction, saveOccasionAction, addOccasionAction, saveTemplateAction, saveTitlesAction } from "@/app/actions/selling";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { FormActions } from "@/components/page-kit";
 import { TimeZonePicker } from "@/components/time-zone-picker";
-import { useDashT } from "@/components/dashboard-i18n";
+import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { initialFormState } from "@/lib/forms";
 import { AreasEditor, ProductPicker, SlotList, slotRowsOf, type AreasStart, type CountryChoice, type ProductChoice } from "./pickers";
 
@@ -602,6 +602,77 @@ export function FashionForm({ values: saved, langs }: { values: Record<string, s
       <div className="flex justify-end">
         <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
           {t("shopTypes.fashionSave")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/**
+ * 211 An electronics shop's parts: the category of matching accessories,
+ * trade-in (the devices taken, each storage's top price, each condition's
+ * share) and Build your PC (a category for each part, which may be skipped).
+ */
+export function TechForm({ values: saved, categories, currency }: { values: Record<string, string>; categories: { id: number; name: string }[]; currency: string }) {
+  const t = useDashT();
+  const known = useKnownText();
+  const [state, action] = useActionState(saveTechAction, initialFormState);
+  const v = { ...saved, ...state.values };
+  const e = Object.fromEntries(Object.entries(state.errors ?? {}).map(([k, m]) => [k, known(m)]));
+  const select = (name: string, label: string, hint?: string) => (
+    <label className="flex flex-col gap-1.5 text-sm font-semibold">
+      {label}
+      <select name={name} defaultValue={v[name] ?? ""} aria-invalid={e[name] ? true : undefined} className="input h-10 font-normal">
+        <option value="">{t("tech.none")}</option>
+        {categories.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.name}
+          </option>
+        ))}
+      </select>
+      {hint ? <span className="text-[13px] font-normal text-muted">{hint}</span> : null}
+      <FieldError id={`f-${name}-error`} error={e[name]} />
+    </label>
+  );
+  const parts = ["cpu", "board", "ram", "gpu", "storage", "cooler", "psu", "case"] as const;
+  const grades = ["like_new", "good", "fair", "broken"] as const;
+  return (
+    <form action={action} noValidate className="flex flex-col gap-5" data-tech-form="">
+      <FormMessage message={state.message} ok={state.ok} />
+      {select("accessoriesCategory", t("tech.accessories"), t("tech.accessoriesHint"))}
+      <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
+        <legend className="mb-1.5 text-base font-bold">{t("tech.tradeIn")}</legend>
+        <label className="flex flex-col gap-1.5 text-sm font-semibold">
+          {t("tech.tradeInModels")} ({currency})
+          <textarea name="tradeInModels" rows={5} dir="ltr" defaultValue={v.tradeInModels ?? ""} aria-invalid={e.tradeInModels ? true : undefined} aria-describedby="f-tradeInModels-hint" className="input min-h-[110px] py-2 font-mono text-[13px] font-normal" />
+          <span id="f-tradeInModels-hint" className="text-[13px] font-normal text-muted">
+            {t("tech.tradeInModelsHint")}
+          </span>
+          <FieldError id="f-tradeInModels-error" error={e.tradeInModels} />
+        </label>
+        <span className="text-sm font-semibold">{t("tech.grades")}</span>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {grades.map((g) => (
+            <Field key={g} label={t(`tech.grade_${g}`)} name={`grade_${g}`} type="number" min={0} max={100} defaultValue={v[`grade_${g}`]} small />
+          ))}
+        </div>
+        <FieldError id="f-grades-error" error={e.grade_like_new} />
+      </fieldset>
+      <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
+        <legend className="mb-1.5 text-base font-bold">{t("tech.pcBuilder")}</legend>
+        <span className="text-[13px] text-muted">{t("tech.pcBuilderHint")}</span>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {parts.map((part) => (
+            <div key={part} className="flex flex-col gap-1.5">
+              {select(`part_${part}`, t(`tech.part_${part}`))}
+              <Check name={`optional_${part}`} label={t("tech.optional")} defaultChecked={v[`optional_${part}`] === "on"} />
+            </div>
+          ))}
+        </div>
+      </fieldset>
+      <div className="flex justify-end">
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("tech.save")}
         </SubmitButton>
       </div>
     </form>

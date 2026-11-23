@@ -814,8 +814,99 @@
           "method": "GET",
           "path": "/store/products/{product_id}/reviews",
           "summary": "List a product's reviews",
-          "description": "Approved reviews, newest first, with the rating summary. Fails with `feature_disabled` when the site has reviews turned off.",
+          "description": "Approved reviews, newest first, with the rating summary. Fails with `feature_disabled` when the site has reviews turned off. Roadmap 212: on Yallapp's hosted API every store has them (Yallapp's own shop, Shopify, the connected platforms), each with its `photos`; `photos=1` lists the ones with photos; the signed-in customer gets `mine` and `can_review` (they bought it).",
           "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/store/filters",
+          "summary": "What a listing can be filtered by",
+          "description": "Roadmap 212. The reusable listing filter element's choices for the products of a category or a search: the sizes, colours and other choices sold (each value with how many products have it, a colour's swatch when it is a common colour), the price range in the shop's currency, the brands and the sorts. Sent back to `GET /store/products` as `size`, `colour`, `f.<key>`, `min_price`, `max_price` and `brand`. A shop on a connected platform offers the sorts only (`choices` empty, `price` null): its lists don't carry the choices. Missing (404) on older servers and WordPress sites without it: the app shows its own sort only.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/store/wishlist",
+          "summary": "The customer's wishlist",
+          "description": "Roadmap 212. The products the signed-in customer saved (the heart on a product's card and page), newest first, as the shop serves them now (a product it no longer sells drops out of `items`, its id stays in `ids` until removed). At most 200. A guest's hearts stay on the phone and are added with `POST /store/wishlist/merge` once they sign in. Present when `StoreConfig.wishlist` is true.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/store/wishlist/merge",
+          "summary": "Add a guest's hearts after signing in",
+          "description": "Roadmap 212. Adds the products the phone saved before signing in (unknown ids are kept out of nothing; at most 200 in all) and answers every saved id.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/store/wishlist/{product_id}",
+          "summary": "Save a product",
+          "description": "Roadmap 212. Saving it again changes nothing. `409 wishlist_full` at 200 products.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/store/wishlist/{product_id}",
+          "summary": "Remove a saved product",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/store/products/{product_id}/reviews/mine",
+          "summary": "Write or edit the customer's review of a product",
+          "description": "Roadmap 212. One per product and customer, which they may edit (the shop's reply and hiding stay). Only a customer who bought it (an order of theirs, paid or done, holds it: `403 not_bought`). A rating 1 to 5, words up to 2,000 characters without links, and up to 4 photos sent first with `POST /store/review-uploads` (their `id`s; a photo already on the review may be kept). Shown with a short name (\"Ahmed K.\"), never an email or a phone. At most 20 written or edited an hour (429).",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/store/products/{product_id}/reviews/mine",
+          "summary": "Delete the customer's review of a product",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/store/review-uploads",
+          "summary": "Start sending a review's photo",
+          "description": "Roadmap 212. A JPEG, PNG or WebP of at most 8 MB (`StoreConfig.review_photos`), into the shop's Media library, sent in chunks to `upload_url` as an assignment's files are; then `POST /store/review-uploads/{upload_id}/complete`. Only customers who bought from the shop (`403 not_bought`); at most 30 an hour.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/store/review-uploads/{upload_id}/resume",
+          "summary": "A fresh link to go on sending a review's photo",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/store/review-uploads/{upload_id}/complete",
+          "summary": "Finish a review's photo",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/store/products/{product_id}/back-in-stock",
+          "summary": "Notify me when it's back",
+          "description": "Roadmap 212. For a product (or one of its variations, `variation_id`) that is out of stock now (`409 in_stock` otherwise). When it's back the customer gets a push (`back_in_stock`, with `product_id`), the notification in the inbox, and an email when the app's email goes out, once; asking again waits again. At most 50 at once (`409 too_many`). Present when `StoreConfig.back_in_stock` is true.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/store/products/{product_id}/back-in-stock",
+          "summary": "Don't notify me",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/store/back-in-stock",
+          "summary": "What the customer waits for",
+          "description": "Roadmap 212. The products and variations the signed-in customer asked to be told about, still out of stock.",
+          "access": "signed-in"
         },
         {
           "method": "POST",
@@ -871,6 +962,20 @@
           "path": "/store/bouquet",
           "summary": "Build your bouquet",
           "description": "Roadmap 162. What the app's Build your bouquet chooses from, when the store has it set up (`StoreConfig.bouquet`): the flowers (the products of the category the owner set, chosen by the stem with quantities), the wraps (gift add-ons the owner chose, or a category's products) and the cards (gift add-ons the owner chose; none: the card is its message alone), each a `ProductSummary` with its photo and price, and the rules. The app puts the bouquet in the cart as lines that share one `bouquet` (`CartInput.lines[].bouquet`); the server prices them as any line. Yallapp's own products and connected platforms; 404 when the store hasn't set it up.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/store/spec-values",
+          "summary": "The values a spec takes in the shop",
+          "description": "Roadmap 211. The values a spec (`ProductSpec.key`) takes across the shop's products (or one category's, its sub-categories' included) and how many products have each, most common first, at most 12: a Studio `spec_filter` element's chips, each opening `GET /store/products?spec=…&spec_value=…`. Yallapp's own catalog only.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/store/trade-in",
+          "summary": "Ask the shop to take an old device",
+          "description": "Roadmap 211. A trade-in request (the `trade_in` element, the trade-in screen): one of the devices of `StoreConfig.trade_in`, its storage and its grade, with the customer's name and phone (and a note). The estimate is worked out again by the server from the shop's settings (the storage's top price times the grade's share, to the whole unit below) and the request is saved for the owner (Dashboard › Store › Trade-in), who calls the customer. Signed in or not; at most 3 a minute and 20 a day from one address. 404 when the shop takes no trade-ins.",
           "access": "optional"
         },
         {

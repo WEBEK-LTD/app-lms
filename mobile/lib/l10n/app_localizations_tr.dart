@@ -1618,7 +1618,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get wishlistEmptyMessage =>
-      'Daha sonrası için kaydetmek üzere bir kurstaki kalbe dokunun.';
+      'Burada tutmak için bir ürünün kalbine dokunun.';
 
   @override
   String get courseComplete => 'Kurs tamamlandı. Tebrikler!';
@@ -12366,6 +12366,221 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get specsTitle => 'Teknik özellikler';
+
+  @override
+  String get specsAll => 'Tüm özellikler';
+
+  @override
+  String get specsFewer => 'Daha az özellik';
+
+  @override
+  String get compareAdd => 'Karşılaştır';
+
+  @override
+  String get compareAdded => 'Karşılaştırmada';
+
+  @override
+  String compareOpen(int count) {
+    return 'Karşılaştır ($count)';
+  }
+
+  @override
+  String get compareTitle => 'Karşılaştırma';
+
+  @override
+  String get compareFull => 'En fazla 3 ürün karşılaştırabilirsiniz';
+
+  @override
+  String get compareRemove => 'Karşılaştırmadan çıkar';
+
+  @override
+  String get compareEmpty =>
+      'Yan yana karşılaştırmak için iki veya üç ürün ekleyin.';
+
+  @override
+  String get compareSpec => 'Özellik';
+
+  @override
+  String get accessoriesTitle => 'Bununla iyi gider';
+
+  @override
+  String accessoriesAdd(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ürünü sepete ekle',
+      one: '1 ürünü sepete ekle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get installmentsSoon => 'Taksit yakında';
+
+  @override
+  String get tradeInTitle => 'Eski cihazınız ne kadar eder?';
+
+  @override
+  String get tradeInLine =>
+      'Cihazınızı ve durumunu seçin, değerini saniyeler içinde görün.';
+
+  @override
+  String tradeInUpTo(String amount) {
+    return '$amount değerine kadar';
+  }
+
+  @override
+  String get tradeInCheck => 'Değerini hesapla';
+
+  @override
+  String get tradeInModel => 'Cihazınız';
+
+  @override
+  String get tradeInStorage => 'Depolama';
+
+  @override
+  String get tradeInCondition => 'Durumu';
+
+  @override
+  String get tradeInGradeLikeNew => 'Yeni gibi';
+
+  @override
+  String get tradeInGradeGood => 'İyi';
+
+  @override
+  String get tradeInGradeFair => 'Orta';
+
+  @override
+  String get tradeInGradeBroken => 'Ekranı kırık';
+
+  @override
+  String get tradeInEstimate => 'Tahmini değer';
+
+  @override
+  String get tradeInStart => 'Takası başlat';
+
+  @override
+  String get tradeInFinal =>
+      'Son değer, mağaza cihazı inceledikten sonra belirlenir.';
+
+  @override
+  String get tradeInContact => 'Mağaza size nasıl ulaşsın?';
+
+  @override
+  String get tradeInName => 'Adınız';
+
+  @override
+  String get tradeInPhone => 'Cep telefonu';
+
+  @override
+  String get tradeInNote => 'Eklemek istedikleriniz (isteğe bağlı)';
+
+  @override
+  String get tradeInSend => 'Talebi gönder';
+
+  @override
+  String get tradeInSent => 'Talebinizi aldık';
+
+  @override
+  String tradeInSentLine(String model, String estimate) {
+    return 'Mağaza $model ($estimate) için sizi arayacak.';
+  }
+
+  @override
+  String get pcBuilderTitle => 'Bilgisayarını topla';
+
+  @override
+  String get pcBuilderLine => 'Her parçayı seçin; uyumunu biz kontrol ederiz.';
+
+  @override
+  String get pcBuilderStart => 'Toplamaya başla';
+
+  @override
+  String pcBuilderStep(int step, int count) {
+    return 'Adım $step/$count';
+  }
+
+  @override
+  String get pcBuilderSkip => 'Bu parçayı atla';
+
+  @override
+  String get pcBuilderNext => 'Sonraki parça';
+
+  @override
+  String get pcBuilderReview => 'Toplamayı gözden geçir';
+
+  @override
+  String get pcBuilderTotal => 'Toplam';
+
+  @override
+  String pcBuilderWatts(int watts) {
+    return '$watts W gerekir';
+  }
+
+  @override
+  String get pcBuilderAddAll => 'Toplamayı sepete ekle';
+
+  @override
+  String get pcBuilderAdded => 'Toplama sepetinizde';
+
+  @override
+  String get pcBuilderFits => 'Tüm parçalar uyumlu';
+
+  @override
+  String get pcBuilderEmpty => 'Burada henüz parça yok';
+
+  @override
+  String get pcBuilderOptional => 'İsteğe bağlı';
+
+  @override
+  String get pcPartCpu => 'İşlemci';
+
+  @override
+  String get pcPartBoard => 'Anakart';
+
+  @override
+  String get pcPartRam => 'Bellek';
+
+  @override
+  String get pcPartGpu => 'Ekran kartı';
+
+  @override
+  String get pcPartStorage => 'Depolama';
+
+  @override
+  String get pcPartCooler => 'Soğutucu';
+
+  @override
+  String get pcPartPsu => 'Güç kaynağı';
+
+  @override
+  String get pcPartCase => 'Kasa';
+
+  @override
+  String pcIssueSocket(String part) {
+    return '$part soketine uymuyor';
+  }
+
+  @override
+  String pcIssueMemory(String part) {
+    return '$part bu bellek türünü desteklemiyor';
+  }
+
+  @override
+  String pcIssuePower(int watts) {
+    return 'Bu toplama için güç yetersiz ($watts W)';
+  }
+
+  @override
+  String pcIssueSize(String part) {
+    return '$part için küçük';
+  }
+
+  @override
+  String get specFilterEmpty => 'Henüz eşleşen ürün yok';
+
+  @override
   String get appointmentStatusApproved => 'Onaylandı';
 
   @override
@@ -12451,4 +12666,193 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get travelNoPaymentYet =>
       'Bu henüz uygulamada ödenemiyor. Otelde ödediğiniz bir konaklama seçin ya da bizimle iletişime geçin.';
+
+  @override
+  String get productDetailsTitle => 'Detaylar';
+
+  @override
+  String get productInfoIngredients => 'İçindekiler';
+
+  @override
+  String get productInfoHowToUse => 'Nasıl kullanılır';
+
+  @override
+  String get productInfoSafety => 'Güvenlik';
+
+  @override
+  String get productInfoMaterials => 'Malzemeler';
+
+  @override
+  String get productInfoCare => 'Bakım';
+
+  @override
+  String get productInfoInTheBox => 'Kutu içeriği';
+
+  @override
+  String get productBadgeGenuine => 'Orijinal ürün';
+
+  @override
+  String get productBadgeSafetyTested => 'Güvenlik testli';
+
+  @override
+  String get productBadgeOrganic => 'Organik';
+
+  @override
+  String get productBadgeHandmade => 'El yapımı';
+
+  @override
+  String get productBadgeCrueltyFree => 'Hayvanlar üzerinde test edilmedi';
+
+  @override
+  String get productBadgeGiftWrap => 'Hediye paketi mevcut';
+
+  @override
+  String productExpiry(String date) {
+    return 'Son kullanma: $date';
+  }
+
+  @override
+  String productAgeMonths(int from, int to) {
+    return '$from–$to ay';
+  }
+
+  @override
+  String productAgeYears(int from, int to) {
+    return '$from–$to yaş';
+  }
+
+  @override
+  String productAgeMixed(int from, int to) {
+    return '$from ay–$to yaş';
+  }
+
+  @override
+  String productAgePlusMonths(int from) {
+    return '$from ay ve üzeri';
+  }
+
+  @override
+  String productAgePlusYears(int from) {
+    return '$from yaş ve üzeri';
+  }
+
+  @override
+  String quizStep(int n, int total) {
+    return 'Soru $n/$total';
+  }
+
+  @override
+  String get quizAgain => 'Yeniden başla';
+
+  @override
+  String get quizResultTitle => 'Sonucunuz';
+
+  @override
+  String sizeFinderFits(String size) {
+    return 'Uyan beden: $size';
+  }
+
+  @override
+  String swatchChosen(String name) {
+    return '$name, seçili';
+  }
+
+  @override
+  String get productDimensions => 'Boyutlar';
+
+  @override
+  String get productMadeToOrder => 'Siparişe özel yapılır';
+
+  @override
+  String get deliverySlotsKept =>
+      'Bu günü ve saati ödemeniz için saklayacağız.';
+
+  @override
+  String get deliverySlotsAssembly => 'Ekip, teslimat günü kurar.';
+
+  @override
+  String get deliverySlotsNone => 'Şu anda açık teslimat günü yok.';
+
+  @override
+  String get saveToWishlist => 'İstek listesine ekle';
+
+  @override
+  String get wishlistOnPhone =>
+      'Kalpleriniz bu telefonda tutulur. Tüm telefonlarınızda olması için giriş yapın.';
+
+  @override
+  String get wishlistFailed =>
+      'İstek listeniz değiştirilemedi. Yeniden deneyin.';
+
+  @override
+  String get reviewAddPhotos => 'Fotoğraf ekle';
+
+  @override
+  String reviewPhotosCount(int count, int max) {
+    return '$count/$max fotoğraf';
+  }
+
+  @override
+  String get reviewPhotoRemove => 'Bu fotoğrafı kaldır';
+
+  @override
+  String reviewPhotoTooBig(String size) {
+    return 'Bu fotoğraf çok büyük. En fazla $size olanı seçin.';
+  }
+
+  @override
+  String get reviewPhotoType => 'Bir fotoğraf seçin (JPEG, PNG veya WebP).';
+
+  @override
+  String get reviewOnlyBuyers =>
+      'Bu ürünü satın alan müşteriler onu değerlendirebilir.';
+
+  @override
+  String reviewsSeeAll(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count değerlendirmenin tümünü gör',
+      one: 'Değerlendirmeyi gör',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reviewPhotosTitle => 'Müşteri fotoğrafları';
+
+  @override
+  String reviewPhotoOf(int n) {
+    return 'Müşteri fotoğrafı $n';
+  }
+
+  @override
+  String get notifyMeBack => 'Gelince haber ver';
+
+  @override
+  String get notifyMeWaiting => 'Gelince size haber vereceğiz';
+
+  @override
+  String get notifyMeStop => 'Haber verme';
+
+  @override
+  String get notifyMeSaved =>
+      'Tamam. Yeniden stoka girdiğinde bildirim alacaksınız.';
+
+  @override
+  String get notifyMeSignIn => 'Geldiğinde haber almak için giriş yapın.';
+
+  @override
+  String get filterPrice => 'Fiyat';
+
+  @override
+  String get filterBrand => 'Marka';
+
+  @override
+  String filterPriceRange(String min, String max) {
+    return '$min – $max';
+  }
+
+  @override
+  String get filterOpen => 'Ürünleri filtrele';
 }

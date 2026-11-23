@@ -6,7 +6,8 @@ import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/sessi
 import { recordStaffChange } from "@/lib/admin/audit";
 import { catalogSettings } from "@/lib/catalog/settings";
 import { getStore } from "@/lib/data";
-import type { App, CatalogSettings } from "@/lib/data/types";
+import type { App, CatalogSettings, TradeInStatus } from "@/lib/data/types";
+import { TRADE_IN_STATUSES } from "@/lib/data/types";
 import type { FormState } from "@/lib/forms";
 import { DEFAULT_DELIVERY, parseDeliveryForm } from "@/lib/selling/delivery";
 import { parseFlashSaleForm } from "@/lib/selling/flash-sales";
@@ -19,6 +20,7 @@ import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { langTextOfForm, parseAddonSettings } from "@/lib/selling/addons";
 import { parseBouquetForm } from "@/lib/selling/bouquet";
 import { parseFashionForm } from "@/lib/selling/fashion";
+import { parseTechForm } from "@/lib/selling/tech";
 
 /**
  * 131 Store › Delivery & offers (app/dashboard/selling): the checkout, the
@@ -309,4 +311,28 @@ export async function saveFashionAction(_: FormState, formData: FormData): Promi
   await recordStaffChange(context, parsed.value ? "Changed the size chart and Complete the look" : "Turned off the size chart and Complete the look");
   refresh();
   return { ok: true, message: "Saved.", values: v };
+}
+
+/** 211 An electronics shop's matching accessories, trade-in and Build your PC (the shop's own categories). */
+export async function saveTechAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireStoreApp();
+  const v = values(formData);
+  const categories = await (await getStore()).listCatalogCategories(context.app.id);
+  const parsed = parseTechForm(v, categories.map((c) => c.id));
+  if (!parsed.ok) return { errors: parsed.errors, values: v };
+  await saveSettings(context.app, { tech: parsed.value });
+  await recordStaffChange(context, parsed.value ? "Changed the matching accessories, trade-in and Build your PC" : "Turned off the matching accessories, trade-in and Build your PC");
+  refresh();
+  return { ok: true, message: "Saved.", values: v };
+}
+
+/** 211 A trade-in request marked as the owner moves it on (contacted, done, declined, or new again). */
+export async function setTradeInStatusAction(formData: FormData): Promise<void> {
+  const context = await requireStoreApp();
+  const id = Number(formData.get("id"));
+  const status = String(formData.get("status") ?? "") as TradeInStatus;
+  if (!Number.isSafeInteger(id) || id < 1 || !(TRADE_IN_STATUSES as readonly string[]).includes(status)) return;
+  await (await getStore()).updateTradeInRequest(context.app.id, id, { status, updatedAt: new Date() });
+  await recordStaffChange(context, `Marked a trade-in request as ${status}`);
+  revalidatePath("/dashboard/catalog/trade-in");
 }

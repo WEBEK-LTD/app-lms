@@ -441,6 +441,7 @@ class AppFeatures {
     this.inquiries = false,
     this.questions = false,
     this.reviews = false,
+    this.productReviews = false,
     this.memberCheckIn = false,
     this.chat = false,
     this.appUsers = false,
@@ -473,6 +474,7 @@ class AppFeatures {
     inquiries: boolean(json, 'inquiries'),
     questions: boolean(json, 'questions'),
     reviews: boolean(json, 'reviews'),
+    productReviews: boolean(json, 'product_reviews'),
     memberCheckIn: boolean(json, 'member_check_in'),
     chat: boolean(json, 'chat'),
     appUsers: boolean(json, 'app_users'),
@@ -508,6 +510,10 @@ class AppFeatures {
 
   /// 63 Reviews of courses managed in Yallapp (Catalog & content).
   final bool reviews;
+
+  /// 212 A store's product reviews with photos, and who waits for what and
+  /// saved what (Catalog & content). Missing on older servers: false.
+  final bool productReviews;
 
   /// 63 A gym's members checked in at the door (Bookings).
   final bool memberCheckIn;
@@ -3158,7 +3164,36 @@ class Review {
     required this.hidden,
     required this.createdAt,
     this.reply,
+    this.productId,
+    this.photos = const [],
   });
+
+  /// 212 A customer's review of a store's product: its product's name in
+  /// the course's place, and its photos.
+  factory Review.fromProductJson(Json json) {
+    final reply = optObject(json, 'reply');
+    return Review(
+      id: integer(json, 'id'),
+      courseId: 0,
+      courseTitle: str(json, 'product_name'),
+      person: str(json, 'person'),
+      rating: integer(json, 'rating', 5).clamp(1, 5),
+      text: str(json, 'text'),
+      hidden: boolean(json, 'hidden'),
+      createdAt: date(json, 'created_at'),
+      productId: integer(json, 'product_id'),
+      photos: [
+        for (final p in jsonList(json, 'photos'))
+          if (str(p, 'url').isNotEmpty) str(p, 'url'),
+      ],
+      reply: reply == null
+          ? null
+          : ReviewReply(
+              text: str(reply, 'text'),
+              createdAt: date(reply, 'created_at'),
+            ),
+    );
+  }
 
   factory Review.fromJson(Json json) {
     final reply = optObject(json, 'reply');
@@ -3191,6 +3226,76 @@ class Review {
   final bool hidden;
   final DateTime createdAt;
   final ReviewReply? reply;
+
+  /// 212 A store's product review: its product (null for a course's).
+  final int? productId;
+
+  /// 212 The photos the customer sent with it.
+  final List<String> photos;
+
+  bool get isProduct => productId != null;
+
+  Review copyWith({
+    bool? hidden,
+    ReviewReply? reply,
+    bool clearReply = false,
+  }) => Review(
+    id: id,
+    courseId: courseId,
+    courseTitle: courseTitle,
+    person: person,
+    rating: rating,
+    text: text,
+    hidden: hidden ?? this.hidden,
+    createdAt: createdAt,
+    reply: clearReply ? null : (reply ?? this.reply),
+    productId: productId,
+    photos: photos,
+  );
+}
+
+/// 212 A product customers wait for to be back in stock, or saved.
+class ShopWish {
+  const ShopWish({
+    required this.productId,
+    required this.name,
+    required this.count,
+    this.variationId,
+    this.imageUrl,
+  });
+
+  factory ShopWish.fromJson(Json json) => ShopWish(
+    productId: integer(json, 'product_id'),
+    variationId: optInt(json, 'variation_id'),
+    name: str(json, 'product_name'),
+    imageUrl: optStr(json, 'product_image_url'),
+    count: integer(json, 'count'),
+  );
+
+  final int productId;
+  final int? variationId;
+  final String name;
+  final String? imageUrl;
+  final int count;
+}
+
+/// 212 Who waits for what to be back in stock, and the products saved most.
+class ShopWishes {
+  const ShopWishes({
+    required this.waiting,
+    required this.waitingTotal,
+    required this.saved,
+  });
+
+  factory ShopWishes.fromJson(Json json) => ShopWishes(
+    waiting: listOf(json, 'waiting', ShopWish.fromJson),
+    waitingTotal: integer(json, 'waiting_total'),
+    saved: listOf(json, 'saved', ShopWish.fromJson),
+  );
+
+  final List<ShopWish> waiting;
+  final int waitingTotal;
+  final List<ShopWish> saved;
 }
 
 class ReviewsPage {
@@ -3202,6 +3307,13 @@ class ReviewsPage {
 
   factory ReviewsPage.fromJson(Json json) => ReviewsPage(
     page: Paged.fromJson(json, Review.fromJson),
+    rating: optNumber(json, 'rating'),
+    ratingCount: integer(json, 'rating_count'),
+  );
+
+  /// 212 A store's product reviews.
+  factory ReviewsPage.fromProductJson(Json json) => ReviewsPage(
+    page: Paged.fromJson(json, Review.fromProductJson),
     rating: optNumber(json, 'rating'),
     ratingCount: integer(json, 'rating_count'),
   );
@@ -3359,4 +3471,119 @@ class MemberVisits {
   final String timeZone;
   final int count;
   final List<MemberVisit> items;
+}
+
+/// 210 Where a custom-order request is: new, quoted (a price sent), accepted,
+/// declined or done. [open] are the first three.
+enum RequestStatus {
+  fresh('new'),
+  quoted('quoted'),
+  accepted('accepted'),
+  declined('declined'),
+  done('done');
+
+  const RequestStatus(this.wire);
+  final String wire;
+
+  /// An unknown status reads as new (the server's first).
+  static RequestStatus parse(String? value) {
+    for (final s in values) {
+      if (s.wire == value) return s;
+    }
+    return fresh;
+  }
+
+  bool get open => this == fresh || this == quoted || this == accepted;
+}
+
+/// 210 One line of what the customer filled in ("Size": "150 × 200 cm").
+class RequestAnswer {
+  const RequestAnswer({required this.label, required this.value});
+
+  factory RequestAnswer.fromJson(Json json) =>
+      RequestAnswer(label: str(json, 'label'), value: str(json, 'value'));
+
+  final String label;
+  final String value;
+}
+
+/// 210 A custom-order request sent from the shop's app (the dashboard's
+/// Store › Custom orders): what the customer asked for, who they are, and
+/// the shop's answer so far.
+class StoreRequest {
+  const StoreRequest({
+    required this.id,
+    required this.title,
+    required this.status,
+    required this.answers,
+    required this.customer,
+    required this.currency,
+    required this.createdAt,
+    required this.updatedAt,
+    this.reply,
+    this.quoteCents,
+    this.lang,
+    this.quote,
+  });
+
+  factory StoreRequest.fromJson(Json json) {
+    final quoteCents = optInt(json, 'quote_cents');
+    final currency = str(json, 'currency');
+    return StoreRequest(
+      id: str(json, 'id'),
+      title: str(json, 'title'),
+      status: RequestStatus.parse(optStr(json, 'status')),
+      answers: [
+        for (final a in listOf(json, 'answers', RequestAnswer.fromJson))
+          if (a.label.trim().isNotEmpty || a.value.trim().isNotEmpty) a,
+      ],
+      customer: Customer.fromJson(optObject(json, 'customer') ?? const {}),
+      reply: optStr(json, 'reply'),
+      quoteCents: quoteCents,
+      currency: currency,
+      lang: optStr(json, 'lang'),
+      createdAt: date(json, 'created_at'),
+      updatedAt: date(json, 'updated_at'),
+      // The server's formatted price; an older one sends only the cents.
+      quote:
+          Money.opt(json, 'quote') ??
+          (quoteCents == null
+              ? null
+              : Money(
+                  amountCents: quoteCents,
+                  currency: currency,
+                  formatted:
+                      '$currency ${Money(amountCents: quoteCents, currency: currency, formatted: '').major}',
+                )),
+    );
+  }
+
+  final String id;
+
+  /// The form's title ("Custom order").
+  final String title;
+  final RequestStatus status;
+  final List<RequestAnswer> answers;
+
+  /// Name, phone and email, each when given.
+  final Customer customer;
+  final String? reply;
+  final int? quoteCents;
+
+  /// The shop's currency (the price is quoted in it).
+  final String currency;
+
+  /// The language the customer wrote in.
+  final String? lang;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final Money? quote;
+
+  /// The quoted price as the price field shows it ("450", "450.50").
+  String? get quoteText {
+    final q = quote;
+    if (q == null) return null;
+    final major = q.major;
+    return major.endsWith('.00') ? major.substring(0, major.length - 3) : major;
+  }
 }

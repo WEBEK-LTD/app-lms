@@ -66,7 +66,12 @@ import '../account/sign_out.dart' show AccountPageEnd;
 import '../../store/widgets/quick_add.dart';
 // 208 The category menu and the size chart.
 import 'studio_category_menu.dart';
+import 'studio_shop_helpers.dart';
 import 'studio_size_chart.dart';
+import 'studio_delivery_slots.dart';
+// 211 The electronics shops' elements.
+import 'studio_tech.dart';
+import 'studio_listing_filters.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -1325,6 +1330,20 @@ class StudioNodeView extends ConsumerWidget {
       ),
       // 208 The shop's size chart, when it has one.
       StudioNodeType.sizeChart => StudioSizeChart.shows(ref),
+      // 209 A size finder with a chart to read, swatches, a quiz to take.
+      StudioNodeType.sizeFinder => StudioSizeFinder.shows(ref),
+      StudioNodeType.swatches => StudioSwatches.shows(node),
+      StudioNodeType.quiz => StudioQuiz.shows(node),
+      // 210 The shop's delivery days, when it has them on.
+      StudioNodeType.deliverySlots => StudioDeliverySlotsView.shows(ref),
+      // 211 The tech elements, once they have something to show.
+      StudioNodeType.specTable ||
+      StudioNodeType.compare ||
+      StudioNodeType.specFilter ||
+      StudioNodeType.tradeIn ||
+      StudioNodeType.pcBuilder => studioTechShows(node, ref),
+      // 212 A store's listing filters.
+      StudioNodeType.listingFilters => StudioListingFilters.shows(ref),
       StudioNodeType.form =>
         node.form != null && PageBlockView.shows(node.form!, ref),
       StudioNodeType.search => PageBlockView.shows(_searchBlock(node, ''), ref),
@@ -1505,7 +1524,11 @@ class StudioNodeView extends ConsumerWidget {
     }
     final action =
         (node.type == StudioNodeType.button || node.action != null) &&
-            node.type != StudioNodeType.ctaBar
+            node.type != StudioNodeType.ctaBar &&
+            // 209 Their action is their button's.
+            node.type != StudioNodeType.sizeFinder &&
+            node.type != StudioNodeType.swatches &&
+            node.type != StudioNodeType.quiz
         ? node.action
         : null;
     final press = node.motion?.press ?? StudioPress.none;
@@ -1979,6 +2002,38 @@ class StudioNodeView extends ConsumerWidget {
       case StudioNodeType.sizeChart:
         // 208 The shop's size chart.
         return StudioSizeChart(title: _text(context), color: color);
+      // 209 The size finder, the swatches and the quiz.
+      case StudioNodeType.sizeFinder:
+        return StudioSizeFinder(
+          node: node,
+          title: _text(context),
+          color: color,
+        );
+      case StudioNodeType.swatches:
+        return StudioSwatches(node: node, title: _text(context), color: color);
+      case StudioNodeType.quiz:
+        return StudioQuiz(node: node, title: _text(context), color: color);
+      case StudioNodeType.deliverySlots:
+        // 210 The shop's next delivery days and times, kept for the checkout.
+        return StudioDeliverySlotsView(
+          node: node,
+          color: color,
+          accent: parseHexColor(
+            scope.dark
+                ? (node.darkBorderColor ?? node.borderColor)
+                : node.borderColor,
+          ),
+        );
+      case StudioNodeType.specTable:
+      case StudioNodeType.compare:
+      case StudioNodeType.specFilter:
+      case StudioNodeType.tradeIn:
+      case StudioNodeType.pcBuilder:
+        // 211 An electronics shop's parts.
+        return StudioTechView(node: node, title: _text(context), color: color);
+      case StudioNodeType.listingFilters:
+        // 212 The shop's listing filters.
+        return StudioListingFilters(title: _text(context), color: color);
       case StudioNodeType.video:
         final url = node.videoUrl;
         if (url == null) return const SizedBox.shrink();

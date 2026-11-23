@@ -27,10 +27,33 @@ export const STUDIO_COVER_TYPES = ["photo_hero", "map_header"] as const;
 export const STUDIO_LIVE_TYPES = ["tracking", "greeting"] as const;
 // ——— 129.11–129.20 Premium content, trust and commerce (types below, "Premium content") ———
 /** 129.11–129.20 Premium elements drawn from their own `entries` and options: quotes, plans, numbers, progress, steps, tiles, badges, a call-to-action bar. */
+/**
+ * 211 The electronics, mobiles and computers shops' elements (`StudioTech`,
+ * lib/selling/specs.ts and tech.ts), for every store: `spec_table` a
+ * product's specs as a table; `compare` two or three products side by side,
+ * spec by spec; `spec_filter` the values a spec takes in the shop (16 GB,
+ * 32 GB) as chips, each opening the shop filtered by it; `trade_in` the
+ * trade-in estimator (the device, its storage and its grade, then what it
+ * is worth, sent to the shop as a request); `pc_builder` Build your PC, its
+ * parts in order and a button that starts it. An app before them skips them.
+ */
+export const STUDIO_TECH_TYPES = ["spec_table", "compare", "spec_filter", "trade_in", "pc_builder"] as const;
 export const STUDIO_PREMIUM_CONTENT_TYPES = ["testimonials", "pricing", "stats", "progress", "timeline", "bento", "badge_text", "cta_bar"] as const;
 /** 129.16 A person's or a place's card: its cover, avatar, name and role, then what it holds (badges, two buttons), then its social links. */
 export const STUDIO_PREMIUM_CARD_TYPES = ["profile_card"] as const;
 // ——— end 129.11–129.20 ———
+/**
+ * 209 Elements a shop type needs and any app can use: `size_finder` (the
+ * person chooses the child's age, or the first column of the shop's size
+ * chart, and sees the size that fits with its measures and a button to the
+ * shop), `swatches` (a row of colour swatches, a shade finder: its entries
+ * the shades, each a colour, a name and a line; the one tapped shows its
+ * words and the button) and `quiz` (a few questions of 2 to 6 answers each,
+ * one at a time; each answer counts for the result in its place, and the
+ * result with the most is shown with its words and its button: "Know your
+ * skin type", a gift finder).
+ */
+export const STUDIO_SHOP_HELPER_TYPES = ["size_finder", "swatches", "quiz"] as const;
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
 /**
  * 129.4 and 129.7 Premium banners that hold what lies over them, as a cover
@@ -73,6 +96,15 @@ export const STUDIO_CONTENT_TYPES = [
   "flash_sale",
   // 208 The shop's size chart (Store › Delivery & offers › Clothes), as a table.
   "size_chart",
+  // 209 The size finder (the age chosen, the size of the shop's chart that fits), shade swatches and a quiz.
+  ...STUDIO_SHOP_HELPER_TYPES,
+  // 210 The shop's next delivery days and times to pick (and its assembly), kept for the checkout.
+  "delivery_slots",
+  // 211 An electronics shop's parts (`StudioTech`): a product's specs as a table, two or three products compared,
+  // the shop filtered by a spec, the trade-in estimator and Build your PC.
+  ...STUDIO_TECH_TYPES,
+  // 212 The listing filters: the shop's sizes (or colours) as chips opening the shop filtered, and its Filters.
+  "listing_filters",
 ] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
@@ -259,6 +291,46 @@ export interface StudioCategoryMenu {
   /** Each card's corners, 0 to 40; missing, 18. */
   radius?: number;
 }
+/**
+ * 211 What a tech element shows (`STUDIO_TECH_TYPES`).
+ * - `spec_table`: `ids` its product (one), else the shop's first featured
+ *   product with specs; `rows` at most (missing, all; for `compare` the
+ *   specs compared, for `spec_filter` the values shown).
+ * - `compare`: `ids` two or three products, else the first two featured
+ *   products with specs of `category_id` (or the shop); the specs they
+ *   share first.
+ * - `spec_filter`: `spec` the spec it filters by (a key of lib/selling/
+ *   specs.ts), of `category_id`'s products or the shop's.
+ * - `trade_in`: `look` `card` (a card that opens the estimator) or `full`
+ *   (the estimator itself); nothing until the shop takes trade-ins.
+ * - `pc_builder`: the parts in order and a start button; nothing until the
+ *   shop has Build your PC.
+ * `accent`: the highlights' colour; missing, the app's main colour.
+ */
+export const STUDIO_TRADE_IN_LOOKS = ["card", "full"] as const;
+export interface StudioTech {
+  ids?: string[];
+  category_id?: string | null;
+  rows?: number;
+  spec?: string | null;
+  look?: (typeof STUDIO_TRADE_IN_LOOKS)[number];
+  accent?: string | null;
+}
+/** 211 A product as the tech elements get it, with its specs in the page's language. */
+export interface StudioTechProduct {
+  id: string;
+  title: string;
+  image_url: string | null;
+  price: string;
+  was_price: string | null;
+  specs: { key: string | null; label: string; value: string }[];
+}
+/** 211 What the servers fill in a tech element: its products (`spec_table` one, `compare` two or three) or its spec's values with how many products have each (`spec_filter`). */
+export interface StudioTechServed {
+  products?: StudioTechProduct[];
+  spec?: { key: string; label: string; values: { value: string; count: number }[] };
+}
+
 /**
  * 174.1 Studio's "Pill" corners: fully rounded. Every renderer (the canvas's
  * CSS, the app's rounded rectangles) caps corners at half the element's side,
@@ -604,7 +676,8 @@ export interface Action {
 }
 
 /** 162 What a screen action may open first, when the app can: Build your bouquet. */
-export const ACTION_FLOWS = ["bouquet"] as const;
+/** 211 Or the trade-in estimator, or Build your PC, when the shop has it set up (`StoreConfig.trade_in`, `pc_builder`). */
+export const ACTION_FLOWS = ["bouquet", "trade_in", "pc_builder"] as const;
 
 /**
  * 122 How the app shows a web page in it (`Action.web`): with no address bar
@@ -634,6 +707,8 @@ export interface ItemsQuery {
   ids: string[];
   /** 112.4 Products on sale only; left out otherwise. */
   on_sale?: boolean;
+  /** 209 Products at this price or under, in the shop's currency (as WooCommerce's `max_price`); left out otherwise. */
+  max_price?: number;
 }
 
 // 33 Entries of a block's list, each with its own translations.
@@ -887,6 +962,29 @@ export interface StudioForm {
   submit_label?: string | null;
   success_text?: string | null;
   send_to: (typeof FORM_SEND_TO)[number];
+  /**
+   * 210 `custom_order`: the answers are a custom-order request (`send_to`
+   * `email`): kept as the shop's request (Store › Custom orders in the
+   * dashboard and in Yallapp Business) besides the email; the app posts them
+   * as any form's, so older apps send them too.
+   */
+  request?: (typeof FORM_REQUESTS)[number] | null;
+}
+
+/** 210 What a form's answers become besides the email: a custom-order request. */
+export const FORM_REQUESTS = ["custom_order"] as const;
+
+/**
+ * 210 For `delivery_slots`: the shop's next delivery days (Store › Delivery
+ * & offers › Delivery days, `StoreConfig.delivery_date`) as chips and the
+ * chosen day's times; what the person picks is the cart's day and time at
+ * checkout. `days` how many days it shows (3 to 10; missing, 5); `assembly`
+ * a line that the team assembles it on the day (furniture). Older apps
+ * leave it out; with no delivery days set, it shows nothing.
+ */
+export interface StudioDeliverySlots {
+  days?: number;
+  assembly?: boolean;
 }
 
 /**
@@ -1133,6 +1231,21 @@ export const STUDIO_ENTRY_SIZES = ["small", "wide", "tall", "large", "full"] as 
 /** 129.11–129.20 The texts of an entry, each at most this long (and translated, `translations`). */
 export const STUDIO_ENTRY_TEXTS = { title: 120, subtitle: 120, text: 600, label: 40, prefix: 8, suffix: 8 } as const;
 export const STUDIO_MAX_ENTRIES = 12;
+
+/** 209 A swatch's shape: round, or a rounded square. */
+export const STUDIO_SWATCH_SHAPES = ["circle", "square"] as const;
+export interface StudioSwatches {
+  shape?: (typeof STUDIO_SWATCH_SHAPES)[number];
+  /** A swatch's size, 24 to 64; missing, 36. */
+  size?: number;
+}
+
+/** 209 A quiz's questions are 1 to this many, each with 2 to 6 answers. */
+export const STUDIO_QUIZ_LIMITS = { questions: 6, answers: 6 } as const;
+export interface StudioQuiz {
+  /** Each question's `title` its words, its `text` its answers one per line (each counting for the result in its place). */
+  questions: StudioEntry[];
+}
 
 /**
  * 129.11–129.20 One entry of a premium element's list (`StudioEntry`): a
@@ -1445,6 +1558,13 @@ export interface StudioNode {
   style?: (typeof STUDIO_CATEGORY_STYLES)[number];
   /** 208 For `categories` drawn as `rows` (the category menu): its look. */
   category_menu?: StudioCategoryMenu | null;
+  /** 209 A `swatches` element's swatches' shape and size. */
+  swatches?: StudioSwatches | null;
+  /** 209 A `quiz` element's questions (its results are its `entries`). */
+  quiz?: StudioQuiz | null;
+  /** 211 For the tech elements (`STUDIO_TECH_TYPES`): what they show; the servers fill `tech_served`. */
+  tech?: StudioTech | null;
+  tech_served?: StudioTechServed | null;
   /** 112.4 For `coupon`: the code people copy. */
   code?: string | null;
   // ——— 131 The flower shop ———
@@ -1468,6 +1588,8 @@ export interface StudioNode {
   card?: StudioNode | null;
   bind?: StudioBind | null;
   form?: StudioForm | null;
+  /** 210 For `delivery_slots`: how many days and whether it says the team assembles. */
+  delivery_slots?: StudioDeliverySlots | null;
   map?: StudioMap | null;
   /** 115.14 For `market`: the marketplace section (its title and text are the element's own). */
   market?: StudioMarket | null;

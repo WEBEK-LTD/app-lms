@@ -207,9 +207,9 @@ describe("20 app kinds registry", () => {
 
   it("gives the same demo slugs, switches, sidebar groups and admin labels", () => {
     // 21 One more demo: the clinic, after Bookings. 23 The news app. 26 The café, after the shop. 27 The gym, after the clinic. 28 The events app.
-    // 29 The charity, last: the donations engine's demo, its default kind. 110.5 Studio's live taxi app, school and academy with many teachers. 123 The premium academy. 131.20 Leqaa, the flower shop.
+    // 29 The charity, last: the donations engine's demo, its default kind. 110.5 Studio's live taxi app, school and academy with many teachers. 123 The premium academy. 131.20 Leqaa, the flower shop. 208 Lujain, the clothes shop. 209 Velours, Toota and Toot. 210 Sakan, Ghurza and Rukn. 211 Madar, Nova and Nawah.
     expect(DEMO_TYPES).toEqual(["lms", "store", "restaurant", "booking", "clinic", "fitness", "real_estate", "news", "events", "donations"]);
-    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news", restaurant: "restaurant", fitness: "fitness", events: "events", donations: "charity", delivery: "delivery", food: "food-delivery", marketplace: "multi-vendor", rides: "rides", taxi: "taxi", school: "school", instructors: "teachers", premium_academy: "premium-academy", travel: "travel", flowers: "flowers", clothes: "clothes" });
+    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news", restaurant: "restaurant", fitness: "fitness", events: "events", donations: "charity", delivery: "delivery", food: "food-delivery", marketplace: "multi-vendor", rides: "rides", taxi: "taxi", school: "school", instructors: "teachers", premium_academy: "premium-academy", travel: "travel", flowers: "flowers", clothes: "clothes", beauty: "beauty", kids: "kids", toys: "toys", decor: "decor", crochet: "crochet", furniture: "furniture", electronics: "electronics", mobiles: "mobiles", computers: "computers" });
     expect(demoTypeOfSlug("fitness")).toBe("fitness");
     expect(demoTypeOfSlug("charity")).toBe("donations");
     expect(engineOfDemoSlug("charity")).toBe("donations");

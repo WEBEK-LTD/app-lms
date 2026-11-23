@@ -19,6 +19,16 @@ abstract final class Paths {
   /// 162 Build your bouquet (a store whose shop has it set up).
   static const bouquet = '/bouquet';
 
+  /// 211 An electronics shop's: products compared, the trade-in estimator,
+  /// Build your PC, and the shop filtered by a spec's value.
+  static const compare = '/compare';
+  static const tradeIn = '/trade-in';
+  static const pcBuilder = '/build-pc';
+  static String specProducts(String spec, String value) => Uri(
+    path: '/spec-products',
+    queryParameters: {'spec': spec, 'value': value},
+  ).toString();
+
   // Bookings apps.
   static const services = '/services';
   static const appointments = '/appointments';
@@ -255,6 +265,9 @@ abstract final class Paths {
   /// 26 One order, for following it.
   static String order(int id) => '$orders/$id';
   static String productReviews(int id) => '/product/$id/reviews';
+
+  /// 212 A store's wishlist.
+  static const wishlist = '/wishlist';
   static String service(int id) => '/service/$id';
   static String appointment(int id) => '/appointment/$id';
   static String listing(int id) => '/listing/$id';

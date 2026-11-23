@@ -23,8 +23,16 @@ import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
-import { ALL_DEMO_TYPES, CLOTHES_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
+import { ALL_DEMO_TYPES, BEAUTY_DEMO, CLOTHES_DEMO, KIDS_DEMO, TOYS_DEMO, MOBILES_DEMO, COMPUTERS_DEMO, ELECTRONICS_DEMO, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, FLOWER_SHOP_DEMO, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STORE_TEMPLATE_DEMOS, type DemoId } from "./constants";
 import { CLOTHES_COMMERCE, CLOTHES_CURRENCY, CLOTHES_FREE_SHIPPING_OVER_CENTS, CLOTHES_SHIPPING_CENTS } from "./clothes";
+// 209 Kids' clothes
+import { KIDS_COMMERCE, KIDS_CURRENCY, KIDS_FREE_SHIPPING_OVER_CENTS, KIDS_SHIPPING_CENTS } from "./kids";
+// 209 Toys
+import { TOYS_COMMERCE, TOYS_CURRENCY, TOYS_FREE_SHIPPING_OVER_CENTS, TOYS_SHIPPING_CENTS } from "./toys";
+import { demoToysCommerce, demoToysProducts } from "./toys-entries";
+import { COMPUTERS_COMMERCE, COMPUTERS_CURRENCY, COMPUTERS_FREE_SHIPPING_OVER_CENTS, COMPUTERS_SHIPPING_CENTS } from "./computers";
+import { ELECTRONICS_COMMERCE, ELECTRONICS_CURRENCY, ELECTRONICS_FREE_SHIPPING_OVER_CENTS, ELECTRONICS_SHIPPING_CENTS } from "./electronics";
+import { demoElectronicsCommerce, demoElectronicsProducts } from "./electronics-entries";
 import { FLOWER_COMMERCE, FLOWER_CURRENCY, FLOWER_FREE_SHIPPING_OVER_CENTS, FLOWER_SHIPPING_CENTS } from "./flowers";
 import {
   BOOKING_RULES,
@@ -48,6 +56,16 @@ import {
   STORE_SHIPPING_CENTS,
 } from "./content";
 import { demoClothesCommerce, demoClothesProducts } from "./clothes-entries";
+// 209 Cosmetics
+import { BEAUTY_COMMERCE, BEAUTY_CURRENCY, BEAUTY_FREE_SHIPPING_OVER_CENTS, BEAUTY_SHIPPING_CENTS } from "./beauty";
+import { demoBeautyCommerce, demoBeautyProducts } from "./beauty-entries";
+// 209 Kids' clothes
+import { demoKidsCommerce, demoKidsProducts } from "./kids-entries";
+import { demoKitCommerce, demoKitProducts, kitCatalogSettings } from "./shop-kit";
+import { kitOf } from "./shop-kits";
+import { demoMobilesCommerce, demoMobilesProducts } from "./mobiles-entries";
+import { MOBILES_COMMERCE, MOBILES_CURRENCY, MOBILES_FREE_SHIPPING_OVER_CENTS, MOBILES_SHIPPING_CENTS } from "./mobiles";
+import { demoComputersCommerce, demoComputersProducts } from "./computers-entries";
 import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoFlowerCommerce, demoFlowerProducts, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
 import { savePicture, type DemoPicture, type PictureSize } from "./picture-assets";
 import { refreshMarketplaceDemo, savingZadPictures } from "./marketplace";
@@ -226,6 +244,35 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   } else if (content === "catalog" && id === CLOTHES_DEMO) {
     // 208 Lujain in Riyadh: Saudi riyals, free from a bigger order, exchanges within 14 days, its size chart and "Complete the look".
     patch.catalogSettings = { currency: CLOTHES_CURRENCY, shippingCents: CLOTHES_SHIPPING_CENTS, freeShippingOverCents: CLOTHES_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(CLOTHES_COMMERCE) };
+  } else if (content === "catalog" && id === BEAUTY_DEMO) {
+    // 209 Velours in Dubai: dirhams, free delivery from 150 AED, unopened products back within 14 days.
+    patch.catalogSettings = { currency: BEAUTY_CURRENCY, shippingCents: BEAUTY_SHIPPING_CENTS, freeShippingOverCents: BEAUTY_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(BEAUTY_COMMERCE) };
+  } else if (content === "catalog" && id === KIDS_DEMO) {
+    // 209 Kids' clothes: Toota in Cairo, Egyptian pounds, free from a bigger order, exchanges within 30 days, its size chart by age, Complete the look and the card's message.
+    patch.catalogSettings = { currency: KIDS_CURRENCY, shippingCents: KIDS_SHIPPING_CENTS, freeShippingOverCents: KIDS_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(KIDS_COMMERCE) };
+  } else if (content === "catalog" && id === TOYS_DEMO) {
+    // 209 Toys
+    // 209 Toot in Dubai: UAE dirhams, free from 200 AED, returns within 30 days, the birthday card's message at checkout.
+    patch.catalogSettings = { currency: TOYS_CURRENCY, shippingCents: TOYS_SHIPPING_CENTS, freeShippingOverCents: TOYS_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(TOYS_COMMERCE) };
+  } else if (content === "catalog" && kitOf(id)) {
+    // 210 A kit's shop (decor, crochet, furniture): its currency, shipping, delivery days and slots, card message and returns.
+    patch.catalogSettings = kitCatalogSettings(kitOf(id)!);
+  } else if (content === "catalog" && id === MOBILES_DEMO) {
+    // 211 Nova in Cairo: Egyptian pounds, free from a bigger order, returns within 14 days (its trade-in and accessories once its categories are made).
+    patch.catalogSettings = { currency: MOBILES_CURRENCY, shippingCents: MOBILES_SHIPPING_CENTS, freeShippingOverCents: MOBILES_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(MOBILES_COMMERCE) };
+  } else if (content === "catalog" && id === COMPUTERS_DEMO) {
+    // 211 Nawah in Jeddah: Saudi riyals, free from a bigger order, returns within 14 days (its tech parts follow its categories, computers-entries.ts).
+    patch.catalogSettings = { currency: COMPUTERS_CURRENCY, shippingCents: COMPUTERS_SHIPPING_CENTS, freeShippingOverCents: COMPUTERS_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(COMPUTERS_COMMERCE) };
+  } else if (content === "catalog" && id === ELECTRONICS_DEMO) {
+    // 211 Madar in Riyadh: Saudi riyals, free from a bigger order, exchanges within 14 days; its accessories and trade-in kept through a refresh (electronics-entries.ts writes them).
+    patch.catalogSettings = {
+      currency: ELECTRONICS_CURRENCY,
+      shippingCents: ELECTRONICS_SHIPPING_CENTS,
+      freeShippingOverCents: ELECTRONICS_FREE_SHIPPING_OVER_CENTS,
+      payment: null,
+      ...structuredClone(ELECTRONICS_COMMERCE),
+      ...(app.catalogSettings?.tech ? { tech: app.catalogSettings.tech } : {}),
+    };
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
   } else if (content === "bookings" && id === "fitness") {
@@ -259,6 +306,35 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     // 208 Lujain's clothes, their sizes and colours with the stock of each, its categories and their sub-categories, its flash sale and code.
     await demoClothesProducts(entryDeps(deps, client.id), saved);
     await demoClothesCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && id === BEAUTY_DEMO) {
+    // 209 Velours's products, their shades and details, its categories (skin types and brands too), its flash deals and code.
+    await demoBeautyProducts(entryDeps(deps, client.id), saved);
+    await demoBeautyCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && id === KIDS_DEMO) {
+    // 209 Kids' clothes: Toota's pieces in sizes by age, its categories, its gift add-ons, its weekend deals and code.
+    await demoKidsProducts(entryDeps(deps, client.id), saved);
+    await demoKidsCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && id === TOYS_DEMO) {
+    // 209 Toys
+    // 209 Toot's toys in their types, ages and birthday gifts with their details, the wraps and the card, its toy of the day and code.
+    await demoToysProducts(entryDeps(deps, client.id), saved);
+    await demoToysCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && kitOf(id)) {
+    // 210 A kit's products in their categories and sub-categories, their choices, size and days to make, its add-ons, flash sale and code.
+    await demoKitProducts(entryDeps(deps, client.id), saved, kitOf(id)!);
+    await demoKitCommerce(entryDeps(deps, client.id), saved, kitOf(id)!);
+  } else if (content === "catalog" && id === MOBILES_DEMO) {
+    // 211 Nova's devices, their storages, colours and warranties, their specs, its categories, its flash sale and code, trade-in and accessories.
+    await demoMobilesProducts(entryDeps(deps, client.id), saved);
+    await demoMobilesCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && id === COMPUTERS_DEMO) {
+    // 211 Nawah's products with their specs and options, its categories, Build your PC and the accessories, its hour deals and code.
+    await demoComputersProducts(entryDeps(deps, client.id), saved);
+    await demoComputersCommerce(entryDeps(deps, client.id), saved);
+  } else if (content === "catalog" && id === ELECTRONICS_DEMO) {
+    // 211 Madar's products with their specs, colours and storages, its categories and sub-categories, its accessories and trade-in, its flash sale and code.
+    await demoElectronicsProducts(entryDeps(deps, client.id), saved);
+    await demoElectronicsCommerce(entryDeps(deps, client.id), saved);
   }
   else if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
   // Studio's demos: a parcel company, food delivery from three restaurants, rides.
