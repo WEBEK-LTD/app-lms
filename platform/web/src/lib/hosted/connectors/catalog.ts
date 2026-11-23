@@ -314,7 +314,10 @@ export class CatalogConnector implements Connector {
   /** 112.4 A category's picture: its first product's that has one; 206 a main category's, of its sub-categories' too. */
   private category(c: CatalogCategory, count: number, products: CatalogProduct[] = [], all: readonly CatalogCategory[] = []) {
     const ids = inside(all, c.id);
-    const pictured = products.find((p) => p.categoryIds.some((id) => ids.has(id)) && p.imageAssetIds[0]);
+    const shown = (p: CatalogProduct) => p.categoryIds.some((id) => ids.has(id)) && Boolean(p.imageAssetIds[0]);
+    // 206 A main category's own photo, not its first sub-category's (they'd look the same side by side in the category menu).
+    const first = all.filter((x) => x.parentId === c.id).sort((a, b) => a.position - b.position)[0];
+    const pictured = (first ? products.find((p) => shown(p) && !p.categoryIds.includes(first.id)) : undefined) ?? products.find(shown);
     // 175 In the app's language when the owner named it so.
     // 206 Inside its main category, when that is one of the shop's.
     const parent = c.parentId && all.some((x) => x.id === c.parentId) ? c.parentId : null;

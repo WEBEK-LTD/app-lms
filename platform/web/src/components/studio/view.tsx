@@ -1020,7 +1020,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "categories": {
         // 206 The category menu: every main category a row of cards.
         if (n.style === "rows") return <CategoryMenuCanvas node={n} pickable={p.pickable} dark={dark} lang={lang} color={color} />;
-        const cats = (n.source ? p.pickable.categories[n.source] : undefined) ?? [];
+        // 206 The main categories only, as the app draws them (the menu's rows hold the sub-categories).
+        const cats = ((n.source ? p.pickable.categories[n.source] : undefined) ?? []).filter((c) => !c.parent_id);
         const names = cats.length ? cats.slice(0, 6).map((c) => c.name) : ["[1]", "[2]", "[3]"];
         // 112.4 Tiles, pictures in a grid, or round pictures in a row; a category without a picture shows a colour.
         const shades = dark ? ["#2A2742", "#33304F", "#3B3858"] : ["#F3E3C3", "#E8EEF6", "#F6E3E7"];
