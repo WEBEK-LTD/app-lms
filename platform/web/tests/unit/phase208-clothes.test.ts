@@ -19,7 +19,7 @@ import { itemSourcesFor } from "@/lib/pages/sources";
 import type { StudioNode } from "@/lib/pages/types";
 import { completeLookFor, FASHION_FORM_ERRORS, fashionOf, parentChoice, parseFashionForm, sizeChartJson, sizeChartOf } from "@/lib/selling/fashion";
 import { appWords } from "@/lib/studio/app-words";
-import { signatureDesign } from "@/lib/studio/demo-designs";
+import { mainTemplateOf, signatureDesign } from "@/lib/studio/demo-designs";
 import { CLOTHES_SECTIONS, MENU_PAGE, SIZE_PAGE } from "@/lib/studio/demo-designs/clothes-signature";
 import { ELEMENTS, newNode } from "@/lib/studio/elements";
 import { INSTALLMENTS_SECTION, showsInstallmentsSoon } from "@/lib/studio/installments";
@@ -84,7 +84,8 @@ describe("208 the shop types: sections, then types, then templates", () => {
     expect(shopTypeTemplate(clothes)).toBe("clothes_signature_a");
     expect(shopTypeTemplate(clothes, "b")).toBe("clothes_signature_b");
     // 210 Furniture is ready now; a type without a demo still has no template.
-    expect(shopTypeTemplate(shopTypeById("furniture")!)).toBe("furniture_signature_a");
+    // 223 225 Its main look (C where the type has one).
+    expect(shopTypeTemplate(shopTypeById("furniture")!)).toBe(mainTemplateOf("furniture"));
     expect(shopTypeTemplate({ ...shopTypeById("furniture")!, demo: undefined })).toBeNull();
     const store = templatesFor({ type: "store", vertical: null }).map((t) => t.id);
     expect(store).toContain("clothes_signature_a");

@@ -15,6 +15,7 @@ import { clearPlatformSettingsCache } from "@/lib/settings/platform";
 import { appWords } from "@/lib/studio/app-words";
 import { makeStudioProject } from "@/lib/studio/new-project";
 import { TEMPLATES } from "@/lib/studio/sections";
+import { signatureLooksOf } from "@/lib/studio/demo-designs";
 import { parseStudioScreens } from "@/lib/studio/screens";
 import { applyTemplate, restorePrevious, updateToLatest, type MarketDeps } from "@/lib/studio-market/apply";
 import { buyerLicences, filterCards, marketCatalog, readMarketQuery, sellerTemplates } from "@/lib/studio-market/catalog";
@@ -92,7 +93,9 @@ describe("190 every Studio demo look, made in code", () => {
   it("is every look /start?for=studio starts a Studio project from: each demo's looks A and B", () => {
     const fromStart = pickerSections().studio.flatMap((demo) => startLooks(demo).map((look) => `${demo}:${look}`));
     expect(houseLooks().map((l) => `${l.demo}:${l.look}`).sort()).toEqual([...fromStart].sort());
-    expect(houseLooks()).toHaveLength(STUDIO_DEMO_TYPES.length * 2);
+    // 223 225 Two looks for each demo, and C and D too for a shop type that has them.
+    expect(houseLooks()).toHaveLength(STUDIO_DEMO_TYPES.reduce((n, demo) => n + signatureLooksOf(demo).length, 0));
+    expect(houseLooks().length).toBeGreaterThanOrEqual(STUDIO_DEMO_TYPES.length * 2);
     // Every one makes a design that passes the page checker: none is left out.
     expect(houseVersions().map((v) => `${v.demo}:${v.look}`)).toEqual(houseLooks().map((l) => `${l.demo}:${l.look}`));
   });
