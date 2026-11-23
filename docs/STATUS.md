@@ -1594,11 +1594,6 @@ test environment:
 
 ## Known gaps
 
-- 214.7 Time Sensitive: waiting on the owner to tick Time Sensitive
-  Notifications for the Yallapp Business App ID in Apple Developer
-  (Identifiers), then turn the switch on (repository variable
-  `BUSINESS_TIME_SENSITIVE` = 1). Until then new-order pushes are
-  time-sensitive in the payload only, which iOS treats as active.
 - 155 Apple Pay inside the iPhone app's web view and Google Pay inside the
   Android app's aren't expected: WebKit allows Apple Pay only in a
   WKWebView without injected scripts (the app's web view adds its
