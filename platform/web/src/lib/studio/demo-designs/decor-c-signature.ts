@@ -140,7 +140,7 @@ function exhibition(ctx: SectionContext): StudioNode[] {
           ...framed(ctx, photo ? { id: id(), type: "image", image_url: photo, height: 250, fit: "cover" } : { id: id(), type: "row", height: 250, background: L.tint.day, dark_background: L.tint.night, children: [] }, 24, 3),
           shadow: "medium",
         },
-        { ...label(ctx, "atPieceName", ["atPieceMaker", "atPieceMaterial", "atPieceSize"], "atPiecePrice"), self_align: "stretch" },
+        { ...label(ctx, "atPieceName", ["atPieceMaker", "atPieceMaterial", "atPieceSize"]), self_align: "stretch" },
       ],
     },
   ];

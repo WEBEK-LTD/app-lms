@@ -443,7 +443,6 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     // 225 Looks C and D's.
     atDates: { en: "The autumn exhibition · until 30 December", ar: "معرض الخريف · حتى 30 ديسمبر", tr: "Sonbahar sergisi · 30 Aralık'a kadar" },
     atPieceMaker: { en: "Maker: Sakan's ceramics studio", ar: "الصانع: مشغل سكن للخزف", tr: "Yapan: Sakan seramik atölyesi" },
-    atPiecePrice: { en: "260 SAR", ar: "260 ر.س", tr: "260 SAR" },
     atNoteBy: { en: "— Noura, Sakan's curator", ar: "— نورة، القيّمة على مجموعة سكن", tr: "— Noura, Sakan'ın küratörü" },
     atVisitText: { en: "Sakan showroom, Riyadh: open every day from 10 am to 10 pm, closed on Fridays. Delivery across the city in 3 days.", ar: "صالة سكن، الرياض: مفتوحة يوميًا من 10 صباحًا إلى 10 مساءً، مغلقة يوم الجمعة. التوصيل داخل المدينة خلال 3 أيام.", tr: "Sakan showroomu, Riyad: her gün 10:00–22:00 açık, cuma kapalı. Şehir içine 3 günde teslimat." },
     atCartNoteLine: { en: "Each piece wrapped by hand, a card with your words on request", ar: "كل قطعة تُغلَّف باليد، وبطاقة بكلماتك عند الطلب", tr: "Her parça elle paketlenir, istenirse sizin sözlerinizle bir kart" },
