@@ -23,15 +23,21 @@ export async function readShopCategories(
     const result = await connector.handle({ method: "GET", path: ["store", "categories"], query: new URLSearchParams({ platform: request.platform }), body: undefined, user: request.user ?? null, now: request.now, lang: request.lang ?? null });
     if (result?.status !== 200) return null;
     const items = (result.body as { items?: unknown } | undefined)?.items;
-    const list: ShopCategory[] = (Array.isArray(items) ? (items as Record<string, unknown>[]) : [])
-      .filter((c) => c && typeof c === "object" && (c.parent_id === null || c.parent_id === undefined))
-      .map((c) => ({ id: Number(c.id), name: typeof c.name === "string" ? c.name.trim() : "", image_url: typeof c.image_url === "string" && c.image_url ? c.image_url : null }))
-      .filter((c) => Number.isSafeInteger(c.id) && c.id > 0 && c.name !== "");
-    if (app.demo) return { list, own: false };
-    if (app.connector?.kind !== "catalog") return { list, own: list.length > 0 };
+    const rows = (Array.isArray(items) ? (items as Record<string, unknown>[]) : []).filter((c) => c && typeof c === "object");
+    const top = (c: Record<string, unknown>) => c.parent_id === null || c.parent_id === undefined;
+    const shaped = (cs: Record<string, unknown>[]): ShopCategory[] =>
+      cs
+        .map((c) => ({ id: Number(c.id), name: typeof c.name === "string" ? c.name.trim() : "", image_url: typeof c.image_url === "string" && c.image_url ? c.image_url : null }))
+        .filter((c) => Number.isSafeInteger(c.id) && c.id > 0 && c.name !== "");
+    const list = shaped(rows.filter(top));
+    // 209 The sub-categories, which an element named like one opens (Toot's ages), never in the lists.
+    const subs = shaped(rows.filter((c) => !top(c)));
+    const withSubs = subs.length ? { subs } : {};
+    if (app.demo) return { list, own: false, ...withSubs };
+    if (app.connector?.kind !== "catalog") return { list, own: list.length > 0, ...withSubs };
     const [categories, products] = await Promise.all([store.listCatalogCategories(app.id), store.listCatalogProducts(app.id)]);
     const own = ownCategoryIds(categories, products.filter((p) => p.active && !p.addon));
-    return { list, own: list.some((c) => own.has(c.id)) };
+    return { list, own: list.some((c) => own.has(c.id)), ...withSubs };
   } catch (e) {
     // The shop can't be reached: the lists as the template has them.
     if (e instanceof ConnectorError) return null;

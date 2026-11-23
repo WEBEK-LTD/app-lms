@@ -17,6 +17,8 @@ import { LANDING_SECTIONS } from "./premium-landings";
 import { LEQAA_SECTIONS } from "./demo-designs/leqaa-signature";
 // 208 Lujain's sections, and the installments tag.
 import { CLOTHES_SECTIONS } from "./demo-designs/clothes-signature";
+// 209 Toys
+import { TOYS_SECTIONS } from "./demo-designs/toys-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
 
 /**
@@ -316,6 +318,9 @@ export type SectionWord =
   | Extract<AppWord, `lq${string}`>
   // 208 Lujain's looks, pages and sections (lib/studio/demo-designs/clothes-signature.ts), and the installments tag.
   | Extract<AppWord, `cl${string}`>
+  // 209 Toys
+  // 209 Toot's looks, pages and sections (lib/studio/demo-designs/toys-signature.ts).
+  | Extract<AppWord, `ty${string}`>
   | "installmentsSoon";
 
 export interface SectionContext {
@@ -1107,6 +1112,9 @@ export const SECTIONS: readonly SectionInfo[] = [
   ...LEQAA_SECTIONS,
   // 208 The clothes type's parts (the category menu, the peeking hero, the deal, shop the look, the size card and chart) and the installments tag.
   ...CLOTHES_SECTIONS,
+  // 209 Toys
+  // 209 The toys type's parts (the category menu, shopping by age, safety first, the gift finder and wraps, gifts under a price, the lab, the ready box).
+  ...TOYS_SECTIONS,
   INSTALLMENTS_SECTION,
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,

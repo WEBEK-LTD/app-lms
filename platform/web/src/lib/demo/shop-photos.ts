@@ -95,11 +95,69 @@ export const CLOTHES_PHOTOS: ShopPhotoSet<ClothesPhotoName> = { dir: "clothes-ph
 /** A clothes photo as a demo's picture (`cl-<name>`). */
 export type ClothesPhoto = `cl-${ClothesPhotoName}`;
 
+// 209 Toys
+/** 209 Toot's photos (the toy shop), cut to 4:5 at 720 × 900; the banners (`-wide`, and those only used wide) kept wide at 900 wide. */
+export const TOYS_PHOTO_NAMES = [
+  "backgammon",
+  "bead-maze",
+  "beads-kid",
+  "bear-bow",
+  "bear-mint",
+  "bear-sweater",
+  "block-tower",
+  "blocks-close",
+  "bricks-pile",
+  "bricks-teal",
+  "bubbles-girl",
+  "bubbles-girl-wide",
+  "bunny-eggs",
+  "bunny-knit",
+  "chess",
+  "compass",
+  "crayons-pastel",
+  "crib-mobile",
+  "cuddly-bear",
+  "dice",
+  "family-play",
+  "football-boy",
+  "gift-black",
+  "gift-black-wide",
+  "gift-confetti",
+  "gift-kraft",
+  "gift-white",
+  "gift-white-wide",
+  "girl-drawing",
+  "girl-drawing-wide",
+  "globes",
+  "globes-wide",
+  "kite",
+  "kite-wide",
+  "lego-kid",
+  "letters",
+  "plane",
+  "sleeping-baby",
+  "snowman-plush",
+  "teepee",
+  "telescope-globe",
+  "telescope-globe-wide",
+  "tent-family",
+  "toddler-bear",
+  "toddler-play",
+  "tricycle",
+  "ukulele",
+  "wooden-figures",
+] as const;
+export type ToysPhotoName = (typeof TOYS_PHOTO_NAMES)[number];
+export const TOYS_PHOTOS: ShopPhotoSet<ToysPhotoName> = { dir: "toys-photos", prefix: "ty-", names: TOYS_PHOTO_NAMES };
+
+/** A toys photo as a demo's picture (`ty-<name>`). */
+export type ToysPhoto = `ty-${ToysPhotoName}`;
+
 /** Every set, for the pictures' lookup. */
-const SHOP_PHOTO_SETS: readonly ShopPhotoSet<string>[] = [CLOTHES_PHOTOS];
+const SHOP_PHOTO_SETS: readonly ShopPhotoSet<string>[] = [CLOTHES_PHOTOS, TOYS_PHOTOS];
 
 /** A shop type's photo as a demo's picture: `cl-rust-1`. */
-export type ShopPhoto = ClothesPhoto;
+export type ShopPhoto = ClothesPhoto | ToysPhoto;
 
 function setOf(name: string): { set: ShopPhotoSet<string>; file: string } | null {
   for (const set of SHOP_PHOTO_SETS) {

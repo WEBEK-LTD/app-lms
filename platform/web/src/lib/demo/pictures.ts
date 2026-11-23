@@ -770,6 +770,19 @@ export const PICTURES = {
       r(30, 68, 40, 4, 2, "#F3F0EA", 0.55),
     ],
   },
+  // 209 Toys
+  // 209 Toot, the toy shop: a smiling white mulberry with its gold leaf, on plum.
+  "icon-toys": {
+    from: "#97436C",
+    to: "#5E2139",
+    shapes: [
+      c(50, 56, 27, WHITE),
+      p([[50, 31], [55, 21], [66, 15], [64, 26], [55, 31]], "#E0B066"),
+      c(40, 52, 4.4, "#7B2D4E"),
+      c(60, 52, 4.4, "#7B2D4E"),
+      ...stroke([[41, 64], [50, 69], [59, 64]], 3.6, "#7B2D4E"),
+    ],
+  },
   "icon-bookings": {
     from: "#3A8072",
     to: "#235449",

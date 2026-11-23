@@ -1,0 +1,52 @@
+# Photo credits
+
+209 Toot's (the toy shop demo's) photos, for its looks A (Toot) and B (Mukaab). All come from StockSnap (found through Openverse, `source=stocksnap`) and are dedicated to the public domain (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/); each file's StockSnap page has the terms. They were cut to 4:5 around the part the approved designs show and resized to 720 × 900; the wide ones used as banners (`-wide`, and the banners only used wide) were only resized to 900 wide. The shop, its toys and their prices they illustrate in the demo are fictional.
+
+- **backgammon.jpg**: "Backgammon Boardgame" by donterase, CC0 1.0. https://stocksnap.io/photo/backgammon-boardgame-6DDCC9ZELA
+- **bead-maze.jpg**: "Cube Art" by Markus Spiske, CC0 1.0. https://stocksnap.io/photo/cube-art-1YCIVH0U1K
+- **beads-kid.jpg**: "Game Child" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/game-child-COUUDH0SZ0
+- **bear-bow.jpg**: "Stuff Toy" by Freestocks.org, CC0 1.0. https://stocksnap.io/photo/stuff-toy-MDYEAKHX20
+- **bear-mint.jpg**: "Teddybear Stuffedanimal" by Piotr Lohunko, CC0 1.0. https://stocksnap.io/photo/teddybear-stuffedanimal-ELSGOZ3T4V
+- **bear-sweater.jpg**: "Teddybear Toy" by Daria Nepriakhina, CC0 1.0. https://stocksnap.io/photo/teddybear-toy-AAPS1PYWT4
+- **block-tower.jpg**: "Kid Child" by Markus Spiske, CC0 1.0. https://stocksnap.io/photo/kid-child-JYH2RCL3CA
+- **blocks-close.jpg**: "Children Toys" by Birch Landing Home, CC0 1.0. https://stocksnap.io/photo/children-toys-R8U6CVZ24Q
+- **bricks-pile.jpg**: "Lego Pieces" by Markus Spiske, CC0 1.0. https://stocksnap.io/photo/lego-pieces-YW42GWMV03
+- **bricks-teal.jpg**: "Fun Games" by Iker Urteaga, CC0 1.0. https://stocksnap.io/photo/fun-games-V4KC5S2AYW
+- **bubbles-girl.jpg**: "Girl Child" by Maxime Bhm, CC0 1.0. https://stocksnap.io/photo/girl-child-26LKVXD9VT
+- **bubbles-girl-wide.jpg**: "Girl Child" by Maxime Bhm, CC0 1.0. https://stocksnap.io/photo/girl-child-26LKVXD9VT
+- **bunny-eggs.jpg**: "Bunny Toy" by Freestocks.org, CC0 1.0. https://stocksnap.io/photo/bunny-toy-UPJMOFMPTK
+- **bunny-knit.jpg**: "Easter Decorations" by Travel Photographer, CC0 1.0. https://stocksnap.io/photo/easter-decorations-SWKH6ZAETX
+- **chess.jpg**: "Chess Game" by Lou Levit, CC0 1.0. https://stocksnap.io/photo/chess-game-308ED74931
+- **compass.jpg**: "Wood Wooden" by Chris Lawton, CC0 1.0. https://stocksnap.io/photo/wood-wooden-I127JE8FZW
+- **crayons-pastel.jpg**: "Pastel Crayons" by Negative Space, CC0 1.0. https://stocksnap.io/photo/pastel-crayons-BLSTJUX1J3
+- **crib-mobile.jpg**: "Baby Crib" by Freestocks.org, CC0 1.0. https://stocksnap.io/photo/baby-crib-17QW4I2CLU
+- **cuddly-bear.jpg**: "Cuddly Bear" by Lisa Fotios, CC0 1.0. https://stocksnap.io/photo/cuddly-bear-UMUMWPHMDM
+- **dice.jpg**: "Dice Game" by Skitter Photo, CC0 1.0. https://stocksnap.io/photo/dice-game-IMUB39JBN1
+- **family-play.jpg**: "Family Playing" by Direct Media, CC0 1.0. https://stocksnap.io/photo/family-playing-AJU8ODUJSV
+- **football-boy.jpg**: "Boy Child" by Seth Doyle, CC0 1.0. https://stocksnap.io/photo/boy-child-S8K0KB3BTZ
+- **gift-black.jpg**: "Gift Box" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/gift-box-YZOCM3TBYT
+- **gift-black-wide.jpg**: "Gift Box" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/gift-box-YZOCM3TBYT
+- **gift-confetti.jpg**: "Pink Party" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/pink-party-SQLBG32Q8C
+- **gift-kraft.jpg**: "Gift Box" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/gift-box-PIHUS3UFDJ
+- **gift-white.jpg**: "Gift Birthday" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/gift-birthday-OJJY818LOZ
+- **gift-white-wide.jpg**: "Gift Birthday" by Altered Reality, CC0 1.0. https://stocksnap.io/photo/gift-birthday-OJJY818LOZ
+- **girl-drawing.jpg**: "Child Homework" by Direct Media, CC0 1.0. https://stocksnap.io/photo/child-homework-GV5GIEXDBA
+- **girl-drawing-wide.jpg**: "Child Homework" by Direct Media, CC0 1.0. https://stocksnap.io/photo/child-homework-GV5GIEXDBA
+- **globes.jpg**: "Globe World" by João Silas, CC0 1.0. https://stocksnap.io/photo/globe-world-F3BLO7N7WB
+- **globes-wide.jpg**: "Globe World" by João Silas, CC0 1.0. https://stocksnap.io/photo/globe-world-F3BLO7N7WB
+- **kite.jpg**: "Kite Park" by AJ Montpetit, CC0 1.0. https://stocksnap.io/photo/kite-park-4DUVZGC9AD
+- **kite-wide.jpg**: "Kite Park" by AJ Montpetit, CC0 1.0. https://stocksnap.io/photo/kite-park-4DUVZGC9AD
+- **lego-kid.jpg**: "Lego Blocks" by Kelly Sikkema, CC0 1.0. https://stocksnap.io/photo/lego-blocks-6T45JNFUXH
+- **letters.jpg**: "Letters Numbers" by Amador Loureiro, CC0 1.0. https://stocksnap.io/photo/letters-numbers-7180264468
+- **plane.jpg**: "Airplane Toy" by Porapak Apichodilok, CC0 1.0. https://stocksnap.io/photo/airplane-toy-ZDN5OHDBN8
+- **sleeping-baby.jpg**: "Bedroom Bed" by Dakota Corbin, CC0 1.0. https://stocksnap.io/photo/bedroom-bed-CDO5RB87O1
+- **snowman-plush.jpg**: "Snowman Scarf" by Alexey Topolyanskiy, CC0 1.0. https://stocksnap.io/photo/snowman-scarf-A0ZLU5X6WN
+- **teepee.jpg**: "Child Camping" by Family First, CC0 1.0. https://stocksnap.io/photo/child-camping-T5BPPUIGTU
+- **telescope-globe.jpg**: "Telescope Globe" by Jay Mantri, CC0 1.0. https://stocksnap.io/photo/telescope-globe-9866CDBF0B
+- **telescope-globe-wide.jpg**: "Telescope Globe" by Jay Mantri, CC0 1.0. https://stocksnap.io/photo/telescope-globe-9866CDBF0B
+- **tent-family.jpg**: "Family Playing" by Direct Media, CC0 1.0. https://stocksnap.io/photo/family-playing-BKDISWTOCH
+- **toddler-bear.jpg**: "People Child" by Freestocks.org, CC0 1.0. https://stocksnap.io/photo/people-child-AVS3SORMQ4
+- **toddler-play.jpg**: "Child Toddler" by Direct Media, CC0 1.0. https://stocksnap.io/photo/child-toddler-D5VVUIQNDL
+- **tricycle.jpg**: "Kids Bike" by Matt Bango, CC0 1.0. https://stocksnap.io/photo/kids-bike-TIDFS7VDFA
+- **ukulele.jpg**: "Ukulele Music" by Pawel Kadysz, CC0 1.0. https://stocksnap.io/photo/ukulele-music-5ZPN66JSA4
+- **wooden-figures.jpg**: "Wooden Toys" by Kristin Hardwick, CC0 1.0. https://stocksnap.io/photo/wooden-toys-CCKX20IAFE

@@ -18,6 +18,8 @@ import { demoDesign } from "./look";
 import { MARKET_VENDORS } from "./marketplace";
 import { FLOWER_PRODUCTS } from "./flowers";
 import { CLOTHES_PRODUCTS } from "./clothes";
+// 209 Toys
+import { TOYS_PRODUCTS } from "./toys";
 import { SCHOOL_CLASSES } from "./school";
 import { TRAVEL_HOTELS } from "@/lib/travel/samples";
 
@@ -81,6 +83,9 @@ const DEMO_BUSINESS: Partial<Record<DemoId, string>> = {
   flowers: "shop",
   // 208 Lujain, the clothes shop, too.
   clothes: "shop",
+  // 209 Toys
+  // 209 Toot, the toy shop, too.
+  toys: "shop",
 };
 
 export function businessOf(id: DemoId): string {
@@ -159,6 +164,9 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   flowers: () => ({ list: "products", noun: "products", count: FLOWER_PRODUCTS.length }),
   // 208 Lujain: its clothes, shoes, bags and accessories.
   clothes: () => ({ list: "products", noun: "products", count: CLOTHES_PRODUCTS.length }),
+  // 209 Toys
+  // 209 Toot: its toys and gift boxes (the wraps and the card are add-ons, never listed).
+  toys: () => ({ list: "products", noun: "products", count: TOYS_PRODUCTS.length }),
 };
 
 export function demoItems(id: DemoId): DemoItems {
