@@ -33,7 +33,18 @@
    "font": "Manrope",
    "corners": "round",
    "cards": "outlined",
-   "secondary_color": "#C9A063"
+   "secondary_color": "#C9A063",
+   "page_fonts": [
+    {
+     "family": "JetBrains Mono",
+     "files": [
+      {
+       "url": "http://localhost:3000/api/v1/fonts/ofl/jetbrainsmono/JetBrainsMono%5Bwght%5D.ttf",
+       "weight": null
+      }
+     ]
+    }
+   ]
   },
   "languages": {
    "default": "en",
