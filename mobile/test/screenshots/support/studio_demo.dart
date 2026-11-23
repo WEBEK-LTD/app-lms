@@ -258,7 +258,7 @@ class StudioDemo {
   /// their path, read once.
   static final _photos = <String, ui.Image>{};
   static final _photoPath = RegExp(
-    r'^https?://[^/]+(/(?:demo-photos|demo-screens|stories|travel-photos|flower-photos)/[^"]+\.jpg)$',
+    r'^https?://[^/]+(/(?:demo-photos|demo-screens|stories|travel-photos|flower-photos|beauty-photos|crochet-photos)/[^"]+\.jpg)$',
   );
 
   /// The paths of the photos [json] names.
