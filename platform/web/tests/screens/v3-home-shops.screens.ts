@@ -5,6 +5,7 @@ import { E2E } from "../../playwright.config";
 import { DEMO_SLUGS, type DemoId } from "../../src/lib/demo/constants";
 import { DEMO_BRANDS } from "../../src/lib/demo/content";
 import { LIVE_PHONE } from "../../src/lib/demo/live";
+import { PREVIEW_HEADER } from "../../src/lib/preview/token";
 
 /**
  * 225 The pictures of home decor's and furniture's looks C and D from the
@@ -102,7 +103,10 @@ for (const t of shown) {
       const token = new URL(src!, E2E.baseURL).searchParams.get("token")!;
       const appId = token.split(".")[1]!;
       const address = `/preview-app/index.html?token=${token}`;
-      const listed = (await (await (await browser.newContext()).request.get(`/api/app/${appId}/store/products?platform=android&per_page=8`)).json()) as { items: { id: number; name: string }[] };
+      // The owner's preview may ask for an app that isn't live yet: its token in the preview's header.
+      const res = await (await browser.newContext()).request.get(`/api/app/${appId}/store/products?platform=android&per_page=8`, { headers: { [PREVIEW_HEADER]: token } });
+      const listed = (await res.json()) as { items: { id: number; name: string }[] };
+      expect(listed.items, JSON.stringify(listed).slice(0, 300)).toBeTruthy();
       const product = listed.items.find((p) => !/wrap|assembly|تغليف|تركيب/i.test(p.name)) ?? listed.items[0]!;
 
       // The website's pictures: the home by day and by night.
