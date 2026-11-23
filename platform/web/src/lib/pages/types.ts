@@ -642,6 +642,8 @@ export interface ItemsQuery {
   ids: string[];
   /** 112.4 Products on sale only; left out otherwise. */
   on_sale?: boolean;
+  /** 209 Products at this price or under, in the shop's currency (as WooCommerce's `max_price`); left out otherwise. */
+  max_price?: number;
 }
 
 // 33 Entries of a block's list, each with its own translations.

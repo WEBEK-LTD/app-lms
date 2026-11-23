@@ -403,6 +403,9 @@ export class CatalogConnector implements Connector {
     const search = (query.get("search") ?? "").trim().toLocaleLowerCase("tr").slice(0, 100);
     const flag = (name: string) => query.get(name) === "true" || query.get(name) === "1";
     const orderParam = query.get("orderby") as OrderBy | null;
+    // 209 At this price or under (its price now, in the shop's currency), as WooCommerce's `max_price`.
+    const maxPrice = Number(query.get("max_price") ?? "");
+    const maxCents = query.get("max_price") && Number.isFinite(maxPrice) && maxPrice > 0 ? Math.round(maxPrice * 100) : null;
     const filtered = this.sorted(
       all.filter(
         (p) =>
@@ -410,6 +413,7 @@ export class CatalogConnector implements Connector {
           (!flag("featured") || p.featured) &&
           // 131 With the products of a flash sale on now.
           (!flag("on_sale") || priceOf(p) < p.priceCents || this.flashFor(p, p.priceCents, this.now) !== null) &&
+          (maxCents === null || priceOf(p) <= maxCents) &&
           (search === "" || `${p.name} ${p.description}`.toLocaleLowerCase("tr").includes(search)),
       ),
       orderParam && ORDERS.includes(orderParam) ? orderParam : "newest",

@@ -844,6 +844,16 @@ function parseQuery(ctx: Context, where: string, value: unknown, source: unknown
     ids: ids.slice(0, LAYOUT_LIMITS.maxHandPicked),
     // 112.4 Products on sale only (the other sources have no sale price).
     ...(v.on_sale === true && source === "products" ? { on_sale: true } : {}),
+    // 209 Products at this price or under ("Gifts under 100"), in the shop's currency.
+    ...(() => {
+      if (v.max_price === undefined || v.max_price === null || source !== "products") return {};
+      const max = Number(v.max_price);
+      if (!Number.isFinite(max) || max <= 0 || max > 10_000_000) {
+        c.fail(where, "the highest price must be more than 0.");
+        return {};
+      }
+      return { max_price: Math.round(max * 100) / 100 };
+    })(),
   };
 }
 
