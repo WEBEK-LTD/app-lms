@@ -52,7 +52,7 @@ describe("the demos the page shows", () => {
     for (const id of all) expect(productOf(id)).toBe(isStudioDemo(id) ? "studio" : "editor");
   });
 
-  it("are the ten App editor demos and the eleven Studio demos (131.20 Leqaa, then 206 Lujain, last), by their names, in the approved order", () => {
+  it("are the ten App editor demos and the eleven Studio demos (131.20 Leqaa, then 208 Lujain, last), by their names, in the approved order", () => {
     expect(editor.map((id) => DEMO_BRANDS[id].appName)).toEqual([
       "Nour Academy",
       "Lale Flowers",
@@ -111,7 +111,7 @@ describe("the demos the page shows", () => {
   it("group by business: the teaching demos with each other, every product's own", () => {
     expect(sameBusiness("lms")).toEqual(["premium_academy", "instructors"]);
     // 131.20 Leqaa, the flower shop, is a shop too.
-    // 206 And Lujain, the clothes shop.
+    // 208 And Lujain, the clothes shop.
     expect(sameBusiness("store")).toEqual(["marketplace", "flowers", "clothes"]);
     expect(sameBusiness("restaurant")).toEqual(["food"]);
     expect(sameBusiness("rides")).toEqual(["taxi"]);

@@ -108,7 +108,7 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   store: { products: products(false) },
   // 131.20 Leqaa's bouquets and add-ons.
   flowers: { products: async (m) => (await demoFlowerProducts(m.entries, m.app), true) },
-  // 206 Lujain's clothes, their categories and sub-categories.
+  // 208 Lujain's clothes, their categories and sub-categories.
   clothes: { products: async (m) => (await demoClothesProducts(m.entries, m.app), true) },
   restaurant: { products: products(true) },
   booking: { services: bookings("salon") },

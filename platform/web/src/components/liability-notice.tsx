@@ -6,7 +6,7 @@ import type { DashboardText } from "@/lib/dashboard-lang";
 import { liabilityDue } from "@/lib/studio/liability";
 
 /**
- * 206 A shop type's liability notice (lib/studio/liability.ts), over the
+ * 208 A shop type's liability notice (lib/studio/liability.ts), over the
  * project's dashboard until the owner presses "I read it and agree": its
  * type, that the owner is fully responsible for the app, the type's own
  * notice and that laws differ by country. A team member sees it without the

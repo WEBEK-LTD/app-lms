@@ -49,7 +49,7 @@ const VEHICLE: Record<StoryId, "two_wheeler" | "local_taxi" | "directions_bus" |
   academy: "two_wheeler",
   // 131.40 Nor the flower shop's: its courier is the shop's own.
   flowers: "two_wheeler",
-  // 206 Nor the clothes shop's.
+  // 208 Nor the clothes shop's.
   clothes: "two_wheeler",
 };
 

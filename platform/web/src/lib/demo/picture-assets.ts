@@ -52,7 +52,7 @@ export async function savePicture(deps: PictureDeps, owner: { clientId: string; 
   if (isZadPhoto(name)) return saveZadPhoto(deps, owner, name, kind);
   // 131.20 Leqaa's flower photos (public/flower-photos).
   if (isFlowerPhoto(name)) return saveFlowerPhoto(deps, owner, name, kind);
-  // 206 The shop types' photos (public/clothes-photos and the next types').
+  // 208 The shop types' photos (public/clothes-photos and the next types').
   if (isShopPhoto(name)) return saveShopPhoto(deps, owner, name, kind);
   return saveArt(deps, owner, demoArt(name), size, kind);
 }

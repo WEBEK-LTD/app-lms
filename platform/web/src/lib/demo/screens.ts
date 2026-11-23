@@ -187,7 +187,7 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   premium_academy: demoDesignBar("premium_academy"),
   // 131.22 Leqaa's is its look A's petal bar (lib/studio/demo-designs/leqaa-signature.ts).
   flowers: demoDesignBar("flowers"),
-  // 206 Lujain's is its look A's floating bar (lib/studio/demo-designs/clothes-signature.ts).
+  // 208 Lujain's is its look A's floating bar (lib/studio/demo-designs/clothes-signature.ts).
   clothes: demoDesignBar("clothes"),
 };
 

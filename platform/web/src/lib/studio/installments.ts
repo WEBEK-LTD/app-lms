@@ -4,7 +4,7 @@ import type { SectionContext, SectionInfo } from "./sections";
 import { shopTypeById, type ShopTypeId } from "./shop-types";
 
 /**
- * 206 "Installments coming soon" (the owner: installments are NOT active for
+ * 208 "Installments coming soon" (the owner: installments are NOT active for
  * furniture, electronics, mobiles and computers; show "التقسيط قريبًا"
  * only). A tag, never a way to pay: it opens nothing and promises no date.
  * The types that show it say so in lib/studio/shop-types.ts

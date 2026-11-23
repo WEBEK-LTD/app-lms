@@ -162,7 +162,7 @@ export const APP_SCREENS = [
   "flowers-sig-b-home",
   "flowers-sig-a-home-dark",
   "flowers-sig-b-home-dark",
-  // 206 Lujain, the clothes shop: its guide's screens (look A) and its looks' homes.
+  // 208 Lujain, the clothes shop: its guide's screens (look A) and its looks' homes.
   "lujain-home",
   "lujain-menu",
   "lujain-product",

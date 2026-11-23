@@ -52,7 +52,7 @@ class StoreConfig {
     sizeChart: SizeChart.tryParse(json['size_chart']),
   );
 
-  /// 206 The shop's size chart, under a product's sizes ("Size guide") and
+  /// 208 The shop's size chart, under a product's sizes ("Size guide") and
   /// on a Studio page (`size_chart`); null: none.
   final SizeChart? sizeChart;
 
@@ -638,7 +638,7 @@ class ProductDetail {
     completeLook: listOf(json, 'complete_look', ProductSummary.fromJson),
   );
 
-  /// 206 "Complete the look": a product of each of the shop's other main
+  /// 208 "Complete the look": a product of each of the shop's other main
   /// categories; empty when the shop has it off.
   final List<ProductSummary> completeLook;
 
@@ -975,7 +975,7 @@ class CartQuoteLine {
   final List<CartLineOption> options;
 }
 
-/// 206 A clothes shop's size chart (`StoreConfig.size_chart`): its titles
+/// 208 A clothes shop's size chart (`StoreConfig.size_chart`): its titles
 /// (the first the size's), then a row per size, in [unit] (cm or in).
 class SizeChart {
   const SizeChart({

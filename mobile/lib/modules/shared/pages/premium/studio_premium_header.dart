@@ -96,7 +96,7 @@ class StudioPremiumHeader extends ConsumerWidget {
           onPressed: () =>
               context.canPop() ? context.pop() : context.go(Paths.home),
         ),
-      // 206 A menu that opens a page (the category menu), else the side menu.
+      // 208 A menu that opens a page (the category menu), else the side menu.
       if (header.buttons.contains(StudioHeaderButton.menu) &&
           headerMenuPage(header) != null)
         ChromeGlassButton(

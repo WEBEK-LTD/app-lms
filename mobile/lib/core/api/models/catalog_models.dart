@@ -69,7 +69,7 @@ class Category {
     }
   }
 
-  /// 206 Its sub-categories, for the category menu (`rows`); empty elsewhere.
+  /// 208 Its sub-categories, for the category menu (`rows`); empty elsewhere.
   final List<Category> children;
 
   final int id;

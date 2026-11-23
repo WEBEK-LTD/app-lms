@@ -258,7 +258,7 @@ abstract final class AppIcons {
   // 131 A flash sale, a delivery slot, the card and its occasions.
   static const flashSale = Symbols.bolt_rounded;
 
-  /// 206 A clothes shop's exchanges, and the size guide beside the sizes.
+  /// 208 A clothes shop's exchanges, and the size guide beside the sizes.
   static const exchange = Symbols.sync_rounded;
   static const sizeGuide = Symbols.straighten_rounded;
   static const deliveryTime = Symbols.local_shipping_rounded;

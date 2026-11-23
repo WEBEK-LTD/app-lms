@@ -13355,7 +13355,7 @@ components:
         children:
           type: array
           maxItems: 12
-          description: "206 Only in a Studio `categories` element drawn as `rows` (the category menu): its sub-categories with products, in the shop's order. `GET /store/categories` gives each sub-category its `parent_id` instead."
+          description: "208 Only in a Studio `categories` element drawn as `rows` (the category menu): its sub-categories with products, in the shop's order. `GET /store/categories` gives each sub-category its `parent_id` instead."
           items: { $ref: '#/components/schemas/Category' }
 
     Instructor:
@@ -15193,7 +15193,7 @@ components:
             delivery: { type: [object, 'null'], additionalProperties: { type: string, maxLength: 40 } }
         size_chart:
           description: |
-            206 The shop's size chart (a clothes shop's, Store › Delivery &
+            208 The shop's size chart (a clothes shop's, Store › Delivery &
             offers › Clothes): its titles in the language asked for (the
             first the size's), a row per size, its unit. The app shows "Size
             guide" beside a choice whose options are its sizes, and a Studio
@@ -15872,7 +15872,7 @@ components:
             complete_look:
               type: array
               maxItems: 4
-              description: "206 \"Complete the look\" (a clothes shop's, when it has it on): a product of each of the shop's other main categories. Missing or empty: none."
+              description: "208 \"Complete the look\" (a clothes shop's, when it has it on): a product of each of the shop's other main categories. Missing or empty: none."
               items: { $ref: '#/components/schemas/ProductSummary' }
             external_url: { type: [string, 'null'], format: uri, description: "For external products, the page that sells it." }
             permalink: { type: string, format: uri }
@@ -16726,7 +16726,7 @@ components:
         subtitle: { type: [string, 'null'], maxLength: 80, description: "130.20 A line under the title (`large`, `photo`, `brand`, 131.21 `petal`), in the language asked for." }
         image_url: { type: [string, 'null'], format: uri, description: "130.20 The `photo` style's photo (131.21 and the `petal` style's); null, the main to second colour gradient." }
         collapse: { type: boolean, description: "130.20 False keeps `large`, `photo`, `search` and 131.21 `petal` open as the page scrolls. Missing, true." }
-        menu_page: { type: [string, 'null'], maxLength: 40, description: "206 The page (its address) the `menu` button opens over the page, the category menu's; null or missing: the side menu, as before (and in apps before it)." }
+        menu_page: { type: [string, 'null'], maxLength: 40, description: "208 The page (its address) the `menu` button opens over the page, the category menu's; null or missing: the side menu, as before (and in apps before it)." }
         title: { type: [string, 'null'], maxLength: 80, description: "In the language asked for; null, the app's name." }
         logo_url: { type: [string, 'null'], format: uri, description: "Null, the app's logo." }
         buttons:
@@ -16979,10 +16979,10 @@ components:
           properties:
             x: { type: number, minimum: 0, maximum: 100 }
             y: { type: number, minimum: 0, maximum: 100 }
-        style: { type: string, enum: [chips, tiles, pictures, circles, rows], default: chips, description: "112.4 For `categories`: chips in a row, tiles with their counts, `pictures` in a grid of `columns` with the name over them, or `circles`, round pictures with the name under them in a row that scrolls. A category without a picture shows a colour. 206 `rows`: the category menu, every main category a row of cards that slides, its own card first (\"All\"), then its sub-categories (`Category.children`); an app before it draws chips. Apps skip a `size_chart` element they don't know; it shows `StoreConfig.size_chart` under its `text`." }
+        style: { type: string, enum: [chips, tiles, pictures, circles, rows], default: chips, description: "112.4 For `categories`: chips in a row, tiles with their counts, `pictures` in a grid of `columns` with the name over them, or `circles`, round pictures with the name under them in a row that scrolls. A category without a picture shows a colour. 208 `rows`: the category menu, every main category a row of cards that slides, its own card first (\"All\"), then its sub-categories (`Category.children`); an app before it draws chips. Apps skip a `size_chart` element they don't know; it shows `StoreConfig.size_chart` under its `text`." }
         category_menu:
           type: [object, 'null']
-          description: "206 For `categories` drawn as `rows`: `lead` a tall card of the main category first (its number, name, count and an arrow over its photo), the sub-categories' photos with their names under them; `label` the number, name and count over the row, \"All\" on its first card. `numbers` false: no 01, 02. `radius`: the cards' corners (0 to 40, 18)."
+          description: "208 For `categories` drawn as `rows`: `lead` a tall card of the main category first (its number, name, count and an arrow over its photo), the sub-categories' photos with their names under them; `label` the number, name and count over the row, \"All\" on its first card. `numbers` false: no 01, 02. `radius`: the cards' corners (0 to 40, 18)."
           properties:
             look: { type: string, enum: [lead, label], default: lead }
             numbers: { type: boolean, default: true }

@@ -2,7 +2,7 @@ import type { CatalogCurrency, CatalogSettings, CatalogVariants, SizeChart } fro
 import type { ClothesPhotoName } from "./shop-photos";
 
 /**
- * 206 Lujain (لجين), the clothes shop: the demo of Studio's clothes type
+ * 208 Lujain (لجين), the clothes shop: the demo of Studio's clothes type
  * (lib/studio/shop-types.ts) and its two Signature looks (A the black and
  * white boutique, B NOUN's streetwear, lib/studio/demo-designs/
  * clothes-signature.ts). A women's fashion house in Riyadh: its main

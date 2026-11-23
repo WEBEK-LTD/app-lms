@@ -164,7 +164,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     ...(isStudioDemo(id) ? { section: "studio" as const } : {}),
     // 123 The premium academy keeps the template it started from, which tells it apart from the academy's own demo.
     ...(id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : {}),
-    // 131.20 Leqaa keeps its look A, which tells it apart from the store's own demo; 206 so does each shop type's demo.
+    // 131.20 Leqaa keeps its look A, which tells it apart from the store's own demo; 208 so does each shop type's demo.
     ...(isStoreTemplateDemo(id) ? { design: STORE_TEMPLATE_DEMOS[id] } : {}),
     appName: brand.appName,
     shortName: brand.shortName,
@@ -224,7 +224,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
       ...(app.catalogSettings?.bouquet ? { bouquet: app.catalogSettings.bouquet } : {}),
     };
   } else if (content === "catalog" && id === CLOTHES_DEMO) {
-    // 206 Lujain in Riyadh: Saudi riyals, free from a bigger order, exchanges within 14 days, its size chart and "Complete the look".
+    // 208 Lujain in Riyadh: Saudi riyals, free from a bigger order, exchanges within 14 days, its size chart and "Complete the look".
     patch.catalogSettings = { currency: CLOTHES_CURRENCY, shippingCents: CLOTHES_SHIPPING_CENTS, freeShippingOverCents: CLOTHES_FREE_SHIPPING_OVER_CENTS, payment: null, ...structuredClone(CLOTHES_COMMERCE) };
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
@@ -256,7 +256,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     // 131 Its flash sale, its code shown in the app, its card messages.
     await demoFlowerCommerce(entryDeps(deps, client.id), saved);
   } else if (content === "catalog" && id === CLOTHES_DEMO) {
-    // 206 Lujain's clothes, their sizes and colours with the stock of each, its categories and their sub-categories, its flash sale and code.
+    // 208 Lujain's clothes, their sizes and colours with the stock of each, its categories and their sub-categories, its flash sale and code.
     await demoClothesProducts(entryDeps(deps, client.id), saved);
     await demoClothesCommerce(entryDeps(deps, client.id), saved);
   }

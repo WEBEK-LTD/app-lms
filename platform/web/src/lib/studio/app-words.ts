@@ -907,7 +907,7 @@ export const en = {
   pdLdIssue: "[This month's edition]",
   pdLdPick: "Our pick",
   // ——— end 130.60–130.62 ———
-  // ——— 206 Lujain, the clothes shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/clothes-signature.ts) ———
+  // ——— 208 Lujain, the clothes shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/clothes-signature.ts) ———
   clWordmark: "{app}",
   clSearch: "Search dresses, bags, coats…",
   clSearchB: "Jackets, sneakers, jeans…",
@@ -1006,9 +1006,9 @@ export const en = {
   clTrack4: "Delivered",
   clTrack4Text: "Enjoy it. Exchanges are easy from your orders.",
   installmentsSoon: "Installments coming soon",
-  // 206 The category menu's first card in each row (the main category itself).
+  // 208 The category menu's first card in each row (the main category itself).
   categoryAll: "All",
-  // ——— end 206 ———
+  // ——— end 208 ———
 } as const;
 
 /** A word a template writes into the app. */
@@ -1903,7 +1903,7 @@ export const ar: Record<AppWord, string> = {
   pdLdIssue: "[عدد هذا الشهر]",
   pdLdPick: "اختيارنا",
   // ——— end 130.60–130.62 ———
-  // ——— 206 Lujain, the clothes shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/clothes-signature.ts) ———
+  // ——— 208 Lujain, the clothes shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/clothes-signature.ts) ———
   clWordmark: "{app}",
   clSearch: "ابحثي عن فستان، حقيبة أو معطف…",
   clSearchB: "جاكيتات، سنيكرز، جينز…",
@@ -2003,7 +2003,7 @@ export const ar: Record<AppWord, string> = {
   clTrack4Text: "استمتعي بها. الاستبدال سهل من طلباتكِ.",
   installmentsSoon: "التقسيط قريبًا",
   categoryAll: "الكل",
-  // ——— end 206 ———
+  // ——— end 208 ———
 };
 
 export const tr: Record<AppWord, string> = {
@@ -2894,7 +2894,7 @@ export const tr: Record<AppWord, string> = {
   pdLdIssue: "[Bu ayın sayısı]",
   pdLdPick: "Seçimimiz",
   // ——— end 130.60–130.62 ———
-  // ——— 206 Lujain, the clothes shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/clothes-signature.ts) ———
+  // ——— 208 Lujain, the clothes shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/clothes-signature.ts) ———
   clWordmark: "{app}",
   clSearch: "Elbise, çanta, kaban ara…",
   clSearchB: "Ceket, spor ayakkabı, kot…",
@@ -2994,7 +2994,7 @@ export const tr: Record<AppWord, string> = {
   clTrack4Text: "Keyfini çıkarın. Değişim siparişlerinizden kolayca yapılır.",
   installmentsSoon: "Taksit yakında",
   categoryAll: "Tümü",
-  // ——— end 206 ———
+  // ——— end 208 ———
 };
 
 /** The languages templates are written in; another one gets English. */

@@ -43,7 +43,7 @@ export async function cleanDemoActivity(store: DataStore, now: Date): Promise<De
     if (id === "marketplace") report.deleted += await refreshMarketplaceDemo(store, app, now, { picture: savedZadPictures(store, { clientId: app.clientId }) });
     // 131 Leqaa: its flash sale from today, hours left on its countdown.
     if (id === FLOWER_SHOP_DEMO) await refreshFlowerSale(store, app, now);
-    // 206 Lujain: its deal of the day from today.
+    // 208 Lujain: its deal of the day from today.
     if (id === CLOTHES_DEMO) await refreshClothesSale(store, app, now);
     // 126 Safra: the flights twelve weeks ahead, and the demo number's trip from today.
     if (id === "travel") report.deleted += await refreshTravelDemo(store, app, await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164), now);

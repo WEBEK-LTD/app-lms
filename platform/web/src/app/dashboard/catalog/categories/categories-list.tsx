@@ -16,7 +16,7 @@ export interface CategoryRow {
   names?: Record<string, string> | null;
   count: number;
   image: string | null;
-  /** 206 The main category it is inside; null: a main category. */
+  /** 208 The main category it is inside; null: a main category. */
   parentId?: number | null;
 }
 
@@ -27,7 +27,7 @@ const TINTS = ["bg-tile-1", "bg-tile-2", "bg-tile-3", "bg-tile-4", "bg-tile-5"];
  * with the arrow keys and buttons) into place, renamed where they are, with
  * their products' count (a link to them) and the first one's photo.
  */
-export function CategoriesList({ categories, restaurant, subs = false }: { categories: CategoryRow[]; restaurant: boolean; /** 206 A store's: each category may sit inside a main one. */ subs?: boolean }) {
+export function CategoriesList({ categories, restaurant, subs = false }: { categories: CategoryRow[]; restaurant: boolean; /** 208 A store's: each category may sit inside a main one. */ subs?: boolean }) {
   const t = useDashT();
   const kind = restaurant ? "restaurant" : "shop";
   const [saving, start] = useTransition();
@@ -79,7 +79,7 @@ export function CategoriesList({ categories, restaurant, subs = false }: { categ
                   {t("shop.categoryDuplicate")}
                 </span>
               ) : null}
-              {/* 206 Inside a main category (a store's sub-categories, one level deep): never itself, nor one that has its own. */}
+              {/* 208 Inside a main category (a store's sub-categories, one level deep): never itself, nor one that has its own. */}
               {subs ? (
                 <label className="flex min-w-0 items-center gap-2 text-[13px] font-semibold text-muted">
                   {t("shopTypes.parent")}

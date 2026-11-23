@@ -4,7 +4,7 @@ import { APP_WORDS, type AppWordsLang } from "@/lib/studio/app-words";
 import { CLOTHES_SIZE_CHART } from "@/lib/demo/clothes";
 
 /**
- * 206 Studio's canvas for the clothes type's two new elements, drawn as the
+ * 208 Studio's canvas for the clothes type's two new elements, drawn as the
  * app draws them (mobile/lib/modules/shared/pages/studio_category_menu.dart,
  * studio_size_chart.dart): the category menu (`categories` as `rows`), every
  * main category of the shop a row of cards that slides, its own card first

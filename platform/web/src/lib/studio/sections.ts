@@ -15,7 +15,7 @@ import { peopleRow, photoHero, photoOf, photoTiles } from "./photo-sections";
 import { LANDING_SECTIONS } from "./premium-landings";
 // 131.26 Leqaa's sections.
 import { LEQAA_SECTIONS } from "./demo-designs/leqaa-signature";
-// 206 Lujain's sections, and the installments tag.
+// 208 Lujain's sections, and the installments tag.
 import { CLOTHES_SECTIONS } from "./demo-designs/clothes-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
 
@@ -313,7 +313,7 @@ export type SectionWord =
   | SignatureWord
   // 131.20 Leqaa's looks, pages and sections (lib/studio/demo-designs/leqaa-signature.ts).
   | Extract<AppWord, `lq${string}`>
-  // 206 Lujain's looks, pages and sections (lib/studio/demo-designs/clothes-signature.ts), and the installments tag.
+  // 208 Lujain's looks, pages and sections (lib/studio/demo-designs/clothes-signature.ts), and the installments tag.
   | Extract<AppWord, `cl${string}`>
   | "installmentsSoon";
 
@@ -1104,7 +1104,7 @@ export const SECTIONS: readonly SectionInfo[] = [
   ...LEQAA_SECTIONS,
   // 130.62 The new premium landings' openings, for every project (lib/studio/premium-landings.ts), at the end.
   ...LANDING_SECTIONS,
-  // 206 The clothes type's parts (the category menu, the peeking hero, the deal, shop the look, the size card and chart) and the installments tag.
+  // 208 The clothes type's parts (the category menu, the peeking hero, the deal, shop the look, the size card and chart) and the installments tag.
   ...CLOTHES_SECTIONS,
   INSTALLMENTS_SECTION,
 ];

@@ -9,7 +9,7 @@ import '../support/fake_api.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
 
-/// 206 Studio's clothes type (Lujain) in the app: the header's menu opens
+/// 208 Studio's clothes type (Lujain) in the app: the header's menu opens
 /// the category menu's page; the category menu draws every main category
 /// as a row of cards (its own card first, its sub-categories after it),
 /// each opening the shop on it; the size chart element; and a product's
@@ -114,9 +114,24 @@ void main() {
                 'title': 'Lujain',
                 'buttons': ['menu', 'cart'],
                 'menu_page': 'menu',
+                // As Lujain's looks draw it: the premium glass header.
+                'style': 'glass',
               },
               [
                 {'id': 't', 'type': 'text', 'text': 'Welcome'},
+                {
+                  'id': 's',
+                  'type': 'search',
+                  'source': 'products',
+                  'text': 'Search dresses',
+                  'radius': 26,
+                  'height': 50,
+                  'background': '#FFFFFF',
+                  'color': '#5F5B55',
+                  'border_color': '#E4DFD6',
+                  'border_width': 1,
+                  'margin': {'top': 4, 'end': 16, 'bottom': 6, 'start': 16},
+                },
                 {'id': 'chart', 'type': 'size_chart', 'text': 'Size chart'},
               ],
             ),
@@ -202,6 +217,18 @@ void main() {
       // The size chart on the home, from the shop's settings.
       expect(find.byKey(const ValueKey('studio-size-chart')), findsOneWidget);
       expect(find.text('84'), findsOneWidget);
+      expect(find.text('Search dresses'), findsOneWidget);
+      // Under the glass header, never behind it.
+      expect(
+        tester.getTopLeft(find.text('Search dresses')).dy,
+        greaterThan(
+          tester
+              .getBottomLeft(
+                find.byKey(const ValueKey('studio-header-menu-page')),
+              )
+              .dy,
+        ),
+      );
       await tester.tap(find.byKey(const ValueKey('studio-header-menu-page')));
       await TestApp.settle(tester, 20);
       // The menu's page over the home (pushed, the home under it).

@@ -63,7 +63,7 @@ import 'premium/studio_premium_header.dart';
 import '../../../core/format/text_case.dart';
 import '../account/sign_out.dart' show AccountPageEnd;
 import '../../store/widgets/quick_add.dart';
-// 206 The category menu and the size chart.
+// 208 The category menu and the size chart.
 import 'studio_category_menu.dart';
 import 'studio_size_chart.dart';
 
@@ -821,7 +821,7 @@ class StudioHeaderView extends ConsumerWidget {
         config.appearance?.logoUrl ??
         config.branding.logoUrl ??
         build.logoUrl;
-    // 206 A menu that opens a page of the app (the category menu's), full
+    // 208 A menu that opens a page of the app (the category menu's), full
     // screen; else the side menu, as before.
     final menuPage = headerMenuPage(header);
     final menu = !header.buttons.contains(StudioHeaderButton.menu)
@@ -1286,7 +1286,7 @@ class StudioNodeView extends ConsumerWidget {
         node.card != null
             ? node.items.isNotEmpty
             : PageBlockView.shows(_itemsBlock(node), ref),
-      // 206 The category menu: the shop's main categories, sent with it.
+      // 208 The category menu: the shop's main categories, sent with it.
       StudioNodeType.categories
           when node.categoriesStyle == CategoriesStyle.rows =>
         node.categories.isNotEmpty,
@@ -1294,7 +1294,7 @@ class StudioNodeView extends ConsumerWidget {
         _categoriesBlock(node),
         ref,
       ),
-      // 206 The shop's size chart, when it has one.
+      // 208 The shop's size chart, when it has one.
       StudioNodeType.sizeChart => StudioSizeChart.shows(ref),
       StudioNodeType.form =>
         node.form != null && PageBlockView.shows(node.form!, ref),
@@ -1879,7 +1879,7 @@ class StudioNodeView extends ConsumerWidget {
         return StudioFlashSale(node: node, title: _text(context), color: color);
       case StudioNodeType.categories
           when node.categoriesStyle == CategoriesStyle.rows:
-        // 206 The category menu: every main category a row of cards.
+        // 208 The category menu: every main category a row of cards.
         return StudioCategoryMenuView(node: node, color: color);
       case StudioNodeType.categories:
         return PageBlockView(
@@ -1887,7 +1887,7 @@ class StudioNodeView extends ConsumerWidget {
           pageSlug: scope.pageSlug,
         );
       case StudioNodeType.sizeChart:
-        // 206 The shop's size chart.
+        // 208 The shop's size chart.
         return StudioSizeChart(title: _text(context), color: color);
       case StudioNodeType.video:
         final url = node.videoUrl;

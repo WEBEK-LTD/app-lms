@@ -79,7 +79,7 @@ const DEMO_BUSINESS: Partial<Record<DemoId, string>> = {
   travel: "travel",
   // 131.20 Leqaa is a shop, with the store's own demo and Zad.
   flowers: "shop",
-  // 206 Lujain, the clothes shop, too.
+  // 208 Lujain, the clothes shop, too.
   clothes: "shop",
 };
 
@@ -157,7 +157,7 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   travel: () => ({ list: "hotels", noun: "hotels", count: TRAVEL_HOTELS.length }),
   // 131.20 Leqaa: its bouquets and add-ons.
   flowers: () => ({ list: "products", noun: "products", count: FLOWER_PRODUCTS.length }),
-  // 206 Lujain: its clothes, shoes, bags and accessories.
+  // 208 Lujain: its clothes, shoes, bags and accessories.
   clothes: () => ({ list: "products", noun: "products", count: CLOTHES_PRODUCTS.length }),
 };
 

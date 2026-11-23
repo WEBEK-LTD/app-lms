@@ -1,7 +1,7 @@
 import type { App, CatalogCategory, CatalogProduct, FashionSettings, SizeChart } from "../data/types";
 
 /**
- * 206 A clothes shop's own parts, for every store app whose products are
+ * 208 A clothes shop's own parts, for every store app whose products are
  * kept in Yallapp (the hosted catalog): the size chart the app shows under
  * a product's sizes ("Size guide") and on a Studio page (the `size_chart`
  * element), and "Complete the look", products of the shop's other main

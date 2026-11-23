@@ -6,7 +6,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/theme/palette.dart';
 
-/// 206 The shop's size chart as a table: its titles, then a row per size
+/// 208 The shop's size chart as a table: its titles, then a row per size
 /// (the size in bold), lines between the rows; the unit in the title.
 class SizeChartTable extends StatelessWidget {
   const SizeChartTable({super.key, required this.chart, this.color});
@@ -48,7 +48,7 @@ class SizeChartTable extends StatelessWidget {
   }
 }
 
-/// 206 The `size_chart` element: the shop's size chart under its title
+/// 208 The `size_chart` element: the shop's size chart under its title
 /// (the element's words, else "Size chart (cm)"); nothing when the shop has
 /// none (`StoreConfig.size_chart`), and an app before it skips the element.
 class StudioSizeChart extends ConsumerWidget {
@@ -92,7 +92,7 @@ class StudioSizeChart extends ConsumerWidget {
   }
 }
 
-/// 206 The size guide over a product's page: the shop's chart in a sheet.
+/// 208 The size guide over a product's page: the shop's chart in a sheet.
 Future<void> showSizeGuide(BuildContext context, SizeChart chart) {
   return showModalBottomSheet<void>(
     context: context,

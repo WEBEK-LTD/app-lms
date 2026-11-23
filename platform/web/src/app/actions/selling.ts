@@ -298,7 +298,7 @@ export async function saveBouquetAction(_: FormState, formData: FormData): Promi
   return { ok: true, message: "Saved.", values: v };
 }
 
-/** 206 A clothes shop's size chart (with its titles in the app's other languages) and "Complete the look". */
+/** 208 A clothes shop's size chart (with its titles in the app's other languages) and "Complete the look". */
 export async function saveFashionAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireStoreApp();
   const v = values(formData);

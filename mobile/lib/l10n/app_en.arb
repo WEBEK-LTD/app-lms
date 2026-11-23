@@ -13669,11 +13669,11 @@
   },
   "sizeGuide": "Size guide",
   "@sizeGuide": {
-    "description": "206 Link beside a product's sizes: opens the shop's size chart."
+    "description": "208 Link beside a product's sizes: opens the shop's size chart."
   },
   "sizeChartIn": "Size chart ({unit})",
   "@sizeChartIn": {
-    "description": "206 The size chart's title, with its unit (cm or in).",
+    "description": "208 The size chart's title, with its unit (cm or in).",
     "placeholders": {
       "unit": {
         "type": "String"
@@ -13682,11 +13682,11 @@
   },
   "completeTheLook": "Complete the look",
   "@completeTheLook": {
-    "description": "206 Title of the products that go with this one on its page."
+    "description": "208 Title of the products that go with this one on its page."
   },
   "exchangeWithin": "{days, plural, =1{Exchange or return within a day} other{Exchange or return within {days} days}}",
   "@exchangeWithin": {
-    "description": "206 The shop's exchange policy under a product's price.",
+    "description": "208 The shop's exchange policy under a product's price.",
     "placeholders": {
       "days": {
         "type": "int"
@@ -13695,7 +13695,7 @@
   },
   "optionSoldOut": "{option}, out of stock",
   "@optionSoldOut": {
-    "description": "206 A size or colour none of whose pieces are left (screen readers).",
+    "description": "208 A size or colour none of whose pieces are left (screen readers).",
     "placeholders": {
       "option": {
         "type": "String"
@@ -13704,7 +13704,7 @@
   },
   "categoryAllOf": "All {name}",
   "@categoryAllOf": {
-    "description": "206 The category menu: a row's first card, the main category itself.",
+    "description": "208 The category menu: a row's first card, the main category itself.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -13713,7 +13713,7 @@
   },
   "categoryMenuRow": "{name}, {count}",
   "@categoryMenuRow": {
-    "description": "206 A category menu row's title for screen readers: its name and how many products.",
+    "description": "208 A category menu row's title for screen readers: its name and how many products.",
     "placeholders": {
       "name": {
         "type": "String"

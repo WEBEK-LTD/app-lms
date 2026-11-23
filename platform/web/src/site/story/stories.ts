@@ -345,7 +345,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "flowers-vase", screen: "leqaa-home" },
   },
-  // 206 Lujain, the clothes shop: a dress for Thursday's wedding, in its look A (LUJAIN) by day and by night; look B (NOUN) in its section.
+  // 208 Lujain, the clothes shop: a dress for Thursday's wedding, in its look A (LUJAIN) by day and by night; look B (NOUN) in its section.
   clothes: {
     id: "clothes",
     icon: "checkroom",

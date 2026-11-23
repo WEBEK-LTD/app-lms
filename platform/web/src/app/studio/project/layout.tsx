@@ -23,7 +23,7 @@ export default async function StudioProjectLayout({ children }: { children: Reac
     // 132.112 An app that moved to another account stays to read.
     <StudioConsole context={context} text={text} notice={<MovedAppNotice app={app} text={text} />}>
       {children}
-      {/* 206 A shop type's liability notice, until the owner accepts it. */}
+      {/* 208 A shop type's liability notice, until the owner accepts it. */}
       <LiabilityNotice app={app} text={text} member={context.member !== null} />
     </StudioConsole>
   );

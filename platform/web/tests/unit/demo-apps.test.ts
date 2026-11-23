@@ -53,7 +53,7 @@ beforeEach(() => clearPlatformSettingsCache());
 
 // 27 Eight (28 nine, 29 ten) demo apps draw their pictures: slower when the whole suite runs at once.
 describe("creating the demo apps", { timeout: 20_000 }, () => {
-  it("makes the demo account with twenty-one apps (131.20 Leqaa and 206 Lujain too), their content, pages and a license that doesn't end", async () => {
+  it("makes the demo account with twenty-one apps (131.20 Leqaa and 208 Lujain too), their content, pages and a license that doesn't end", async () => {
     const store = new MemoryStore();
     const blobs = new Map<string, Buffer>();
     const result = await setupDemoApps(deps(store, NOW, blobs));
@@ -82,7 +82,7 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
       ["premium_academy", true],
       // 131.20 Leqaa, the flower shop, a template's demo too (the store's).
       ["flowers", true],
-      // 206 Lujain, the clothes shop: the first of Studio's shop types.
+      // 208 Lujain, the clothes shop: the first of Studio's shop types.
       ["clothes", true],
     ]);
     const user = await store.getUserByEmail(DEMO_ACCOUNT.email);
@@ -91,14 +91,16 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(client.status).toBe("active");
 
     const apps = await listDemoApps(store, { fresh: true });
-    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "food", "rides", "rides", "school", "lms", "travel", "lms", "store"]);
+    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "food", "rides", "rides", "school", "lms", "travel", "lms", "store", "store"]);
     // 21 The clinic demo is the bookings engine with the clinic vertical; 26 the café the store engine with the restaurant vertical; 27 the gym the bookings engine with the fitness vertical; 29 the charity the donations engine with the charity vertical.
     // 110.5 The live taxi app is the rides engine with the taxi vertical, the academy with many teachers the courses engine with the instructors vertical.
-    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, "marketplace", null, "taxi", null, "instructors", null, null, null]);
+    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, "marketplace", null, "taxi", null, "instructors", null, null, null, null]);
     // 123 The premium academy: an academy that keeps the template it started from.
-    expect(apps.at(-2)?.design).toBe("academy_premium");
+    expect(apps.at(-3)?.design).toBe("academy_premium");
     // 131.20 Leqaa, the flower shop: a shop that keeps its Signature look A.
-    expect(apps.at(-1)?.design).toBe("flowers_signature_a");
+    expect(apps.at(-2)?.design).toBe("flowers_signature_a");
+    // 208 Lujain, the clothes shop: a shop that keeps its look A (LUJAIN).
+    expect(apps.at(-1)?.design).toBe("clothes_signature_a");
     expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(21);
     expect(new Set(apps.map((a) => a.template))).toEqual(new Set(["classic", "bold", "minimal"]));
     for (const app of apps) {
@@ -588,7 +590,7 @@ describe("signing in to a demo app", () => {
       expect(screens.sign_in?.title.tr, id).toBeTruthy();
       expect(screens.account_menu?.header, id).not.toBe("plain");
       // Their photos are the website's own, credit-free ones (123 the premium academy's, its own picture; 131.20 Leqaa's, its flowers).
-      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens|demo-photos|design-pictures|travel-photos|flower-photos)\/.+\.jpg$/);
+      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens|demo-photos|design-pictures|travel-photos|flower-photos|clothes-photos)\/.+\.jpg$/);
     }
     expect((await config("taxi"))?.account_menu).toMatchObject({ header: "night", accent: "#F5B700" });
     // 119 Their bars in their own designs; 128 as their approved boards have them (several the same classic bar in their own colours), 126 Safra's the dot under the open tab.

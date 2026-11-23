@@ -300,7 +300,7 @@ export const ICON_NAMES = [
   "public",
   "wb_sunny",
   "yard",
-  // 206 Studio's shop types (their sections and types), Lujain's looks and sections, the liability notice.
+  // 208 Studio's shop types (their sections and types), Lujain's looks and sections, the liability notice.
   "apparel",
   "chair",
   "computer",

@@ -1057,16 +1057,16 @@ class ItemsBlock extends PageBlock {
 
 /// 112.4 Studio's categories also come as [pictures] in a grid and as
 /// [circles], round pictures in a row that scrolls.
-/// 206 `rows`: the category menu, every main category a row of cards with
+/// 208 `rows`: the category menu, every main category a row of cards with
 /// its sub-categories (StudioCategoryMenu); an app before it draws chips.
 enum CategoriesStyle { chips, tiles, pictures, circles, rows }
 
-/// 206 How the category menu draws its rows: a tall card of the main
+/// 208 How the category menu draws its rows: a tall card of the main
 /// category first ([lead]), or the main category's name over the row and
 /// "All" on its first card ([label]).
 enum StudioCategoryMenuLook { lead, label }
 
-/// 206 The category menu's look (`StudioNode.category_menu`).
+/// 208 The category menu's look (`StudioNode.category_menu`).
 class StudioCategoryMenu {
   const StudioCategoryMenu({
     this.look = StudioCategoryMenuLook.lead,
@@ -2073,7 +2073,7 @@ class StudioHeader {
     );
   }
 
-  /// 206 The page its menu button opens (the category menu's), full
+  /// 208 The page its menu button opens (the category menu's), full
   /// screen; null, the side menu as before.
   final String? menuPage;
 
@@ -2171,7 +2171,7 @@ enum StudioNodeType {
   // 131 A flash sale: its products at their sale price, a live countdown
   // and a stock bar (StudioCommerce.flashSale).
   flashSale,
-  // 206 The shop's size chart (`StoreConfig.size_chart`), as a table.
+  // 208 The shop's size chart (`StoreConfig.size_chart`), as a table.
   sizeChart,
 }
 
@@ -3293,10 +3293,10 @@ class StudioNode {
   /// 112.4 For a child of a stack: its place, in percent.
   final StudioPlace? place;
 
-  /// 112.4 For categories: chips, tiles, pictures or circles; 206 or rows.
+  /// 112.4 For categories: chips, tiles, pictures or circles; 208 or rows.
   final CategoriesStyle categoriesStyle;
 
-  /// 206 For categories drawn as rows: the category menu's look.
+  /// 208 For categories drawn as rows: the category menu's look.
   final StudioCategoryMenu categoryMenu;
 
   /// 112.4 For a coupon: the code people copy.

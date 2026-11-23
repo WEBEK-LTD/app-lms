@@ -25,7 +25,7 @@ export interface KindChoice extends PresetChoice {
 
 type StudioKind = KindChoice & { text: string; soon: boolean };
 
-/** 206 A section of Studio's shop types (lib/studio/shop-types.ts): its name and its types, the coming ones not to choose yet. */
+/** 208 A section of Studio's shop types (lib/studio/shop-types.ts): its name and its types, the coming ones not to choose yet. */
 export interface ShopSectionChoice {
   id: string;
   name: string;
@@ -35,7 +35,7 @@ export interface ShopSectionChoice {
 const ARABIC_DIGITS = ["١", "٢", "٣"];
 
 /** 103R.3 The new project's three steps, with its summary beside them. */
-export function NewProjectForm({ studioKinds, kinds, error, samples, shopSections = [] }: { studioKinds: StudioKind[]; kinds: KindChoice[]; error: string | null; /** The samples the templates' lists show (lib/studio/sample-entries.ts). */ samples?: Pickable["samples"]; /** 206 Studio's shop types by section. */ shopSections?: ShopSectionChoice[] }) {
+export function NewProjectForm({ studioKinds, kinds, error, samples, shopSections = [] }: { studioKinds: StudioKind[]; kinds: KindChoice[]; error: string | null; /** The samples the templates' lists show (lib/studio/sample-entries.ts). */ samples?: Pickable["samples"]; /** 208 Studio's shop types by section. */ shopSections?: ShopSectionChoice[] }) {
   const t = useDashT();
   const lang = useDashLang();
   const all = [...studioKinds.filter((k) => !k.soon), ...shopSections.flatMap((s) => s.types.filter((k) => !k.soon)), ...kinds];
@@ -86,7 +86,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples, shopSection
     [t, lang, name, kindTemplates],
   );
 
-  /** A Studio kind's card (124.6 a preset choice, 206 a shop type), the ones still coming dimmed and not to choose. */
+  /** A Studio kind's card (124.6 a preset choice, 208 a shop type), the ones still coming dimmed and not to choose. */
   const studioCard = (k: StudioKind, group: string) => {
     const on = kindId === k.id;
     const key = `${group}-${k.id}`;
@@ -175,7 +175,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples, shopSection
             <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
               {studioKinds.map((k) => studioCard(k, "studio"))}
             </div>
-            {/* 206 Studio's shop types: section, then type (step 3 starts on its look A, its look B beside it). */}
+            {/* 208 Studio's shop types: section, then type (step 3 starts on its look A, its look B beside it). */}
             {shopSections.length ? (
               <div className="mt-2 flex flex-col gap-3" data-shop-sections="">
                 <div className="flex flex-col gap-0.5">

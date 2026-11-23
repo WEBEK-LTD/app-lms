@@ -43,7 +43,7 @@ export default async function CatalogCategoriesPage() {
           <h2 id="h-categories" className="m-0 text-lg font-bold">
             {t("manage.categoriesCount", { count: categories.length })}
           </h2>
-          {/* 206 A new category inside a main one (a store's, not a restaurant's menu). */}
+          {/* 208 A new category inside a main one (a store's, not a restaurant's menu). */}
           <AddCategoryForm mains={restaurant ? [] : categories.filter((c) => !c.parentId).map((c) => ({ id: c.id, name: c.name }))} />
         </div>
         {rows.length ? (

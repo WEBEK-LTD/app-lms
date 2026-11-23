@@ -193,7 +193,7 @@ const symbolsByName = <String, IconData>{
   'visibility_off': Symbols.visibility_off_rounded,
   'format_quote': Symbols.format_quote_rounded,
   'auto_awesome': Symbols.auto_awesome_rounded,
-  // 206 Lujain, the clothes shop: its looks, menu and sections.
+  // 208 Lujain, the clothes shop: its looks, menu and sections.
   'straighten': AppIcons.sizeGuide,
   'sync': AppIcons.exchange,
   'apparel': Symbols.apparel_rounded,

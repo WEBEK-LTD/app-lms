@@ -1124,7 +1124,7 @@ export const STORIES_TR: StoryCopy = {
         "flowers-vase": "Beyaz bir vazoda laleler ve güller",
       },
     },
-    // 206 Lujain, the clothes shop: a wedding dress bought on a Monday evening, in its look A (LUJAIN); look B (NOUN) in its section.
+    // 208 Lujain, the clothes shop: a wedding dress bought on a Monday evening, in its look A (LUJAIN); look B (NOUN) in its section.
     clothes: {
       navName: "Giyim mağazası uygulaması",
       metaTitle: "Bedenler, kategori menüsü ve görünümü tamamla ile bir giyim mağazası uygulaması, Yallapp Studio'da tasarlandı",

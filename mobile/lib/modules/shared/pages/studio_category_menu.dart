@@ -10,7 +10,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import 'page_actions.dart';
 
-/// 206 The category menu (a `categories` element drawn as `rows`): every
+/// 208 The category menu (a `categories` element drawn as `rows`): every
 /// main category of the shop a row of cards that slides sideways, its own
 /// card first ("All …", it opens the shop on the main category), then its
 /// sub-categories, each with its photo and name, each opening the shop on

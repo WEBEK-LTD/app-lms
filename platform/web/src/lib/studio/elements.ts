@@ -30,7 +30,7 @@ export interface ElementInfo {
 }
 
 /** 129 The ready looks the Premium group offers: the slider's (129.1) and a layout's card style (129.18). */
-/** 206 `category_menu`: the categories element drawn as the category menu (`rows`). */
+/** 208 `category_menu`: the categories element drawn as the category menu (`rows`). */
 export type ElementPreset = "hero_slider" | "card_carousel" | "glass_card" | "category_menu";
 
 export const ELEMENTS: readonly ElementInfo[] = [
@@ -90,7 +90,7 @@ export const ELEMENTS: readonly ElementInfo[] = [
   // ——— end 129.11–129.20 ———
   // 131 A flash sale from the shop's own: was and now prices, the share off, a live countdown and a stock bar.
   { type: "flash_sale", group: "premium", icon: "bolt", keywords: "flash sale offer deal discount countdown timer price was now percent off stock left limited", only: "store" },
-  // 206 The category menu (every main category a row of cards, its sub-categories in the row) and the shop's size chart.
+  // 208 The category menu (every main category a row of cards, its sub-categories in the row) and the shop's size chart.
   { type: "categories", group: "premium", icon: "menu_open", keywords: "category menu categories sub-categories rows sliders cards all header menu drawer", only: "store", preset: "category_menu" },
   { type: "size_chart", group: "premium", icon: "table_chart", keywords: "size chart guide sizes measurements bust waist hips length table clothes fashion", only: "store" },
 ];
@@ -177,10 +177,10 @@ export function newNode(
     case "items":
       return { id, type, source: options.source ?? undefined, layout: "grid", columns: 2, query: { limit: 4, category_id: null, featured: false, sort: "newest", ids: [] }, gap: 10, padding: { top: 6, end: 10, bottom: 6, start: 10 } };
     case "categories":
-      // 206 The category menu: the shop's main categories as rows of cards.
+      // 208 The category menu: the shop's main categories as rows of cards.
       if (options.preset === "category_menu") return { id, type, source: options.source ?? undefined, style: "rows", category_menu: { look: "lead" }, padding: { top: 6, end: 0, bottom: 6, start: 0 } };
       return { id, type, source: options.source ?? undefined, padding: { top: 6, end: 10, bottom: 6, start: 10 } };
-    // 206 The shop's size chart, on a card.
+    // 208 The shop's size chart, on a card.
     case "size_chart":
       return { id, type, radius: 18, padding: { top: 12, end: 12, bottom: 12, start: 12 }, margin: { top: 8, end: 16, bottom: 8, start: 16 }, border_color: "#E4DFD6", border_width: 1 };
     case "video":

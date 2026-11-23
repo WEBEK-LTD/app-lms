@@ -136,7 +136,7 @@ class _ProductViewState extends ConsumerState<_ProductView> {
     });
   }
 
-  /// 206 Whether no variation with [value] for [slug] (and the other
+  /// 208 Whether no variation with [value] for [slug] (and the other
   /// choices made) is left to buy: a size gone in the colour chosen.
   bool _soldOut(String slug, String value) {
     final variations = _product.variations;
@@ -326,7 +326,7 @@ class _ProductViewState extends ConsumerState<_ProductView> {
     ];
     final max = _maxQuantity;
     final count = ref.watch(cartCountProvider);
-    // 206 The shop's size chart and its exchanges (a clothes shop's).
+    // 208 The shop's size chart and its exchanges (a clothes shop's).
     final store = ref.watch(appConfigProvider).store;
     final sizeChart = store?.sizeChart;
     final returns = store?.returns;
@@ -477,7 +477,7 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                           : p.success,
                     ),
                   ),
-                // 206 The shop's exchanges and returns, under the price.
+                // 208 The shop's exchanges and returns, under the price.
                 if (returns != null && returns.enabled && returns.days > 0) ...[
                   const SizedBox(height: 10),
                   Row(
@@ -520,7 +520,7 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                           ),
                         ),
                       ),
-                      // 206 The size guide beside the sizes the chart has.
+                      // 208 The size guide beside the sizes the chart has.
                       if (sizeChart != null &&
                           sizeChart.fits(attribute.options.map((o) => o.value)))
                         TextButton.icon(
@@ -550,7 +550,7 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                       runSpacing: 8,
                       children: [
                         for (final option in attribute.options)
-                          // 206 A size or colour with none left in the
+                          // 208 A size or colour with none left in the
                           // other choices made shows so, and can't be chosen.
                           if (_soldOut(attribute.slug, option.value))
                             Semantics(
@@ -627,7 +627,7 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                   const SizedBox(height: 8),
                   HtmlContent(html: product.descriptionHtml),
                 ],
-                // 206 Complete the look: a piece of each of the shop's other
+                // 208 Complete the look: a piece of each of the shop's other
                 // main categories.
                 if (product.completeLook.isNotEmpty) ...[
                   const SizedBox(height: 24),

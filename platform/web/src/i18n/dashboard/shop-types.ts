@@ -1,7 +1,7 @@
 import type { Strings } from "../types";
 
 /**
- * 206 Studio's shop types (lib/studio/shop-types.ts): their sections and
+ * 208 Studio's shop types (lib/studio/shop-types.ts): their sections and
  * names on /start?for=studio and Studio's new project, the liability notice
  * each project accepts once (lib/studio/liability.ts), a clothes shop's
  * size chart and "Complete the look" (Store › Delivery & offers › Clothes)

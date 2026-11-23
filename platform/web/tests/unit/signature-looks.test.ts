@@ -67,7 +67,7 @@ const texts = (page: StudioPage) => allNodes(page).flatMap((n) => [n.text, n.tit
 
 describe("130 the Signature looks: one registry, twenty looks", () => {
   it("has looks A and B for each of the ten Studio demos (131.20 Leqaa's too), one template of its kind each, named in Studio's three languages", () => {
-    // 206 Lujain's two looks too.
+    // 208 Lujain's two looks too.
     expect(LOOKS).toHaveLength(22);
     for (const demo of STUDIO_DEMO_TYPES) expect(signatureLooksOf(demo), demo).toEqual(["a", "b"]);
     expect(signatureDesigns().map((d) => `${d.demo}_signature_${d.variant}`).sort()).toEqual(LOOKS.map(([demo, look]) => `${demo}_signature_${look}`).sort());

@@ -270,7 +270,7 @@ export function mediaAddress(text: string): string | null {
   }
   // 97.5 The platform's own files too, 99.1 and the designs' pictures (https in production; local tests serve them over http),
   // 128 and Yallapp's own photos the demos' templates use (public/demo-photos, demo-screens, stories); 130.12 and its travel photos (public/travel-photos).
-  // 131.20 And Leqaa's flower photos (public/flower-photos); 206 and every shop type's (public/<type>-photos: clothes-photos and the next).
+  // 131.20 And Leqaa's flower photos (public/flower-photos); 208 and every shop type's (public/<type>-photos: clothes-photos and the next).
   const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures|demo-photos|demo-screens|stories|[a-z]+-photos)\//.test(url.pathname);
   if (!url || (url.protocol !== "https:" && !own) || text.length > 2000 || /\s/.test(text)) return null;
   return url.toString();
@@ -1179,7 +1179,7 @@ function parseStudioHeader(ctx: Context, where: string, value: unknown): StudioH
     else if (v.collapse === false) header.collapse = false;
   }
   // ——— end 130.20 premium chrome ———
-  // 206 The page its menu button opens.
+  // 208 The page its menu button opens.
   if (v.menu_page !== undefined && v.menu_page !== null && v.menu_page !== "") {
     if (typeof v.menu_page !== "string" || !SLUG.test(v.menu_page) || v.menu_page.length > 40) c.fail(where, "choose the page the menu button opens.");
     else header.menu_page = v.menu_page;
@@ -1987,7 +1987,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       if (style && style !== "chips") node.style = style;
       const columns = num("columns", 1, L.maxColumns, "the columns");
       if (columns && style === "pictures") node.columns = Math.round(columns);
-      // 206 The category menu's look.
+      // 208 The category menu's look.
       if (style === "rows" && v.category_menu !== undefined && v.category_menu !== null) {
         const m = record(v.category_menu);
         if (!m) bad("the category menu's options aren't valid.");
@@ -2007,7 +2007,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       break;
     }
     case "size_chart": {
-      // 206 The shop's size chart; its title (optional) above it.
+      // 208 The shop's size chart; its title (optional) above it.
       const text = c.optionalText(where, v.text, L.titleChars, "The size chart's title");
       if (text) node.text = text;
       const translations = parseTranslations(ctx, where, v.translations, TRANSLATABLE.studio, { text: L.titleChars, title: L.titleChars });

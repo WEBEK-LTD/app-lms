@@ -376,7 +376,7 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["leqaa-home", "leqaa-product", "leqaa-checkout"],
   },
-  // 206 Lujain, the clothes shop: a store in Studio, its two Signature looks, the category menu, sizes and colours.
+  // 208 Lujain, the clothes shop: a store in Studio, its two Signature looks, the category menu, sizes and colours.
   clothes: {
     summary: "A women's fashion house in Riyadh: dresses, abayas, coats, shoes, bags and accessories in their sizes and colours, with the stock of each, a size chart and what completes the look. Its photos are CC0, from StockSnap.",
     tryThis: [
@@ -779,7 +779,7 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     fullDescription: `Leqaa makes bouquets for every occasion: love, birthdays, a new baby, congratulations and sympathy.\n\nChoose a bouquet and its size, add a vase, chocolates or a card, and send it today or on the day you pick, with a message in your own words.\n\n${PRIVACY_NOTE}`,
     welcome: "Bouquets for every occasion, made on the day they are delivered.",
   },
-  // 206 Lujain (لجين, "silver"), the clothes shop: its look A's black and white.
+  // 208 Lujain (لجين, "silver"), the clothes shop: its look A's black and white.
   clothes: {
     appName: "Lujain",
     shortName: "Lujain",

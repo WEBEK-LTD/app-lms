@@ -45,12 +45,12 @@ function demoApp(id: StudioDemoId): App {
   const kind = demoKind(id);
   // 123 The premium academy's demo keeps the template it started from.
   // 131.20 And Leqaa's its look A.
-  // 206 And each shop type's demo (Lujain) its look A.
+  // 208 And each shop type's demo (Lujain) its look A.
   const design = id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : isStoreTemplateDemo(id) ? { design: STORE_TEMPLATE_DEMOS[id] } : {};
   return { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS[id].appName, primaryColor: DEMO_BRANDS[id].primaryColor, brandingDoneAt: NOW, ...design };
 }
 
-/** The demos that are their kind's own template; 123 the premium academy is a template's demo (below), 131.20 and Leqaa (leqaa-flowers.test.ts), 206 and Lujain (phase206-clothes.test.ts). */
+/** The demos that are their kind's own template; 123 the premium academy is a template's demo (below), 131.20 and Leqaa (leqaa-flowers.test.ts), 208 and Lujain (phase208-clothes.test.ts). */
 const KIND_DEMOS = STUDIO_DEMO_TYPES.filter((id) => id !== PREMIUM_ACADEMY_DEMO && !isStoreTemplateDemo(id));
 
 /** A client's new Studio project of the demo's kind, named as the demo so the two can be compared. */
@@ -502,7 +502,7 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
         expect(Object.keys(n.translations ?? {}).sort(), `${id}: ${n.text ?? n.title}`).toEqual(["en", "tr"]);
       }
       const parsed = parseStudioPage(page, app, languages);
-      // 206 Lujain's home opens its size guide, a page its template makes (checked here alone, without it).
+      // 208 Lujain's home opens its size guide, a page its template makes (checked here alone, without it).
       const errors = parsed.ok ? [] : parsed.errors.filter((e) => !(isStoreTemplateDemo(id) && e.endsWith("choose a page that exists.")));
       expect(errors, id).toEqual([]);
     }

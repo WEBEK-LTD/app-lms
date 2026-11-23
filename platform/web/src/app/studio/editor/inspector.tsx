@@ -1612,7 +1612,7 @@ function DataTab(props: Props & { node: StudioNode }) {
             { value: "tiles" as const, label: t("studio.catTiles") },
             { value: "pictures" as const, label: t("studio.catPictures") },
             { value: "circles" as const, label: t("studio.catCircles") },
-            // 206 The category menu: each main category a row of cards with its sub-categories.
+            // 208 The category menu: each main category a row of cards with its sub-categories.
             { value: "rows" as const, label: t("studio.catRows") },
           ]}
         />
@@ -1703,7 +1703,7 @@ function HeaderPanel(props: Props) {
             />
           ))}
         </div>
-        {/* 206 The page the menu button opens (the category menu's), full screen; none: the side menu. */}
+        {/* 208 The page the menu button opens (the category menu's), full screen; none: the side menu. */}
         {(header.buttons ?? []).includes("menu") ? (
           <label className="flex flex-col gap-1 font-bold">
             {t("studio.menuOpens")}

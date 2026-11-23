@@ -7,7 +7,7 @@ import { CLOTHES_CATEGORIES, CLOTHES_COUPON, CLOTHES_CURRENCY, CLOTHES_FLASH_SAL
 import type { ClothesPhotoName } from "./shop-photos";
 
 /**
- * 206 Lujain's entries (lib/demo/clothes.ts): its main categories and
+ * 208 Lujain's entries (lib/demo/clothes.ts): its main categories and
  * their sub-categories by name (each named in Arabic and Turkish too), its
  * pieces by SKU in their sub-category and its main category, their photos
  * the platform's, their sizes and colours with the stock of each. The
@@ -82,7 +82,7 @@ export async function demoClothesProducts(deps: EntryDeps, app: App): Promise<vo
   for (const x of products) if (!x.sku || !skus.has(x.sku)) await store.deleteCatalogProduct(app.id, x.id);
 }
 
-/** 206 Lujain's commerce on the demo: the deal of the day (a few pieces a share off, ending in hours) and its code shown in the app. */
+/** 208 Lujain's commerce on the demo: the deal of the day (a few pieces a share off, ending in hours) and its code shown in the app. */
 export async function demoClothesCommerce(deps: EntryDeps, app: App): Promise<void> {
   const { store, now } = deps;
   await refreshClothesSale(store, app, now);
@@ -91,7 +91,7 @@ export async function demoClothesCommerce(deps: EntryDeps, app: App): Promise<vo
   }
 }
 
-/** 206 Lujain's deal of the day from now, for a little over a day (made again by the daily job, lib/demo/cleanup.ts), its units sold back to the demo's own. */
+/** 208 Lujain's deal of the day from now, for a little over a day (made again by the daily job, lib/demo/cleanup.ts), its units sold back to the demo's own. */
 export async function refreshClothesSale(store: DataStore, app: Pick<App, "id">, now: Date): Promise<void> {
   const products = await store.listCatalogProducts(app.id);
   const ids = products.filter((x) => x.sku !== null && (CLOTHES_FLASH_SALE.skus as readonly string[]).includes(x.sku)).map((x) => x.id);

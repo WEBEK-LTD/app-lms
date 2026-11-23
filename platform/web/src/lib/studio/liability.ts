@@ -2,7 +2,7 @@ import type { App, LiabilityAcceptance } from "../data/types";
 import { shopTypeOfDesign, type LiabilityKind, type ShopType } from "./shop-types";
 
 /**
- * 206 The liability notice (the owner's planning doc): the customer is fully
+ * 208 The liability notice (the owner's planning doc): the customer is fully
  * responsible for their app. The dashboard shows a project made from one of
  * Studio's shop types (lib/studio/shop-types.ts) its type's notice ONCE,
  * and the owner presses "I read it and agree" ("قرأت وموافق"); the

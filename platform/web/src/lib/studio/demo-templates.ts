@@ -48,7 +48,7 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   premium_academy: "premium_academy_signature_a",
   // 131.20 Leqaa, the flower shop, is its Signature look A, rose hour (lib/studio/demo-designs/leqaa-signature.ts).
   flowers: "flowers_signature_a",
-  // 206 Lujain, the clothes shop, is its Signature look A, the boutique (lib/studio/demo-designs/clothes-signature.ts).
+  // 208 Lujain, the clothes shop, is its Signature look A, the boutique (lib/studio/demo-designs/clothes-signature.ts).
   clothes: "clothes_signature_a",
 };
 
@@ -110,7 +110,7 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   travel: { surface: "#FFFFFF", nightSurface: "#1B2338", line: "#E6DFD2", nightLine: "#2A3350", muted: "#5F6472", nightMuted: "#B4B8C6" },
   // 131.20 Leqaa's, its look A's (lib/studio/demo-designs/leqaa-signature.ts LEQAA_A_INK).
   flowers: { surface: "#FFFFFF", nightSurface: "#21121A", line: "#F0DDD9", nightLine: "#3A2530", muted: "#7B5E67", nightMuted: "#C9AEB6" },
-  // 206 Lujain's, its look A's (lib/studio/demo-designs/clothes-signature.ts LUJAIN_INK).
+  // 208 Lujain's, its look A's (lib/studio/demo-designs/clothes-signature.ts LUJAIN_INK).
   clothes: { surface: "#FFFFFF", nightSurface: "#191917", line: "#E4DFD6", nightLine: "#2E2C28", muted: "#5F5B55", nightMuted: "#B6B0A6" },
 };
 
@@ -226,7 +226,7 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
 
 /** The demos' own templates; 123 the premium academy is a template already (lib/studio/sections.ts academy_premium). */
 /** 131.20 Leqaa (a template's demo, as the premium academy) has none: its looks are a store's first templates. */
-/** 206 Nor the shop types' demos (Lujain): their looks are a store's first templates too. */
+/** 208 Nor the shop types' demos (Lujain): their looks are a store's first templates too. */
 export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy" | "flowers" | ShopTypeDemo>, string> = {
   delivery: "local_shipping",
   food: "delivery_dining",
@@ -306,7 +306,7 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     lqBouquetTitle: { en: "Blush Garden", ar: "حديقة الورد", tr: "Pembe Bahçe" },
     lqBouquetLine: { en: "Blush roses, lisianthus and eucalyptus, made on the day it is delivered.", ar: "ورد وردي وليزيانثوس وأوكالبتوس، تُصنع في يوم توصيلها.", tr: "Pembe güller, lisianthus ve okaliptüs; teslim edildiği gün hazırlanır." },
   },
-  // 206 Lujain's own words where its looks leave the owner brackets: its look, its drop, its promises and its exchanges (lib/demo/clothes.ts).
+  // 208 Lujain's own words where its looks leave the owner brackets: its look, its drop, its promises and its exchanges (lib/demo/clothes.ts).
   clothes: {
     clLookName: { en: "Classic black with a soft touch", ar: "أسود كلاسيكي بلمسة ناعمة", tr: "Yumuşak dokunuşlu klasik siyah" },
     clDropKicker: { en: "Drop 07 · Limited pieces", ar: "الإصدار 07 · قطع محدودة", tr: "Drop 07 · Sınırlı parça" },

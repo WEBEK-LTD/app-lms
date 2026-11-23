@@ -142,7 +142,7 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
         </span>
       </div>
       <ul className="m-0 grid list-none gap-[18px] p-0 [grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr))]">
-        {/* 206 A shop type's demo is in its section below. */}
+        {/* 208 A shop type's demo is in its section below. */}
         {ids.filter((id) => !SHOP_TYPES.some((t) => t.demo === id)).map((id) => {
           const words = cardWords(text, id);
           const shot = demoScreens(text, id)[0]!;
@@ -190,7 +190,7 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
 }
 
 /**
- * 206 Studio's shop types by section (lib/studio/shop-types.ts): section,
+ * 208 Studio's shop types by section (lib/studio/shop-types.ts): section,
  * then type, then its looks A and B on the type's page (/start/<demo>); a
  * type still being made shows as coming soon, never a link. The shops
  * Studio already has that belong to a section (the flower shop, the

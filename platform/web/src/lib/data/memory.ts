@@ -1197,7 +1197,7 @@ export class MemoryStore implements DataStore {
     const category = this.catalogCategories.get(id);
     if (!category || category.appId !== appId) return;
     this.catalogCategories.delete(id);
-    // 206 Its sub-categories become main categories.
+    // 208 Its sub-categories become main categories.
     for (const sub of this.catalogCategories.values()) if (sub.appId === appId && sub.parentId === id) sub.parentId = null;
     for (const product of this.catalogProducts.values()) {
       if (product.appId === appId && product.categoryIds.includes(id)) {

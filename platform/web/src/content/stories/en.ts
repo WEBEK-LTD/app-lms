@@ -1128,7 +1128,7 @@ export const STORIES_EN: StoryCopy = {
         "flowers-vase": "Tulips and roses in a white vase",
       },
     },
-    // 206 Lujain, the clothes shop: a wedding dress bought on a Monday evening, in its look A (LUJAIN); look B (NOUN) in its section.
+    // 208 Lujain, the clothes shop: a wedding dress bought on a Monday evening, in its look A (LUJAIN); look B (NOUN) in its section.
     clothes: {
       navName: "Clothes shop app",
       metaTitle: "A clothes shop app with sizes, a category menu and complete the look, designed in Yallapp Studio",

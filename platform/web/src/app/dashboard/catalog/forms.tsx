@@ -702,7 +702,7 @@ export function CouponForm({ currency, coupon }: { currency: string; coupon?: { 
   );
 }
 
-export function AddCategoryForm({ mains = [] }: { /** 206 The main categories a new one may go inside (a store's); none: no choice. */ mains?: { id: number; name: string }[] } = {}) {
+export function AddCategoryForm({ mains = [] }: { /** 208 The main categories a new one may go inside (a store's); none: no choice. */ mains?: { id: number; name: string }[] } = {}) {
   const t = useDashT();
   const [state, action] = useActionState(addCategoryAction, initialFormState);
   return (

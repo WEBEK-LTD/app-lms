@@ -32,7 +32,7 @@ import { expectContract } from "./contract";
 import { KEY, NOW } from "./helpers";
 
 /**
- * 206 Studio's shop types, the first of them Clothes (Lujain): the
+ * 208 Studio's shop types, the first of them Clothes (Lujain): the
  * registry of sections and types, the liability notice once, the
  * installments tag, the category menu (sub-categories in the shop, rows in
  * the app), the size chart and "Complete the look", the demo and its two
@@ -54,7 +54,7 @@ function deps(store: MemoryStore): DemoSetupDeps {
   };
 }
 
-describe("206 the shop types: sections, then types, then templates", () => {
+describe("208 the shop types: sections, then types, then templates", () => {
   it("lists every type of the planning doc in its sections, Clothes ready and the others coming soon", () => {
     expect([...SHOP_SECTIONS]).toEqual(["fashion", "beauty", "home", "kids", "shopping"]);
     expect(SHOP_TYPES.map((t) => t.id)).toEqual(["clothes", "kids_clothes", "cosmetics", "furniture", "decor", "crochet", "toys", "electronics", "mobiles", "computers"]);
@@ -100,7 +100,7 @@ describe("206 the shop types: sections, then types, then templates", () => {
   });
 });
 
-describe("206 the liability notice, once", () => {
+describe("208 the liability notice, once", () => {
   const app = (design: string | null, accepted: App["liabilityAccepted"] = null) => ({ section: "studio" as const, design, liabilityAccepted: accepted });
 
   it("is due for a project made from a shop type until its owner accepts it", () => {
@@ -119,7 +119,7 @@ describe("206 the liability notice, once", () => {
   });
 });
 
-describe("206 a clothes shop's size chart and Complete the look", () => {
+describe("208 a clothes shop's size chart and Complete the look", () => {
   it("reads the owner's chart, its titles in the app's other languages, and refuses a wrong one", () => {
     const parsed = parseFashionForm({ fashionChart: "Size | Bust | Waist\nS | 84 | 66\nM | 88 | 70", fashionUnit: "cm", fashionTitles_ar: "المقاس | الصدر | الخصر", completeLook: "on" }, ["ar", "tr"]);
     expect(parsed).toEqual({ ok: true, value: { sizeChart: { headers: ["Size", "Bust", "Waist"], rows: [["S", "84", "66"], ["M", "88", "70"]], unit: "cm", translations: { ar: ["المقاس", "الصدر", "الخصر"] } }, completeLook: true } });
@@ -165,7 +165,7 @@ describe("206 a clothes shop's size chart and Complete the look", () => {
   });
 });
 
-describe("206 Lujain, the clothes shop's demo", () => {
+describe("208 Lujain, the clothes shop's demo", () => {
   it("is a Studio demo of the store kind, told apart by its look A, at its own address", () => {
     expect(STUDIO_DEMO_TYPES).toContain(CLOTHES_DEMO);
     expect(isStoreTemplateDemo(CLOTHES_DEMO)).toBe(true);
@@ -293,7 +293,7 @@ describe("206 Lujain, the clothes shop's demo", () => {
   });
 });
 
-describe("206 Lujain's two looks: LUJAIN the boutique and NOUN streetwear", () => {
+describe("208 Lujain's two looks: LUJAIN the boutique and NOUN streetwear", () => {
   const ctx = (lang: "en" | "ar" | "tr" = "en"): SectionContext => {
     let n = 0;
     return { brand: "#121212", source: "products", app: "Lujain", lang, w: appWords(lang, "Lujain"), picture: (f) => `${appUrl()}/design-pictures/${f}`, newId: () => `cl-${++n}` };

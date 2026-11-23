@@ -1400,7 +1400,7 @@ export class MysqlStore implements DataStore {
     await this.run((db) =>
       db.delete(schema.catalogCategories).where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
     );
-    // 206 Its sub-categories become main categories.
+    // 208 Its sub-categories become main categories.
     await this.run((db) =>
       db
         .update(schema.catalogCategories)

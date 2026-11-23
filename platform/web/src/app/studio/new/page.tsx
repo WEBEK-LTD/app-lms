@@ -95,7 +95,7 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
       ? { ...choiceOf(travel), name: t("studio.kindTravel"), icon: "travel_explore", text: t("studio.kindTravelText"), soon: false }
       : { id: "travel", name: t("studio.kindTravel"), icon: "travel_explore", sources: [], text: t("studio.soon"), soon: true },
   ];
-  // 206 Studio's shop types by section (lib/studio/shop-types.ts): a ready one is the store with its look A chosen; the others coming soon.
+  // 208 Studio's shop types by section (lib/studio/shop-types.ts): a ready one is the store with its look A chosen; the others coming soon.
   const storeKind = kindById("store");
   const shopOn = storeKind ? offered.includes(storeKind) : false;
   const shopSections: ShopSectionChoice[] = shopOn

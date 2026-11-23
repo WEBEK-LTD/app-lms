@@ -1,4 +1,4 @@
-// 206 A clothes shop's size chart.
+// 208 A clothes shop's size chart.
 import { fashionOf, sizeChartJson } from "../../selling/fashion";
 import { readApiList } from "../../app/api-check";
 import type { DataStore } from "../../data/store";
@@ -44,14 +44,14 @@ export interface PickableCommerce {
   samplePrices?: { was: string; now: string };
   /** 162 Whether Build your bouquet is set up (Store › Delivery & offers): a Start that opens it says so in the inspector. */
   bouquet?: boolean;
-  /** 206 The shop's size chart (its titles in the shop's language); null: none set up. */
+  /** 208 The shop's size chart (its titles in the shop's language); null: none set up. */
   sizeChart?: { headers: string[]; rows: string[][]; unit: "cm" | "in" } | null;
 }
 
 /** Entries and categories the page editor offers to pick from. */
 export interface Pickable {
   items: Partial<Record<ItemSource, PickableEntry[]>>;
-  /** 206 With the main category a sub-category is in, and its photo (the category menu's rows). */
+  /** 208 With the main category a sub-category is in, and its photo (the category menu's rows). */
   categories: Partial<Record<ItemSource, { id: string; name: string; parent_id?: string; image_url?: string }[]>>;
   /** Studio's canvas: the samples a list shows while it has no entries of its own, by language (lib/studio/sample-entries.ts); never offered to pick. */
   samples?: Partial<Record<string, Partial<Record<ItemSource, PickableEntry[]>>>>;
@@ -130,7 +130,7 @@ export async function pickableCommerce(store: DataStore, app: App, now: Date): P
     giftMessages: Object.fromEntries(languages.available.map((lang) => [lang, giftMessagesJson(occasions, lang, languages.default)])),
     samplePrices: { was: formatCents(50_000, currency as CatalogCurrency), now: formatCents(40_000, currency as CatalogCurrency) },
     bouquet: bouquetOf(app) !== null,
-    // 206 The size chart the `size_chart` element shows (Store › Delivery & offers › Clothes).
+    // 208 The size chart the `size_chart` element shows (Store › Delivery & offers › Clothes).
     sizeChart: sizeChartJson(fashionOf(app)?.sizeChart ?? null, null),
   };
 }
@@ -243,7 +243,7 @@ async function pickableOwn(
   out.categories[source] = (await items(connector, read.categories.split("/"), now)).map((c) => ({
     id: String(c.id),
     name: String(c.name ?? ""),
-    // 206 The category menu draws the sub-categories in their main one's row, with their photos.
+    // 208 The category menu draws the sub-categories in their main one's row, with their photos.
     ...(c.parent_id !== null && c.parent_id !== undefined && c.parent_id !== 0 ? { parent_id: String(c.parent_id) } : {}),
     ...(typeof c.image_url === "string" && c.image_url ? { image_url: c.image_url } : {}),
   }));

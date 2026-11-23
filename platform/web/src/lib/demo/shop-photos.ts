@@ -5,7 +5,7 @@ import type { AssetKind } from "../data/types";
 import { idFrom, type PictureDeps } from "./picture-assets";
 
 /**
- * 206 The premium shop types' real photos (CC0, from StockSnap; credited in
+ * 208 The premium shop types' real photos (CC0, from StockSnap; credited in
  * each folder's CREDITS.md and CREDITS.json), one folder of public/ per
  * type, served at the platform's address for the looks and saved as the
  * account's files for the demo's products, as Leqaa's flower photos are
@@ -24,7 +24,7 @@ export interface ShopPhotoSet<N extends string> {
   names: readonly N[];
 }
 
-/** 206 Lujain's photos (the clothes shop), cut to 4:5 at 720 × 900, the banners kept wide at 900 wide. */
+/** 208 Lujain's photos (the clothes shop), cut to 4:5 at 720 × 900, the banners kept wide at 900 wide. */
 export const CLOTHES_PHOTO_NAMES = [
   "abaya-desert",
   "abaya-road",

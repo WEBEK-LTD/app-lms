@@ -194,7 +194,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
     ...Object.fromEntries(Object.entries(s.titles ?? {}).map(([code, text]) => [`title_${code}`, text])),
   });
   const otherLangs = langs.filter((l) => l.code !== languages.default);
-  // 206 The size chart and Complete the look as saved (the form's values).
+  // 208 The size chart and Complete the look as saved (the form's values).
   const fashion = fashionOf(app);
   const fashionValues: Record<string, string> = {
     fashionChart: chartText(fashion?.sizeChart ?? null),
@@ -218,7 +218,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
     { id: "gifts", label: t("manage.giftsTab") },
     ...(titled ? [{ id: "addons", label: t("selling.addonsTitle") }] : []),
     ...(hosted ? [{ id: "bouquet", label: t("selling.bouquetTitle") }] : []),
-    // 206 A clothes shop's size chart and Complete the look (the products kept in Yallapp).
+    // 208 A clothes shop's size chart and Complete the look (the products kept in Yallapp).
     ...(source.kind === "catalog" ? [{ id: "fashion", label: t("shopTypes.fashionTab") }] : []),
     ...(offers ? [{ id: "flash", label: t("manage.offersTab"), count: sales.length }] : []),
     ...(platform ? [{ id: "deliveries", label: t("selling.deliveriesTitle"), count: deliveries.length }] : []),
@@ -658,7 +658,7 @@ export default async function SellingPage({ searchParams }: { searchParams: Prom
         ) : null}
         {source.kind === "catalog" ? (
           <KitTabPanel tab="fashion">
-            {/* 206 The size chart and Complete the look. */}
+            {/* 208 The size chart and Complete the look. */}
             <KitSection titleId="h-fashion" title={t("shopTypes.fashionTab")} description={t("shopTypes.fashionIntro")}>
               <KitCallout tone="info" icon="info">
                 {t("shopTypes.fashionSrcCatalog")}

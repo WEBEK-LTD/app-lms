@@ -86,7 +86,7 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
 }
 
 /**
- * 206 The owner's "I read it and agree" to their shop type's liability
+ * 208 The owner's "I read it and agree" to their shop type's liability
  * notice (lib/studio/liability.ts): kept on the app with who and when, so
  * the dashboard never shows it again. A team member can't accept it for the
  * owner: it stays until the owner (or our team in their account) does.

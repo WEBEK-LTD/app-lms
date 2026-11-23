@@ -148,7 +148,7 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
       if (!list?.items && node.source === "products" && query) for (const next of productFallbacks(query)) if ((list = await listed(next))?.items) break;
       return list?.items ? ({ ...shown, items: list.items } as StudioNode) : null;
     }
-    // 206 The category menu (`rows`): each main category with its sub-categories.
+    // 208 The category menu (`rows`): each main category with its sub-categories.
     if (node.type === "categories" && node.style === "rows") {
       const rows = node.source && servable(pc.ctx.app, pc.ctx.connector, node.source) ? await listCategories(pc, node.source, true) : null;
       return rows?.length ? ({ ...shown, categories: rows } as StudioNode) : null;
@@ -497,7 +497,8 @@ async function get(pc: PageContext, path: string[], params: Record<string, strin
   if (!ctx.connector) return null;
   const query = new URLSearchParams({ platform: pc.platform });
   for (const [key, value] of Object.entries(params)) if (value !== null && value !== undefined && value !== "") query.set(key, String(value));
-  const result = await ctx.connector.handle({ method: "GET", path, query, body: undefined, user: pc.user, now: ctx.now, display: pc.display });
+  // 208 In the page's language: the categories' names (the category menu's) as the shop named them in it (175).
+  const result = await ctx.connector.handle({ method: "GET", path, query, body: undefined, user: pc.user, now: ctx.now, display: pc.display, lang: pc.lang });
   if (!result || result.status !== 200 || !result.body || typeof result.body !== "object") return null;
   return withDisplay(pc, result.body as Record<string, unknown>);
 }
@@ -726,7 +727,7 @@ async function listArticles(pc: PageContext, query: ItemsQuery): Promise<Item[]>
     .filter((i): i is Item => i !== null);
 }
 
-/** A category as an element shows it; 206 with its sub-categories (`children`) for the category menu. */
+/** A category as an element shows it; 208 with its sub-categories (`children`) for the category menu. */
 interface ShownCategory {
   id: number;
   name: string;
@@ -756,7 +757,7 @@ async function listCategories(pc: PageContext, source: ItemSource, subs = false)
     .filter(main)
     .map((c) => {
       const out = shown(c);
-      // 206 Its sub-categories in the shop's order, those with products (at most 12).
+      // 208 Its sub-categories in the shop's order, those with products (at most 12).
       if (!subs) return out;
       const children = all
         .filter((x) => !main(x) && Number(x.parent_id) === out.id)

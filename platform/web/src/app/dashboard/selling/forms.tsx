@@ -566,7 +566,7 @@ export function BouquetForm({ values: saved, categories, addons, platform }: { v
 }
 
 /**
- * 206 A clothes shop's parts: the size chart (rows of cells separated by |,
+ * 208 A clothes shop's parts: the size chart (rows of cells separated by |,
  * its first line the titles, its titles in the app's other languages) and
  * "Complete the look" on every product's page.
  */

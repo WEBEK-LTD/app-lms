@@ -5,7 +5,7 @@ import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigPhoto, sigTexts, signatureBar, signatureHeader, type SignatureInk } from "./food-signature-parts";
 
 /**
- * 206 Lujain (لجين), Studio's clothes type (lib/studio/shop-types.ts): a
+ * 208 Lujain (لجين), Studio's clothes type (lib/studio/shop-types.ts): a
  * Studio demo of the store kind and its two Signature looks, each a whole
  * store project (its home, its menu, its shop, cart and orders, its tabs,
  * its floating bar, its sign-in screen and account), built only from

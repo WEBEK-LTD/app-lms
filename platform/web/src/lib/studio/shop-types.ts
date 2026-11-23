@@ -2,7 +2,7 @@ import type { IconName } from "../../components/icon-names";
 import { CLOTHES_DEMO, type StudioDemoId } from "../demo/constants";
 
 /**
- * 206 Yallapp Studio's premium shop types (the owner's planning doc, 23
+ * 208 Yallapp Studio's premium shop types (the owner's planning doc, 23
  * November 2026): Studio-only kinds of shop, each a store (the store engine,
  * no vertical) with two premium templates of its own (its Signature looks A
  * and B, lib/studio/demo-designs), grouped in sections on /start?for=studio
