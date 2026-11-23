@@ -8,6 +8,18 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 228 (a look's own product page): `product` is a Studio page
+screen (a shop's); a look's page for it is drawn for every product in place
+of the app's product screen, its eleven product elements (photos, name,
+price, sizes and colours, quantity, Add to cart / Buy now, description,
+specs, reviews, related, delivery and returns) bound to the product open,
+each with its looks, in the contract, the editor (library, canvas,
+inspector) and the app. A shop without one keeps the app's product screen.
+Lujain's look A is the first look with its own (`lib/studio/product-page.ts`).
+The app part ships with the next app release (no `CLIENT_APP_RELEASE`
+change). Without a header, the status bar and the back button stay over
+the page as it scrolls, as on any pushed Studio page without one.
+
 Roadmap 216 (Yallapp's Firebase rides out a moment when Google can't
 reach the platform's issuer): the token exchange is tried up to 3 times
 (about 1 s, then 3 s) on a passing failure only (unreachable, 429, 5xx,

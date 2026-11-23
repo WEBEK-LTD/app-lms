@@ -926,10 +926,8 @@ class _Buy extends ConsumerWidget {
                     : BorderSide.none,
               ),
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              textStyle: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-              ),
+              textStyle: Theme.of(context).textTheme.labelLarge
+                  ?.copyWith(fontSize: 15, fontWeight: FontWeight.w800),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -960,7 +958,8 @@ class _Buy extends ConsumerWidget {
             key: const ValueKey('product-add-to-cart'),
             icon: AppIcons.bag,
             outlined: look == 'buy_now',
-            onPressed: () => addProductPageToCart(context, ref, c),
+            onPressed: () =>
+                addProductPageToCart(context, ref, c, lift: _lift(node)),
           ),
           if (look == 'buy_now') ...[
             const SizedBox(width: 10),
@@ -1012,12 +1011,8 @@ class _Buy extends ConsumerWidget {
         style: TextStyle(fontSize: 14, color: p.textSecondary),
       ),
     };
-    // Pinned at the foot: above the phone's own bar.
-    final bottom = node.pin == StudioPin.bottom
-        ? MediaQuery.paddingOf(context).bottom
-        : 0.0;
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottom),
+    // Pinned at the foot, the page lifts it above the phone's own bar.
+    return KeyedSubtree(
       child: look == 'price'
           ? Row(
               key: const ValueKey('product-buy-price'),
@@ -1031,6 +1026,10 @@ class _Buy extends ConsumerWidget {
     );
   }
 }
+
+/// How far above the screen's foot a message goes: over Add to cart pinned
+/// there, above it.
+double _lift(StudioNode node) => node.pin == StudioPin.bottom ? 88 : 0;
 
 String _missingWords(BuildContext context, ProductPageController c) {
   final missing = c.missing;
@@ -1049,6 +1048,7 @@ Future<void> addProductPageToCart(
   WidgetRef ref,
   ProductPageController c, {
   bool thenCart = false,
+  double lift = 0,
 }) async {
   final product = c.product;
   final variation = c.variation;
@@ -1128,6 +1128,17 @@ Future<void> addProductPageToCart(
       SnackBar(
         content: Text(added ? context.l10n.addedToCart : context.l10n.cartFull),
         persist: false,
+        // Over a bar pinned at the page's foot, above it: never over its
+        // buttons.
+        behavior: lift > 0 ? SnackBarBehavior.floating : null,
+        margin: lift > 0
+            ? EdgeInsets.fromLTRB(
+                16,
+                0,
+                16,
+                lift + MediaQuery.paddingOf(context).bottom,
+              )
+            : null,
         action: added
             ? SnackBarAction(
                 label: context.l10n.viewCart,

@@ -1,0 +1,296 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:yallapp/core/api/models/json.dart' show snake;
+import 'package:yallapp/core/api/models/models.dart';
+import 'package:yallapp/core/config/build_config_data.dart';
+import 'package:yallapp/core/routing/app_router.dart';
+import 'package:yallapp/core/routing/paths.dart';
+import 'package:yallapp/modules/store/data/cart_controller.dart';
+import 'package:yallapp/modules/store/screens/cart_screen.dart';
+
+import '../support/fake_api.dart';
+import '../support/fixtures.dart';
+import '../support/test_app.dart';
+
+/// 228 A shop's own product page from Studio (`StudioPage.screen`
+/// `product`): drawn for every product in place of the app's product
+/// screen, its elements bound to the product open in the looks the owner
+/// chose; the size chosen sets the price and goes into the cart with Add to
+/// cart, Buy now opens the cart. A shop without one keeps the app's own
+/// product screen, and the elements draw nothing on any other page.
+void main() {
+  Map<String, dynamic> dress() => {
+    ...productSummaryJson(
+      id: 30,
+      name: 'Rust satin midi dress',
+      type: 'variable',
+      price: priceJson('1190.00', range: true, formatted: '₺990.00 – ₺1190.00'),
+    ),
+    'description_html': '<p>Fluid satin, cut on the bias.</p>',
+    'short_description_html': null,
+    'images': <Object>[],
+    'sku': 'CL-101',
+    'max_quantity': null,
+    'attributes': [
+      {
+        'slug': 'a1',
+        'name': 'Size',
+        'variation': true,
+        'options': [
+          {'value': 'S', 'label': 'S'},
+          {'value': 'M', 'label': 'M'},
+          {'value': 'L', 'label': 'L'},
+        ],
+      },
+    ],
+    'variations': [
+      for (final (i, v) in [
+        ('S', '990.00', 'in_stock'),
+        ('M', '1190.00', 'in_stock'),
+        ('L', '1190.00', 'out_of_stock'),
+      ].indexed)
+        {
+          'id': 100 + i,
+          'attributes': {'a1': v.$1},
+          'price': priceJson(v.$2),
+          'image_url': null,
+          'stock_status': v.$3,
+          'max_quantity': v.$3 == 'in_stock' ? 3 : null,
+          'purchasable': v.$3 == 'in_stock',
+        },
+    ],
+    'specs': [
+      {'label': 'Fabric', 'value': 'Satin'},
+    ],
+    'categories': <Object>[],
+    'related': [productSummaryJson(id: 42, name: 'Linen shirt dress')],
+    'complete_look': [productSummaryJson(id: 41, name: 'Black strappy heels')],
+    'external_url': null,
+    'permalink': 'https://lujain.example/product/30',
+  };
+
+  Map<String, dynamic> node(
+    String id,
+    String type, [
+    Map<String, dynamic> more = const {},
+  ]) => {'id': id, 'type': type, ...more};
+
+  List<Map<String, dynamic>> productNodes() => [
+    node('g', 'product_gallery', {
+      'product_part': {'look': 'thumbs'},
+      'aspect_ratio': 0.8,
+    }),
+    node('t', 'product_title', {
+      'product_part': {'look': 'rating'},
+    }),
+    node('p', 'product_price', {
+      'product_part': {'look': 'from'},
+    }),
+    node('v', 'product_variants', {
+      'product_part': {'look': 'grid'},
+      'text': 'Choose your size',
+    }),
+    node('q', 'product_quantity'),
+    node('d', 'product_delivery', {
+      'product_part': {'look': 'card'},
+      'title': 'Free delivery over 300\nGift wrapping',
+    }),
+    node('s', 'product_specs'),
+    node('r', 'product_related', {
+      'product_part': {'related': 'complete_look'},
+    }),
+    node('b', 'product_buy', {
+      'product_part': {'look': 'buy_now'},
+      'pin': 'bottom',
+    }),
+  ];
+
+  Map<String, dynamic> page(List<Map<String, dynamic>> children) => {
+    ...appPageJson(blocks: []),
+    'studio': {
+      'body': {'id': 'root', 'type': 'column', 'children': children},
+    },
+  };
+
+  Future<TestApp> open(
+    WidgetTester tester, {
+    bool productPage = true,
+    String language = 'en',
+  }) async {
+    tester.view
+      ..devicePixelRatio = 3
+      ..physicalSize = const Size(390, 2400) * 3;
+    addTearDown(tester.view.reset);
+    final api =
+        FakeApi(
+            config: {
+              ...configJson(
+                lms: null,
+                store: true,
+                languages: languagesJson(available: const ['en', 'ar', 'tr']),
+              ),
+              'store': {
+                ...storeConfigJson(),
+                'returns': {'enabled': true, 'days': 14},
+              },
+            },
+          )
+          ..navigation = {
+            ...navigationJson(
+              tabs: [
+                navTabJson('home', 'Home', 'home', {
+                  'type': 'page',
+                  'page_slug': 'home',
+                }),
+                navTabJson('shop', 'Shop', 'grid_view', {
+                  'type': 'screen',
+                  'screen': 'search',
+                }),
+              ],
+            ),
+            'pages': [
+              {
+                'slug': 'home',
+                'title': 'Home',
+                'updated_at': '2026-11-23T18:00:00Z',
+              },
+              if (productPage)
+                {
+                  'slug': 'product',
+                  'title': 'Product page',
+                  'updated_at': '2026-11-23T18:00:00Z',
+                  'screen': 'product',
+                },
+            ],
+          }
+          ..pages = {
+            // On a home, a product page's element draws nothing.
+            'home': page([
+              node('welcome', 'text', {'text': 'Welcome'}),
+              node('home-title', 'product_title'),
+            ]),
+            if (productPage) 'product': page(productNodes()),
+          }
+          ..product = dress();
+    final app = TestApp(
+      appType: AppType.store,
+      api: api,
+      signedIn: true,
+      preferences: {'settings.language': language},
+    );
+    await app.pump(tester);
+    await TestApp.settle(tester, 20);
+    return app;
+  }
+
+
+  test('reads the product page elements and their looks', () {
+    final gallery = StudioNode.tryParse({
+      'id': 'g',
+      'type': 'product_gallery',
+      'product_part': {
+        'look': 'stacked',
+        'radius': 99,
+        'accent': '#121212',
+        'dark_accent': '#F3F0EA',
+      },
+    })!;
+    expect(gallery.type, StudioNodeType.productGallery);
+    expect(gallery.productPart.look, 'stacked');
+    expect(gallery.productPart.radius, 40);
+    expect(gallery.productPart.accentFor(dark: true), '#F3F0EA');
+    expect(gallery.productPart.accentFor(dark: false), '#121212');
+    final related = StudioNode.tryParse({
+      'id': 'r',
+      'type': 'product_related',
+      'product_part': {'related': 'complete_look', 'rows': 3},
+    })!;
+    expect(related.productPart.completeLook, isTrue);
+    expect(related.productPart.rows, 3);
+    expect(
+      StudioNode.tryParse({'id': 'x', 'type': 'product_buy'})!.productPart.look,
+      isNull,
+    );
+    for (final type in studioProductTypes) {
+      expect(StudioNode.tryParse({'id': 'n', 'type': snake(type)})?.type, type);
+    }
+  });
+
+  testWidgets('a shop without a product page keeps the app\'s own screen, '
+      'and the elements draw nothing elsewhere', (tester) async {
+    final app = await open(tester, productPage: false);
+    expect(find.text('Welcome'), findsOneWidget);
+    expect(find.byKey(const ValueKey('product-title')), findsNothing);
+    app.container.read(appRouterProvider).push(Paths.product(30));
+    await TestApp.settle(tester, 20);
+    // The app's own product screen, as before.
+    expect(find.byKey(const ValueKey('product-exchange')), findsOneWidget);
+    expect(find.byKey(const ValueKey('product-buy-now')), findsNothing);
+    expect(tester.takeException(), isNull);
+    app.container.dispose();
+  });
+
+  testWidgets('the product page: bound to the product, the size sets the '
+      'price, Add to cart adds it, Buy now opens the cart', (tester) async {
+    final app = await open(tester);
+    // Still nothing on the home.
+    expect(find.byKey(const ValueKey('product-title')), findsNothing);
+    app.container.read(appRouterProvider).push(Paths.product(30));
+    await TestApp.settle(tester, 20);
+    expect(find.byKey(const ValueKey('product-exchange')), findsNothing);
+    expect(
+      find.byKey(const ValueKey('product-gallery-thumbs')),
+      findsOneWidget,
+    );
+    expect(find.text('Rust satin midi dress'), findsOneWidget);
+    // From the lowest size's price until a size is chosen.
+    expect(find.text('From ₺990.00'), findsOneWidget);
+    expect(find.text('Choose your size'), findsOneWidget);
+    expect(find.byKey(const ValueKey('product-page-grid-a1')), findsOneWidget);
+    // The shop's exchanges and its own lines.
+    expect(find.text('Delivery & returns'), findsOneWidget);
+    expect(find.text('Exchange or return within 14 days'), findsOneWidget);
+    expect(find.text('Gift wrapping'), findsOneWidget);
+    expect(find.byKey(const ValueKey('product-specs-table')), findsOneWidget);
+    expect(find.text('Satin'), findsOneWidget);
+    expect(find.text('Complete the look'), findsOneWidget);
+    expect(find.text('Black strappy heels'), findsOneWidget);
+    // No size chosen: the button asks for one.
+    expect(find.byKey(const ValueKey('product-buy-now')), findsNothing);
+    await tester.tap(find.text('M'));
+    await TestApp.settle(tester, 10);
+    expect(find.text('From ₺990.00'), findsNothing);
+    expect(find.text('₺1190.00'), findsWidgets);
+    await tester.tap(find.byKey(const ValueKey('product-add-to-cart')));
+    await TestApp.settle(tester, 10);
+    final cart = app.container.read(cartProvider);
+    expect(cart.single.name, 'Rust satin midi dress – M');
+    expect(cart.single.variationId, 101);
+    await tester.tap(find.byKey(const ValueKey('product-buy-now')));
+    await TestApp.settle(tester, 20);
+    // The cart, opened over the product.
+    expect(find.byType(CartScreen), findsOneWidget);
+    expect(app.container.read(cartProvider).single.quantity, 2);
+    expect(tester.takeException(), isNull);
+    app.container.dispose();
+  });
+
+  testWidgets('a size gone can\'t be chosen; in Arabic, the app\'s words', (
+    tester,
+  ) async {
+    final app = await open(tester, language: 'ar');
+    app.container.read(appRouterProvider).push(Paths.product(30));
+    await TestApp.settle(tester, 20);
+    expect(find.bySemanticsLabel(RegExp('L')), findsWidgets);
+    await tester.tap(find.text('L'), warnIfMissed: false);
+    await TestApp.settle(tester, 10);
+    expect(find.byKey(const ValueKey('product-buy-now')), findsNothing);
+    await tester.tap(find.text('S'));
+    await TestApp.settle(tester, 10);
+    expect(find.text('اشترِ الآن'), findsOneWidget);
+    expect(find.text('أضف إلى السلة'), findsOneWidget);
+    expect(find.text('التوصيل والإرجاع'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    app.container.dispose();
+  });
+}

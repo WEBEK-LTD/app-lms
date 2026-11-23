@@ -3537,6 +3537,12 @@
         },
         "color": "#121212",
         "dark_color": "#F3F0EA",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
         "radius": 18,
         "background": "#EEEAE3",
         "dark_background": "#23221F"
@@ -3571,9 +3577,7 @@
          "look": "table"
         },
         "color": "#121212",
-        "dark_color": "#F3F0EA",
-        "background": "#EEEAE3",
-        "dark_background": "#23221F"
+        "dark_color": "#F3F0EA"
        },
        {
         "id": "sig-146",
