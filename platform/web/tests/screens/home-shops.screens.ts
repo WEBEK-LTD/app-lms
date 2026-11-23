@@ -37,7 +37,8 @@ async function scroll(page: Page, by: number): Promise<void> {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send("Input.synthesizeScrollGesture", { x: LIVE_PHONE.width / 2, y: Math.round(LIVE_PHONE.height * (by > 0 ? 0.7 : 0.3)), yDistance: -by, speed: 1200, gestureSourceType: "touch" });
   await cdp.detach();
-  await page.waitForTimeout(900);
+  // Its pictures load as they come into view.
+  await page.waitForTimeout(2200);
 }
 
 
@@ -67,7 +68,10 @@ for (const type of TYPES) {
           // The home, then down it a screen at a time.
           await page.screenshot({ path: path.join(REVIEW, `${name}-home-0.png`) });
           if (lang === "en") {
-            if (look === "a" && theme === "light") await page.screenshot({ path: path.join(OUT, `${type.guide}-home.png`) });
+            if (look === "a" && theme === "light") {
+              await page.screenshot({ path: path.join(OUT, `${type.guide}-home.png`) });
+              await page.screenshot({ path: path.join(OUT, `${type.id}-sig-a-home.png`) });
+            }
             if (look === "a" && theme === "dark") await page.screenshot({ path: path.join(OUT, `${type.id}-sig-a-home-dark.png`) });
             if (look === "b") await page.screenshot({ path: path.join(OUT, `${type.id}-sig-b-home${theme === "dark" ? "-dark" : ""}.png`) });
           }
