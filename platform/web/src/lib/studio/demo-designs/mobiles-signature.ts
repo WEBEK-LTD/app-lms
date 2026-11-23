@@ -889,7 +889,7 @@ function mobilesPages(l: Look) {
 const NOVA_SCREENS = signatureScreens({
   style: "photo",
   photo: P("phone-cam-wide"),
-  title: { en: "Welcome to Nova", ar: "أهلًا بك في نوفا", tr: "Nova'ya hoş geldiniz" },
+  title: { en: "Welcome back", ar: "أهلًا بعودتك", tr: "Tekrar hoş geldiniz" },
   subtitle: { en: "Sign in to follow your orders and your trade-ins.", ar: "سجّل الدخول لتتابع طلباتك وطلبات الاستبدال.", tr: "Siparişlerinizi ve takaslarınızı izlemek için giriş yapın." },
   menu: "cover",
   first: ["orders", "notifications", "settings", "help", "privacy", "terms"],
