@@ -243,7 +243,7 @@
         },
         "background": "#E3EFF0",
         "dark_background": "#16292D",
-        "image_background_url": "http://localhost:3000/beauty-photos/quiz.jpg",
+        "image_background_url": "http://localhost:3000/beauty-photos/hero-calm.jpg",
         "children": [
          {
           "id": "sig-3",

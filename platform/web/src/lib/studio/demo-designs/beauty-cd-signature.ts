@@ -128,7 +128,7 @@ function clinicQuiz(ctx: SectionContext, l: Look): StudioNode {
     const url = sigPhoto(ctx, P(photo));
     return { ...sigEntry(ctx, { title: name, text, label: "btQuizShop" }), icon: ic, ...(url ? { image_url: url } : {}), action: shop };
   });
-  const photo = sigPhoto(ctx, P("quiz"));
+  const photo = sigPhoto(ctx, P("hero-calm"));
   return {
     id: id(),
     type: "column",

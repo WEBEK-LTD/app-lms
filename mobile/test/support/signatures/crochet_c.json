@@ -2571,7 +2571,7 @@
              {
               "id": "sig-181",
               "type": "image",
-              "image_url": "http://localhost:3000/crochet-photos/straw-hat.jpg",
+              "image_url": "http://localhost:3000/crochet-photos/straw-close.jpg",
               "fit": "cover",
               "width": "fill",
               "height": 74,
@@ -2589,7 +2589,7 @@
              {
               "id": "sig-183",
               "type": "image",
-              "image_url": "http://localhost:3000/crochet-photos/straw-close.jpg",
+              "image_url": "http://localhost:3000/crochet-photos/buttons.jpg",
               "fit": "cover",
               "width": "fill",
               "height": 74,

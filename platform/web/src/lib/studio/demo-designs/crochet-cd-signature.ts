@@ -188,7 +188,7 @@ function yarnPicker(ctx: SectionContext, l: Look): StudioNode {
 const MAKERS: readonly [string, SectionWord, SectionWord, SectionWord, SectionWord, readonly string[]][] = [
   ["cozy-sweater", "gcMaker1", "gcMaker1Line", "gcMaker1Stats", "gcMaker1Days", ["scarves-stack", "red-scarf", "fluffy-blanket"]],
   ["beanie-girl", "gcMaker2", "gcMaker2Line", "gcMaker2Stats", "gcMaker2Days", ["teddy-sweater", "snowman-plush", "bunny-knit"]],
-  ["green-sweater", "gcMaker3", "gcMaker3Line", "gcMaker3Stats", "gcMaker3Days", ["straw-hat", "basket-room", "straw-close"]],
+  ["green-sweater", "gcMaker3", "gcMaker3Line", "gcMaker3Stats", "gcMaker3Days", ["straw-close", "basket-room", "buttons"]],
 ];
 
 /** "Who made it?": each maker's card, her photo and name, her craft, three of her pieces, her count and her days. */
