@@ -220,7 +220,7 @@ class _Notice extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
     child: Panel(
       color: context.yb.warningBg,
-      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 8, 8),
       child: Row(
         children: [
           Icon(icon, color: context.yb.warning),

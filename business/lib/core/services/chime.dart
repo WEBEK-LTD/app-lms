@@ -1,22 +1,25 @@
-import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/services.dart';
+import 'ringtones.dart';
 
-/// 59 The sound Kitchen mode plays when a new order arrives.
+/// 59 The sound Kitchen mode plays when a new order arrives: 207 the
+/// ringtone chosen for new orders (Settings › Ringtones), unless the app is
+/// already ringing for it.
 abstract class Chime {
   Future<void> play();
 }
 
 class AssetChime implements Chime {
-  AudioPlayer? _player;
+  AssetChime(this._ringer, this._settings);
+
+  final Ringer _ringer;
+  final RingSettings Function() _settings;
 
   @override
   Future<void> play() async {
-    try {
-      final player = _player ??= AudioPlayer();
-      await player.play(AssetSource('sounds/new_order.wav'));
-    } on Object {
-      // No sound (silent mode, no audio device): the haptic still goes.
-    }
-    await HapticFeedback.heavyImpact();
+    if (_ringer.ringing.value) return;
+    final settings = _settings();
+    await _ringer.play(
+      settings.soundOf(SoundGroup.orders),
+      volume: settings.volume,
+    );
   }
 }

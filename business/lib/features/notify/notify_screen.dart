@@ -260,7 +260,7 @@ class _NotifyScreenState extends ConsumerState<NotifyScreen> {
             if (_later)
               FilledButton.icon(
                 onPressed: canSend ? _schedule : null,
-                icon: const Icon(AppIcons.scheduled),
+                icon: const DirectionalIcon(AppIcons.scheduled),
                 label: Text(l10n.schedule),
               )
             else

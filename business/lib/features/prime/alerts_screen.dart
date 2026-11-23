@@ -9,6 +9,7 @@ import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
+import '../../core/widgets/digits.dart';
 import '../food/food_sheets.dart';
 import '../studio/studio_widgets.dart';
 import '../today/today_screen.dart' show todayProvider;
@@ -419,7 +420,7 @@ class _NumberFormState extends State<_NumberForm> {
       BigButton(
         label: context.l10n.save,
         onPressed: () {
-          final n = int.tryParse(_text.text);
+          final n = int.tryParse(latinDigits(_text.text).trim());
           if (n == null || n < widget.min || n > widget.max) {
             setState(() => _error = '${widget.min}–${widget.max}');
             return;
@@ -494,7 +495,7 @@ class _SalesFormState extends State<_SalesForm> {
         BigButton(
           label: l10n.save,
           onPressed: () {
-            final n = int.tryParse(_amount.text);
+            final n = int.tryParse(latinDigits(_amount.text).trim());
             if (n == null || n < 0) {
               setState(() => _error = l10n.amountField(widget.currency));
               return;
@@ -587,7 +588,7 @@ class _GoalFormState extends State<_GoalForm> {
         BigButton(
           label: l10n.save,
           onPressed: () {
-            final n = int.tryParse(_amount.text);
+            final n = int.tryParse(latinDigits(_amount.text).trim());
             if (n == null || n <= 0) {
               setState(() => _error = l10n.amountField(widget.currency));
               return;

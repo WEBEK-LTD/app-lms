@@ -43,6 +43,8 @@ abstract final class Paths {
   static const language = '/settings/language';
   static const appearance = '/settings/appearance';
   static const notifications = '/settings/notifications';
+  // 207
+  static const ringtones = '/settings/ringtones';
   static const devices = '/settings/devices';
 
   // 77 A chat conversation and the reported messages.

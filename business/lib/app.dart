@@ -8,9 +8,12 @@ import 'core/providers.dart';
 import 'core/routing/paths.dart';
 import 'core/routing/router.dart';
 import 'core/services/push.dart';
+import 'core/services/ringtones.dart';
 import 'core/session.dart';
+import 'core/theme/icons.dart';
 import 'core/theme/theme.dart';
 import 'features/auth/lock_screen.dart' show AppMark;
+import 'features/more/ringtones_screen.dart' show ringWords;
 import 'features/prime/prime_state.dart';
 import 'features/prime/prime_today.dart';
 import 'l10n/app_localizations.dart';
@@ -42,6 +45,13 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
       ..add(push.opened.listen(_open))
       ..add(push.foreground.listen(_foreground));
     unawaited(push.initial().then((data) => data == null ? null : _open(data)));
+    // 207 Android's own notifications (the ringing ones) open their screen too.
+    final native = ref.read(ringNativeProvider);
+    _subscriptions.add(native.opened.listen(_open));
+    unawaited(
+      native.initial().then((data) => data == null ? null : _open(data)),
+    );
+    unawaited(native.stopRinging());
     // 132 Hidden in the app switcher while the lock is on.
     unawaited(
       ref
@@ -77,6 +87,8 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
       if (!session.authenticating) _backgroundAt ??= DateTime.now();
     } else if (state == AppLifecycleState.resumed) {
       session.settled();
+      // 207 The app is open: a notification ringing in the background stops.
+      unawaited(ref.read(ringNativeProvider).stopRinging());
       final since = _backgroundAt;
       _backgroundAt = null;
       final after = Duration(
@@ -91,6 +103,8 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
   /// A tapped push: switch to its app and open its screen (after the lock
   /// or the sign-in when needed).
   Future<void> _open(Map<String, dynamic> data) async {
+    // 207 Opened: whatever was ringing for it stops.
+    _stopRing();
     final target = pushTarget(data);
     final switched = await openTarget(ref, target);
     // 64 Said when it moved to the push's business.
@@ -116,6 +130,9 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
     final l10n = _messenger.currentContext == null
         ? null
         : AppLocalizations.of(_messenger.currentContext!);
+    // 207 It sounds as chosen in Settings › Ringtones; a new order (or
+    // booking) rings on until opened or silenced.
+    if (_ring(notice, l10n)) return;
     final text = [
       notice.title,
       notice.body,
@@ -130,6 +147,43 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
         ),
       ),
     );
+  }
+
+  /// 207 The push ringing in the app now, shown over every screen.
+  RemoteNotice? _ringing;
+
+  /// 207 Plays a push's sound; true when it rings on, with its card.
+  bool _ring(RemoteNotice notice, AppLocalizations? l10n) {
+    if (notice.data['kind'] == 'test') return false;
+    final settings = ref.read(ringSettingsProvider);
+    final group = soundGroupOf(notice.data);
+    final sound = settings.soundAt(group, DateTime.now());
+    final ringer = ref.read(ringerProvider);
+    if (!settings.rings(group) || sound == soundSilent) {
+      unawaited(ringer.play(sound, volume: settings.volume));
+      return false;
+    }
+    unawaited(
+      ringer.ring(
+        sound,
+        max: Duration(minutes: settings.ringMinutes),
+        volume: settings.volume,
+      ),
+    );
+    setState(() => _ringing = notice);
+    void ended() {
+      if (ringer.ringing.value) return;
+      ringer.ringing.removeListener(ended);
+      if (mounted && _ringing != null) setState(() => _ringing = null);
+    }
+
+    ringer.ringing.addListener(ended);
+    return true;
+  }
+
+  void _stopRing() {
+    unawaited(ref.read(ringerProvider).stop());
+    if (_ringing != null) setState(() => _ringing = null);
   }
 
   @override
@@ -161,10 +215,27 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
       ),
       themeMode: ref.watch(themeModeProvider),
       // 132 The cover over everything while the app isn't in front.
-      builder: (context, child) => Stack(
-        fit: StackFit.expand,
-        children: [?child, if (_away) const PrivacyCover()],
-      ),
+      builder: (context, child) {
+        // 207 Android's channels and Silence in the app's language.
+        final words = ringWords(AppLocalizations.of(context));
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => ref.read(ringSettingsProvider.notifier).setWords(words),
+        );
+        final ringing = _ringing;
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            ?child,
+            if (ringing != null)
+              RingCard(
+                notice: ringing,
+                onSilence: _stopRing,
+                onOpen: () => _open(ringing.data),
+              ),
+            if (_away) const PrivacyCover(),
+          ],
+        );
+      },
     );
   }
 }
@@ -238,6 +309,85 @@ Future<bool> openTarget(WidgetRef ref, PushTarget target) async {
     router.push(target.location);
   }
   return switched;
+}
+
+/// 207 A new order (or booking) ringing while the app is open: over every
+/// screen at the top, with Silence and Open.
+class RingCard extends StatelessWidget {
+  const RingCard({
+    super.key,
+    required this.notice,
+    required this.onSilence,
+    required this.onOpen,
+  });
+
+  final RemoteNotice notice;
+  final VoidCallback onSilence;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.yb;
+    final booking = soundGroupOf(notice.data) == SoundGroup.bookings;
+    final title = notice.title.isNotEmpty
+        ? notice.title
+        : (booking ? l10n.ringBannerBooking : l10n.ringBannerOrder);
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          child: Material(
+            key: const ValueKey('ring-banner'),
+            elevation: 8,
+            color: c.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(color: c.accent, width: 2),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Icon(AppIcons.ringing, color: c.accent),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          [
+                            title,
+                            notice.body,
+                          ].where((t) => t.isNotEmpty).join('\n'),
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton.icon(
+                        onPressed: onSilence,
+                        icon: const Icon(AppIcons.silent),
+                        label: Text(l10n.ringSilence),
+                      ),
+                      const SizedBox(width: 8),
+                      FilledButton(onPressed: onOpen, child: Text(l10n.open)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// 132 What the app switcher shows of the app while the lock is on: the
