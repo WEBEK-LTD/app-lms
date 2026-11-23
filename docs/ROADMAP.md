@@ -4707,3 +4707,12 @@ The owner (23 November) tried the 1.0.4 ringtones on a phone and kept all 17; th
 | [x] | 213.2 Everywhere the 17 are: the app's list and the picker (a section of their own, Money and sales, each with Play), Android's channels (`Ringing.kt`), the server's list (`OWNER_RINGTONES`, `PUT /me/push-sounds`) and the contract (`SoundChoice`); names in English, Arabic and Turkish (`strings_p213.py`). No migration: the sounds are a list in the code | `phase213_money_sounds_test.dart`, `phase213-money-sounds`, `owner-api` (contract) |
 | [x] | 213.3 Yallapp Business 1.0.5+4 in `pubspec.yaml`, its store notes in English, Arabic and Turkish (not released: the release waits for the owner) | `flutter test` |
 
+
+## Phase 219: iPhone builds with Xcode 27
+
+Apple's upload notice ITMS-90725 (23 November, on Yallapp Business 1.0.5): apps built with the iOS 26.2 SDK are still taken, but from April 2027 App Store Connect takes only apps built with the iOS 27 SDK (Xcode 27 or later). The owner asked that the clients' apps the platform builds follow too.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 219.1 Every job that builds for iPhone runs on GitHub's `xcode-27` runner and picks the newest released Xcode 27 on it (a beta or release candidate never counts; with none, the job stops and lists the Xcodes it found): the clients' builds (`build-apps.yml`), Yallapp Business and Yallapp Courier releases, and CI's iOS compiles (`mobile.yml`) | CI's iOS compile jobs on this change |
+| [ ] | 219.2 The first signed builds on Xcode 27: the next Yallapp Business release, then a client's build, reach TestFlight without the ITMS-90725 notice | — |

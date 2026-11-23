@@ -278,7 +278,7 @@ jobs:
     name: iOS compile (no signing)
     needs: changes
     if: needs.changes.outputs.ios == 'true'
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 60
     defaults:
       run:
@@ -287,11 +287,11 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       # The same Xcode as the clients' iPhone builds (build-apps.yml).
-      - name: Use Xcode 26
+      - name: Use Xcode 27
         run: |
-          xcode=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
+          xcode=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
           if [ -z "$xcode" ]; then
-            echo "::error::This runner has no Xcode 26."
+            echo "::error::This runner has no released Xcode 27 (a beta does not count)."
             ls -d /Applications/Xcode*.app
             exit 1
           fi

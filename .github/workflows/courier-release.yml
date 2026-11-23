@@ -477,7 +477,7 @@ jobs:
     name: App Store
     needs: [prepare, screenshots]
     if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.prepare.outputs.ios == 'yes' }}
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 120
     env:
       # A slow Mac runner can take longer than fastlane's default 3 seconds to
@@ -490,12 +490,14 @@ jobs:
       BUILD: ${{ needs.prepare.outputs.build }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      # Apple takes uploads built with the iOS 26 SDK: use the newest Xcode 26 on the runner.
-      - name: Use Xcode 26
+      # From April 2027 Apple takes only uploads built with the iOS 27 SDK
+      # (ITMS-90725): use the newest released Xcode 27, on GitHub's
+      # xcode-27 runner.
+      - name: Use Xcode 27
         run: |
-          xcode=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
+          xcode=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | grep -Eiv 'beta|release_candidate' | sort -V | tail -n 1)
           if [ -z "$xcode" ]; then
-            echo "::error::This runner has no Xcode 26."
+            echo "::error::This runner has no released Xcode 27 (a beta does not count)."
             ls -d /Applications/Xcode*.app
             exit 1
           fi
