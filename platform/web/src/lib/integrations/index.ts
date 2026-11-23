@@ -175,8 +175,8 @@ export function integrationsOf(input: { app: App; activation: Activation | null;
   return rows.map((row) => {
     const lastCheck = checks[row.key] ?? null;
     const errors = input.errors.filter((e) => integrationOfError(e) === row.key).sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime());
-    // A failed last test makes a connected one a problem until it passes again.
-    const state = row.state === "connected" && lastCheck && !lastCheck.ok && row.testable ? "problem" : row.state;
+    // A failed last test makes a connected one a problem until it passes again (216 not while it waits for its second look).
+    const state = row.state === "connected" && lastCheck && !lastCheck.ok && !lastCheck.unconfirmed && row.testable ? "problem" : row.state;
     return { ...row, state, lastCheck, errors };
   });
 }

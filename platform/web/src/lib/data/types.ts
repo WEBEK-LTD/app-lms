@@ -6652,6 +6652,8 @@ export interface IntegrationCheck {
   subject: string | null;
   /** What failed, one line each (technical, as the other side said it). */
   problems: string[];
+  /** 216 A failure seen once by the daily check, tested again a few minutes later before anyone is told. */
+  unconfirmed?: boolean;
 }
 
 export type IntegrationChecks = Partial<Record<IntegrationKey, IntegrationCheck>>;
