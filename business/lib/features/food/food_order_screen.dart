@@ -24,9 +24,17 @@ final foodOrderProvider = FutureProvider.autoDispose
 /// 125 A food order (the FoodOrder board): the restaurant and the customer,
 /// the items and the money, and at the foot "Ready in" to accept it.
 class FoodOrderScreen extends ConsumerStatefulWidget {
-  const FoodOrderScreen({super.key, required this.orderId});
+  const FoodOrderScreen({
+    super.key,
+    required this.orderId,
+    this.accept = false,
+  });
 
   final String orderId;
+
+  /// 214 Opened by Accept on the new order's notification: the time to
+  /// prepare is asked at once.
+  final bool accept;
 
   @override
   ConsumerState<FoodOrderScreen> createState() => _FoodOrderScreenState();
@@ -34,6 +42,18 @@ class FoodOrderScreen extends ConsumerStatefulWidget {
 
 class _FoodOrderScreenState extends ConsumerState<FoodOrderScreen> {
   bool _busy = false;
+  bool _accepting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _accepting = widget.accept;
+    // 214 Opened: the new order's ongoing notification goes.
+    ref.read(ringNativeProvider).orderDone({
+      'food_order_id': widget.orderId,
+      'kind': 'new_food_order',
+    });
+  }
 
   Future<void> _run(
     Future<FoodOrderDetail?> Function(FoodOrderDetail d) action,
@@ -55,6 +75,14 @@ class _FoodOrderScreenState extends ConsumerState<FoodOrderScreen> {
     final detail = value.value;
     final o = detail?.order;
     final l10n = context.l10n;
+    if (_accepting && detail != null) {
+      _accepting = false;
+      if (o != null && o.canAccept) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _run((d) => acceptFoodOrder(context, ref, d), detail),
+        );
+      }
+    }
     Widget? foot;
     if (detail != null && o != null) {
       if (o.canAccept) {

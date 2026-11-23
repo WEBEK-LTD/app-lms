@@ -273,6 +273,13 @@ Future<FoodOrderDetail?> foodStep(
           reason: reason,
           note: note,
         );
+    // 214 Answered: its ongoing notification goes, the widget reads again.
+    if (step == 'accept' || step == 'reject') {
+      orderAnswered(ref, {
+        'food_order_id': detail.order.id,
+        'kind': 'new_food_order',
+      });
+    }
     if (context.mounted) {
       showMessage(context, switch (step) {
         'accept' => l10n.foodAccepted(

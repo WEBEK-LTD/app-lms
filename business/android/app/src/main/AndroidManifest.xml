@@ -13,7 +13,8 @@
         android:label="Yallapp Business"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:allowBackup="false">
+        android:allowBackup="false"
+        android:supportsRtl="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -46,6 +47,26 @@
         <receiver
             android:name=".RingActionReceiver"
             android:exported="false" />
+        <!-- 214 The home-screen widget (ShopWidget.kt) and the shop it shows. -->
+        <receiver
+            android:name=".ShopWidget"
+            android:exported="false"
+            android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/shop_widget_info" />
+        </receiver>
+        <activity
+            android:name=".ShopWidgetConfigure"
+            android:exported="true"
+            android:label="@string/widget_choose">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

@@ -11,6 +11,7 @@ import { acceptOrder, cancelOrder, readyOrder, rejectOrder } from "../food/flow"
 import { FOOD_LIMITS } from "../food/forms";
 import { DEFAULT_FOOD_TIMEZONE, FOOD_ACTIVE, FOOD_COMPANY_STEPS, foodOrderIdOf, foodOrderReference, restaurantState } from "../food/service";
 import { activeDelay } from "../market/vendor-controls";
+import { placePause, reopen } from "../shop/pause";
 import { exactKm } from "../rides/fares";
 import { assignRide, cancelByCompany } from "../rides/flow";
 import { driverMayHave } from "../rides/review";
@@ -215,6 +216,8 @@ async function changeRestaurant(ctx: OwnerContext, params: Record<string, string
   if (!restaurant) throw notFound();
   // openRestaurantAction clears the busy time; endDelayAction the running-late notice.
   await store.updateRestaurant(app.id, restaurant.id, which === "open" ? { busyUntil: null } : { delay: null }, now);
+  // 214 Opened: a pause of it ends too.
+  if (which === "open" && placePause(app, restaurant.id, now)) await reopen(store, app, restaurant.id, now);
   await recordStudio(ctx, app, which === "open" ? "restaurant.open" : "restaurant.end_delay", { type: "restaurant", id: restaurant.id }, which === "open" ? `Opened ${restaurant.name} for new orders` : `Ended the delay notice of ${restaurant.name}`);
   return { status: 200, body: restaurantJson(ctx, (await store.getRestaurant(app.id, restaurant.id))!, await foodTimezone(ctx, app)) };
 }

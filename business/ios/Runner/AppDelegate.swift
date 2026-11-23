@@ -45,6 +45,8 @@ import UIKit
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "YallappRing") {
       let channel = FlutterMethodChannel(
         name: "tr.com.yallapp.business/ring", binaryMessenger: registrar.messenger())
+      // 214 The widget's and the Live Activity's links open their screens.
+      Links.ring = channel
       channel.setMethodCallHandler { call, result in
         switch call.method {
         case "timeZone":
@@ -52,11 +54,31 @@ import UIKit
         case "stopRinging":
           // iOS stops a notification's sound once the app is open.
           result(nil)
+        case "initial":
+          result(Links.launch)
+          Links.launch = nil
+        case "notificationSettings":
+          // 214 Where Time Sensitive Notifications are turned on.
+          let url: URL?
+          if #available(iOS 16.0, *) {
+            url = URL(string: UIApplication.openNotificationSettingsURLString)
+          } else {
+            url = URL(string: UIApplication.openSettingsURLString)
+          }
+          if let url { UIApplication.shared.open(url) }
+          result(nil)
+        case "orderDone":
+          // 214 Opened or answered: its Live Activity ends.
+          let args = call.arguments as? [String: Any]
+          LiveOrders.end(args?["data"] as? [String: String] ?? [:])
+          result(nil)
         default:
           result(FlutterMethodNotImplemented)
         }
       }
     }
+    // 214 The home-screen widget and the new orders' Live Activities.
+    WidgetBridge.register(engineBridge.pluginRegistry)
   }
 }
 
