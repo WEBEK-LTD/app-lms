@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createElement } from "react";
+import { createElement, type ComponentProps } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { kindById } from "@/lib/app/kinds";
@@ -21,6 +21,7 @@ import { TEMPLATES, type SectionWord } from "@/lib/studio/sections";
 import { designerChip, marketCatalog } from "@/lib/studio-market/catalog";
 import {
   designerPath,
+  designersBase,
   linkLabel,
   mayRate,
   PAGE_MESSAGES,
@@ -147,6 +148,8 @@ describe("106.14 the page's address", () => {
     expect(isLocalizedPath("/designers/lale-paper")).toBe(true);
     expect(localePath("ar", designerPath("lale-paper"))).toBe("/ar/designers/lale-paper");
     expect(localePath("tr", designerPath("lale-paper"))).toBe("/tr/designers/lale-paper");
+    // The cards' links start here in each language.
+    expect([designersBase("en"), designersBase("ar"), designersBase("tr")]).toEqual(["/designers", "/ar/designers", "/tr/designers"]);
   });
 });
 
@@ -336,7 +339,7 @@ describe("106.14 the public page", () => {
       templateHref: (s: string) => `/ar/templates/${s}`,
       empty: "—",
     });
-    const html = renderToStaticMarkup(createElement(DashboardI18n, { lang: "ar", messages: marketCatalogFor("ar"), knownEnglish: {}, children: list }));
+    const html = renderToStaticMarkup(createElement(DashboardI18n, { lang: "ar", messages: marketCatalogFor("ar"), knownEnglish: {} } as ComponentProps<typeof DashboardI18n>, list));
     expect(html).toContain("تصميم هادئ");
     expect(html).toContain("رد من نور");
     expect(html).toContain("شكرًا لك!");

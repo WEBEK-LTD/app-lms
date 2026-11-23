@@ -8,7 +8,7 @@ import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { FormState } from "@/lib/forms";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { DESIGNER_LINKS_MAX, designerPath, PAGE_MESSAGES, rateTemplate, readDesignerLinks, readDesignerPhoto, replyToRating } from "@/lib/studio-market/designer-page";
+import { DESIGNER_LINKS_MAX, DESIGNER_PHOTO_MAX_BYTES, designerPath, PAGE_MESSAGES, rateTemplate, readDesignerLinks, readDesignerPhoto, replyToRating } from "@/lib/studio-market/designer-page";
 import { DESIGNER_MESSAGES, nextProfileReview, readDesignerProfile } from "@/lib/studio-market/designers";
 
 /**
@@ -62,7 +62,7 @@ export async function saveDesignerPageAction(_: FormState, formData: FormData): 
   const file = formData.get("photo");
   let photoData: Buffer | null = null;
   if (file && typeof file !== "string" && file.size > 0) {
-    if (file.size > 2 * 1024 * 1024 + 1) errors.photo = PAGE_MESSAGES.photo;
+    if (file.size > DESIGNER_PHOTO_MAX_BYTES) errors.photo = PAGE_MESSAGES.photo;
     else photoData = Buffer.from(await file.arrayBuffer());
   }
   const photo = errors.photo ? null : readDesignerPhoto(photoData);

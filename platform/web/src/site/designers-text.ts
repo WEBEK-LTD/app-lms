@@ -15,7 +15,7 @@ export interface DesignersText {
   since: string;
   links: string;
   templatesTitle: string;
-  templatesCount: string;
+  templatesLabel: string;
   overall: string;
   ratingsLabel: string;
   buyers: string;
@@ -41,7 +41,7 @@ const EN: DesignersText = {
   since: "Designing on Studio Market since {year}",
   links: "Their website and accounts",
   templatesTitle: "Templates by {name}",
-  templatesCount: "{count, plural, one {{count} template} other {{count} templates}}",
+  templatesLabel: "Templates",
   overall: "Overall rating",
   ratingsLabel: "Ratings",
   buyers: "{count, plural, one {Buyer} other {Buyers}}",
@@ -67,7 +67,7 @@ const AR: DesignersText = {
   since: "يصمم في ماركت Studio منذ {year}",
   links: "موقعه وحساباته",
   templatesTitle: "قوالب {name}",
-  templatesCount: "{count, plural, one {قالب واحد} two {قالبان} few {{count} قوالب} other {{count} قالبًا}}",
+  templatesLabel: "القوالب",
   overall: "التقييم العام",
   ratingsLabel: "التقييمات",
   buyers: "{count, plural, one {مشترٍ} two {مشتريان} few {مشترين} other {مشتريًا}}",
@@ -93,7 +93,7 @@ const TR: DesignersText = {
   since: "{year} yılından beri Studio Market'te",
   links: "Web sitesi ve hesapları",
   templatesTitle: "{name} şablonları",
-  templatesCount: "{count, plural, one {{count} şablon} other {{count} şablon}}",
+  templatesLabel: "Şablonlar",
   overall: "Genel puan",
   ratingsLabel: "Puanlar",
   buyers: "{count, plural, one {Alıcı} other {Alıcı}}",

@@ -2,6 +2,8 @@ import { newId } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { MarketRating, MarketRatingSummary, MarketTemplate, TemplateDesigner } from "../data/types";
 import { imageType } from "../images";
+import type { Lang } from "@/i18n/config";
+import { localePath } from "@/i18n/paths";
 
 /**
  * 106.14 A designer's public page (yallapp.com.tr/designers/<handle>, in
@@ -24,6 +26,12 @@ export const DESIGNER_PATH = "/designers";
 /** A designer's English address on the website: /designers/<handle>. */
 export function designerPath(slug: string): string {
   return `${DESIGNER_PATH}/${slug}`;
+}
+
+/** Where the cards' designer links start in a language ("/ar/designers"): `${base}/<handle>`. */
+export function designersBase(lang: Lang): string {
+  const one = localePath(lang, designerPath("x"));
+  return one.slice(0, -"/x".length);
 }
 
 export const DESIGNER_LINKS_MAX = 4;

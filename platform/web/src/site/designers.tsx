@@ -15,7 +15,7 @@ import { countryName } from "@/lib/account/country";
 import { getStore } from "@/lib/data";
 import { kindNameFor } from "@/lib/marketing-lang";
 import { breadcrumbLd, NO_INDEX, siteMetadata, siteUrl } from "@/lib/seo";
-import { designerPath, DESIGNER_PATH } from "@/lib/studio-market/designer-page";
+import { designerPath, designersBase } from "@/lib/studio-market/designer-page";
 import { designerProfileLd, publicDesigner } from "@/lib/studio-market/designer-public";
 import { MARKET_PATH, templatePath } from "@/lib/studio-market/public";
 import { sampleEntries } from "@/lib/studio/sample-entries";
@@ -152,7 +152,7 @@ export async function DesignerPublicPage({ lang, slug }: { lang: Lang; slug: str
                         {stat(overall.average === null ? "—" : overall.average.toLocaleString(lang === "tr" ? "tr" : "en", { minimumFractionDigits: 1, maximumFractionDigits: 1 }), x.overall, "overall")}
                         {stat(number(overall.count), x.ratingsLabel, "count")}
                         {stat(number(page.buyers), fmt(lang, x.buyers, { count: page.buyers }), "buyers")}
-                        {stat(number(cards.length), fmt(lang, x.templatesCount, { count: cards.length }), "templates")}
+                        {stat(number(cards.length), x.templatesLabel, "templates")}
                       </div>
                       {overall.average !== null ? <RatingLine rating={overall} size={20} className="text-[15px]" /> : null}
                     </div>
@@ -167,7 +167,7 @@ export async function DesignerPublicPage({ lang, slug }: { lang: Lang; slug: str
                   </h2>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" data-designer-templates="">
                     {cards.map((card) => (
-                      <TemplateCardView key={card.id} card={card} base={lp(MARKET_PATH)} designerBase={lp(DESIGNER_PATH)} />
+                      <TemplateCardView key={card.id} card={card} base={lp(MARKET_PATH)} designerBase={designersBase(lang)} />
                     ))}
                   </div>
                 </div>
