@@ -12,7 +12,7 @@ import '../state/questions_controller.dart';
 import 'content_direction.dart';
 import 'qa_format.dart';
 import 'widgets/qa_widgets.dart';
-import 'widgets/stand_ins.dart';
+import 'widgets/member_avatar.dart';
 
 /// The Q&A tab: the questions, with filters (all, unanswered, answered,
 /// official answers, following), sections and an order, and a way to ask.

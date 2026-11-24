@@ -26,7 +26,7 @@ class FakeCommunityApi implements CommunityApi {
     ),
     bio: 'Building shops with Studio since 2025.',
     skills: const ['Studio', 'Shops', 'Arabic apps'],
-    badges: const [Badge(kind: BadgeKind.blue)],
+    badges: const [EarnedBadge(kind: BadgeKind.blue)],
     points: 1240,
     followers: 128,
     following: 64,
@@ -48,6 +48,7 @@ class FakeCommunityApi implements CommunityApi {
       ),
     ],
     yallappLinked: true,
+    levelProgress: .64,
   );
 
   final Map<String, Profile> _members = {
@@ -61,7 +62,7 @@ class FakeCommunityApi implements CommunityApi {
       ),
       bio: 'Fashion stores, product pages, photos at 3:4.',
       skills: ['Fashion', 'Product pages'],
-      badges: [Badge(kind: BadgeKind.blue)],
+      badges: [EarnedBadge(kind: BadgeKind.blue)],
       points: 4820,
       followers: 2400,
       following: 180,
@@ -90,7 +91,7 @@ class FakeCommunityApi implements CommunityApi {
         badge: BadgeKind.gold,
       ),
       bio: 'The team behind Yallapp.',
-      badges: [Badge(kind: BadgeKind.gold)],
+      badges: [EarnedBadge(kind: BadgeKind.gold)],
     ),
   };
 

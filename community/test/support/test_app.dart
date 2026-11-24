@@ -9,6 +9,7 @@ import 'package:yallapp_community/core/api/fake_community_api.dart';
 import 'package:yallapp_community/core/api/models.dart';
 import 'package:yallapp_community/core/auth/social_sign_in.dart';
 import 'package:yallapp_community/core/providers.dart';
+import 'package:yallapp_community/features/home/data/home_api.dart';
 
 /// The app on a 390 × 844 phone over the fake API, signed in or not, in a
 /// language and a theme. Every widget test starts here; area E's too.
@@ -25,6 +26,7 @@ class TestApp {
     String language = 'en',
     ThemeMode theme = ThemeMode.light,
     FakeCommunityApi? api,
+    HomeApi? home,
     SocialSignIn apple = const FakeSocialSignIn('apple-token'),
     SocialSignIn google = const FakeSocialSignIn('google-token'),
     List<Override> overrides = const [],
@@ -47,7 +49,10 @@ class TestApp {
       signedIn ? const Session(accessToken: 'test-token') : null,
     );
     final container = ProviderContainer(
+      // A failed call shows its error at once, not after a retry.
+      retry: (_, _) => null,
       overrides: [
+        homeApiProvider.overrideWithValue(home ?? FakeHomeApi()),
         sharedPreferencesProvider.overrideWithValue(prefs),
         communityApiProvider.overrideWithValue(fake as CommunityApi),
         tokenStoreProvider.overrideWithValue(tokens),

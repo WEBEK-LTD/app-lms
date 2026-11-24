@@ -4,10 +4,11 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../../../core/l10n.dart';
 import '../content_direction.dart';
 import '../../../../core/theme/tokens.dart';
+import '../../../../core/widgets/badge_mark.dart';
 import '../../../../core/widgets/sym.dart';
 import '../../data/qa_models.dart';
 import '../qa_format.dart';
-import 'stand_ins.dart';
+import 'member_avatar.dart';
 
 /// The design's muted words by night (#9C98B5) and the day's muted ink.
 Color qaMuted(BuildContext context) => context.palette.muted;
@@ -250,18 +251,22 @@ class AuthorName extends StatelessWidget {
         height: 1.3,
       ),
     );
-    final Widget? beside = official || author.member.team
+    final team = official || author.member.team;
+    // The member's highest badge only (Gold, then Green, then Blue), then
+    // the Yallapp Team's "Official" or the member's rank ("Expert").
+    final badge = team ? null : author.member.badge;
+    final Widget? beside = team
         ? const OfficialBadge()
         : showsRank(author.rank)
         ? RankChip(author.rank!)
         : null;
-    if (beside == null) return name;
+    if (beside == null && badge == null) return name;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Flexible(child: name),
-        const SizedBox(width: 6),
-        beside,
+        if (badge != null) ...[const SizedBox(width: 4), BadgeMark(badge)],
+        if (beside != null) ...[const SizedBox(width: 6), beside],
       ],
     );
   }

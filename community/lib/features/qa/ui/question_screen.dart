@@ -15,7 +15,8 @@ import 'compose_sheet.dart';
 import 'qa_format.dart';
 import 'replies_sheet.dart';
 import 'widgets/qa_widgets.dart';
-import 'widgets/stand_ins.dart';
+import '../../../core/widgets/glass.dart';
+import 'widgets/member_avatar.dart';
 
 /// A question and its answers: mobile.html's "Question · dark mode" phone.
 /// The header (back, save, the member), the section and tag chips, the
@@ -153,7 +154,7 @@ class _Header extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(18, 4, 18, 12),
       child: Row(
         children: [
-          GlassIconButton(
+          IconBtn(
             icon: Directionality.of(context) == TextDirection.rtl
                 ? Symbols.arrow_forward
                 : Symbols.arrow_back,
@@ -161,7 +162,7 @@ class _Header extends ConsumerWidget {
             onTap: () => context.canPop() ? context.pop() : context.go('/qa'),
           ),
           const Spacer(),
-          GlassIconButton(
+          IconBtn(
             icon: Symbols.bookmark,
             fill: saved,
             label: saved ? l.qaSaved : l.qaSave,
@@ -343,6 +344,8 @@ Future<void> _answerMenu(
   final l = context.l10n;
   return showModalBottomSheet<void>(
     context: context,
+    // Over the shell's floating tab bar.
+    useRootNavigator: true,
     useSafeArea: true,
     builder: (sheet) {
       Widget line(IconData icon, String label, VoidCallback onTap) => ListTile(

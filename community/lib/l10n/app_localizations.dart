@@ -1162,6 +1162,18 @@ abstract class AppLocalizations {
   /// **'Questions and tutorials you save show here.'**
   String get savedEmpty;
 
+  /// No description provided for @profileApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get profileApply;
+
+  /// No description provided for @profileApplyLine.
+  ///
+  /// In en, this message translates to:
+  /// **'You have 5+ apps on Yallapp. Apply for the Pro Developer badge.'**
+  String get profileApplyLine;
+
   /// No description provided for @qaTitle.
   ///
   /// In en, this message translates to:

@@ -15,7 +15,7 @@ import '../data/qa_api.dart';
 import '../data/qa_models.dart';
 import '../state/questions_controller.dart';
 import 'content_direction.dart';
-import 'widgets/stand_ins.dart';
+import '../../../core/widgets/glass.dart';
 
 /// Ask a question: its title (and, while it is typed, the questions that
 /// look like it: "Already asked?"), its details, a section, up to five tags
@@ -171,7 +171,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
               padding: const EdgeInsets.fromLTRB(18, 4, 18, 8),
               child: Row(
                 children: [
-                  GlassIconButton(
+                  IconBtn(
                     icon: Symbols.close,
                     label: l.commonClose,
                     onTap: () => context.pop(),

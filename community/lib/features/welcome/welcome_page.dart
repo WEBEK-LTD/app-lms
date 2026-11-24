@@ -1,0 +1,482 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
+
+import '../../core/l10n.dart';
+import '../../core/providers.dart';
+import '../../core/routing/paths.dart';
+import '../../core/theme/tokens.dart';
+import '../../core/widgets/avatar.dart';
+import '../../core/widgets/glass.dart';
+import '../../core/widgets/logo.dart';
+import '../../core/widgets/sym.dart';
+import '../auth/social_buttons.dart';
+import '../settings/language_sheet.dart';
+
+/// The welcome screen (mobile.html "Welcome · first launch"): the language
+/// at the top, the collage of the members' apps with its bubbles and the
+/// logo, "Build apps. Build together.", and the ways in: Continue with
+/// Apple, Continue with Google (added, between Apple and email, styled as
+/// Apple), Sign up with email, and Log in.
+///
+/// The design is drawn on a 390 × 844 phone; the three buttons are one row
+/// taller than its two, so the words sit one row higher. A taller phone
+/// leaves the extra room between the collage and the words.
+class WelcomePage extends ConsumerWidget {
+  const WelcomePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final language = ref.watch(languageProvider);
+    final languageName = switch (language) {
+      'ar' => l.langArabic,
+      'tr' => l.langTurkish,
+      _ => l.langEnglish,
+    };
+    return Scaffold(
+      backgroundColor: Brand.night,
+      body: LayoutBuilder(
+        builder: (context, box) {
+          final h = box.maxHeight;
+          final w = box.maxWidth;
+          // The design's frame is 844 tall; what a phone has beyond it goes
+          // under the collage.
+          final extra = (h - 844).clamp(0, 400).toDouble();
+          const buttonsBottom = 60.0;
+          const buttonsHeight = 54.0 * 3 + 10 * 2;
+          const wordsTop = 422.0;
+          return Stack(
+            children: [
+              const Positioned.fill(child: _Backdrop()),
+              // The collage (`.collage`, top 96).
+              Positioned(
+                top: 96,
+                left: 0,
+                right: 0,
+                height: 360,
+                child: _Collage(width: w),
+              ),
+              // The logo (`.lgo`).
+              Positioned(
+                top: 236,
+                left: (w - 92) / 2,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(26),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x8CFF5A1F),
+                        blurRadius: 50,
+                        offset: Offset(0, 20),
+                      ),
+                      BoxShadow(color: Color(0x0FFFFFFF), spreadRadius: 8),
+                    ],
+                  ),
+                  child: const CommunityLogo(size: 92, radius: 26),
+                ),
+              ),
+              // The words (`.lt`).
+              Positioned(
+                top: wordsTop + extra,
+                left: 24,
+                right: 24,
+                child: Column(
+                  children: [
+                    Text(
+                      l.authHeadline1,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 34,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -1,
+                        height: 1.1,
+                      ),
+                    ),
+                    ShaderMask(
+                      blendMode: BlendMode.srcIn,
+                      shaderCallback: (r) => const LinearGradient(
+                        colors: [Brand.amber, Brand.orange],
+                      ).createShader(r),
+                      child: Text(
+                        l.authHeadline2,
+                        key: const ValueKey('welcome-headline'),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 34,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -1,
+                          height: 1.1,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      l.authPitch,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0xB8FFFFFF),
+                        fontSize: 14.5,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const _Dots(),
+                  ],
+                ),
+              ),
+              // The ways in (`.btns`).
+              Positioned(
+                left: 22,
+                right: 22,
+                bottom:
+                    buttonsBottom + MediaQuery.paddingOf(context).bottom * 0,
+                height: buttonsHeight,
+                child: const SocialButtons(),
+              ),
+              // "Already a member? Log in" (`.small`).
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 24,
+                child: Center(
+                  child: GestureDetector(
+                    key: const ValueKey('welcome-login'),
+                    onTap: () => context.push(Paths.logIn),
+                    child: Text.rich(
+                      TextSpan(
+                        style: const TextStyle(
+                          color: Color(0xB3FFFFFF),
+                          fontSize: 13.5,
+                        ),
+                        children: [
+                          TextSpan(text: '${l.authAlreadyMember} '),
+                          TextSpan(
+                            text: l.authLogIn,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // The language (`.lang`, top 58 in the design's frame).
+              PositionedDirectional(
+                top: MediaQuery.paddingOf(context).top + 8,
+                end: 18,
+                child: GestureDetector(
+                  key: const ValueKey('welcome-language'),
+                  onTap: () => showLanguageSheet(context),
+                  child: Glass(
+                    radius: 13,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 11,
+                      vertical: 7,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Sym(
+                          Symbols.language,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          languageName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        const Sym(
+                          Symbols.expand_more,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// The night sky behind it (`.land`): orange from the top corner, violet
+/// from the side, indigo to night.
+class _Backdrop extends StatelessWidget {
+  const _Backdrop();
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final w = box.maxWidth;
+      final h = box.maxHeight;
+      return Stack(
+        children: [
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Brand.indigo, Brand.night],
+                  stops: [0, .7],
+                ),
+              ),
+            ),
+          ),
+          // radial-gradient(320px 300px at 100% 0%, orange .65, transparent 70%)
+          Positioned(
+            left: w - 320,
+            top: -300,
+            width: 640,
+            height: 600,
+            child: const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [Color(0xA6FF8A3D), Color(0x00FF8A3D)],
+                  stops: [0, .7],
+                ),
+              ),
+            ),
+          ),
+          // radial-gradient(320px 300px at 0% 45%, violet .55, transparent 70%)
+          Positioned(
+            left: -320,
+            top: h * .45 - 300,
+            width: 640,
+            height: 600,
+            child: const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [Color(0x8C7C6BFF), Color(0x007C6BFF)],
+                  stops: [0, .7],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+/// The collage (`.collage`): two members' apps on tilted phones and three
+/// glass bubbles of what happens here.
+class _Collage extends StatelessWidget {
+  const _Collage({required this.width});
+
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    // The collage is laid out left to right in every language (a picture).
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          const Positioned(
+            left: -18,
+            top: 40,
+            child: _Phone(image: 'assets/images/beauty-home.jpg', angle: -9),
+          ),
+          const Positioned(
+            right: -16,
+            top: 20,
+            child: _Phone(image: 'assets/images/crochet-home.jpg', angle: 8),
+          ),
+          Positioned(
+            left: 96,
+            top: 4,
+            child: _Bubble(
+              lead: Avatar(
+                id: 'nour',
+                name: 'N',
+                size: 30,
+                colors: Brand.avatars[4],
+              ),
+              title: 'Nour',
+              line: l.authBubbleNour,
+            ),
+          ),
+          Positioned(
+            right: 14,
+            top: 222,
+            child: _Bubble(
+              lead: const Sym(
+                Symbols.check_circle,
+                size: 22,
+                fill: true,
+                color: Brand.mint,
+              ),
+              title: l.authBubbleAccepted,
+              line: l.authBubblePoints,
+            ),
+          ),
+          Positioned(
+            left: 14,
+            top: 270,
+            child: _Bubble(
+              lead: const Sym(
+                Symbols.emoji_events,
+                size: 22,
+                fill: true,
+                color: Brand.gold,
+              ),
+              title: l.authBubbleChallenge,
+              line: l.authBubbleDays,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Phone extends StatelessWidget {
+  const _Phone({required this.image, required this.angle});
+
+  final String image;
+  final double angle;
+
+  @override
+  Widget build(BuildContext context) => Transform.rotate(
+    angle: angle * 3.14159265 / 180,
+    child: Container(
+      width: 118,
+      height: 236,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xE6FFFFFF), width: 4),
+        color: Colors.white,
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x66000000),
+            blurRadius: 40,
+            offset: Offset(0, 20),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Image.asset(
+          image,
+          fit: BoxFit.cover,
+          alignment: Alignment.topCenter,
+        ),
+      ),
+    ),
+  );
+}
+
+class _Bubble extends StatelessWidget {
+  const _Bubble({required this.lead, required this.title, required this.line});
+
+  final Widget lead;
+  final String title;
+  final String line;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(22),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x66000000),
+          blurRadius: 40,
+          offset: Offset(0, 20),
+        ),
+      ],
+    ),
+    child: Glass(
+      radius: 22,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 176),
+        child: Directionality(
+          textDirection: Directionality.of(context),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              lead,
+              const SizedBox(width: 8),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        height: 1.35,
+                      ),
+                    ),
+                    Text(
+                      line,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// The three dots, the first one long (`.dots`).
+class _Dots extends StatelessWidget {
+  const _Dots();
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Container(
+        width: 22,
+        height: 6,
+        decoration: BoxDecoration(
+          color: Brand.orange2,
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
+      for (var i = 0; i < 2; i++) ...[
+        const SizedBox(width: 6),
+        Container(
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: const Color(0x4DFFFFFF),
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+      ],
+    ],
+  );
+}

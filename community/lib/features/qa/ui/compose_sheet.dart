@@ -15,6 +15,8 @@ Future<void> showComposeSheet(
   required Future<Object?> Function(String text) onSend,
 }) => showModalBottomSheet<void>(
   context: context,
+  // Over the shell's floating tab bar.
+  useRootNavigator: true,
   isScrollControlled: true,
   useSafeArea: true,
   backgroundColor: Colors.transparent,

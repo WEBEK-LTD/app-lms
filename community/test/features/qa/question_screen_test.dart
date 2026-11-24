@@ -81,6 +81,9 @@ void main() {
   testWidgets('writing an answer adds it to the end', (tester) async {
     final (_, qa) = await _open(tester);
     await tester.scrollUntilVisible(find.text('Write an answer'), 200);
+    // Clear of the floating tab bar.
+    await tester.drag(find.byType(ListView).first, const Offset(0, -200));
+    await TestApp.settle(tester);
     await tester.tap(find.text('Write an answer'));
     await TestApp.settle(tester);
     await tester.enterText(

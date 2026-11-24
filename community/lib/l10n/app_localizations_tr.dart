@@ -567,6 +567,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get savedEmpty => 'Kaydettiğin sorular ve eğitimler burada görünür.';
 
   @override
+  String get profileApply => 'Başvur';
+
+  @override
+  String get profileApplyLine =>
+      'Yallapp’te 5+ uygulaman var. Profesyonel Geliştirici rozetine başvur.';
+
+  @override
   String get qaTitle => 'Soru-Cevap';
 
   @override

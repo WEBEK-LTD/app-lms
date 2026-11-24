@@ -177,6 +177,8 @@
   "settingsVersion": "الإصدار {version}",
   "settingsLogOutConfirm": "هل تريد تسجيل الخروج من مجتمع يلا آب على هذا الهاتف؟",
   "savedEmpty": "تظهر هنا الأسئلة والدروس التي تحفظها.",
+  "profileApply": "تقدّم بطلب",
+  "profileApplyLine": "لديك 5 تطبيقات أو أكثر على يلا آب. تقدّم بطلب شارة المطوّر المحترف.",
   "qaTitle": "سؤال وجواب",
   "qaAskQuestion": "اطرح سؤالًا",
   "qaViews": "{count, plural, =0{لا مشاهدات} =1{مشاهدة واحدة} =2{مشاهدتان} few{{count} مشاهدات} many{{count} مشاهدة} other{{count} مشاهدة}}",

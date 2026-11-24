@@ -12,7 +12,7 @@ import '../data/qa_models.dart';
 import 'compose_sheet.dart';
 import 'qa_format.dart';
 import 'widgets/qa_widgets.dart';
-import 'widgets/stand_ins.dart';
+import 'widgets/member_avatar.dart';
 
 /// An answer's replies ("5 replies"), oldest first, and a reply of one's own.
 Future<void> showRepliesSheet(
@@ -21,6 +21,8 @@ Future<void> showRepliesSheet(
   required VoidCallback onPosted,
 }) => showModalBottomSheet<void>(
   context: context,
+  // Over the shell's floating tab bar.
+  useRootNavigator: true,
   isScrollControlled: true,
   useSafeArea: true,
   backgroundColor: Colors.transparent,

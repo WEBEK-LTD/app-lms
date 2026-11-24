@@ -22,10 +22,15 @@ enum BadgeKind {
   };
 }
 
-class Badge {
-  const Badge({required this.kind, this.since, this.company, this.appUrl});
+class EarnedBadge {
+  const EarnedBadge({
+    required this.kind,
+    this.since,
+    this.company,
+    this.appUrl,
+  });
 
-  factory Badge.fromJson(Json json) => Badge(
+  factory EarnedBadge.fromJson(Json json) => EarnedBadge(
     kind:
         BadgeKind.parse(optStr(json, 'kind') ?? optStr(json, 'type')) ??
         BadgeKind.blue,
@@ -43,8 +48,8 @@ class Badge {
 }
 
 /// The highest badge of [badges] (the one shown beside a name), or null.
-Badge? topBadge(Iterable<Badge> badges) {
-  Badge? top;
+EarnedBadge? topBadge(Iterable<EarnedBadge> badges) {
+  EarnedBadge? top;
   for (final b in badges) {
     if (top == null || b.kind.rank < top.kind.rank) top = b;
   }
@@ -193,6 +198,7 @@ class Profile {
     this.relationship = const Relationship(),
     this.answers = 0,
     this.questions = 0,
+    this.levelProgress,
   });
 
   factory Profile.fromJson(Json json) {
@@ -201,7 +207,7 @@ class Profile {
       member: MemberSummary.fromJson(json),
       bio: str(json, 'bio'),
       skills: strings(json, 'skills'),
-      badges: listOf(json, 'badges', Badge.fromJson),
+      badges: listOf(json, 'badges', EarnedBadge.fromJson),
       points: integer(json, 'points'),
       followers: integer(counts, 'followers'),
       following: integer(counts, 'following'),
@@ -213,6 +219,7 @@ class Profile {
       yallappLinked:
           boolean(json, 'yallapp_linked') || optObject(json, 'yallapp') != null,
       relationship: Relationship.fromJson(optObject(json, 'relationship')),
+      levelProgress: optNumber(json, 'level_progress'),
     );
   }
 
@@ -221,7 +228,7 @@ class Profile {
   final List<String> skills;
 
   /// Every badge earned (the profile lists them all).
-  final List<Badge> badges;
+  final List<EarnedBadge> badges;
   final int points;
   final int followers;
   final int following;
@@ -234,6 +241,24 @@ class Profile {
   final List<LinkedApp> apps;
   final bool yallappLinked;
   final Relationship relationship;
+
+  /// How far to the next level, 0 to 1 (the menu's bar); the server's, else
+  /// the share of the way to the next points milestone.
+  final double? levelProgress;
+
+  static const _milestones = [0, 100, 500, 1000, 2500, 5000, 10000, 25000];
+
+  double get progress {
+    final own = levelProgress;
+    if (own != null) return own.clamp(0, 1).toDouble();
+    for (var i = 1; i < _milestones.length; i++) {
+      if (points < _milestones[i]) {
+        return (points - _milestones[i - 1]) /
+            (_milestones[i] - _milestones[i - 1]);
+      }
+    }
+    return 1;
+  }
 
   Profile copyWith({
     Relationship? relationship,
@@ -257,6 +282,7 @@ class Profile {
     apps: apps,
     yallappLinked: yallappLinked,
     relationship: relationship ?? this.relationship,
+    levelProgress: levelProgress,
   );
 }
 
