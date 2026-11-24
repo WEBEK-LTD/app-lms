@@ -17192,6 +17192,29 @@ components:
           maxItems: 4
           description: 97.1 The files of `arabic_font`, on Yallapp.
           items: { $ref: '#/components/schemas/FontFile' }
+        page_fonts:
+          type: array
+          maxItems: 4
+          description: |
+            224.10 The other free fonts the project's Studio pages name on
+            their elements (a heading's display face), besides `font_family`
+            and `arabic_font`, each with its files on Yallapp, in the order the
+            pages first use them. The app downloads them as it does
+            `font_files`; an element naming a font that isn't on the phone
+            shows in the app's font.
+          items:
+            type: object
+            required: [family, files]
+            properties:
+              family:
+                type: string
+                pattern: '^[A-Za-z0-9 ]{1,64}$'
+                example: Aref Ruqaa
+              files:
+                type: array
+                minItems: 1
+                maxItems: 4
+                items: { $ref: '#/components/schemas/FontFile' }
         corners: { type: string, enum: [sharp, soft, round] }
         cards: { type: string, enum: [flat, outlined, elevated] }
         primary_color:

@@ -10,7 +10,7 @@ import { studioDemoTemplate } from "@/lib/demo/picker";
 import { demoStudioScreens, demoTabBar } from "@/lib/demo/screens";
 import type { App } from "@/lib/data/types";
 import { appUrl } from "@/lib/env";
-import { servedAppearance } from "@/lib/fonts/look";
+import { pageFontFamilies, servedAppearance } from "@/lib/fonts/look";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { itemSourcesFor } from "@/lib/pages/sources";
 import { STUDIO_HEADER_STYLES, TAB_BAR_DESIGNS, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
@@ -177,7 +177,8 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
   it.each(LOOKS)("%s look %s: the project the app's pictures of it draw (mobile/test/support/signatures)", (demo, look) => {
     const { layout } = started(demo, look);
     const filled = { ...layout, pages: layout.pages.map((p) => (p.studio ? { ...p, studio: withDemoFacts(demo, p.studio) } : p)) };
-    const served = { ...filled, appearance: servedAppearance(filled.appearance, appUrl()) };
+    // 224.10 With the faces its pages name, as the platform serves it.
+    const served = { ...filled, appearance: servedAppearance(filled.appearance, appUrl(), [], pageFontFamilies(filled.pages, filled.appearance)) };
     const data = `${JSON.stringify({ screens: demoStudioScreens(demo, appUrl(), look), layout: served }, null, 1)}\n`;
     const folder = join(process.cwd(), "..", "..", "mobile", "test", "support", "signatures");
     const file = join(folder, `${DEMO_SLUGS[demo]}_${look}.json`);

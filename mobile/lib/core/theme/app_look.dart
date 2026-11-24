@@ -137,6 +137,10 @@ final appLookProvider = Provider<AppLook>((ref) {
       if (appearance.arabicFont case final family?) {
         await fonts.ensure(family, appearance.arabicFontFiles);
       }
+      // 224.10 And the faces the Studio pages name on their elements.
+      for (final page in appearance.pageFonts) {
+        await fonts.ensure(page.family, page.files);
+      }
     });
   }
   return AppLook.resolve(build, config, ready: ref.watch(remoteFontsProvider));
