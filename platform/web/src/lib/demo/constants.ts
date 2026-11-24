@@ -124,7 +124,7 @@ export const COMPUTERS_DEMO = "computers" as const satisfies ShopTypeDemo;
 
 export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school" | "travel"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO | ShopTypeDemo;
 
-/** 208 The Studio demos of a template rather than a kind (a store told apart by its look A): Leqaa and the shop types', their look A by their id. */
+/** 208 The Studio demos of a template rather than a kind (a store told apart by its look A, 223 or its main look C): Leqaa and the shop types', their look A by their id. */
 export const STORE_TEMPLATE_DEMOS: Readonly<Record<typeof FLOWER_SHOP_DEMO | ShopTypeDemo, string>> = { [FLOWER_SHOP_DEMO]: FLOWER_SHOP_TEMPLATE, ...SHOP_TYPE_DEMOS };
 
 /** 210 What Admin › Demo apps and /demo call each store template demo. */
@@ -184,9 +184,9 @@ export function demoTypeOfSlug(slug: string): DemoId | null {
 export function demoIdOf(app: Pick<App, "appType"> & { vertical?: AppVertical | null; design?: string | null }): DemoId {
   // 123 The premium academy's demo keeps its template as its design.
   if (app.appType === "lms" && !app.vertical && app.design === PREMIUM_ACADEMY_TEMPLATE) return PREMIUM_ACADEMY_DEMO;
-  // 131.20 Leqaa's demo keeps its look A as its design; 208 so does each shop type's.
+  // 131.20 Leqaa's demo keeps its look A as its design; 208 so does each shop type's; 223 a shop type's demo now keeps its main look C (its look A where it was made before).
   if (app.appType === "store" && !app.vertical && app.design) {
-    const own = (Object.keys(STORE_TEMPLATE_DEMOS) as (keyof typeof STORE_TEMPLATE_DEMOS)[]).find((id) => STORE_TEMPLATE_DEMOS[id] === app.design);
+    const own = (Object.keys(STORE_TEMPLATE_DEMOS) as (keyof typeof STORE_TEMPLATE_DEMOS)[]).find((id) => STORE_TEMPLATE_DEMOS[id] === app.design || app.design === `${id}_signature_c`);
     if (own) return own;
   }
   const vertical = app.vertical ?? null;

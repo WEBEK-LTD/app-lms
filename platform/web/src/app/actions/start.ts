@@ -42,7 +42,7 @@ export async function startFromDemoAction(formData: FormData): Promise<void> {
   const demo = demoOfSlug(String(formData.get("demo") ?? ""));
   if (!demo) redirect(pickerPath({ adding: context.apps.length > 0 }));
   const adding = context.apps.length > 0;
-  // 130 A Studio demo's chosen look (its Signature look B, else the demo itself).
+  // 130 A Studio demo's chosen look (223 any of its Signature looks; missing, the demo itself: its main look).
   const look = lookOf(demo, formData.get("look"));
   const back = (problem: string): never => redirect(`${pickerPath({ demo, make: true, adding, look })}${adding || look ? "&" : "?"}error=${problem}`);
   const name = String(formData.get("name") ?? "").trim().replace(/\s+/g, " ");

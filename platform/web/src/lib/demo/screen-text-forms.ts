@@ -1,6 +1,6 @@
 import { STUDIO_DEMO_TYPES } from "./constants";
 import { demoStudioScreens } from "./screens";
-import { SIGNATURE_LOOKS } from "../studio/demo-designs/signature";
+import { signatureLooksOf } from "../studio/demo-designs";
 import { TEMPLATES } from "../studio/sections";
 import type { WordForms } from "../pages/template-translations";
 
@@ -29,7 +29,7 @@ export function screenTextForms(): readonly WordForms[] {
   const url = "https://yallapp.com.tr";
   for (const demo of STUDIO_DEMO_TYPES) {
     collect(demoStudioScreens(demo, url));
-    for (const look of SIGNATURE_LOOKS) collect(demoStudioScreens(demo, url, look));
+    for (const look of signatureLooksOf(demo)) collect(demoStudioScreens(demo, url, look));
   }
   for (const template of TEMPLATES) if (template.project) collect(template.project.screens(url));
   forms = out;

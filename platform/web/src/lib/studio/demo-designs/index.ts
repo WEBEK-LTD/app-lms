@@ -30,6 +30,7 @@ import { LEQAA_A, LEQAA_B } from "./leqaa-signature";
 import { LUJAIN_A, NOUN_B } from "./clothes-signature";
 // 209 Cosmetics: Velours, A VELOURS plum and gold, B NAQA LAB the clinic.
 import { VELOURS_A, NAQA_B } from "./beauty-signature";
+import { VELOURS_C, VELOURS_D } from "./beauty-cd-signature";
 // 209 Kids' clothes: Toota, A TOOTA soft pastels, B MINIMO playful navy.
 import { MINIMO_B, TOOTA_A } from "./kids-signature";
 // 209 Toys
@@ -38,6 +39,7 @@ import { MUKAAB_B, TOOT_A } from "./toys-signature";
 // 210 Sakan (home decor), Ghurza (crochet and handmade), Rukn (furniture).
 import { DECOR_A, DECOR_B } from "./decor-signature";
 import { CROCHET_A, CROCHET_B } from "./crochet-signature";
+import { GHURZA_C, GHURZA_D } from "./crochet-cd-signature";
 import { FURNITURE_A, FURNITURE_B } from "./furniture-signature";
 // 211 Nova, the mobiles shop: A NOVA ink and cobalt, B emerald on stone.
 import { EMERALD_B, NOVA_A } from "./mobiles-signature";
@@ -154,12 +156,13 @@ const STUDIO_DEMO_DESIGNS: Partial<Record<StudioDemoId, DemoDesign>> = {
 // ——— 130 The Signature looks: each demo's two looks, A and B (./signature.ts), in ONE list ———
 
 /**
- * Every Studio demo's looks A and B. A demo's look A is the demo itself:
+ * Every Studio demo's looks: A and B, and 223 a shop type's C and D. A
+ * demo's main look is the demo itself (C where the demo has it, else A):
  * the demo app, `demo_<demo>`, "Like our demo" and Admin › Demo apps make
  * it (`studioDemoDesign` without a look). A look without tabs of its own
  * has its demo's (128's design's).
  */
-const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDesign>> = {
+const SIGNATURE_DESIGNS: Record<StudioDemoId, Partial<Record<SignatureLook, SignatureDesign>>> = {
   // 130.1 130.2 Sofra Eats: A the editorial menu, B the bento table.
   food: { a: SOFRA_A, b: SOFRA_B },
   // 130.3 130.4 Zad: A the market arches, B the night aisle.
@@ -182,8 +185,8 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   flowers: { a: LEQAA_A, b: LEQAA_B },
   // 208 Lujain, the clothes shop (a store): A the black and white boutique, B NOUN's streetwear.
   clothes: { a: LUJAIN_A, b: NOUN_B },
-  // 209 Cosmetics: Velours (a store), A VELOURS plum and gold, B NAQA LAB the clinic.
-  beauty: { a: VELOURS_A, b: NAQA_B },
+  // 209 Cosmetics: Velours (a store), A VELOURS plum and gold, B NAQA LAB the clinic; 224 C the ritual clinic (its main template), D the shade studio.
+  beauty: { c: VELOURS_C, d: VELOURS_D, a: VELOURS_A, b: NAQA_B },
   // 209 Kids' clothes: Toota (a store): A TOOTA's soft pastels, B MINIMO's playful navy.
   kids: { a: TOOTA_A, b: MINIMO_B },
   // 209 Toys
@@ -191,7 +194,8 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Record<SignatureLook, SignatureDes
   toys: { a: TOOT_A, b: MUKAAB_B },
   // 210 Sakan, home decor: A the decor magazine, B Teen's warm earth. Ghurza, crochet: A warm handmade, B Habka's colours. Rukn, furniture: A white and wood, B KANAF.
   decor: { a: DECOR_A, b: DECOR_B },
-  crochet: { a: CROCHET_A, b: CROCHET_B },
+  // 224 Ghurza, crochet: C the makers' market (its main template), D the cozy studio.
+  crochet: { c: GHURZA_C, d: GHURZA_D, a: CROCHET_A, b: CROCHET_B },
   furniture: { a: FURNITURE_A, b: FURNITURE_B },
   // 211 Madar, the electronics shop (a store): A MADAR in white and deep blue, B NABD in lime on near black.
   electronics: { a: MADAR_A, b: NABD_B },
@@ -207,18 +211,28 @@ function withDemoTabs(d: SignatureDesign): SignatureDesign {
   return tabs ? { ...d, tabs } : d;
 }
 
-/** A demo's look; missing `look`, its look A (the demo). Undefined when the demo has no such look. */
+/** A demo's look; missing `look`, its main look (the demo: C where it has one, else A). Undefined when the demo has no such look. */
 export function signatureDesign(demo: StudioDemoId, look?: SignatureLook): SignatureDesign | undefined {
-  const d = SIGNATURE_DESIGNS[demo]?.[look ?? "a"];
+  const d = SIGNATURE_DESIGNS[demo]?.[look ?? mainLookOf(demo)];
   return d ? withDemoTabs(d) : undefined;
 }
 
-/** The looks a demo has, A then B (none for a demo without Signature looks). */
+/** 223 The looks a demo has in Studio's order (./signature.ts SIGNATURE_LOOKS): C, D, A, B (none for a demo without Signature looks). */
 export function signatureLooksOf(demo: StudioDemoId): SignatureLook[] {
   return SIGNATURE_LOOKS.filter((look) => SIGNATURE_DESIGNS[demo]?.[look]);
 }
 
-/** Every demo's looks, A before B, in the demos' order. */
+/** 223 A demo's main look, the demo itself: its first look in Studio's order (C for a shop type that has one, else A). */
+export function mainLookOf(demo: StudioDemoId): SignatureLook {
+  return SIGNATURE_LOOKS.find((look) => SIGNATURE_DESIGNS[demo]?.[look]) ?? "a";
+}
+
+/** 223 The template a demo's main look is (`<demo>_signature_<look>`): the demo app's and its own template's home. */
+export function mainTemplateOf(demo: StudioDemoId): string {
+  return signatureTemplateId(demo, mainLookOf(demo));
+}
+
+/** Every demo's looks in Studio's order (C, D, A, B), in the demos' order. */
 export function signatureDesigns(): SignatureDesign[] {
   return (Object.keys(SIGNATURE_DESIGNS) as StudioDemoId[]).flatMap((demo) => signatureLooksOf(demo).map((look) => signatureDesign(demo, look)!));
 }
@@ -256,15 +270,15 @@ export function signatureTemplates(): TemplateInfo[] {
   );
 }
 
-/** 130.23 A demo's premium chrome: its look A's (the demo is its look A); none for a project not made from a demo. */
+/** 130.23 A demo's premium chrome: its main look's (the demo is its main look); none for a project not made from a demo. */
 export function demoChrome(demo: StudioDemoId | null | undefined): DemoChrome | null {
   if (!demo) return null;
-  const d = signatureDesign(demo, "a");
+  const d = signatureDesign(demo);
   return d ? { pages: d.chrome.header, system: signatureSystem(d, null) } : null;
 }
 // ——— end 130 ———
 
-/** The demo's own design, when it has one; 130 its Signature look `look` (missing, look A: the demo) when it has looks. */
+/** The demo's own design, when it has one; 130 its Signature look `look` (missing, its main look: the demo) when it has looks. */
 export function studioDemoDesign(demo: StudioDemoId | undefined, look?: SignatureLook): DemoDesign | undefined {
   if (!demo) return undefined;
   return signatureDesign(demo, look) ?? STUDIO_DEMO_DESIGNS[demo];

@@ -1,11 +1,13 @@
 import type { IconName } from "../../components/icon-names";
+import { mainLookOf } from "./demo-designs";
+import { SIGNATURE_LOOKS, type SignatureLook } from "./demo-designs/signature";
 import { BEAUTY_DEMO, CLOTHES_DEMO, CROCHET_DEMO, DECOR_DEMO, FURNITURE_DEMO, KIDS_DEMO, TOYS_DEMO, ELECTRONICS_DEMO, MOBILES_DEMO, COMPUTERS_DEMO, type StudioDemoId } from "../demo/constants";
 
 /**
  * 208 Yallapp Studio's premium shop types (the owner's planning doc, 23
  * November 2026): Studio-only kinds of shop, each a store (the store engine,
  * no vertical) with two premium templates of its own (its Signature looks A
- * and B, lib/studio/demo-designs), grouped in sections on /start?for=studio
+ * and B, 223 and its C (its main one) and D, lib/studio/demo-designs), grouped in sections on /start?for=studio
  * and on Studio's new project (section, then type, then template). ONE list:
  * a type is offered once its demo (its looks, products and photos) exists
  * (`demo`); until then it shows as coming soon, never selectable. A later
@@ -84,9 +86,9 @@ export function shopTypeOfDemo(demo: StudioDemoId | null | undefined): ShopType 
   return demo ? (SHOP_TYPES.find((t) => t.demo === demo) ?? null) : null;
 }
 
-/** The template a type's look starts from (`<demo>_signature_<look>`); null while it is coming soon. */
-export function shopTypeTemplate(t: ShopType, look: "a" | "b" = "a"): string | null {
-  return t.demo ? `${t.demo}_signature_${look}` : null;
+/** The template a type's look starts from (`<demo>_signature_<look>`; missing, 223 its main look: C where it has one); null while it is coming soon. */
+export function shopTypeTemplate(t: ShopType, look?: SignatureLook): string | null {
+  return t.demo ? `${t.demo}_signature_${look ?? mainLookOf(t.demo)}` : null;
 }
 
 /**
@@ -95,5 +97,6 @@ export function shopTypeTemplate(t: ShopType, look: "a" | "b" = "a"): string | n
  */
 export function shopTypeOfDesign(design: string | null | undefined): ShopType | null {
   if (!design) return null;
-  return SHOP_TYPES.find((t) => t.demo && (design === `${t.demo}_signature_a` || design === `${t.demo}_signature_b`)) ?? null;
+  // 223 Any of its looks: C, D, A or B.
+  return SHOP_TYPES.find((t) => t.demo && SIGNATURE_LOOKS.some((look) => design === `${t.demo}_signature_${look}`)) ?? null;
 }
