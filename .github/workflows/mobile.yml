@@ -7,6 +7,7 @@ on:
       - 'mobile/**'
       - 'business/**'
       - 'community/**'
+      - 'docs/api/community.yaml'
       - 'build/scripts/business_store.py'
       - 'platform/web/public/preview-app/**'
       - '.github/workflows/mobile.yml'
@@ -15,6 +16,7 @@ on:
       - 'mobile/**'
       - 'business/**'
       - 'community/**'
+      - 'docs/api/community.yaml'
       - 'build/scripts/business_store.py'
       - 'platform/web/public/preview-app/**'
       - '.github/workflows/mobile.yml'
@@ -65,8 +67,8 @@ jobs:
             if match '^(mobile/ios/|mobile/pubspec\.(yaml|lock)$|\.github/workflows/mobile\.yml$)'; then echo ios=true; else echo ios=false; fi
             # 214 Yallapp Business's native iPhone code (its widget extension too).
             if match '^(business/ios/|business/pubspec\.(yaml|lock)$|\.github/workflows/mobile\.yml$)'; then echo business_ios=true; else echo business_ios=false; fi
-            # 231 Yallapp Community, the community's own app.
-            if match '^(community/|\.github/workflows/mobile\.yml$)'; then echo community=true; else echo community=false; fi
+            # 231 Yallapp Community, the community's own app, and the API contract its client follows.
+            if match '^(community/|docs/api/community\.yaml$|\.github/workflows/mobile\.yml$)'; then echo community=true; else echo community=false; fi
           } >> "$GITHUB_OUTPUT"
 
   app:
