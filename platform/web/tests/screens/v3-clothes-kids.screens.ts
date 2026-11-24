@@ -182,7 +182,7 @@ async function shoot(browser: Browser, t: (typeof TYPES)[number], look: "c" | "d
     const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     await semantics(arShop);
     // The tab's Arabic name from the app's pages, else Studio's ("Shop", RUNWAY's "Discover") for a project's draft.
-    const shopTab = arShopTab ? new RegExp(`^${escape(arShopTab)}`) : /^(المتجر|اكتشفي)$/;
+    const shopTab = arShopTab ? new RegExp(`^${escape(arShopTab)}$`) : /^(المتجر|اكتشفي)$/;
     expect(await tapNamed(arShop, shopTab), "the Arabic Shop tab").toBe(true);
     await arShop.waitForTimeout(3500);
     await semantics(arShop);
@@ -190,13 +190,14 @@ async function shoot(browser: Browser, t: (typeof TYPES)[number], look: "c" | "d
     // The listing's Arabic names; for a project's draft, the demo's in Arabic, then in English (a project may keep them so).
     const demoNames = t.id === "clothes" ? CLOTHES_PRODUCT_NAMES : KIDS_PRODUCT_NAMES;
     const names = [...arNames, ...Object.values(demoNames).map((n) => n.ar), ...(t.id === "clothes" ? CLOTHES_PRODUCTS : KIDS_PRODUCTS).map((p) => p.name)];
-    // Opened when the bar is gone (the product page draws no tabs); else the next name.
-    const barShows = () => arShop.evaluate((source) => [...document.querySelectorAll("flt-semantics")].some((x) => new RegExp(source).test((x.getAttribute("aria-label") ?? x.textContent ?? "").trim()) && x.getBoundingClientRect().width > 0), shopTab.source);
+    // Opened when its buy button shows (each look's words, the app's, or "Notify me" for a size gone); else the next name.
+    const buyShows = () =>
+      arShop.evaluate(() => [...document.querySelectorAll("flt-semantics")].some((x) => /(أضيفي إلى|أضف إلى السلة|إلى السلة|أبلغني)/.test((x.getAttribute("aria-label") ?? x.textContent ?? "").trim()) && x.getBoundingClientRect().width > 0));
     for (const name of names) {
       if (!(await tapNamed(arShop, new RegExp(`^${escape(name)}`)))) continue;
       await arShop.waitForTimeout(3000);
       await semantics(arShop);
-      if (!(await barShows())) {
+      if (await buyShows()) {
         opened = true;
         break;
       }
