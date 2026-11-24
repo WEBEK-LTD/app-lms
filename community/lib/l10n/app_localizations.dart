@@ -1827,6 +1827,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sent. We’ll let you know when it’s reviewed.'**
   String get verifySent;
+
+  /// No description provided for @notifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifTitle;
+
+  /// No description provided for @notifMarkAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notifMarkAll;
+
+  /// No description provided for @notifEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing new. Answers, follows and badges show here.'**
+  String get notifEmpty;
+
+  /// No description provided for @notifUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get notifUnread;
+
+  /// No description provided for @notifAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get notifAll;
+
+  /// No description provided for @notifEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email me about'**
+  String get notifEmail;
+
+  /// No description provided for @notifEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications always show here. Choose which also come by email.'**
+  String get notifEmailBody;
+
+  /// No description provided for @notifKindAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers to my questions'**
+  String get notifKindAnswer;
+
+  /// No description provided for @notifKindAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'My answer accepted'**
+  String get notifKindAccepted;
+
+  /// No description provided for @notifKindOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official answers'**
+  String get notifKindOfficial;
+
+  /// No description provided for @notifKindFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend requests'**
+  String get notifKindFriend;
+
+  /// No description provided for @notifKindFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'New followers'**
+  String get notifKindFollow;
+
+  /// No description provided for @notifKindBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges'**
+  String get notifKindBadge;
+
+  /// No description provided for @notifKindVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'My verification request'**
+  String get notifKindVerification;
+
+  /// No description provided for @notifKindOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get notifKindOther;
 }
 
 class _AppLocalizationsDelegate

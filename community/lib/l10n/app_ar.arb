@@ -287,5 +287,20 @@
   "verifyNameNeeded": "اكتب اسمك الكامل.",
   "verifyIdNeeded": "أضف صورة لهويتك.",
   "verifyBadLink": "تبدأ الروابط بـ https://",
-  "verifySent": "أُرسل. سنخبرك عند مراجعته."
+  "verifySent": "أُرسل. سنخبرك عند مراجعته.",
+  "notifTitle": "الإشعارات",
+  "notifMarkAll": "تعليم الكل كمقروء",
+  "notifEmpty": "لا جديد. تظهر هنا الإجابات والمتابعات والشارات.",
+  "notifUnread": "غير المقروءة",
+  "notifAll": "الكل",
+  "notifEmail": "راسلني بالبريد عن",
+  "notifEmailBody": "تظهر الإشعارات هنا دائمًا. اختر ما يصلك منها بالبريد أيضًا.",
+  "notifKindAnswer": "إجابات أسئلتي",
+  "notifKindAccepted": "قبول إجابتي",
+  "notifKindOfficial": "الإجابات الرسمية",
+  "notifKindFriend": "طلبات الصداقة",
+  "notifKindFollow": "متابعون جدد",
+  "notifKindBadge": "الشارات",
+  "notifKindVerification": "طلب التوثيق",
+  "notifKindOther": "أخرى"
 }

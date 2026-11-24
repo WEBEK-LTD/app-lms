@@ -417,5 +417,20 @@
   "verifyNameNeeded": "Write your full name.",
   "verifyIdNeeded": "Add a photo of your ID.",
   "verifyBadLink": "Links start with https://",
-  "verifySent": "Sent. We’ll let you know when it’s reviewed."
+  "verifySent": "Sent. We’ll let you know when it’s reviewed.",
+  "notifTitle": "Notifications",
+  "notifMarkAll": "Mark all read",
+  "notifEmpty": "Nothing new. Answers, follows and badges show here.",
+  "notifUnread": "Unread",
+  "notifAll": "All",
+  "notifEmail": "Email me about",
+  "notifEmailBody": "Notifications always show here. Choose which also come by email.",
+  "notifKindAnswer": "Answers to my questions",
+  "notifKindAccepted": "My answer accepted",
+  "notifKindOfficial": "Official answers",
+  "notifKindFriend": "Friend requests",
+  "notifKindFollow": "New followers",
+  "notifKindBadge": "Badges",
+  "notifKindVerification": "My verification request",
+  "notifKindOther": "Other"
 }

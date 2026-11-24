@@ -958,4 +958,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verifySent => 'Sent. We’ll let you know when it’s reviewed.';
+
+  @override
+  String get notifTitle => 'Notifications';
+
+  @override
+  String get notifMarkAll => 'Mark all read';
+
+  @override
+  String get notifEmpty =>
+      'Nothing new. Answers, follows and badges show here.';
+
+  @override
+  String get notifUnread => 'Unread';
+
+  @override
+  String get notifAll => 'All';
+
+  @override
+  String get notifEmail => 'Email me about';
+
+  @override
+  String get notifEmailBody =>
+      'Notifications always show here. Choose which also come by email.';
+
+  @override
+  String get notifKindAnswer => 'Answers to my questions';
+
+  @override
+  String get notifKindAccepted => 'My answer accepted';
+
+  @override
+  String get notifKindOfficial => 'Official answers';
+
+  @override
+  String get notifKindFriend => 'Friend requests';
+
+  @override
+  String get notifKindFollow => 'New followers';
+
+  @override
+  String get notifKindBadge => 'Badges';
+
+  @override
+  String get notifKindVerification => 'My verification request';
+
+  @override
+  String get notifKindOther => 'Other';
 }

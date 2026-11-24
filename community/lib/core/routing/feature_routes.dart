@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/badges/ui/verification_screen.dart';
+import '../../features/notifications/ui/notifications_screen.dart';
+import '../../features/qa/state/questions_controller.dart';
 import '../../features/qa/ui/ask_screen.dart';
 import '../../features/qa/ui/question_screen.dart';
 import '../../features/qa/ui/questions_screen.dart';
@@ -69,7 +71,7 @@ List<RouteBase> featureTabRoutes() => [
   ),
   GoRoute(
     path: FeatureLinks.notifications,
-    builder: (context, state) => const ComingSoonPage(title: 'Notifications'),
+    builder: (context, state) => const NotificationsScreen(),
   ),
   GoRoute(
     path: FeatureLinks.search,
@@ -96,5 +98,9 @@ List<RouteBase> featureRoutes() => [
 /// The counts E's features show on the shell: the bell's number (unread
 /// notifications) and the Q&A tab's dot and menu badge (new questions since
 /// the member last looked). Zero until E fills them in.
-final unreadNotificationsProvider = Provider<int>((ref) => 0);
-final newQuestionsProvider = Provider<int>((ref) => 0);
+final unreadNotificationsProvider = Provider<int>(
+  (ref) => ref.watch(notificationsProvider).value?.unreadCount ?? 0,
+);
+final newQuestionsProvider = Provider<int>(
+  (ref) => ref.watch(newQuestionsCountProvider),
+);

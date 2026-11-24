@@ -960,4 +960,50 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get verifySent => 'أُرسل. سنخبرك عند مراجعته.';
+
+  @override
+  String get notifTitle => 'الإشعارات';
+
+  @override
+  String get notifMarkAll => 'تعليم الكل كمقروء';
+
+  @override
+  String get notifEmpty => 'لا جديد. تظهر هنا الإجابات والمتابعات والشارات.';
+
+  @override
+  String get notifUnread => 'غير المقروءة';
+
+  @override
+  String get notifAll => 'الكل';
+
+  @override
+  String get notifEmail => 'راسلني بالبريد عن';
+
+  @override
+  String get notifEmailBody =>
+      'تظهر الإشعارات هنا دائمًا. اختر ما يصلك منها بالبريد أيضًا.';
+
+  @override
+  String get notifKindAnswer => 'إجابات أسئلتي';
+
+  @override
+  String get notifKindAccepted => 'قبول إجابتي';
+
+  @override
+  String get notifKindOfficial => 'الإجابات الرسمية';
+
+  @override
+  String get notifKindFriend => 'طلبات الصداقة';
+
+  @override
+  String get notifKindFollow => 'متابعون جدد';
+
+  @override
+  String get notifKindBadge => 'الشارات';
+
+  @override
+  String get notifKindVerification => 'طلب التوثيق';
+
+  @override
+  String get notifKindOther => 'أخرى';
 }

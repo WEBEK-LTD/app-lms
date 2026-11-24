@@ -953,4 +953,51 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get verifySent => 'Gönderildi. İncelendiğinde size haber vereceğiz.';
+
+  @override
+  String get notifTitle => 'Bildirimler';
+
+  @override
+  String get notifMarkAll => 'Tümünü okundu say';
+
+  @override
+  String get notifEmpty =>
+      'Yeni bir şey yok. Cevaplar, takipler ve rozetler burada görünür.';
+
+  @override
+  String get notifUnread => 'Okunmamış';
+
+  @override
+  String get notifAll => 'Tümü';
+
+  @override
+  String get notifEmail => 'Bana e-posta gönder';
+
+  @override
+  String get notifEmailBody =>
+      'Bildirimler her zaman burada görünür. Hangilerinin e-postayla da geleceğini seçin.';
+
+  @override
+  String get notifKindAnswer => 'Sorularıma gelen cevaplar';
+
+  @override
+  String get notifKindAccepted => 'Cevabımın kabul edilmesi';
+
+  @override
+  String get notifKindOfficial => 'Resmî cevaplar';
+
+  @override
+  String get notifKindFriend => 'Arkadaşlık istekleri';
+
+  @override
+  String get notifKindFollow => 'Yeni takipçiler';
+
+  @override
+  String get notifKindBadge => 'Rozetler';
+
+  @override
+  String get notifKindVerification => 'Doğrulama başvurum';
+
+  @override
+  String get notifKindOther => 'Diğer';
 }

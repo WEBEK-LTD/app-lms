@@ -287,5 +287,20 @@
   "verifyNameNeeded": "Adınızı ve soyadınızı yazın.",
   "verifyIdNeeded": "Kimliğinizin fotoğrafını ekleyin.",
   "verifyBadLink": "Bağlantılar https:// ile başlar",
-  "verifySent": "Gönderildi. İncelendiğinde size haber vereceğiz."
+  "verifySent": "Gönderildi. İncelendiğinde size haber vereceğiz.",
+  "notifTitle": "Bildirimler",
+  "notifMarkAll": "Tümünü okundu say",
+  "notifEmpty": "Yeni bir şey yok. Cevaplar, takipler ve rozetler burada görünür.",
+  "notifUnread": "Okunmamış",
+  "notifAll": "Tümü",
+  "notifEmail": "Bana e-posta gönder",
+  "notifEmailBody": "Bildirimler her zaman burada görünür. Hangilerinin e-postayla da geleceğini seçin.",
+  "notifKindAnswer": "Sorularıma gelen cevaplar",
+  "notifKindAccepted": "Cevabımın kabul edilmesi",
+  "notifKindOfficial": "Resmî cevaplar",
+  "notifKindFriend": "Arkadaşlık istekleri",
+  "notifKindFollow": "Yeni takipçiler",
+  "notifKindBadge": "Rozetler",
+  "notifKindVerification": "Doğrulama başvurum",
+  "notifKindOther": "Diğer"
 }

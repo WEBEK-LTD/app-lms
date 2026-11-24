@@ -33,6 +33,13 @@ class QuestionsScreen extends ConsumerWidget {
     final sections = ref.watch(qaSectionsProvider).value ?? const [];
     void set(QuestionsQuery q) =>
         ref.read(questionsQueryProvider.notifier).set(q);
+    // Looking at the tab clears its dot.
+    if (ref.watch(newQuestionsCountProvider) > 0 ||
+        ref.watch(qaLastSeenProvider) == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) ref.read(qaLastSeenProvider.notifier).seen();
+      });
+    }
     return Scaffold(
       backgroundColor: p.screen,
       body: Stack(
