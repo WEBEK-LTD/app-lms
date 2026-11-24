@@ -257,7 +257,7 @@ class _Cover extends ConsumerWidget {
               ),
             ),
           if (t.locked)
-            Center(child: LockedMark(label: l.tutLocked, dark: true)),
+            Center(child: LockedMark(label: lockedLabel(context), dark: true)),
         ],
       ),
     );
@@ -323,8 +323,11 @@ class _Locked extends StatelessWidget {
           Sym(Symbols.lock_rounded, size: 26, fill: true, color: p.ink),
           const SizedBox(width: 12),
           Expanded(
+            // On iOS only "Locked": nothing about unlocking it or where.
             child: Text(
-              context.l10n.tutLockedBody,
+              isIos(context)
+                  ? lockedLabel(context)
+                  : context.l10n.tutLockedBody,
               style: TextStyle(fontSize: 14, height: 1.5, color: p.ink),
             ),
           ),

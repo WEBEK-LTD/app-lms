@@ -263,7 +263,6 @@
   "tutMinRead": "{count} dk okuma",
   "tutWatch": "Videoyu izle",
   "tutOfficial": "Resmî",
-  "tutLocked": "Sahip olan hesapta açılır",
   "tutLockedBody": "Bu eğitim, ona sahip olan hesapla giriş yaptığınızda açılır.",
   "tutEmpty": "Burada henüz eğitim yok.",
   "tutCannotOpen": "Video açılamadı.",

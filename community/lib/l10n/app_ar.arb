@@ -263,7 +263,6 @@
   "tutMinRead": "قراءة {count} د",
   "tutWatch": "شاهد الفيديو",
   "tutOfficial": "رسمي",
-  "tutLocked": "يُفتح على الحساب الذي يملكه",
   "tutLockedBody": "يُفتح هذا الدرس عند تسجيل الدخول بالحساب الذي يملكه.",
   "tutEmpty": "لا دروس هنا بعد.",
   "tutCannotOpen": "تعذّر فتح الفيديو.",

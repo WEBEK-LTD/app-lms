@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp_community/core/providers.dart';
@@ -85,6 +86,25 @@ void main() {
       findsNothing,
     );
     await shot(tester, 'tutorial-locked-light-en');
+  });
+
+  testWidgets('on iOS a locked tutorial says only Locked: nothing about '
+      'unlocking it or the website, never a price', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await _open(tester, '/learn/tut-pro-launch');
+      expect(find.text('Locked'), findsWidgets);
+      expect(
+        find.textContaining(
+          RegExp('unlock|website|account|sign in', caseSensitive: false),
+        ),
+        findsNothing,
+      );
+      expect(find.text('Watch the video'), findsNothing);
+      await shot(tester, 'tutorial-locked-ios-light-en');
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
   });
 
   testWidgets('Learn in Arabic', (tester) async {

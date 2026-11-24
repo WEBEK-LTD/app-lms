@@ -369,7 +369,6 @@
   },
   "tutWatch": "Watch the video",
   "tutOfficial": "Official",
-  "tutLocked": "Unlocks on the account that has it",
   "tutLockedBody": "This tutorial opens when you sign in with the account that has it.",
   "tutEmpty": "No tutorials here yet.",
   "tutCannotOpen": "The video could not be opened.",

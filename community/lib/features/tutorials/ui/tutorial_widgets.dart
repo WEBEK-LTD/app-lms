@@ -95,7 +95,6 @@ class TutorialCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tutorial;
-    final l = context.l10n;
     final level = levelColors(t.level);
     return Semantics(
       button: true,
@@ -215,7 +214,7 @@ class TutorialCard extends StatelessWidget {
                           ),
                         ),
                         if (t.locked)
-                          LockedMark(label: l.tutLocked, dark: true),
+                          LockedMark(label: lockedLabel(context), dark: true),
                       ],
                     ),
                     const SizedBox(height: 8),

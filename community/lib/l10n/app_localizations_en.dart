@@ -879,9 +879,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tutOfficial => 'Official';
 
   @override
-  String get tutLocked => 'Unlocks on the account that has it';
-
-  @override
   String get tutLockedBody =>
       'This tutorial opens when you sign in with the account that has it.';
 

@@ -1678,12 +1678,6 @@ abstract class AppLocalizations {
   /// **'Official'**
   String get tutOfficial;
 
-  /// No description provided for @tutLocked.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlocks on the account that has it'**
-  String get tutLocked;
-
   /// No description provided for @tutLockedBody.
   ///
   /// In en, this message translates to:

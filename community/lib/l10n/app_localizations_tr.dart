@@ -868,9 +868,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get tutOfficial => 'Resmî';
 
   @override
-  String get tutLocked => 'Sahip olan hesapta açılır';
-
-  @override
   String get tutLockedBody =>
       'Bu eğitim, ona sahip olan hesapla giriş yaptığınızda açılır.';
 

@@ -886,9 +886,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tutOfficial => 'رسمي';
 
   @override
-  String get tutLocked => 'يُفتح على الحساب الذي يملكه';
-
-  @override
   String get tutLockedBody =>
       'يُفتح هذا الدرس عند تسجيل الدخول بالحساب الذي يملكه.';
 
