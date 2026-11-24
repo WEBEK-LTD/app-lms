@@ -1,4 +1,7 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { parse } from "yaml";
+import { QA_ROUTES } from "@/lib/community/api/qa-routes";
 import { api, joinWithEmail, NOW, testCommunity, type TestCommunity } from "./community-support";
 
 /**
@@ -28,6 +31,16 @@ async function ask(c: TestCommunity, token: string, body: Json = QUESTION) {
 }
 
 describe("231 Community Q&A API", () => {
+  it("serves exactly the contract's Q&A, tutorials and search paths", () => {
+    const contract = parse(readFileSync(new URL("../../../../docs/api/community.yaml", import.meta.url), "utf8")) as { paths: Record<string, Record<string, unknown>> };
+    const METHODS = ["get", "post", "put", "patch", "delete"];
+    const documented = Object.entries(contract.paths)
+      .filter(([path]) => /^\/(qa|tutorials|search)(\/|$)/.test(path))
+      .flatMap(([path, ops]) => Object.keys(ops).filter((m) => METHODS.includes(m)).map((m) => `${m.toUpperCase()} ${path.replace(/\{(\w+)\}/g, ":$1")}`))
+      .sort();
+    expect(QA_ROUTES.map((r) => `${r.method} ${r.path}`).sort()).toEqual(documented);
+  });
+
   it("lists sections and asks a question after the similar ones", async () => {
     const { c, asker, helper } = await setup();
     const sections = await api<Json>(c, "GET", "/qa/sections");
@@ -143,6 +156,12 @@ describe("231 Community Q&A API", () => {
     await c.deps.store.base.updateMember(asker.id, { language: "tr" });
     const tr = await api<Json>(c, "POST", "/qa/questions", { token: asker.token, body: { ...QUESTION, section: "nowhere" } });
     expect(tr.body.error.fields.section).toBe("Bir bölüm seçin.");
+  });
+
+  it("has a word in every language for every field the Q&A can refuse", async () => {
+    const { allWords } = await import("@/lib/community/i18n");
+    const fields = ["title", "body", "summary", "section", "tags", "value", "kind", "level", "language", "cover_url", "video_url", "duration_seconds"];
+    for (const lang of ["en", "ar", "tr"] as const) for (const f of fields) expect(allWords()[lang][`qa.invalid.${f}`], `${lang} ${f}`).toBeTruthy();
   });
 
   it("hides a blocked member's questions and lets the asker or the team delete one", async () => {

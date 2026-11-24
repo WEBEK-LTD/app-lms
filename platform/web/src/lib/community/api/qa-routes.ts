@@ -2,6 +2,7 @@ import { withQa } from "../qa/hooks";
 import * as qa from "../qa/service";
 import { QaError, type CommunityLang, type QuestionFilterName, type QuestionSort, type TutorialKind, type TutorialLevel, type VoteValue } from "../qa/types";
 import { CommunityError, noContent, ok, requireMember, str, type CommunityContext, type CommunityResult, type CommunityRoute } from "./http";
+import { hasWord } from "../i18n";
 import { qaHooksFor } from "./qa-hooks";
 
 /**
@@ -25,7 +26,8 @@ function run(handler: Handler, options: { refusedStatus?: number } = {}): Handle
     } catch (error) {
       if (!(error instanceof QaError)) throw error;
       const status = error.code === "not_allowed" ? (options.refusedStatus ?? 403) : error.status;
-      const fields = error.code === "invalid_request" && error.field ? { [snake(error.field)]: `qa.invalid.${snake(error.field)}` } : undefined;
+      const field = error.field ? snake(error.field) : null;
+      const fields = error.code === "invalid_request" && field ? { [field]: hasWord(`qa.invalid.${field}`) ? `qa.invalid.${field}` : "error.invalid_request" } : undefined;
       throw new CommunityError(status, error.code === "conflict" ? "invalid_request" : error.code, fields);
     }
   };

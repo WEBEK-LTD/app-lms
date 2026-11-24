@@ -9,6 +9,7 @@ export const QA_WORDS: CommunityDictionary = {
   en: {
     "qa.invalid.title": "Write a title of 10 to 200 characters.",
     "qa.invalid.body": "Write at least 20 characters for a question and 10 for an answer.",
+    "qa.invalid.summary": "Write a summary of 10 to 400 characters.",
     "qa.invalid.section": "Choose a section.",
     "qa.invalid.tags": "Add at most 5 tags.",
     "qa.invalid.value": "A vote is up, down or none.",
@@ -22,6 +23,7 @@ export const QA_WORDS: CommunityDictionary = {
   ar: {
     "qa.invalid.title": "اكتب عنوانًا من 10 إلى 200 حرف.",
     "qa.invalid.body": "اكتب 20 حرفًا على الأقل للسؤال و10 أحرف على الأقل للإجابة.",
+    "qa.invalid.summary": "اكتب ملخصًا من 10 إلى 400 حرف.",
     "qa.invalid.section": "اختر قسمًا.",
     "qa.invalid.tags": "أضف 5 وسوم على الأكثر.",
     "qa.invalid.value": "التصويت إما بالتأييد أو بالرفض أو بلا تصويت.",
@@ -35,6 +37,7 @@ export const QA_WORDS: CommunityDictionary = {
   tr: {
     "qa.invalid.title": "10 ile 200 karakter arasında bir başlık yazın.",
     "qa.invalid.body": "Soru için en az 20, yanıt için en az 10 karakter yazın.",
+    "qa.invalid.summary": "10 ile 400 karakter arasında bir özet yazın.",
     "qa.invalid.section": "Bir bölüm seçin.",
     "qa.invalid.tags": "En fazla 5 etiket ekleyin.",
     "qa.invalid.value": "Oy artı, eksi ya da hiçbiri olabilir.",
