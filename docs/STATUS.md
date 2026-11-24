@@ -29,6 +29,14 @@ The app part ships with the next app release (no `CLIENT_APP_RELEASE`
 change). Without a header, the status bar and the back button stay over
 the page as it scrolls, as on any pushed Studio page without one.
 
+228.7 (toys and mobiles): Toot's looks C (the adventure map) and D
+(Montessori) and Nova's looks C (the keynote) and D (the deals hub) each
+draw their own product page: chunky frames, the treasure chest and a big
+red Add to cart; age and material tags with "How to play with it"; one
+spotlight shot on black with swatches and specs revealed line by line; price
+first, installments soon, the compare tray and today's countdown. No two
+share a skeleton, and none shares Lujain A's (`phase228-7-toys-mobiles`).
+
 Roadmap 216 (Yallapp's Firebase rides out a moment when Google can't
 reach the platform's issuer): the token exchange is tried up to 3 times
 (about 1 s, then 3 s) on a passing failure only (unreachable, 429, 5xx,
