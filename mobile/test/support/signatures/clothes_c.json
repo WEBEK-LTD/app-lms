@@ -3913,7 +3913,7 @@
          "start": 22
         },
         "product_part": {
-         "look": "grid",
+         "look": "chips",
          "accent": "#141211",
          "dark_accent": "#F2EDE4"
         },
