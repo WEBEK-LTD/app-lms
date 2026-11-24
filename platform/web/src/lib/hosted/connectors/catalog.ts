@@ -42,7 +42,7 @@ import { completeLookFor, fashionOf, sizeChartJson } from "../../selling/fashion
 import { isSpecKey, sameSpecValue, specFacets, specJson, specLabel, specLine, specValue } from "../../selling/specs";
 import { pcBuilderJson, techOf, tradeInJson } from "../../selling/tech";
 import { appStageJson } from "../../catalog/stage-json";
-import { productDescriptionIn, productNameIn, translatedAttributes, translatedOptionGroups, wordIn } from "../../catalog/product-langs";
+import { productDescriptionIn, productNameIn, translatedAttributes, translatedInfo, translatedOptionGroups, translatedSpec, wordIn } from "../../catalog/product-langs";
 import { facetsJson, matchesFilters, readListingFilters } from "../../selling/filters";
 import { appPause, pauseJson, pauseMessage } from "../../shop/pause";
 
@@ -67,7 +67,28 @@ export interface CatalogDeps {
   onReturnRequested?: (order: CatalogOrder) => Promise<void>;
   /** 91.4 Loyalty points are in the app's plan (default false). */
   loyalty?: boolean;
+  /**
+   * 228.7 The request is the owner's own preview (a valid preview token:
+   * Studio's canvas, the preview app, the demo's shots): a shop that can't
+   * sell yet shows its products to buy, as it will, and its checkout places
+   * no order, saying how to start selling. Never for a customer.
+   */
+  preview?: boolean;
 }
+
+/** 228.7 What the owner's preview says at checkout while the shop has no payment method, in the app's language. */
+export const PREVIEW_CHECKOUT_NOTICE: Readonly<Record<"en" | "ar" | "tr", string>> = {
+  en: "This is a preview: turn on a payment method in your dashboard to start selling.",
+  ar: "هذه معاينة: فعّل وسيلة دفع من لوحة التحكم لتبدأ البيع.",
+  tr: "Bu bir önizleme: satışa başlamak için kontrol panelinden bir ödeme yöntemi etkinleştirin.",
+};
+
+/** 228.7 And while it has one but its plan doesn't include selling in the app. */
+export const PREVIEW_CHECKOUT_PLAN_NOTICE: Readonly<Record<"en" | "ar" | "tr", string>> = {
+  en: "This is a preview: your current plan doesn't include selling in the app. Upgrade it from your dashboard to start selling.",
+  ar: "هذه معاينة: خطتك الحالية لا تشمل البيع داخل التطبيق. رقِّها من لوحة التحكم لتبدأ البيع.",
+  tr: "Bu bir önizleme: mevcut planınız uygulama içi satışı kapsamıyor. Satışa başlamak için kontrol panelinden planınızı yükseltin.",
+};
 
 type OrderBy = "newest" | "popular" | "rating" | "price_asc" | "price_desc" | "title";
 const ORDERS: OrderBy[] = ["newest", "popular", "rating", "price_asc", "price_desc", "title"];
@@ -141,6 +162,12 @@ export class CatalogConnector implements Connector {
    * products the app doesn't sell.
    */
   private get canSell(): boolean {
+    // 228.7 In the owner's own preview, as it will once payments are on: the real Add to cart, a cart that works.
+    return this.sellsForReal || this.deps.preview === true;
+  }
+
+  /** Whether customers can really order: the shop takes payments and its plan has them. */
+  private get sellsForReal(): boolean {
     return paymentsSetUp(this.deps.app) && this.deps.cardPayments !== false;
   }
 
@@ -363,7 +390,7 @@ export class CatalogConnector implements Connector {
       subtitle: productLine(p, this.lang),
       // 211 Its main specs on one line ("256 GB · 6.7″ OLED · 5G"); null: none.
       spec_line: specLine(p.specs ?? null),
-      ...(this.withSpecs ? { specs: (p.specs ?? []).map((x) => specJson(x, this.lang)) } : {}),
+      ...(this.withSpecs ? { specs: (p.specs ?? []).map((x) => translatedSpec(p, this.lang, specJson(x, this.lang))) } : {}),
     };
   }
 
@@ -552,9 +579,10 @@ export class CatalogConnector implements Connector {
         // 209 Each option's swatch colour where it has one, then its facts as attributes not chosen.
         attributes: [
           ...(variants ? translatedAttributes(product, this.lang, attributesJson(variants)) : []).map((a) => ({ ...a, options: a.options.map((o) => (swatchFor(details, o.value) ? { ...o, swatch: swatchFor(details, o.value) } : o)) })),
-          ...factAttributesJson(details),
+          // 228.7 Its facts' names and values in the app's language too.
+          ...translatedAttributes(product, this.lang, factAttributesJson(details)),
         ],
-        ...detailsJson(details),
+        ...translatedInfo(product, this.lang, detailsJson(details)),
         // 131 The one chosen when its page opens (a bouquet's Deluxe), when the shop set one it sells.
         ...(() => {
           const chosen = variants?.defaultId != null ? variants.items.find((v) => v.id === variants.defaultId && v.active) : undefined;
@@ -594,7 +622,8 @@ export class CatalogConnector implements Connector {
         addons: addons.map((p) => this.summary(p, now)),
         complete_look: look.map((p) => this.summary(p, now)),
         // 211 Its specifications in the app's language, and the shop's matching accessories (its accessories category's, the featured and best selling first).
-        specs: (product.specs ?? []).map((x) => specJson(x, this.lang)),
+        // 228.7 Their values in the app's language too, where the shop wrote them ("65 W wired" → "65 W سلكي").
+        specs: (product.specs ?? []).map((x) => translatedSpec(product, this.lang, specJson(x, this.lang))),
         accessories: this.accessoriesFor(product, all, categories).map((p) => this.summary(p, now)),
         external_url: null,
         permalink: productUrl(this.deps.platformUrl, app.id, product.id),
@@ -870,6 +899,13 @@ export class CatalogConnector implements Connector {
     if (platform !== "android" && platform !== "ios") return error(400, "invalid_request", "Unknown platform.");
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
+    // 228.7 The owner's preview of a shop that can't sell yet: no order, nothing charged, how to start selling.
+    if (this.deps.preview === true && !this.sellsForReal) {
+      const lang = (request.lang ?? "").toLowerCase().split(/[-_]/)[0];
+      // What is missing: a payment method (with or without the plan's selling), else the plan's selling in the app.
+      const notice = paymentsSetUp(this.deps.app) ? PREVIEW_CHECKOUT_PLAN_NOTICE : PREVIEW_CHECKOUT_NOTICE;
+      return error(409, "preview_checkout", notice[lang === "ar" || lang === "tr" ? lang : "en"]);
+    }
     if (this.deps.cardPayments === false) return error(403, "feature_disabled", "Ordering isn't available in this app.");
     if (this.fulfilment && !request.user) return error(401, "unauthorized", "Please sign in to order.");
     // 214 Paused from Yallapp Business or the dashboard: no new orders until it reopens.

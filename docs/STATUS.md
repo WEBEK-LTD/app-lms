@@ -63,6 +63,10 @@ red Add to cart; age and material tags with "How to play with it"; one
 spotlight shot on black with swatches and specs revealed line by line; price
 first, installments soon, the compare tray and today's countdown. No two
 share a skeleton, and none shares Lujain A's (`phase228-7-toys-mobiles`).
+The demo shops read in Arabic or Turkish show every product's description
+in that language (397 products, 10 shop types), and a template's coupon
+chest or deals card is left out, heading and frame, while a new shop has no
+code or sale (`phase228-7-demo-polish`).
 
 Roadmap 216 (Yallapp's Firebase rides out a moment when Google can't
 reach the platform's issuer): the token exchange is tried up to 3 times

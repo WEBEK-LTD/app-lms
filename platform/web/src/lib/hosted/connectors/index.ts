@@ -76,6 +76,8 @@ export function connectorFor(
     onTeacherAnswer?: CoursesDeps["onTeacherAnswer"];
     /** 13.1 Card payments in the app (dashboard products, courses and 28 tickets) are in the app's plan. */
     cardPayments?: boolean;
+    /** 228.7 The owner's own preview (a valid preview token): a shop that can't sell yet shows its products to buy, its checkout placing no order. */
+    preview?: boolean;
     /** 91.4 Loyalty points are in the app's plan. */
     loyalty?: boolean;
     /** 104 Delivery apps are in the app's plan. */

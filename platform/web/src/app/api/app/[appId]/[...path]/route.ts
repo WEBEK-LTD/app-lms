@@ -192,6 +192,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         assetUrl,
         platformUrl: appUrl(),
         cardPayments: hasFeature(plan, "card_payments"),
+        // 228.7 The owner's own preview: a shop shows its products to buy before it can take payments.
+        preview: preview?.ok === true,
         // 100.3 Paid courses are bought through the stores when the app sells in the app.
         storeBilling: storeBillingOn(app, plan),
         // 91.4 Loyalty points in shops without a website.
