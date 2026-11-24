@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Avatar } from "./avatar";
-import { Drawer, LangSelect, ThemeButtons } from "./client";
+import { Drawer, LangSelect, SearchKey, ThemeButtons } from "./client";
 import type { Section, Viewer } from "./data";
 import { cmLinks } from "./links";
 import { sectionColor } from "./source";
@@ -148,7 +148,8 @@ export function Header({ w, lang, viewer, unread, active, mySections, newCount, 
       </Link>
       <form className="cm-search" action={cmLinks.search()} role="search">
         <span className="ms" aria-hidden="true">search</span>
-        <input type="search" name="q" defaultValue={q} placeholder={w.searchPlaceholder} aria-label={w.search} />
+        <input type="search" name="q" defaultValue={q} placeholder={w.searchPlaceholder} aria-label={w.search} aria-keyshortcuts="Control+K Meta+K" />
+        <SearchKey />
       </form>
       <div className="sp" />
       <LangSelect lang={lang} label={w.language} />

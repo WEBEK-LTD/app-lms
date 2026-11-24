@@ -60,8 +60,8 @@
     --cm-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 30px rgba(0, 0, 0, 0.35);
   }
 }
-.cm a { color: inherit; text-decoration: none; }
-.cm button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+:where(.cm) a { color: inherit; text-decoration: none; }
+:where(.cm) button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 .cm .ms {
   font-family: var(--font-icons), "Material Symbols Rounded";
   font-weight: 400; font-style: normal; line-height: 1; letter-spacing: normal; text-transform: none;
@@ -93,7 +93,7 @@
 .cm-search { flex: 1; max-width: 640px; height: 48px; border-radius: 16px; background: var(--cm-card); border: 1px solid var(--cm-line); display: flex; align-items: center; gap: 10px; padding: 0 16px; color: #8e8ba0; font-size: 15px; }
 .cm-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--cm-ink); font: inherit; }
 .cm-search input::placeholder { color: #8e8ba0; }
-.cm-search .k { margin-inline-start: auto; font-size: 12px; border: 1px solid var(--cm-line); border-radius: 7px; padding: 2px 7px; color: #8e8ba0; }
+.cm-search .k { flex: none; font-family: var(--font-cm-readex), sans-serif; direction: ltr; margin-inline-start: auto; font-size: 12px; border: 1px solid var(--cm-line); border-radius: 7px; padding: 2px 7px; color: #8e8ba0; }
 .cm-hdr .sp { flex: 1; }
 .cm-lang { font-size: 13px; font-weight: 600; color: var(--cm-muted); display: flex; align-items: center; gap: 4px; position: relative; }
 .cm-lang select { appearance: none; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; padding-inline-end: 2px; }
@@ -128,6 +128,7 @@
 
 /* ===== Centre ===== */
 .cm-hero { border-radius: 28px; padding: 26px 30px; color: #fff; background: radial-gradient(420px 220px at 88% 10%, rgba(255, 90, 31, 0.55), transparent 70%), radial-gradient(360px 220px at 10% 100%, rgba(107, 91, 255, 0.45), transparent 70%), linear-gradient(220deg, #1d1b4a, #0e0d24); display: flex; align-items: center; gap: 24px; position: relative; overflow: hidden; }
+.cm-hero > div:first-child { flex: 1; min-width: 0; }
 .cm-hero h2 { font-size: 26px; font-weight: 700; }
 .cm-hero p { font-size: 15px; color: rgba(255, 255, 255, 0.78); margin-top: 6px; }
 .cm-hero .btn { margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--cm-navy); font-weight: 700; font-size: 14.5px; padding: 11px 18px; border-radius: 14px; }
@@ -136,7 +137,7 @@
 .cm-stat b { font-size: 26px; display: block; }
 .cm-stat span { font-size: 12.5px; color: rgba(255, 255, 255, 0.75); }
 .cm-comp { margin-top: 18px; background: var(--cm-card); border: 1px solid var(--cm-line); border-radius: 22px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
-.cm-comp .in { flex: 1; font-size: 15px; color: #8e8ba0; }
+.cm-comp .in { flex: 1; min-width: 0; font-size: 15px; color: #8e8ba0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cm-comp .t { display: flex; gap: 8px; }
 .cm-comp .t > * { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--cm-text2); background: var(--cm-soft); padding: 8px 12px; border-radius: 12px; }
 .cm-comp .t .ms { font-size: 19px; }
@@ -334,6 +335,41 @@
 .cm-inline input { font: inherit; font-size: 13px; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--cm-line); background: var(--cm-paper); color: var(--cm-ink); min-width: 120px; }
 .cm-grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 16px; }
 
+/* ===== Welcome and signing in (the app design's first screen) ===== */
+.cm-land { min-height: 100vh; color: #fff; background: radial-gradient(520px 360px at 85% 0%, rgba(255, 90, 31, 0.45), transparent 70%), radial-gradient(520px 380px at 0% 60%, rgba(107, 91, 255, 0.4), transparent 70%), linear-gradient(180deg, #1a1846, #0e0d24); padding: 18px 16px 40px; display: flex; flex-direction: column; align-items: center; }
+.cm-land-top { width: 100%; max-width: 1100px; display: flex; justify-content: space-between; align-items: center; }
+.cm-land-brand { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 18px; }
+.cm-land-brand img { width: 38px; height: 38px; border-radius: 11px; }
+.cm-land-lang { display: flex; }
+.cm-land-lang .cm-lang { display: flex !important; color: #fff; padding: 8px 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.16); }
+.cm-land-lang option { color: #141327; }
+.cm-land-card { margin-top: 40px; width: 100%; max-width: 440px; background: var(--cm-card); color: var(--cm-ink); border-radius: 28px; padding: 28px 24px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); }
+.cm-land-card h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.4px; margin-bottom: 18px; }
+.cm-welcome { margin-top: 2vh; width: 100%; max-width: 420px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+.cm-collage { position: relative; width: 100%; max-width: 390px; height: 360px; margin-top: -8px; }
+.cm-collage .fl { position: absolute; border-radius: 22px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+.cm-collage .ph { width: 118px; height: 236px; border-radius: 24px; overflow: hidden; border: 4px solid rgba(255, 255, 255, 0.9); background: #fff; }
+.cm-collage .ph img { width: 100%; display: block; }
+.cm-collage .bub { padding: 10px 12px; font-size: 12px; display: flex; gap: 8px; align-items: center; color: #fff; max-width: 200px; line-height: 1.35; text-align: start; }
+.cm-collage .bub b { font-size: 12px; display: block; }
+.cm .glass { background: rgba(255, 255, 255, 0.16); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.24); }
+.cm-welcome .lgo { position: relative; z-index: 2; margin-top: -220px; width: 92px; height: 92px; border-radius: 26px; box-shadow: 0 20px 50px rgba(255, 90, 31, 0.55), 0 0 0 8px rgba(255, 255, 255, 0.06); }
+.cm-welcome h1 { margin-top: 136px; font-size: 34px; line-height: 1.12; font-weight: 800; letter-spacing: -1px; }
+.cm-welcome h1 span { background: linear-gradient(90deg, #ffb23d, #ff5a1f); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cm-welcome p { margin-top: 12px; color: rgba(255, 255, 255, 0.75); font-size: 16px; line-height: 1.55; }
+.cm-welcome .cm-auth-btns { margin-top: 30px; width: 100%; }
+.cm-welcome .small { margin-top: 18px; font-size: 14.5px; color: rgba(255, 255, 255, 0.75); }
+.cm-welcome .small b { color: #fff; }
+.cm-auth-btns { display: grid; gap: 10px; }
+.cm-abtn { height: 54px; border-radius: 17px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; font-size: 15.5px; width: 100%; }
+.cm-abtn.w { background: #fff; color: #000 !important; box-shadow: 0 0 0 1px var(--cm-line); }
+.cm-abtn.o { background: linear-gradient(135deg, var(--cm-orange2), var(--cm-orange)); color: #fff !important; box-shadow: 0 12px 26px rgba(255, 90, 31, 0.35); }
+.cm-abtn:disabled { opacity: 0.6; }
+.cm-or { display: flex; align-items: center; gap: 10px; margin: 18px 0 2px; color: var(--cm-muted); font-size: 13px; }
+.cm-or::before, .cm-or::after { content: ""; flex: 1; height: 1px; background: var(--cm-line); }
+.cm-wide { width: 100%; }
+.cm-fine { margin-top: 14px; font-size: 13px; text-align: center; color: var(--cm-muted); }
+
 /* ===== Phone: menu button, side menu and tab bar (the app design) ===== */
 .cm-menu, .cm-only-phone, .cm-tb { display: none; }
 .cm-icb.soon { opacity: 0.55; cursor: default; }
@@ -403,6 +439,10 @@
   .cm-comp { flex-wrap: wrap; }
   .cm-comp .t { width: 100%; overflow-x: auto; }
   .cm-two { grid-template-columns: 1fr; }
+  .cm-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+  .cm-tabs a { white-space: nowrap; }
+  .cm-tabs .flt { flex: none; }
+  .cm-comp .in { white-space: normal; }
   .cm-gal { height: 160px; }
   .cm-answer { gap: 10px; }
   .cm-votes { width: 36px; }

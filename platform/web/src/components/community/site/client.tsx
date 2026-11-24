@@ -105,3 +105,23 @@ export function GoSelect({ label, value, options }: { label: string; value: stri
     </label>
   );
 }
+
+/** The search box's "⌘ K" (Ctrl K elsewhere): the keys that put the cursor in it. */
+export function SearchKey() {
+  const [mac, setMac] = useState(true);
+  useEffect(() => {
+    setMac(/Mac|iPhone|iPad/.test(navigator.platform));
+    const key = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        const input = document.querySelector<HTMLInputElement>(".cm-search input");
+        if (input) {
+          e.preventDefault();
+          input.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, []);
+  return <span className="k" aria-hidden="true">{mac ? "⌘ K" : "Ctrl K"}</span>;
+}

@@ -258,3 +258,26 @@ export async function startLink(_viewerId: string, _back: string): Promise<strin
 export async function unlink(_viewerId: string): Promise<Result> {
   return { ok: false, code: "not_ready" };
 }
+
+// ----- Signing in (area A): the site keeps the session in httpOnly cookies -----
+
+export type AuthResult = { ok: true; created: boolean } | { ok: false; code: string };
+
+/** The website's Sign in with Apple service id and Google client id, from the environment; null when not configured. */
+export function authProviders(): { apple: { clientId: string; redirectUri: string } | null; google: { clientId: string } | null } {
+  return { apple: null, google: null };
+}
+
+export async function signUpEmail(_input: { email: string; password: string; name: string; lang: CmLang }): Promise<AuthResult> {
+  return { ok: false, code: "not_ready" };
+}
+
+export async function logInEmail(_input: { email: string; password: string }): Promise<AuthResult> {
+  return { ok: false, code: "not_ready" };
+}
+
+export async function continueWith(_provider: "apple" | "google", _input: { idToken: string; nonce?: string; name?: string; lang: CmLang }): Promise<AuthResult> {
+  return { ok: false, code: "not_ready" };
+}
+
+export async function requestPasswordReset(_email: string): Promise<void> {}
