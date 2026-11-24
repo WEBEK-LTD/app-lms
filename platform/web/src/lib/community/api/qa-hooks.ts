@@ -1,4 +1,4 @@
-import type { MemberPerson, QaHooks } from "../qa/hooks";
+import { withQa, type MemberPerson, type QaHooks } from "../qa/hooks";
 import { trustDepsOf } from "../trust/context";
 import { moderateNew, notify } from "../trust/service";
 import type { CommunityContext } from "./http";
@@ -35,6 +35,19 @@ export function qaHooksFor(ctx: CommunityContext): Partial<QaHooks> {
 }
 
 /**
+ * Runs Q&A functions for this call with its store and all its hooks
+ * (members, blocks, points, moderation, notices). Area C's own calls into
+ * the Q&A (approving or removing a post) go through it, so an approved
+ * answer still tells the asker and a removed accepted one takes its points
+ * back from the profile.
+ */
+export function withQaFor<T>(ctx: Pick<CommunityContext, "deps" | "store" | "now"> & Partial<CommunityContext>, fn: () => Promise<T>): Promise<T> {
+  // Without a reader (area C's own work): members as a signed-out reader sees them; each notice is written in its recipient's language by area C.
+  const full = { member: null, session: null, lang: "en", params: {}, query: new URLSearchParams(), json: () => ({}), ...ctx } as CommunityContext;
+  return withQa(ctx.store.qa, qaHooksFor(full), fn);
+}
+
+/**
  * Area C's side: a new post's status (moderateNew: a new member's first
  * posts and the spam filter hold it, and it goes into the moderation
  * queue) and the notices (notify: the list, and email for the kinds that
@@ -54,5 +67,5 @@ export function trustForQa(ctx: CommunityContext): Partial<Pick<QaHooks, "modera
 
 /** Area A's MemberSummary, kept whole (its rank and rank_label too) so the app and site see one shape everywhere. */
 function fromView(v: MemberSummaryView): MemberPerson {
-  return { id: v.id, username: v.username, displayName: v.display_name, avatarUrl: v.avatar_url, headline: v.headline, topBadge: v.top_badge, team: v.team, deleted: v.deleted, rank: v.rank, rankLabel: v.rank_label };
+  return { id: v.id, username: v.username, displayName: v.display_name, avatarUrl: v.avatar_url, headline: v.headline, topBadge: v.top_badge, team: v.team, deleted: v.deleted, rank: v.rank, rankLabel: v.rank_label, level: v.level, levelLabel: v.level_label, levelProgress: v.level_progress };
 }

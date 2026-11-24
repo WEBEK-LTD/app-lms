@@ -349,12 +349,21 @@ export class MysqlQaStore implements QaStore {
     return (row?.value ?? 0) as VoteValue;
   }
 
-  async setVote(memberId: string, kind: VoteKind, targetId: string, value: VoteValue, now: Date): Promise<VoteValue> {
-    const before = await this.getVote(memberId, kind, targetId);
+  async castVote(memberId: string, kind: VoteKind, targetId: string, value: VoteValue, now: Date): Promise<{ before: VoteValue; score: number }> {
+    const post = kind === "question" ? communityQuestions : communityAnswers;
     const v = communityVotes;
-    if (value === 0) await this.db.delete(v).where(and(eq(v.memberId, memberId), eq(v.targetType, kind), eq(v.targetId, targetId)));
-    else await this.db.insert(v).values({ memberId, targetType: kind, targetId, value, createdAt: now }).onDuplicateKeyUpdate({ set: { value, createdAt: now } });
-    return before;
+    return this.db.transaction(async (tx) => {
+      // The post's row first: every vote on it waits here, so the vote read below is the latest.
+      const [locked] = await tx.select({ score: post.score }).from(post).where(eq(post.id, targetId)).for("update");
+      if (!locked) return { before: 0 as VoteValue, score: 0 };
+      const [had] = await tx.select({ value: v.value }).from(v).where(and(eq(v.memberId, memberId), eq(v.targetType, kind), eq(v.targetId, targetId)));
+      const before = (had?.value ?? 0) as VoteValue;
+      if (value === before) return { before, score: locked.score };
+      if (value === 0) await tx.delete(v).where(and(eq(v.memberId, memberId), eq(v.targetType, kind), eq(v.targetId, targetId)));
+      else await tx.insert(v).values({ memberId, targetType: kind, targetId, value, createdAt: now }).onDuplicateKeyUpdate({ set: { value, createdAt: now } });
+      await tx.update(post).set({ score: sql`${post.score} + ${value - before}` }).where(eq(post.id, targetId));
+      return { before, score: locked.score + value - before };
+    });
   }
 
   async votesOf(memberId: string, kind: VoteKind, targetIds: readonly string[]): Promise<Record<string, VoteValue>> {
@@ -473,13 +482,20 @@ export class MysqlQaStore implements QaStore {
 
   // ——— Points ———
 
-  async addPoints(e: PointEvent): Promise<void> {
-    await this.db.insert(communityPointEvents).values({ ...e });
+  async addPoints(e: PointEvent): Promise<boolean> {
+    // Once per member, reason and ref (the unique key of migration 0157): a repeat changes nothing.
+    const [result] = await this.db.insert(communityPointEvents).ignore().values({ ...e });
+    return (result as { affectedRows?: number }).affectedRows === 1;
   }
 
-  async removePoints(memberId: string, reason: PointReason, ref: string): Promise<void> {
+  async removePoints(memberId: string, reason: PointReason, ref: string): Promise<number> {
     const p = communityPointEvents;
-    await this.db.delete(p).where(and(eq(p.memberId, memberId), eq(p.reason, reason), eq(p.ref, ref)));
+    return this.db.transaction(async (tx) => {
+      const rows = await tx.select({ points: p.points }).from(p).where(and(eq(p.memberId, memberId), eq(p.reason, reason), eq(p.ref, ref))).for("update");
+      if (!rows.length) return 0;
+      await tx.delete(p).where(and(eq(p.memberId, memberId), eq(p.reason, reason), eq(p.ref, ref)));
+      return rows.reduce((total, r) => total + r.points, 0);
+    });
   }
 
   async pointsOf(memberIds: readonly string[]): Promise<Record<string, number>> {

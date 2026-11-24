@@ -180,8 +180,12 @@ export interface QaStore {
 
   // Votes and bookmarks
   getVote(memberId: string, kind: VoteKind, targetId: string): Promise<VoteValue>;
-  /** Sets the member's vote (0 takes it back); the previous one. */
-  setVote(memberId: string, kind: VoteKind, targetId: string, value: VoteValue, now: Date): Promise<VoteValue>;
+  /**
+   * Sets the member's vote (0 takes it back) and moves the post's score by
+   * the change, as one step: parallel votes neither double-count nor write
+   * a stale score. The previous vote and the score now.
+   */
+  castVote(memberId: string, kind: VoteKind, targetId: string, value: VoteValue, now: Date): Promise<{ before: VoteValue; score: number }>;
   votesOf(memberId: string, kind: VoteKind, targetIds: readonly string[]): Promise<Record<string, VoteValue>>;
   setBookmark(memberId: string, kind: BookmarkKind, targetId: string, on: boolean, now: Date): Promise<void>;
   /** The member's saved ones of this kind (of these, when given), the last saved first. */
@@ -199,9 +203,10 @@ export interface QaStore {
   addTutorialView(id: string): Promise<void>;
 
   // Points
-  addPoints(e: PointEvent): Promise<void>;
+  /** Records the event once per member, reason and ref (a second is ignored); whether it was recorded. */
+  addPoints(e: PointEvent): Promise<boolean>;
   /** Takes back the points this reason gave for this ref (a vote taken back). */
-  removePoints(memberId: string, reason: PointReason, ref: string): Promise<void>;
+  removePoints(memberId: string, reason: PointReason, ref: string): Promise<number>;
   pointsOf(memberIds: readonly string[]): Promise<Record<string, number>>;
   /** Points earned since a date, the most first (only those above 0). */
   topEarners(since: Date, limit: number): Promise<{ memberId: string; points: number }[]>;

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 import { QA_ROUTES } from "@/lib/community/api/qa-routes";
-import { api, joinWithEmail, NOW, testCommunity, type TestCommunity } from "./community-support";
+import { api, joinWithEmail, makeYallappStaff, NOW, testCommunity, type TestCommunity } from "./community-support";
 
 /**
  * 231 Area B through the Community API (/api/community/v1): asking with the
@@ -17,9 +17,9 @@ async function setup() {
   const c = await testCommunity({ providers: false });
   const asker = await joinWithEmail(c, "Karim Asker");
   const helper = await joinWithEmail(c, "Nour Helper");
-  // 231 Yallapp's names are the team's: a team member gets theirs in the admin, not at sign-up.
-  const team = await joinWithEmail(c, "Team One");
-  await c.deps.store.base.updateMember(team.id, { role: "team", displayName: "Yallapp Team One" });
+  const team = await joinWithEmail(c, "Tariq Staff");
+  // "Yallapp Team": their linked Yallapp account is on Yallapp's support team.
+  await makeYallappStaff(c, team.id, "support");
   // Established members: a new member's first 2 posts wait for review (area C's moderation, tested there).
   for (const m of [asker, helper]) await c.deps.store.base.updateMember(m.id, { approvedPosts: 2 });
   return { c, asker, helper, team };
@@ -55,7 +55,8 @@ describe("231 Community Q&A API", () => {
     const q = await ask(c, asker.token);
     expect(q).toMatchObject({ title: QUESTION.title, status: "published", section: { slug: "payments" }, answer_count: 0, my_vote: 0, can_edit: true, answers: [] });
     expect(q.tags.map((t: Json) => t.slug)).toEqual(["payments", "checkout"]);
-    expect(q.author).toMatchObject({ id: asker.id, display_name: "Karim Asker", team: false, rank: "newcomer" });
+    // A's one MemberSummary: the level, its name and its progress too.
+    expect(q.author).toMatchObject({ id: asker.id, display_name: "Karim Asker", team: false, rank: "newcomer", rank_label: expect.any(String), level: "newcomer", level_label: expect.any(String), level_progress: 0 });
 
     const similar = await api<Json>(c, "GET", `/qa/questions/similar?title=${encodeURIComponent("connect payment gateway store")}`, { token: helper.token });
     expect(similar.body.items.map((s: Json) => s.id)).toEqual([q.id]);
@@ -122,7 +123,9 @@ describe("231 Community Q&A API", () => {
       body: { title: "Accept card payments in your store", summary: "Add a gateway in five minutes.", kind: "article", section: "payments", level: "beginner", language: "en", body: "Open Payments, then add a gateway and paste your keys. ".repeat(30) },
     });
     expect(t.status, JSON.stringify(t.body)).toBe(201);
-    expect(t.body).toMatchObject({ official: true, locked: false, kind: "article", duration_minutes: expect.any(Number) });
+    // Every tutorial is free, always: no lock at all.
+    expect(t.body).not.toHaveProperty("locked");
+    expect(t.body).toMatchObject({ official: true, kind: "article", duration_minutes: expect.any(Number) });
     expect((await api(c, "PUT", `/tutorials/${t.body.slug}/bookmark`, { token: helper.token })).status).toBe(204);
     const saved = await api<Json>(c, "GET", "/qa/saved", { token: helper.token });
     expect(saved.body.questions.map((x: Json) => x.id)).toEqual([q.id]);
@@ -159,6 +162,35 @@ describe("231 Community Q&A API", () => {
     await c.deps.store.base.updateMember(asker.id, { language: "tr" });
     const tr = await api<Json>(c, "POST", "/qa/questions", { token: asker.token, body: { ...QUESTION, section: "nowhere" } });
     expect(tr.body.error.fields.section).toBe("Bir bölüm seçin.");
+  });
+
+  it("limits how often a member asks, and says when to try again", async () => {
+    const { c, asker } = await setup();
+    for (let i = 0; i < 10; i++) expect((await api(c, "POST", "/qa/questions", { token: asker.token, body: { ...QUESTION, title: `${QUESTION.title} (${i})` } })).status).toBe(201);
+    const refused = await api<Json>(c, "POST", "/qa/questions", { token: asker.token, body: { ...QUESTION, title: `${QUESTION.title} (again)` } });
+    expect(refused.status).toBe(429);
+    expect(refused.body.error.code).toBe("too_many_attempts");
+  });
+
+  it("counts a reader's views once in a while, shows only tags in use, and keeps blocked and hidden posts out of replies and votes", async () => {
+    const { c, asker, helper, team } = await setup();
+    const omar = await joinWithEmail(c, "Omar Third");
+    const q = await ask(c, asker.token, { ...QUESTION, tags: ["Gateways"] });
+    for (let i = 0; i < 3; i++) await api(c, "GET", `/qa/questions/${q.id}`, { token: helper.token });
+    await api(c, "GET", `/qa/questions/${q.id}`);
+    expect((await api<Json>(c, "GET", `/qa/questions/${q.id}?view=0`)).body.view_count).toBe(2);
+    expect((await api<Json>(c, "GET", "/qa/tags")).body.items.map((t: Json) => t.slug)).toContain("gateways");
+
+    const a = (await api<Json>(c, "POST", `/qa/questions/${q.id}/answers`, { token: helper.token, body: { body: "Open Payments in the dashboard and add your keys." } })).body;
+    // The asker blocked Omar: he can't reply under their question, even to someone else's answer.
+    await api(c, "PUT", `/members/${omar.id}/block`, { token: asker.token });
+    expect((await api(c, "POST", `/qa/answers/${a.id}/replies`, { token: omar.token, body: { body: "Me too!" } })).status).toBe(403);
+
+    // The question removed: its answer takes no votes, and its tag isn't listed.
+    expect((await api(c, "DELETE", `/qa/questions/${q.id}`, { token: team.token })).status).toBe(204);
+    expect((await api(c, "PUT", `/qa/answers/${a.id}/vote`, { token: omar.token, body: { value: 1 } })).status).toBe(404);
+    expect((await api<Json>(c, "GET", "/qa/tags")).body.items.map((t: Json) => t.slug)).not.toContain("gateways");
+    expect((await api<Json>(c, "GET", "/search?q=gateways&type=tags")).body.tags).toEqual([]);
   });
 
   it("has a word in every language for every field the Q&A can refuse", async () => {

@@ -106,7 +106,7 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       // Arabic's joined "the" and "and" don't keep a word from being found.
       expect(words("المتجر والدفع")).toEqual(["متجر", "دفع"]);
       expect(links("see https://a.test/x and http://b.test")).toEqual(["https://a.test/x", "http://b.test"]);
-      expect([rankOf(0), rankOf(25), rankOf(250), rankOf(1240), rankOf(5000)]).toEqual(["newcomer", "member", "contributor", "expert", "pro"]);
+      expect([rankOf(0), rankOf(25), rankOf(250), rankOf(1240), rankOf(1375), rankOf(5000)]).toEqual(["newcomer", "member", "contributor", "pro", "expert", "master"]);
       expect(similarity({ title: "Connect payment gateway store" }, { title: "How to connect a payment gateway to a store" })).toBeGreaterThan(0.5);
       expect(similarity({ title: "Connect payment gateway" }, { title: "Restaurant menu sections" })).toBe(0);
     });
@@ -179,6 +179,27 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       expect(await setContentStatus("question", "missing", "published")).toBe(false);
       pendingFor.add(TEAM);
       expect((await ask(TEAM, "A question from the Yallapp team itself")).status).toBe("published");
+    });
+
+    it("holds an edit of a published question or answer that moderation holds, until it is approved again", async () => {
+      const question = await ask("karim", "How do I show delivery fees at checkout?");
+      const reply = await answer("nour", question.id, "Settings, then Delivery, then fees by zone.", later(5));
+      await acceptAnswer("karim", reply.id, true, "en", later(6));
+      expect((await memberStats("nour")).points).toBe(25);
+      // Edited into what the spam filter holds.
+      pendingFor.add("karim").add("nour");
+      expect((await editQuestion("karim", question.id, { body: "Cheap followers here: https://spam.example/buy", lang: "en" }, later(7))).status).toBe("pending");
+      expect((await listQuestions({ viewerId: null, lang: "en" })).items).toEqual([]);
+      await setContentStatus("question", question.id, "published");
+      const edited = await editAnswer("nour", reply.id, { body: "Visit https://spam.example/now for the answer.", lang: "en" }, later(8));
+      expect(edited.status).toBe("pending");
+      const shown = await getQuestion(question.id, { viewerId: null, lang: "en", countView: false });
+      expect(shown).toMatchObject({ answerCount: 0, accepted: false, acceptedAnswerId: null, answers: [] });
+      expect((await memberStats("nour")).points).toBe(0);
+      // A change that leaves the words as they were isn't moderated again; the team's never are.
+      pendingFor = new Set([TEAM]);
+      const team = await answer(TEAM, question.id, "From the team: Settings, then Delivery.", later(9));
+      expect((await editAnswer(TEAM, team.id, { body: "From the team: Settings, then Delivery, then Fees.", lang: "en" }, later(10))).status).toBe("published");
     });
 
     it("lets only the asker change or delete a question, and only an author their answer or reply", async () => {
@@ -263,6 +284,19 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       detail = await getQuestion(question.id, { viewerId: null, lang: "en" });
       expect(detail.answers.map((a) => a.id)).toEqual([team.id, nour.id, personal.id]);
       expect(detail.answerCount).toBe(3);
+    });
+
+    it("counts the same vote sent many times at once only once, and its points once", async () => {
+      const question = await ask("karim", "How do I stop a double tap voting twice?");
+      const reply = await answer("nour", question.id, "The server counts one vote per member, whatever arrives.", later(5));
+      const results = await Promise.all(Array.from({ length: 10 }, () => vote("karim", { kind: "answer", id: reply.id, value: 1 })));
+      expect(results.every((r) => r.myVote === 1)).toBe(true);
+      expect((await getQuestion(question.id, { viewerId: null, lang: "en", countView: false })).answers[0]!.score).toBe(1);
+      expect((await memberStats("nour")).points).toBe(5);
+      // And taken back once, however many times.
+      await Promise.all(Array.from({ length: 5 }, () => vote("karim", { kind: "answer", id: reply.id, value: 0 })));
+      expect((await getQuestion(question.id, { viewerId: null, lang: "en", countView: false })).answers[0]!.score).toBe(0);
+      expect((await memberStats("nour")).points).toBe(0);
     });
 
     it("holds a new member's answer for a moderator, tells the asker once it is approved, and counts views", async () => {
@@ -368,7 +402,7 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       await expect(publishTutorial(TEAM, { title: "A video without its address", summary: "A summary here.", kind: "video", section: "studio", level: "beginner", language: "en", body: "", videoUrl: "https://evil.example/v", durationSeconds: 60 })).rejects.toMatchObject({ field: "videoUrl" });
       const article = await publishTutorial(TEAM, { title: "A different product page per template", summary: "Each template its own product page.", kind: "article", section: "studio", level: "beginner", language: "en", body: "word ".repeat(1000), tags: ["Studio", "Product page"] }, later(1));
       const video = await publishTutorial(TEAM, { title: "صفحة منتج مختلفة لكل تمبلت", summary: "في ثماني دقائق.", kind: "video", section: "studio", level: "intermediate", language: "ar", body: "", videoUrl: "https://youtu.be/xyz", durationSeconds: 504 }, later(2));
-      expect(article).toMatchObject({ kind: "article", durationSeconds: 300, durationMinutes: 5, official: true, locked: false, tags: ["studio", "product-page"], author: { displayName: "Yallapp Team" }, section: { slug: "studio" } });
+      expect(article).toMatchObject({ kind: "article", durationSeconds: 300, durationMinutes: 5, official: true, tags: ["studio", "product-page"], author: { displayName: "Yallapp Team" }, section: { slug: "studio" } });
       expect(video).toMatchObject({ kind: "video", durationSeconds: 504, durationMinutes: 9, videoUrl: "https://youtu.be/xyz", slug: "صفحة-منتج-مختلفة-لكل-تمبلت", language: "ar" });
       // Never a price on a tutorial.
       expect(JSON.stringify(video)).not.toMatch(/price|checkout|payment|currency/i);

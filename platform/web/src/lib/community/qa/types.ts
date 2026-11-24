@@ -6,8 +6,6 @@
  * community's own accounts (area A): `MemberSummary`, with their Q&A rank.
  */
 
-import type { CommunityLevel } from "../levels";
-
 export type CommunityLang = "en" | "ar" | "tr";
 export const COMMUNITY_LANGS: readonly CommunityLang[] = ["en", "ar", "tr"];
 
@@ -28,10 +26,14 @@ export interface MemberSummary {
   rank: MemberRank;
   /** The rank in the reader's language ("Expert"), from area A's views. */
   rankLabel?: string;
+  /** Area A's level, its name and how far toward the next (0-1), where A gives them. */
+  level?: MemberRank;
+  levelLabel?: string;
+  levelProgress?: number;
 }
 
-/** A member's standing by their points: the community's levels (lib/community/levels.ts), one table for every area. */
-export type MemberRank = CommunityLevel;
+/** The community's levels (lib/community/levels.ts). */
+export type MemberRank = import("../levels").CommunityLevel;
 
 /**
  * Where a post is: shown; waiting for a moderator (a new member's first
@@ -150,8 +152,6 @@ export interface TutorialSummary {
   /** Rounded up: "5 min read". */
   durationMinutes: number;
   official: boolean;
-  /** Paid on the website and not unlocked for this member: shown with a lock, never a price. Phase 1 has none. */
-  locked: boolean;
   tags: string[];
   author: MemberSummary;
   viewCount: number;
@@ -160,9 +160,9 @@ export interface TutorialSummary {
 }
 
 export interface Tutorial extends TutorialSummary {
-  /** An article's text (Markdown); a video's notes; empty when locked. */
+  /** An article's text (Markdown); a video's notes. Every tutorial is free. */
   body: string;
-  /** Null when locked. */
+  /** A video's address; null for an article. */
   videoUrl: string | null;
 }
 

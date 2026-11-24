@@ -27,9 +27,8 @@ info:
       notifications, emails, section names) follow `Member.language`, else
       `Accept-Language`, else English. What members wrote comes back as
       written.
-    - **No payments in the app.** Nothing is sold through this API. Paid
-      things are bought on the website and appear here unlocked (`locked`
-      false) after sign-in; locked things carry no price.
+    - **No payments in the app.** Nothing is sold through this API, and
+      every tutorial is free, always: no locks, no prices.
     - **Blocking.** A member never sees content, profiles or notifications
       from someone they blocked or who blocked them; follows and friendships
       between the two end when one blocks the other.
@@ -596,11 +595,13 @@ paths:
       responses:
         "204": { description: Followed. }
         "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooMany" }
     delete:
       tags: [Q&A]
       summary: Stop following a section
       responses:
         "204": { description: Not followed. }
+        "429": { $ref: "#/components/responses/TooMany" }
   /qa/home:
     get:
       tags: [Q&A]
@@ -708,6 +709,7 @@ paths:
       responses:
         "201": { description: Asked., content: { application/json: { schema: { $ref: "#/components/schemas/Question" } } } }
         "400": { $ref: "#/components/responses/Invalid" }
+        "429": { $ref: "#/components/responses/TooMany" }
   /qa/questions/similar:
     get:
       tags: [Q&A, Search]
@@ -720,6 +722,7 @@ paths:
         - { name: limit, in: query, schema: { type: integer, default: 5, maximum: 10 } }
       responses:
         "200": { description: Most similar first., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/QuestionSummary" } } } } } } }
+        "429": { $ref: "#/components/responses/TooMany" }
   /qa/questions/{question_id}:
     get:
       tags: [Q&A]
@@ -749,6 +752,7 @@ paths:
         "200": { description: The question., content: { application/json: { schema: { $ref: "#/components/schemas/Question" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooMany" }
     delete:
       tags: [Q&A]
       summary: Delete one's own question (or, for a moderator, remove it)
@@ -765,6 +769,7 @@ paths:
       responses:
         "200": { $ref: "#/components/responses/Voted" }
         "400": { $ref: "#/components/responses/NotAllowed" }
+        "429": { $ref: "#/components/responses/TooMany" }
   /qa/questions/{question_id}/bookmark:
     parameters: [{ $ref: "#/components/parameters/QuestionId" }]
     put:
@@ -773,11 +778,13 @@ paths:
       responses:
         "204": { description: Saved. }
         "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooMany" }
     delete:
       tags: [Q&A]
       summary: Unsave a question
       responses:
         "204": { description: Unsaved. }
+        "429": { $ref: "#/components/responses/TooMany" }
   /qa/questions/{question_id}/answers:
     post:
       tags: [Q&A]
@@ -798,6 +805,7 @@ paths:
         "201": { description: Answered., content: { application/json: { schema: { $ref: "#/components/schemas/Answer" } } } }
         "400": { $ref: "#/components/responses/Invalid" }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/TooMany" }
   /qa/answers/{answer_id}:
     patch:
       tags: [Q&A]
@@ -811,6 +819,7 @@ paths:
       responses:
         "200": { description: The answer., content: { application/json: { schema: { $ref: "#/components/schemas/Answer" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/TooMany" }
     delete:
       tags: [Q&A]
       summary: Delete one's own answer
@@ -827,6 +836,7 @@ paths:
       responses:
         "200": { $ref: "#/components/responses/Voted" }
         "400": { $ref: "#/components/responses/NotAllowed" }
+        "429": { $ref: "#/components/responses/TooMany" }
   /qa/answers/{answer_id}/accept:
     put:
       tags: [Q&A]
@@ -874,6 +884,7 @@ paths:
         "201": { description: Replied., content: { application/json: { schema: { $ref: "#/components/schemas/Reply" } } } }
         "400": { $ref: "#/components/responses/Invalid" }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/TooMany" }
   /qa/replies/{reply_id}:
     delete:
       tags: [Q&A]
@@ -940,6 +951,7 @@ paths:
         "201": { description: Published., content: { application/json: { schema: { $ref: "#/components/schemas/Tutorial" } } } }
         "400": { $ref: "#/components/responses/Invalid" }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/TooMany" }
   /tutorials/{tutorial}/bookmark:
     parameters: [{ name: tutorial, in: path, required: true, schema: { type: string }, description: "Its id or slug." }]
     put:
@@ -948,11 +960,13 @@ paths:
       responses:
         "204": { description: Saved. }
         "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooMany" }
     delete:
       tags: [Tutorials]
       summary: Unsave a tutorial
       responses:
         "204": { description: Unsaved. }
+        "429": { $ref: "#/components/responses/TooMany" }
   /tutorials/{tutorial}:
     get:
       tags: [Tutorials]
@@ -987,6 +1001,7 @@ paths:
                   members: { type: array, items: { $ref: "#/components/schemas/MemberSummary" } }
                   tags: { type: array, items: { $ref: "#/components/schemas/Tag" } }
 
+        "429": { $ref: "#/components/responses/TooMany" }
   # ------------------------------------------------------------ Area C: Badges
   /badges/verification:
     get:
@@ -1679,7 +1694,7 @@ components:
         can_edit: { type: boolean, description: "Its author may delete it." }
     TutorialSummary:
       type: object
-      required: [id, slug, title, summary, kind, level, language, section, cover_url, duration_seconds, duration_minutes, official, locked, tags, author, view_count, bookmarked, published_at]
+      required: [id, slug, title, summary, kind, level, language, section, cover_url, duration_seconds, duration_minutes, official, tags, author, view_count, bookmarked, published_at]
       properties:
         id: { type: string, format: uuid }
         slug: { type: string }
@@ -1693,7 +1708,6 @@ components:
         duration_seconds: { type: integer, description: "A video's length; an article's reading time (200 words a minute)." }
         duration_minutes: { type: [integer, "null"], description: "duration_seconds rounded up to minutes." }
         official: { type: boolean }
-        locked: { type: boolean, description: "Paid on the website and not unlocked for this member. Never a price." }
         tags: { type: array, items: { type: string }, description: "Tag slugs." }
         author: { $ref: "#/components/schemas/MemberSummary" }
         view_count: { type: integer }
@@ -1705,8 +1719,8 @@ components:
         - type: object
           required: [body, video_url]
           properties:
-            body: { type: string, description: "Markdown; empty when locked." }
-            video_url: { type: [string, "null"], description: "Null when locked." }
+            body: { type: string, description: "Markdown: the article, or a video's notes. Every tutorial is free." }
+            video_url: { type: [string, "null"], description: "A video's address; null for an article." }
     VerificationState:
       type: object
       required: [has_gold, app_count, required_apps, yallapp_linked, can_apply, request]
