@@ -3,7 +3,7 @@ import { MemoryStore } from "@/lib/data/memory";
 import { MOBILES_DEMO, TOYS_DEMO } from "@/lib/demo/constants";
 import { setupDemoApps } from "@/lib/demo/setup";
 import { FACT_WORDS } from "@/lib/demo/fact-words";
-import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
+import { CatalogConnector, PREVIEW_CHECKOUT_NOTICE } from "@/lib/hosted/connectors/catalog";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted } from "@/lib/hosted/service";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
@@ -200,4 +200,44 @@ describe("228.7 the demo products' facts, lines and specs in Arabic and Turkish,
       for (const n of nums) expect(t.ar, `${en} ar`).toContain(n);
     }
   });
+});
+
+describe("228.7 the owner's preview of a shop that can't take payments yet", () => {
+  const assetUrl = (id: string) => `https://yallapp.test/api/v1/assets/${id}`;
+  async function shop() {
+    clearPlatformSettingsCache();
+    const store = new MemoryStore();
+    const made = await setupDemoApps({ store, encryptionKey: KEY, putBlob: async () => undefined, assetUrl, platformUrl: "https://yallapp.test", contact: { whatsapp: "+90 544 673 19 42", email: "info@yallapp.test" }, actorEmail: "admin@yallapp.test", now: NOW }, [TOYS_DEMO] as never);
+    // As a /start shop: the owner's own, no payment method yet.
+    await store.updateApp(made.apps[0]!.appId, { demo: false, catalogSettings: { ...(await store.getAppById(made.apps[0]!.appId))!.catalogSettings!, payment: null, manualPayments: [] } } as never, NOW);
+    const app = (await store.getAppById(made.apps[0]!.appId))!;
+    const product = (await store.listCatalogProducts(app.id)).find((p) => p.sku === "TY-301")!;
+    return { store, app, product };
+  }
+  const ask = (c: CatalogConnector, method: string, path: string, body: unknown = undefined, lang = "en") =>
+    c.handle({ method, path: path.split("/").filter(Boolean), query: new URLSearchParams({ platform: "android" }), body, user: null, now: NOW, lang });
+
+  it("previewed: its products to buy and ordering open, its checkout refused with how to start selling, no order made", async () => {
+    const { store, app, product } = await shop();
+    const c = new CatalogConnector({ store, app, assetUrl, platformUrl: "https://yallapp.test", cardPayments: true, preview: true });
+    expect(((await c.config()) as { store: { ordering_open: boolean } }).store.ordering_open).toBe(true);
+    expect(((await ask(c, "GET", `/store/products/${product.id}`))!.body as { purchasable: boolean }).purchasable).toBe(true);
+    for (const lang of ["ar", "en", "tr"] as const) {
+      const out = (await ask(c, "POST", "/store/checkout-link", { lines: [{ product_id: product.id, quantity: 1 }] }, lang))!;
+      expect(out.status).toBe(409);
+      expect(out.body).toEqual({ code: "preview_checkout", message: PREVIEW_CHECKOUT_NOTICE[lang] });
+    }
+    expect(PREVIEW_CHECKOUT_NOTICE.ar).toBe("هذه معاينة: فعّل وسيلة دفع من لوحة التحكم لتبدأ البيع.");
+    expect((await store.listCatalogOrders({ appId: app.id, offset: 0, limit: 10 })).total).toBe(0);
+  }, 60000);
+
+  it("for a customer (no preview token): as before, nothing to buy and checkout closed", async () => {
+    const { store, app, product } = await shop();
+    const c = new CatalogConnector({ store, app, assetUrl, platformUrl: "https://yallapp.test", cardPayments: true });
+    expect(((await c.config()) as { store: { ordering_open: boolean } }).store.ordering_open).toBe(false);
+    expect(((await ask(c, "GET", `/store/products/${product.id}`))!.body as { purchasable: boolean }).purchasable).toBe(false);
+    const out = (await ask(c, "POST", "/store/checkout-link", { lines: [{ product_id: product.id, quantity: 1 }] }))!;
+    expect(out.status).toBe(503);
+    expect((out.body as { code: string }).code).toBe("shop_unavailable");
+  }, 60000);
 });

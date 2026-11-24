@@ -67,7 +67,21 @@ export interface CatalogDeps {
   onReturnRequested?: (order: CatalogOrder) => Promise<void>;
   /** 91.4 Loyalty points are in the app's plan (default false). */
   loyalty?: boolean;
+  /**
+   * 228.7 The request is the owner's own preview (a valid preview token:
+   * Studio's canvas, the preview app, the demo's shots): a shop that can't
+   * sell yet shows its products to buy, as it will, and its checkout places
+   * no order, saying how to start selling. Never for a customer.
+   */
+  preview?: boolean;
 }
+
+/** 228.7 What the owner's preview says at checkout while the shop can't take payments, in the app's language. */
+export const PREVIEW_CHECKOUT_NOTICE: Readonly<Record<"en" | "ar" | "tr", string>> = {
+  en: "This is a preview: turn on a payment method in your dashboard to start selling.",
+  ar: "هذه معاينة: فعّل وسيلة دفع من لوحة التحكم لتبدأ البيع.",
+  tr: "Bu bir önizleme: satışa başlamak için kontrol panelinden bir ödeme yöntemi etkinleştirin.",
+};
 
 type OrderBy = "newest" | "popular" | "rating" | "price_asc" | "price_desc" | "title";
 const ORDERS: OrderBy[] = ["newest", "popular", "rating", "price_asc", "price_desc", "title"];
@@ -141,6 +155,12 @@ export class CatalogConnector implements Connector {
    * products the app doesn't sell.
    */
   private get canSell(): boolean {
+    // 228.7 In the owner's own preview, as it will once payments are on: the real Add to cart, a cart that works.
+    return this.sellsForReal || this.deps.preview === true;
+  }
+
+  /** Whether customers can really order: the shop takes payments and its plan has them. */
+  private get sellsForReal(): boolean {
     return paymentsSetUp(this.deps.app) && this.deps.cardPayments !== false;
   }
 
@@ -872,6 +892,11 @@ export class CatalogConnector implements Connector {
     if (platform !== "android" && platform !== "ios") return error(400, "invalid_request", "Unknown platform.");
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
+    // 228.7 The owner's preview of a shop that can't sell yet: no order, nothing charged, how to start selling.
+    if (this.deps.preview === true && !this.sellsForReal) {
+      const lang = (request.lang ?? "").toLowerCase().split(/[-_]/)[0];
+      return error(409, "preview_checkout", PREVIEW_CHECKOUT_NOTICE[lang === "ar" || lang === "tr" ? lang : "en"]);
+    }
     if (this.deps.cardPayments === false) return error(403, "feature_disabled", "Ordering isn't available in this app.");
     if (this.fulfilment && !request.user) return error(401, "unauthorized", "Please sign in to order.");
     // 214 Paused from Yallapp Business or the dashboard: no new orders until it reopens.
