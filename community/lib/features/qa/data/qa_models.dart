@@ -151,6 +151,25 @@ class QuestionSummary {
   final ContentStatus status;
   final DateTime createdAt;
   final DateTime? lastActivityAt;
+
+  QuestionSummary copyWith({int? score, int? answerCount, bool? bookmarked}) =>
+      QuestionSummary(
+        id: id,
+        title: title,
+        excerpt: excerpt,
+        author: author,
+        section: section,
+        tags: tags,
+        score: score ?? this.score,
+        answerCount: answerCount ?? this.answerCount,
+        viewCount: viewCount,
+        accepted: accepted,
+        hasOfficialAnswer: hasOfficialAnswer,
+        bookmarked: bookmarked ?? this.bookmarked,
+        status: status,
+        createdAt: createdAt,
+        lastActivityAt: lastActivityAt,
+      );
 }
 
 /// A reply under an answer.
@@ -287,33 +306,23 @@ class Question {
 
   String get id => summary.id;
 
-  Question copyWith({List<Answer>? answers, int? myVote, bool? bookmarked}) =>
-      Question(
-        summary: bookmarked == null
-            ? summary
-            : QuestionSummary(
-                id: summary.id,
-                title: summary.title,
-                excerpt: summary.excerpt,
-                author: summary.author,
-                section: summary.section,
-                tags: summary.tags,
-                score: summary.score,
-                answerCount: summary.answerCount,
-                viewCount: summary.viewCount,
-                accepted: summary.accepted,
-                hasOfficialAnswer: summary.hasOfficialAnswer,
-                bookmarked: bookmarked,
-                status: summary.status,
-                createdAt: summary.createdAt,
-                lastActivityAt: summary.lastActivityAt,
-              ),
-        body: body,
-        myVote: myVote ?? this.myVote,
-        canAccept: canAccept,
-        canEdit: canEdit,
-        answers: answers ?? this.answers,
-      );
+  Question copyWith({
+    List<Answer>? answers,
+    int? myVote,
+    int? score,
+    bool? bookmarked,
+  }) => Question(
+    summary: summary.copyWith(
+      score: score,
+      bookmarked: bookmarked,
+      answerCount: answers?.length,
+    ),
+    body: body,
+    myVote: myVote ?? this.myVote,
+    canAccept: canAccept,
+    canEdit: canEdit,
+    answers: answers ?? this.answers,
+  );
 }
 
 /// A page of a list and where the next one starts (null at the end).

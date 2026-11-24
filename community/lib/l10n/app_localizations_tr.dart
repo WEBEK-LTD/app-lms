@@ -565,4 +565,203 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get savedEmpty => 'Kaydettiğin sorular ve eğitimler burada görünür.';
+
+  @override
+  String get qaTitle => 'Soru-Cevap';
+
+  @override
+  String get qaAskQuestion => 'Soru sor';
+
+  @override
+  String qaViews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count görüntülenme',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaAnswerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cevap',
+      zero: 'Cevap yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaReplyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yanıt',
+      zero: 'Yanıtla',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qaAccepted => 'Kabul edildi';
+
+  @override
+  String get qaOfficial => 'Resmî';
+
+  @override
+  String get qaJustNow => 'şimdi';
+
+  @override
+  String qaMinutes(int count) {
+    return '$count dk';
+  }
+
+  @override
+  String qaHours(int count) {
+    return '$count sa';
+  }
+
+  @override
+  String qaDays(int count) {
+    return '$count g';
+  }
+
+  @override
+  String qaAgo(String time) {
+    return '$time önce';
+  }
+
+  @override
+  String get qaSave => 'Kaydet';
+
+  @override
+  String get qaSaved => 'Kaydedildi';
+
+  @override
+  String get qaVoteUp => 'Yukarı oy';
+
+  @override
+  String get qaVoteDown => 'Aşağı oy';
+
+  @override
+  String get qaAccept => 'Bu cevabı kabul et';
+
+  @override
+  String get qaUnaccept => 'Kabulü geri al';
+
+  @override
+  String get qaWriteAnswer => 'Cevap yaz';
+
+  @override
+  String get qaAnswerHint => 'Sizin için işe yarayanı paylaşın…';
+
+  @override
+  String get qaPost => 'Gönder';
+
+  @override
+  String get qaReplyHint => 'Yanıt yaz…';
+
+  @override
+  String get qaPending =>
+      'İnceleme bekliyor. Bir moderatör onaylayınca herkese görünür.';
+
+  @override
+  String qaTooShort(int count) {
+    return 'En az $count karakter yazın.';
+  }
+
+  @override
+  String get qaOwnVote => 'Kendi gönderinize oy veremezsiniz.';
+
+  @override
+  String get qaReport => 'Bildir';
+
+  @override
+  String get qaRankNewcomer => 'Yeni';
+
+  @override
+  String get qaRankMember => 'Üye';
+
+  @override
+  String get qaRankContributor => 'Katkıcı';
+
+  @override
+  String get qaRankExpert => 'Uzman';
+
+  @override
+  String get qaRankPro => 'Pro';
+
+  @override
+  String get qaFilterAll => 'Tümü';
+
+  @override
+  String get qaFilterUnanswered => 'Cevapsız';
+
+  @override
+  String get qaFilterAnswered => 'Cevaplanmış';
+
+  @override
+  String get qaFilterOfficial => 'Resmî cevaplar';
+
+  @override
+  String get qaFilterFollowing => 'Takip edilen';
+
+  @override
+  String get qaSortActive => 'Aktif';
+
+  @override
+  String get qaSortNewest => 'En yeni';
+
+  @override
+  String get qaSortVotes => 'En çok oy';
+
+  @override
+  String get qaEmpty => 'Burada henüz soru yok. İlk soran siz olun.';
+
+  @override
+  String get qaAskTitleLabel => 'Sorunuz';
+
+  @override
+  String get qaAskTitleHint => 'Nasıl…';
+
+  @override
+  String get qaAskBodyLabel => 'Ayrıntılar';
+
+  @override
+  String get qaAskBodyHint => 'Ne yapmaya çalışıyorsunuz, neleri denediniz?';
+
+  @override
+  String get qaAskSection => 'Bölüm';
+
+  @override
+  String get qaAskTags => 'Etiketler (en fazla 5)';
+
+  @override
+  String get qaAskLanguage => 'Dil';
+
+  @override
+  String get qaSimilarTitle => 'Daha önce soruldu mu?';
+
+  @override
+  String get qaSimilarBody =>
+      'Bunlar sizinkine benziyor. Cevabınız birinde olabilir.';
+
+  @override
+  String get qaAskSend => 'Soruyu gönder';
+
+  @override
+  String get qaSearchHint => 'Soru ve eğitimlerde ara';
+
+  @override
+  String qaSearchEmpty(String query) {
+    return '“$query” ile eşleşen bir şey yok.';
+  }
+
+  @override
+  String get qaSearchQuestions => 'Sorular';
+
+  @override
+  String get qaSearchTutorials => 'Eğitimler';
 }

@@ -1161,6 +1161,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Questions and tutorials you save show here.'**
   String get savedEmpty;
+
+  /// No description provided for @qaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Q&A'**
+  String get qaTitle;
+
+  /// No description provided for @qaAskQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a question'**
+  String get qaAskQuestion;
+
+  /// No description provided for @qaViews.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 view} other{{count} views}}'**
+  String qaViews(int count);
+
+  /// No description provided for @qaAnswerCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No answers} =1{1 answer} other{{count} answers}}'**
+  String qaAnswerCount(int count);
+
+  /// No description provided for @qaReplyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Reply} =1{1 reply} other{{count} replies}}'**
+  String qaReplyCount(int count);
+
+  /// No description provided for @qaAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get qaAccepted;
+
+  /// No description provided for @qaOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official'**
+  String get qaOfficial;
+
+  /// No description provided for @qaJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'now'**
+  String get qaJustNow;
+
+  /// No description provided for @qaMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m'**
+  String qaMinutes(int count);
+
+  /// No description provided for @qaHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h'**
+  String qaHours(int count);
+
+  /// No description provided for @qaDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d'**
+  String qaDays(int count);
+
+  /// No description provided for @qaAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} ago'**
+  String qaAgo(String time);
+
+  /// No description provided for @qaSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get qaSave;
+
+  /// No description provided for @qaSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get qaSaved;
+
+  /// No description provided for @qaVoteUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote up'**
+  String get qaVoteUp;
+
+  /// No description provided for @qaVoteDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote down'**
+  String get qaVoteDown;
+
+  /// No description provided for @qaAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept this answer'**
+  String get qaAccept;
+
+  /// No description provided for @qaUnaccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo accept'**
+  String get qaUnaccept;
+
+  /// No description provided for @qaWriteAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Write an answer'**
+  String get qaWriteAnswer;
+
+  /// No description provided for @qaAnswerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share what worked for you…'**
+  String get qaAnswerHint;
+
+  /// No description provided for @qaPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get qaPost;
+
+  /// No description provided for @qaReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a reply…'**
+  String get qaReplyHint;
+
+  /// No description provided for @qaPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for review. It shows to others once a moderator approves it.'**
+  String get qaPending;
+
+  /// No description provided for @qaTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Write at least {count} characters.'**
+  String qaTooShort(int count);
+
+  /// No description provided for @qaOwnVote.
+  ///
+  /// In en, this message translates to:
+  /// **'You can’t vote on your own post.'**
+  String get qaOwnVote;
+
+  /// No description provided for @qaReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get qaReport;
+
+  /// No description provided for @qaRankNewcomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Newcomer'**
+  String get qaRankNewcomer;
+
+  /// No description provided for @qaRankMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get qaRankMember;
+
+  /// No description provided for @qaRankContributor.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributor'**
+  String get qaRankContributor;
+
+  /// No description provided for @qaRankExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Expert'**
+  String get qaRankExpert;
+
+  /// No description provided for @qaRankPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get qaRankPro;
+
+  /// No description provided for @qaFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get qaFilterAll;
+
+  /// No description provided for @qaFilterUnanswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Unanswered'**
+  String get qaFilterUnanswered;
+
+  /// No description provided for @qaFilterAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered'**
+  String get qaFilterAnswered;
+
+  /// No description provided for @qaFilterOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official answers'**
+  String get qaFilterOfficial;
+
+  /// No description provided for @qaFilterFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get qaFilterFollowing;
+
+  /// No description provided for @qaSortActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get qaSortActive;
+
+  /// No description provided for @qaSortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get qaSortNewest;
+
+  /// No description provided for @qaSortVotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Most votes'**
+  String get qaSortVotes;
+
+  /// No description provided for @qaEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions here yet. Be the first to ask.'**
+  String get qaEmpty;
+
+  /// No description provided for @qaAskTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your question'**
+  String get qaAskTitleLabel;
+
+  /// No description provided for @qaAskTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I…'**
+  String get qaAskTitleHint;
+
+  /// No description provided for @qaAskBodyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get qaAskBodyLabel;
+
+  /// No description provided for @qaAskBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you trying to do, and what have you tried?'**
+  String get qaAskBodyHint;
+
+  /// No description provided for @qaAskSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Section'**
+  String get qaAskSection;
+
+  /// No description provided for @qaAskTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags (up to 5)'**
+  String get qaAskTags;
+
+  /// No description provided for @qaAskLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get qaAskLanguage;
+
+  /// No description provided for @qaSimilarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Already asked?'**
+  String get qaSimilarTitle;
+
+  /// No description provided for @qaSimilarBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These look like yours. One may already have your answer.'**
+  String get qaSimilarBody;
+
+  /// No description provided for @qaAskSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Post question'**
+  String get qaAskSend;
+
+  /// No description provided for @qaSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search questions and tutorials'**
+  String get qaSearchHint;
+
+  /// No description provided for @qaSearchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches “{query}”.'**
+  String qaSearchEmpty(String query);
+
+  /// No description provided for @qaSearchQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get qaSearchQuestions;
+
+  /// No description provided for @qaSearchTutorials.
+  ///
+  /// In en, this message translates to:
+  /// **'Tutorials'**
+  String get qaSearchTutorials;
 }
 
 class _AppLocalizationsDelegate

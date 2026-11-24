@@ -566,4 +566,207 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savedEmpty => 'Questions and tutorials you save show here.';
+
+  @override
+  String get qaTitle => 'Q&A';
+
+  @override
+  String get qaAskQuestion => 'Ask a question';
+
+  @override
+  String qaViews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count views',
+      one: '1 view',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaAnswerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count answers',
+      one: '1 answer',
+      zero: 'No answers',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaReplyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count replies',
+      one: '1 reply',
+      zero: 'Reply',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qaAccepted => 'Accepted';
+
+  @override
+  String get qaOfficial => 'Official';
+
+  @override
+  String get qaJustNow => 'now';
+
+  @override
+  String qaMinutes(int count) {
+    return '${count}m';
+  }
+
+  @override
+  String qaHours(int count) {
+    return '${count}h';
+  }
+
+  @override
+  String qaDays(int count) {
+    return '${count}d';
+  }
+
+  @override
+  String qaAgo(String time) {
+    return '$time ago';
+  }
+
+  @override
+  String get qaSave => 'Save';
+
+  @override
+  String get qaSaved => 'Saved';
+
+  @override
+  String get qaVoteUp => 'Vote up';
+
+  @override
+  String get qaVoteDown => 'Vote down';
+
+  @override
+  String get qaAccept => 'Accept this answer';
+
+  @override
+  String get qaUnaccept => 'Undo accept';
+
+  @override
+  String get qaWriteAnswer => 'Write an answer';
+
+  @override
+  String get qaAnswerHint => 'Share what worked for you…';
+
+  @override
+  String get qaPost => 'Post';
+
+  @override
+  String get qaReplyHint => 'Write a reply…';
+
+  @override
+  String get qaPending =>
+      'Waiting for review. It shows to others once a moderator approves it.';
+
+  @override
+  String qaTooShort(int count) {
+    return 'Write at least $count characters.';
+  }
+
+  @override
+  String get qaOwnVote => 'You can’t vote on your own post.';
+
+  @override
+  String get qaReport => 'Report';
+
+  @override
+  String get qaRankNewcomer => 'Newcomer';
+
+  @override
+  String get qaRankMember => 'Member';
+
+  @override
+  String get qaRankContributor => 'Contributor';
+
+  @override
+  String get qaRankExpert => 'Expert';
+
+  @override
+  String get qaRankPro => 'Pro';
+
+  @override
+  String get qaFilterAll => 'All';
+
+  @override
+  String get qaFilterUnanswered => 'Unanswered';
+
+  @override
+  String get qaFilterAnswered => 'Answered';
+
+  @override
+  String get qaFilterOfficial => 'Official answers';
+
+  @override
+  String get qaFilterFollowing => 'Following';
+
+  @override
+  String get qaSortActive => 'Active';
+
+  @override
+  String get qaSortNewest => 'Newest';
+
+  @override
+  String get qaSortVotes => 'Most votes';
+
+  @override
+  String get qaEmpty => 'No questions here yet. Be the first to ask.';
+
+  @override
+  String get qaAskTitleLabel => 'Your question';
+
+  @override
+  String get qaAskTitleHint => 'How do I…';
+
+  @override
+  String get qaAskBodyLabel => 'Details';
+
+  @override
+  String get qaAskBodyHint =>
+      'What are you trying to do, and what have you tried?';
+
+  @override
+  String get qaAskSection => 'Section';
+
+  @override
+  String get qaAskTags => 'Tags (up to 5)';
+
+  @override
+  String get qaAskLanguage => 'Language';
+
+  @override
+  String get qaSimilarTitle => 'Already asked?';
+
+  @override
+  String get qaSimilarBody =>
+      'These look like yours. One may already have your answer.';
+
+  @override
+  String get qaAskSend => 'Post question';
+
+  @override
+  String get qaSearchHint => 'Search questions and tutorials';
+
+  @override
+  String qaSearchEmpty(String query) {
+    return 'Nothing matches “$query”.';
+  }
+
+  @override
+  String get qaSearchQuestions => 'Questions';
+
+  @override
+  String get qaSearchTutorials => 'Tutorials';
 }

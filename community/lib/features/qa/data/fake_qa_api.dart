@@ -98,6 +98,8 @@ class FakeQaApi implements QaApi {
       official: true,
       accepted: true,
       score: 42,
+      // The design's viewer voted it up (the orange arrow).
+      myVote: 1,
       replyCount: 5,
       createdAt: now.subtract(const Duration(hours: 2)),
     );
@@ -377,29 +379,7 @@ class FakeQaApi implements QaApi {
     calls.add('voteQuestion:$id:$value');
     final q = _get(id);
     final score = q.summary.score - q.myVote + value;
-    _questions[id] = Question(
-      summary: QuestionSummary(
-        id: q.summary.id,
-        title: q.summary.title,
-        excerpt: q.summary.excerpt,
-        author: q.summary.author,
-        section: q.summary.section,
-        tags: q.summary.tags,
-        score: score,
-        answerCount: q.summary.answerCount,
-        viewCount: q.summary.viewCount,
-        accepted: q.summary.accepted,
-        hasOfficialAnswer: q.summary.hasOfficialAnswer,
-        bookmarked: q.summary.bookmarked,
-        status: q.summary.status,
-        createdAt: q.summary.createdAt,
-      ),
-      body: q.body,
-      myVote: value,
-      canAccept: q.canAccept,
-      canEdit: q.canEdit,
-      answers: q.answers,
-    );
+    _questions[id] = q.copyWith(myVote: value, score: score);
     return (score: score, myVote: value);
   }
 

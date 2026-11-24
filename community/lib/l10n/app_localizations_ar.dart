@@ -561,4 +561,215 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get savedEmpty => 'تظهر هنا الأسئلة والدروس التي تحفظها.';
+
+  @override
+  String get qaTitle => 'سؤال وجواب';
+
+  @override
+  String get qaAskQuestion => 'اطرح سؤالًا';
+
+  @override
+  String qaViews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مشاهدة',
+      many: '$count مشاهدة',
+      few: '$count مشاهدات',
+      two: 'مشاهدتان',
+      one: 'مشاهدة واحدة',
+      zero: 'لا مشاهدات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaAnswerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count إجابة',
+      many: '$count إجابة',
+      few: '$count إجابات',
+      two: 'إجابتان',
+      one: 'إجابة واحدة',
+      zero: 'لا إجابات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaReplyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count رد',
+      many: '$count ردًا',
+      few: '$count ردود',
+      two: 'ردّان',
+      one: 'رد واحد',
+      zero: 'رد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qaAccepted => 'مقبولة';
+
+  @override
+  String get qaOfficial => 'رسمي';
+
+  @override
+  String get qaJustNow => 'الآن';
+
+  @override
+  String qaMinutes(int count) {
+    return '$count د';
+  }
+
+  @override
+  String qaHours(int count) {
+    return '$count س';
+  }
+
+  @override
+  String qaDays(int count) {
+    return '$count ي';
+  }
+
+  @override
+  String qaAgo(String time) {
+    return 'منذ $time';
+  }
+
+  @override
+  String get qaSave => 'احفظ';
+
+  @override
+  String get qaSaved => 'محفوظ';
+
+  @override
+  String get qaVoteUp => 'صوّت لأعلى';
+
+  @override
+  String get qaVoteDown => 'صوّت لأسفل';
+
+  @override
+  String get qaAccept => 'اقبل هذه الإجابة';
+
+  @override
+  String get qaUnaccept => 'تراجع عن القبول';
+
+  @override
+  String get qaWriteAnswer => 'اكتب إجابة';
+
+  @override
+  String get qaAnswerHint => 'شارك ما نجح معك…';
+
+  @override
+  String get qaPost => 'انشر';
+
+  @override
+  String get qaReplyHint => 'اكتب ردًّا…';
+
+  @override
+  String get qaPending => 'بانتظار المراجعة. سيظهر للآخرين بعد موافقة المشرف.';
+
+  @override
+  String qaTooShort(int count) {
+    return 'اكتب $count حرفًا على الأقل.';
+  }
+
+  @override
+  String get qaOwnVote => 'لا يمكنك التصويت على ما كتبته.';
+
+  @override
+  String get qaReport => 'أبلغ';
+
+  @override
+  String get qaRankNewcomer => 'جديد';
+
+  @override
+  String get qaRankMember => 'عضو';
+
+  @override
+  String get qaRankContributor => 'مساهم';
+
+  @override
+  String get qaRankExpert => 'خبير';
+
+  @override
+  String get qaRankPro => 'محترف';
+
+  @override
+  String get qaFilterAll => 'الكل';
+
+  @override
+  String get qaFilterUnanswered => 'بلا إجابة';
+
+  @override
+  String get qaFilterAnswered => 'مُجاب';
+
+  @override
+  String get qaFilterOfficial => 'إجابات رسمية';
+
+  @override
+  String get qaFilterFollowing => 'أتابعه';
+
+  @override
+  String get qaSortActive => 'الأنشط';
+
+  @override
+  String get qaSortNewest => 'الأحدث';
+
+  @override
+  String get qaSortVotes => 'الأعلى تصويتًا';
+
+  @override
+  String get qaEmpty => 'لا أسئلة هنا بعد. كن أول من يسأل.';
+
+  @override
+  String get qaAskTitleLabel => 'سؤالك';
+
+  @override
+  String get qaAskTitleHint => 'كيف أستطيع…';
+
+  @override
+  String get qaAskBodyLabel => 'التفاصيل';
+
+  @override
+  String get qaAskBodyHint => 'ماذا تحاول أن تفعل، وما الذي جرّبته؟';
+
+  @override
+  String get qaAskSection => 'القسم';
+
+  @override
+  String get qaAskTags => 'الوسوم (حتى 5)';
+
+  @override
+  String get qaAskLanguage => 'اللغة';
+
+  @override
+  String get qaSimilarTitle => 'هل سُئل من قبل؟';
+
+  @override
+  String get qaSimilarBody =>
+      'هذه الأسئلة تشبه سؤالك، وقد تجد إجابتك في أحدها.';
+
+  @override
+  String get qaAskSend => 'انشر السؤال';
+
+  @override
+  String get qaSearchHint => 'ابحث في الأسئلة والدروس';
+
+  @override
+  String qaSearchEmpty(String query) {
+    return 'لا نتائج لـ «$query».';
+  }
+
+  @override
+  String get qaSearchQuestions => 'الأسئلة';
+
+  @override
+  String get qaSearchTutorials => 'الدروس';
 }

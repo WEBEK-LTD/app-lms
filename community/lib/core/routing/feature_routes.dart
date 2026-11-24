@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/qa/ui/question_screen.dart';
 import '../widgets/coming_soon.dart';
 
 /// Area E's screens in the app (lib/features/qa, tutorials, badges,
@@ -39,6 +40,14 @@ List<RouteBase> featureTabRoutes() => [
   GoRoute(
     path: FeatureLinks.qa,
     builder: (context, state) => const ComingSoonPage(title: 'Q&A'),
+    routes: [
+      // A question keeps the tab bar (Q&A on), as the design draws it.
+      GoRoute(
+        path: ':id',
+        builder: (context, state) =>
+            QuestionScreen(id: state.pathParameters['id']!),
+      ),
+    ],
   ),
   GoRoute(
     path: FeatureLinks.learn,
@@ -48,10 +57,6 @@ List<RouteBase> featureTabRoutes() => [
 
 /// E's other screens, pushed over the shell.
 List<RouteBase> featureRoutes() => [
-  GoRoute(
-    path: '/qa/:id',
-    builder: (context, state) => const ComingSoonPage(title: 'Q&A'),
-  ),
   GoRoute(
     path: FeatureLinks.ask,
     builder: (context, state) => const ComingSoonPage(title: 'Ask'),

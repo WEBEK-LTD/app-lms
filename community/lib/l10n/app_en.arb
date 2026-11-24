@@ -205,5 +205,122 @@
     }
   },
   "settingsLogOutConfirm": "Log out of Yallapp Community on this phone?",
-  "savedEmpty": "Questions and tutorials you save show here."
+  "savedEmpty": "Questions and tutorials you save show here.",
+  "qaTitle": "Q&A",
+  "qaAskQuestion": "Ask a question",
+  "qaViews": "{count, plural, =1{1 view} other{{count} views}}",
+  "@qaViews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaAnswerCount": "{count, plural, =0{No answers} =1{1 answer} other{{count} answers}}",
+  "@qaAnswerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaReplyCount": "{count, plural, =0{Reply} =1{1 reply} other{{count} replies}}",
+  "@qaReplyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaAccepted": "Accepted",
+  "qaOfficial": "Official",
+  "qaJustNow": "now",
+  "qaMinutes": "{count}m",
+  "@qaMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaHours": "{count}h",
+  "@qaHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaDays": "{count}d",
+  "@qaDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaAgo": "{time} ago",
+  "@qaAgo": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "qaSave": "Save",
+  "qaSaved": "Saved",
+  "qaVoteUp": "Vote up",
+  "qaVoteDown": "Vote down",
+  "qaAccept": "Accept this answer",
+  "qaUnaccept": "Undo accept",
+  "qaWriteAnswer": "Write an answer",
+  "qaAnswerHint": "Share what worked for you…",
+  "qaPost": "Post",
+  "qaReplyHint": "Write a reply…",
+  "qaPending": "Waiting for review. It shows to others once a moderator approves it.",
+  "qaTooShort": "Write at least {count} characters.",
+  "@qaTooShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaOwnVote": "You can’t vote on your own post.",
+  "qaReport": "Report",
+  "qaRankNewcomer": "Newcomer",
+  "qaRankMember": "Member",
+  "qaRankContributor": "Contributor",
+  "qaRankExpert": "Expert",
+  "qaRankPro": "Pro",
+  "qaFilterAll": "All",
+  "qaFilterUnanswered": "Unanswered",
+  "qaFilterAnswered": "Answered",
+  "qaFilterOfficial": "Official answers",
+  "qaFilterFollowing": "Following",
+  "qaSortActive": "Active",
+  "qaSortNewest": "Newest",
+  "qaSortVotes": "Most votes",
+  "qaEmpty": "No questions here yet. Be the first to ask.",
+  "qaAskTitleLabel": "Your question",
+  "qaAskTitleHint": "How do I…",
+  "qaAskBodyLabel": "Details",
+  "qaAskBodyHint": "What are you trying to do, and what have you tried?",
+  "qaAskSection": "Section",
+  "qaAskTags": "Tags (up to 5)",
+  "qaAskLanguage": "Language",
+  "qaSimilarTitle": "Already asked?",
+  "qaSimilarBody": "These look like yours. One may already have your answer.",
+  "qaAskSend": "Post question",
+  "qaSearchHint": "Search questions and tutorials",
+  "qaSearchEmpty": "Nothing matches “{query}”.",
+  "@qaSearchEmpty": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "qaSearchQuestions": "Questions",
+  "qaSearchTutorials": "Tutorials"
 }
