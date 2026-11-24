@@ -2,7 +2,7 @@ import { isCommunityAdmin } from "../staff";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { isCommunityAdmin } from "../staff";
 import type { CommunityContext } from "../api/http";
-import { withQa } from "../qa/hooks";
+import { withQaFor } from "../api/qa-hooks";
 import { contentInfo, memberStats, recentTexts, setContentStatus, type QaContentKind } from "../qa/service";
 import type { CommunityMember } from "../types";
 import { linkedApps, yallappAccountName } from "../yallapp";
@@ -74,7 +74,7 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
   const base = ctx.store.base;
   const store = ctx.store.trust as TrustStore;
   // Area B's functions read its store from the call's scope.
-  const inQa = <T,>(fn: () => Promise<T>) => withQa(ctx.store.qa, {}, fn);
+  const inQa = <T,>(fn: () => Promise<T>) => withQaFor(ctx, fn);
   // Given in tests (options, or the deps' `privateFiles`); Yallapp's blob store otherwise.
   const given = options.files ?? ctx.deps.privateFiles;
   const files = given ? Promise.resolve(given) : null;
