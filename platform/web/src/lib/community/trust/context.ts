@@ -1,7 +1,8 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { CommunityContext } from "../api/http";
-import { contentTarget } from "../api/content-targets";
-import type { CommunityMember, CommunityTargetType } from "../types";
+import { withQa } from "../qa/hooks";
+import { contentInfo, memberStats, recentTexts, setContentStatus, type QaContentKind } from "../qa/service";
+import type { CommunityMember } from "../types";
 import { linkedApps, yallappAccountName } from "../yallapp";
 import type { ContentInfo, LinkedAccount, TrustDeps, TrustMember } from "./service";
 import type { ContentKind, TrustStore } from "./store";
@@ -14,13 +15,8 @@ import type { ContentKind, TrustStore } from "./store";
  * store, and email goes out through the Community's mailer.
  */
 
-/** What area C reads from area B's Q&A store, once B's store has it (each optional until then). */
-interface QaBridge {
-  memberStats?: (id: string) => Promise<{ acceptedAnswers: number; approvedTutorials: number; lastActiveAt?: Date | null }>;
-  contentInfo?: (kind: ContentKind, id: string) => Promise<{ memberId?: string; authorId?: string; title: string; link: string } | null>;
-  setContentStatus?: (kind: ContentKind, id: string, status: "published" | "hidden") => Promise<void>;
-  recentTexts?: (memberId: string) => Promise<string[]>;
-}
+/** Area B's kind for what area C calls a post: a reply to an answer is a "comment" here, a "reply" there. */
+const qaKind = (kind: ContentKind): QaContentKind | null => (kind === "comment" || kind === "reply" ? "reply" : kind === "question" || kind === "answer" || kind === "tutorial" ? kind : null);
 
 /** Private files (the Gold form's ID proof): kept out of the public files, opened by admins through a signed link (`CommunityDeps.privateFiles`). */
 export interface PrivateFiles {
@@ -74,8 +70,9 @@ export function trustMemberOf(m: CommunityMember): TrustMember {
 /** Area C's deps for this request. `files` and `secret` are given in tests; Yallapp's blob store and signing secret otherwise. */
 export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now">, options: { files?: PrivateFiles; secret?: string } = {}): TrustDeps {
   const base = ctx.store.base;
-  const qa = ctx.store.qa as unknown as QaBridge;
   const store = ctx.store.trust as TrustStore;
+  // Area B's functions read its store from the call's scope.
+  const inQa = <T,>(fn: () => Promise<T>) => withQa(ctx.store.qa, {}, fn);
   // Given in tests (options, or the deps' `privateFiles`); Yallapp's blob store otherwise.
   const given = options.files ?? ctx.deps.privateFiles;
   const files = given ? Promise.resolve(given) : null;
@@ -86,14 +83,9 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
     return m ? trustMemberOf(m) : null;
   };
   const info = async (kind: ContentKind, id: string): Promise<ContentInfo | null> => {
-    if (qa.contentInfo) {
-      const got = await qa.contentInfo(kind, id);
-      const authorId = got?.authorId ?? got?.memberId;
-      return got && authorId ? { authorId, title: got.title, link: got.link } : null;
-    }
-    // Until B's store says more: who wrote it (A's content targets), with no title.
-    const target = await contentTarget(ctx as CommunityContext, kind as Exclude<CommunityTargetType, "member">, id);
-    return target?.authorId ? { authorId: target.authorId, title: "", link: "/" } : null;
+    const k = qaKind(kind);
+    const got = k ? await inQa(() => contentInfo(k, id)) : null;
+    return got ? { authorId: got.memberId, title: got.title || got.text.slice(0, 140), link: got.link } : null;
   };
   return {
     store,
@@ -110,9 +102,10 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
       if (status === "suspended") await base.deleteSessions(id);
     },
     stats: async (id) => {
-      const m = await base.getMember(id);
-      const qaStats = qa.memberStats ? await qa.memberStats(id) : null;
-      return { points: m?.points ?? 0, acceptedAnswers: qaStats?.acceptedAnswers ?? 0, approvedTutorials: qaStats?.approvedTutorials ?? 0, lastActiveAt: qaStats?.lastActiveAt ?? m?.lastActiveAt ?? null };
+      const [m, qa] = await Promise.all([base.getMember(id), inQa(() => memberStats(id))]);
+      const qaActive = qa.lastActiveAt ? new Date(qa.lastActiveAt) : null;
+      const lastActiveAt = [qaActive, m?.lastActiveAt ?? null].filter((d): d is Date => d !== null).sort((x, y) => y.getTime() - x.getTime())[0] ?? null;
+      return { points: m?.points ?? 0, acceptedAnswers: qa.acceptedAnswers, approvedTutorials: qa.approvedTutorials, lastActiveAt };
     },
     linked: async (id): Promise<LinkedAccount | null> => {
       const m = await base.getMember(id);
@@ -126,9 +119,10 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
     content: {
       info,
       setStatus: async (kind, id, status) => {
-        await qa.setContentStatus?.(kind, id, status);
+        const k = qaKind(kind);
+        if (k) await inQa(() => setContentStatus(k, id, status, ctx.now));
       },
-      recentTexts: qa.recentTexts ? (id) => qa.recentTexts!(id) : undefined,
+      recentTexts: (id) => inQa(() => recentTexts(id, 5)),
     },
     files: {
       put: async (key, bytes, type) => (await filesOf()).put(key, bytes, type),

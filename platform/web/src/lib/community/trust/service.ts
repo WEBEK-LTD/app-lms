@@ -416,7 +416,11 @@ export async function setStatus(deps: TrustDeps, adminId: string, memberId: stri
 export async function moderateNew(deps: TrustDeps, input: { memberId: string; targetType: ContentKind; targetId: string; text: string }): Promise<{ status: "published" } | { status: "pending"; reasons: HoldReason[] }> {
   const member = await deps.member(input.memberId);
   const settings = await getSettings(deps);
-  const recent = (await deps.content.recentTexts?.(input.memberId)) ?? [];
+  // The member's recent posts, less this one (area B stores it before asking): a true repeat is still there.
+  const recent = [...((await deps.content.recentTexts?.(input.memberId)) ?? [])];
+  const norm = (t: string) => t.toLowerCase().replace(/\s+/g, " ").trim();
+  const self = recent.findIndex((t) => norm(t) === norm(input.text));
+  if (self >= 0) recent.splice(self, 1);
   const result = moderationGate({ role: member?.role ?? "member", publishedPosts: member?.approvedPosts ?? 0 }, input.text, settings, recent);
   if (result.status === "published") {
     await deps.countApprovedPost(input.memberId);

@@ -241,8 +241,11 @@ describe("231 moderation: the queue", () => {
   it("never holds the Yallapp Team; uses the member's recent posts for the duplicate check", async () => {
     expect(await T.moderateNew(deps, { memberId: TEAM, targetType: "answer", targetId: "a30", text: "Official: see the docs." })).toEqual({ status: "published" });
     members.get(NOUR)!.approvedPosts = 5;
+    // Area B's recent posts include the new one (it is stored before moderation): alone, it is no repeat.
     deps.content.recentTexts = async () => ["How do I publish my app to the stores?"];
-    expect(await T.moderateNew(deps, { memberId: NOUR, targetType: "question", targetId: "q31", text: "How do I publish my app to the stores?" })).toEqual({ status: "pending", reasons: ["duplicate"] });
+    expect(await T.moderateNew(deps, { memberId: NOUR, targetType: "question", targetId: "q31", text: "How do I publish my app to the stores?" })).toEqual({ status: "published" });
+    deps.content.recentTexts = async () => ["How do I publish my app to the stores?", "Unrelated", "how do I publish my app to the  stores?"];
+    expect(await T.moderateNew(deps, { memberId: NOUR, targetType: "question", targetId: "q32", text: "How do I publish my app to the stores?" })).toEqual({ status: "pending", reasons: ["duplicate"] });
   });
 });
 
