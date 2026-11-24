@@ -1,4 +1,4 @@
-import type { MemberPerson, QaHooks } from "../qa/hooks";
+import { withQa, type MemberPerson, type QaHooks } from "../qa/hooks";
 import type { CommunityContext } from "./http";
 import { memberSummaries, type MemberSummaryView } from "./views";
 
@@ -30,6 +30,19 @@ export function qaHooksFor(ctx: CommunityContext): Partial<QaHooks> {
     },
     ...trustForQa(ctx),
   };
+}
+
+/**
+ * Runs Q&A functions for this call with its store and all its hooks
+ * (members, blocks, points, moderation, notices). Area C's own calls into
+ * the Q&A (approving or removing a post) go through it, so an approved
+ * answer still tells the asker and a removed accepted one takes its points
+ * back from the profile.
+ */
+export function withQaFor<T>(ctx: Pick<CommunityContext, "deps" | "store" | "now"> & Partial<CommunityContext>, fn: () => Promise<T>): Promise<T> {
+  // Without a reader (area C's own work): members as a signed-out reader sees them; each notice is written in its recipient's language by area C.
+  const full = { member: null, session: null, lang: "en", params: {}, query: new URLSearchParams(), json: () => ({}), ...ctx } as CommunityContext;
+  return withQa(ctx.store.qa, qaHooksFor(full), fn);
 }
 
 /**
