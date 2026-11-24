@@ -8,6 +8,12 @@ Last updated: 24 November 2026.
 
 ## Current release
 
+Roadmap 231 (area E, the Community app's features): the question screen
+as the approved dark question phone, the Q&A tab, asking with similar
+questions, official tutorials (a locked one shows a lock, never a price),
+the Gold badge's verification form, notifications with the bell's count,
+search and saved, in English, Arabic and Turkish, light and dark.
+
 Roadmap 229.4 (prices that read cleanly everywhere else): the dashboard,
 the emails, the owner's pushes and the web checkout drop ".00" on a whole
 amount as the app does ("₺450", "Pay ₺750"), a fraction kept; receipts,
