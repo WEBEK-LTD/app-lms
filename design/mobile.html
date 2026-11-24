@@ -1,192 +1,208 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+<!doctype html><html lang="en" dir="ltr"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
 <style>
-body{width:2200px;height:1190px;overflow:hidden;background:radial-gradient(900px 600px at 80% 10%,rgba(255,90,31,.28),transparent 60%),radial-gradient(800px 600px at 10% 90%,rgba(107,91,255,.22),transparent 60%),linear-gradient(160deg,#121130,#0A0920);position:relative}
-.top{position:absolute;top:50px;left:0;right:0;text-align:center;color:var(--cream)}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block');
+body{font-family:'Inter',sans-serif;width:2200px;height:1190px;overflow:hidden;background:radial-gradient(900px 600px at 80% 10%,rgba(255,90,31,.28),transparent 60%),radial-gradient(800px 600px at 10% 90%,rgba(107,91,255,.22),transparent 60%),linear-gradient(160deg,#121130,#0A0920);position:relative}
+.top{position:absolute;top:46px;left:0;right:0;text-align:center;color:var(--cream)}
 .top .lg{display:inline-flex;align-items:center;gap:16px}
-.top img{width:64px;height:64px;border-radius:16px;box-shadow:0 10px 30px rgba(255,90,31,.35)}
-.top h1{font-family:'Readex Pro';font-size:44px;font-weight:600;direction:ltr}
-.top p{margin-top:10px;font-size:20px;color:rgba(244,239,230,.7)}
-.row{position:absolute;top:205px;left:0;right:0;display:flex;justify-content:center;gap:90px;align-items:flex-start}
+.top img{width:60px;height:60px;border-radius:16px;box-shadow:0 10px 30px rgba(255,90,31,.35)}
+.top h1{font-family:'Readex Pro';font-size:42px;font-weight:600}
+.top p{margin-top:8px;font-size:19px;color:rgba(244,239,230,.7)}
+.row{position:absolute;top:190px;left:0;right:0;display:flex;justify-content:center;gap:56px;align-items:flex-start}
 .phone{width:410px;height:864px;border-radius:62px;background:linear-gradient(145deg,#2a2940,#07070f 40%,#1b1a2c);padding:10px;box-shadow:0 50px 100px rgba(0,0,0,.6),0 0 0 1.5px rgba(255,255,255,.12) inset;position:relative}
-.phone.mid{margin-top:-30px}
+.phone.up{margin-top:-26px}
 .scr{width:390px;height:844px;border-radius:52px;overflow:hidden;position:relative;background:#F7F3EC;color:var(--ink)}
-.notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#050510;border-radius:20px;z-index:20}
-.sb{height:50px;display:flex;justify-content:space-between;align-items:center;padding:0 30px;font-weight:600;font-size:15px;direction:ltr;position:relative;z-index:5}
+.notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#050510;border-radius:20px;z-index:40}
+.sb{height:50px;display:flex;justify-content:space-between;align-items:center;padding:0 30px;font-weight:600;font-size:15px;position:relative;z-index:5}
 .sb .r{display:flex;gap:5px;align-items:center}.sb .ms{font-size:17px}
-.cap{position:absolute;bottom:-56px;left:0;right:0;text-align:center;color:rgba(244,239,230,.75);font-size:18px;font-weight:500}
-/* floating glass tab bar */
-.tb{position:absolute;bottom:22px;left:16px;right:16px;height:68px;border-radius:26px;background:rgba(14,13,36,.86);backdrop-filter:blur(18px);display:flex;justify-content:space-around;align-items:center;box-shadow:0 18px 40px rgba(14,13,36,.35),0 0 0 1px rgba(255,255,255,.08) inset;z-index:10}
-.tb .t{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:rgba(244,239,230,.55);width:56px}
-.tb .t .ms{font-size:24px}
-.tb .t.on{color:#fff;font-weight:600}.tb .t.on .ms{color:#FF8A5C}
-.tb .t.on::after{content:"";width:4px;height:4px;border-radius:50%;background:#FF8A5C;margin-top:1px}
-.tb .plus{width:52px;height:52px;border-radius:18px;background:linear-gradient(135deg,#FFB23D,#FF5A1F 60%,#E8410E);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 8px 20px rgba(255,90,31,.55),0 0 0 4px rgba(255,255,255,.06)}
-.tb .plus .ms{font-size:30px}
-.glass{background:rgba(255,255,255,.16);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.22)}
-/* ===== HOME ===== */
-.home-bg{position:absolute;inset:0 0 auto 0;height:330px;background:radial-gradient(260px 200px at 85% 10%,rgba(255,138,61,.35),transparent 70%),radial-gradient(300px 220px at 0% 40%,rgba(124,107,255,.25),transparent 70%)}
-.greet{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 14px;position:relative}
-.greet .l{display:flex;align-items:center;gap:12px}
-.greet small{font-size:12.5px;color:var(--muted);display:block}
-.greet b{font-size:21px;font-weight:700}
-.ring2{padding:2.5px;border-radius:50%;background:conic-gradient(#FF5A1F,#FFB23D,#7C6BFF,#FF5A1F)}
-.ring2 .av{border:2.5px solid #F7F3EC}
-.ib{width:42px;height:42px;border-radius:15px;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.9);box-shadow:0 6px 16px rgba(20,19,39,.06);display:flex;align-items:center;justify-content:center;position:relative}
-.ib .ms{font-size:22px}.ib i{position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid #fff}
-.feat{margin:0 16px 14px;height:178px;border-radius:28px;position:relative;overflow:hidden;background-size:cover;background-position:center 35%;box-shadow:0 18px 36px rgba(20,19,39,.18)}
-.feat::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,36,.05),rgba(14,13,36,.82))}
+.light .sb{color:#fff}
+.cap{position:absolute;bottom:-54px;left:0;right:0;text-align:center;color:rgba(244,239,230,.75);font-size:17px;font-weight:500}
+.glass{background:rgba(255,255,255,.16);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.24)}
+/* ===== NEW TAB BAR ===== */
+.tb{position:absolute;bottom:20px;left:14px;right:14px;height:72px;border-radius:28px;background:rgba(255,255,255,.82);backdrop-filter:blur(22px) saturate(160%);box-shadow:0 20px 44px rgba(20,19,39,.16),0 0 0 1px rgba(255,255,255,.9) inset,0 0 0 1px rgba(20,19,39,.05);display:flex;align-items:center;justify-content:space-between;padding:0 10px;z-index:10}
+.tb .t{width:48px;height:48px;border-radius:17px;display:flex;align-items:center;justify-content:center;color:#8B88A0;position:relative}
+.tb .t .ms{font-size:25px}
+.tb .t .dot{position:absolute;top:9px;right:9px;width:8px;height:8px;border-radius:50%;background:#FF5A1F;border:2px solid #fff}
+.tb .on{width:auto;padding:0 16px 0 12px;gap:7px;background:linear-gradient(135deg,#1E1C4E,#0E0D24);color:#fff;font-weight:600;font-size:13.5px;box-shadow:0 8px 18px rgba(14,13,36,.3)}
+.tb .on .ms{color:#FFA06E}
+.tb .cr{width:56px;height:56px;border-radius:20px;background:conic-gradient(from 210deg,#FFB23D,#FF5A1F,#E8410E,#FF7A3D,#FFB23D);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 10px 24px rgba(255,90,31,.5),inset 0 1px 0 rgba(255,255,255,.45);transform:translateY(-14px);border:4px solid #F7F3EC}
+.tb .cr .ms{font-size:30px}
+.dark .tb{background:rgba(24,22,58,.82);box-shadow:0 20px 44px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.08) inset}
+.dark .tb .t{color:#8F8BAE}.dark .tb .on{background:linear-gradient(135deg,#FFB23D,#FF5A1F);color:#fff}.dark .tb .on .ms{color:#fff}
+.dark .tb .cr{border-color:#0B0A1F}.dark .tb .t .dot{border-color:#18163a}
+/* ===== HEADER ===== */
+.hd{display:flex;align-items:center;justify-content:space-between;padding:4px 18px 12px;position:relative}
+.hd .l{display:flex;align-items:center;gap:10px}
+.ib{width:42px;height:42px;border-radius:15px;background:rgba(255,255,255,.8);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.95);box-shadow:0 6px 16px rgba(20,19,39,.07);display:flex;align-items:center;justify-content:center;position:relative;color:var(--ink)}
+.ib .ms{font-size:22px}
+.ib .n{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:#FF5A1F;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #F7F3EC;padding:0 3px}
+.hd .r{display:flex;align-items:center;gap:7px}
+.me{padding:2px;border-radius:50%;background:conic-gradient(#FF5A1F,#FFB23D,#7C6BFF,#FF5A1F)}.me .av{border:2px solid #F7F3EC}
+.hello{padding:0 20px 12px}.hello small{font-size:13px;color:var(--muted)}.hello b{display:block;font-size:24px;font-weight:800;letter-spacing:-.5px}
+.home-bg{position:absolute;inset:0 0 auto 0;height:330px;background:radial-gradient(260px 200px at 85% 10%,rgba(255,138,61,.32),transparent 70%),radial-gradient(300px 220px at 0% 40%,rgba(124,107,255,.22),transparent 70%)}
+.feat{margin:0 16px 14px;height:168px;border-radius:28px;position:relative;overflow:hidden;background-size:cover;background-position:center 30%;box-shadow:0 18px 36px rgba(20,19,39,.18)}
+.feat::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,36,.05),rgba(14,13,36,.85))}
 .feat .in{position:absolute;inset:auto 16px 14px 16px;color:#fff}
-.feat .k{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:20px;color:#fff}
-.feat h3{font-size:21px;margin:8px 0 10px;line-height:1.3}
+.k{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:20px;color:#fff}
+.feat h3{font-size:21px;margin:8px 0 10px;font-weight:800;letter-spacing:-.3px}
 .feat .row2{display:flex;justify-content:space-between;align-items:center}
 .cd{display:flex;gap:6px}.cd div{border-radius:12px;padding:4px 9px;text-align:center;font-size:10px}.cd b{font-family:'Readex Pro';font-size:15px;display:block;line-height:1.2}
 .join{background:#fff;color:var(--navy);font-weight:700;font-size:13px;padding:9px 14px;border-radius:13px}
-.stories{display:flex;gap:14px;padding:0 18px 14px}
+.stories{display:flex;gap:13px;padding:0 18px 14px}
 .st{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;font-weight:500;width:62px;text-align:center;color:#3C3A50}
 .st .rg{width:58px;height:58px;border-radius:20px;padding:2.5px;background:conic-gradient(from 200deg,#FF5A1F,#FFB23D,#7C6BFF,#FF5A1F)}
 .st .rg div{width:100%;height:100%;border-radius:17px;border:2.5px solid #F7F3EC;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff}
 .st.seen .rg{background:#DDD6CB}
 .post{margin:0 16px 14px;border-radius:28px;overflow:hidden;background:#fff;box-shadow:0 14px 34px rgba(20,19,39,.08)}
-.post .img{height:262px;background-size:cover;background-position:center 30%;position:relative}
-.post .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,36,.55),transparent 35%,transparent 60%,rgba(14,13,36,.55))}
-.post .au{position:absolute;top:12px;right:12px;left:12px;display:flex;align-items:center;gap:9px;color:#fff;z-index:2}
-.post .au .n{font-weight:700;font-size:14px;display:flex;align-items:center;gap:5px}.post .au .m{font-size:11.5px;opacity:.85}
-.post .au .fl{margin-right:auto;font-size:12px;font-weight:700;padding:6px 12px;border-radius:12px;color:#fff}
-.post .app{position:absolute;bottom:12px;right:12px;z-index:2;display:flex;align-items:center;gap:8px;color:#fff;padding:6px 10px 6px 12px;border-radius:14px;font-size:12px;font-weight:600}
-.post .app span.ms{font-size:16px}
-.post .likes{position:absolute;bottom:12px;left:12px;z-index:2;display:flex;align-items:center;gap:4px;color:#fff;font-size:12.5px;font-weight:700;padding:6px 10px;border-radius:14px}
-.post .bd{padding:12px 16px 14px}
-.post .bd p{font-size:14px;line-height:1.6}
-.post .ac{display:flex;gap:16px;margin-top:10px;color:var(--muted);font-size:12.5px;font-weight:600;align-items:center}
-.post .ac span{display:flex;gap:5px;align-items:center}.post .ac .ms{font-size:20px}
-/* ===== QUESTION DARK ===== */
-.dark .scr{background:#0B0A1F;color:#EDEAF5}
-.dark .sb{color:#fff}
-.qglow{position:absolute;inset:0 0 auto 0;height:360px;background:radial-gradient(300px 220px at 90% 0%,rgba(255,90,31,.35),transparent 70%),radial-gradient(300px 220px at 0% 30%,rgba(107,91,255,.3),transparent 70%)}
-.qh{display:flex;justify-content:space-between;align-items:center;padding:4px 18px 10px;position:relative}
-.dib{width:42px;height:42px;border-radius:15px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff}.dib .ms{font-size:22px}
-.qh b{font-size:15px;color:#CFCBE0;font-weight:600}
-.qb{padding:4px 20px 0;position:relative}
-.tags{display:flex;gap:6px}
-.dp{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:20px;background:rgba(255,255,255,.08);color:#CFCBE0;border:1px solid rgba(255,255,255,.08)}
-.dp.o{background:rgba(255,90,31,.18);color:#FFA37E;border-color:rgba(255,90,31,.3)}
-.qb h2{font-size:22px;line-height:1.5;margin:12px 0 14px;font-weight:700;letter-spacing:-.2px}
-.who{display:flex;align-items:center;gap:10px}.who .n{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:6px}.who .m{font-size:11.5px;color:#9C98B5}
-.stats{display:flex;gap:8px;margin:14px 0 4px}
-.stats div{flex:1;border-radius:16px;padding:9px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);text-align:center}
-.stats b{font-family:'Readex Pro';font-size:16px;display:block}.stats span{font-size:10.5px;color:#9C98B5}
-.ahd{display:flex;justify-content:space-between;align-items:center;padding:14px 20px 10px}
-.ahd b{font-size:15.5px}.ahd span{font-size:11.5px;color:#C9C5DA;background:rgba(255,255,255,.07);padding:6px 10px;border-radius:12px;display:flex;align-items:center;gap:4px}
-.ans{margin:0 14px 12px;border-radius:24px;padding:15px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);position:relative}
-.ans.acc{background:linear-gradient(180deg,rgba(24,165,107,.16),rgba(255,255,255,.04) 70%);border:1px solid rgba(47,211,146,.45);box-shadow:0 0 0 4px rgba(24,165,107,.07)}
-.ans .accb{position:absolute;top:-11px;left:16px;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#05301F;background:linear-gradient(135deg,#5BE7AE,#22C483);padding:4px 10px;border-radius:12px}
-.ans p{font-size:13.5px;line-height:1.7;color:#DAD6EA;margin-top:9px}
-.code{margin-top:10px;background:#05041A;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px 12px;font-family:monospace;font-size:12px;color:#9FE3C4;direction:ltr;text-align:left}
-.vt{display:flex;align-items:center;gap:6px;margin-top:12px}
-.vp{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.07);border-radius:14px;padding:4px 6px;font-weight:700;font-size:13px}
-.vp .ms{font-size:22px;color:#9C98B5}.vp .ms.up{color:#FF8A5C}
-.vt .sm{font-size:12px;color:#9C98B5;display:flex;align-items:center;gap:4px;margin-right:8px}.vt .sm .ms{font-size:17px}
-.inp{position:absolute;bottom:22px;left:16px;right:16px;height:60px;border-radius:24px;background:rgba(30,28,70,.85);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);display:flex;gap:10px;align-items:center;padding:0 7px 0 14px;box-shadow:0 18px 40px rgba(0,0,0,.4);z-index:10}
-.inp .ph{flex:1;color:#8A86A6;font-size:14px;display:flex;align-items:center;gap:8px}
-.inp .ms{font-size:21px}
-.inp .snd{width:46px;height:46px;border-radius:17px;background:linear-gradient(135deg,#FFB23D,#FF5A1F 60%);display:flex;align-items:center;justify-content:center;color:#fff}
-/* ===== LEARN ===== */
-.lh{padding:2px 20px 14px;display:flex;justify-content:space-between;align-items:center}
-.lh small{font-size:12.5px;color:var(--muted);display:block}.lh h2{font-size:26px;font-weight:700}
-.streak{display:flex;align-items:center;gap:5px;font-weight:700;font-size:14px;padding:8px 12px;border-radius:15px;background:#fff;box-shadow:0 6px 16px rgba(20,19,39,.06)}
-.streak .ms{color:#FF5A1F;font-size:22px}
-.cont{margin:0 16px 18px;border-radius:30px;height:236px;position:relative;overflow:hidden;background-size:cover;background-position:center 40%;color:#fff;box-shadow:0 20px 40px rgba(20,19,39,.22)}
-.cont::before{content:"";position:absolute;inset:0;background:linear-gradient(200deg,rgba(14,13,36,.15),rgba(14,13,36,.92) 75%)}
-.cont .in{position:absolute;inset:auto 18px 16px 18px}
-.cont .chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px}
-.cont h3{font-size:23px;margin:8px 0 2px}.cont .sub{font-size:12.5px;color:rgba(255,255,255,.8)}
-.cont .bt{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
-.prog{display:flex;align-items:center;gap:10px;font-size:12px}
-.pring{width:46px;height:46px;border-radius:50%;background:conic-gradient(#FF8A3D 0 38%,rgba(255,255,255,.2) 38% 100%);display:flex;align-items:center;justify-content:center}
-.pring b{width:36px;height:36px;border-radius:50%;background:#18173a;display:flex;align-items:center;justify-content:center;font-family:'Readex Pro';font-size:12px}
-.playb{display:flex;align-items:center;gap:6px;background:#fff;color:var(--navy);font-weight:700;font-size:13.5px;padding:10px 16px;border-radius:15px}.playb .ms{font-size:22px}
-.sh{display:flex;justify-content:space-between;align-items:center;padding:0 20px 10px}.sh b{font-size:16.5px}.sh a{font-size:12.5px;color:var(--orange);font-weight:600}
-.paths{display:flex;gap:12px;padding:0 16px 18px}
-.path{width:168px;height:150px;flex:none;border-radius:24px;overflow:hidden;position:relative;background-size:cover;background-position:center;box-shadow:0 12px 26px rgba(20,19,39,.14)}
-.path::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(14,13,36,.85))}
-.path .b{position:absolute;bottom:12px;right:12px;left:12px;color:#fff}.path b{font-size:14.5px}.path .m{font-size:11px;opacity:.85;margin-top:2px}
-.path .lv{position:absolute;top:10px;right:10px;font-size:10.5px;font-weight:600;color:#fff;padding:4px 9px;border-radius:10px}
-.cert{margin:0 16px;border-radius:24px;padding:16px;display:flex;gap:14px;align-items:center;color:#fff;background:radial-gradient(200px 120px at 0% 0%,rgba(255,214,140,.35),transparent 70%),linear-gradient(135deg,#2A2560,#14123A);box-shadow:0 14px 30px rgba(20,19,39,.22);position:relative;overflow:hidden}
-.cert .md{width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#FFE2A6,#E7A93C 55%,#B9781C);display:flex;align-items:center;justify-content:center;color:#3B2606;box-shadow:0 6px 16px rgba(231,169,60,.4)}
-.cert .md .ms{font-size:30px}
-.cert b{font-size:15px}.cert .m{font-size:11.5px;color:rgba(255,255,255,.7);margin-top:3px}
-.cert .lk{margin-right:auto;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:6px 10px;border-radius:12px}
+.post .img{height:200px;background-size:cover;background-position:center 30%;position:relative}
+.post .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,36,.55),transparent 40%,transparent 60%,rgba(14,13,36,.5))}
+.post .au{position:absolute;top:12px;left:12px;right:12px;display:flex;align-items:center;gap:9px;color:#fff;z-index:2}
+.post .au .n{font-weight:700;font-size:14px;display:flex;align-items:center;gap:4px}.post .au .m{font-size:11.5px;opacity:.85}
+.post .au .fw{margin-left:auto;font-size:12px;font-weight:700;padding:6px 12px;border-radius:12px;color:#fff}
+.post .app{position:absolute;bottom:12px;left:12px;z-index:2;display:flex;align-items:center;gap:7px;color:#fff;padding:6px 12px 6px 10px;border-radius:14px;font-size:12px;font-weight:600}
+.post .likes{position:absolute;bottom:12px;right:12px;z-index:2;display:flex;align-items:center;gap:4px;color:#fff;font-size:12.5px;font-weight:700;padding:6px 10px;border-radius:14px}
+.post .bd{padding:12px 16px}
+.post .bd p{font-size:14px;line-height:1.55}
+/* ===== LANDING ===== */
+.land{position:absolute;inset:0;background:radial-gradient(320px 300px at 100% 0%,rgba(255,138,61,.65),transparent 70%),radial-gradient(320px 300px at 0% 45%,rgba(124,107,255,.55),transparent 70%),linear-gradient(180deg,#1A1846,#0B0A1F 70%);color:#fff}
+.lang{position:absolute;top:58px;right:18px;display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:13px;z-index:6}
+.lang .ms{font-size:16px}
+.collage{position:absolute;top:96px;left:0;right:0;height:360px}
+.fl{position:absolute;border-radius:22px;box-shadow:0 20px 40px rgba(0,0,0,.4)}
+.fl.ph{width:118px;height:236px;border-radius:24px;overflow:hidden;border:4px solid rgba(255,255,255,.9);background:#fff}
+.fl.ph img{width:100%;display:block}
+.bub{padding:10px 12px;font-size:12px;display:flex;gap:8px;align-items:center;color:#fff;max-width:200px;line-height:1.35}
+.bub b{font-size:12px;display:block}
+.lgo{position:absolute;left:50%;top:236px;transform:translateX(-50%);width:92px;height:92px;border-radius:26px;box-shadow:0 20px 50px rgba(255,90,31,.55),0 0 0 8px rgba(255,255,255,.06)}
+.lt{position:absolute;left:24px;right:24px;top:476px;text-align:center}
+.lt h2{font-size:34px;font-weight:800;letter-spacing:-1px;line-height:1.1}
+.lt h2 span{background:linear-gradient(90deg,#FFB23D,#FF5A1F);-webkit-background-clip:text;color:transparent}
+.lt p{font-size:14.5px;color:rgba(255,255,255,.72);margin-top:10px;line-height:1.5}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:16px}.dots i{width:6px;height:6px;border-radius:4px;background:rgba(255,255,255,.3)}.dots i.on{width:22px;background:#FF8A3D}
+.btns{position:absolute;left:22px;right:22px;bottom:70px;display:flex;flex-direction:column;gap:10px}
+.btn{height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:15.5px}
+.btn.w{background:#fff;color:#0E0D24}
+.btn.o{background:linear-gradient(135deg,#FFB23D,#FF5A1F 60%);color:#fff;box-shadow:0 12px 26px rgba(255,90,31,.45)}
+.btn .ms{font-size:22px}
+.small{position:absolute;bottom:30px;left:0;right:0;text-align:center;font-size:13.5px;color:rgba(255,255,255,.7)}.small b{color:#fff}
+/* ===== MENU DRAWER ===== */
+.dim{position:absolute;inset:0;background:rgba(10,9,30,.45);backdrop-filter:blur(3px);z-index:20}
+.drawer{position:absolute;top:0;bottom:0;left:0;width:318px;z-index:21;background:radial-gradient(240px 200px at 0% 0%,rgba(255,90,31,.35),transparent 70%),linear-gradient(180deg,#1A1846,#0E0D24);color:#EDEAF5;border-radius:0 34px 34px 0;padding:58px 18px 20px;box-shadow:20px 0 60px rgba(0,0,0,.45)}
+.dr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.dr-top .l{display:flex;align-items:center;gap:8px;font-family:'Readex Pro';font-weight:600;font-size:16px}.dr-top img{width:30px;height:30px;border-radius:9px}
+.x{width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center}.x .ms{font-size:20px}
+.prof{border-radius:22px;padding:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);display:flex;gap:12px;align-items:center}
+.prof b{font-size:15px}.prof .m{font-size:11.5px;color:#A9A5C2;margin-top:2px}
+.pb{height:5px;border-radius:5px;background:rgba(255,255,255,.12);margin-top:7px;overflow:hidden}.pb i{display:block;height:100%;width:64%;background:linear-gradient(90deg,#FFB23D,#FF5A1F)}
+.prof .go{margin-left:auto;color:#A9A5C2}
+.nav{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nav a{display:flex;align-items:center;gap:9px;height:46px;padding:0 12px;border-radius:15px;background:rgba(255,255,255,.04);font-size:13.5px;font-weight:500;color:#DAD6EA}
+.nav a .ms{font-size:21px;color:#A9A5C2}
+.nav a.on{background:linear-gradient(135deg,#FFB23D,#FF5A1F);color:#fff;font-weight:600}.nav a.on .ms{color:#fff}
+.nav a .b{margin-left:auto;font-size:10.5px;font-weight:700;background:#FF5A1F;color:#fff;border-radius:9px;padding:1px 6px}
+.dh{font-size:11.5px;font-weight:600;color:#8F8BAE;letter-spacing:.6px;text-transform:uppercase;margin:16px 4px 8px}
+.grp{display:flex;align-items:center;gap:10px;padding:6px 4px}
+.grp .gi{width:36px;height:36px;border-radius:12px;background-size:cover;background-position:center}
+.grp b{font-size:13.5px;font-weight:600}.grp .m{font-size:11px;color:#8F8BAE}
+.grp .new{margin-left:auto;width:8px;height:8px;border-radius:50%;background:#FF8A3D}
+.foot{position:absolute;left:18px;right:18px;bottom:22px;display:flex;justify-content:space-between;align-items:center}
+.tg{display:flex;background:rgba(255,255,255,.08);border-radius:14px;padding:4px}.tg span{width:38px;height:32px;border-radius:11px;display:flex;align-items:center;justify-content:center}.tg span.on{background:#fff;color:#0E0D24}.tg .ms{font-size:19px}
+.fi{display:flex;gap:8px}.fi span{width:40px;height:40px;border-radius:13px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center}.fi .ms{font-size:20px}
 </style></head><body>
-<div class="top"><div class="lg"><img src="logo.svg"><h1>Yallapp Community</h1></div><p>تعلّم، اسأل، واعرض تطبيقك — مجتمع صُنّاع التطبيقات</p></div>
+<div class="top"><div class="lg"><img src="logo.svg"><h1>Yallapp Community</h1></div><p>Learn, ask and show your apps — English first · العربية · Türkçe</p></div>
 <div class="row">
-<!-- LEARN -->
-<div class="phone"><div class="notch"></div><div class="scr">
- <div class="sb"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
- <div class="lh"><div><small>رحلتك في التعلّم</small><h2>التعلّم</h2></div><div class="streak"><span class="ms f">local_fire_department</span>7 أيام</div></div>
- <div class="cont" style="background-image:url(pub/clothes-photos/black-dress.jpg)"><div class="in">
-  <span class="chip glass"><span class="ms f" style="font-size:14px">play_circle</span>تابِع من حيث توقفت</span>
-  <h3>احترف Studio</h3><div class="sub">الدرس 4 · صفحة منتج مختلفة لكل تمبلت</div>
-  <div class="bt"><div class="prog"><div class="pring"><b>3/8</b></div><span>12 دقيقة<br>متبقية</span></div><span class="playb"><span class="ms f">play_arrow</span>أكمل</span></div>
- </div></div>
- <div class="sh"><b>المسارات</b><a>عرض الكل</a></div>
- <div class="paths">
-  <div class="path" style="background-image:url(pub/clothes-photos/beige-dress.jpg)"><span class="lv glass">مبتدئ</span><div class="b"><b>أول متجر لك</b><div class="m">6 دروس · 45 دقيقة</div></div></div>
-  <div class="path" style="background-image:url(pub/furniture-photos/armchair.jpg)"><span class="lv glass">متوسط</span><div class="b"><b>انشر على المتاجر</b><div class="m">5 دروس · 38 دقيقة</div></div></div>
- </div>
- <div class="cert"><div class="md"><span class="ms f">workspace_premium</span></div><div><b>مطوّر Yallapp معتمد</b><div class="m">12 درسًا · شهادة تظهر في ملفك</div></div><span class="lk glass"><span class="ms f" style="font-size:14px">lock</span>مقفول</span></div>
- <div class="tb"><div class="t"><span class="ms">home</span>الرئيسية</div><div class="t"><span class="ms">forum</span>الأسئلة</div><div class="plus"><span class="ms">add</span></div><div class="t on"><span class="ms f">school</span>التعلّم</div><div class="t"><span class="ms">person</span>حسابي</div></div>
-</div><div class="cap">التعلّم · فاتح</div></div>
 
-<!-- QUESTION DARK -->
-<div class="phone mid dark"><div class="notch"></div><div class="scr">
- <div class="qglow"></div>
- <div class="sb"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
- <div class="qh"><div class="dib"><span class="ms">arrow_forward</span></div><b>سؤال · Studio</b><div class="dib"><span class="ms">bookmark</span></div></div>
- <div class="qb">
-  <div class="tags"><span class="dp o">Studio</span><span class="dp">صفحة المنتج</span><span class="dp">تمبلت</span></div>
-  <h2>كيف أجعل صفحة المنتج بشكل مختلف لكل تمبلت في متجري؟</h2>
-  <div class="who"><div class="av a6" style="width:36px;height:36px;font-size:14px">ك</div><div><div class="n">كريم سامي <span class="lvl" style="background:rgba(63,169,245,.15);color:#7CC4FF">مبتدئ</span></div><div class="m">منذ 3 ساعات</div></div></div>
-  <div class="stats"><div><b>284</b><span>مشاهدة</span></div><div><b>4</b><span>إجابات</span></div><div><b>12</b><span>متابِع</span></div></div>
+<!-- LANDING -->
+<div class="phone light"><div class="notch"></div><div class="scr">
+ <div class="land">
+  <div class="sb"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
+  <span class="lang glass"><span class="ms">language</span>English<span class="ms">expand_more</span></span>
+  <div class="collage">
+   <div class="fl ph" style="left:-18px;top:40px;transform:rotate(-9deg)"><img src="pub/screens/beauty-sig-c-home.png"></div>
+   <div class="fl ph" style="right:-16px;top:20px;transform:rotate(8deg)"><img src="pub/screens/crochet-sig-c-home.png"></div>
+   <div class="fl bub glass" style="left:96px;top:4px"><div class="av a5" style="width:30px;height:30px;font-size:12px">N</div><div><b>Nour</b>Launched my store today 🎉</div></div>
+   <div class="fl bub glass" style="right:14px;top:222px"><span class="ms f" style="color:#5BE7AE;font-size:22px">check_circle</span><div><b>Answer accepted</b>+25 points</div></div>
+   <div class="fl bub glass" style="left:14px;top:300px"><span class="ms f" style="color:#FFD27A;font-size:22px">emoji_events</span><div><b>Winter challenge</b>4 days left</div></div>
+  </div>
+  <img class="lgo" src="logo.svg">
+  <div class="lt"><h2>Build apps.<br><span>Build together.</span></h2><p>Join 18,000+ app makers. Learn, ask,<br>and show what you built.</p><div class="dots"><i class="on"></i><i></i><i></i></div></div>
+  <div class="btns">
+   <div class="btn w"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#000" d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1.1-3.2-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.1.1 2.3-.6 3-1.5z"/></svg>Continue with Apple</div>
+   <div class="btn o"><span class="ms">mail</span>Sign up with email</div>
+  </div>
+  <div class="small">Already a member? <b>Log in</b></div>
  </div>
- <div class="ahd"><b>الإجابات</b><span><span class="ms" style="font-size:16px">swap_vert</span>الأعلى تصويتًا</span></div>
- <div class="ans acc"><span class="accb"><span class="ms f" style="font-size:14px">check_circle</span>الإجابة المقبولة</span>
-  <div class="who"><img src="logo.svg" style="width:32px;height:32px;border-radius:10px"><div><div class="n">فريق Yallapp <span class="badge-team" style="background:rgba(255,255,255,.1)"><span class="ms f" style="font-size:12px;color:#5BE7AE">verified</span>رسمي</span></div><div class="m">منذ ساعتين</div></div></div>
-  <p>من Studio افتح «الصفحات» ثم «صفحة المنتج» واختر «من التمبلت». كل تمبلت له صفحته الخاصة وتتغير تلقائيًا.</p>
-  <div class="code">Studio › Pages › Product › From template</div>
-  <div class="vt"><div class="vp"><span class="ms f up">arrow_upward</span>42<span class="ms">arrow_downward</span></div><span class="sm"><span class="ms">chat_bubble</span>5 ردود</span></div>
- </div>
- <div class="ans"><div class="who"><div class="av a5" style="width:32px;height:32px;font-size:13px">ن</div><div><div class="n">نور الهدى <span class="lvl" style="background:rgba(255,110,154,.15);color:#FF8FB3">خبيرة</span></div><div class="m">منذ ساعة</div></div></div>
-  <p>وتأكد أن صور المنتج بنسبة 3:4 حتى يظهر المعرض بالكامل…</p></div>
- <div class="inp"><div class="ph"><span class="ms">edit_note</span>اكتب إجابتك…</div><span class="ms" style="color:#8A86A6">image</span><div class="snd"><span class="ms f" style="transform:scaleX(-1)">send</span></div></div>
-</div><div class="cap">صفحة سؤال · غامق</div></div>
+</div><div class="cap">Welcome · first launch</div></div>
 
 <!-- HOME -->
+<div class="phone up"><div class="notch"></div><div class="scr">
+ <div class="home-bg"></div>
+ <div class="sb"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
+ <div class="hd"><div class="l"><div class="ib"><span class="ms">menu</span></div><img src="logo.svg" style="width:34px;height:34px;border-radius:10px"></div>
+  <div class="r"><div class="ib"><span class="ms">search</span></div><div class="ib"><span class="ms">chat_bubble</span><span class="n">3</span></div><div class="ib"><span class="ms">notifications</span><span class="n">9</span></div><div class="me"><div class="av a3" style="width:40px;height:40px;font-size:15px">M</div></div></div></div>
+ <div class="hello"><small>Good morning ☀️</small><b>Mohamed Ali</b></div>
+ <div class="feat" style="background-image:url(pub/crochet-photos/beanie-girl.jpg)"><div class="in">
+  <span class="k glass"><span class="ms f" style="font-size:14px;color:#FFD27A">emoji_events</span>November challenge · 214 entries</span>
+  <h3>Coziest winter store ❄️</h3>
+  <div class="row2"><div class="cd"><div class="glass"><b>04</b>days</div><div class="glass"><b>11</b>hrs</div><div class="glass"><b>32</b>min</div></div><span class="join">Join now</span></div>
+ </div></div>
+ <div class="stories">
+  <div class="st"><div class="rg"><div style="background:linear-gradient(135deg,#7C6BFF,#3B2BD0)"><span class="ms f" style="font-size:26px">live_tv</span></div></div>Live Thu</div>
+  <div class="st"><div class="rg"><div style="background-image:url(pub/crochet-photos/bunny-knit.jpg)"></div></div>New tutorial</div>
+  <div class="st"><div class="rg"><div style="background-image:url(pub/beauty-photos/bath-set.jpg)"></div></div>Showcase</div>
+  <div class="st seen"><div class="rg"><div style="background-image:url(pub/furniture-photos/bed-bright.jpg)"></div></div>Daily tip</div>
+  <div class="st seen"><div class="rg"><div style="background:linear-gradient(135deg,#1FC08A,#0E8F63)"><span class="ms f" style="font-size:26px">campaign</span></div></div>What's new</div>
+ </div>
+ <div class="post"><div class="img" style="background-image:url(pub/clothes-photos/abaya-desert.jpg)">
+   <div class="au"><div class="av a5" style="width:34px;height:34px;font-size:13px;border:2px solid rgba(255,255,255,.8)">N</div><div><div class="n">Nour El Hoda <span class="ms f" style="font-size:15px;color:#7CC4FF">verified</span></div><div class="m">2h · Expert</div></div><span class="fw glass">Follow</span></div>
+   <span class="app glass"><span class="ms" style="font-size:16px">storefront</span>Lujain · Build one like it<span class="ms" style="font-size:15px">arrow_forward</span></span>
+   <span class="likes glass"><span class="ms f" style="font-size:16px;color:#FF7A7A">favorite</span>128</span></div>
+  <div class="bd"><p>Launched my store today with the Runway template 🎉</p></div></div>
+ <div class="tb"><div class="t on"><span class="ms f">home</span>Home</div><div class="t"><span class="ms">forum</span><span class="dot"></span></div><div class="cr"><span class="ms">add</span></div><div class="t"><span class="ms">school</span></div><div class="t"><span class="ms">groups</span></div></div>
+</div><div class="cap">Home · header with menu + profile</div></div>
+
+<!-- MENU -->
 <div class="phone"><div class="notch"></div><div class="scr">
  <div class="home-bg"></div>
  <div class="sb"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
- <div class="greet"><div class="l"><div class="ring2"><div class="av a3" style="width:44px;height:44px;font-size:17px">م</div></div><div><small>صباح الخير ☀️</small><b>محمد علي</b></div></div><div style="display:flex;gap:8px"><div class="ib"><span class="ms">search</span></div><div class="ib"><span class="ms">notifications</span><i></i></div></div></div>
- <div class="feat" style="background-image:url(pub/crochet-photos/beanie-girl.jpg)"><div class="in">
-  <span class="k glass"><span class="ms f" style="font-size:14px;color:#FFD27A">emoji_events</span>تحدّي نوفمبر · 214 مشاركة</span>
-  <h3>أجمل متجر شتوي ❄️</h3>
-  <div class="row2"><div class="cd"><div class="glass"><b>04</b>أيام</div><div class="glass"><b>11</b>ساعة</div><div class="glass"><b>32</b>دقيقة</div></div><span class="join">شارك الآن</span></div>
- </div></div>
- <div class="stories">
-  <div class="st"><div class="rg"><div style="background:linear-gradient(135deg,#7C6BFF,#3B2BD0)"><span class="ms f" style="font-size:26px">live_tv</span></div></div>لايف الخميس</div>
-  <div class="st"><div class="rg"><div style="background-image:url(pub/crochet-photos/bunny-knit.jpg)"></div></div>شرح جديد</div>
-  <div class="st"><div class="rg"><div style="background-image:url(pub/beauty-photos/bath-set.jpg)"></div></div>من المعرض</div>
-  <div class="st seen"><div class="rg"><div style="background-image:url(pub/furniture-photos/bed-bright.jpg)"></div></div>نصيحة اليوم</div>
-  <div class="st seen"><div class="rg"><div style="background:linear-gradient(135deg,#1FC08A,#0E8F63)"><span class="ms f" style="font-size:26px">campaign</span></div></div>جديدنا</div>
- </div>
- <div class="post">
-  <div class="img" style="background-image:url(pub/clothes-photos/abaya-desert.jpg)">
-   <div class="au"><div class="av a5" style="width:36px;height:36px;font-size:14px;border:2px solid rgba(255,255,255,.8)">ن</div><div><div class="n">نور الهدى <span class="ms f" style="font-size:15px;color:#7CC4FF">verified</span></div><div class="m">منذ ساعتين · خبيرة</div></div><span class="fl glass">متابَعة</span></div>
-   <span class="app glass"><span class="ms">storefront</span>لُجين · اعمل زيه<span class="ms" style="font-size:15px">arrow_back</span></span>
-   <span class="likes glass"><span class="ms f" style="font-size:16px;color:#FF7A7A">favorite</span>128</span>
+ <div class="hd"><div class="l"><div class="ib"><span class="ms">menu</span></div></div><div class="r"><div class="me"><div class="av a3" style="width:40px;height:40px;font-size:15px">M</div></div></div></div>
+ <div class="feat" style="background-image:url(pub/crochet-photos/beanie-girl.jpg)"></div>
+ <div class="dim"></div>
+ <div class="drawer">
+  <div class="dr-top"><div class="l"><img src="logo.svg">Community</div><div class="x"><span class="ms">close</span></div></div>
+  <div class="prof"><div class="me" style="flex:none"><div class="av a3" style="width:46px;height:46px;font-size:17px;border-color:#1A1846">M</div></div><div style="flex:1"><b>Mohamed Ali</b><div class="m">Pro · 1,240 pts</div><div class="pb"><i></i></div></div><span class="ms go">chevron_right</span></div>
+  <div class="nav">
+   <a class="on"><span class="ms f">home</span>Home</a><a><span class="ms">forum</span>Q&amp;A<span class="b">12</span></a>
+   <a><span class="ms">menu_book</span>Tutorials</a><a><span class="ms">school</span>Academy</a>
+   <a><span class="ms">apps</span>Showcase</a><a><span class="ms">emoji_events</span>Challenges</a>
+   <a><span class="ms">groups</span>Groups</a><a><span class="ms">diversity_3</span>Friends</a>
+   <a><span class="ms">work</span>Pros</a><a><span class="ms">event</span>Events</a>
   </div>
-  <div class="bd"><p>أطلقت متجري اليوم بتمبلت Runway 🎉 أول 40 طلبًا في يومين!</p>
-   <div class="ac"><span><span class="ms">favorite</span>إعجاب</span><span><span class="ms">chat_bubble</span>24</span><span style="margin-right:auto"><span class="ms">bookmark</span></span><span><span class="ms">ios_share</span></span></div></div>
+  <div class="dh">Your groups</div>
+  <div class="grp"><div class="gi" style="background-image:url(pub/clothes-photos/black-dress.jpg)"></div><div><b>Fashion store owners</b><div class="m">2.4K members</div></div><i class="new"></i></div>
+  <div class="grp"><div class="gi" style="background-image:url(pub/furniture-photos/armchair.jpg)"></div><div><b>Studio power users</b><div class="m">980 members</div></div></div>
+  <div class="grp"><div class="gi" style="background:linear-gradient(135deg,#E23F3F,#B71C1C)"></div><div><b>Yallapp Türkiye</b><div class="m">3.1K members</div></div><i class="new"></i></div>
+  <div class="foot"><div class="tg"><span class="on"><span class="ms f">light_mode</span></span><span><span class="ms">dark_mode</span></span></div><div class="fi"><span><span class="ms">bookmark</span></span><span><span class="ms">settings</span></span><span><span class="ms">logout</span></span></div></div>
  </div>
- <div class="tb"><div class="t on"><span class="ms f">home</span>الرئيسية</div><div class="t"><span class="ms">forum</span>الأسئلة</div><div class="plus"><span class="ms">add</span></div><div class="t"><span class="ms">school</span>التعلّم</div><div class="t"><span class="ms">person</span>حسابي</div></div>
-</div><div class="cap">الرئيسية · فاتح</div></div>
+</div><div class="cap">Menu · every section</div></div>
+
+<!-- QUESTION DARK (new tab bar dark) -->
+<div class="phone up dark"><div class="notch"></div><div class="scr" style="background:#0B0A1F;color:#EDEAF5">
+ <div style="position:absolute;inset:0 0 auto 0;height:360px;background:radial-gradient(300px 220px at 90% 0%,rgba(255,90,31,.35),transparent 70%),radial-gradient(300px 220px at 0% 30%,rgba(107,91,255,.3),transparent 70%)"></div>
+ <div class="sb" style="color:#fff"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
+ <div class="hd"><div class="l"><div class="ib" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1);color:#fff;box-shadow:none"><span class="ms">arrow_back</span></div></div><div class="r"><div class="ib" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1);color:#fff;box-shadow:none"><span class="ms">bookmark</span></div><div class="me"><div class="av a3" style="width:40px;height:40px;font-size:15px;border-color:#0B0A1F">M</div></div></div></div>
+ <div style="padding:0 20px;position:relative">
+  <div style="display:flex;gap:6px"><span class="k" style="background:rgba(255,90,31,.18);color:#FFA37E;border:1px solid rgba(255,90,31,.3)">Studio</span><span class="k" style="background:rgba(255,255,255,.08);color:#CFCBE0">Product page</span></div>
+  <h2 style="font-size:22px;line-height:1.35;margin:12px 0 12px;font-weight:800;letter-spacing:-.4px">How do I give each template its own product page?</h2>
+  <div style="display:flex;align-items:center;gap:10px"><div class="av a6" style="width:34px;height:34px;font-size:13px">K</div><div><div style="font-weight:700;font-size:13.5px">Karim Samy</div><div style="font-size:11.5px;color:#9C98B5">3h · 284 views · 4 answers</div></div></div>
+ </div>
+ <div style="margin:18px 14px 0;border-radius:24px;padding:15px;background:linear-gradient(180deg,rgba(24,165,107,.16),rgba(255,255,255,.04) 70%);border:1px solid rgba(47,211,146,.45);position:relative">
+  <span style="position:absolute;top:-11px;right:16px;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#05301F;background:linear-gradient(135deg,#5BE7AE,#22C483);padding:4px 10px;border-radius:12px"><span class="ms f" style="font-size:14px">check_circle</span>Accepted</span>
+  <div style="display:flex;align-items:center;gap:10px"><img src="logo.svg" style="width:32px;height:32px;border-radius:10px"><div><div style="font-weight:700;font-size:13.5px;display:flex;gap:6px;align-items:center">Yallapp Team <span class="badge-team" style="background:rgba(255,255,255,.1)"><span class="ms f" style="font-size:12px;color:#5BE7AE">verified</span>Official</span></div><div style="font-size:11.5px;color:#9C98B5">2h ago</div></div></div>
+  <p style="font-size:13.5px;line-height:1.6;color:#DAD6EA;margin-top:9px">In Studio open Pages → Product and pick “From template”. Each template ships its own page and switches automatically.</p>
+  <div style="display:flex;gap:6px;margin-top:12px;align-items:center"><span style="display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.07);border-radius:14px;padding:4px 8px;font-weight:700;font-size:13px"><span class="ms f" style="font-size:20px;color:#FF8A5C">arrow_upward</span>42<span class="ms" style="font-size:20px;color:#9C98B5">arrow_downward</span></span><span style="font-size:12px;color:#9C98B5;display:flex;align-items:center;gap:4px;margin-left:6px"><span class="ms" style="font-size:17px">chat_bubble</span>5 replies</span></div>
+ </div>
+ <div style="margin:14px 14px 0;border-radius:24px;padding:15px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07)"><div style="display:flex;align-items:center;gap:10px"><div class="av a5" style="width:32px;height:32px;font-size:13px">N</div><div><div style="font-weight:700;font-size:13.5px">Nour El Hoda <span class="lvl" style="background:rgba(255,110,154,.15);color:#FF8FB3">Expert</span></div><div style="font-size:11.5px;color:#9C98B5">1h ago</div></div></div><p style="font-size:13.5px;line-height:1.6;color:#DAD6EA;margin-top:9px">Also keep product photos at 3:4 so the gallery fills the screen.</p><div style="display:flex;gap:6px;margin-top:10px;align-items:center"><span style="display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.07);border-radius:14px;padding:4px 8px;font-weight:700;font-size:13px"><span class="ms" style="font-size:20px;color:#9C98B5">arrow_upward</span>17<span class="ms" style="font-size:20px;color:#9C98B5">arrow_downward</span></span></div></div>
+ <div class="tb"><div class="t"><span class="ms">home</span></div><div class="t on"><span class="ms f">forum</span>Q&amp;A</div><div class="cr"><span class="ms">add</span></div><div class="t"><span class="ms">school</span></div><div class="t"><span class="ms">groups</span><span class="dot"></span></div></div>
+</div><div class="cap">Question · dark mode</div></div>
 </div>
 </body></html>
