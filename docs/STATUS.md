@@ -40,6 +40,15 @@ The app part ships with the next app release (no `CLIENT_APP_RELEASE`
 change). Without a header, the status bar and the back button stay over
 the page as it scrolls, as on any pushed Studio page without one.
 
+Roadmap 228.7 (cosmetics and crochet): Velours's and Ghurza's templates C
+and D each have their own product page, built from the product elements
+and their template's parts, none like another's or like Lujain A's: the
+clinic's formula sheet (actives, numbered use steps on frosted glass), the
+shade studio's gloss panel with the shade swatches and the shade on real
+skin, the makers' market's stitched frames with the price on a hanging tag
+and who made it, and the cozy studio's ready piece or kit switch with the
+piece's pattern. Light and dark, Arabic, English and Turkish.
+
 Roadmap 216 (Yallapp's Firebase rides out a moment when Google can't
 reach the platform's issuer): the token exchange is tried up to 3 times
 (about 1 s, then 3 s) on a passing failure only (unreachable, 429, 5xx,

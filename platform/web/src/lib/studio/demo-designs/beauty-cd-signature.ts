@@ -4,6 +4,8 @@ import type { SectionContext, SectionInfo, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigPhoto, sigTexts, signatureBar, signatureHeader, type SignatureInk } from "./food-signature-parts";
+import { PRODUCT_PAGE_SLUG, productPart, type ProductPagePart } from "../product-page";
+import { STUDIO_PRODUCT_SCREEN } from "../../pages/types";
 
 /**
  * 224 Velours (cosmetics) templates C and D, the owner's third round (23
@@ -831,7 +833,170 @@ const over = (l: Look) => (screenName: string, ctx: SectionContext): StudioNode[
   }
 };
 
-const pages = (l: Look) => (ctx: SectionContext) => [{ slug: CD_MENU_PAGE, title: "btCategoryMenu" as SectionWord, studio: menuPage(ctx, l) }];
+
+// ——— 228.7 Each template's own product page ———
+
+const part = (ctx: SectionContext, p: ProductPagePart): StudioNode => productPart(ctx, p);
+const productPageOfLook = (ctx: SectionContext, l: Look, page: Omit<StudioPage, "screen" | "show_tabs" | "body"> & { children: StudioNode[] }) => {
+  const { children, ...rest } = page;
+  return {
+    slug: PRODUCT_PAGE_SLUG,
+    title: "pProductPage" as SectionWord,
+    studio: { background: l.k.page, dark_background: l.k.darkPage, ...rest, show_tabs: false, screen: STUDIO_PRODUCT_SCREEN, body: { id: idOf(ctx)(), type: "column", gap: 0, children } } satisfies StudioPage,
+  };
+};
+
+/**
+ * C · the formula sheet: the photo and its thumbnails on the lab's tinted
+ * plate (its formula number and a tested seal over them), the name and
+ * price in Zain, the actives as chips with their strength, the sizes as
+ * chips, how to use it as three numbered steps on frosted glass, the
+ * formula's facts as lines, its rating, the routine to complete it and the
+ * price beside Add to my routine at the foot.
+ */
+function clinicProductPage(ctx: SectionContext, l: Look) {
+  const id = idOf(ctx);
+  const k = l.k;
+  const ink = { color: k.ink, dark_color: k.darkInk } as const;
+  const teal = { accent: k.accent, dark_accent: k.darkAccent } as const;
+  const step = (n: number, title: SectionWord, line: SectionWord, last: boolean): StudioNode[] => {
+    const row: StudioNode = {
+      id: id(),
+      type: "row",
+      name: ctx.w(title),
+      gap: 12,
+      cross: "center",
+      padding: sides(10, 0, 10, 0),
+      children: [
+        { id: id(), type: "row", width: 30, height: 30, radius: 15, align: "center", cross: "center", border_color: k.accent, dark_border_color: k.darkAccent, border_width: 1.5, children: [raw(ctx, l, String(n).padStart(2, "0"), { size: 12.5, weight: 800 }, { accent: true })] },
+        { id: id(), type: "column", width: "fill", gap: 1, children: [say(ctx, l, title, { size: 15.5, weight: 700 }, { max_lines: 1 }), say(ctx, l, line, { size: 13 }, { muted: true, max_lines: 2 })] },
+      ],
+    };
+    return last ? [row] : [row, { id: id(), type: "divider", height: 1, background: k.line, dark_background: k.darkLine }];
+  };
+  return productPageOfLook(ctx, l, {
+    // No header: the sheet's own title in its top band, beside the app's back button.
+    children: [
+      { id: id(), type: "row", name: ctx.w("vcpSheet"), height: 52, align: "center", cross: "center", padding: sides(0, 64, 0, 64), children: [say(ctx, l, "vcpSheet", { size: 15.5, weight: 700, letter_spacing: 0.3 }, { max_lines: 1 })] },
+      {
+        id: id(),
+        type: "column",
+        name: ctx.w("vcpSheet"),
+        gap: 10,
+        radius: 26,
+        padding: sides(12, 12, 12, 12),
+        margin: sides(4, 16, 0, 16),
+        background: l.tint.day,
+        dark_background: l.tint.night,
+        children: [
+          {
+            id: id(),
+            type: "row",
+            gap: 8,
+            cross: "center",
+            padding: sides(2, 4, 0, 4),
+            children: [
+              raw(ctx, l, "FORMULA · LAB 07", { size: 11.5, weight: 700, letter_spacing: 1.6 }, { accent: true, width: "fill", max_lines: 1 }),
+              { id: id(), type: "row", gap: 4, cross: "center", radius: 99, padding: sides(4, 10, 4, 10), surface: { glass: 16, tint: 0.7, soft: 1 }, children: [icon(ctx, "verified", 14, { color: k.accent, dark_color: k.darkAccent }), say(ctx, l, "vcpTested", { size: 11.5, weight: 600 }, { max_lines: 1 })] },
+            ],
+          },
+          part(ctx, { type: "product_gallery", look: "thumbs", radius: 18, node: { aspect_ratio: 1 } }),
+        ],
+      },
+      part(ctx, { type: "product_title", look: "plain", node: { ...ink, font: { family: l.family, size: 26, weight: 800, line_height: 1.2 }, margin: sides(18, 18, 0, 18) } }),
+      part(ctx, { type: "product_price", look: "single", node: { color: k.accent, dark_color: k.darkAccent, font: { family: l.family, size: 21, weight: 800 }, margin: sides(4, 18, 0, 18) } }),
+      clinicHead(ctx, l, "vcpActives", null, sides(22, 16, 10, 16)),
+      ingredientChips(ctx, l),
+      part(ctx, { type: "product_variants", look: "chips", ...teal, text: "vcpSize", node: { ...ink, margin: sides(20, 18, 0, 18) } }),
+      part(ctx, { type: "product_quantity", look: "stepper", node: { ...ink, margin: sides(14, 18, 0, 18) } }),
+      {
+        id: id(),
+        type: "column",
+        name: ctx.w("vcpUse"),
+        gap: 2,
+        radius: 22,
+        padding: sides(14, 16, 6, 16),
+        margin: sides(22, 16, 0, 16),
+        background: l.tint.day,
+        dark_background: l.tint.night,
+        surface: { glass: 18, tint: 0.5, soft: 2 },
+        children: [say(ctx, l, "vcpUse", { size: 18, weight: 800 }, { max_lines: 1 }), ...step(1, "vcpU1", "vcpU1Text", false), ...step(2, "vcpU2", "vcpU2Text", false), ...step(3, "vcpU3", "vcpU3Text", true)],
+      },
+      part(ctx, { type: "product_specs", look: "list", text: "vcpFacts", node: { ...ink, margin: sides(24, 18, 0, 18) } }),
+      part(ctx, { type: "product_description", look: "accordion", node: { ...ink, margin: sides(14, 18, 0, 18), border_color: k.line, dark_border_color: k.darkLine } }),
+      part(ctx, { type: "product_reviews", look: "summary", ...teal, node: { ...ink, margin: sides(20, 18, 0, 18) } }),
+      part(ctx, { type: "product_related", look: "grid", related: "complete_look", rows: 4, text: "vcpRoutine", node: { ...ink, margin: sides(24, 6, 16, 6) } }),
+      part(ctx, {
+        type: "product_buy",
+        look: "price",
+        accent: k.accent,
+        dark_accent: k.darkAccent,
+        text: "vcpAdd",
+        node: { pin: "bottom", radius: 16, padding: sides(10, 16, 10, 16), background: k.surface, dark_background: k.darkSurface, border_color: k.line, dark_border_color: k.darkLine, border_width: 1, ...ink },
+      }),
+    ],
+  });
+}
+
+/**
+ * D · the shade card: the photos on the gloss plum panel, the shade's kicker and name in white display type,
+ * the shades as round swatches across the panel's foot, the price with the
+ * one before it; then the shade on real skin (before and after), how to
+ * wear it as tutorial reels, the description to open, the stars star by
+ * star, what to wear it with, and Get the shade with Buy now at the foot.
+ */
+function shadeProductPage(ctx: SectionContext, l: Look) {
+  const id = idOf(ctx);
+  const k = l.k;
+  const ink = { color: k.ink, dark_color: k.darkInk } as const;
+  const pink = { accent: "#FF3D8B", dark_accent: "#FF6FA8" } as const;
+  return productPageOfLook(ctx, l, {
+    // No header: the app's back button over the photos.
+    children: [
+      {
+        id: id(),
+        type: "column",
+        name: ctx.w("vdpKicker"),
+        gap: 6,
+        padding: sides(0, 0, 18, 0),
+        corners: { bottom_start: 34, bottom_end: 34 },
+        gradient: GLOSS,
+        background: "#3A0C2A",
+        dark_background: "#120610",
+        surface: { glow: "#FF6FA8", pattern: "grain", pattern_strength: 0.05 },
+        children: [
+          part(ctx, { type: "product_gallery", look: "pager", node: { aspect_ratio: 0.9 } }),
+          { ...say(ctx, l, "vdpKicker", { size: 11.5, weight: 600, letter_spacing: 2 }, { max_lines: 1, margin: sides(12, 20, 0, 20) }), color: "#FFB3D1", dark_color: "#FFB3D1" },
+          part(ctx, { type: "product_title", look: "plain", node: { ...WHITE, font: { family: l.family, size: 30, weight: 900, line_height: 1.05, letter_spacing: -0.3 }, margin: sides(0, 20, 0, 20) } }),
+          part(ctx, { type: "product_price", look: "sale", node: { color: "#FFD6E7", dark_color: "#FFD6E7", font: { family: l.family, size: 19, weight: 800 }, margin: sides(2, 20, 0, 20) } }),
+          // The shades on a blush card at the panel's foot, their names in the page's ink.
+          part(ctx, { type: "product_variants", look: "swatches", ...pink, text: "vdpChoose", node: { ...ink, margin: sides(10, 14, 0, 14), padding: sides(12, 12, 12, 12), radius: 22, background: "#FFF4F8", dark_background: "#241020" } }),
+        ],
+      },
+      shadeHead(ctx, l, "vdpOnSkin", null),
+      beforeAfter(ctx, l),
+      shadeHead(ctx, l, "vdpApply", null),
+      { id: id(), type: "row", name: ctx.w("vdpApply"), gap: 10, scroll: true, padding: sides(0, 18, 0, 18), children: [reel(ctx, l, "shade-face", "vdReel3", "0:45", 150, 200), reel(ctx, l, "blush", "vdReel4", "1:05", 150, 200), reel(ctx, l, "eyeliner", "vdReel1", "0:58", 150, 200)] },
+      part(ctx, { type: "product_description", look: "accordion", node: { ...ink, margin: sides(22, 18, 0, 18), border_color: k.line, dark_border_color: k.darkLine } }),
+      part(ctx, { type: "product_reviews", look: "bars", ...pink, node: { ...ink, margin: sides(22, 18, 0, 18) } }),
+      part(ctx, { type: "product_related", look: "carousel", related: "complete_look", rows: 6, text: "vdpWearWith", node: { ...ink, margin: sides(24, 0, 16, 0) } }),
+      part(ctx, {
+        type: "product_buy",
+        look: "buy_now",
+        accent: k.fill,
+        dark_accent: k.darkFill,
+        text: "vdpBuy",
+        node: { pin: "bottom", radius: 24, padding: sides(10, 14, 10, 14), background: k.surface, dark_background: k.darkSurface, border_color: k.line, dark_border_color: k.darkLine, border_width: 1, ...ink },
+      }),
+    ],
+  });
+}
+
+const pages = (l: Look) => (ctx: SectionContext) => [
+  { slug: CD_MENU_PAGE, title: "btCategoryMenu" as SectionWord, studio: menuPage(ctx, l) },
+  // 228.7 Each template's own product page.
+  l.look === "c" ? clinicProductPage(ctx, l) : shadeProductPage(ctx, l),
+];
 
 const screenOf = (t: LayoutTab) => (t.target.type === "screen" ? t.target.screen : null);
 
