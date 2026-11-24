@@ -1,6 +1,6 @@
 # Yallapp Community app (area D): screenshots beside the design
 
-Made from `wip-community-app` at 9ea6681f5. Each phone is 390 × 844 at 2x.
+Made from `wip-community-app` at 7e576942c. Each phone is 390 × 844 at 2x.
 
 - **Design:** `design/mobile.html` and `design/opening.html` (branch
   `wip-community-design`) rendered in Chromium at 2x, with the bezel cut off.
@@ -48,10 +48,18 @@ and welcome, home and the menu also in Arabic (right to left) and Turkish.
    - The level bar is the share of the way to the next points milestone.
      The contract has no level progress, so 1,240 points shows about 16%,
      where the mockup draws 64%.
-4. **The design's own placeholders:** its HTML points at photos that
+4. **Home, phase 1 only:** the mockup's November challenge and "Build
+   one like it" are later phases.
+   - The featured slot shows the newest official tutorial ("Start
+     tutorial"). It takes any kind of item, so phase 3's challenge, with
+     its countdown, drops in.
+   - A post's glass chip reads "Start tutorial" on a tutorial and the
+     answers ("12 answers") on a question.
+   - Official tutorials come from the Yallapp Team, shown with the logo.
+5. **The design's own placeholders:** its HTML points at photos that
    aren't in the repo, so its collage phones and post photo are blank.
    The app shows its demo photos there.
-5. **Status bar and emoji:** the status bar (9:41, signal) is the phone's
+6. **Status bar and emoji:** the status bar (9:41, signal) is the phone's
    own, not the app's. The emoji (🎉 ❄️ ☀️) show as boxes only because
    this test machine has no emoji font; phones have one.
 
