@@ -1589,11 +1589,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-115",
+      "id": "sig-153",
       "type": "column",
       "children": [
        {
-        "id": "sig-116",
+        "id": "sig-154",
         "type": "text",
         "text": "Every shade, in one place",
         "font": {
@@ -1621,7 +1621,7 @@
         }
        },
        {
-        "id": "sig-117",
+        "id": "sig-155",
         "type": "row",
         "name": "Shades",
         "gap": 10,
@@ -1634,7 +1634,7 @@
         },
         "children": [
          {
-          "id": "sig-118",
+          "id": "sig-156",
           "type": "column",
           "name": "Nude 01",
           "gap": 4,
@@ -1645,7 +1645,7 @@
           },
           "children": [
            {
-            "id": "sig-119",
+            "id": "sig-157",
             "type": "row",
             "width": 44,
             "height": 44,
@@ -1655,7 +1655,7 @@
             "children": []
            },
            {
-            "id": "sig-120",
+            "id": "sig-158",
             "type": "text",
             "text": "Nude 01",
             "font": {
@@ -1677,7 +1677,7 @@
           ]
          },
          {
-          "id": "sig-121",
+          "id": "sig-159",
           "type": "column",
           "name": "Rose 04",
           "gap": 4,
@@ -1688,7 +1688,7 @@
           },
           "children": [
            {
-            "id": "sig-122",
+            "id": "sig-160",
             "type": "row",
             "width": 44,
             "height": 44,
@@ -1698,7 +1698,7 @@
             "children": []
            },
            {
-            "id": "sig-123",
+            "id": "sig-161",
             "type": "text",
             "text": "Rose 04",
             "font": {
@@ -1720,7 +1720,7 @@
           ]
          },
          {
-          "id": "sig-124",
+          "id": "sig-162",
           "type": "column",
           "name": "Fig 07",
           "gap": 4,
@@ -1731,7 +1731,7 @@
           },
           "children": [
            {
-            "id": "sig-125",
+            "id": "sig-163",
             "type": "row",
             "width": 44,
             "height": 44,
@@ -1741,7 +1741,7 @@
             "children": []
            },
            {
-            "id": "sig-126",
+            "id": "sig-164",
             "type": "text",
             "text": "Fig 07",
             "font": {
@@ -1763,7 +1763,7 @@
           ]
          },
          {
-          "id": "sig-127",
+          "id": "sig-165",
           "type": "column",
           "name": "Cherry 09",
           "gap": 4,
@@ -1774,7 +1774,7 @@
           },
           "children": [
            {
-            "id": "sig-128",
+            "id": "sig-166",
             "type": "row",
             "width": 44,
             "height": 44,
@@ -1784,7 +1784,7 @@
             "children": []
            },
            {
-            "id": "sig-129",
+            "id": "sig-167",
             "type": "text",
             "text": "Cherry 09",
             "font": {
@@ -1806,7 +1806,7 @@
           ]
          },
          {
-          "id": "sig-130",
+          "id": "sig-168",
           "type": "column",
           "name": "Berry 12",
           "gap": 4,
@@ -1817,7 +1817,7 @@
           },
           "children": [
            {
-            "id": "sig-131",
+            "id": "sig-169",
             "type": "row",
             "width": 44,
             "height": 44,
@@ -1827,7 +1827,7 @@
             "children": []
            },
            {
-            "id": "sig-132",
+            "id": "sig-170",
             "type": "text",
             "text": "Berry 12",
             "font": {
@@ -1849,7 +1849,7 @@
           ]
          },
          {
-          "id": "sig-133",
+          "id": "sig-171",
           "type": "column",
           "name": "Coral 03",
           "gap": 4,
@@ -1860,7 +1860,7 @@
           },
           "children": [
            {
-            "id": "sig-134",
+            "id": "sig-172",
             "type": "row",
             "width": 44,
             "height": 44,
@@ -1870,7 +1870,7 @@
             "children": []
            },
            {
-            "id": "sig-135",
+            "id": "sig-173",
             "type": "text",
             "text": "Coral 03",
             "font": {
@@ -1894,7 +1894,7 @@
         ]
        },
        {
-        "id": "sig-136",
+        "id": "sig-174",
         "type": "categories",
         "name": "Categories",
         "source": "products",
@@ -1949,7 +1949,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-137",
+      "id": "sig-175",
       "type": "column",
       "children": []
      },
@@ -1994,11 +1994,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-138",
+      "id": "sig-176",
       "type": "column",
       "children": [
        {
-        "id": "sig-139",
+        "id": "sig-177",
         "type": "coupon",
         "name": "Your code",
         "code": "VELOURS10",
@@ -2016,7 +2016,7 @@
         }
        },
        {
-        "id": "sig-140",
+        "id": "sig-178",
         "type": "row",
         "name": "Not your shade? Change it within 14 days, unopened.",
         "gap": 12,
@@ -2038,7 +2038,7 @@
         "dark_background": "#24101D",
         "children": [
          {
-          "id": "sig-141",
+          "id": "sig-179",
           "type": "icon",
           "icon": "auto_awesome",
           "icon_size": 22,
@@ -2046,7 +2046,7 @@
           "dark_color": "#FF6FA8"
          },
          {
-          "id": "sig-142",
+          "id": "sig-180",
           "type": "text",
           "text": "Not your shade? Change it within 14 days, unopened.",
           "font": {
@@ -2113,11 +2113,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-144",
+      "id": "sig-182",
       "type": "column",
       "children": [
        {
-        "id": "sig-143",
+        "id": "sig-181",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -2876,6 +2876,719 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#FBF3F6",
+     "dark_background": "#0A0508",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-152",
+      "type": "column",
+      "gap": 0,
+      "children": [
+       {
+        "id": "sig-115",
+        "type": "column",
+        "name": "THE SHADE",
+        "gap": 6,
+        "padding": {
+         "top": 0,
+         "end": 0,
+         "bottom": 18,
+         "start": 0
+        },
+        "corners": {
+         "bottom_start": 34,
+         "bottom_end": 34
+        },
+        "gradient": {
+         "from": "#5A1240",
+         "to": "#1E0818",
+         "angle": 160
+        },
+        "background": "#3A0C2A",
+        "dark_background": "#120610",
+        "surface": {
+         "glow": "#FF6FA8",
+         "pattern": "grain",
+         "pattern_strength": 0.05
+        },
+        "children": [
+         {
+          "id": "sig-116",
+          "type": "product_gallery",
+          "aspect_ratio": 0.9,
+          "product_part": {
+           "look": "pager"
+          }
+         },
+         {
+          "id": "sig-117",
+          "type": "text",
+          "text": "THE SHADE",
+          "font": {
+           "family": "Kufam",
+           "size": 11.5,
+           "weight": 600,
+           "letter_spacing": 2
+          },
+          "color": "#FFB3D1",
+          "dark_color": "#FFB3D1",
+          "max_lines": 1,
+          "margin": {
+           "top": 12,
+           "end": 20,
+           "bottom": 0,
+           "start": 20
+          },
+          "translations": {
+           "ar": {
+            "text": "الظل"
+           },
+           "tr": {
+            "text": "TON"
+           }
+          }
+         },
+         {
+          "id": "sig-118",
+          "type": "product_title",
+          "font": {
+           "family": "Kufam",
+           "size": 30,
+           "weight": 900,
+           "line_height": 1.05,
+           "letter_spacing": -0.3
+          },
+          "margin": {
+           "top": 0,
+           "end": 20,
+           "bottom": 0,
+           "start": 20
+          },
+          "product_part": {
+           "look": "plain"
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF"
+         },
+         {
+          "id": "sig-119",
+          "type": "product_price",
+          "font": {
+           "family": "Kufam",
+           "size": 19,
+           "weight": 800
+          },
+          "margin": {
+           "top": 2,
+           "end": 20,
+           "bottom": 0,
+           "start": 20
+          },
+          "product_part": {
+           "look": "sale"
+          },
+          "color": "#FFD6E7",
+          "dark_color": "#FFD6E7"
+         },
+         {
+          "id": "sig-120",
+          "type": "product_variants",
+          "margin": {
+           "top": 10,
+           "end": 14,
+           "bottom": 0,
+           "start": 14
+          },
+          "product_part": {
+           "look": "swatches",
+           "accent": "#FF3D8B",
+           "dark_accent": "#FF6FA8"
+          },
+          "text": "Pick your shade",
+          "color": "#2A0E22",
+          "dark_color": "#FBEFF5",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "radius": 22,
+          "background": "#FFF4F8",
+          "dark_background": "#241020",
+          "translations": {
+           "ar": {
+            "text": "اختاري ظلّكِ"
+           },
+           "tr": {
+            "text": "Tonunuzu seçin"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-121",
+        "type": "row",
+        "name": "On real skin",
+        "cross": "end",
+        "gap": 10,
+        "padding": {
+         "top": 28,
+         "end": 18,
+         "bottom": 12,
+         "start": 18
+        },
+        "children": [
+         {
+          "id": "sig-122",
+          "type": "text",
+          "text": "On real skin",
+          "font": {
+           "family": "Kufam",
+           "size": 27,
+           "weight": 900,
+           "line_height": 1.05,
+           "letter_spacing": -0.4
+          },
+          "color": "#2A0E22",
+          "dark_color": "#FBEFF5",
+          "width": "fill",
+          "max_lines": 2,
+          "translations": {
+           "ar": {
+            "text": "على بشرة حقيقية"
+           },
+           "tr": {
+            "text": "Gerçek ciltte"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-123",
+        "type": "before_after",
+        "name": "Before and after",
+        "images": [
+         {
+          "image_url": "http://localhost:3000/beauty-photos/routine-calm.jpg",
+          "caption": "Before",
+          "translations": {
+           "ar": {
+            "caption": "قبل"
+           },
+           "tr": {
+            "caption": "Önce"
+           }
+          }
+         },
+         {
+          "image_url": "http://localhost:3000/beauty-photos/routine-morning.jpg",
+          "caption": "After · Rose blush 04",
+          "translations": {
+           "ar": {
+            "caption": "بعد · أحمر خدود ورد 04"
+           },
+           "tr": {
+            "caption": "Sonra · Gül allık 04"
+           }
+          }
+         }
+        ],
+        "compare": {
+         "at": 50
+        },
+        "aspect_ratio": 1.33,
+        "radius": 26,
+        "margin": {
+         "top": 0,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#1A0D16"
+       },
+       {
+        "id": "sig-124",
+        "type": "row",
+        "name": "How to wear it",
+        "cross": "end",
+        "gap": 10,
+        "padding": {
+         "top": 28,
+         "end": 18,
+         "bottom": 12,
+         "start": 18
+        },
+        "children": [
+         {
+          "id": "sig-125",
+          "type": "text",
+          "text": "How to wear it",
+          "font": {
+           "family": "Kufam",
+           "size": 27,
+           "weight": 900,
+           "line_height": 1.05,
+           "letter_spacing": -0.4
+          },
+          "color": "#2A0E22",
+          "dark_color": "#FBEFF5",
+          "width": "fill",
+          "max_lines": 2,
+          "translations": {
+           "ar": {
+            "text": "طريقة وضعه"
+           },
+           "tr": {
+            "text": "Nasıl sürülür"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-126",
+        "type": "row",
+        "name": "How to wear it",
+        "gap": 10,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "children": [
+         {
+          "id": "sig-127",
+          "type": "column",
+          "name": "Find your foundation shade",
+          "width": 150,
+          "gap": 0,
+          "children": [
+           {
+            "id": "sig-128",
+            "type": "photo_hero",
+            "name": "Find your foundation shade",
+            "image_url": "http://localhost:3000/beauty-photos/shade-face.jpg",
+            "height": 200,
+            "radius": 22,
+            "background": "#2A0E22",
+            "scrim": {
+             "color": "#14040E",
+             "from": 0.05,
+             "middle": 0.2,
+             "at": 45,
+             "to": 0.88
+            },
+            "align": "between",
+            "padding": {
+             "top": 10,
+             "end": 10,
+             "bottom": 12,
+             "start": 10
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-129",
+              "type": "row",
+              "gap": 0,
+              "children": [
+               {
+                "id": "sig-130",
+                "type": "icon",
+                "icon": "play_arrow",
+                "icon_size": 20,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "radius": 99,
+                "padding": {
+                 "top": 5,
+                 "end": 5,
+                 "bottom": 5,
+                 "start": 5
+                },
+                "surface": {
+                 "glass": 10,
+                 "tint": 0.2
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-131",
+              "type": "column",
+              "gap": 2,
+              "children": [
+               {
+                "id": "sig-132",
+                "type": "text",
+                "text": "Find your foundation shade",
+                "font": {
+                 "family": "Kufam",
+                 "size": 13.5,
+                 "weight": 800,
+                 "line_height": 1.25
+                },
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "max_lines": 3,
+                "translations": {
+                 "ar": {
+                  "text": "اختاري ظل كريم الأساس"
+                 },
+                 "tr": {
+                  "text": "Fondöten tonunuzu bulun"
+                 }
+                }
+               },
+               {
+                "id": "sig-133",
+                "type": "text",
+                "text": "0:45",
+                "font": {
+                 "family": "Kufam",
+                 "size": 11
+                },
+                "color": "#F3D6E4",
+                "dark_color": "#F3D6E4"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-134",
+          "type": "column",
+          "name": "A blush that lasts all day",
+          "width": 150,
+          "gap": 0,
+          "children": [
+           {
+            "id": "sig-135",
+            "type": "photo_hero",
+            "name": "A blush that lasts all day",
+            "image_url": "http://localhost:3000/beauty-photos/blush.jpg",
+            "height": 200,
+            "radius": 22,
+            "background": "#2A0E22",
+            "scrim": {
+             "color": "#14040E",
+             "from": 0.05,
+             "middle": 0.2,
+             "at": 45,
+             "to": 0.88
+            },
+            "align": "between",
+            "padding": {
+             "top": 10,
+             "end": 10,
+             "bottom": 12,
+             "start": 10
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-136",
+              "type": "row",
+              "gap": 0,
+              "children": [
+               {
+                "id": "sig-137",
+                "type": "icon",
+                "icon": "play_arrow",
+                "icon_size": 20,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "radius": 99,
+                "padding": {
+                 "top": 5,
+                 "end": 5,
+                 "bottom": 5,
+                 "start": 5
+                },
+                "surface": {
+                 "glass": 10,
+                 "tint": 0.2
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-138",
+              "type": "column",
+              "gap": 2,
+              "children": [
+               {
+                "id": "sig-139",
+                "type": "text",
+                "text": "A blush that lasts all day",
+                "font": {
+                 "family": "Kufam",
+                 "size": 13.5,
+                 "weight": 800,
+                 "line_height": 1.25
+                },
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "max_lines": 3,
+                "translations": {
+                 "ar": {
+                  "text": "أحمر خدود يدوم طوال اليوم"
+                 },
+                 "tr": {
+                  "text": "Gün boyu kalan allık"
+                 }
+                }
+               },
+               {
+                "id": "sig-140",
+                "type": "text",
+                "text": "1:05",
+                "font": {
+                 "family": "Kufam",
+                 "size": 11
+                },
+                "color": "#F3D6E4",
+                "dark_color": "#F3D6E4"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-141",
+          "type": "column",
+          "name": "Cat-eye liner in a minute",
+          "width": 150,
+          "gap": 0,
+          "children": [
+           {
+            "id": "sig-142",
+            "type": "photo_hero",
+            "name": "Cat-eye liner in a minute",
+            "image_url": "http://localhost:3000/beauty-photos/eyeliner.jpg",
+            "height": 200,
+            "radius": 22,
+            "background": "#2A0E22",
+            "scrim": {
+             "color": "#14040E",
+             "from": 0.05,
+             "middle": 0.2,
+             "at": 45,
+             "to": 0.88
+            },
+            "align": "between",
+            "padding": {
+             "top": 10,
+             "end": 10,
+             "bottom": 12,
+             "start": 10
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "children": [
+             {
+              "id": "sig-143",
+              "type": "row",
+              "gap": 0,
+              "children": [
+               {
+                "id": "sig-144",
+                "type": "icon",
+                "icon": "play_arrow",
+                "icon_size": 20,
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "radius": 99,
+                "padding": {
+                 "top": 5,
+                 "end": 5,
+                 "bottom": 5,
+                 "start": 5
+                },
+                "surface": {
+                 "glass": 10,
+                 "tint": 0.2
+                }
+               }
+              ]
+             },
+             {
+              "id": "sig-145",
+              "type": "column",
+              "gap": 2,
+              "children": [
+               {
+                "id": "sig-146",
+                "type": "text",
+                "text": "Cat-eye liner in a minute",
+                "font": {
+                 "family": "Kufam",
+                 "size": 13.5,
+                 "weight": 800,
+                 "line_height": 1.25
+                },
+                "color": "#FFFFFF",
+                "dark_color": "#FFFFFF",
+                "max_lines": 3,
+                "translations": {
+                 "ar": {
+                  "text": "آيلاينر عين القطة في دقيقة"
+                 },
+                 "tr": {
+                  "text": "Bir dakikada kedi gözü"
+                 }
+                }
+               },
+               {
+                "id": "sig-147",
+                "type": "text",
+                "text": "0:58",
+                "font": {
+                 "family": "Kufam",
+                 "size": 11
+                },
+                "color": "#F3D6E4",
+                "dark_color": "#F3D6E4"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-148",
+        "type": "product_description",
+        "margin": {
+         "top": 22,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "product_part": {
+         "look": "accordion"
+        },
+        "color": "#2A0E22",
+        "dark_color": "#FBEFF5",
+        "border_color": "#EBD9E2",
+        "dark_border_color": "#2E1626"
+       },
+       {
+        "id": "sig-149",
+        "type": "product_reviews",
+        "margin": {
+         "top": 22,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "product_part": {
+         "look": "bars",
+         "accent": "#FF3D8B",
+         "dark_accent": "#FF6FA8"
+        },
+        "color": "#2A0E22",
+        "dark_color": "#FBEFF5"
+       },
+       {
+        "id": "sig-150",
+        "type": "product_related",
+        "margin": {
+         "top": 24,
+         "end": 0,
+         "bottom": 16,
+         "start": 0
+        },
+        "product_part": {
+         "look": "carousel",
+         "related": "complete_look",
+         "rows": 6
+        },
+        "text": "Wear it with",
+        "color": "#2A0E22",
+        "dark_color": "#FBEFF5",
+        "translations": {
+         "ar": {
+          "text": "نسّقيه مع"
+         },
+         "tr": {
+          "text": "Bununla kullanın"
+         }
+        }
+       },
+       {
+        "id": "sig-151",
+        "type": "product_buy",
+        "pin": "bottom",
+        "radius": 24,
+        "padding": {
+         "top": 10,
+         "end": 14,
+         "bottom": 10,
+         "start": 14
+        },
+        "product_part": {
+         "look": "buy_now",
+         "accent": "#2A0E22",
+         "dark_accent": "#FF3D8B"
+        },
+        "text": "Get the shade",
+        "background": "#FFFFFF",
+        "dark_background": "#1A0D16",
+        "border_color": "#EBD9E2",
+        "dark_border_color": "#2E1626",
+        "border_width": 1,
+        "color": "#2A0E22",
+        "dark_color": "#FBEFF5",
+        "translations": {
+         "ar": {
+          "text": "احصلي على الظل"
+         },
+         "tr": {
+          "text": "Bu tonu alın"
+         }
+        }
+       }
+      ]
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "orders",
     "title": "My orders",
     "translations": {
@@ -2888,11 +3601,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-145",
+      "id": "sig-183",
       "type": "column",
       "children": [
        {
-        "id": "sig-152",
+        "id": "sig-190",
         "type": "text",
         "text": "Your order, step by step",
         "font": {
@@ -2919,7 +3632,7 @@
         }
        },
        {
-        "id": "sig-153",
+        "id": "sig-191",
         "type": "timeline",
         "name": "Your order, step by step",
         "timeline": {
@@ -3046,7 +3759,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-146",
+      "id": "sig-184",
       "type": "column",
       "children": []
      },
@@ -3088,7 +3801,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-147",
+      "id": "sig-185",
       "type": "column",
       "children": []
      },
@@ -3130,7 +3843,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-148",
+      "id": "sig-186",
       "type": "column",
       "children": []
      },
@@ -3172,7 +3885,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-149",
+      "id": "sig-187",
       "type": "column",
       "children": []
      },
@@ -3206,7 +3919,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-150",
+      "id": "sig-188",
       "type": "column",
       "children": []
      },
@@ -3223,7 +3936,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-151",
+      "id": "sig-189",
       "type": "column",
       "children": []
      },

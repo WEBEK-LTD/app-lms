@@ -4,6 +4,8 @@ import type { SectionContext, SectionInfo, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigPhoto, sigTexts, signatureBar, signatureHeader, type SignatureInk } from "./food-signature-parts";
+import { PRODUCT_PAGE_SLUG, productPart, type ProductPagePart } from "../product-page";
+import { STUDIO_PRODUCT_SCREEN } from "../../pages/types";
 
 /**
  * 224 Ghurza (crochet and handmade) templates C and D, the owner's third
@@ -262,7 +264,7 @@ function madeToOrder(ctx: SectionContext, l: Look): StudioNode {
     cross: "center",
     children: [
       { id: id(), type: "row", width: 46, height: 46, radius: 23, align: "center", cross: "center", ...(lit ? { background: l.k.fill, dark_background: l.k.darkFill } : { background: l.tint.day, dark_background: l.tint.night }), children: [icon(ctx, ic, 22, lit ? WHITE : { color: l.k.accent, dark_color: l.k.darkAccent })] },
-      say(ctx, l, title, { size: 14, weight: 700 }, { text_align: "center", max_lines: 1 }),
+      say(ctx, l, title, { size: 14, weight: 700 }, { text_align: "center", max_lines: 2 }),
       say(ctx, l, text, { size: 12 }, { muted: true, text_align: "center", max_lines: 1 }),
     ],
   });
@@ -888,6 +890,231 @@ export const MARKET_BAR = signatureBar(C, { design: "line", background: C.surfac
 /** D's bar: white bubbles on the rose, the open tab a soft rose bubble with its name. */
 export const COZY_BAR = signatureBar(D, { design: "bubble", background: "#FFFFFF", dark_background: "#251B1D", active: D.accent, dark_active: D.darkAccent, inactive: D.muted, dark_inactive: D.darkMuted, labels: "active", radius: 30, margin: 16 });
 
+
+// ——— 228.7 Each template's own product page ———
+
+const part = (ctx: SectionContext, p: ProductPagePart): StudioNode => productPart(ctx, p);
+const productPageOfLook = (ctx: SectionContext, l: Look, page: Omit<StudioPage, "screen" | "show_tabs" | "body"> & { children: StudioNode[] }) => {
+  const { children, ...rest } = page;
+  return {
+    slug: PRODUCT_PAGE_SLUG,
+    title: "pProductPage" as SectionWord,
+    studio: { background: l.k.page, dark_background: l.k.darkPage, ...rest, show_tabs: false, screen: STUDIO_PRODUCT_SCREEN, body: { id: idOf(ctx)(), type: "column", gap: 0, children } } satisfies StudioPage,
+  };
+};
+
+/**
+ * C · the market stall: the piece's photos one under the other in a
+ * stitched frame, its name in calligraphy with its price on a brick tag
+ * hung over it, who made it (her photo, her name and her words), the yarn
+ * as equal cells, made to order step by step with the button to order it
+ * your way, how it is made and sent, its details as a table, more from the
+ * market and Order this piece at the foot.
+ */
+function marketProductPage(ctx: SectionContext, l: Look) {
+  const id = idOf(ctx);
+  const k = l.k;
+  const ink = { color: k.ink, dark_color: k.darkInk } as const;
+  const brick = { accent: k.accent, dark_accent: k.darkAccent } as const;
+  const [photo, name, line] = MAKERS[0]!;
+  return productPageOfLook(ctx, l, {
+    // No header: the market's words in calligraphy in its top band, beside the app's back button.
+    children: [
+      { id: id(), type: "row", name: ctx.w("gcpHead"), height: 54, align: "center", cross: "center", padding: sides(0, 64, 0, 64), children: [head(ctx, l, "gcpHead", { size: 22, weight: 700 }, { max_lines: 1 })] },
+      stitched(ctx, l, ctx.w("gcpHead"), [part(ctx, { type: "product_gallery", look: "stacked", radius: 3, node: { aspect_ratio: 1 } })], { margin: sides(4, 16, 0, 16), padding: sides(10, 10, 10, 10) }),
+      {
+        id: id(),
+        type: "row",
+        name: ctx.w("gcpHead"),
+        gap: 12,
+        cross: "start",
+        padding: sides(18, 18, 0, 18),
+        children: [
+          part(ctx, { type: "product_title", look: "plain", node: { ...ink, width: "fill", font: { family: l.display, size: 28, weight: 700, line_height: 1.3 } } }),
+          part(ctx, {
+            type: "product_price",
+            look: "single",
+            node: { ...WHITE, rotation: -4, font: { family: l.family, size: 16, weight: 700 }, background: k.fill, dark_background: k.darkFill, corners: { top_start: 12, bottom_start: 12 }, padding: sides(5, 10, 5, 12), margin: sides(6, 0, 0, 0) },
+          }),
+        ],
+      },
+      stitched(
+        ctx,
+        l,
+        ctx.w("gcpMadeBy"),
+        [
+          {
+            id: id(),
+            type: "row",
+            gap: 12,
+            cross: "center",
+            children: [
+              image(ctx, l, photo, { width: 56, height: 56, radius: 28, border_color: k.line, dark_border_color: k.darkLine, border_width: 2 }),
+              {
+                id: id(),
+                type: "column",
+                width: "fill",
+                gap: 0,
+                children: [say(ctx, l, "gcpMadeBy", { size: 12, weight: 600 }, { accent: true, max_lines: 1 }), head(ctx, l, name, { size: 21, weight: 700, line_height: 1.25 }, { max_lines: 1 }), say(ctx, l, line, { size: 12 }, { muted: true, max_lines: 1 })],
+              },
+            ],
+          },
+          say(ctx, l, "gcpMakerNote", { size: 14, line_height: 1.6 }, { max_lines: 3, padding: sides(0, 2, 0, 2) }),
+        ],
+        { margin: sides(18, 16, 0, 16), padding: sides(10, 14, 12, 14), action: shop },
+      ),
+      part(ctx, { type: "product_variants", look: "grid", ...brick, text: "gcpYarn", node: { ...ink, margin: sides(20, 18, 0, 18) } }),
+      marketHead(ctx, l, "gcHowTitle", null),
+      madeToOrder(ctx, l),
+      part(ctx, { type: "product_delivery", look: "rows", ...brick, title: "gcpDelivery", node: { ...ink, margin: sides(18, 18, 0, 18) } }),
+      part(ctx, { type: "product_specs", look: "table", text: "gcpDetails", node: { ...ink, margin: sides(22, 18, 0, 18) } }),
+      part(ctx, { type: "product_description", look: "plain", node: { ...ink, margin: sides(14, 18, 0, 18) } }),
+      part(ctx, { type: "product_reviews", look: "summary", ...brick, node: { ...ink, margin: sides(18, 18, 0, 18) } }),
+      part(ctx, { type: "product_related", look: "grid", rows: 4, text: "gcpMore", node: { ...ink, margin: sides(24, 6, 16, 6) } }),
+      part(ctx, {
+        type: "product_buy",
+        look: "cart",
+        accent: k.fill,
+        dark_accent: k.darkFill,
+        text: "gcpBuy",
+        node: { pin: "bottom", radius: 6, padding: sides(10, 16, 10, 16), background: k.surface, dark_background: k.darkSurface, border_color: k.line, dark_border_color: k.darkLine, border_width: 1, ...ink },
+      }),
+    ],
+  });
+}
+
+/**
+ * D · the cozy card: the name and its stars first, the photos as one
+ * soft card with large corners, then the switch between the ready piece (its price from, its
+ * options as chips, how many) and the kit to make it yourself (what is in
+ * it and the shop's kits); this piece's pattern beside its photo, the
+ * description, the stars, more to love, and the price beside Add to my
+ * basket in a soft bubble at the foot.
+ */
+function cozyProductPage(ctx: SectionContext, l: Look) {
+  const id = idOf(ctx);
+  const k = l.k;
+  const ink = { color: k.ink, dark_color: k.darkInk } as const;
+  const rose = { accent: k.accent, dark_accent: k.darkAccent } as const;
+  const kitLine = (ic: string, word: SectionWord): StudioNode => ({ id: id(), type: "row", name: ctx.w(word), gap: 10, cross: "center", children: [icon(ctx, ic, 20, { color: k.accent, dark_color: k.darkAccent }, { radius: 99, padding: sides(7, 7, 7, 7), background: l.tint.day, dark_background: l.tint.night }), say(ctx, l, word, { size: 14.5 }, { width: "fill", max_lines: 1 })] });
+  const chip = (word: SectionWord): StudioNode => ({ ...say(ctx, l, word, { size: 12, weight: 500 }, { max_lines: 1 }), radius: 99, padding: sides(4, 10, 4, 10), background: k.surface, dark_background: k.darkSurface });
+  return productPageOfLook(ctx, l, {
+    // No header: the name and its stars first, beside the app's back button, then the soft photo card.
+    children: [
+      part(ctx, { type: "product_title", look: "rating", ...rose, node: { ...ink, font: { family: l.family, size: 25, weight: 800, line_height: 1.2 }, margin: sides(10, 22, 14, 68) } }),
+      part(ctx, { type: "product_gallery", look: "card", radius: 36, node: { aspect_ratio: 0.85, margin: sides(0, 16, 0, 16) } }),
+      {
+        id: id(),
+        type: "column",
+        name: ctx.w("gdpReady"),
+        gap: 0,
+        radius: 30,
+        padding: sides(8, 8, 14, 8),
+        margin: sides(16, 16, 0, 16),
+        background: k.surface,
+        dark_background: k.darkSurface,
+        surface: { soft: 2 },
+        children: [
+          {
+            id: id(),
+            type: "tabs",
+            name: ctx.w("gdpReady"),
+            gap: 12,
+            color: k.accent,
+            dark_color: k.darkAccent,
+            font: { family: l.family, size: 14.5, weight: 600 },
+            children: [
+              {
+                id: id(),
+                type: "column",
+                name: ctx.w("gdpReady"),
+                title: ctx.w("gdpReady"),
+                icon: "checkroom",
+                gap: 12,
+                padding: sides(4, 10, 0, 10),
+                children: [
+                  say(ctx, l, "gdpReadyLine", { size: 13.5 }, { muted: true, max_lines: 2 }),
+                  part(ctx, { type: "product_price", look: "from", node: { color: k.accent, dark_color: k.darkAccent, font: { family: l.family, size: 22, weight: 800 } } }),
+                  part(ctx, { type: "product_variants", look: "chips", ...rose, node: { ...ink } }),
+                  part(ctx, { type: "product_quantity", look: "pill", node: { ...ink } }),
+                ],
+              },
+              {
+                id: id(),
+                type: "column",
+                name: ctx.w("gdpKit"),
+                title: ctx.w("gdpKit"),
+                icon: "inventory_2",
+                gap: 10,
+                padding: sides(4, 10, 0, 10),
+                children: [
+                  say(ctx, l, "gdpKitLine", { size: 13.5 }, { muted: true, max_lines: 2 }),
+                  kitLine("gesture", "gdpKit1"),
+                  kitLine("edit", "gdpKit2"),
+                  kitLine("description", "gdpKit3"),
+                  {
+                    id: id(),
+                    type: "button",
+                    name: ctx.w("gdpKitButton"),
+                    text: ctx.w("gdpKitButton"),
+                    width: "fill",
+                    height: 44,
+                    radius: 22,
+                    background: k.fill,
+                    dark_background: k.darkFill,
+                    color: k.onFill,
+                    dark_color: k.darkOnFill,
+                    font: { family: l.family, size: 14, weight: 700 },
+                    action: shop,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: id(),
+        type: "row",
+        name: ctx.w("gdpPatternKicker"),
+        gap: 0,
+        radius: 30,
+        margin: sides(18, 16, 0, 16),
+        background: l.tint.day,
+        dark_background: l.tint.night,
+        action: shop,
+        children: [
+          image(ctx, l, "knit-flatlay", { width: 126, height: 176, corners: { top_start: 30, bottom_start: 30 } }),
+          {
+            id: id(),
+            type: "column",
+            width: "fill",
+            gap: 7,
+            padding: sides(16, 14, 14, 14),
+            children: [
+              say(ctx, l, "gdpPatternKicker", { size: 11.5, weight: 700, letter_spacing: 0.6 }, { accent: true, max_lines: 2 }),
+              say(ctx, l, "gdpPatternTitle", { size: 19, weight: 900, line_height: 1.15 }, { max_lines: 2 }),
+              { id: id(), type: "row", gap: 6, children: [chip("gdLevel"), chip("gdHours")] },
+              say(ctx, l, "gdpPatternButton", { size: 13.5, weight: 700, underline: true }, { accent: true, max_lines: 1 }),
+            ],
+          },
+        ],
+      },
+      part(ctx, { type: "product_description", look: "plain", node: { ...ink, margin: sides(20, 22, 0, 22) } }),
+      part(ctx, { type: "product_reviews", look: "summary", ...rose, node: { ...ink, margin: sides(18, 22, 0, 22) } }),
+      part(ctx, { type: "product_related", look: "carousel", rows: 8, text: "gdpLove", node: { ...ink, margin: sides(24, 0, 16, 0) } }),
+      part(ctx, {
+        type: "product_buy",
+        look: "price",
+        accent: k.fill,
+        dark_accent: k.darkFill,
+        text: "gdpBuy",
+        node: { pin: "bottom", radius: 30, padding: sides(8, 12, 8, 12), background: k.surface, dark_background: k.darkSurface, ...ink },
+      }),
+    ],
+  });
+}
+
 export const GHURZA_C: SignatureDesign = {
   demo: "crochet",
   variant: "c",
@@ -898,6 +1125,8 @@ export const GHURZA_C: SignatureDesign = {
   pages: (ctx) => [
     { slug: GC_MENU_PAGE, title: "skCategoryMenu" as SectionWord, studio: menuPage(ctx, LOOK_C) },
     { slug: GC_CUSTOM_PAGE, title: "gcCustomPage" as SectionWord, studio: customPage(ctx, LOOK_C) },
+    // 228.7 The template's own product page.
+    marketProductPage(ctx, LOOK_C),
   ],
   bar: MARKET_BAR,
   look: { header: signatureHeader(C, "large"), background: C.page, dark_background: C.darkPage },
@@ -917,7 +1146,11 @@ export const GHURZA_D: SignatureDesign = {
   home: cozyHome,
   over: over(LOOK_D),
   tabs: cozyTabs,
-  pages: (ctx) => [{ slug: GC_MENU_PAGE, title: "skCategoryMenu" as SectionWord, studio: menuPage(ctx, LOOK_D) }],
+  pages: (ctx) => [
+    { slug: GC_MENU_PAGE, title: "skCategoryMenu" as SectionWord, studio: menuPage(ctx, LOOK_D) },
+    // 228.7 The template's own product page.
+    cozyProductPage(ctx, LOOK_D),
+  ],
   bar: COZY_BAR,
   look: { header: signatureHeader(D, "photo"), background: D.page, dark_background: D.darkPage },
   chrome: { header: "photo", home: "large", system: "photo" },
