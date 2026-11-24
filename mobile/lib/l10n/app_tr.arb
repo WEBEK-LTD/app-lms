@@ -3444,5 +3444,8 @@
   "filterPrice": "Fiyat",
   "filterBrand": "Marka",
   "filterPriceRange": "{min} – {max}",
-  "filterOpen": "Ürünleri filtrele"
+  "filterOpen": "Ürünleri filtrele",
+  "productBuyNow": "Hemen al",
+  "productPriceFrom": "Başlangıç fiyatı {price}",
+  "productDeliveryReturns": "Teslimat ve iade"
 }

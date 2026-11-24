@@ -20779,6 +20779,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Filter the products'**
   String get filterOpen;
+
+  /// 228 A Studio product page's second button: adds the product and opens the cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy now'**
+  String get productBuyNow;
+
+  /// 228 A Studio product page's price when it starts from its lowest size's.
+  ///
+  /// In en, this message translates to:
+  /// **'From {price}'**
+  String productPriceFrom(String price);
+
+  /// 228 The title of a Studio product page's delivery and returns card.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery & returns'**
+  String get productDeliveryReturns;
 }
 
 class _AppLocalizationsDelegate

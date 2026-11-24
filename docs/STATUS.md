@@ -8,6 +8,30 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 228 (a look's own product page): `product` is a Studio page
+screen (a shop's); a look's page for it is drawn for every product in place
+of the app's product screen, its eleven product elements (photos, name,
+price, sizes and colours, quantity, Add to cart / Buy now, description,
+specs, reviews, related, delivery and returns) bound to the product open,
+each with its looks, in the contract, the editor (library, canvas,
+inspector) and the app. A shop without one keeps the app's product screen.
+Lujain's look A is the first look with its own (`lib/studio/product-page.ts`).
+The app part ships with the next app release (no `CLIENT_APP_RELEASE`
+change). Without a header, the status bar and the back button stay over
+the page as it scrolls, as on any pushed Studio page without one.
+
+Roadmap 216 (Yallapp's Firebase rides out a moment when Google can't
+reach the platform's issuer): the token exchange is tried up to 3 times
+(about 1 s, then 3 s) on a passing failure only (unreachable, 429, 5xx,
+or `invalid_grant` saying Google couldn't connect to the issuer), with a
+fresh assertion each time; the daily check tells the owner about
+`yallapp_push_refused` only when it fails again at a second look at the
+next frequent run; `/oidc/jwks.json` is kept a minute in memory and both
+OIDC endpoints allow `stale-while-revalidate`. Optional owner step, not
+done: upload the key set to the Google provider (`jwksJson`) so Google
+needs no call to the site, at the cost of uploading it again on every
+key rotation.
+
 Roadmap 227 (Studio's shop types, round 3: electronics and computers &
 gaming; in the code, not released): each type gets two new looks, C its
 main and D its second, listed before A and B, which stay as they are. Madar
@@ -92,18 +116,6 @@ previews; crochet D's edge-to-edge photo under a header lying over it was
 too close to clothes C (the runway) and became a soft photo card under a
 large title, and crochet C's yarn swatches are squares, unlike decor D's
 colour circles. The rule stands for every future template.
-
-Roadmap 216 (Yallapp's Firebase rides out a moment when Google can't
-reach the platform's issuer): the token exchange is tried up to 3 times
-(about 1 s, then 3 s) on a passing failure only (unreachable, 429, 5xx,
-or `invalid_grant` saying Google couldn't connect to the issuer), with a
-fresh assertion each time; the daily check tells the owner about
-`yallapp_push_refused` only when it fails again at a second look at the
-next frequent run; `/oidc/jwks.json` is kept a minute in memory and both
-OIDC endpoints allow `stale-while-revalidate`. Optional owner step, not
-done: upload the key set to the Google provider (`jwksJson`) so Google
-needs no call to the site, at the cost of uploading it again on every
-key rotation.
 
 Roadmap 224.10 (the faces Studio pages name, in the app): a project's Studio
 pages can name a face on an element besides the look's two fonts (a

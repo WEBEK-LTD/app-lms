@@ -68,6 +68,8 @@ import '../../store/widgets/quick_add.dart';
 import 'studio_category_menu.dart';
 import 'studio_shop_helpers.dart';
 import 'studio_size_chart.dart';
+// 228 The product page's elements.
+import 'studio_product.dart';
 import 'studio_delivery_slots.dart';
 // 211 The electronics shops' elements.
 import 'studio_tech.dart';
@@ -127,7 +129,9 @@ class StudioPageView extends ConsumerWidget {
     final bleed =
         first != null &&
             (first.type == StudioNodeType.photoHero ||
-                first.type == StudioNodeType.mapHeader) &&
+                first.type == StudioNodeType.mapHeader ||
+                // 228 The product page's photos as a full-bleed pager.
+                _isPagerGallery(first)) &&
             first.margin == null
         ? first
         : null;
@@ -568,8 +572,15 @@ bool studioStartsWithCover(StudioNode body) {
       // 130 And 129's video hero and parallax banner, covers too.
       first.type == StudioNodeType.videoHero ||
       first.type == StudioNodeType.parallaxBanner ||
+      // 228 And the product page's photos as a full-bleed pager.
+      _isPagerGallery(first) ||
       first.scrim != null;
 }
+
+/// 228 A product page's photos drawn as a full-bleed pager (its first look).
+bool _isPagerGallery(StudioNode node) =>
+    node.type == StudioNodeType.productGallery &&
+    (node.productPart.look ?? 'pager') == 'pager';
 
 /// 128.11 Whether the page's own list has scrolled (its elements now go
 /// under a transparent header), for the header over a cover to take the
@@ -1388,6 +1399,12 @@ class StudioNodeView extends ConsumerWidget {
     if (!shows(node, ref, siblings: parent?.children)) {
       return const SizedBox.shrink();
     }
+    // 228 A product page element: only on a product page, with something
+    // of the product's to show.
+    if (studioProductTypes.contains(node.type) &&
+        !studioProductShows(context, ref, node)) {
+      return const SizedBox.shrink();
+    }
     // 123 A text bound to what the entry hasn't (a course without a badge)
     // leaves no empty pill.
     if (scope.entry != null &&
@@ -1603,7 +1620,11 @@ class StudioNodeView extends ConsumerWidget {
       );
     } else if (w != null || h != null) {
       child = SizedBox(width: w, height: h, child: child);
-    } else if (node.aspectRatio case final ratio? when ratio > 0 && !slider) {
+    } else if (node.aspectRatio case final ratio?
+        when ratio > 0 &&
+            !slider &&
+            // 228 The product page's photos keep their own shape.
+            node.type != StudioNodeType.productGallery) {
       child = AspectRatio(aspectRatio: ratio, child: child);
     }
     return child;
@@ -2034,6 +2055,24 @@ class StudioNodeView extends ConsumerWidget {
       case StudioNodeType.listingFilters:
         // 212 The shop's listing filters.
         return StudioListingFilters(title: _text(context), color: color);
+      case StudioNodeType.productGallery ||
+          StudioNodeType.productTitle ||
+          StudioNodeType.productPrice ||
+          StudioNodeType.productVariants ||
+          StudioNodeType.productQuantity ||
+          StudioNodeType.productBuy ||
+          StudioNodeType.productDescription ||
+          StudioNodeType.productSpecs ||
+          StudioNodeType.productReviews ||
+          StudioNodeType.productRelated ||
+          StudioNodeType.productDelivery:
+        // 228 The product page's elements, bound to the product open.
+        return StudioProductView(
+          node: node,
+          scope: scope,
+          style: _textStyle(ref, color),
+          color: color,
+        );
       case StudioNodeType.video:
         final url = node.videoUrl;
         if (url == null) return const SizedBox.shrink();

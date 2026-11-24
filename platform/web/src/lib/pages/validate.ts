@@ -8,7 +8,7 @@ import { cleanBlockHtml, safeHref } from "./html";
 import { BLOCK_LABELS } from "./labels";
 import { ICON_NAME } from "./icons";
 import { innerScreen, innerScreensFor } from "./inner-screens";
-import { appOpensScreen, blockTypesFor, categorySourcesFor, itemSourcesFor, screenName, sortFor } from "./sources";
+import { appOpensScreen, blockTypesFor, categorySourcesFor, itemSourcesFor, hasProductPage, screenName, sortFor } from "./sources";
 import { isSpecKey } from "../selling/specs";
 import {
   OWN_TRANSLATIONS,
@@ -90,6 +90,12 @@ import {
   STUDIO_CATEGORY_MENU_LOOKS,
   STUDIO_TRADE_IN_LOOKS,
   type StudioTech,
+  // 228 The product page.
+  STUDIO_PRODUCT_LOOKS,
+  STUDIO_PRODUCT_RELATED,
+  STUDIO_PRODUCT_SCREEN,
+  STUDIO_PRODUCT_TYPES,
+  type StudioProductPart,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_DAYS,
@@ -1146,10 +1152,15 @@ function parseStudio(ctx: Context, where: string, value: unknown): StudioPage | 
       // 120.4 One of the screens opened from the tabs.
       if (!innerScreensFor(ctx.app).includes(inner)) c.fail(where, `this app has no "${screenName(inner.id)}" screen. Choose another screen.`);
       else page.screen = inner.id;
+    } else if (v.screen === STUDIO_PRODUCT_SCREEN) {
+      // 228 The product page: a shop's, drawn for every product it opens.
+      if (!hasProductPage(ctx.app)) c.fail(where, "only a shop has a product page. Choose another screen.");
+      else page.screen = STUDIO_PRODUCT_SCREEN;
     } else if (!(STUDIO_PAGE_SCREENS as readonly unknown[]).includes(v.screen)) c.fail(where, "choose the app's screen the page is drawn around from the list.");
     else if (!appOpensScreen(ctx.app, v.screen)) c.fail(where, `this app has no "${screenName(String(v.screen))}" screen. Choose another screen.`);
     else page.screen = v.screen as StudioPage["screen"];
-    if (page.screen && page.header?.type === "transparent") c.fail(where, "a page drawn around one of the app's screens can't have the header that lies over the page. Choose another header.");
+    // 228 The product page is the page alone (its photos can lie under a header over them).
+    if (page.screen && page.screen !== STUDIO_PRODUCT_SCREEN && page.header?.type === "transparent") c.fail(where, "a page drawn around one of the app's screens can't have the header that lies over the page. Choose another header.");
   }
   return page;
 }
@@ -2069,6 +2080,22 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       if (translations) node.translations = translations;
       break;
     }
+    case "product_gallery":
+    case "product_title":
+    case "product_price":
+    case "product_variants":
+    case "product_quantity":
+    case "product_buy":
+    case "product_description":
+    case "product_specs":
+    case "product_reviews":
+    case "product_related":
+    case "product_delivery": {
+      // 228 The product page's elements, a shop's only: their look and options, and their words.
+      if (!ctx.sources.includes("products")) bad("only a shop has products to show this way.");
+      Object.assign(node, parseProductPart(ctx, where, v, node.type as (typeof STUDIO_PRODUCT_TYPES)[number], bad));
+      break;
+    }
     case "listing_filters":
     case "size_chart": {
       // 208 The shop's size chart; its title (optional) above it. 212 The listing filters' too.
@@ -2567,6 +2594,64 @@ const PREMIUM_LISTS: Record<string, { min: number; needs?: "title" | "text" | "v
   swatches: { min: 1, needs: "title", what: "each swatch needs its name" },
   quiz: { min: 2, needs: "title", what: "each result needs its name" },
 };
+
+/**
+ * 228 A product page element's own fields: its look (`product_part.look`, one
+ * of its type's), its options, and its words with their translations: the
+ * title over it (`text`), and for Add to cart its two buttons' words (`text`
+ * and `title`, Buy now's), for delivery and returns the shop's own lines
+ * (`title`, one per line). Missing, the app's own words.
+ */
+function parseProductPart(ctx: Context, where: string, v: Record<string, unknown>, type: (typeof STUDIO_PRODUCT_TYPES)[number], bad: (what: string) => void): Partial<StudioNode> {
+  const { c } = ctx;
+  const L = STUDIO_LIMITS;
+  const out: Partial<StudioNode> = {};
+  const o = v.product_part !== undefined && v.product_part !== null ? record(v.product_part) : {};
+  if (!o) {
+    bad("the element's options aren't valid.");
+    return out;
+  }
+  const part: StudioProductPart = {};
+  if (o.look !== undefined && o.look !== null) {
+    if (!(STUDIO_PRODUCT_LOOKS[type] as readonly unknown[]).includes(o.look)) bad("choose how it looks.");
+    else if (o.look !== STUDIO_PRODUCT_LOOKS[type][0]) part.look = o.look as string;
+  }
+  if (type === "product_related" && o.related !== undefined && o.related !== null) {
+    if (!oneOf(STUDIO_PRODUCT_RELATED, o.related)) bad("choose which products it shows.");
+    else if (o.related !== "related") part.related = o.related;
+  }
+  if (type === "product_specs" || type === "product_related") {
+    const rows = studioNumber(o.rows, 1, 40);
+    if (rows !== undefined && Number.isNaN(rows)) bad(type === "product_specs" ? "show 1 to 40 rows." : "show 1 to 40 products.");
+    else if (rows !== undefined) part.rows = Math.round(rows);
+  }
+  if (type === "product_gallery") {
+    const radius = studioNumber(o.radius, 0, 40);
+    if (radius !== undefined && Number.isNaN(radius)) bad("the photos' corners are 0 to 40.");
+    else if (radius !== undefined) part.radius = radius;
+  }
+  const accent = optionalColor(c, where, o.accent, "the highlights' colour");
+  if (accent) part.accent = accent;
+  const darkAccent = optionalColor(c, where, o.dark_accent, "the highlights' dark colour");
+  if (darkAccent) part.dark_accent = darkAccent;
+  if (Object.keys(part).length) out.product_part = part;
+  // Its words: the gallery, the name, the price and the quantity have none of their own.
+  const worded = type === "product_buy" || type === "product_description" || type === "product_specs" || type === "product_reviews" || type === "product_related" || type === "product_delivery" || type === "product_variants";
+  if (worded) {
+    const max = type === "product_buy" ? 40 : L.titleChars;
+    const text = c.optionalText(where, v.text, max, type === "product_buy" ? "The button's words" : "The title");
+    if (text) out.text = text;
+    const titleMax = type === "product_delivery" ? 400 : 40;
+    if (type === "product_buy" || type === "product_delivery") {
+      const title = c.optionalText(where, v.title, titleMax, type === "product_buy" ? "Buy now's words" : "The lines");
+      if (title && type === "product_delivery" && title.split("\n").filter((l) => l.trim()).length > 4) bad("write up to 4 lines.");
+      else if (title) out.title = title;
+    }
+    const translations = parseTranslations(ctx, where, v.translations, ["text", "title"], { text: max, title: titleMax });
+    if (translations) out.translations = translations;
+  }
+  return out;
+}
 
 /**
  * 129.11–129.20 A premium element's own fields: its `entries` (bounded, each

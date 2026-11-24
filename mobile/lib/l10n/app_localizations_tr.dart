@@ -12855,4 +12855,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get filterOpen => 'Ürünleri filtrele';
+
+  @override
+  String get productBuyNow => 'Hemen al';
+
+  @override
+  String productPriceFrom(String price) {
+    return 'Başlangıç fiyatı $price';
+  }
+
+  @override
+  String get productDeliveryReturns => 'Teslimat ve iade';
 }

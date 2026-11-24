@@ -2217,6 +2217,79 @@ enum StudioNodeType {
   // 212 The listing filters: the shop's sizes (or colours) as chips that
   // open the shop filtered, and its Filters (`GET /store/filters`).
   listingFilters,
+  // 228 The product page's elements (studio_product.dart), bound to the
+  // product a page drawn for the product screen is opened on: nothing
+  // anywhere else.
+  productGallery,
+  productTitle,
+  productPrice,
+  productVariants,
+  productQuantity,
+  productBuy,
+  productDescription,
+  productSpecs,
+  productReviews,
+  productRelated,
+  productDelivery,
+}
+
+/// 228 The product page's elements' types (`StudioNode.productPart`).
+const studioProductTypes = {
+  StudioNodeType.productGallery,
+  StudioNodeType.productTitle,
+  StudioNodeType.productPrice,
+  StudioNodeType.productVariants,
+  StudioNodeType.productQuantity,
+  StudioNodeType.productBuy,
+  StudioNodeType.productDescription,
+  StudioNodeType.productSpecs,
+  StudioNodeType.productReviews,
+  StudioNodeType.productRelated,
+  StudioNodeType.productDelivery,
+};
+
+/// 228 A product page element's look and options (`StudioProductPart`):
+/// [look] one of its type's (the first when missing or unknown), which
+/// products a related list shows, how many rows or products, the gallery's
+/// corners and the highlights' colours.
+class StudioProductPart {
+  const StudioProductPart({
+    this.look,
+    this.completeLook = false,
+    this.rows,
+    this.accent,
+    this.darkAccent,
+    this.radius,
+  });
+
+  static StudioProductPart tryParse(Object? value) {
+    if (value is! Map) return const StudioProductPart();
+    final json = asJson(value);
+    return StudioProductPart(
+      look: optString(json, 'look'),
+      completeLook: json['related'] == 'complete_look',
+      rows: optInt(json, 'rows')?.clamp(1, 40),
+      accent: optString(json, 'accent'),
+      darkAccent: optString(json, 'dark_accent'),
+      radius: optDouble(json, 'radius')?.clamp(0, 40).toDouble(),
+    );
+  }
+
+  /// The wire name of its look; null, its type's first.
+  final String? look;
+
+  /// For a related list: Complete the look rather than You may also like.
+  final bool completeLook;
+  final int? rows;
+
+  /// `#RRGGBB`; null: the app's main colour.
+  final String? accent;
+  final String? darkAccent;
+  final double? radius;
+
+  /// Its highlights' colour in this mode, when it has one.
+  String? accentFor({required bool dark}) =>
+      dark ? (darkAccent ?? accent) : accent;
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2857,6 +2930,7 @@ class StudioNode {
     this.quizQuestions = const [],
     this.deliverySlots = const StudioDeliverySlots(),
     this.tech = const StudioTech(),
+    this.productPart = const StudioProductPart(),
     this.techServed,
     this.code,
     this.recent = false,
@@ -3031,6 +3105,7 @@ class StudioNode {
             : const [],
         deliverySlots: StudioDeliverySlots.tryParse(json['delivery_slots']),
         tech: StudioTech.tryParse(json['tech']),
+        productPart: StudioProductPart.tryParse(json['product_part']),
         techServed: StudioTechServed.tryParse(json['tech_served']),
         code: optString(json, 'code'),
         recent: boolOr(json, 'recent', false),
@@ -3376,6 +3451,9 @@ class StudioNode {
 
   /// 211 For the tech elements: what they show, and what the server filled.
   final StudioTech tech;
+
+  /// 228 For the product page's elements ([studioProductTypes]).
+  final StudioProductPart productPart;
   final StudioTechServed? techServed;
 
   /// 112.4 For a coupon: the code people copy.
