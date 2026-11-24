@@ -83,6 +83,17 @@
      "url": "http://localhost:3000/api/v1/fonts/ofl/rubik/Rubik%5Bwght%5D.ttf",
      "weight": null
     }
+   ],
+   "page_fonts": [
+    {
+     "family": "Lalezar",
+     "files": [
+      {
+       "url": "http://localhost:3000/api/v1/fonts/ofl/lalezar/Lalezar-Regular.ttf",
+       "weight": 400
+      }
+     ]
+    }
    ]
   },
   "languages": {
