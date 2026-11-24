@@ -171,6 +171,16 @@ class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
     super.dispose();
   }
 
+  /// How far the page scrolls before the top band shows, on a page without
+  /// a header (whose back button lies over it): past the photos it starts
+  /// with full bleed under the status bar (the gallery's pager), else as
+  /// soon as it scrolls (228.7); null with a header of its own.
+  double? _bandAfter(double width, double top, double bar) {
+    if (widget.page.header != null) return null;
+    final photos = _bleedingPhotos(width);
+    return photos == null ? 8 : photos - top - bar;
+  }
+
   /// The height of the photos the page starts with, when it starts with
   /// them full bleed under the status bar (a page without a header whose
   /// first element is the gallery's pager); null otherwise.
@@ -195,7 +205,7 @@ class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
     final p = context.palette;
     final media = MediaQuery.of(context);
     final top = media.padding.top;
-    final photos = _bleedingPhotos(media.size.width);
+
     final dark = Theme.of(context).brightness == Brightness.dark;
     final background =
         parseHexColor(
@@ -205,20 +215,22 @@ class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
         ) ??
         p.background;
     const bar = 64.0;
+    final after = _bandAfter(media.size.width, top, bar);
     Widget view = StudioPageView(
       page: widget.page,
       pageSlug: widget.slug,
       pushed: true,
     );
-    // 228 Once the photos have scrolled away, a band in the page's colour
+    // 228 Once the photos have scrolled away (228.7 or, on a page that
+    // doesn't start with them, once it scrolls), a band in the page's colour
     // under the status bar holds the back button, the product's name and
     // its heart: the page never scrolls under the bar's clock or the
     // buttons.
-    if (photos != null) {
+    if (after != null) {
       view = NotificationListener<ScrollNotification>(
         onNotification: (n) {
           if (n.depth == 0 && n.metrics.axis == Axis.vertical) {
-            _scrolledPast.value = n.metrics.pixels > photos - top - bar;
+            _scrolledPast.value = n.metrics.pixels > after;
           }
           return false;
         },

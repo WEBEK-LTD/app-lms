@@ -217,7 +217,17 @@ class StudioProductView extends ConsumerWidget {
           accent: accent,
         );
       case StudioNodeType.productTitle:
-        return _Title(controller: c, style: style, ink: ink, look: look);
+        return _Title(
+          controller: c,
+          style: style,
+          ink: ink,
+          look: look,
+          align: switch (node.textAlign) {
+            StudioTextAlign.center => TextAlign.center,
+            StudioTextAlign.end => TextAlign.end,
+            StudioTextAlign.start => TextAlign.start,
+          },
+        );
       case StudioNodeType.productPrice:
         return _Price(controller: c, style: style, ink: ink, look: look);
       case StudioNodeType.productVariants:
@@ -517,12 +527,16 @@ class _Title extends ConsumerWidget {
     required this.style,
     required this.ink,
     required this.look,
+    this.align = TextAlign.start,
   });
 
   final ProductPageController controller;
   final TextStyle style;
   final Color ink;
   final String? look;
+
+  /// 228.7 Its alignment (`StudioNode.text_align`): a polaroid's name centred.
+  final TextAlign align;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -539,6 +553,7 @@ class _Title extends ConsumerWidget {
           child: Text(
             controller.product.name,
             key: const ValueKey('product-title'),
+            textAlign: align,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
@@ -789,15 +804,20 @@ class _Cell extends StatelessWidget {
           width: width,
           constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
           padding: EdgeInsets.symmetric(horizontal: round ? 16 : 6),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: selected ? _on(accent) : ink,
-              decoration: soldOut ? TextDecoration.lineThrough : null,
+          // 228.7 A chip as wide as its words (alignment alone would
+          // stretch it across the row), a grid's cell its [width].
+          child: Center(
+            widthFactor: width == null ? 1 : null,
+            heightFactor: 1,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: selected ? _on(accent) : ink,
+                decoration: soldOut ? TextDecoration.lineThrough : null,
+              ),
             ),
           ),
         ),

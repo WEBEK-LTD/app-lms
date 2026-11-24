@@ -115,6 +115,7 @@ void main() {
   Future<TestApp> open(
     WidgetTester tester, {
     bool productPage = true,
+    List<Map<String, dynamic>>? nodes,
     String language = 'en',
   }) async {
     tester.view
@@ -169,7 +170,7 @@ void main() {
               node('welcome', 'text', {'text': 'Welcome'}),
               node('home-title', 'product_title'),
             ]),
-            if (productPage) 'product': page(productNodes()),
+            if (productPage) 'product': page(nodes ?? productNodes()),
           }
           ..product = dress();
     final app = TestApp(
@@ -241,7 +242,10 @@ void main() {
       find.byKey(const ValueKey('product-gallery-thumbs')),
       findsOneWidget,
     );
-    expect(find.text('Rust satin midi dress'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('product-title'))).data,
+      'Rust satin midi dress',
+    );
     // From the lowest size's price until a size is chosen.
     expect(find.text('From ₺990.00'), findsOneWidget);
     expect(find.text('Choose your size'), findsOneWidget);
@@ -289,6 +293,55 @@ void main() {
     expect(find.text('اشترِ الآن'), findsOneWidget);
     expect(find.text('أضف إلى السلة'), findsOneWidget);
     expect(find.text('التوصيل والإرجاع'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    app.container.dispose();
+  });
+
+  testWidgets('228.7 chips as wide as their words, a centred name, and the '
+      'top band once a page without photos at its top scrolls', (tester) async {
+    final app = await open(
+      tester,
+      nodes: [
+        node('top', 'spacer', {'height': 72}),
+        node('t', 'product_title', {'text_align': 'center'}),
+        node('v', 'product_variants'),
+        node('s', 'spacer', {'height': 3000}),
+      ],
+    );
+    app.container.read(appRouterProvider).push(Paths.product(30));
+    await TestApp.settle(tester, 20);
+    final chip = tester.getSize(find.text('M').first);
+    expect(chip.width, lessThan(80));
+    final chips = find.byKey(const ValueKey('product-page-chips-a1'));
+    expect(tester.getSize(chips).width, greaterThan(300));
+    expect(
+      tester
+          .getSize(
+            find
+                .ancestor(of: find.text('M'), matching: find.byType(Material))
+                .first,
+          )
+          .width,
+      lessThan(120),
+    );
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('product-title')))
+          .textAlign,
+      TextAlign.center,
+    );
+    double band() => tester
+        .widget<AnimatedOpacity>(
+          find.byKey(const ValueKey('product-page-top-band')),
+        )
+        .opacity;
+    expect(band(), 0);
+    await tester.drag(
+      find.byKey(const ValueKey('studio-product')),
+      const Offset(0, -300),
+    );
+    await TestApp.settle(tester, 10);
+    expect(band(), 1);
     expect(tester.takeException(), isNull);
     app.container.dispose();
   });
