@@ -24,6 +24,16 @@ String isolate(String text) =>
 String ltrRun(String text) =>
     appIsRtl && text.isNotEmpty ? '\u2066$text\u2069' : text;
 
+/// 227 A line of values joined by " · " (a product's key specs, "1 TB SSD ·
+/// 32 GB DDR5 · 16″ 2.5K IPS"), each value kept whole in its own direction,
+/// so in Arabic none spills into the next ("TB SSD · 32 GB DDR5 · 16″ 1"
+/// before). A line without the dot is isolated whole. Unchanged in a
+/// left-to-right app.
+String specLine(String text) {
+  if (!appIsRtl || text.isEmpty) return text;
+  return text.split(' · ').map(isolate).join(' · ');
+}
+
 /// 161 A sale's or a coupon's share off ("20% off", "خصم 20%", "%20
 /// indirim", an owner's own "−20%") with its number, its sign and its
 /// percent kept together left to right, so in Arabic it never reads "20%-"

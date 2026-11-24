@@ -6,7 +6,11 @@ import 'package:yallapp/core/api/yallapp_api.dart' show ProductQuery;
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
+import 'package:yallapp/core/format/bidi.dart';
 import 'package:yallapp/core/format/money.dart';
+import 'package:yallapp/core/l10n/l10n.dart';
+import 'package:yallapp/modules/shared/pages/studio_page.dart'
+    show StudioScope, studioOwnText;
 import 'package:yallapp/modules/store/data/cart_controller.dart';
 import 'package:yallapp/modules/store/widgets/tech_widgets.dart';
 
@@ -448,6 +452,48 @@ void main() {
     // it at its left.
     expect(tester.getCenter(count).dx, lessThan(tester.getCenter(value).dx));
     app.container.dispose();
+  });
+
+  test('227 a product card\'s spec line: each value whole in Arabic', () {
+    setCurrentLanguage('ar');
+    addTearDown(() => setCurrentLanguage('en'));
+    const line = '1 TB SSD · 32 GB DDR5 · 16″ 2.5K IPS';
+    expect(
+      specLine(line),
+      '\u20681 TB SSD\u2069 · \u206832 GB DDR5\u2069 · \u206816″ 2.5K IPS\u2069',
+    );
+    // A line without the dot, isolated whole; Arabic words keep theirs.
+    expect(specLine('512 GB'), '\u2068512 GB\u2069');
+    expect(specLine('ذاكرة 16 GB'), '\u2068ذاكرة 16 GB\u2069');
+    // The card's bound subtitle draws it so.
+    final node = StudioNode.tryParse({
+      'id': 's',
+      'type': 'text',
+      'bind': 'subtitle',
+    })!;
+    const entry = PageItem(
+      source: ItemSource.products,
+      id: '1',
+      title: 'Ofuq 16 Pro',
+      subtitle: line,
+    );
+    expect(
+      studioOwnText(
+        node,
+        const StudioScope(pageSlug: 'home', dark: false, entry: entry),
+      ),
+      specLine(line),
+    );
+    // In English, as it is.
+    setCurrentLanguage('en');
+    expect(specLine(line), line);
+    expect(
+      studioOwnText(
+        node,
+        const StudioScope(pageSlug: 'home', dark: false, entry: entry),
+      ),
+      line,
+    );
   });
 
   testWidgets('a spec value opens the shop filtered by it', (tester) async {
