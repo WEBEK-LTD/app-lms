@@ -257,6 +257,8 @@ export const communityQuestions = mysqlTable(
     sectionId: id("section_id")
       .notNull()
       .references(() => communitySections.id),
+    // 231 (B) Its address on the site (/questions/{slug}), from its title in its own script.
+    slug: varchar("slug", { length: 160 }).notNull(),
     title: varchar("title", { length: 200 }).notNull(),
     body: text("body").notNull(),
     language: varchar("language", { length: 8 }).notNull().$type<CommunityLanguage>(),
@@ -271,6 +273,7 @@ export const communityQuestions = mysqlTable(
     lastActivityAt: time("last_activity_at").notNull(),
   },
   (t) => [
+    uniqueIndex("community_questions_slug_unique").on(t.slug),
     index("community_questions_section").on(t.sectionId, t.status, t.lastActivityAt),
     index("community_questions_author").on(t.authorId),
     index("community_questions_status").on(t.status, t.createdAt),
@@ -305,6 +308,8 @@ export const communityAnswers = mysqlTable(
     official: boolean("official").notNull().default(false),
     status: varchar("status", { length: 10 }).notNull().$type<ContentStatus>(),
     score: int("score").notNull().default(0),
+    // 231 (B) Its published replies ("💬 5 replies").
+    replyCount: int("reply_count").notNull().default(0),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -345,6 +350,9 @@ export const communityTutorials = mysqlTable(
     videoUrl: varchar("video_url", { length: 512 }),
     coverUrl: varchar("cover_url", { length: 512 }),
     durationMinutes: int("duration_minutes"),
+    // 231 (B) A video's length to the second ("08:24"); an article's reading time.
+    durationSeconds: int("duration_seconds").notNull().default(0),
+    viewCount: int("view_count").notNull().default(0),
     tags: jsonText<string[]>("tags").notNull(),
     // Official tutorials are Yallapp's (phase 1 publishes only these); a member's goes through review.
     official: boolean("official").notNull().default(true),
@@ -358,6 +366,74 @@ export const communityTutorials = mysqlTable(
     index("community_tutorials_section").on(t.sectionId, t.status, t.publishedAt),
     index("community_tutorials_author").on(t.authorId),
   ],
+);
+
+/** 231 (B) A reply under an answer (the question screen's "💬 5 replies"): plain text. */
+export const communityReplies = mysqlTable(
+  "community_replies",
+  {
+    id: id("id").primaryKey(),
+    answerId: id("answer_id")
+      .notNull()
+      .references(() => communityAnswers.id, { onDelete: "cascade" }),
+    authorId: id("author_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    body: varchar("body", { length: 1000 }).notNull(),
+    status: varchar("status", { length: 10 }).notNull().$type<ContentStatus>(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("community_replies_answer").on(t.answerId, t.status, t.createdAt), index("community_replies_author").on(t.authorId)],
+);
+
+/** 231 (B) A question or tutorial a member saved for later (the side menu's Saved). */
+export const communityBookmarks = mysqlTable(
+  "community_bookmarks",
+  {
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    targetType: varchar("target_type", { length: 12 }).notNull().$type<"question" | "tutorial">(),
+    targetId: id("target_id").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.memberId, t.targetType, t.targetId] }), index("community_bookmarks_member").on(t.memberId, t.targetType, t.createdAt)],
+);
+
+/** 231 (B) The Q&A sections a member follows (the nav's "My sections", the For you filter). */
+export const communitySectionFollows = mysqlTable(
+  "community_section_follows",
+  {
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    sectionId: id("section_id")
+      .notNull()
+      .references(() => communitySections.id, { onDelete: "cascade" }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.memberId, t.sectionId] })],
+);
+
+/**
+ * 231 (B) The points ledger: each thing that earned or cost a member
+ * points ("Answer accepted · +25 points"), so a vote taken back takes its
+ * points back (`ref`) and the week's most active are counted from it.
+ */
+export const communityPointEvents = mysqlTable(
+  "community_point_events",
+  {
+    id: id("id").primaryKey(),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    reason: varchar("reason", { length: 24 }).notNull(),
+    points: int("points").notNull(),
+    ref: varchar("ref", { length: 120 }).notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  // Once per member, reason and ref: a repeated award (parallel votes) is ignored (migration 0157).
+  (t) => [uniqueIndex("community_point_events_once").on(t.memberId, t.reason, t.ref), index("community_point_events_time").on(t.createdAt)],
 );
 
 // ---------------------------------------------------------------- Area C
