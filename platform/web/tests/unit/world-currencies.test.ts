@@ -301,7 +301,7 @@ describe("135.5–135.7 a shop in Egyptian pounds", () => {
     expect((plain.body as { items: { price: object }[] }).items[0]!.price).not.toHaveProperty("display");
     const usd = await get("/store/products", "currency=USD");
     expectContract("GET", "/store/products", usd);
-    expect((usd.body as { items: { price: object }[] }).items[0]!.price).toMatchObject({ amount: "600.00", currency: "EGP", formatted: "E£600.00", display: { currency: "USD", formatted: "$12.37", rate_date: "2026-10-12" } });
+    expect((usd.body as { items: { price: object }[] }).items[0]!.price).toMatchObject({ amount: "600.00", currency: "EGP", formatted: "E£600", display: { currency: "USD", formatted: "$12.37", rate_date: "2026-10-12" } });
     const kwd = await get("/store/products", "", new Headers({ "x-currency": "KWD" }));
     expect((kwd.body as { items: { price: object }[] }).items[0]!.price).toMatchObject({ display: { currency: "KWD", amount: "3.790", formatted: "KWD\u00a03.790" } });
     // The picker's list, named in the app's language.
@@ -317,7 +317,7 @@ describe("135.5–135.7 a shop in Egyptian pounds", () => {
       handleHosted(context(store, app), { method: "POST", path: path.split("/").filter(Boolean), query: new URLSearchParams(query), body, token: null, headers: new Headers({ "x-currency": "USD" }) });
     const cart = await post("/store/cart", { lines: [{ product_id: product.id, quantity: 1 }] });
     expectContract("POST", "/store/cart", cart);
-    expect(cart.body).toMatchObject({ total: "E£600.00", display: { total: "$12.37" }, charge: { currency: "EGP", total: "E£600.00", in_customer_currency: false, reason: null } });
+    expect(cart.body).toMatchObject({ total: "E£600", display: { total: "$12.37" }, charge: { currency: "EGP", total: "E£600", in_customer_currency: false, reason: null } });
     const link = await post("/store/checkout-link", { lines: [{ product_id: product.id, quantity: 1 }] }, "platform=android");
     expectContract("POST", "/store/checkout-link", link);
     const order = (await store.listCatalogOrders({ appId: app.id, limit: 5, offset: 0 })).items[0]!;

@@ -26,7 +26,7 @@ String dishCart() => jsonEncode([
     productId: 31,
     quantity: 1,
     name: 'Defne Burger',
-    price: '₺650.00',
+    price: '₺650',
     options: ['double', 'cheddar'],
     optionNames: ['Double', 'Cheddar'],
   ).toJson(),
@@ -129,18 +129,18 @@ void main() {
 
     await tester.tap(find.text('Double'));
     await TestApp.settle(tester);
-    expect(find.text('Add to cart · ₺610.00'), findsOneWidget);
+    expect(find.text('Add to cart · ₺610'), findsOneWidget);
     await tester.tap(find.text('Cheddar'));
     await tester.tap(find.text('Caramelised onion'));
     await TestApp.settle(tester);
     // At most two extras: the third can't be chosen.
     await tester.tap(find.text('Pickles'));
     await TestApp.settle(tester);
-    expect(find.text('Add to cart · ₺680.00'), findsOneWidget);
+    expect(find.text('Add to cart · ₺680'), findsOneWidget);
     // Two of them.
     await tester.tap(find.bySemanticsLabel('More').last);
     await TestApp.settle(tester);
-    expect(find.text('Add to cart · ₺1,360.00'), findsOneWidget);
+    expect(find.text('Add to cart · ₺1,360'), findsOneWidget);
 
     await tester.tap(add);
     await TestApp.settle(tester);
@@ -148,7 +148,7 @@ void main() {
     expect(cart.single.options, ['double', 'cheddar', 'onion']);
     expect(cart.single.optionNames, ['Double', 'Cheddar', 'Caramelised onion']);
     expect(cart.single.quantity, 2);
-    expect(cart.single.price, '₺680.00');
+    expect(cart.single.price, '₺680');
     expect(cart.single.toInput().toJson()['options'], [
       'double',
       'cheddar',

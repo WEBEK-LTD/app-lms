@@ -511,7 +511,7 @@ describe("SimplyBook on the hosted API", () => {
       name: "Haircut",
       image_url: "https://simplybook.me/uploads/salon/event__picture/cut.jpg",
       duration_minutes: 30,
-      price: { amount: "300.00", currency: "TRY", formatted: "₺300.00", free: false },
+      price: { amount: "300.00", currency: "TRY", formatted: "₺300", free: false },
       category_id: 1,
       color: null,
     });
@@ -612,7 +612,7 @@ describe("SimplyBook on the hosted API", () => {
       end: "2026-10-19T07:30:00.000Z",
       local_date: MONDAY,
       local_time: "10:00",
-      price: { amount: "300.00", formatted: "₺300.00" },
+      price: { amount: "300.00", formatted: "₺300" },
       notes: "Short on the sides.",
       can_cancel: true,
     });

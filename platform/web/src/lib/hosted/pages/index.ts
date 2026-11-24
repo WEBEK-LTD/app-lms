@@ -13,6 +13,7 @@ import { moreTab, splitTabs } from "../../pages/tab-bar";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
 import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, STUDIO_TECH_TYPES, type Action, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
 import { centsToDecimal, formatCents } from "../../catalog/money";
+import { cleanPrices } from "../../money/clean";
 import { addDisplayPrices, DISPLAY_CONNECTORS, Shown, type DisplayCurrency } from "../../money/display";
 import { ConnectorError, type Connector } from "../connectors/types";
 // 211 The tech elements.
@@ -346,7 +347,7 @@ async function servedFlashSale(pc: PageContext, node: StudioNode): Promise<Studi
   const live = sales.filter((s) => s.live === true);
   const sale = (node.flash_sale?.sale_id ? live.find((s) => s.id === node.flash_sale?.sale_id) : null) ?? live[0];
   if (sale) {
-    const items = shownItems(((sale.products as Record<string, unknown>[]) ?? []).map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null).slice(0, limit), pc.display, false);
+    const items = shownItems(((sale.products as Record<string, unknown>[]) ?? []).map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null).slice(0, limit), pc.display, false, pc.lang);
     if (!items.length) return null;
     return {
       ...node,
@@ -367,7 +368,7 @@ async function servedFlashSale(pc: PageContext, node: StudioNode): Promise<Studi
   const onSale = (((await storeRead(pc, ["store", "products"], { on_sale: "true", per_page: String(limit) }))?.items as Record<string, unknown>[] | undefined) ?? []).filter((p) => p.sale);
   if (!onSale.length) return null;
   const ends = onSale.map((p) => (p.sale as { ends_at?: string | null }).ends_at).filter((e): e is string => typeof e === "string").sort()[0] ?? null;
-  const items = shownItems(onSale.map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null), pc.display, false);
+  const items = shownItems(onSale.map((p) => productItem(p, pc.lang)).filter((x): x is Item => x !== null), pc.display, false, pc.lang);
   return { ...node, flash: { id: null, title: null, starts_at: null, ends_at: ends, percent_off: null, remaining: null, total: null }, items } as StudioNode;
 }
 
@@ -550,7 +551,8 @@ async function get(pc: PageContext, path: string[], params: Record<string, strin
  * platform's.
  */
 function withDisplay(pc: PageContext, body: Record<string, unknown>): Record<string, unknown> {
-  return DISPLAY_CONNECTORS.has(pc.ctx.app.connector?.kind ?? "") ? addDisplayPrices(body, pc.display) : body;
+  // 229 And every shop's prices clean: whole amounts without ".00", a range from its cheapest.
+  return cleanPrices(DISPLAY_CONNECTORS.has(pc.ctx.app.connector?.kind ?? "") ? addDisplayPrices(body, pc.display) : body, pc.lang);
 }
 
 /**
@@ -580,16 +582,18 @@ function freePrice(price: unknown): { price?: Record<string, unknown> } {
  * here; each card's converted words (`price.display.label`: "From \$3.00",
  * "\$1,200.00 / month") from its own.
  */
-function shownItems(items: Item[], display: DisplayCurrency | null, own: boolean): Item[] {
+function shownItems(items: Item[], display: DisplayCurrency | null, own: boolean, lang: LanguageCode | null = null): Item[] {
   return items.map((item) => {
     if (!item.price) return item;
-    const price = own ? addDisplayPrices({ ...item.price }, display) : item.price;
+    const was = typeof item.price.formatted === "string" ? item.price.formatted : null;
+    // 229 Clean as the shop's answers are (the platform's own lists come straight from here), the card's words with it.
+    const price = cleanPrices(own ? addDisplayPrices({ ...item.price }, display) : { ...item.price }, lang);
+    const label = was && item.price_label?.includes(was) && typeof price.formatted === "string" ? item.price_label.replace(was, price.formatted) : item.price_label;
     const shown = price.display as Record<string, unknown> | undefined;
-    const label = item.price_label;
     if (shown && typeof shown.formatted === "string" && typeof price.formatted === "string" && label && label.includes(price.formatted)) {
-      return { ...item, price: { ...price, display: { ...shown, label: label.replace(price.formatted, shown.formatted) } } };
+      return { ...item, price_label: label, price: { ...price, display: { ...shown, label: label.replace(price.formatted, shown.formatted) } } };
     }
-    return { ...item, price };
+    return { ...item, price_label: label, price };
   });
 }
 
@@ -599,15 +603,15 @@ const list = (body: Record<string, unknown> | null): Record<string, unknown>[] =
 async function listItems(pc: PageContext, source: ItemSource, query: ItemsQuery): Promise<Item[] | null> {
   // 161 The connector's own lists come converted when they are Yallapp's (`withDisplay`); a free card's 0 too.
   const own = DISPLAY_CONNECTORS.has(pc.ctx.app.connector?.kind ?? "");
-  if (source === "courses") return shownItems(await listCourses(pc, query), pc.display, own);
-  if (source === "products") return shownItems(await listProducts(pc, query), pc.display, own);
-  if (source === "services") return shownItems(await listServices(pc, query), pc.display, own);
+  if (source === "courses") return shownItems(await listCourses(pc, query), pc.display, own, pc.lang);
+  if (source === "products") return shownItems(await listProducts(pc, query), pc.display, own, pc.lang);
+  if (source === "services") return shownItems(await listServices(pc, query), pc.display, own, pc.lang);
   if (source === "articles") return listArticles(pc, query);
   const resolver = itemResolver(source);
   if (!resolver) return null;
   const items = await resolver({ appId: pc.ctx.app.id, userId: pc.user ? String(pc.user.id) : null, lang: pc.lang, store: pc.ctx.store, now: pc.ctx.now }, query);
   // 161 The platform's own lists: converted here.
-  return shownItems(items, pc.display, true);
+  return shownItems(items, pc.display, true, pc.lang);
 }
 
 const str = (value: unknown): string | null => (typeof value === "string" && value ? value : null);

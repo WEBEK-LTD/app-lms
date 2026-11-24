@@ -104,7 +104,7 @@
     "hotels": 1,
     "currency": "USD",
     "stay_from_amount": "168.00",
-    "stay_from_formatted": "$168.00",
+    "stay_from_formatted": "$168",
     "trip_from": null,
     "trip_from_formatted": null
    },
@@ -116,7 +116,7 @@
     "hotels": 1,
     "currency": "USD",
     "stay_from_amount": "134.00",
-    "stay_from_formatted": "$134.00",
+    "stay_from_formatted": "$134",
     "trip_from": "1231.92",
     "trip_from_formatted": "$1,231.92"
    },
@@ -128,7 +128,7 @@
     "hotels": 1,
     "currency": "USD",
     "stay_from_amount": "96.00",
-    "stay_from_formatted": "$96.00",
+    "stay_from_formatted": "$96",
     "trip_from": "851.28",
     "trip_from_formatted": "$851.28"
    },
@@ -140,7 +140,7 @@
     "hotels": 1,
     "currency": "USD",
     "stay_from_amount": "262.00",
-    "stay_from_formatted": "$262.00",
+    "stay_from_formatted": "$262",
     "trip_from": "2028.08",
     "trip_from_formatted": "$2,028.08"
    }
@@ -185,7 +185,7 @@
     "member_price": true,
     "currency": "USD",
     "from_nightly_amount": "168.00",
-    "from_nightly_formatted": "$168.00",
+    "from_nightly_formatted": "$168",
     "price": null,
     "saved": false
    },
@@ -226,7 +226,7 @@
     "member_price": true,
     "currency": "USD",
     "from_nightly_amount": "134.00",
-    "from_nightly_formatted": "$134.00",
+    "from_nightly_formatted": "$134",
     "price": null,
     "saved": false
    }
@@ -329,7 +329,7 @@
     "member_price": true,
     "currency": "USD",
     "from_nightly_amount": "168.00",
-    "from_nightly_formatted": "$168.00",
+    "from_nightly_formatted": "$168",
     "price": {
      "currency": "USD",
      "nights": 4,
@@ -380,7 +380,7 @@
     "member_price": true,
     "currency": "USD",
     "from_nightly_amount": "134.00",
-    "from_nightly_formatted": "$134.00",
+    "from_nightly_formatted": "$134",
     "price": {
      "currency": "USD",
      "nights": 4,
@@ -430,7 +430,7 @@
     "member_price": true,
     "currency": "USD",
     "from_nightly_amount": "262.00",
-    "from_nightly_formatted": "$262.00",
+    "from_nightly_formatted": "$262",
     "price": {
      "currency": "USD",
      "nights": 4,
@@ -477,14 +477,14 @@
     "member_price": true,
     "currency": "USD",
     "from_nightly_amount": "96.00",
-    "from_nightly_formatted": "$96.00",
+    "from_nightly_formatted": "$96",
     "price": {
      "currency": "USD",
      "nights": 4,
      "total": "384.00",
-     "total_formatted": "$384.00",
+     "total_formatted": "$384",
      "nightly_amount": "96.00",
-     "nightly_formatted": "$96.00",
+     "nightly_formatted": "$96",
      "was_total_amount": "422.40",
      "was_total_formatted": "$422.40",
      "member": true
@@ -534,7 +534,7 @@
   "member_price": true,
   "currency": "USD",
   "from_nightly_amount": "168.00",
-  "from_nightly_formatted": "$168.00",
+  "from_nightly_formatted": "$168",
   "price": {
    "currency": "USD",
    "nights": 4,
@@ -928,7 +928,7 @@
       "count": 2,
       "currency": "USD",
       "unit_amount": "1072.00",
-      "unit_formatted": "$1,072.00",
+      "unit_formatted": "$1,072",
       "amount": "2144.00",
       "amount_formatted": "$2,144.00"
      },
@@ -937,7 +937,7 @@
       "count": 5,
       "currency": "USD",
       "unit_amount": "190.00",
-      "unit_formatted": "$190.00",
+      "unit_formatted": "$190",
       "amount": "950.00",
       "amount_formatted": "$950.00"
      },
@@ -973,7 +973,7 @@
       "count": 1,
       "currency": "USD",
       "unit_amount": "48.00",
-      "unit_formatted": "$48.00",
+      "unit_formatted": "$48",
       "amount": "48.00",
       "amount_formatted": "$48.00"
      }
@@ -1160,7 +1160,7 @@
     "count": 2,
     "currency": "USD",
     "unit_amount": "1072.00",
-    "unit_formatted": "$1,072.00",
+    "unit_formatted": "$1,072",
     "amount": "2144.00",
     "amount_formatted": "$2,144.00"
    },
@@ -1169,7 +1169,7 @@
     "count": 5,
     "currency": "USD",
     "unit_amount": "190.00",
-    "unit_formatted": "$190.00",
+    "unit_formatted": "$190",
     "amount": "950.00",
     "amount_formatted": "$950.00"
    },
@@ -1205,7 +1205,7 @@
     "count": 1,
     "currency": "USD",
     "unit_amount": "48.00",
-    "unit_formatted": "$48.00",
+    "unit_formatted": "$48",
     "amount": "48.00",
     "amount_formatted": "$48.00"
    }

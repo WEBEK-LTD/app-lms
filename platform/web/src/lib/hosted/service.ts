@@ -1,5 +1,6 @@
 import { courierWho } from "../delivery/service";
 import { currencyCodeOf, currencyDigits, currencyOptions } from "../money/currencies";
+import { cleanPrices } from "../money/clean";
 import { addDisplayPrices, customerCurrencyAllowed, customerCurrencyConfigJson, customerCurrencyRule, DISPLAY_CONNECTORS, requestedCurrency, type DisplayCurrency } from "../money/display";
 import { currentRates } from "../money/rates";
 import { catalogSettings } from "../catalog/settings";
@@ -500,6 +501,8 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
     });
     // 135.5 Yallapp's own prices in the customer's currency too (never a connected platform's).
     if (result && result.status === 200 && DISPLAY_CONNECTORS.has(ctx.app.connector?.kind ?? "")) addDisplayPrices(result.body, await displayOf(ctx, req));
+    // 229 Every shop's prices read cleanly: whole amounts without ".00", a range from its cheapest.
+    if (result && result.status >= 200 && result.status < 300) cleanPrices(result.body, requestLanguage(req.headers?.get("accept-language")));
     // 78.4 The connected platform failing (it can't be reached, it refused): counted for the team.
     if (result && result.status >= 500) {
       const failed = errorOfBody(result.body);
@@ -678,7 +681,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     // 149 Prices in the customer's currency: on or off for this app, and in which (empty: any).
     ...(DISPLAY_CONNECTORS.has(app.connector?.kind ?? "") ? { customer_currency: customerCurrencyConfigJson(customerCurrencyRule(app.catalogSettings)) } : {}),
     // 161 Its fees and thresholds also in the customer's currency (`display`), as the shop's answers are.
-    ...(extra.store ? { store: DISPLAY_CONNECTORS.has(app.connector?.kind ?? "") ? addDisplayPrices(extra.store, await displayOf(ctx, req)) : extra.store } : {}),
+    // 229 Its prices as clean as the shop's.
+    ...(extra.store ? { store: cleanPrices(DISPLAY_CONNECTORS.has(app.connector?.kind ?? "") ? addDisplayPrices(extra.store, await displayOf(ctx, req)) : extra.store, requestLanguage(req.headers?.get("accept-language"))) } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
     ...(extra.listings ? { listings: extra.listings } : {}),
     // 28 Events & tickets

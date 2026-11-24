@@ -237,7 +237,7 @@ describe("104 delivery apps on the hosted API", () => {
     expect((await call("POST", "/delivery/quote", { body: { pickup: TAHRIR, dropoff: TOWER } })).status).toBe(400);
     expect((await call("POST", "/delivery/quote", { body: { pickup: TAHRIR, dropoff: TOWER, service_id: hidden.id } })).status).toBe(400);
     const quote = await call("POST", "/delivery/quote", { body: { pickup: TAHRIR, dropoff: TOWER, service_id: express.id } });
-    expect(quote.body).toEqual({ price: "57.00", price_formatted: "E£57.00", currency: "EGP", distance_km: 1.2 });
+    expect(quote.body).toEqual({ price: "57.00", price_formatted: "E£57", currency: "EGP", distance_km: 1.2 });
     // A page's list of services.
     const items = await deliveryServicePageItems(app.id, { category_id: null, featured: false, ids: [], sort: "newest", limit: 10 }, { store, assetUrl: ASSETS });
     expect(items).toEqual([{ source: "delivery_services", id: String(express.id), title: "Express", subtitle: "2 hours", image_url: ASSETS("img-1"), price_label: null, badge: "+E£25.00", action: { type: "item", item: { source: "delivery_services", id: String(express.id) } } }]);

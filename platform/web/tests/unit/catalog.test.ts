@@ -193,7 +193,7 @@ describe("catalog shop on the hosted API", () => {
     const all = (await call("GET", "/store/products")).body as { items: { id: number; name: string }[]; total: number };
     expect(all.items.map((p) => p.name)).toEqual(["Glass Vase", "Gift Card", "Red Roses"]);
     expect(all.items[2]).toMatchObject({
-      price: { amount: "450.00", regular_amount: "600.00", formatted: "₺450.00", regular_formatted: "₺600.00", on_sale: true },
+      price: { amount: "450.00", regular_amount: "600.00", formatted: "₺450", regular_formatted: "₺600", on_sale: true },
       image_url: "https://yallapp.test/api/v1/assets/img-1",
       stock_status: "in_stock",
     });
@@ -243,10 +243,10 @@ describe("catalog shop on the hosted API", () => {
     });
     expect(result.body).toMatchObject({
       item_count: 3,
-      subtotal: "₺1,350.00",
+      subtotal: "₺1,350",
       subtotal_amount: "1350.00",
       lines: [
-        { quantity: 3, problem: "Only 3 left in stock.", unit_price: "₺450.00", available: true },
+        { quantity: 3, problem: "Only 3 left in stock.", unit_price: "₺450", available: true },
         { available: false, problem: "Out of stock." },
         { available: false, name: "Unavailable product" },
       ],
@@ -438,7 +438,7 @@ describe("catalog shop on the hosted API", () => {
             number: String(1000 + order.id),
             status: "processing",
             status_label: "Paid",
-            total: "₺950.00",
+            total: "₺950",
             items: [{ name: "Red Roses", product_id: ids.roses, quantity: 2, image_url: "https://yallapp.test/api/v1/assets/img-1" }],
           },
         ],
@@ -469,9 +469,9 @@ describe("catalog shop on the hosted API", () => {
           createdAt: now,
         });
       await refund(20000);
-      expect((await list()).body).toMatchObject({ items: [{ status: "processing", status_label: "Paid", refunded_total: "₺200.00" }] });
+      expect((await list()).body).toMatchObject({ items: [{ status: "processing", status_label: "Paid", refunded_total: "₺200" }] });
       await refund(75000);
-      expect((await list()).body).toMatchObject({ items: [{ status: "refunded", status_label: "Refunded", refunded_total: "₺950.00" }] });
+      expect((await list()).body).toMatchObject({ items: [{ status: "refunded", status_label: "Refunded", refunded_total: "₺950" }] });
       expect((await call("GET", "/me/orders")).status).toBe(401);
     });
 
@@ -506,16 +506,16 @@ describe("catalog shop on the hosted API", () => {
 
     it("gives the real total, with the coupon, shipping and what is left", async () => {
       await coupon({});
-      expect((await quote({})).body).toMatchObject({ subtotal: "₺900.00", coupon: null, discount: null, shipping: "₺50.00", total: "₺950.00", total_amount: "950.00", total_final: true });
+      expect((await quote({})).body).toMatchObject({ subtotal: "₺900", coupon: null, discount: null, shipping: "₺50", total: "₺950", total_amount: "950.00", total_final: true });
       expect((await quote({ coupon: " spring10 " })).body).toMatchObject({
         coupon: { code: "SPRING10", status: "applied", message: null },
-        discount: "₺90.00",
-        shipping: "₺50.00",
-        total: "₺860.00",
+        discount: "₺90",
+        shipping: "₺50",
+        total: "₺860",
         total_final: true,
       });
       // Free shipping over ₺2,000; a digital product ships nothing.
-      expect((await call("POST", "/store/cart", { query: { platform: "android" }, body: { lines: [{ product_id: ids.giftCard, quantity: 1 }] } })).body).toMatchObject({ shipping: "₺0.00", total: "₺200.00" });
+      expect((await call("POST", "/store/cart", { query: { platform: "android" }, body: { lines: [{ product_id: ids.giftCard, quantity: 1 }] } })).body).toMatchObject({ shipping: "₺0", total: "₺200" });
     });
 
     it("says why a coupon doesn't apply", async () => {
@@ -533,7 +533,7 @@ describe("catalog shop on the hosted API", () => {
       expect(await store.useCatalogCoupon(app.id, once.id)).toBe(true);
       expect(await store.useCatalogCoupon(app.id, once.id)).toBe(false);
       expect(await status("ONCE")).toMatchObject({ message: "This coupon has been used up." });
-      expect((await quote({ coupon: "NOPE" })).body).toMatchObject({ discount: null, total: "₺950.00" });
+      expect((await quote({ coupon: "NOPE" })).body).toMatchObject({ discount: null, total: "₺950" });
     });
 
     it("takes the discount off the order, the payment's lines and counts the use when paid", async () => {

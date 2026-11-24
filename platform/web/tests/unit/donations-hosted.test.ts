@@ -134,7 +134,7 @@ describe("29 charity campaigns and donations on the hosted API", () => {
     const titles = (r: HostedResult) => (r.body as { items: { title: string }[] }).items.map((c) => c.title);
     expect(titles(list)).toEqual(["Winter food parcels", "School lunches", "Summer camp", "Flood relief"]);
     const items = (list.body as { items: Record<string, unknown>[] }).items;
-    expect(items[0]).toMatchObject({ status: "open", goal: "100000.00", goal_formatted: "₺100,000.00", raised: "0.00", donor_count: 0, progress: 0, image_url: ASSETS("img-parcels"), featured: true, summary: "Parcels." });
+    expect(items[0]).toMatchObject({ status: "open", goal: "100000.00", goal_formatted: "₺100,000", raised: "0.00", donor_count: 0, progress: 0, image_url: ASSETS("img-parcels"), featured: true, summary: "Parcels." });
     expect(items[1]).toMatchObject({ goal: null, goal_formatted: null, progress: null });
     expect(items[2]).toMatchObject({ title: "Summer camp", status: "closed" });
     expect(titles(await call("GET", "/donations/campaigns", { query: { status: "open" } }))).toEqual(["Winter food parcels", "School lunches"]);
