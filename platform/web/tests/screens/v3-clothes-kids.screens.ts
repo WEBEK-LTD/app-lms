@@ -190,7 +190,17 @@ async function shoot(browser: Browser, t: (typeof TYPES)[number], look: "c" | "d
     // The listing's Arabic names; for a project's draft, the demo's in Arabic, then in English (a project may keep them so).
     const demoNames = t.id === "clothes" ? CLOTHES_PRODUCT_NAMES : KIDS_PRODUCT_NAMES;
     const names = [...arNames, ...Object.values(demoNames).map((n) => n.ar), ...(t.id === "clothes" ? CLOTHES_PRODUCTS : KIDS_PRODUCTS).map((p) => p.name)];
-    for (const name of names) if ((opened = await tapNamed(arShop, new RegExp(`^${escape(name)}`)))) break;
+    // Opened when the bar is gone (the product page draws no tabs); else the next name.
+    const barShows = () => arShop.evaluate((source) => [...document.querySelectorAll("flt-semantics")].some((x) => new RegExp(source).test((x.getAttribute("aria-label") ?? x.textContent ?? "").trim()) && x.getBoundingClientRect().width > 0), shopTab.source);
+    for (const name of names) {
+      if (!(await tapNamed(arShop, new RegExp(`^${escape(name)}`)))) continue;
+      await arShop.waitForTimeout(3000);
+      await semantics(arShop);
+      if (!(await barShows())) {
+        opened = true;
+        break;
+      }
+    }
     expect(opened, "a product of the Arabic listing").toBe(true);
     await arShop.waitForTimeout(4500);
     await arShop.screenshot({ path: shot(`product-ar${dark ? "-dark" : ""}`) });

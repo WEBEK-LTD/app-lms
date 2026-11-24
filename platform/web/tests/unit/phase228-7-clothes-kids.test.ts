@@ -127,9 +127,10 @@ describe("228.7 Lujain's and Toota's own product pages", () => {
     expect(nodes.find((n) => n.type === "product_buy")).toMatchObject({ pin: "bottom", radius: 32, text: "Into the basket" });
   });
 
-  it("the nursery: a quiet header, the size-by-age ruler over the sizes, Add to basket in the page, thin lines and no shadow", () => {
+  it("the nursery: its name small over a hairline, the size-by-age ruler over the sizes, Add to basket in the page, thin lines and no shadow", () => {
     const page = productPageOfLook(KIDS_DEMO, "d", ctxOf("Toota"))!;
-    expect(page.header).toMatchObject({ type: "title", title: "Toota · nursery" });
+    expect(page.header).toBeUndefined();
+    expect(page.body.children![0]).toMatchObject({ type: "text", text: "Toota · nursery" });
     const top = page.body.children!;
     const ruler = top.findIndex((n) => n.name === "Size by age" || n.children?.some((c) => c.children?.some((t) => t.text === "6–12")));
     const sizes = top.findIndex((n) => n.type === "product_variants");
