@@ -107,6 +107,15 @@ coordinator.
 2. **Account deletion on the website.** The API has `DELETE /me` and the app
    has Settings → Delete account, but the site has no page for it. Google's
    Data safety form asks for a deletion URL.
-3. **How long the proof of identity is kept after the decision** (area C).
-   C hasn't answered; the coordinator suggests 30 days. The policy should
-   say.
+3. **How long the proof of identity is kept** (C's answer, `wip-community-trust`
+   a1633ff02). The policy should say:
+   - The file is deleted from private storage 30 days after an admin
+     approves or rejects the request. The daily job does it (`purgeIdProofs`,
+     run by `runCommunityTrustDaily`), and each deletion is written to the
+     admin audit log.
+   - Until then only Community admins can open it, through a signed link
+     that lasts 5 minutes and always downloads the file.
+   - The full name, portfolio links and the apps listed at the time stay
+     with the decision as its record.
+   - Backups of the private file store are not confirmed. Don't claim the
+     file is gone from backups.
