@@ -193,3 +193,60 @@ describe("231 the daily trust run", () => {
     expect((await api<{ top_badge: string | null }>(c, "GET", `/members/${ali.id}`)).body.top_badge).toBe("blue");
   });
 });
+
+describe("231 area C's routes are exactly the contract's", () => {
+  it("serves every /badges, /notifications and /admin path of docs/api/community.yaml, and no other", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { parse } = await import("yaml");
+    const { TRUST_ROUTES } = await import("@/lib/community/api/trust-routes");
+    const contract = parse(readFileSync(new URL("../../../../docs/api/community.yaml", import.meta.url), "utf8")) as { paths: Record<string, Record<string, unknown>> };
+    const METHODS = ["get", "post", "put", "patch", "delete"];
+    const documented = Object.entries(contract.paths)
+      .filter(([path]) => /^\/(badges|notifications|admin)(\/|$)/.test(path))
+      .flatMap(([path, ops]) => Object.keys(ops).filter((m) => METHODS.includes(m)).map((m) => `${m.toUpperCase()} ${path.replace(/\{(\w+)\}/g, ":$1")}`))
+      .sort();
+    expect(TRUST_ROUTES.map((r) => `${r.method} ${r.path}`).sort()).toEqual(documented);
+  });
+});
+
+describe("231 moderation and notifications with the Q&A (area B)", () => {
+  const QUESTION = { title: "How do I connect a payment gateway to my store?", body: "I built a store with Yallapp and want card payments at checkout. Where do I start?", section: "payments", tags: ["Payments"] };
+
+  it("a new member's first question waits in the queue; approved, it shows and its author is told; an answer tells the asker by email", async () => {
+    const asked = await api<{ id: string; status: string }>(c, "POST", "/qa/questions", { token: nour.token, body: QUESTION });
+    expect(asked.status).toBe(201);
+    expect(asked.body.status).toBe("pending");
+    const queue = await api<{ items: { id: string; cause: string; preview: string; author: { id: string }; target_type: string }[] }>(c, "GET", "/admin/moderation", { token: admin.token });
+    expect(queue.body.items).toEqual([expect.objectContaining({ cause: "first_posts", preview: QUESTION.title, author: expect.objectContaining({ id: nour.id }), target_type: "question" })]);
+    expect((await api(c, "POST", `/admin/moderation/${queue.body.items[0]!.id}`, { token: admin.token, body: { decision: "approve" } })).status).toBe(200);
+    expect((await api<{ status: string }>(c, "GET", `/qa/questions/${asked.body.id}`)).body.status).toBe("published");
+    expect((await api<{ items: { kind: string }[] }>(c, "GET", "/notifications", { token: nour.token })).body.items[0]!.kind).toBe("post_approved");
+    expect((await c.deps.store.base.getMember(nour.id))!.approvedPosts).toBe(1);
+
+    // Ali is established: his answer shows at once, and Nour hears of it (email included: her address is verified).
+    await c.deps.store.base.updateMember(ali.id, { approvedPosts: 2 });
+    await c.deps.store.base.updateMember(nour.id, { emailVerified: true });
+    const sentBefore = c.mail.sent.length;
+    const answered = await api<{ status: string }>(c, "POST", `/qa/questions/${asked.body.id}/answers`, { token: ali.token, body: { body: "Open Payments in the dashboard, then add your gateway's keys." } });
+    expect(answered.body.status).toBe("published");
+    const notes = await api<{ items: { kind: string; text: string; link: string }[] }>(c, "GET", "/notifications", { token: nour.token });
+    expect(notes.body.items[0]).toMatchObject({ kind: "answer", text: `Ali Kaya answered your question "${QUESTION.title}".` });
+    expect(c.mail.sent.slice(sentBefore).map((m) => m.to)).toEqual([nour.email]);
+  });
+
+  it("enough reports on an answer hide it until a moderator decides", async () => {
+    await api(c, "PUT", "/admin/settings", { token: admin.token, body: { spam_filter: { hide_after_reports: 2 } } });
+    for (const m of [nour, ali, admin]) await c.deps.store.base.updateMember(m.id, { approvedPosts: 2 });
+    const q = await api<{ id: string }>(c, "POST", "/qa/questions", { token: nour.token, body: QUESTION });
+    const a = await api<{ id: string; status: string }>(c, "POST", `/qa/questions/${q.body.id}/answers`, { token: ali.token, body: { body: "This question is silly and so are you, ask someone else." } });
+    expect(a.body.status).toBe("published");
+    const extra = await joinWithEmail(c, "Third Member");
+    for (const who of [nour, extra]) expect((await api(c, "POST", "/reports", { token: who.token, body: { target_type: "answer", target_id: a.body.id, reason: "spam" } })).status).toBe(201);
+    const queue = await api<{ items: { id: string; cause: string; report_count: number }[] }>(c, "GET", "/admin/moderation", { token: admin.token });
+    expect(queue.body.items).toEqual([expect.objectContaining({ cause: "reports", report_count: 2 })]);
+    expect((await api<{ answers: { id: string }[] }>(c, "GET", `/qa/questions/${q.body.id}`, { token: extra.token })).body.answers ?? []).toEqual([]);
+    expect((await api(c, "POST", `/admin/moderation/${queue.body.items[0]!.id}`, { token: admin.token, body: { decision: "remove", note: "Spam" } })).status).toBe(200);
+    expect((await api<{ items: unknown[] }>(c, "GET", "/admin/reports", { token: admin.token })).body.items).toEqual([]);
+    expect((await api<{ items: { kind: string; text: string }[] }>(c, "GET", "/notifications", { token: ali.token })).body.items[0]).toMatchObject({ kind: "post_removed" });
+  });
+});

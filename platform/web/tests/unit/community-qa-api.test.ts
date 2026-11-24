@@ -19,6 +19,8 @@ async function setup() {
   const helper = await joinWithEmail(c, "Nour Helper");
   const team = await joinWithEmail(c, "Yallapp Team One");
   await c.deps.store.base.updateMember(team.id, { role: "team" });
+  // Established members: a new member's first 2 posts wait for review (area C's moderation, tested there).
+  for (const m of [asker, helper]) await c.deps.store.base.updateMember(m.id, { approvedPosts: 2 });
   return { c, asker, helper, team };
 }
 
