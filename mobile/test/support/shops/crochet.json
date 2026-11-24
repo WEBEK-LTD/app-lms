@@ -1,0 +1,745 @@
+{
+ "currency": "EGP",
+ "categories": [
+  {
+   "id": 30,
+   "name": "Clothing",
+   "ar": "ملابس",
+   "tr": "Giyim",
+   "parent_id": null,
+   "photo": "/crochet-photos/cozy-sweater.jpg"
+  },
+  {
+   "id": 31,
+   "name": "Cardigans & sweaters",
+   "ar": "كارديغان وكنزات",
+   "tr": "Hırka ve kazaklar",
+   "parent_id": 30,
+   "photo": "/crochet-photos/cozy-sweater.jpg"
+  },
+  {
+   "id": 32,
+   "name": "Scarves",
+   "ar": "أوشحة",
+   "tr": "Atkılar",
+   "parent_id": 30,
+   "photo": "/crochet-photos/red-scarf.jpg"
+  },
+  {
+   "id": 33,
+   "name": "Beanies",
+   "ar": "قبعات صوف",
+   "tr": "Bereler",
+   "parent_id": 30,
+   "photo": "/crochet-photos/beanie-girl.jpg"
+  },
+  {
+   "id": 34,
+   "name": "Socks & mittens",
+   "ar": "جوارب وقفازات",
+   "tr": "Çorap ve eldivenler",
+   "parent_id": 30,
+   "photo": "/crochet-photos/socks.jpg"
+  },
+  {
+   "id": 35,
+   "name": "Blankets & throws",
+   "ar": "بطانيات ومفارش",
+   "tr": "Battaniye ve şallar",
+   "parent_id": null,
+   "photo": "/crochet-photos/scarves-stack.jpg"
+  },
+  {
+   "id": 36,
+   "name": "Throws",
+   "ar": "رميات",
+   "tr": "Koltuk şalları",
+   "parent_id": 35,
+   "photo": "/crochet-photos/scarves-stack.jpg"
+  },
+  {
+   "id": 37,
+   "name": "Baby blankets",
+   "ar": "بطانيات أطفال",
+   "tr": "Bebek battaniyeleri",
+   "parent_id": 35,
+   "photo": "/crochet-photos/fluffy-blanket.jpg"
+  },
+  {
+   "id": 38,
+   "name": "Amigurumi toys",
+   "ar": "دمى أميغورومي",
+   "tr": "Amigurumi oyuncaklar",
+   "parent_id": null,
+   "photo": "/crochet-photos/teddy-sweater.jpg"
+  },
+  {
+   "id": 39,
+   "name": "Bears",
+   "ar": "دببة",
+   "tr": "Ayıcıklar",
+   "parent_id": 38,
+   "photo": "/crochet-photos/teddy-sweater.jpg"
+  },
+  {
+   "id": 40,
+   "name": "Bunnies & animals",
+   "ar": "أرانب وحيوانات",
+   "tr": "Tavşan ve hayvanlar",
+   "parent_id": 38,
+   "photo": "/crochet-photos/bunny-knit.jpg"
+  },
+  {
+   "id": 41,
+   "name": "Seasonal",
+   "ar": "شخصيات موسمية",
+   "tr": "Sezonluk figürler",
+   "parent_id": 38,
+   "photo": "/crochet-photos/gnomes.jpg"
+  },
+  {
+   "id": 42,
+   "name": "Bags & hats",
+   "ar": "حقائب وقبعات",
+   "tr": "Çanta ve şapkalar",
+   "parent_id": null,
+   "photo": "/crochet-photos/straw-hat.jpg"
+  },
+  {
+   "id": 43,
+   "name": "Summer hats",
+   "ar": "قبعات صيفية",
+   "tr": "Yazlık şapkalar",
+   "parent_id": 42,
+   "photo": "/crochet-photos/straw-hat.jpg"
+  },
+  {
+   "id": 44,
+   "name": "Bags & baskets",
+   "ar": "حقائب وسلال",
+   "tr": "Çanta ve sepetler",
+   "parent_id": 42,
+   "photo": "/crochet-photos/basket-room.jpg"
+  },
+  {
+   "id": 45,
+   "name": "Home pieces",
+   "ar": "قطع للبيت",
+   "tr": "Ev parçaları",
+   "parent_id": null,
+   "photo": "/crochet-photos/mittens-coffee.jpg"
+  },
+  {
+   "id": 46,
+   "name": "Cup cozies",
+   "ar": "أغطية أكواب",
+   "tr": "Kupa kılıfları",
+   "parent_id": 45,
+   "photo": "/crochet-photos/mittens-coffee.jpg"
+  },
+  {
+   "id": 47,
+   "name": "Cushions",
+   "ar": "وسائد",
+   "tr": "Kırlentler",
+   "parent_id": 45,
+   "photo": "/crochet-photos/sweater-wood.jpg"
+  },
+  {
+   "id": 48,
+   "name": "Yarn & tools",
+   "ar": "خيوط وأدوات",
+   "tr": "İp ve malzemeler",
+   "parent_id": null,
+   "photo": "/crochet-photos/yarn-ball-white.jpg"
+  },
+  {
+   "id": 49,
+   "name": "Cotton yarn",
+   "ar": "خيوط قطن",
+   "tr": "Pamuk ipler",
+   "parent_id": 48,
+   "photo": "/crochet-photos/yarn-ball-white.jpg"
+  },
+  {
+   "id": 50,
+   "name": "Merino & wool",
+   "ar": "صوف وميرينو",
+   "tr": "Merinos ve yün",
+   "parent_id": 48,
+   "photo": "/crochet-photos/yarn-balls.jpg"
+  },
+  {
+   "id": 51,
+   "name": "Raffia",
+   "ar": "رافيا",
+   "tr": "Rafya",
+   "parent_id": 48,
+   "photo": "/crochet-photos/straw-close.jpg"
+  },
+  {
+   "id": 52,
+   "name": "Hooks & tools",
+   "ar": "إبر وأدوات",
+   "tr": "Tığ ve aletler",
+   "parent_id": 48,
+   "photo": "/crochet-photos/hoop-yarn.jpg"
+  },
+  {
+   "id": 53,
+   "name": "Kits",
+   "ar": "عُدد جاهزة",
+   "tr": "Başlangıç setleri",
+   "parent_id": 48,
+   "photo": "/crochet-photos/blue-yarn.jpg"
+  },
+  {
+   "id": 54,
+   "name": "Workshops",
+   "ar": "ورش",
+   "tr": "Atölyeler",
+   "parent_id": null,
+   "photo": "/crochet-photos/knit-coffee.jpg"
+  },
+  {
+   "id": 55,
+   "name": "In the studio",
+   "ar": "ورش حضورية",
+   "tr": "Atölyede",
+   "parent_id": 54,
+   "photo": "/crochet-photos/knit-coffee.jpg"
+  },
+  {
+   "id": 56,
+   "name": "Online classes",
+   "ar": "دروس عبر الإنترنت",
+   "tr": "Çevrim içi dersler",
+   "parent_id": 54,
+   "photo": "/crochet-photos/bunny-knit.jpg"
+  }
+ ],
+ "products": [
+  {
+   "id": 100,
+   "sku": "CR-101",
+   "name": "Dafa cardigan",
+   "ar": "كارديغان دفا",
+   "tr": "Dafa hırka",
+   "sub": "Cardigans & sweaters",
+   "main": "Clothing",
+   "price": 198000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/cozy-sweater.jpg",
+    "/crochet-photos/sweater-wood.jpg"
+   ]
+  },
+  {
+   "id": 101,
+   "sku": "CR-102",
+   "name": "Ghaba Nordic sweater",
+   "ar": "كنزة غابة الإسكندنافية",
+   "tr": "Ghaba İskandinav kazak",
+   "sub": "Cardigans & sweaters",
+   "main": "Clothing",
+   "price": 198000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/green-sweater.jpg"
+   ]
+  },
+  {
+   "id": 102,
+   "sku": "CR-103",
+   "name": "Rimal waffle sweater",
+   "ar": "كنزة رمال الوافل",
+   "tr": "Rimal waffle kazak",
+   "sub": "Cardigans & sweaters",
+   "main": "Clothing",
+   "price": 139000,
+   "was": 165000,
+   "photos": [
+    "/crochet-photos/sweater-shoulder.jpg",
+    "/crochet-photos/sweater-wood.jpg"
+   ]
+  },
+  {
+   "id": 103,
+   "sku": "CR-104",
+   "name": "Hekaya chunky cardigan",
+   "ar": "كارديغان حكاية السميك",
+   "tr": "Hekaya kalın hırka",
+   "sub": "Cardigans & sweaters",
+   "main": "Clothing",
+   "price": 215000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/knit-flatlay.jpg"
+   ]
+  },
+  {
+   "id": 104,
+   "sku": "CR-111",
+   "name": "Qirfa ribbed scarf",
+   "ar": "وشاح قرفة المضلّع",
+   "tr": "Qirfa fitilli atkı",
+   "sub": "Scarves",
+   "main": "Clothing",
+   "price": 95000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/red-scarf.jpg"
+   ]
+  },
+  {
+   "id": 105,
+   "sku": "CR-112",
+   "name": "Layali fringe scarf",
+   "ar": "وشاح ليالي بالأهداب",
+   "tr": "Layali saçaklı atkı",
+   "sub": "Scarves",
+   "main": "Clothing",
+   "price": 78000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/scarves-stack.jpg"
+   ]
+  },
+  {
+   "id": 106,
+   "sku": "CR-121",
+   "name": "Bunn pom-pom beanie",
+   "ar": "قبعة بُن بكرة الفرو",
+   "tr": "Bunn ponponlu bere",
+   "sub": "Beanies",
+   "main": "Clothing",
+   "price": 65000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/beanie-girl.jpg"
+   ]
+  },
+  {
+   "id": 107,
+   "sku": "CR-122",
+   "name": "Talj slouchy beanie",
+   "ar": "قبعة ثلج الواسعة",
+   "tr": "Talj bol bere",
+   "sub": "Beanies",
+   "main": "Clothing",
+   "price": 52000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/pom-beanie.jpg"
+   ]
+  },
+  {
+   "id": 108,
+   "sku": "CR-131",
+   "name": "Mudfi'a striped socks",
+   "ar": "جوارب مدفأة المخطّطة",
+   "tr": "Mudfi'a çizgili çorap",
+   "sub": "Socks & mittens",
+   "main": "Clothing",
+   "price": 38000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/socks.jpg"
+   ]
+  },
+  {
+   "id": 109,
+   "sku": "CR-132",
+   "name": "Hodn mittens",
+   "ar": "قفازات حضن",
+   "tr": "Hodn eldiven",
+   "sub": "Socks & mittens",
+   "main": "Clothing",
+   "price": 52000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/mittens-coffee.jpg",
+    "/crochet-photos/mittens-snow.jpg"
+   ]
+  },
+  {
+   "id": 110,
+   "sku": "CR-133",
+   "name": "Shita Nordic slippers",
+   "ar": "خفّ شتاء الإسكندنافي",
+   "tr": "Shita İskandinav patik",
+   "sub": "Socks & mittens",
+   "main": "Clothing",
+   "price": 69000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/slippers.jpg"
+   ]
+  },
+  {
+   "id": 111,
+   "sku": "CR-201",
+   "name": "Zaytoon throw set",
+   "ar": "طقم أغطية زيتون",
+   "tr": "Zaytoon şal seti",
+   "sub": "Throws",
+   "main": "Blankets & throws",
+   "price": 290000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/scarves-stack.jpg"
+   ]
+  },
+  {
+   "id": 112,
+   "sku": "CR-202",
+   "name": "Chunky stitch blanket",
+   "ar": "بطانية الغرزة السميكة",
+   "tr": "Kalın ilmek battaniye",
+   "sub": "Throws",
+   "main": "Blankets & throws",
+   "price": 320000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/knit-flatlay.jpg",
+    "/crochet-photos/knit-textures.jpg"
+   ]
+  },
+  {
+   "id": 113,
+   "sku": "CR-203",
+   "name": "Ghaim baby blanket",
+   "ar": "بطانية غيم للرضّع",
+   "tr": "Ghaim bebek battaniyesi",
+   "sub": "Baby blankets",
+   "main": "Blankets & throws",
+   "price": 145000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/fluffy-blanket.jpg"
+   ]
+  },
+  {
+   "id": 114,
+   "sku": "CR-301",
+   "name": "Bundu teddy bear",
+   "ar": "دبدوب بندق",
+   "tr": "Bundu oyuncak ayı",
+   "sub": "Bears",
+   "main": "Amigurumi toys",
+   "price": 115000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/teddy-sweater.jpg"
+   ]
+  },
+  {
+   "id": 115,
+   "sku": "CR-311",
+   "name": "Jazara bunny",
+   "ar": "أرنب جزرة",
+   "tr": "Jazara tavşan",
+   "sub": "Bunnies & animals",
+   "main": "Amigurumi toys",
+   "price": 89000,
+   "was": 105000,
+   "photos": [
+    "/crochet-photos/bunny-knit.jpg"
+   ]
+  },
+  {
+   "id": 116,
+   "sku": "CR-321",
+   "name": "Winter gnomes, set of three",
+   "ar": "أقزام الشتاء، طقم من ثلاثة",
+   "tr": "Kış cüceleri, üçlü set",
+   "sub": "Seasonal",
+   "main": "Amigurumi toys",
+   "price": 84000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/gnomes.jpg"
+   ]
+  },
+  {
+   "id": 117,
+   "sku": "CR-322",
+   "name": "Thalj snowman",
+   "ar": "رجل الثلج ثلج",
+   "tr": "Thalj kardan adam",
+   "sub": "Seasonal",
+   "main": "Amigurumi toys",
+   "price": 56000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/snowman-plush.jpg"
+   ]
+  },
+  {
+   "id": 118,
+   "sku": "CR-401",
+   "name": "Sahil raffia sun hat",
+   "ar": "قبعة ساحل الرافيا للشمس",
+   "tr": "Sahil rafya güneş şapkası",
+   "sub": "Summer hats",
+   "main": "Bags & hats",
+   "price": 89000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/straw-hat.jpg"
+   ]
+  },
+  {
+   "id": 119,
+   "sku": "CR-402",
+   "name": "Two-tone raffia hat",
+   "ar": "قبعة رافيا بلونين",
+   "tr": "İki renkli rafya şapka",
+   "sub": "Summer hats",
+   "main": "Bags & hats",
+   "price": 94000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/straw-close.jpg"
+   ]
+  },
+  {
+   "id": 120,
+   "sku": "CR-411",
+   "name": "Souk basket bag",
+   "ar": "حقيبة سوق السلّة",
+   "tr": "Souk sepet çanta",
+   "sub": "Bags & baskets",
+   "main": "Bags & hats",
+   "price": 125000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/basket-room.jpg"
+   ]
+  },
+  {
+   "id": 121,
+   "sku": "CR-501",
+   "name": "Mug cozy, set of two",
+   "ar": "غطاءا أكواب، قطعتان",
+   "tr": "Kupa kılıfı, ikili",
+   "sub": "Cup cozies",
+   "main": "Home pieces",
+   "price": 28000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/mittens-coffee.jpg"
+   ]
+  },
+  {
+   "id": 122,
+   "sku": "CR-502",
+   "name": "Waffle cushion cover",
+   "ar": "غطاء وسادة بغرزة الوافل",
+   "tr": "Waffle kırlent kılıfı",
+   "sub": "Cushions",
+   "main": "Home pieces",
+   "price": 72000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/sweater-wood.jpg"
+   ]
+  },
+  {
+   "id": 123,
+   "sku": "CR-601",
+   "name": "Egyptian cotton yarn, 100 g",
+   "ar": "خيط قطن مصري، 100 غ",
+   "tr": "Mısır pamuğu ip, 100 g",
+   "sub": "Cotton yarn",
+   "main": "Yarn & tools",
+   "price": 8500,
+   "was": null,
+   "photos": [
+    "/crochet-photos/yarn-ball-white.jpg"
+   ]
+  },
+  {
+   "id": 124,
+   "sku": "CR-602",
+   "name": "Cotton yarn, pack of five",
+   "ar": "خيط قطن، خمس كرات",
+   "tr": "Pamuk ip, beşli paket",
+   "sub": "Cotton yarn",
+   "main": "Yarn & tools",
+   "price": 34000,
+   "was": 39000,
+   "photos": [
+    "/crochet-photos/yarn-ball-white.jpg"
+   ]
+  },
+  {
+   "id": 125,
+   "sku": "CR-611",
+   "name": "Merino wool, 50 g",
+   "ar": "صوف ميرينو، 50 غ",
+   "tr": "Merinos yünü, 50 g",
+   "sub": "Merino & wool",
+   "main": "Yarn & tools",
+   "price": 14000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/yarn-balls.jpg"
+   ]
+  },
+  {
+   "id": 126,
+   "sku": "CR-612",
+   "name": "Chunky wool, 200 g",
+   "ar": "صوف سميك، 200 غ",
+   "tr": "Kalın yün, 200 g",
+   "sub": "Merino & wool",
+   "main": "Yarn & tools",
+   "price": 26000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/knit-textures.jpg"
+   ]
+  },
+  {
+   "id": 127,
+   "sku": "CR-621",
+   "name": "Natural raffia, 100 g",
+   "ar": "رافيا طبيعية، 100 غ",
+   "tr": "Doğal rafya, 100 g",
+   "sub": "Raffia",
+   "main": "Yarn & tools",
+   "price": 12000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/straw-close.jpg"
+   ]
+  },
+  {
+   "id": 128,
+   "sku": "CR-631",
+   "name": "Wooden needles and hooks",
+   "ar": "إبر وصنانير خشبية",
+   "tr": "Ahşap şiş ve tığlar",
+   "sub": "Hooks & tools",
+   "main": "Yarn & tools",
+   "price": 24000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/hoop-yarn.jpg"
+   ]
+  },
+  {
+   "id": 129,
+   "sku": "CR-632",
+   "name": "Sewing thread, ten colours",
+   "ar": "خيوط خياطة، عشرة ألوان",
+   "tr": "Dikiş ipliği, on renk",
+   "sub": "Hooks & tools",
+   "main": "Yarn & tools",
+   "price": 15000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/spools.jpg"
+   ]
+  },
+  {
+   "id": 130,
+   "sku": "CR-633",
+   "name": "Wooden buttons, 30 pieces",
+   "ar": "أزرار خشبية، 30 قطعة",
+   "tr": "Ahşap düğmeler, 30 adet",
+   "sub": "Hooks & tools",
+   "main": "Yarn & tools",
+   "price": 9500,
+   "was": null,
+   "photos": [
+    "/crochet-photos/buttons.jpg"
+   ]
+  },
+  {
+   "id": 131,
+   "sku": "CR-641",
+   "name": "Scarf starter kit",
+   "ar": "عُدّة الوشاح للمبتدئات",
+   "tr": "Atkı başlangıç kiti",
+   "sub": "Kits",
+   "main": "Yarn & tools",
+   "price": 42000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/blue-yarn.jpg"
+   ]
+  },
+  {
+   "id": 132,
+   "sku": "CR-642",
+   "name": "Amigurumi bear kit",
+   "ar": "عُدّة دبدوب الأميغورومي",
+   "tr": "Amigurumi ayı kiti",
+   "sub": "Kits",
+   "main": "Yarn & tools",
+   "price": 48000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/teddy-sweater.jpg"
+   ]
+  },
+  {
+   "id": 133,
+   "sku": "CR-701",
+   "name": "Crochet basics for beginners",
+   "ar": "أساسيات الكروشيه للمبتدئات",
+   "tr": "Yeni başlayanlara tığ işi",
+   "sub": "In the studio",
+   "main": "Workshops",
+   "price": 65000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/knit-coffee.jpg"
+   ]
+  },
+  {
+   "id": 134,
+   "sku": "CR-702",
+   "name": "Amigurumi toys",
+   "ar": "دمى الأميغورومي",
+   "tr": "Amigurumi oyuncaklar",
+   "sub": "Online classes",
+   "main": "Workshops",
+   "price": 48000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/bunny-knit.jpg"
+   ]
+  },
+  {
+   "id": 135,
+   "sku": "CR-703",
+   "name": "A chunky blanket in a day",
+   "ar": "بطانية سميكة في يوم",
+   "tr": "Bir günde kalın battaniye",
+   "sub": "In the studio",
+   "main": "Workshops",
+   "price": 120000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/knit-flatlay.jpg"
+   ]
+  },
+  {
+   "id": 136,
+   "sku": "CR-901",
+   "name": "Gift wrap with a handwritten card",
+   "ar": "تغليف هدية مع بطاقة بخط اليد",
+   "tr": "El yazısı kartlı hediye paketi",
+   "sub": "Home pieces",
+   "main": "Home pieces",
+   "price": 6000,
+   "was": null,
+   "photos": [
+    "/crochet-photos/hoop-yarn.jpg"
+   ]
+  }
+ ]
+}

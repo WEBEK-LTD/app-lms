@@ -1,0 +1,4295 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/beauty-photos/hero-lab.jpg",
+   "title": {
+    "en": "Your skin, by the numbers",
+    "ar": "بشرتكِ بالأرقام",
+    "tr": "Cildiniz, rakamlarla"
+   },
+   "subtitle": {
+    "en": "Sign in for your skin test, your routine and your orders.",
+    "ar": "سجّلي الدخول لاختبار بشرتكِ وروتينكِ وطلباتكِ.",
+    "tr": "Cilt testiniz, rutininiz ve siparişleriniz için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "cover",
+   "items": [
+    {
+     "key": "orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "glass"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "classic",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Lexend",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#10171C",
+   "font_family": "Zain",
+   "dark_background": "#0B1013",
+   "dark_surface": "#141B20",
+   "font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/zain/Zain-Regular.ttf",
+     "weight": 400
+    },
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/zain/Zain-Bold.ttf",
+     "weight": 600
+    }
+   ]
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shop",
+    "label": "The lab",
+    "icon": "healing",
+    "target": {
+     "type": "page",
+     "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المختبر"
+     },
+     "tr": {
+      "label": "Laboratuvar"
+     }
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Cart",
+    "icon": "shopping_bag",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "السلة"
+     },
+     "tr": {
+      "label": "Sepet"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "receipt_long",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطلبات"
+     },
+     "tr": {
+      "label": "Siparişler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_center",
+      "title": "Velours Clinic",
+      "subtitle": "SKIN LAB · Nº 01",
+      "translations": {
+       "ar": {
+        "title": "Velours · العيادة",
+        "subtitle": "SKIN LAB · Nº 01"
+       },
+       "tr": {
+        "title": "Velours Klinik",
+        "subtitle": "SKIN LAB · Nº 01"
+       }
+      },
+      "buttons": [
+       "menu",
+       "cart"
+      ],
+      "menu_page": "menu",
+      "background": "#F4F6F7",
+      "dark_background": "#0B1013",
+      "color": "#10171C",
+      "dark_color": "#EAF1F4",
+      "style": "glass"
+     },
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 104,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "column",
+        "name": "What is your skin type?",
+        "gap": 0,
+        "align": "end",
+        "min_height": 300,
+        "radius": 26,
+        "padding": {
+         "top": 64,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#E3EFF0",
+        "dark_background": "#16292D",
+        "image_background_url": "http://localhost:3000/beauty-photos/hero-calm.jpg",
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "column",
+          "gap": 0,
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 4,
+           "bottom": 4,
+           "start": 4
+          },
+          "surface": {
+           "glass": 22,
+           "tint": 0.62,
+           "soft": 2
+          },
+          "children": [
+           {
+            "id": "sig-4",
+            "type": "text",
+            "text": "Skin test · 60 seconds",
+            "font": {
+             "family": "Zain",
+             "size": 12,
+             "weight": 700,
+             "letter_spacing": 1
+            },
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC",
+            "max_lines": 1,
+            "padding": {
+             "top": 0,
+             "end": 12,
+             "bottom": 0,
+             "start": 12
+            },
+            "translations": {
+             "ar": {
+              "text": "اختبار البشرة · 60 ثانية"
+             },
+             "tr": {
+              "text": "Cilt testi · 60 saniye"
+             }
+            }
+           },
+           {
+            "id": "sig-5",
+            "type": "quiz",
+            "name": "What is your skin type?",
+            "text": "What is your skin type?",
+            "title": "Start the test",
+            "translations": {
+             "ar": {
+              "text": "ما نوع بشرتكِ؟",
+              "title": "ابدئي الاختبار"
+             },
+             "tr": {
+              "text": "Cilt tipiniz ne?",
+              "title": "Teste başlayın"
+             }
+            },
+            "entries": [
+             {
+              "title": "Dry",
+              "text": "Your skin needs water and softness: a creamy cleanser, hyaluronic acid and a rich cream at night.",
+              "label": "Shop for my skin",
+              "translations": {
+               "ar": {
+                "title": "جافة",
+                "text": "تحتاج بشرتكِ إلى الماء والنعومة: منظّف كريمي وحمض الهيالورونيك وكريم غني في الليل.",
+                "label": "تسوّقي لبشرتي"
+               },
+               "tr": {
+                "title": "Kuru",
+                "text": "Cildinizin suya ve yumuşaklığa ihtiyacı var: kremsi bir temizleyici, hyalüronik asit ve gece zengin bir krem.",
+                "label": "Cildime uygun olanlar"
+               }
+              },
+              "icon": "spa",
+              "image_url": "http://localhost:3000/beauty-photos/routine-dry.jpg",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              }
+             },
+             {
+              "title": "Combination",
+              "text": "Balance is the key: a light gel, vitamin C in the morning and a little more cream on the cheeks.",
+              "label": "Shop for my skin",
+              "translations": {
+               "ar": {
+                "title": "مختلطة",
+                "text": "التوازن هو السرّ: جل خفيف وفيتامين C صباحًا وكريم أكثر قليلًا على الخدّين.",
+                "label": "تسوّقي لبشرتي"
+               },
+               "tr": {
+                "title": "Karma",
+                "text": "Anahtar denge: hafif bir jel, sabah C vitamini ve yanaklara biraz daha krem.",
+                "label": "Cildime uygun olanlar"
+               }
+              },
+              "icon": "auto_awesome",
+              "image_url": "http://localhost:3000/beauty-photos/routine-morning.jpg",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              }
+             },
+             {
+              "title": "Oily",
+              "text": "Keep it clear and matte: niacinamide, an oil-free gel and a light sunscreen every day.",
+              "label": "Shop for my skin",
+              "translations": {
+               "ar": {
+                "title": "دهنية",
+                "text": "حافظي عليها نقية وغير لامعة: نياسيناميد وجل خالٍ من الزيوت وواقٍ خفيف كل يوم.",
+                "label": "تسوّقي لبشرتي"
+               },
+               "tr": {
+                "title": "Yağlı",
+                "text": "Temiz ve mat tutun: niasinamid, yağsız bir jel ve her gün hafif bir güneş koruyucu.",
+                "label": "Cildime uygun olanlar"
+               }
+              },
+              "icon": "diamond",
+              "image_url": "http://localhost:3000/beauty-photos/routine-oily.jpg",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              }
+             },
+             {
+              "title": "Sensitive",
+              "text": "Be gentle: fragrance-free products, ceramides to calm the skin and a sunscreen it can take.",
+              "label": "Shop for my skin",
+              "translations": {
+               "ar": {
+                "title": "حساسة",
+                "text": "بلطف: منتجات خالية من العطور، وسيراميد يهدّئ البشرة، وواقي شمس يناسبها.",
+                "label": "تسوّقي لبشرتي"
+               },
+               "tr": {
+                "title": "Hassas",
+                "text": "Nazik olun: parfümsüz ürünler, cildi yatıştıran seramidler ve ona uygun bir güneş koruyucu.",
+                "label": "Cildime uygun olanlar"
+               }
+              },
+              "icon": "healing",
+              "image_url": "http://localhost:3000/beauty-photos/routine-calm.jpg",
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              }
+             }
+            ],
+            "quiz": {
+             "questions": [
+              {
+               "title": "How does your skin feel an hour after washing?",
+               "text": "Tight and a little rough\nShiny on the nose and forehead only\nShiny all over\nRed or itchy",
+               "translations": {
+                "ar": {
+                 "title": "كيف تشعرين ببشرتكِ بعد ساعة من غسلها؟",
+                 "text": "مشدودة وخشنة قليلًا\nلامعة على الأنف والجبين فقط\nلامعة في كل مكان\nمحمرّة أو تسبّب حكة"
+                },
+                "tr": {
+                 "title": "Yıkadıktan bir saat sonra cildiniz nasıl hissettiriyor?",
+                 "text": "Gergin ve biraz pürüzlü\nYalnızca burun ve alında parlak\nHer yerde parlak\nKızarık ya da kaşıntılı"
+                }
+               }
+              },
+              {
+               "title": "How do your pores look?",
+               "text": "Barely visible\nVisible on the nose\nLarge and visible all over\nSmall, but my skin reacts easily",
+               "translations": {
+                "ar": {
+                 "title": "كيف تبدو مسامكِ؟",
+                 "text": "بالكاد تظهر\nظاهرة على الأنف\nواسعة وظاهرة في كل الوجه\nصغيرة، لكن بشرتي تتهيّج بسهولة"
+                },
+                "tr": {
+                 "title": "Gözenekleriniz nasıl görünüyor?",
+                 "text": "Neredeyse görünmüyor\nBurunda belirgin\nGeniş ve her yerde belirgin\nKüçük ama cildim kolayca tepki veriyor"
+                }
+               }
+              },
+              {
+               "title": "How does your skin take a new cream?",
+               "text": "It drinks it in and wants more\nFine, with a little shine by noon\nIt gets greasy fast\nIt often stings or turns red",
+               "translations": {
+                "ar": {
+                 "title": "كيف تتقبّل بشرتكِ كريمًا جديدًا؟",
+                 "text": "تمتصّه بسرعة وتطلب المزيد\nجيدًا، مع لمعة خفيفة عند الظهر\nتصبح دهنية بسرعة\nغالبًا ما تلسع أو تحمرّ"
+                },
+                "tr": {
+                 "title": "Cildiniz yeni bir kremi nasıl karşılıyor?",
+                 "text": "Hemen emer, daha fazlasını ister\nİyi, öğlene doğru hafif parlar\nÇabucak yağlanır\nSık sık batar ya da kızarır"
+                }
+               }
+              },
+              {
+               "title": "By the end of the day, your skin is…",
+               "text": "Dull and flaky\nOily in the middle, dry on the cheeks\nShiny and oily\nWarm and blotchy",
+               "translations": {
+                "ar": {
+                 "title": "في نهاية اليوم تكون بشرتكِ…",
+                 "text": "باهتة ومتقشّرة\nدهنية في الوسط وجافة على الخدّين\nلامعة ودهنية\nدافئة وفيها بقع حمراء"
+                },
+                "tr": {
+                 "title": "Gün sonunda cildiniz…",
+                 "text": "Mat ve pul pul\nOrtada yağlı, yanaklarda kuru\nParlak ve yağlı\nSıcak ve lekeli"
+                }
+               }
+              }
+             ]
+            },
+            "font": {
+             "family": "Zain"
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "padding": {
+             "top": 4,
+             "end": 12,
+             "bottom": 10,
+             "start": 12
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-6",
+        "type": "row",
+        "name": "Your daily routine",
+        "cross": "end",
+        "gap": 10,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-7",
+          "type": "text",
+          "text": "Your daily routine",
+          "font": {
+           "family": "Zain",
+           "size": 23,
+           "weight": 800,
+           "line_height": 1.1
+          },
+          "color": "#10171C",
+          "dark_color": "#EAF1F4",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "روتينكِ اليومي"
+           },
+           "tr": {
+            "text": "Günlük rutininiz"
+           }
+          }
+         },
+         {
+          "id": "sig-8",
+          "type": "text",
+          "text": "ROUTINE · 4 STEPS",
+          "font": {
+           "family": "Zain",
+           "size": 11.5,
+           "weight": 500,
+           "letter_spacing": 1.6
+          },
+          "color": "#55626B",
+          "dark_color": "#9AAAB3",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "ROUTINE · 4 STEPS"
+           },
+           "tr": {
+            "text": "ROUTINE · 4 STEPS"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-9",
+        "type": "column",
+        "name": "Your daily routine",
+        "gap": 6,
+        "radius": 22,
+        "padding": {
+         "top": 10,
+         "end": 14,
+         "bottom": 6,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#141B20",
+        "border_color": "#DDE3E7",
+        "dark_border_color": "#25323A",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-10",
+          "type": "tabs",
+          "name": "Your daily routine",
+          "gap": 6,
+          "color": "#10171C",
+          "dark_color": "#EAF1F4",
+          "children": [
+           {
+            "id": "sig-11",
+            "type": "column",
+            "name": "Morning",
+            "title": "Morning",
+            "icon": "wb_sunny",
+            "gap": 0,
+            "children": [
+             {
+              "id": "sig-12",
+              "type": "row",
+              "name": "Cleanse",
+              "gap": 12,
+              "cross": "center",
+              "padding": {
+               "top": 11,
+               "end": 0,
+               "bottom": 11,
+               "start": 0
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "sig-13",
+                "type": "row",
+                "width": 32,
+                "height": 32,
+                "radius": 16,
+                "align": "center",
+                "cross": "center",
+                "border_color": "#2C6E74",
+                "dark_border_color": "#7FC7CC",
+                "border_width": 1.5,
+                "children": [
+                 {
+                  "id": "sig-14",
+                  "type": "text",
+                  "text": "01",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13,
+                   "weight": 800
+                  },
+                  "color": "#2C6E74",
+                  "dark_color": "#7FC7CC"
+                 }
+                ]
+               },
+               {
+                "id": "sig-15",
+                "type": "image",
+                "image_url": "http://localhost:3000/beauty-photos/olive-soap.jpg",
+                "fit": "cover",
+                "width": 48,
+                "height": 48,
+                "radius": 12
+               },
+               {
+                "id": "sig-16",
+                "type": "column",
+                "width": "fill",
+                "gap": 1,
+                "children": [
+                 {
+                  "id": "sig-17",
+                  "type": "text",
+                  "text": "Cleanse",
+                  "font": {
+                   "family": "Zain",
+                   "size": 16,
+                   "weight": 700
+                  },
+                  "color": "#10171C",
+                  "dark_color": "#EAF1F4",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "التنظيف"
+                   },
+                   "tr": {
+                    "text": "Temizleme"
+                   }
+                  }
+                 },
+                 {
+                  "id": "sig-18",
+                  "type": "text",
+                  "text": "A gentle oat cleanser",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13
+                  },
+                  "color": "#55626B",
+                  "dark_color": "#9AAAB3",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "غسول لطيف بالشوفان"
+                   },
+                   "tr": {
+                    "text": "Yulaflı nazik temizleyici"
+                   }
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "sig-19",
+                "type": "icon",
+                "icon": "chevron_left",
+                "icon_size": 20,
+                "color": "#55626B",
+                "dark_color": "#9AAAB3"
+               }
+              ]
+             },
+             {
+              "id": "sig-20",
+              "type": "divider",
+              "height": 1,
+              "background": "#DDE3E7",
+              "dark_background": "#25323A"
+             },
+             {
+              "id": "sig-21",
+              "type": "row",
+              "name": "Serum",
+              "gap": 12,
+              "cross": "center",
+              "padding": {
+               "top": 11,
+               "end": 0,
+               "bottom": 11,
+               "start": 0
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "sig-22",
+                "type": "row",
+                "width": 32,
+                "height": 32,
+                "radius": 16,
+                "align": "center",
+                "cross": "center",
+                "border_color": "#2C6E74",
+                "dark_border_color": "#7FC7CC",
+                "border_width": 1.5,
+                "children": [
+                 {
+                  "id": "sig-23",
+                  "type": "text",
+                  "text": "02",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13,
+                   "weight": 800
+                  },
+                  "color": "#2C6E74",
+                  "dark_color": "#7FC7CC"
+                 }
+                ]
+               },
+               {
+                "id": "sig-24",
+                "type": "image",
+                "image_url": "http://localhost:3000/beauty-photos/vitamin-c.jpg",
+                "fit": "cover",
+                "width": 48,
+                "height": 48,
+                "radius": 12
+               },
+               {
+                "id": "sig-25",
+                "type": "column",
+                "width": "fill",
+                "gap": 1,
+                "children": [
+                 {
+                  "id": "sig-26",
+                  "type": "text",
+                  "text": "Serum",
+                  "font": {
+                   "family": "Zain",
+                   "size": 16,
+                   "weight": 700
+                  },
+                  "color": "#10171C",
+                  "dark_color": "#EAF1F4",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "السيروم"
+                   },
+                   "tr": {
+                    "text": "Serum"
+                   }
+                  }
+                 },
+                 {
+                  "id": "sig-27",
+                  "type": "text",
+                  "text": "Vitamin C 15%",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13
+                  },
+                  "color": "#55626B",
+                  "dark_color": "#9AAAB3",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "فيتامين C بتركيز 15%"
+                   },
+                   "tr": {
+                    "text": "%15 C vitamini"
+                   }
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "sig-28",
+                "type": "icon",
+                "icon": "chevron_left",
+                "icon_size": 20,
+                "color": "#55626B",
+                "dark_color": "#9AAAB3"
+               }
+              ]
+             },
+             {
+              "id": "sig-29",
+              "type": "divider",
+              "height": 1,
+              "background": "#DDE3E7",
+              "dark_background": "#25323A"
+             },
+             {
+              "id": "sig-30",
+              "type": "row",
+              "name": "Moisturise",
+              "gap": 12,
+              "cross": "center",
+              "padding": {
+               "top": 11,
+               "end": 0,
+               "bottom": 11,
+               "start": 0
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "sig-31",
+                "type": "row",
+                "width": 32,
+                "height": 32,
+                "radius": 16,
+                "align": "center",
+                "cross": "center",
+                "border_color": "#2C6E74",
+                "dark_border_color": "#7FC7CC",
+                "border_width": 1.5,
+                "children": [
+                 {
+                  "id": "sig-32",
+                  "type": "text",
+                  "text": "03",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13,
+                   "weight": 800
+                  },
+                  "color": "#2C6E74",
+                  "dark_color": "#7FC7CC"
+                 }
+                ]
+               },
+               {
+                "id": "sig-33",
+                "type": "image",
+                "image_url": "http://localhost:3000/beauty-photos/gel-cream.jpg",
+                "fit": "cover",
+                "width": 48,
+                "height": 48,
+                "radius": 12
+               },
+               {
+                "id": "sig-34",
+                "type": "column",
+                "width": "fill",
+                "gap": 1,
+                "children": [
+                 {
+                  "id": "sig-35",
+                  "type": "text",
+                  "text": "Moisturise",
+                  "font": {
+                   "family": "Zain",
+                   "size": 16,
+                   "weight": 700
+                  },
+                  "color": "#10171C",
+                  "dark_color": "#EAF1F4",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "الترطيب"
+                   },
+                   "tr": {
+                    "text": "Nemlendirme"
+                   }
+                  }
+                 },
+                 {
+                  "id": "sig-36",
+                  "type": "text",
+                  "text": "A ceramide gel cream",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13
+                  },
+                  "color": "#55626B",
+                  "dark_color": "#9AAAB3",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "جل كريم بالسيراميد"
+                   },
+                   "tr": {
+                    "text": "Seramidli jel krem"
+                   }
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "sig-37",
+                "type": "icon",
+                "icon": "chevron_left",
+                "icon_size": 20,
+                "color": "#55626B",
+                "dark_color": "#9AAAB3"
+               }
+              ]
+             },
+             {
+              "id": "sig-38",
+              "type": "divider",
+              "height": 1,
+              "background": "#DDE3E7",
+              "dark_background": "#25323A"
+             },
+             {
+              "id": "sig-39",
+              "type": "row",
+              "name": "Protect",
+              "gap": 12,
+              "cross": "center",
+              "padding": {
+               "top": 11,
+               "end": 0,
+               "bottom": 11,
+               "start": 0
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "sig-40",
+                "type": "row",
+                "width": 32,
+                "height": 32,
+                "radius": 16,
+                "align": "center",
+                "cross": "center",
+                "border_color": "#2C6E74",
+                "dark_border_color": "#7FC7CC",
+                "border_width": 1.5,
+                "children": [
+                 {
+                  "id": "sig-41",
+                  "type": "text",
+                  "text": "04",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13,
+                   "weight": 800
+                  },
+                  "color": "#2C6E74",
+                  "dark_color": "#7FC7CC"
+                 }
+                ]
+               },
+               {
+                "id": "sig-42",
+                "type": "image",
+                "image_url": "http://localhost:3000/beauty-photos/spf.jpg",
+                "fit": "cover",
+                "width": 48,
+                "height": 48,
+                "radius": 12
+               },
+               {
+                "id": "sig-43",
+                "type": "column",
+                "width": "fill",
+                "gap": 1,
+                "children": [
+                 {
+                  "id": "sig-44",
+                  "type": "text",
+                  "text": "Protect",
+                  "font": {
+                   "family": "Zain",
+                   "size": 16,
+                   "weight": 700
+                  },
+                  "color": "#10171C",
+                  "dark_color": "#EAF1F4",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "الحماية"
+                   },
+                   "tr": {
+                    "text": "Koruma"
+                   }
+                  }
+                 },
+                 {
+                  "id": "sig-45",
+                  "type": "text",
+                  "text": "Sunscreen SPF 50",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13
+                  },
+                  "color": "#55626B",
+                  "dark_color": "#9AAAB3",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "واقي شمس SPF 50"
+                   },
+                   "tr": {
+                    "text": "SPF 50 güneş kremi"
+                   }
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "sig-46",
+                "type": "icon",
+                "icon": "chevron_left",
+                "icon_size": 20,
+                "color": "#55626B",
+                "dark_color": "#9AAAB3"
+               }
+              ]
+             }
+            ],
+            "translations": {
+             "ar": {
+              "title": "الصباح"
+             },
+             "tr": {
+              "title": "Sabah"
+             }
+            }
+           },
+           {
+            "id": "sig-47",
+            "type": "column",
+            "name": "Evening",
+            "title": "Evening",
+            "icon": "dark_mode",
+            "gap": 0,
+            "children": [
+             {
+              "id": "sig-48",
+              "type": "row",
+              "name": "Remove",
+              "gap": 12,
+              "cross": "center",
+              "padding": {
+               "top": 11,
+               "end": 0,
+               "bottom": 11,
+               "start": 0
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "sig-49",
+                "type": "row",
+                "width": 32,
+                "height": 32,
+                "radius": 16,
+                "align": "center",
+                "cross": "center",
+                "border_color": "#2C6E74",
+                "dark_border_color": "#7FC7CC",
+                "border_width": 1.5,
+                "children": [
+                 {
+                  "id": "sig-50",
+                  "type": "text",
+                  "text": "01",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13,
+                   "weight": 800
+                  },
+                  "color": "#2C6E74",
+                  "dark_color": "#7FC7CC"
+                 }
+                ]
+               },
+               {
+                "id": "sig-51",
+                "type": "image",
+                "image_url": "http://localhost:3000/beauty-photos/coconut-balm.jpg",
+                "fit": "cover",
+                "width": 48,
+                "height": 48,
+                "radius": 12
+               },
+               {
+                "id": "sig-52",
+                "type": "column",
+                "width": "fill",
+                "gap": 1,
+                "children": [
+                 {
+                  "id": "sig-53",
+                  "type": "text",
+                  "text": "Remove",
+                  "font": {
+                   "family": "Zain",
+                   "size": 16,
+                   "weight": 700
+                  },
+                  "color": "#10171C",
+                  "dark_color": "#EAF1F4",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "إزالة المكياج"
+                   },
+                   "tr": {
+                    "text": "Makyaj temizleme"
+                   }
+                  }
+                 },
+                 {
+                  "id": "sig-54",
+                  "type": "text",
+                  "text": "A cleansing balm",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13
+                  },
+                  "color": "#55626B",
+                  "dark_color": "#9AAAB3",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "بلسم منظّف"
+                   },
+                   "tr": {
+                    "text": "Temizleme balmı"
+                   }
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "sig-55",
+                "type": "icon",
+                "icon": "chevron_left",
+                "icon_size": 20,
+                "color": "#55626B",
+                "dark_color": "#9AAAB3"
+               }
+              ]
+             },
+             {
+              "id": "sig-56",
+              "type": "divider",
+              "height": 1,
+              "background": "#DDE3E7",
+              "dark_background": "#25323A"
+             },
+             {
+              "id": "sig-57",
+              "type": "row",
+              "name": "Treat",
+              "gap": 12,
+              "cross": "center",
+              "padding": {
+               "top": 11,
+               "end": 0,
+               "bottom": 11,
+               "start": 0
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "sig-58",
+                "type": "row",
+                "width": 32,
+                "height": 32,
+                "radius": 16,
+                "align": "center",
+                "cross": "center",
+                "border_color": "#2C6E74",
+                "dark_border_color": "#7FC7CC",
+                "border_width": 1.5,
+                "children": [
+                 {
+                  "id": "sig-59",
+                  "type": "text",
+                  "text": "02",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13,
+                   "weight": 800
+                  },
+                  "color": "#2C6E74",
+                  "dark_color": "#7FC7CC"
+                 }
+                ]
+               },
+               {
+                "id": "sig-60",
+                "type": "image",
+                "image_url": "http://localhost:3000/beauty-photos/retinol.jpg",
+                "fit": "cover",
+                "width": 48,
+                "height": 48,
+                "radius": 12
+               },
+               {
+                "id": "sig-61",
+                "type": "column",
+                "width": "fill",
+                "gap": 1,
+                "children": [
+                 {
+                  "id": "sig-62",
+                  "type": "text",
+                  "text": "Treat",
+                  "font": {
+                   "family": "Zain",
+                   "size": 16,
+                   "weight": 700
+                  },
+                  "color": "#10171C",
+                  "dark_color": "#EAF1F4",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "العلاج"
+                   },
+                   "tr": {
+                    "text": "Bakım"
+                   }
+                  }
+                 },
+                 {
+                  "id": "sig-63",
+                  "type": "text",
+                  "text": "Retinol 0.3%",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13
+                  },
+                  "color": "#55626B",
+                  "dark_color": "#9AAAB3",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "ريتينول 0.3%"
+                   },
+                   "tr": {
+                    "text": "%0,3 retinol"
+                   }
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "sig-64",
+                "type": "icon",
+                "icon": "chevron_left",
+                "icon_size": 20,
+                "color": "#55626B",
+                "dark_color": "#9AAAB3"
+               }
+              ]
+             },
+             {
+              "id": "sig-65",
+              "type": "divider",
+              "height": 1,
+              "background": "#DDE3E7",
+              "dark_background": "#25323A"
+             },
+             {
+              "id": "sig-66",
+              "type": "row",
+              "name": "Hydrate",
+              "gap": 12,
+              "cross": "center",
+              "padding": {
+               "top": 11,
+               "end": 0,
+               "bottom": 11,
+               "start": 0
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "sig-67",
+                "type": "row",
+                "width": 32,
+                "height": 32,
+                "radius": 16,
+                "align": "center",
+                "cross": "center",
+                "border_color": "#2C6E74",
+                "dark_border_color": "#7FC7CC",
+                "border_width": 1.5,
+                "children": [
+                 {
+                  "id": "sig-68",
+                  "type": "text",
+                  "text": "03",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13,
+                   "weight": 800
+                  },
+                  "color": "#2C6E74",
+                  "dark_color": "#7FC7CC"
+                 }
+                ]
+               },
+               {
+                "id": "sig-69",
+                "type": "image",
+                "image_url": "http://localhost:3000/beauty-photos/hyaluronic.jpg",
+                "fit": "cover",
+                "width": 48,
+                "height": 48,
+                "radius": 12
+               },
+               {
+                "id": "sig-70",
+                "type": "column",
+                "width": "fill",
+                "gap": 1,
+                "children": [
+                 {
+                  "id": "sig-71",
+                  "type": "text",
+                  "text": "Hydrate",
+                  "font": {
+                   "family": "Zain",
+                   "size": 16,
+                   "weight": 700
+                  },
+                  "color": "#10171C",
+                  "dark_color": "#EAF1F4",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "الترطيب"
+                   },
+                   "tr": {
+                    "text": "Nem"
+                   }
+                  }
+                 },
+                 {
+                  "id": "sig-72",
+                  "type": "text",
+                  "text": "Hyaluronic acid 2%",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13
+                  },
+                  "color": "#55626B",
+                  "dark_color": "#9AAAB3",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "حمض الهيالورونيك 2%"
+                   },
+                   "tr": {
+                    "text": "%2 hyalüronik asit"
+                   }
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "sig-73",
+                "type": "icon",
+                "icon": "chevron_left",
+                "icon_size": 20,
+                "color": "#55626B",
+                "dark_color": "#9AAAB3"
+               }
+              ]
+             },
+             {
+              "id": "sig-74",
+              "type": "divider",
+              "height": 1,
+              "background": "#DDE3E7",
+              "dark_background": "#25323A"
+             },
+             {
+              "id": "sig-75",
+              "type": "row",
+              "name": "Repair",
+              "gap": 12,
+              "cross": "center",
+              "padding": {
+               "top": 11,
+               "end": 0,
+               "bottom": 11,
+               "start": 0
+              },
+              "action": {
+               "type": "screen",
+               "screen": "search"
+              },
+              "children": [
+               {
+                "id": "sig-76",
+                "type": "row",
+                "width": 32,
+                "height": 32,
+                "radius": 16,
+                "align": "center",
+                "cross": "center",
+                "border_color": "#2C6E74",
+                "dark_border_color": "#7FC7CC",
+                "border_width": 1.5,
+                "children": [
+                 {
+                  "id": "sig-77",
+                  "type": "text",
+                  "text": "04",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13,
+                   "weight": 800
+                  },
+                  "color": "#2C6E74",
+                  "dark_color": "#7FC7CC"
+                 }
+                ]
+               },
+               {
+                "id": "sig-78",
+                "type": "image",
+                "image_url": "http://localhost:3000/beauty-photos/deep-cream.jpg",
+                "fit": "cover",
+                "width": 48,
+                "height": 48,
+                "radius": 12
+               },
+               {
+                "id": "sig-79",
+                "type": "column",
+                "width": "fill",
+                "gap": 1,
+                "children": [
+                 {
+                  "id": "sig-80",
+                  "type": "text",
+                  "text": "Repair",
+                  "font": {
+                   "family": "Zain",
+                   "size": 16,
+                   "weight": 700
+                  },
+                  "color": "#10171C",
+                  "dark_color": "#EAF1F4",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "الإصلاح"
+                   },
+                   "tr": {
+                    "text": "Onarım"
+                   }
+                  }
+                 },
+                 {
+                  "id": "sig-81",
+                  "type": "text",
+                  "text": "A rich night cream",
+                  "font": {
+                   "family": "Zain",
+                   "size": 13
+                  },
+                  "color": "#55626B",
+                  "dark_color": "#9AAAB3",
+                  "max_lines": 1,
+                  "translations": {
+                   "ar": {
+                    "text": "كريم ليلي غني"
+                   },
+                   "tr": {
+                    "text": "Zengin gece kremi"
+                   }
+                  }
+                 }
+                ]
+               },
+               {
+                "id": "sig-82",
+                "type": "icon",
+                "icon": "chevron_left",
+                "icon_size": 20,
+                "color": "#55626B",
+                "dark_color": "#9AAAB3"
+               }
+              ]
+             }
+            ],
+            "translations": {
+             "ar": {
+              "title": "المساء"
+             },
+             "tr": {
+              "title": "Akşam"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-83",
+        "type": "row",
+        "name": "By ingredient",
+        "cross": "end",
+        "gap": 10,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-84",
+          "type": "text",
+          "text": "By ingredient",
+          "font": {
+           "family": "Zain",
+           "size": 23,
+           "weight": 800,
+           "line_height": 1.1
+          },
+          "color": "#10171C",
+          "dark_color": "#EAF1F4",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "حسب المكوّن"
+           },
+           "tr": {
+            "text": "İçeriğe göre"
+           }
+          }
+         },
+         {
+          "id": "sig-85",
+          "type": "text",
+          "text": "INGREDIENTS",
+          "font": {
+           "family": "Zain",
+           "size": 11.5,
+           "weight": 500,
+           "letter_spacing": 1.6
+          },
+          "color": "#55626B",
+          "dark_color": "#9AAAB3",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "INGREDIENTS"
+           },
+           "tr": {
+            "text": "INGREDIENTS"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-86",
+        "type": "column",
+        "name": "By ingredient",
+        "gap": 8,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-87",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "sig-88",
+            "type": "row",
+            "name": "Niacinamide",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#E3EFF0",
+            "dark_background": "#16292D",
+            "children": [
+             {
+              "id": "sig-89",
+              "type": "text",
+              "text": "10%",
+              "font": {
+               "family": "Zain",
+               "size": 13.5,
+               "weight": 800
+              },
+              "color": "#2C6E74",
+              "dark_color": "#7FC7CC"
+             },
+             {
+              "id": "sig-90",
+              "type": "text",
+              "text": "Niacinamide",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "نياسيناميد"
+               },
+               "tr": {
+                "text": "Niasinamid"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-91",
+            "type": "row",
+            "name": "Hyaluronic acid",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1,
+            "children": [
+             {
+              "id": "sig-92",
+              "type": "text",
+              "text": "2%",
+              "font": {
+               "family": "Zain",
+               "size": 13.5,
+               "weight": 800
+              },
+              "color": "#2C6E74",
+              "dark_color": "#7FC7CC"
+             },
+             {
+              "id": "sig-93",
+              "type": "text",
+              "text": "Hyaluronic acid",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "هيالورونيك"
+               },
+               "tr": {
+                "text": "Hyalüronik asit"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-94",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "sig-95",
+            "type": "row",
+            "name": "Retinol",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1,
+            "children": [
+             {
+              "id": "sig-96",
+              "type": "text",
+              "text": "0.3%",
+              "font": {
+               "family": "Zain",
+               "size": 13.5,
+               "weight": 800
+              },
+              "color": "#2C6E74",
+              "dark_color": "#7FC7CC"
+             },
+             {
+              "id": "sig-97",
+              "type": "text",
+              "text": "Retinol",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "ريتينول"
+               },
+               "tr": {
+                "text": "Retinol"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-98",
+            "type": "row",
+            "name": "Vitamin C",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1,
+            "children": [
+             {
+              "id": "sig-99",
+              "type": "text",
+              "text": "15%",
+              "font": {
+               "family": "Zain",
+               "size": 13.5,
+               "weight": 800
+              },
+              "color": "#2C6E74",
+              "dark_color": "#7FC7CC"
+             },
+             {
+              "id": "sig-100",
+              "type": "text",
+              "text": "Vitamin C",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "فيتامين C"
+               },
+               "tr": {
+                "text": "C vitamini"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-101",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "sig-102",
+            "type": "row",
+            "name": "Ceramides",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1,
+            "children": [
+             {
+              "id": "sig-103",
+              "type": "text",
+              "text": "Ceramides",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سيراميد"
+               },
+               "tr": {
+                "text": "Seramid"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-104",
+            "type": "row",
+            "name": "Squalane",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1,
+            "children": [
+             {
+              "id": "sig-105",
+              "type": "text",
+              "text": "Squalane",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سكوالان"
+               },
+               "tr": {
+                "text": "Skualan"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-106",
+        "type": "row",
+        "name": "The lab",
+        "cross": "end",
+        "gap": 10,
+        "padding": {
+         "top": 26,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-107",
+          "type": "text",
+          "text": "The lab",
+          "font": {
+           "family": "Zain",
+           "size": 23,
+           "weight": 800,
+           "line_height": 1.1
+          },
+          "color": "#10171C",
+          "dark_color": "#EAF1F4",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "المختبر"
+           },
+           "tr": {
+            "text": "Laboratuvar"
+           }
+          }
+         },
+         {
+          "id": "sig-108",
+          "type": "text",
+          "text": "LAB · FORMULAS",
+          "font": {
+           "family": "Zain",
+           "size": 11.5,
+           "weight": 500,
+           "letter_spacing": 1.6
+          },
+          "color": "#55626B",
+          "dark_color": "#9AAAB3",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "LAB · FORMULAS"
+           },
+           "tr": {
+            "text": "LAB · FORMULAS"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-109",
+        "type": "items",
+        "name": "The lab",
+        "source": "products",
+        "layout": "grid",
+        "columns": 2,
+        "gap": 10,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "query": {
+         "limit": 4,
+         "category_id": null,
+         "featured": false,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-110",
+         "type": "column",
+         "width": 174,
+         "gap": 0,
+         "radius": 18,
+         "background": "#FFFFFF",
+         "dark_background": "#141B20",
+         "border_color": "#DDE3E7",
+         "dark_border_color": "#25323A",
+         "border_width": 1,
+         "children": [
+          {
+           "id": "sig-111",
+           "type": "row",
+           "gap": 6,
+           "cross": "center",
+           "padding": {
+            "top": 9,
+            "end": 11,
+            "bottom": 9,
+            "start": 11
+           },
+           "children": [
+            {
+             "id": "sig-112",
+             "type": "text",
+             "text": "FORMULA",
+             "font": {
+              "family": "Zain",
+              "size": 10.5,
+              "weight": 600,
+              "letter_spacing": 1.4
+             },
+             "color": "#55626B",
+             "dark_color": "#9AAAB3",
+             "max_lines": 1,
+             "translations": {
+              "ar": {
+               "text": "تركيبة"
+              },
+              "tr": {
+               "text": "FORMÜL"
+              }
+             }
+            },
+            {
+             "id": "sig-113",
+             "type": "text",
+             "bind": "subtitle",
+             "max_lines": 1,
+             "width": "fill",
+             "text_align": "end",
+             "color": "#2C6E74",
+             "dark_color": "#7FC7CC",
+             "font": {
+              "family": "Zain",
+              "size": 11,
+              "weight": 600
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-114",
+           "type": "divider",
+           "height": 1,
+           "background": "#DDE3E7",
+           "dark_background": "#25323A"
+          },
+          {
+           "id": "sig-115",
+           "type": "stack",
+           "width": 174,
+           "height": 156,
+           "children": [
+            {
+             "id": "sig-116",
+             "type": "image",
+             "bind": "image",
+             "width": 174,
+             "height": 156,
+             "fit": "cover",
+             "background": "#E9EDEF",
+             "dark_background": "#1B242A"
+            },
+            {
+             "id": "sig-117",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "size": 11,
+              "weight": 800
+             },
+             "color": "#FFFFFF",
+             "dark_color": "#0B1013",
+             "background": "#2C6E74",
+             "dark_background": "#7FC7CC",
+             "radius": 8,
+             "padding": {
+              "top": 3,
+              "end": 7,
+              "bottom": 3,
+              "start": 7
+             },
+             "place": {
+              "x": 5,
+              "y": 5
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-118",
+           "type": "column",
+           "gap": 6,
+           "padding": {
+            "top": 10,
+            "end": 11,
+            "bottom": 11,
+            "start": 11
+           },
+           "children": [
+            {
+             "id": "sig-119",
+             "type": "text",
+             "bind": "title",
+             "max_lines": 2,
+             "color": "#10171C",
+             "dark_color": "#EAF1F4",
+             "font": {
+              "family": "Zain",
+              "size": 15.5,
+              "weight": 700,
+              "line_height": 1.15
+             }
+            },
+            {
+             "id": "sig-120",
+             "type": "row",
+             "height": 4,
+             "radius": 2,
+             "background": "#DDE3E7",
+             "dark_background": "#25323A",
+             "children": [
+              {
+               "id": "sig-121",
+               "type": "row",
+               "width": 78,
+               "height": 4,
+               "radius": 2,
+               "background": "#2C6E74",
+               "dark_background": "#7FC7CC",
+               "children": []
+              }
+             ]
+            },
+            {
+             "id": "sig-122",
+             "type": "row",
+             "gap": 6,
+             "cross": "center",
+             "children": [
+              {
+               "id": "sig-123",
+               "type": "column",
+               "width": "fill",
+               "gap": 0,
+               "children": [
+                {
+                 "id": "sig-124",
+                 "type": "text",
+                 "bind": "price",
+                 "max_lines": 1,
+                 "color": "#10171C",
+                 "dark_color": "#EAF1F4",
+                 "font": {
+                  "family": "Zain",
+                  "size": 16,
+                  "weight": 800
+                 }
+                },
+                {
+                 "id": "sig-125",
+                 "type": "text",
+                 "bind": "was_price",
+                 "max_lines": 1,
+                 "color": "#55626B",
+                 "dark_color": "#9AAAB3",
+                 "font": {
+                  "size": 11.5
+                 }
+                }
+               ]
+              },
+              {
+               "id": "sig-126",
+               "type": "icon",
+               "icon": "add",
+               "icon_size": 18,
+               "color": "#FFFFFF",
+               "dark_color": "#0B1013",
+               "radius": 9,
+               "padding": {
+                "top": 6,
+                "end": 6,
+                "bottom": 6,
+                "start": 6
+               },
+               "background": "#10171C",
+               "dark_background": "#EAF1F4"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-127",
+        "type": "row",
+        "name": "The expert's note",
+        "gap": 12,
+        "cross": "center",
+        "radius": 22,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "margin": {
+         "top": 22,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#E3EFF0",
+        "dark_background": "#16292D",
+        "children": [
+         {
+          "id": "sig-128",
+          "type": "image",
+          "image_url": "http://localhost:3000/beauty-photos/routine-morning.jpg",
+          "fit": "cover",
+          "width": 60,
+          "height": 60,
+          "radius": 30
+         },
+         {
+          "id": "sig-129",
+          "type": "column",
+          "width": "fill",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-130",
+            "type": "text",
+            "text": "The expert's note",
+            "font": {
+             "family": "Zain",
+             "size": 12.5,
+             "weight": 700
+            },
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC",
+            "translations": {
+             "ar": {
+              "text": "ملاحظة الخبيرة"
+             },
+             "tr": {
+              "text": "Uzmanın notu"
+             }
+            }
+           },
+           {
+            "id": "sig-131",
+            "type": "text",
+            "text": "Start retinol twice a week only, and never skip sunscreen in the morning.",
+            "font": {
+             "family": "Zain",
+             "size": 15,
+             "line_height": 1.45
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "max_lines": 3,
+            "translations": {
+             "ar": {
+              "text": "ابدئي الريتينول مرتين في الأسبوع فقط، ولا تنسي واقي الشمس صباحًا."
+             },
+             "tr": {
+              "text": "Retinole haftada yalnızca iki kez başlayın ve sabah güneş kremini asla atlamayın."
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-132",
+        "type": "row",
+        "name": "Tested on skin",
+        "gap": 0,
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "radius": 18,
+        "border_color": "#DDE3E7",
+        "dark_border_color": "#25323A",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-133",
+          "type": "column",
+          "width": "fill",
+          "gap": 5,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 4,
+           "bottom": 14,
+           "start": 4
+          },
+          "children": [
+           {
+            "id": "sig-134",
+            "type": "icon",
+            "icon": "verified_user",
+            "icon_size": 22,
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC"
+           },
+           {
+            "id": "sig-135",
+            "type": "text",
+            "text": "Tested on skin",
+            "font": {
+             "family": "Zain",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "text_align": "center",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "مُختبَر على البشرة"
+             },
+             "tr": {
+              "text": "Ciltte test edildi"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-136",
+          "type": "row",
+          "width": 1,
+          "height": 44,
+          "background": "#DDE3E7",
+          "dark_background": "#25323A",
+          "self_align": "center",
+          "children": []
+         },
+         {
+          "id": "sig-137",
+          "type": "column",
+          "width": "fill",
+          "gap": 5,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 4,
+           "bottom": 14,
+           "start": 4
+          },
+          "children": [
+           {
+            "id": "sig-138",
+            "type": "icon",
+            "icon": "verified",
+            "icon_size": 22,
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC"
+           },
+           {
+            "id": "sig-139",
+            "type": "text",
+            "text": "Genuine, with its batch",
+            "font": {
+             "family": "Zain",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "text_align": "center",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "أصلي برقم تشغيلته"
+             },
+             "tr": {
+              "text": "Seri numaralı, orijinal"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-140",
+          "type": "row",
+          "width": 1,
+          "height": 44,
+          "background": "#DDE3E7",
+          "dark_background": "#25323A",
+          "self_align": "center",
+          "children": []
+         },
+         {
+          "id": "sig-141",
+          "type": "column",
+          "width": "fill",
+          "gap": 5,
+          "cross": "center",
+          "padding": {
+           "top": 14,
+           "end": 4,
+           "bottom": 14,
+           "start": 4
+          },
+          "children": [
+           {
+            "id": "sig-142",
+            "type": "icon",
+            "icon": "support_agent",
+            "icon_size": 22,
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC"
+           },
+           {
+            "id": "sig-143",
+            "type": "text",
+            "text": "Free advice",
+            "font": {
+             "family": "Zain",
+             "size": 12.5,
+             "weight": 600
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "text_align": "center",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "استشارة مجانية"
+             },
+             "tr": {
+              "text": "Ücretsiz danışma"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "shop",
+    "title": "The lab",
+    "translations": {
+     "ar": {
+      "title": "المختبر"
+     },
+     "tr": {
+      "title": "Laboratuvar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-187",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-188",
+        "type": "text",
+        "text": "Every formula, numbered",
+        "font": {
+         "family": "Zain",
+         "size": 12,
+         "weight": 600,
+         "letter_spacing": 0.6
+        },
+        "color": "#2C6E74",
+        "dark_color": "#7FC7CC",
+        "max_lines": 1,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "كل تركيبة برقمها"
+         },
+         "tr": {
+          "text": "Her formül kendi numarasıyla"
+         }
+        }
+       },
+       {
+        "id": "sig-189",
+        "type": "column",
+        "name": "By ingredient",
+        "gap": 8,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-190",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "sig-191",
+            "type": "row",
+            "name": "Niacinamide",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#E3EFF0",
+            "dark_background": "#16292D",
+            "children": [
+             {
+              "id": "sig-192",
+              "type": "text",
+              "text": "10%",
+              "font": {
+               "family": "Zain",
+               "size": 13.5,
+               "weight": 800
+              },
+              "color": "#2C6E74",
+              "dark_color": "#7FC7CC"
+             },
+             {
+              "id": "sig-193",
+              "type": "text",
+              "text": "Niacinamide",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "نياسيناميد"
+               },
+               "tr": {
+                "text": "Niasinamid"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-194",
+            "type": "row",
+            "name": "Hyaluronic acid",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1,
+            "children": [
+             {
+              "id": "sig-195",
+              "type": "text",
+              "text": "2%",
+              "font": {
+               "family": "Zain",
+               "size": 13.5,
+               "weight": 800
+              },
+              "color": "#2C6E74",
+              "dark_color": "#7FC7CC"
+             },
+             {
+              "id": "sig-196",
+              "type": "text",
+              "text": "Hyaluronic acid",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "هيالورونيك"
+               },
+               "tr": {
+                "text": "Hyalüronik asit"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-197",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "sig-198",
+            "type": "row",
+            "name": "Retinol",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1,
+            "children": [
+             {
+              "id": "sig-199",
+              "type": "text",
+              "text": "0.3%",
+              "font": {
+               "family": "Zain",
+               "size": 13.5,
+               "weight": 800
+              },
+              "color": "#2C6E74",
+              "dark_color": "#7FC7CC"
+             },
+             {
+              "id": "sig-200",
+              "type": "text",
+              "text": "Retinol",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "ريتينول"
+               },
+               "tr": {
+                "text": "Retinol"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-201",
+            "type": "row",
+            "name": "Vitamin C",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1,
+            "children": [
+             {
+              "id": "sig-202",
+              "type": "text",
+              "text": "15%",
+              "font": {
+               "family": "Zain",
+               "size": 13.5,
+               "weight": 800
+              },
+              "color": "#2C6E74",
+              "dark_color": "#7FC7CC"
+             },
+             {
+              "id": "sig-203",
+              "type": "text",
+              "text": "Vitamin C",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "فيتامين C"
+               },
+               "tr": {
+                "text": "C vitamini"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-204",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "sig-205",
+            "type": "row",
+            "name": "Ceramides",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1,
+            "children": [
+             {
+              "id": "sig-206",
+              "type": "text",
+              "text": "Ceramides",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سيراميد"
+               },
+               "tr": {
+                "text": "Seramid"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-207",
+            "type": "row",
+            "name": "Squalane",
+            "gap": 6,
+            "cross": "center",
+            "radius": 99,
+            "padding": {
+             "top": 7,
+             "end": 13,
+             "bottom": 7,
+             "start": 13
+            },
+            "action": {
+             "type": "screen",
+             "screen": "search"
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1,
+            "children": [
+             {
+              "id": "sig-208",
+              "type": "text",
+              "text": "Squalane",
+              "font": {
+               "family": "Zain",
+               "size": 14,
+               "weight": 500
+              },
+              "color": "#10171C",
+              "dark_color": "#EAF1F4",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سكوالان"
+               },
+               "tr": {
+                "text": "Skualan"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-209",
+        "type": "categories",
+        "name": "Categories",
+        "source": "products",
+        "style": "chips",
+        "padding": {
+         "top": 10,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       }
+      ]
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "The lab",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المختبر"
+       },
+       "tr": {
+        "title": "Laboratuvar"
+       }
+      },
+      "background": "#F4F6F7",
+      "color": "#10171C",
+      "dark_background": "#0B1013",
+      "dark_color": "#EAF1F4",
+      "style": "glass"
+     },
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "cart",
+    "title": "Cart",
+    "translations": {
+     "ar": {
+      "title": "السلة"
+     },
+     "tr": {
+      "title": "Sepet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-210",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-211",
+        "type": "coupon",
+        "name": "Your code",
+        "code": "VELOURS10",
+        "coupon": {
+         "look": "glass",
+         "bind": "public"
+        },
+        "radius": 16,
+        "color": "#2C6E74",
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-212",
+        "type": "row",
+        "name": "Free skin advice with every order: write us your skin type.",
+        "gap": 12,
+        "cross": "center",
+        "radius": 18,
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "background": "#E3EFF0",
+        "dark_background": "#16292D",
+        "children": [
+         {
+          "id": "sig-213",
+          "type": "icon",
+          "icon": "fact_check",
+          "icon_size": 22,
+          "color": "#2C6E74",
+          "dark_color": "#7FC7CC"
+         },
+         {
+          "id": "sig-214",
+          "type": "text",
+          "text": "Free skin advice with every order: write us your skin type.",
+          "font": {
+           "family": "Zain",
+           "size": 13.5,
+           "weight": 600,
+           "line_height": 1.4
+          },
+          "color": "#10171C",
+          "dark_color": "#EAF1F4",
+          "width": "fill",
+          "max_lines": 3,
+          "translations": {
+           "ar": {
+            "text": "استشارة مجانية للبشرة مع كل طلب: اكتبي لنا نوع بشرتكِ."
+           },
+           "tr": {
+            "text": "Her siparişle ücretsiz cilt danışması: bize cilt tipinizi yazın."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "السلة"
+       },
+       "tr": {
+        "title": "Sepet"
+       }
+      },
+      "background": "#F4F6F7",
+      "color": "#10171C",
+      "dark_background": "#0B1013",
+      "dark_color": "#EAF1F4",
+      "style": "glass"
+     },
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "Orders",
+    "translations": {
+     "ar": {
+      "title": "الطلبات"
+     },
+     "tr": {
+      "title": "Siparişler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-215",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-216",
+        "type": "text",
+        "text": "Your order, step by step",
+        "font": {
+         "family": "Zain",
+         "size": 21,
+         "weight": 800
+        },
+        "color": "#10171C",
+        "dark_color": "#EAF1F4",
+        "max_lines": 1,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "طلبكِ خطوة بخطوة"
+         },
+         "tr": {
+          "text": "Adım adım siparişiniz"
+         }
+        }
+       },
+       {
+        "id": "sig-217",
+        "type": "timeline",
+        "name": "Your order, step by step",
+        "timeline": {
+         "style": "vertical",
+         "source": "latest_order"
+        },
+        "color": "#10171C",
+        "dark_color": "#EAF1F4",
+        "background": "#FFFFFF",
+        "dark_background": "#141B20",
+        "radius": 18,
+        "padding": {
+         "top": 16,
+         "end": 14,
+         "bottom": 16,
+         "start": 14
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "border_color": "#DDE3E7",
+        "dark_border_color": "#25323A",
+        "border_width": 1,
+        "entries": [
+         {
+          "title": "Ordered",
+          "text": "We have your order.",
+          "highlight": true,
+          "translations": {
+           "ar": {
+            "title": "تم الطلب",
+            "text": "استلمنا طلبكِ."
+           },
+           "tr": {
+            "title": "Sipariş alındı",
+            "text": "Siparişinizi aldık."
+           }
+          }
+         },
+         {
+          "title": "Packed",
+          "text": "Checked, sealed and packed with care.",
+          "translations": {
+           "ar": {
+            "title": "تم التغليف",
+            "text": "فُحص وخُتم وغُلّف بعناية."
+           },
+           "tr": {
+            "title": "Paketlendi",
+            "text": "Kontrol edildi, mühürlendi ve özenle paketlendi."
+           }
+          }
+         },
+         {
+          "title": "On its way",
+          "text": "With the courier, on its way to you.",
+          "translations": {
+           "ar": {
+            "title": "في الطريق",
+            "text": "مع المندوب، في طريقه إليكِ."
+           },
+           "tr": {
+            "title": "Yolda",
+            "text": "Kuryede, size doğru yolda."
+           }
+          }
+         },
+         {
+          "title": "Delivered",
+          "text": "Enjoy it. Reorder your favourites from your orders.",
+          "translations": {
+           "ar": {
+            "title": "تم التوصيل",
+            "text": "استمتعي به. أعيدي طلب مفضّلاتكِ من طلباتكِ."
+           },
+           "tr": {
+            "title": "Teslim edildi",
+            "text": "Keyfini çıkarın. Sevdiklerinizi siparişlerinizden yeniden alın."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      },
+      "background": "#F4F6F7",
+      "color": "#10171C",
+      "dark_background": "#0B1013",
+      "dark_color": "#EAF1F4",
+      "style": "glass"
+     },
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-219",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-218",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "account",
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "menu",
+    "title": "All categories",
+    "translations": {
+     "ar": {
+      "title": "كل الأقسام"
+     },
+     "tr": {
+      "title": "Tüm kategoriler"
+     }
+    },
+    "studio": {
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013",
+     "body": {
+      "id": "sig-156",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-157",
+        "type": "search",
+        "name": "Search a product, an ingredient, a need…",
+        "text": "Search a product, an ingredient, a need…",
+        "source": "products",
+        "radius": 14,
+        "height": 48,
+        "background": "#FFFFFF",
+        "dark_background": "#141B20",
+        "color": "#55626B",
+        "dark_color": "#9AAAB3",
+        "border_color": "#DDE3E7",
+        "dark_border_color": "#25323A",
+        "border_width": 1,
+        "margin": {
+         "top": 6,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "ابحثي عن منتج أو مكوّن أو حاجة…"
+         },
+         "tr": {
+          "text": "Ürün, içerik ya da ihtiyaç arayın…"
+         }
+        }
+       },
+       {
+        "id": "sig-158",
+        "type": "text",
+        "text": "Shop by skin type",
+        "font": {
+         "family": "Zain",
+         "size": 13,
+         "weight": 700,
+         "letter_spacing": 0.4
+        },
+        "color": "#55626B",
+        "dark_color": "#9AAAB3",
+        "max_lines": 1,
+        "padding": {
+         "top": 16,
+         "end": 18,
+         "bottom": 8,
+         "start": 18
+        },
+        "translations": {
+         "ar": {
+          "text": "تسوّقي حسب نوع البشرة"
+         },
+         "tr": {
+          "text": "Cilt tipine göre alışveriş"
+         }
+        }
+       },
+       {
+        "id": "sig-159",
+        "type": "row",
+        "name": "Shop by skin type",
+        "align": "between",
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-145",
+          "type": "column",
+          "name": "Dry",
+          "width": 74,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-144",
+            "type": "icon",
+            "icon": "spa",
+            "icon_size": 22,
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC",
+            "radius": 16,
+            "padding": {
+             "top": 15,
+             "end": 15,
+             "bottom": 15,
+             "start": 15
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1
+           },
+           {
+            "id": "sig-146",
+            "type": "text",
+            "text": "Dry",
+            "font": {
+             "family": "Zain",
+             "size": 12,
+             "weight": 600
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "text_align": "center",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "جافة"
+             },
+             "tr": {
+              "text": "Kuru"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-148",
+          "type": "column",
+          "name": "Combination",
+          "width": 74,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-147",
+            "type": "icon",
+            "icon": "auto_awesome",
+            "icon_size": 22,
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC",
+            "radius": 16,
+            "padding": {
+             "top": 15,
+             "end": 15,
+             "bottom": 15,
+             "start": 15
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1
+           },
+           {
+            "id": "sig-149",
+            "type": "text",
+            "text": "Combination",
+            "font": {
+             "family": "Zain",
+             "size": 12,
+             "weight": 600
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "text_align": "center",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مختلطة"
+             },
+             "tr": {
+              "text": "Karma"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-151",
+          "type": "column",
+          "name": "Oily",
+          "width": 74,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-150",
+            "type": "icon",
+            "icon": "diamond",
+            "icon_size": 22,
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC",
+            "radius": 16,
+            "padding": {
+             "top": 15,
+             "end": 15,
+             "bottom": 15,
+             "start": 15
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1
+           },
+           {
+            "id": "sig-152",
+            "type": "text",
+            "text": "Oily",
+            "font": {
+             "family": "Zain",
+             "size": 12,
+             "weight": 600
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "text_align": "center",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "دهنية"
+             },
+             "tr": {
+              "text": "Yağlı"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-154",
+          "type": "column",
+          "name": "Sensitive",
+          "width": 74,
+          "gap": 6,
+          "cross": "center",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-153",
+            "type": "icon",
+            "icon": "healing",
+            "icon_size": 22,
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC",
+            "radius": 16,
+            "padding": {
+             "top": 15,
+             "end": 15,
+             "bottom": 15,
+             "start": 15
+            },
+            "background": "#FFFFFF",
+            "dark_background": "#141B20",
+            "border_color": "#DDE3E7",
+            "dark_border_color": "#25323A",
+            "border_width": 1
+           },
+           {
+            "id": "sig-155",
+            "type": "text",
+            "text": "Sensitive",
+            "font": {
+             "family": "Zain",
+             "size": 12,
+             "weight": 600
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "text_align": "center",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "حساسة"
+             },
+             "tr": {
+              "text": "Hassas"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-160",
+        "type": "categories",
+        "name": "All categories",
+        "source": "products",
+        "style": "rows",
+        "category_menu": {
+         "look": "lead",
+         "numbers": true,
+         "radius": 14
+        },
+        "color": "#10171C",
+        "dark_color": "#EAF1F4",
+        "padding": {
+         "top": 10,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-161",
+        "type": "column",
+        "name": "Your account",
+        "gap": 0,
+        "radius": 20,
+        "padding": {
+         "top": 2,
+         "end": 14,
+         "bottom": 2,
+         "start": 14
+        },
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#141B20",
+        "border_color": "#DDE3E7",
+        "dark_border_color": "#25323A",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-162",
+          "type": "row",
+          "name": "My account",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 13,
+           "end": 4,
+           "bottom": 13,
+           "start": 4
+          },
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-163",
+            "type": "icon",
+            "icon": "person",
+            "icon_size": 22,
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC"
+           },
+           {
+            "id": "sig-164",
+            "type": "text",
+            "text": "My account",
+            "font": {
+             "family": "Zain",
+             "size": 15,
+             "weight": 600
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "حسابي"
+             },
+             "tr": {
+              "text": "Hesabım"
+             }
+            }
+           },
+           {
+            "id": "sig-165",
+            "type": "icon",
+            "icon": "chevron_left",
+            "icon_size": 20,
+            "color": "#55626B",
+            "dark_color": "#9AAAB3"
+           }
+          ]
+         },
+         {
+          "id": "sig-166",
+          "type": "divider",
+          "height": 1,
+          "background": "#DDE3E7",
+          "dark_background": "#25323A"
+         },
+         {
+          "id": "sig-167",
+          "type": "row",
+          "name": "My orders",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 13,
+           "end": 4,
+           "bottom": 13,
+           "start": 4
+          },
+          "action": {
+           "type": "screen",
+           "screen": "orders"
+          },
+          "children": [
+           {
+            "id": "sig-168",
+            "type": "icon",
+            "icon": "package_2",
+            "icon_size": 22,
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC"
+           },
+           {
+            "id": "sig-169",
+            "type": "text",
+            "text": "My orders",
+            "font": {
+             "family": "Zain",
+             "size": 15,
+             "weight": 600
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "طلباتي"
+             },
+             "tr": {
+              "text": "Siparişlerim"
+             }
+            }
+           },
+           {
+            "id": "sig-170",
+            "type": "icon",
+            "icon": "chevron_left",
+            "icon_size": 20,
+            "color": "#55626B",
+            "dark_color": "#9AAAB3"
+           }
+          ]
+         },
+         {
+          "id": "sig-171",
+          "type": "divider",
+          "height": 1,
+          "background": "#DDE3E7",
+          "dark_background": "#25323A"
+         },
+         {
+          "id": "sig-172",
+          "type": "row",
+          "name": "Wishlist",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 13,
+           "end": 4,
+           "bottom": 13,
+           "start": 4
+          },
+          "action": {
+           "type": "screen",
+           "screen": "favorites"
+          },
+          "children": [
+           {
+            "id": "sig-173",
+            "type": "icon",
+            "icon": "favorite",
+            "icon_size": 22,
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC"
+           },
+           {
+            "id": "sig-174",
+            "type": "text",
+            "text": "Wishlist",
+            "font": {
+             "family": "Zain",
+             "size": 15,
+             "weight": 600
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "المفضّلة"
+             },
+             "tr": {
+              "text": "Favoriler"
+             }
+            }
+           },
+           {
+            "id": "sig-175",
+            "type": "icon",
+            "icon": "chevron_left",
+            "icon_size": 20,
+            "color": "#55626B",
+            "dark_color": "#9AAAB3"
+           }
+          ]
+         },
+         {
+          "id": "sig-176",
+          "type": "divider",
+          "height": 1,
+          "background": "#DDE3E7",
+          "dark_background": "#25323A"
+         },
+         {
+          "id": "sig-177",
+          "type": "row",
+          "name": "Language",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 13,
+           "end": 4,
+           "bottom": 13,
+           "start": 4
+          },
+          "action": {
+           "type": "screen",
+           "screen": "settings"
+          },
+          "children": [
+           {
+            "id": "sig-178",
+            "type": "icon",
+            "icon": "language",
+            "icon_size": 22,
+            "color": "#2C6E74",
+            "dark_color": "#7FC7CC"
+           },
+           {
+            "id": "sig-179",
+            "type": "text",
+            "text": "Language",
+            "font": {
+             "family": "Zain",
+             "size": 15,
+             "weight": 600
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "اللغة"
+             },
+             "tr": {
+              "text": "Dil"
+             }
+            }
+           },
+           {
+            "id": "sig-180",
+            "type": "icon",
+            "icon": "chevron_left",
+            "icon_size": 20,
+            "color": "#55626B",
+            "dark_color": "#9AAAB3"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-181",
+        "type": "row",
+        "name": "Contact us",
+        "gap": 12,
+        "cross": "center",
+        "radius": 20,
+        "padding": {
+         "top": 14,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#E3EFF0",
+        "dark_background": "#16292D",
+        "action": {
+         "type": "screen",
+         "screen": "account"
+        },
+        "children": [
+         {
+          "id": "sig-182",
+          "type": "icon",
+          "icon": "support_agent",
+          "icon_size": 22,
+          "color": "#2C6E74",
+          "dark_color": "#7FC7CC"
+         },
+         {
+          "id": "sig-183",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-184",
+            "type": "text",
+            "text": "Contact us",
+            "font": {
+             "family": "Zain",
+             "size": 14.5,
+             "weight": 700
+            },
+            "color": "#10171C",
+            "dark_color": "#EAF1F4",
+            "translations": {
+             "ar": {
+              "text": "تواصلي معنا"
+             },
+             "tr": {
+              "text": "Bize ulaşın"
+             }
+            }
+           },
+           {
+            "id": "sig-185",
+            "type": "text",
+            "text": "Ask our skin expert about your routine",
+            "font": {
+             "family": "Zain",
+             "size": 12.5
+            },
+            "color": "#55626B",
+            "dark_color": "#9AAAB3",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "اسألي خبيرة البشرة عن روتينكِ"
+             },
+             "tr": {
+              "text": "Rutininizi cilt uzmanımıza sorun"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-186",
+          "type": "icon",
+          "icon": "chat",
+          "icon_size": 20,
+          "color": "#10171C",
+          "dark_color": "#EAF1F4"
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "All categories",
+      "translations": {
+       "ar": {
+        "title": "كل الأقسام"
+       },
+       "tr": {
+        "title": "Tüm kategoriler"
+       }
+      },
+      "buttons": [
+       "search",
+       "cart"
+      ],
+      "background": "#F4F6F7",
+      "color": "#10171C",
+      "dark_background": "#0B1013",
+      "dark_color": "#EAF1F4",
+      "style": "glass"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-220",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#F4F6F7",
+      "color": "#10171C",
+      "dark_background": "#0B1013",
+      "dark_color": "#EAF1F4",
+      "style": "glass"
+     },
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-221",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#F4F6F7",
+      "color": "#10171C",
+      "dark_background": "#0B1013",
+      "dark_color": "#EAF1F4",
+      "style": "glass"
+     },
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "favorites",
+    "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-222",
+      "type": "column",
+      "children": []
+     },
+     "screen": "favorites",
+     "header": {
+      "type": "title",
+      "title": "Wishlist",
+      "translations": {
+       "ar": {
+        "title": "المفضلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      },
+      "background": "#F4F6F7",
+      "color": "#10171C",
+      "dark_background": "#0B1013",
+      "dark_color": "#EAF1F4",
+      "style": "glass"
+     },
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-223",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#F4F6F7",
+      "color": "#10171C",
+      "dark_background": "#0B1013",
+      "dark_color": "#EAF1F4",
+      "style": "glass"
+     },
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-224",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#F4F6F7",
+      "color": "#10171C",
+      "dark_background": "#0B1013",
+      "dark_color": "#EAF1F4",
+      "style": "glass"
+     },
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-225",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-226",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#F4F6F7",
+     "dark_background": "#0B1013"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#FFFFFF",
+   "dark_background": "#141B20",
+   "active": "#2C6E74",
+   "dark_active": "#7FC7CC",
+   "inactive": "#55626B",
+   "dark_inactive": "#9AAAB3",
+   "design": "segment",
+   "labels": "always",
+   "radius": 18,
+   "margin": 12
+  }
+ }
+}

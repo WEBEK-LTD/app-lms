@@ -3,6 +3,7 @@ import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
 import { unchanged } from "./rows";
 import { priceFor, type EntryDeps } from "./entries";
+import { BEAUTY_PRODUCT_NAMES, namedTranslations } from "./product-names";
 import { BEAUTY_CATEGORIES, BEAUTY_COUPON, BEAUTY_CURRENCY, BEAUTY_FLASH_SALE, BEAUTY_PRODUCTS, beautyCategoriesOf, beautyDetails, beautyVariants } from "./beauty";
 import type { BeautyPhotoName } from "./shop-photos";
 
@@ -72,6 +73,8 @@ export async function demoBeautyProducts(deps: EntryDeps, app: App): Promise<voi
       addonFor: null,
       // Its facts, ingredients, how to use it, genuine, its expiry and its shades' colours.
       details: beautyDetails(seed),
+      // 224 Its name in Arabic and Turkish too.
+      translations: namedTranslations(BEAUTY_PRODUCT_NAMES, seed.sku),
       ...marked,
     };
     if (deps.sample) {

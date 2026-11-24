@@ -18,6 +18,8 @@ import { SHOP_KIT_WORDS } from "./words/shop-kit";
 import { DECOR_WORDS } from "./words/decor";
 import { CROCHET_WORDS } from "./words/crochet";
 import { FURNITURE_WORDS } from "./words/furniture";
+import { BEAUTY_CD_WORDS } from "./words/beauty-cd";
+import { CROCHET_CD_WORDS } from "./words/crochet-cd";
 // 227 Madar's and Nawah's looks C and D (electronics `eb` `es`, computers `pb` `pw`).
 import { ELECTRONICS_CD_WORDS } from "./words/electronics-cd";
 import { COMPUTERS_CD_WORDS } from "./words/computers-cd";
@@ -1557,6 +1559,8 @@ export const en = {
   ...DECOR_WORDS.en,
   ...CROCHET_WORDS.en,
   ...FURNITURE_WORDS.en,
+  ...BEAUTY_CD_WORDS.en,
+  ...CROCHET_CD_WORDS.en,
   ...ELECTRONICS_CD_WORDS.en,
   ...COMPUTERS_CD_WORDS.en,
   // ——— 211 Nova, the mobiles shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/mobiles-signature.ts) ———
@@ -3331,6 +3335,8 @@ export const ar: Record<AppWord, string> = {
   ...DECOR_WORDS.ar,
   ...CROCHET_WORDS.ar,
   ...FURNITURE_WORDS.ar,
+  ...BEAUTY_CD_WORDS.ar,
+  ...CROCHET_CD_WORDS.ar,
   ...ELECTRONICS_CD_WORDS.ar,
   ...COMPUTERS_CD_WORDS.ar,
   // ——— 211 Nova ———
@@ -5100,6 +5106,8 @@ export const tr: Record<AppWord, string> = {
   ...DECOR_WORDS.tr,
   ...CROCHET_WORDS.tr,
   ...FURNITURE_WORDS.tr,
+  ...BEAUTY_CD_WORDS.tr,
+  ...CROCHET_CD_WORDS.tr,
   ...ELECTRONICS_CD_WORDS.tr,
   ...COMPUTERS_CD_WORDS.tr,
   // ——— 211 Nova ———

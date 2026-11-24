@@ -11,7 +11,7 @@ import { STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
 import { STUDIO_HEADER_STYLES, type StudioHeader, type StudioPage } from "@/lib/pages/types";
 import { parseStudioPage } from "@/lib/pages/validate";
 import { chromedHeader, THEME_CHROME } from "@/lib/studio/demo-designs/chrome";
-import { demoChrome, mainLookOf, signatureDesign } from "@/lib/studio/demo-designs";
+import { demoChrome, signatureDesign } from "@/lib/studio/demo-designs";
 import { DESIGN_THEMES, themedPage } from "@/lib/studio/designs";
 import { headerCollapses, parseSystemLook, SYSTEM_SCREENS, systemLookFor, systemScreenOf } from "@/lib/studio/premium-chrome";
 import { screenDrawing } from "@/lib/studio/screen-drawing";
@@ -133,7 +133,8 @@ describe("130.23 the defaults", () => {
     for (const demo of STUDIO_DEMO_TYPES) {
       const screens = demoStudioScreens(demo, "https://yallapp.test");
       const chrome = demoChrome(demo)!;
-      expect(chrome.pages, demo).toBe(signatureDesign(demo, mainLookOf(demo))!.chrome.header);
+      // 223 Its main look's (C where the shop type has it).
+      expect(chrome.pages, demo).toBe(signatureDesign(demo)!.chrome.header);
       expect(screens.system?.look, demo).toBe(chrome.system.look);
       expect(parseStudioScreens(screens).problems, demo).toEqual([]);
       expect(chromedHeader({ type: "title" }, chrome.pages)?.style).toBe(chrome.pages);

@@ -2,6 +2,7 @@ import { catalogSettings } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import type { App, CatalogVariants, TechSettings } from "../data/types";
 import { unchanged } from "./rows";
+import { COMPUTERS_PRODUCT_NAMES, namedTranslations } from "./product-names";
 import { priceFor, type EntryDeps } from "./entries";
 import { COMPUTERS_ACCESSORIES, COMPUTERS_CATEGORIES, COMPUTERS_COUPON, COMPUTERS_CURRENCY, COMPUTERS_FLASH_SALE, COMPUTERS_PC_STEPS, COMPUTERS_PRODUCTS, computersMainOf, computersVariants } from "./computers";
 import type { ComputersPhotoName } from "./shop-photos";
@@ -70,6 +71,8 @@ export async function demoComputersProducts(deps: EntryDeps, app: App): Promise<
       addonFor: null,
       // Its specifications: the table, the filters, the compare sheet and Build your PC's checks.
       specs: seed.specs.map((s) => ({ ...s })),
+      // 227 Its name in Arabic and Turkish too.
+      translations: namedTranslations(COMPUTERS_PRODUCT_NAMES, seed.sku),
       ...marked,
     };
     if (deps.sample) {

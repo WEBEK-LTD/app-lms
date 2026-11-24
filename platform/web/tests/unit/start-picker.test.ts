@@ -11,7 +11,7 @@ import { ALL_DEMO_TYPES, DEMO_TYPES, demoKind, isStudioDemo, STUDIO_DEMO_TYPES }
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoDesign, demoDesignId } from "@/lib/demo/look";
 import { businessOf, demoFacts, hasLookShot, LOOK_SHOTS, lookOf, lookShotName, regularPageCount, demoItems, demoOfSlug, pickerPath, pickerSections, productOf, sameBusiness, screensOf, slugOf, startLooks } from "@/lib/demo/picker";
-import { mainLookOf, signatureDesign, signatureLooksOf } from "@/lib/studio/demo-designs";
+import { signatureDesign, signatureLooksOf } from "@/lib/studio/demo-designs";
 import { firstStepsView, makeFromDemo, shortNameOf, startedFromDemo, type DemoMaker } from "@/lib/demo/start";
 import { readPngInfo } from "@/lib/png";
 import type { TabBarStyle } from "@/lib/pages/types";
@@ -227,7 +227,7 @@ describe("starting from a demo", () => {
   // ——— 130 The Studio demos' two Signature looks ———
   it("offers every Studio demo's two looks, A then B, with their pictures (the demo's own until a look has one), and none for the App editor's", () => {
     for (const id of STUDIO_DEMO_TYPES) {
-      // 223 The types with looks C and D offer them first: C, D, then A and B.
+      // 223 In Studio's order: C and D first where the type has them.
       expect(startLooks(id)).toEqual(signatureLooksOf(id));
       expect(startLooks(id).slice(-2)).toEqual(["a", "b"]);
       expect(lookShotName(id, "b")).toBe(`${slugOf(id)}-sig-b-home`);
@@ -244,7 +244,7 @@ describe("starting from a demo", () => {
     // The pictures named are the ones in public/screens, and each look of all nine Studio demos has its own, by day and by night.
     for (const name of LOOK_SHOTS) expect(existsSync(join(ROOT, "public", "screens", `${name}.png`)), name).toBe(true);
     expect(LOOK_SHOTS.size).toBe(STUDIO_DEMO_TYPES.reduce((n, id) => n + signatureLooksOf(id).length * 2, 0));
-    for (const id of STUDIO_DEMO_TYPES) for (const look of ["a", "b"] as const) for (const dark of [false, true]) expect(hasLookShot(lookShotName(id, look, dark)), lookShotName(id, look, dark)).toBe(true);
+    for (const id of STUDIO_DEMO_TYPES) for (const look of signatureLooksOf(id)) for (const dark of [false, true]) expect(hasLookShot(lookShotName(id, look, dark)), lookShotName(id, look, dark)).toBe(true);
   });
 
   /** A bar as the platform saves it: names always shown is the bar's own, so it is left out. */
@@ -266,9 +266,9 @@ describe("starting from a demo", () => {
     for (const p of headed) expect(p.studio!.header!.style, p.slug).toBeTruthy();
     expect(headed.filter((p) => p.studio!.header!.style === design.chrome.header).length).toBeGreaterThan(2);
     expect(app.design).toBe(`${id}_signature_b`);
-    // The main look (or none chosen) is the demo itself: 227 C for the types that have it.
+    // No look chosen is the demo itself: its main look (223 C where it has one, else A).
     const a = await makeFromDemo(store, maker("Lale"), { demo: id, name: "Lale", colour: "#B4235A", logoAssetId: null, iconAssetId: null }, NOW);
-    expect((await store.getAppLayout(a.app.id))!.draft.tab_bar).toEqual(savedBar(signatureDesign(id, mainLookOf(id))!.bar));
+    expect((await store.getAppLayout(a.app.id))!.draft.tab_bar).toEqual(savedBar(signatureDesign(id)!.bar));
   });
 
   it("shortens the name under the icon", () => {

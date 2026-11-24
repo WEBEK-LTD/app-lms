@@ -2,6 +2,7 @@ import { catalogSettings } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import type { App, TechSettings } from "../data/types";
 import { unchanged } from "./rows";
+import { ELECTRONICS_PRODUCT_NAMES, namedTranslations } from "./product-names";
 import { priceFor, type EntryDeps } from "./entries";
 import { ELECTRONICS_ACCESSORIES, ELECTRONICS_CATEGORIES, ELECTRONICS_COUPON, ELECTRONICS_CURRENCY, ELECTRONICS_FLASH_SALE, ELECTRONICS_PRODUCTS, ELECTRONICS_TRADE_IN, electronicsCover, electronicsMainOf, electronicsVariants } from "./electronics";
 import type { ElectronicsPhotoName } from "./shop-photos";
@@ -71,6 +72,8 @@ export async function demoElectronicsProducts(deps: EntryDeps, app: App): Promis
       optionGroups: seed.cover ? electronicsCover(money) : null,
       addon: false,
       addonFor: null,
+      // 227 Its name in Arabic and Turkish too.
+      translations: namedTranslations(ELECTRONICS_PRODUCT_NAMES, seed.sku),
       ...marked,
     };
     if (deps.sample) {
