@@ -1,3 +1,4 @@
+import { KIDS_PRODUCT_NAMES } from "@/lib/demo/product-names";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -276,6 +277,13 @@ describe("209 Toota, the kids' clothes shop's demo", () => {
       // Never listed on their own.
       const all = (await call("/store/products", { per_page: "100" })).body as { items: { name: string }[] };
       expect(all.items.map((x) => x.name)).not.toContain("Gift wrapping");
+      // 223 Its products in Arabic and Turkish too, each named.
+      expect(KIDS_PRODUCTS.filter((p) => !KIDS_PRODUCT_NAMES[p.sku])).toEqual([]);
+      const arProducts = (await call("/store/products", { per_page: "100" }, "ar")).body as { items: { name: string }[] };
+      expect(arProducts.items.map((p) => p.name)).toContain(KIDS_PRODUCT_NAMES["KD-306"]!.ar);
+      expect(arProducts.items.every((p) => /[\u0600-\u06FF]/u.test(p.name))).toBe(true);
+      const trProducts = (await call("/store/products", { per_page: "100" }, "tr")).body as { items: { name: string }[] };
+      expect(trProducts.items.map((p) => p.name)).toContain("Ahşap düğmeli merinos kazak");
     });
 
     it("serves the category menu and the size guide on their pages", async () => {

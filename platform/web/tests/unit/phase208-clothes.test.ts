@@ -1,3 +1,4 @@
+import { CLOTHES_PRODUCT_NAMES } from "@/lib/demo/product-names";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -278,6 +279,13 @@ describe("208 Lujain, the clothes shop's demo", () => {
       // In Arabic, as the shop named them.
       const arabic = (await call("/store/categories", {}, "ar")).body as { items: { name: string }[] };
       expect(arabic.items.map((c) => c.name)).toContain("فساتين");
+      // 223 Its products in Arabic and Turkish too, each named.
+      expect(CLOTHES_PRODUCTS.filter((p) => !CLOTHES_PRODUCT_NAMES[p.sku])).toEqual([]);
+      const arProducts = (await call("/store/products", { per_page: "100" }, "ar")).body as { items: { name: string }[] };
+      expect(arProducts.items.map((p) => p.name)).toContain(CLOTHES_PRODUCT_NAMES["CL-101"]!.ar);
+      expect(arProducts.items.every((p) => /[\u0600-\u06FF]/u.test(p.name))).toBe(true);
+      const trProducts = (await call("/store/products", { per_page: "100" }, "tr")).body as { items: { name: string }[] };
+      expect(trProducts.items.map((p) => p.name)).toContain("Kiremit saten midi elbise");
       const inDresses = (await call("/store/products", { category: String(dresses.id), per_page: "50" })).body as { items: { id: number }[] };
       expect(inDresses.items).toHaveLength(dresses.count);
       const config = (await call("/config", { platform: "android", app_version: "1.0.0" })).body as { store: { size_chart: { headers: string[]; unit: string } | null; returns: { days: number } | null } };

@@ -1,0 +1,954 @@
+{
+ "currency": "AED",
+ "categories": [
+  {
+   "id": 30,
+   "name": "Skincare",
+   "ar": "العناية بالبشرة",
+   "tr": "Cilt bakımı",
+   "parent_id": null,
+   "photo": "/beauty-photos/vitamin-c.jpg"
+  },
+  {
+   "id": 31,
+   "name": "Serums",
+   "ar": "السيرومات",
+   "tr": "Serumlar",
+   "parent_id": 30,
+   "photo": "/beauty-photos/vitamin-c.jpg"
+  },
+  {
+   "id": 32,
+   "name": "Moisturisers",
+   "ar": "المرطّبات",
+   "tr": "Nemlendiriciler",
+   "parent_id": 30,
+   "photo": "/beauty-photos/deep-cream.jpg"
+  },
+  {
+   "id": 33,
+   "name": "Cleansers",
+   "ar": "المنظّفات",
+   "tr": "Temizleyiciler",
+   "parent_id": 30,
+   "photo": "/beauty-photos/coconut-balm.jpg"
+  },
+  {
+   "id": 34,
+   "name": "Face oils",
+   "ar": "زيوت الوجه",
+   "tr": "Yüz yağları",
+   "parent_id": 30,
+   "photo": "/beauty-photos/squalane.jpg"
+  },
+  {
+   "id": 35,
+   "name": "Sunscreen",
+   "ar": "واقيات الشمس",
+   "tr": "Güneş koruyucular",
+   "parent_id": 30,
+   "photo": "/beauty-photos/spf.jpg"
+  },
+  {
+   "id": 36,
+   "name": "Makeup",
+   "ar": "المكياج",
+   "tr": "Makyaj",
+   "parent_id": null,
+   "photo": "/beauty-photos/foundation.jpg"
+  },
+  {
+   "id": 37,
+   "name": "Face",
+   "ar": "البشرة",
+   "tr": "Ten",
+   "parent_id": 36,
+   "photo": "/beauty-photos/foundation.jpg"
+  },
+  {
+   "id": 38,
+   "name": "Eyes",
+   "ar": "العيون",
+   "tr": "Gözler",
+   "parent_id": 36,
+   "photo": "/beauty-photos/rose-palette.jpg"
+  },
+  {
+   "id": 39,
+   "name": "Lips",
+   "ar": "الشفاه",
+   "tr": "Dudaklar",
+   "parent_id": 36,
+   "photo": "/beauty-photos/lip-cheek.jpg"
+  },
+  {
+   "id": 40,
+   "name": "Nails",
+   "ar": "الأظافر",
+   "tr": "Tırnaklar",
+   "parent_id": 36,
+   "photo": "/beauty-photos/nail.jpg"
+  },
+  {
+   "id": 41,
+   "name": "Brushes & tools",
+   "ar": "الفرش والأدوات",
+   "tr": "Fırça ve aletler",
+   "parent_id": 36,
+   "photo": "/beauty-photos/kabuki.jpg"
+  },
+  {
+   "id": 42,
+   "name": "Fragrance",
+   "ar": "العطور",
+   "tr": "Parfüm",
+   "parent_id": null,
+   "photo": "/beauty-photos/perfume.jpg"
+  },
+  {
+   "id": 43,
+   "name": "Women's perfume",
+   "ar": "عطور نسائية",
+   "tr": "Kadın parfümleri",
+   "parent_id": 42,
+   "photo": "/beauty-photos/perfume.jpg"
+  },
+  {
+   "id": 44,
+   "name": "Oud & incense",
+   "ar": "عود وبخور",
+   "tr": "Ud ve tütsü",
+   "parent_id": 42,
+   "photo": "/beauty-photos/oud.jpg"
+  },
+  {
+   "id": 45,
+   "name": "Scented candles",
+   "ar": "شموع معطّرة",
+   "tr": "Kokulu mumlar",
+   "parent_id": 42,
+   "photo": "/beauty-photos/candle-amber.jpg"
+  },
+  {
+   "id": 46,
+   "name": "Body & bath",
+   "ar": "الجسم والاستحمام",
+   "tr": "Vücut ve banyo",
+   "parent_id": null,
+   "photo": "/beauty-photos/bath-salts.jpg"
+  },
+  {
+   "id": 47,
+   "name": "Bath salts",
+   "ar": "أملاح الاستحمام",
+   "tr": "Banyo tuzları",
+   "parent_id": 46,
+   "photo": "/beauty-photos/bath-salts.jpg"
+  },
+  {
+   "id": 48,
+   "name": "Natural soap",
+   "ar": "صابون طبيعي",
+   "tr": "Doğal sabun",
+   "parent_id": 46,
+   "photo": "/beauty-photos/olive-soap.jpg"
+  },
+  {
+   "id": 49,
+   "name": "Spa rituals",
+   "ar": "طقوس السبا",
+   "tr": "Spa ritüelleri",
+   "parent_id": 46,
+   "photo": "/beauty-photos/spa-ritual.jpg"
+  },
+  {
+   "id": 50,
+   "name": "Hair",
+   "ar": "الشعر",
+   "tr": "Saç",
+   "parent_id": null,
+   "photo": "/beauty-photos/argan.jpg"
+  },
+  {
+   "id": 51,
+   "name": "Hair care",
+   "ar": "العناية بالشعر",
+   "tr": "Saç bakımı",
+   "parent_id": 50,
+   "photo": "/beauty-photos/shampoo.jpg"
+  },
+  {
+   "id": 52,
+   "name": "Hair oils",
+   "ar": "زيوت الشعر",
+   "tr": "Saç yağları",
+   "parent_id": 50,
+   "photo": "/beauty-photos/argan.jpg"
+  },
+  {
+   "id": 53,
+   "name": "Beard care",
+   "ar": "العناية باللحية",
+   "tr": "Sakal bakımı",
+   "parent_id": 50,
+   "photo": "/beauty-photos/beard.jpg"
+  },
+  {
+   "id": 54,
+   "name": "Gifts & sets",
+   "ar": "هدايا وأطقم",
+   "tr": "Hediye ve setler",
+   "parent_id": null,
+   "photo": "/beauty-photos/brush-set.jpg"
+  },
+  {
+   "id": 55,
+   "name": "Routines",
+   "ar": "روتينات العناية",
+   "tr": "Bakım rutinleri",
+   "parent_id": 54,
+   "photo": "/beauty-photos/routine-morning.jpg"
+  },
+  {
+   "id": 56,
+   "name": "Makeup sets",
+   "ar": "أطقم المكياج",
+   "tr": "Makyaj setleri",
+   "parent_id": 54,
+   "photo": "/beauty-photos/brush-set.jpg"
+  },
+  {
+   "id": 57,
+   "name": "Skin type",
+   "ar": "نوع البشرة",
+   "tr": "Cilt tipi",
+   "parent_id": null,
+   "photo": null
+  },
+  {
+   "id": 58,
+   "name": "Dry",
+   "ar": "جافة",
+   "tr": "Kuru",
+   "parent_id": 57,
+   "photo": null
+  },
+  {
+   "id": 59,
+   "name": "Combination",
+   "ar": "مختلطة",
+   "tr": "Karma",
+   "parent_id": 57,
+   "photo": null
+  },
+  {
+   "id": 60,
+   "name": "Oily",
+   "ar": "دهنية",
+   "tr": "Yağlı",
+   "parent_id": 57,
+   "photo": null
+  },
+  {
+   "id": 61,
+   "name": "Sensitive",
+   "ar": "حساسة",
+   "tr": "Hassas",
+   "parent_id": 57,
+   "photo": null
+  },
+  {
+   "id": 62,
+   "name": "Brands",
+   "ar": "الماركات",
+   "tr": "Markalar",
+   "parent_id": null,
+   "photo": null
+  },
+  {
+   "id": 63,
+   "name": "Rosé Lab",
+   "ar": "روزيه لاب",
+   "tr": "Rosé Lab",
+   "parent_id": 62,
+   "photo": null
+  },
+  {
+   "id": 64,
+   "name": "Noor Skin",
+   "ar": "نور سكن",
+   "tr": "Noor Skin",
+   "parent_id": 62,
+   "photo": null
+  },
+  {
+   "id": 65,
+   "name": "Vela",
+   "ar": "فيلا",
+   "tr": "Vela",
+   "parent_id": 62,
+   "photo": null
+  },
+  {
+   "id": 66,
+   "name": "Maison Aura",
+   "ar": "ميزون أورا",
+   "tr": "Maison Aura",
+   "parent_id": 62,
+   "photo": null
+  },
+  {
+   "id": 67,
+   "name": "Naqa Lab",
+   "ar": "نقاء لاب",
+   "tr": "Naqa Lab",
+   "parent_id": 62,
+   "photo": null
+  },
+  {
+   "id": 68,
+   "name": "Pure Formula",
+   "ar": "بيور فورميولا",
+   "tr": "Pure Formula",
+   "parent_id": 62,
+   "photo": null
+  }
+ ],
+ "products": [
+  {
+   "id": 100,
+   "sku": "BT-101",
+   "name": "Vitamin C brightening serum",
+   "ar": "سيروم فيتامين C للإشراق",
+   "tr": "Aydınlatıcı C vitamini serumu",
+   "sub": "Serums",
+   "main": "Skincare",
+   "price": 18900,
+   "was": null,
+   "photos": [
+    "/beauty-photos/vitamin-c.jpg",
+    "/beauty-photos/hero-glow.jpg"
+   ]
+  },
+  {
+   "id": 101,
+   "sku": "BT-102",
+   "name": "Deep hydration cream",
+   "ar": "كريم الترطيب العميق",
+   "tr": "Yoğun nemlendirici krem",
+   "sub": "Moisturisers",
+   "main": "Skincare",
+   "price": 16500,
+   "was": 21000,
+   "photos": [
+    "/beauty-photos/deep-cream.jpg",
+    "/beauty-photos/hero-cream.jpg"
+   ]
+  },
+  {
+   "id": 102,
+   "sku": "BT-103",
+   "name": "Niacinamide and zinc serum",
+   "ar": "سيروم النياسيناميد والزنك",
+   "tr": "Niasinamid ve çinko serumu",
+   "sub": "Serums",
+   "main": "Skincare",
+   "price": 8900,
+   "was": null,
+   "photos": [
+    "/beauty-photos/niacinamide.jpg"
+   ]
+  },
+  {
+   "id": 103,
+   "sku": "BT-104",
+   "name": "Ceramide barrier cream",
+   "ar": "كريم السيراميد لحاجز البشرة",
+   "tr": "Seramidli bariyer kremi",
+   "sub": "Moisturisers",
+   "main": "Skincare",
+   "price": 12900,
+   "was": 15900,
+   "photos": [
+    "/beauty-photos/ceramide.jpg"
+   ]
+  },
+  {
+   "id": 104,
+   "sku": "BT-105",
+   "name": "Pure squalane face oil",
+   "ar": "زيت السكوالان النقي للوجه",
+   "tr": "Saf skualan yüz yağı",
+   "sub": "Face oils",
+   "main": "Skincare",
+   "price": 7400,
+   "was": null,
+   "photos": [
+    "/beauty-photos/squalane.jpg"
+   ]
+  },
+  {
+   "id": 105,
+   "sku": "BT-106",
+   "name": "Coconut cleansing balm",
+   "ar": "بلسم جوز الهند المنظّف",
+   "tr": "Hindistan cevizli temizleme balmı",
+   "sub": "Cleansers",
+   "main": "Skincare",
+   "price": 7900,
+   "was": null,
+   "photos": [
+    "/beauty-photos/coconut-balm.jpg"
+   ]
+  },
+  {
+   "id": 106,
+   "sku": "BT-107",
+   "name": "Gentle oat cleansing bar",
+   "ar": "صابونة الشوفان المنظّفة اللطيفة",
+   "tr": "Yulaflı nazik temizleme sabunu",
+   "sub": "Cleansers",
+   "main": "Skincare",
+   "price": 6200,
+   "was": null,
+   "photos": [
+    "/beauty-photos/oat-bar.jpg"
+   ]
+  },
+  {
+   "id": 107,
+   "sku": "BT-108",
+   "name": "Clear daily sunscreen SPF 50+",
+   "ar": "واقي شمس يومي شفاف SPF 50+",
+   "tr": "Şeffaf günlük güneş kremi SPF 50+",
+   "sub": "Sunscreen",
+   "main": "Skincare",
+   "price": 8400,
+   "was": null,
+   "photos": [
+    "/beauty-photos/spf.jpg",
+    "/beauty-photos/spf-banner.jpg"
+   ]
+  },
+  {
+   "id": 108,
+   "sku": "BT-109",
+   "name": "Hyaluronic acid serum",
+   "ar": "سيروم حمض الهيالورونيك",
+   "tr": "Hyalüronik asit serumu",
+   "sub": "Serums",
+   "main": "Skincare",
+   "price": 9600,
+   "was": null,
+   "photos": [
+    "/beauty-photos/hyaluronic.jpg"
+   ]
+  },
+  {
+   "id": 109,
+   "sku": "BT-110",
+   "name": "Rose face oil",
+   "ar": "زيت الورد للوجه",
+   "tr": "Gül yüz yağı",
+   "sub": "Face oils",
+   "main": "Skincare",
+   "price": 14500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/rose-oil.jpg"
+   ]
+  },
+  {
+   "id": 110,
+   "sku": "BT-111",
+   "name": "Retinol 0.3% night serum",
+   "ar": "سيروم الريتينول الليلي 0.3%",
+   "tr": "%0,3 retinol gece serumu",
+   "sub": "Serums",
+   "main": "Skincare",
+   "price": 13500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/retinol.jpg"
+   ]
+  },
+  {
+   "id": 111,
+   "sku": "BT-112",
+   "name": "Light gel moisturiser",
+   "ar": "مرطّب جل خفيف",
+   "tr": "Hafif jel nemlendirici",
+   "sub": "Moisturisers",
+   "main": "Skincare",
+   "price": 11800,
+   "was": null,
+   "photos": [
+    "/beauty-photos/gel-cream.jpg"
+   ]
+  },
+  {
+   "id": 112,
+   "sku": "BT-201",
+   "name": "Velvet cushion foundation SPF 25",
+   "ar": "كريم أساس كوشن مخملي SPF 25",
+   "tr": "Kadife kuşon fondöten SPF 25",
+   "sub": "Face",
+   "main": "Makeup",
+   "price": 14900,
+   "was": 19900,
+   "photos": [
+    "/beauty-photos/foundation.jpg",
+    "/beauty-photos/shade-face.jpg"
+   ]
+  },
+  {
+   "id": 113,
+   "sku": "BT-202",
+   "name": "Rose lip and cheek balm",
+   "ar": "بلسم الورد للشفاه والخدود",
+   "tr": "Gül dudak ve yanak balmı",
+   "sub": "Lips",
+   "main": "Makeup",
+   "price": 8900,
+   "was": null,
+   "photos": [
+    "/beauty-photos/lip-cheek.jpg"
+   ]
+  },
+  {
+   "id": 114,
+   "sku": "BT-203",
+   "name": "Tinted lip balm",
+   "ar": "بلسم شفاه ملوّن",
+   "tr": "Renkli dudak balmı",
+   "sub": "Lips",
+   "main": "Makeup",
+   "price": 6400,
+   "was": 8000,
+   "photos": [
+    "/beauty-photos/tinted-balm.jpg"
+   ]
+  },
+  {
+   "id": 115,
+   "sku": "BT-204",
+   "name": "Gel nail polish",
+   "ar": "طلاء أظافر جل",
+   "tr": "Jel oje",
+   "sub": "Nails",
+   "main": "Makeup",
+   "price": 5800,
+   "was": 8900,
+   "photos": [
+    "/beauty-photos/nail.jpg"
+   ]
+  },
+  {
+   "id": 116,
+   "sku": "BT-205",
+   "name": "Velvet matte lipstick",
+   "ar": "أحمر شفاه مخملي مطفي",
+   "tr": "Kadife mat ruj",
+   "sub": "Lips",
+   "main": "Makeup",
+   "price": 9500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/velvet-lips.jpg"
+   ]
+  },
+  {
+   "id": 117,
+   "sku": "BT-206",
+   "name": "Rose sunset eyeshadow palette",
+   "ar": "باليت ظلال غروب الورد",
+   "tr": "Gül gün batımı far paleti",
+   "sub": "Eyes",
+   "main": "Makeup",
+   "price": 18500,
+   "was": 24000,
+   "photos": [
+    "/beauty-photos/rose-palette.jpg"
+   ]
+  },
+  {
+   "id": 118,
+   "sku": "BT-207",
+   "name": "Smoky eyeshadow palette",
+   "ar": "باليت الظلال الدخانية",
+   "tr": "Dumanlı far paleti",
+   "sub": "Eyes",
+   "main": "Makeup",
+   "price": 17500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/smoky-palette.jpg"
+   ]
+  },
+  {
+   "id": 119,
+   "sku": "BT-208",
+   "name": "Nude eyeshadow palette",
+   "ar": "باليت الظلال النود",
+   "tr": "Nude far paleti",
+   "sub": "Eyes",
+   "main": "Makeup",
+   "price": 21000,
+   "was": null,
+   "photos": [
+    "/beauty-photos/nude-palette.jpg"
+   ]
+  },
+  {
+   "id": 120,
+   "sku": "BT-209",
+   "name": "Kabuki powder brush",
+   "ar": "فرشاة كابوكي للبودرة",
+   "tr": "Kabuki pudra fırçası",
+   "sub": "Brushes & tools",
+   "main": "Makeup",
+   "price": 6500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/kabuki.jpg"
+   ]
+  },
+  {
+   "id": 121,
+   "sku": "BT-210",
+   "name": "Pressed blush",
+   "ar": "أحمر خدود مضغوط",
+   "tr": "Sıkıştırılmış allık",
+   "sub": "Face",
+   "main": "Makeup",
+   "price": 11000,
+   "was": null,
+   "photos": [
+    "/beauty-photos/blush.jpg"
+   ]
+  },
+  {
+   "id": 122,
+   "sku": "BT-211",
+   "name": "Ink eyeliner pen",
+   "ar": "قلم آيلاينر سائل",
+   "tr": "Mürekkep eyeliner kalemi",
+   "sub": "Eyes",
+   "main": "Makeup",
+   "price": 7200,
+   "was": null,
+   "photos": [
+    "/beauty-photos/eyeliner.jpg"
+   ]
+  },
+  {
+   "id": 123,
+   "sku": "BT-212",
+   "name": "Silk lip balm stick",
+   "ar": "بلسم شفاه حريري",
+   "tr": "İpeksi dudak balmı stick",
+   "sub": "Lips",
+   "main": "Makeup",
+   "price": 4500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/balm-stick.jpg"
+   ]
+  },
+  {
+   "id": 124,
+   "sku": "BT-301",
+   "name": "Velvet rose eau de parfum",
+   "ar": "عطر الوردة المخملية",
+   "tr": "Kadife gül eau de parfum",
+   "sub": "Women's perfume",
+   "main": "Fragrance",
+   "price": 42000,
+   "was": null,
+   "photos": [
+    "/beauty-photos/perfume.jpg"
+   ]
+  },
+  {
+   "id": 125,
+   "sku": "BT-302",
+   "name": "Petal eau de parfum",
+   "ar": "عطر البتلات",
+   "tr": "Petal eau de parfum",
+   "sub": "Women's perfume",
+   "main": "Fragrance",
+   "price": 34000,
+   "was": null,
+   "photos": [
+    "/beauty-photos/rose-perfume.jpg"
+   ]
+  },
+  {
+   "id": 126,
+   "sku": "BT-303",
+   "name": "Oud incense sticks",
+   "ar": "أعواد بخور العود",
+   "tr": "Ud tütsü çubukları",
+   "sub": "Oud & incense",
+   "main": "Fragrance",
+   "price": 9500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/oud.jpg"
+   ]
+  },
+  {
+   "id": 127,
+   "sku": "BT-304",
+   "name": "Amber scented candle",
+   "ar": "شمعة معطّرة بالعنبر",
+   "tr": "Amber kokulu mum",
+   "sub": "Scented candles",
+   "main": "Fragrance",
+   "price": 12000,
+   "was": null,
+   "photos": [
+    "/beauty-photos/candle-amber.jpg"
+   ]
+  },
+  {
+   "id": 128,
+   "sku": "BT-305",
+   "name": "Fig and cedar candle",
+   "ar": "شمعة التين والأرز",
+   "tr": "İncir ve sedir mumu",
+   "sub": "Scented candles",
+   "main": "Fragrance",
+   "price": 11000,
+   "was": null,
+   "photos": [
+    "/beauty-photos/candle-fig.jpg"
+   ]
+  },
+  {
+   "id": 129,
+   "sku": "BT-401",
+   "name": "Mineral bath salts duo",
+   "ar": "ثنائي أملاح الاستحمام المعدنية",
+   "tr": "Mineralli banyo tuzu ikilisi",
+   "sub": "Bath salts",
+   "main": "Body & bath",
+   "price": 8500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/bath-salts.jpg"
+   ]
+  },
+  {
+   "id": 130,
+   "sku": "BT-402",
+   "name": "Handmade olive oil soap",
+   "ar": "صابون زيت الزيتون المصنوع يدويًا",
+   "tr": "El yapımı zeytinyağlı sabun",
+   "sub": "Natural soap",
+   "main": "Body & bath",
+   "price": 3500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/olive-soap.jpg"
+   ]
+  },
+  {
+   "id": 131,
+   "sku": "BT-403",
+   "name": "Lavender spa soap",
+   "ar": "صابون اللافندر للسبا",
+   "tr": "Lavantalı spa sabunu",
+   "sub": "Natural soap",
+   "main": "Body & bath",
+   "price": 3200,
+   "was": null,
+   "photos": [
+    "/beauty-photos/spa-soap.jpg"
+   ]
+  },
+  {
+   "id": 132,
+   "sku": "BT-404",
+   "name": "Spa ritual set",
+   "ar": "طقم طقوس السبا",
+   "tr": "Spa ritüeli seti",
+   "sub": "Spa rituals",
+   "main": "Body & bath",
+   "price": 16500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/spa-ritual.jpg"
+   ]
+  },
+  {
+   "id": 133,
+   "sku": "BT-405",
+   "name": "Bath bomb and towel set",
+   "ar": "طقم كرة الاستحمام والمنشفة",
+   "tr": "Banyo bombası ve havlu seti",
+   "sub": "Spa rituals",
+   "main": "Body & bath",
+   "price": 7500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/bath-set.jpg"
+   ]
+  },
+  {
+   "id": 134,
+   "sku": "BT-501",
+   "name": "Argan hair oil",
+   "ar": "زيت الأرغان للشعر",
+   "tr": "Argan saç yağı",
+   "sub": "Hair oils",
+   "main": "Hair",
+   "price": 9200,
+   "was": null,
+   "photos": [
+    "/beauty-photos/argan.jpg"
+   ]
+  },
+  {
+   "id": 135,
+   "sku": "BT-502",
+   "name": "Repair shampoo and conditioner",
+   "ar": "شامبو وبلسم الإصلاح",
+   "tr": "Onarıcı şampuan ve saç kremi",
+   "sub": "Hair care",
+   "main": "Hair",
+   "price": 12800,
+   "was": null,
+   "photos": [
+    "/beauty-photos/shampoo.jpg"
+   ]
+  },
+  {
+   "id": 136,
+   "sku": "BT-503",
+   "name": "Soothing scalp serum",
+   "ar": "سيروم مهدّئ لفروة الرأس",
+   "tr": "Yatıştırıcı saç derisi serumu",
+   "sub": "Hair care",
+   "main": "Hair",
+   "price": 11000,
+   "was": null,
+   "photos": [
+    "/beauty-photos/scalp.jpg"
+   ]
+  },
+  {
+   "id": 137,
+   "sku": "BT-504",
+   "name": "Beard oil",
+   "ar": "زيت اللحية",
+   "tr": "Sakal yağı",
+   "sub": "Beard care",
+   "main": "Hair",
+   "price": 7000,
+   "was": null,
+   "photos": [
+    "/beauty-photos/beard.jpg"
+   ]
+  },
+  {
+   "id": 138,
+   "sku": "BT-505",
+   "name": "Shaving cream",
+   "ar": "كريم الحلاقة",
+   "tr": "Tıraş kremi",
+   "sub": "Beard care",
+   "main": "Hair",
+   "price": 5500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/shave.jpg"
+   ]
+  },
+  {
+   "id": 139,
+   "sku": "BT-701",
+   "name": "Complexion brush set",
+   "ar": "طقم فرش البشرة",
+   "tr": "Ten fırçası seti",
+   "sub": "Makeup sets",
+   "main": "Gifts & sets",
+   "price": 19500,
+   "was": null,
+   "photos": [
+    "/beauty-photos/brush-set.jpg",
+    "/beauty-photos/kabuki.jpg"
+   ]
+  },
+  {
+   "id": 140,
+   "sku": "BT-601",
+   "name": "Morning routine for combination skin",
+   "ar": "روتين الصباح للبشرة المختلطة",
+   "tr": "Karma cilt için sabah rutini",
+   "sub": "Routines",
+   "main": "Gifts & sets",
+   "price": 38500,
+   "was": 45300,
+   "photos": [
+    "/beauty-photos/routine-morning.jpg",
+    "/beauty-photos/oat-bar.jpg",
+    "/beauty-photos/vitamin-c.jpg",
+    "/beauty-photos/gel-cream.jpg",
+    "/beauty-photos/spf.jpg"
+   ]
+  },
+  {
+   "id": 141,
+   "sku": "BT-602",
+   "name": "Evening routine for dry skin",
+   "ar": "روتين المساء للبشرة الجافة",
+   "tr": "Kuru cilt için akşam rutini",
+   "sub": "Routines",
+   "main": "Gifts & sets",
+   "price": 32900,
+   "was": 38500,
+   "photos": [
+    "/beauty-photos/routine-dry.jpg",
+    "/beauty-photos/coconut-balm.jpg",
+    "/beauty-photos/hyaluronic.jpg",
+    "/beauty-photos/deep-cream.jpg"
+   ]
+  },
+  {
+   "id": 142,
+   "sku": "BT-603",
+   "name": "Clear skin routine for oily skin",
+   "ar": "روتين البشرة الصافية للبشرة الدهنية",
+   "tr": "Yağlı cilt için arınma rutini",
+   "sub": "Routines",
+   "main": "Gifts & sets",
+   "price": 29900,
+   "was": 35300,
+   "photos": [
+    "/beauty-photos/routine-oily.jpg",
+    "/beauty-photos/oat-bar.jpg",
+    "/beauty-photos/niacinamide.jpg",
+    "/beauty-photos/gel-cream.jpg",
+    "/beauty-photos/spf.jpg"
+   ]
+  },
+  {
+   "id": 143,
+   "sku": "BT-604",
+   "name": "Calm routine for sensitive skin",
+   "ar": "روتين التهدئة للبشرة الحساسة",
+   "tr": "Hassas cilt için yatıştırıcı rutin",
+   "sub": "Routines",
+   "main": "Gifts & sets",
+   "price": 27500,
+   "was": 32200,
+   "photos": [
+    "/beauty-photos/routine-calm.jpg",
+    "/beauty-photos/coconut-balm.jpg",
+    "/beauty-photos/ceramide.jpg",
+    "/beauty-photos/spf.jpg"
+   ]
+  }
+ ]
+}

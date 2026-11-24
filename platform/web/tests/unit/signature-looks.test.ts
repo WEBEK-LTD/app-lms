@@ -105,8 +105,7 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
     for (const demo of STUDIO_DEMO_TYPES) {
       const main = mainLookOf(demo);
       expect(main).toBe(signatureLooksOf(demo).includes("c") ? "c" : "a");
-      // The 128 table keeps look A's; a demo with looks is its main look's (lib/studio/sections.ts demoStudioPage).
-      expect(DEMO_HOME_TEMPLATES[demo]).toBe(`${demo}_signature_a`);
+      expect(DEMO_HOME_TEMPLATES[demo]).toBe(`${demo}_signature_${main}`);
       expect(mainTemplateOf(demo)).toBe(`${demo}_signature_${main}`);
       expect(studioDemoDesign(demo)).toEqual(signatureDesign(demo, main));
       expect(demoTabBar(demo)).toEqual(signatureDesign(demo, main)!.bar);
