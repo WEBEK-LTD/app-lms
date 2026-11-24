@@ -79,8 +79,13 @@ async function swipe(page: Page, by: number, phone: { width: number; height: num
 /** The project's first product, for its page. */
 async function firstProduct(page: Page, appId: string): Promise<number> {
   const token = createPreviewToken({ appId, draft: true }, previewKey(E2E.signingSecret));
-  const res = await page.request.get(`/api/app/${appId}/store/products?platform=android&per_page=5`, { headers: { "x-yallapp-preview": token } });
-  const items = ((await res.json()) as { items: { id: number }[] }).items;
+  const res = await page.request.get(`/api/app/${appId}/store/products?platform=android&per_page=12`, { headers: { "x-yallapp-preview": token } });
+  const items = ((await res.json()) as { items: { id: number; type?: string; stock_status?: string }[] }).items;
+  // 228.7 The product page's shots: one in stock with its choices, so its quantity and Add to cart show.
+  if (productOnly) {
+    const fit = items.find((i) => i.stock_status === "in_stock" && i.type === "variable") ?? items.find((i) => i.stock_status === "in_stock");
+    if (fit) return fit.id;
+  }
   return (items[2] ?? items[0]!).id;
 }
 

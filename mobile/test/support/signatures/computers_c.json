@@ -2850,7 +2850,7 @@
          "bottom": 16,
          "start": 16
         },
-        "background": "#0B0C12",
+        "background": "#FFFFFF",
         "dark_background": "#0B0C12",
         "border_color": "#22E6FF",
         "dark_border_color": "#22E6FF",
@@ -2875,7 +2875,7 @@
              "weight": 800,
              "line_height": 1.12
             },
-            "color": "#F1F3FA",
+            "color": "#0B0C12",
             "dark_color": "#F1F3FA",
             "max_lines": 1,
             "translations": {
@@ -2897,7 +2897,7 @@
              "weight": 800,
              "letter_spacing": 1
             },
-            "color": "#22E6FF",
+            "color": "#0A7F94",
             "dark_color": "#22E6FF",
             "max_lines": 1,
             "translations": {
@@ -2924,7 +2924,7 @@
            "look": "table",
            "rows": 12
           },
-          "color": "#F1F3FA",
+          "color": "#0B0C12",
           "dark_color": "#F1F3FA"
          }
         ]
@@ -3049,7 +3049,6 @@
         },
         "product_part": {
          "look": "carousel",
-         "related": "complete_look",
          "rows": 8
         },
         "color": "#0B0C12",

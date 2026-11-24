@@ -456,12 +456,10 @@ function deskProductPage(ctx: SectionContext): { slug: string; title: SectionWor
   const part = (p: ProductPagePart): StudioNode => productPart(ctx, p);
   const ink = { color: K.ink, dark_color: K.darkInk } as const;
   const steel = { accent: K.fill, dark_accent: K.darkAccent } as const;
-  const t = sigTexts(ctx, { title: "pProductPage" as SectionWord });
   return {
     slug: PRODUCT_PAGE_SLUG,
     title: "pProductPage" as SectionWord,
     studio: {
-      header: { type: "title", title: t.title, translations: t.translations, buttons: ["cart"], ...signatureHeader(K, "search") },
       background: K.page,
       dark_background: K.darkPage,
       show_tabs: false,
@@ -470,7 +468,7 @@ function deskProductPage(ctx: SectionContext): { slug: string; title: SectionWor
         id: id(),
         type: "column",
         gap: 0,
-        padding: sides(8, 0, 24, 0),
+        padding: sides(56, 0, 24, 0),
         children: [
           // 227 Dense, a sheet under another: the photo and its thumbnails beside nothing else, the name and price in one sheet, the spec sheet next, then the business quote.
           { id: id(), type: "column", gap: 0, ...sheet(), padding: sides(8, 8, 8, 8), margin: sides(0, 16, 0, 16), children: [part({ type: "product_gallery", look: "thumbs", radius: 6, node: { aspect_ratio: 16 / 10 } })] },

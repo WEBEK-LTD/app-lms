@@ -512,6 +512,9 @@ function gridProductPage(ctx: SectionContext): { slug: string; title: SectionWor
   const glassInk = { color: K.ink, dark_color: K.darkInk } as const;
   const blue = { accent: "#5CB8FF", dark_accent: "#5CB8FF" } as const;
   const glassTile = (children: StudioNode[], extra: Partial<StudioNode> = {}): StudioNode => ({ id: id(), type: "column", gap: 8, padding: sides(14, 14, 14, 14), ...tile(), ...extra, children });
+  // The tiles whose rows and fine print the app draws in its own day and night colours: frosted light glass by day, dark glass by night.
+  const frost = { background: "#EEF1F6", border_color: "#AEB7C6" } as const;
+  const frostTile = (children: StudioNode[]): StudioNode => glassTile(children, frost);
   return {
     slug: PRODUCT_PAGE_SLUG,
     title: "pProductPage" as SectionWord,
@@ -526,7 +529,7 @@ function gridProductPage(ctx: SectionContext): { slug: string; title: SectionWor
         gap: 10,
         padding: sides(56, 16, 24, 16),
         children: [
-          // 227 The bento of the product: its photos as the big tile, its name and price beside its rating, the choices, the specs, delivery and the story, each a dark glass tile.
+          // 227 The bento of the product: its photos, name, price and choices in dark glass tiles, its specs, delivery, reviews and story in frosted ones by day.
           glassTile([part({ type: "product_gallery", look: "card", radius: 18, node: { aspect_ratio: 1 } })], { padding: sides(8, 8, 8, 8) }),
           {
             id: id(),
@@ -544,12 +547,12 @@ function gridProductPage(ctx: SectionContext): { slug: string; title: SectionWor
             ],
           },
           glassTile([part({ type: "product_variants", look: "chips", ...blue, node: { ...glassInk } }), part({ type: "product_quantity", look: "pill", node: { ...glassInk, margin: sides(6, 0, 0, 0) } })]),
-          glassTile([say(ctx, "ebSpecs", face(15), { max_lines: 1 }), part({ type: "product_specs", look: "table", rows: 10, node: { ...glassInk } })]),
-          glassTile([part({ type: "product_delivery", look: "rows", ...blue, node: { ...glassInk } })]),
-          glassTile([part({ type: "product_reviews", look: "summary", ...blue, node: { ...glassInk } })]),
-          glassTile([part({ type: "product_description", look: "accordion", node: { ...glassInk } })]),
+          frostTile([say(ctx, "ebSpecs", face(15), { ...PAGE_INK, max_lines: 1 }), part({ type: "product_specs", look: "table", rows: 10, node: { ...PAGE_INK } })]),
+          frostTile([part({ type: "product_delivery", look: "rows", accent: "#1F6FD1", dark_accent: "#5CB8FF", node: { ...PAGE_INK } })]),
+          frostTile([part({ type: "product_reviews", look: "summary", accent: "#1F6FD1", dark_accent: "#5CB8FF", node: { ...PAGE_INK } })]),
+          frostTile([part({ type: "product_description", look: "accordion", node: { ...PAGE_INK } })]),
           part({ type: "product_related", look: "carousel", rows: 8, node: { color: PAGE_INK.color, dark_color: PAGE_INK.dark_color, margin: sides(10, 0, 80, 0) } }),
-          part({ type: "product_buy", look: "price", ...blue, node: { pin: "bottom", ...glassInk, radius: 20, padding: sides(10, 14, 10, 14), background: "#121823", dark_background: "#121823", border_color: K.darkLine, dark_border_color: K.darkLine, border_width: 1 } }),
+          part({ type: "product_buy", look: "price", ...blue, node: { pin: "bottom", ...PAGE_INK, radius: 20, padding: sides(10, 14, 10, 14), background: "#EEF1F6", dark_background: "#121823", border_color: "#AEB7C6", dark_border_color: K.darkLine, border_width: 1 } }),
         ],
       },
     },

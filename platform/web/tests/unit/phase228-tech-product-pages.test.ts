@@ -63,7 +63,7 @@ describe("228.7 the product pages of electronics and computers, looks C and D", 
     expect(field.children!.some((c) => c.type === "product_gallery" && c.product_part?.look === "card")).toBe(true);
     expect(field.background).toMatch(/^#[0-9A-F]{6}$/i);
     const battle = productPageOfLook("computers", "c")!;
-    // Battle station: the specs in a cut-corner card with a neon edge.
+    // Battle station: the specs in a cut-corner card with a neon edge (white by day, black by night).
     const specsCard = allNodes(battle).find((n) => n.children?.some((c) => c.type === "product_specs"))!;
     expect(specsCard.corners).toMatchObject({ top_start: 0, bottom_end: 0 });
     expect(specsCard.border_color).toBeTruthy();

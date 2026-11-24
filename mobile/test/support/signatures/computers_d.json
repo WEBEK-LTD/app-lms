@@ -1924,7 +1924,7 @@
       "type": "column",
       "gap": 0,
       "padding": {
-       "top": 8,
+       "top": 56,
        "end": 0,
        "bottom": 24,
        "start": 0
@@ -2401,26 +2401,6 @@
         "border_width": 1
        }
       ]
-     },
-     "header": {
-      "type": "title",
-      "title": "Product page",
-      "translations": {
-       "ar": {
-        "title": "صفحة المنتج"
-       },
-       "tr": {
-        "title": "Ürün sayfası"
-       }
-      },
-      "buttons": [
-       "cart"
-      ],
-      "background": "#E8EDF3",
-      "color": "#0F1E33",
-      "dark_background": "#0B1119",
-      "dark_color": "#E6ECF4",
-      "style": "search"
      }
     },
     "show_title": false,

@@ -2539,9 +2539,9 @@
          "start": 14
         },
         "radius": 22,
-        "background": "#161C27",
+        "background": "#EEF1F6",
         "dark_background": "#10141C",
-        "border_color": "#2A3242",
+        "border_color": "#AEB7C6",
         "dark_border_color": "#232A37",
         "border_width": 1,
         "children": [
@@ -2555,7 +2555,7 @@
            "weight": 700,
            "line_height": 1.22
           },
-          "color": "#F2F5FA",
+          "color": "#0B1020",
           "dark_color": "#F2F5FA",
           "max_lines": 1,
           "translations": {
@@ -2580,7 +2580,7 @@
            "look": "table",
            "rows": 10
           },
-          "color": "#F2F5FA",
+          "color": "#0B1020",
           "dark_color": "#F2F5FA"
          }
         ]
@@ -2596,9 +2596,9 @@
          "start": 14
         },
         "radius": 22,
-        "background": "#161C27",
+        "background": "#EEF1F6",
         "dark_background": "#10141C",
-        "border_color": "#2A3242",
+        "border_color": "#AEB7C6",
         "dark_border_color": "#232A37",
         "border_width": 1,
         "children": [
@@ -2613,10 +2613,10 @@
           },
           "product_part": {
            "look": "rows",
-           "accent": "#5CB8FF",
+           "accent": "#1F6FD1",
            "dark_accent": "#5CB8FF"
           },
-          "color": "#F2F5FA",
+          "color": "#0B1020",
           "dark_color": "#F2F5FA"
          }
         ]
@@ -2632,9 +2632,9 @@
          "start": 14
         },
         "radius": 22,
-        "background": "#161C27",
+        "background": "#EEF1F6",
         "dark_background": "#10141C",
-        "border_color": "#2A3242",
+        "border_color": "#AEB7C6",
         "dark_border_color": "#232A37",
         "border_width": 1,
         "children": [
@@ -2649,10 +2649,10 @@
           },
           "product_part": {
            "look": "summary",
-           "accent": "#5CB8FF",
+           "accent": "#1F6FD1",
            "dark_accent": "#5CB8FF"
           },
-          "color": "#F2F5FA",
+          "color": "#0B1020",
           "dark_color": "#F2F5FA"
          }
         ]
@@ -2668,9 +2668,9 @@
          "start": 14
         },
         "radius": 22,
-        "background": "#161C27",
+        "background": "#EEF1F6",
         "dark_background": "#10141C",
-        "border_color": "#2A3242",
+        "border_color": "#AEB7C6",
         "dark_border_color": "#232A37",
         "border_width": 1,
         "children": [
@@ -2686,7 +2686,7 @@
           "product_part": {
            "look": "accordion"
           },
-          "color": "#F2F5FA",
+          "color": "#0B1020",
           "dark_color": "#F2F5FA"
          }
         ]
@@ -2723,11 +2723,11 @@
          "accent": "#5CB8FF",
          "dark_accent": "#5CB8FF"
         },
-        "color": "#F2F5FA",
+        "color": "#0B1020",
         "dark_color": "#F2F5FA",
-        "background": "#121823",
+        "background": "#EEF1F6",
         "dark_background": "#121823",
-        "border_color": "#232A37",
+        "border_color": "#AEB7C6",
         "dark_border_color": "#232A37",
         "border_width": 1
        }

@@ -474,13 +474,14 @@ function battleProductPage(ctx: SectionContext): { slug: string; title: SectionW
   const ink = { color: K.ink, dark_color: K.darkInk } as const;
   const neonInk = on("#F1F3FA");
   const magenta = { accent: NEON.magenta, dark_accent: NEON.magenta } as const;
-  const blackCard = (children: StudioNode[], edge: string = NEON.magenta): StudioNode => ({
+  // The spec block is white by day: the app draws a table's stripes and labels in its own day colours.
+  const blackCard = (children: StudioNode[], edge: string = NEON.magenta, day: string = BLACK): StudioNode => ({
     id: id(),
     type: "column",
     gap: 10,
     corners: CUT(22),
     padding: sides(16, 16, 16, 16),
-    background: BLACK,
+    background: day,
     dark_background: BLACK,
     border_color: edge,
     dark_border_color: edge,
@@ -510,17 +511,18 @@ function battleProductPage(ctx: SectionContext): { slug: string; title: SectionW
           // The spec block: black, a cyan edge, its code and title, the table in light words.
           blackCard(
             [
-              { id: id(), type: "row", gap: 8, cross: "end", children: [say(ctx, "pbSpecsTitle", face(18), { ...neonInk, max_lines: 1 }), say(ctx, "pbSpecsCode", { family: CHANGA, size: 12, weight: 800, letter_spacing: 1 }, { ...on(NEON.cyan), max_lines: 1 })] },
-              part({ type: "product_specs", look: "table", rows: 12, node: { ...neonInk } }),
+              { id: id(), type: "row", gap: 8, cross: "end", children: [say(ctx, "pbSpecsTitle", face(18), { color: K.ink, dark_color: "#F1F3FA", max_lines: 1 }), say(ctx, "pbSpecsCode", { family: CHANGA, size: 12, weight: 800, letter_spacing: 1 }, { color: "#0A7F94", dark_color: NEON.cyan, max_lines: 1 })] },
+              part({ type: "product_specs", look: "table", rows: 12, node: { color: K.ink, dark_color: "#F1F3FA" } }),
             ],
             NEON.cyan,
+            "#FFFFFF",
           ),
           part({ type: "product_quantity", look: "stepper", node: { ...ink } }),
           part({ type: "product_delivery", look: "rows", ...magenta, node: { ...ink, ...card({ corners: CUT(16) }), padding: sides(12, 14, 12, 14) } }),
           part({ type: "product_reviews", look: "bars", ...magenta, node: { ...ink } }),
           part({ type: "product_description", look: "accordion", node: { ...ink } }),
           { ...say(ctx, "pbFitTitle", face(20), { max_lines: 1 }), margin: sides(8, 2, 0, 2) },
-          part({ type: "product_related", look: "carousel", related: "complete_look", rows: 8, node: { ...ink, margin: sides(0, 0, 84, 0) } }),
+          part({ type: "product_related", look: "carousel", related: "related", rows: 8, node: { ...ink, margin: sides(0, 0, 84, 0) } }),
           part({ type: "product_buy", look: "buy_now", ...magenta, node: { pin: "bottom", ...neonInk, corners: CUT(18), padding: sides(10, 14, 10, 14), background: BLACK, dark_background: BLACK, border_color: NEON.cyan, dark_border_color: NEON.cyan, border_width: 1 } }),
         ],
       },
