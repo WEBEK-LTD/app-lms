@@ -290,49 +290,13 @@ class SettingsPage extends ConsumerWidget {
 /// type their password, Apple and Google members confirm.
 Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
   final l = context.l10n;
-  final account = ref.read(meProvider)?.account;
-  final needsPassword = account?.hasPassword ?? true;
-  final password = TextEditingController();
-  final ok = await showDialog<bool>(
+  final needsPassword = ref.read(meProvider)?.account?.hasPassword ?? true;
+  // The password typed (empty without one), or null: cancelled.
+  final typed = await showDialog<String>(
     context: context,
-    builder: (d) => AlertDialog(
-      title: Text(l.settingsDeleteAccount),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(l.settingsDeleteLine),
-          if (needsPassword) ...[
-            const SizedBox(height: 12),
-            TextField(
-              key: const ValueKey('delete-password'),
-              controller: password,
-              obscureText: true,
-              autofillHints: const [AutofillHints.password],
-              decoration: InputDecoration(hintText: l.settingsDeletePassword),
-            ),
-          ],
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(d, false),
-          child: Text(l.commonCancel),
-        ),
-        TextButton(
-          key: const ValueKey('delete-confirm'),
-          onPressed: () => Navigator.pop(d, true),
-          child: Text(
-            l.settingsDeleteConfirm,
-            style: const TextStyle(color: Color(0xFFE5484D)),
-          ),
-        ),
-      ],
-    ),
+    builder: (d) => _DeleteDialog(needsPassword: needsPassword),
   );
-  final typed = password.text;
-  password.dispose();
-  if (ok != true || !context.mounted) return;
+  if (typed == null || !context.mounted) return;
   final messenger = ScaffoldMessenger.of(context);
   try {
     await ref
@@ -348,6 +312,64 @@ Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
               : (e.message.isEmpty ? l.commonError : e.message),
         ),
       ),
+    );
+  }
+}
+
+class _DeleteDialog extends StatefulWidget {
+  const _DeleteDialog({required this.needsPassword});
+
+  final bool needsPassword;
+
+  @override
+  State<_DeleteDialog> createState() => _DeleteDialogState();
+}
+
+class _DeleteDialogState extends State<_DeleteDialog> {
+  final _password = TextEditingController();
+
+  @override
+  void dispose() {
+    _password.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return AlertDialog(
+      title: Text(l.settingsDeleteAccount),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.settingsDeleteLine),
+          if (widget.needsPassword) ...[
+            const SizedBox(height: 12),
+            TextField(
+              key: const ValueKey('delete-password'),
+              controller: _password,
+              obscureText: true,
+              autofillHints: const [AutofillHints.password],
+              decoration: InputDecoration(hintText: l.settingsDeletePassword),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l.commonCancel),
+        ),
+        TextButton(
+          key: const ValueKey('delete-confirm'),
+          onPressed: () => Navigator.pop(context, _password.text),
+          child: Text(
+            l.settingsDeleteConfirm,
+            style: const TextStyle(color: Color(0xFFE5484D)),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -393,7 +415,11 @@ class _Group extends StatelessWidget {
                 ),
               ],
             ),
-            child: Column(children: children),
+            // Ink of the rows above the card's colour.
+            child: Material(
+              type: MaterialType.transparency,
+              child: Column(children: children),
+            ),
           ),
         ],
       ),

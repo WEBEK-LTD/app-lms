@@ -109,76 +109,81 @@ class MemberRow extends ConsumerWidget {
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsetsDirectional.fromSTEB(12, 4, 10, 4),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        onTap: () => context.push(Paths.member(member.id)),
-        leading: Avatar(
-          id: member.id,
-          name: member.name,
-          url: member.avatarUrl,
-          size: 42,
-        ),
-        title: Row(
-          children: [
-            Flexible(
-              child: Text(
-                member.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontWeight: FontWeight.w700, color: p.ink),
+      child: Material(
+        type: MaterialType.transparency,
+        child: ListTile(
+          contentPadding: const EdgeInsetsDirectional.fromSTEB(12, 4, 10, 4),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          onTap: () => context.push(Paths.member(member.id)),
+          leading: Avatar(
+            id: member.id,
+            name: member.name,
+            url: member.avatarUrl,
+            size: 42,
+          ),
+          title: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  member.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontWeight: FontWeight.w700, color: p.ink),
+                ),
               ),
-            ),
-            const SizedBox(width: 4),
-            BadgeMark(member.badge),
-          ],
-        ),
-        subtitle: Text(
-          [
-            if (member.username.isNotEmpty) '@${member.username}',
-            ?member.level,
-          ].join(' · '),
-          style: TextStyle(color: p.muted, fontSize: 12.5),
-        ),
-        trailing:
-            trailing ??
-            (me == null || member.id == me.member.id || member.team
-                ? null
-                : TextButton(
-                    key: ValueKey('member-follow-${member.id}'),
-                    onPressed: () async {
-                      try {
-                        await ref
-                            .read(followingProvider(member.id).notifier)
-                            .toggle();
-                      } on ApiException {
-                        // The tap is undone.
-                      }
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: following
-                          ? null
-                          : (p.dark ? Brand.orange : Brand.navy),
-                      foregroundColor: following ? p.ink : Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: following
-                            ? BorderSide(
-                                color: p.dark
-                                    ? const Color(0x1AFFFFFF)
-                                    : Brand.line,
-                              )
-                            : BorderSide.none,
+              const SizedBox(width: 4),
+              BadgeMark(member.badge),
+            ],
+          ),
+          subtitle: Text(
+            [
+              if (member.username.isNotEmpty) '@${member.username}',
+              ?member.level,
+            ].join(' · '),
+            style: TextStyle(color: p.muted, fontSize: 12.5),
+          ),
+          trailing:
+              trailing ??
+              (me == null || member.id == me.member.id || member.team
+                  ? null
+                  : TextButton(
+                      key: ValueKey('member-follow-${member.id}'),
+                      onPressed: () async {
+                        try {
+                          await ref
+                              .read(followingProvider(member.id).notifier)
+                              .toggle();
+                        } on ApiException {
+                          // The tap is undone.
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor: following
+                            ? null
+                            : (p.dark ? Brand.orange : Brand.navy),
+                        foregroundColor: following ? p.ink : Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: following
+                              ? BorderSide(
+                                  color: p.dark
+                                      ? const Color(0x1AFFFFFF)
+                                      : Brand.line,
+                                )
+                              : BorderSide.none,
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12.5,
+                        ),
                       ),
-                      textStyle: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12.5,
+                      child: Text(
+                        following ? l.socialFollowingState : l.socialFollow,
                       ),
-                    ),
-                    child: Text(
-                      following ? l.socialFollowingState : l.socialFollow,
-                    ),
-                  )),
+                    )),
+        ),
       ),
     );
   }

@@ -103,70 +103,76 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
             color: p.dark ? Brand.navy2 : Colors.white,
             borderRadius: BorderRadius.circular(28),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                child: Text(
-                  l.socialReportTitle,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: p.ink,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                  child: Text(
+                    l.socialReportTitle,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: p.ink,
+                    ),
                   ),
                 ),
-              ),
-              for (final (reason, label) in reasons)
-                ListTile(
-                  key: ValueKey('report-${reason.name}'),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  title: Text(
-                    label,
-                    style: TextStyle(color: p.ink, fontWeight: FontWeight.w500),
-                  ),
-                  trailing: Sym(
-                    _reason == reason
-                        ? Symbols.radio_button_checked
-                        : Symbols.radio_button_unchecked,
-                    size: 22,
-                    fill: _reason == reason,
-                    color: _reason == reason ? Brand.orange : p.muted,
-                  ),
-                  onTap: () => setState(() => _reason = reason),
-                ),
-              const SizedBox(height: 6),
-              TextField(
-                key: const ValueKey('report-note'),
-                controller: _note,
-                maxLines: 3,
-                minLines: 2,
-                style: TextStyle(color: p.ink),
-                decoration: InputDecoration(hintText: l.socialReportNote),
-              ),
-              const SizedBox(height: 14),
-              SizedBox(
-                height: 50,
-                child: FilledButton(
-                  key: const ValueKey('report-send'),
-                  onPressed: _reason == null || _busy ? null : _send,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Brand.orange,
+                for (final (reason, label) in reasons)
+                  ListTile(
+                    key: ValueKey('report-${reason.name}'),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
+                    title: Text(
+                      label,
+                      style: TextStyle(
+                        color: p.ink,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
+                    trailing: Sym(
+                      _reason == reason
+                          ? Symbols.radio_button_checked
+                          : Symbols.radio_button_unchecked,
+                      size: 22,
+                      fill: _reason == reason,
+                      color: _reason == reason ? Brand.orange : p.muted,
+                    ),
+                    onTap: () => setState(() => _reason = reason),
                   ),
-                  child: Text(l.socialReportSend),
+                const SizedBox(height: 6),
+                TextField(
+                  key: const ValueKey('report-note'),
+                  controller: _note,
+                  maxLines: 3,
+                  minLines: 2,
+                  style: TextStyle(color: p.ink),
+                  decoration: InputDecoration(hintText: l.socialReportNote),
                 ),
-              ),
-            ],
+                const SizedBox(height: 14),
+                SizedBox(
+                  height: 50,
+                  child: FilledButton(
+                    key: const ValueKey('report-send'),
+                    onPressed: _reason == null || _busy ? null : _send,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Brand.orange,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      textStyle: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                    child: Text(l.socialReportSend),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

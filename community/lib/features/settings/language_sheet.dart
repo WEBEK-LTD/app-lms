@@ -40,51 +40,54 @@ class _LanguageSheet extends ConsumerWidget {
           color: p.dark ? Brand.navy2 : Colors.white,
           borderRadius: BorderRadius.circular(28),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: Text(
-                l.langTitle,
-                style: TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w800,
-                  color: p.ink,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                child: Text(
+                  l.langTitle,
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w800,
+                    color: p.ink,
+                  ),
                 ),
               ),
-            ),
-            for (final (code, name) in options)
-              ListTile(
-                key: ValueKey('language-$code'),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+              for (final (code, name) in options)
+                ListTile(
+                  key: ValueKey('language-$code'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  title: Text(
+                    name,
+                    style: TextStyle(fontWeight: FontWeight.w600, color: p.ink),
+                  ),
+                  trailing: code == current
+                      ? const Sym(
+                          Symbols.check_circle,
+                          size: 22,
+                          fill: true,
+                          color: Brand.orange,
+                        )
+                      : null,
+                  onTap: () {
+                    ref.read(languageProvider.notifier).set(code);
+                    if (ref.read(meProvider) != null) {
+                      ref
+                          .read(communityApiProvider)
+                          .updateMe(language: code)
+                          .ignore();
+                    }
+                    Navigator.of(context).pop();
+                  },
                 ),
-                title: Text(
-                  name,
-                  style: TextStyle(fontWeight: FontWeight.w600, color: p.ink),
-                ),
-                trailing: code == current
-                    ? const Sym(
-                        Symbols.check_circle,
-                        size: 22,
-                        fill: true,
-                        color: Brand.orange,
-                      )
-                    : null,
-                onTap: () {
-                  ref.read(languageProvider.notifier).set(code);
-                  if (ref.read(meProvider) != null) {
-                    ref
-                        .read(communityApiProvider)
-                        .updateMe(language: code)
-                        .ignore();
-                  }
-                  Navigator.of(context).pop();
-                },
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
