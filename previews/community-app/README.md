@@ -1,6 +1,6 @@
 # Yallapp Community app (area D): screenshots beside the design
 
-Made from `wip-community-app` at 7e576942c. Each phone is 390 × 844 at 2x.
+Made from `wip-community-app` at 6a9120130. Each phone is 390 × 844 at 2x.
 
 - **Design:** `design/mobile.html` and `design/opening.html` (branch
   `wip-community-design`) rendered in Chromium at 2x, with the bezel cut off.
@@ -43,11 +43,12 @@ and welcome, home and the menu also in Arabic (right to left) and Turkish.
 3. **Menu:**
    - "Your groups" says groups arrive in a coming update, since groups are
      phase 2.
-   - The Q&A count comes from area E's new-questions count (none in the
-     demo).
-   - The level bar is the share of the way to the next points milestone.
-     The contract has no level progress, so 1,240 points shows about 16%,
-     where the mockup draws 64%.
+   - The Q&A badge is area E's count of new questions, hidden at 0. The
+     home and menu shots set it to the mockup's 12, so the badge and the
+     tab bar's dot show.
+   - The level bar is the way to the next rank (A's points: 25, 250,
+     1,000, 5,000) until A's `level_progress` lands, so 1,240 points
+     shows 6%, where the mockup draws 64%.
 4. **Home, phase 1 only:** the mockup's November challenge and "Build
    one like it" are later phases.
    - The featured slot shows the newest official tutorial ("Start
@@ -60,8 +61,8 @@ and welcome, home and the menu also in Arabic (right to left) and Turkish.
    aren't in the repo, so its collage phones and post photo are blank.
    The app shows its demo photos there.
 6. **Status bar and emoji:** the status bar (9:41, signal) is the phone's
-   own, not the app's. The emoji (🎉 ❄️ ☀️) show as boxes only because
-   this test machine has no emoji font; phones have one.
+   own, not the app's. Emoji are drawn with Noto Color Emoji here, and
+   with the phone's own emoji font on a device.
 
 Everything else was matched in place by comparing these shots:
 
