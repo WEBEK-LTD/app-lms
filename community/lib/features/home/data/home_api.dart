@@ -38,7 +38,6 @@ class FeedItem {
     this.label,
     this.endsAt,
     this.at,
-    this.locked = false,
   });
 
   /// A question of `GET /qa/questions` (area B's QuestionSummary).
@@ -70,7 +69,6 @@ class FeedItem {
     label: optObject(json, 'section') == null
         ? null
         : optStr(optObject(json, 'section')!, 'name'),
-    locked: boolean(json, 'locked'),
     at: optDate(json, 'published_at'),
   );
 
@@ -91,10 +89,6 @@ class FeedItem {
   /// When it ends (a challenge's countdown).
   final DateTime? endsAt;
   final DateTime? at;
-
-  /// Paid on the website and not unlocked for this member: shown with a
-  /// lock, never a price.
-  final bool locked;
 }
 
 /// The author of official tutorials.

@@ -178,18 +178,6 @@ abstract class AppLocalizations {
   /// **'Nothing here yet.'**
   String get commonEmpty;
 
-  /// No description provided for @commonLocked.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlocks on the account that has it'**
-  String get commonLocked;
-
-  /// No description provided for @commonLockedIos.
-  ///
-  /// In en, this message translates to:
-  /// **'Locked'**
-  String get commonLockedIos;
-
   /// No description provided for @langTitle.
   ///
   /// In en, this message translates to:
@@ -1167,12 +1155,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlink your Yallapp account? Your apps leave your profile, and badges that need them go.'**
   String get settingsUnlinkConfirm;
-
-  /// No description provided for @settingsPaidNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Paid items are bought on the website and unlock here when you sign in.'**
-  String get settingsPaidNote;
 
   /// No description provided for @settingsAbout.
   ///

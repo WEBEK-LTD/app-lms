@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 /// The brief's hard rule: no prices, no buy buttons and no payment links in
-/// the mobile app, ever. Paid things are bought on the website and unlock in
-/// the app on sign-in, shown with a lock and no price.
+/// the mobile app, ever. And every tutorial is free (the owner, 24 November
+/// 2026): nothing is locked or unlocked.
 void main() {
   // Words and marks a price, a buy button or a payment link would carry, in
   // the app's three languages.
@@ -19,6 +19,9 @@ void main() {
       r'\bcheckout\b',
       r'\bsubscribe\b', r'\bsubscription', r'\bpay(?:ment|wall|pal)?\b',
       r'\bbilling\b', r'\bcart\b', r'\bupgrade\b',
+      // Every tutorial is free: nothing is unlocked (the owner, 24 November
+      // 2026).
+      r'\bunlock',
       r'fiyat', r'satın al', r'ödeme', r'abonelik', r'sepet', // Turkish
       r'سعر',
       r'أسعار',
@@ -92,7 +95,7 @@ void main() {
     ]) {
       expect(banned.hasMatch(s), isTrue, reason: s);
     }
-    for (final s in ['Locked', 'Unlock on the website', 'Showcase your app']) {
+    for (final s in ['Showcase your app', 'Start tutorial']) {
       expect(banned.hasMatch(s), isFalse, reason: s);
     }
   });

@@ -19,8 +19,8 @@ repository.
 > email flows, sign up with any address you can read.
 >
 > No in-app purchases and no paid content: the app sells nothing, and
-> this version has nothing paid in it. There are no prices, no buy buttons
-> and no links to buy anything, and nothing in the app is bought elsewhere.
+> every tutorial is free. There are no prices, no buy buttons, no links to
+> buy anything and nothing locked; nothing in the app is bought elsewhere.
 >
 > User-generated content (Guideline 1.2):
 > - Every question, answer, reply and member has Report (long-press, or the
@@ -56,32 +56,17 @@ instructions.
 4. After review, keep the account (reviewers come back for updates), or
    change its password.
 
-## Paid content and the App Store (decided)
+## Paid content (decided)
 
-Apple's guideline 3.1.1 asks that digital content unlocked in an app be
-sold through in-app purchase. Its exceptions (3.1.3(a) "reader" apps,
-3.1.3(b) "multiplatform services") may not cover tutorials bought on a
-website.
+The owner's decision (24 November 2026): every tutorial is free, always.
+There is no paid content in the Community app or its tutorials.
 
-The coordinator's decision (24 November 2026), option (b):
+So the App Store's guideline 3.1.1 (digital content sold through in-app
+purchase) has nothing to apply to. The app has:
 
-- Phase 1 has no paid content at all. Paid content (the academy) arrives
-  in phase 3.
-- On iOS, any paid or locked item stays locked:
-  - there is no path to unlock it;
-  - there is no wording about unlocking it or about the website. The lock
-    reads only "Locked" (`lockedLabel`), never a price;
-  - Settings' note about paid things doesn't show
-    (`settings_test.dart`, "on iOS, no word about paid things or the
-    website").
-- Before phase 3, the owner gets the options again:
-  - in-app purchase for the academy on iOS;
-  - asking App Review;
-  - keeping paid items locked on iOS.
+- no lock or "unlock" wording;
+- no note about the website;
+- no `locked` field. Area B removes it from the API.
 
-To keep an unlocked paid item locked on iOS, the contract will need to say
-which items are paid, not only `locked`. That's for phase 3.
-
-Google Play's payments policy allows content bought outside the app to be
-used in it, with no link to buy; Android keeps "Unlocks on the account that
-has it".
+`no_payments_test.dart` still guards against prices, buy buttons, payment
+links and "unlock" wording on every platform.

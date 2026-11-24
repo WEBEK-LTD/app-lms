@@ -51,12 +51,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonEmpty => 'Nothing here yet.';
 
   @override
-  String get commonLocked => 'Unlocks on the account that has it';
-
-  @override
-  String get commonLockedIos => 'Locked';
-
-  @override
   String get langTitle => 'Language';
 
   @override
@@ -573,10 +567,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsUnlinkConfirm =>
       'Unlink your Yallapp account? Your apps leave your profile, and badges that need them go.';
-
-  @override
-  String get settingsPaidNote =>
-      'Paid items are bought on the website and unlock here when you sign in.';
 
   @override
   String get settingsAbout => 'About';

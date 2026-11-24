@@ -801,20 +801,14 @@ class _Post extends ConsumerWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Paid on the website: a lock, never a price.
                               Sym(
-                                item.locked
-                                    ? Symbols.lock_rounded
-                                    : switch (item.kind) {
-                                        FeedKind.question =>
-                                          Symbols.forum_rounded,
-                                        FeedKind.tutorial =>
-                                          Symbols.school_rounded,
-                                        FeedKind.announcement =>
-                                          Symbols.campaign_rounded,
-                                      },
+                                switch (item.kind) {
+                                  FeedKind.question => Symbols.forum_rounded,
+                                  FeedKind.tutorial => Symbols.school_rounded,
+                                  FeedKind.announcement =>
+                                    Symbols.campaign_rounded,
+                                },
                                 size: 16,
-                                fill: item.locked,
                                 color: Colors.white,
                               ),
                               const SizedBox(width: 7),
@@ -932,12 +926,11 @@ class _Empty extends StatelessWidget {
 }
 
 /// What a post's glass chip says: a question's answers, a tutorial's
-/// "Start tutorial" (locked: the lock, never a price), else its label.
+/// "Start tutorial" (every tutorial is free), else its label.
 String? _chip(BuildContext context, FeedItem item) {
   final l = context.l10n;
   return switch (item.kind) {
     FeedKind.question => l.homeAnswers(item.answers),
-    FeedKind.tutorial when item.locked => lockedLabel(context),
     FeedKind.tutorial => l.homeStartTutorial,
     FeedKind.announcement => item.label,
   };

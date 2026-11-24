@@ -6,9 +6,8 @@ or published until the owner approves it. The screenshots are on
 Android phone, 1080 × 1920). The privacy answers are in
 `privacy-answers.md` and the reviewers' notes in `review-notes.md`.
 
-The listing says nothing about prices or buying. The app sells nothing;
-the copy only mentions that some tutorials are unlocked by the member's
-account.
+The listing says nothing about prices or buying. The app sells nothing,
+and every tutorial is free (the owner, 24 November 2026).
 
 ## The app's identity
 

@@ -50,12 +50,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonEmpty => 'لا يوجد شيء هنا بعد.';
 
   @override
-  String get commonLocked => 'يُفتح على الحساب الذي يملكه';
-
-  @override
-  String get commonLockedIos => 'مقفل';
-
-  @override
   String get langTitle => 'اللغة';
 
   @override
@@ -572,10 +566,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get settingsUnlinkConfirm =>
       'هل تريد إلغاء ربط حساب يلا آب؟ ستُزال تطبيقاتك من ملفك، وتسقط الشارات التي تتطلبها.';
-
-  @override
-  String get settingsPaidNote =>
-      'تُشترى العناصر المدفوعة من الموقع وتُفتح هنا عند تسجيل الدخول.';
 
   @override
   String get settingsAbout => 'حول التطبيق';

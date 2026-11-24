@@ -9,7 +9,6 @@ import '../../core/l10n.dart';
 import '../../core/providers.dart';
 import '../../core/routing/paths.dart';
 import '../../core/theme/tokens.dart';
-import '../../core/widgets/badge_mark.dart';
 import '../../core/widgets/sym.dart';
 import '../profile/profile_page.dart' show linkYallapp;
 import '../social/data/social.dart';
@@ -20,7 +19,7 @@ import 'language_sheet.dart';
 const appVersion = '1.0.0';
 
 /// Settings: the account (profile, the Yallapp link), language, light or
-/// dark, blocked members, how paid things work, about, and Log out.
+/// dark, blocked members, about, and Log out.
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
@@ -190,32 +189,6 @@ class SettingsPage extends ConsumerWidget {
               ),
             ],
           ),
-          // Paid things are bought on the website only: no price, no link.
-          // Not on iOS: phase 1 has no paid content, and the App Store
-          // allows no hint of buying elsewhere.
-          if (!isIos(context))
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 18, 4, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  LockedMark(label: l.commonLocked, dark: p.dark),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 2),
-                    child: Text(
-                      l.settingsPaidNote,
-                      key: const ValueKey('settings-paid-note'),
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        color: p.muted,
-                        height: 1.45,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           _Group(
             title: l.settingsAbout,
             children: [
