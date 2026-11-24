@@ -10,7 +10,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/sym.dart';
 
 /// Reports a member, a question, an answer or a tutorial ([targetType]:
-/// `member`, `question`, `answer`, `tutorial`) to the moderators: a reason
+/// `member`, `question`, `answer`, `reply`, `tutorial`, `comment`) to the moderators: a reason
 /// and, if they want, a note. Area E's screens call it too.
 Future<void> showReportSheet(
   BuildContext context, {
@@ -85,11 +85,11 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
     final l = context.l10n;
     final reasons = [
       (ReportReason.spam, l.socialReasonSpam),
-      (ReportReason.abuse, l.socialReasonAbuse),
       (ReportReason.harassment, l.socialReasonHarassment),
-      (ReportReason.offTopic, l.socialReasonOffTopic),
+      (ReportReason.hate, l.socialReasonHate),
       (ReportReason.inappropriate, l.socialReasonInappropriate),
-      (ReportReason.copyright, l.socialReasonCopyright),
+      (ReportReason.misinformation, l.socialReasonMisinformation),
+      (ReportReason.impersonation, l.socialReasonImpersonation),
       (ReportReason.other, l.socialReasonOther),
     ];
     return Padding(

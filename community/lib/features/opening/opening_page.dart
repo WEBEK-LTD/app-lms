@@ -46,13 +46,23 @@ class _OpeningPageState extends ConsumerState<OpeningPage>
     value: widget.at ?? 0,
   );
 
+  bool _started = false;
+
+  void _done() {
+    if (mounted) ref.read(openingDoneProvider.notifier).done();
+  }
+
   @override
-  void initState() {
-    super.initState();
-    if (widget.at == null) {
-      _motion.forward().whenComplete(() {
-        if (mounted) ref.read(openingDoneProvider.notifier).done();
-      });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started || widget.at != null) return;
+    _started = true;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      // Reduced motion: the final frame, still, for the same time.
+      _motion.value = 1;
+      Future<void>.delayed(OpeningPage.duration, _done);
+    } else {
+      _motion.forward().whenComplete(_done);
     }
   }
 
@@ -197,7 +207,11 @@ class _Frame extends StatelessWidget {
                       const SizedBox(height: 14),
                       Text(
                         l.openingTag,
+                        // Its own family: the opening comes before any
+                        // screen's theme is certain.
                         style: const TextStyle(
+                          fontFamily: Fonts.text,
+                          fontFamilyFallback: Fonts.fallback,
                           fontSize: 14,
                           letterSpacing: .3,
                           color: Color(0x8CF4EFE6),

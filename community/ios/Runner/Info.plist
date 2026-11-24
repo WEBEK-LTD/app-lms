@@ -66,5 +66,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- 231 Back from linking a Yallapp account in the browser
+	     (yallappcommunity://linked): the app opens, nothing more. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>tr.com.yallapp.community.linked</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>yallappcommunity</string>
+			</array>
+		</dict>
+	</array>
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
 </dict>
 </plist>

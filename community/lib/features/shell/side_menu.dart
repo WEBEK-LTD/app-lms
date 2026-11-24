@@ -538,6 +538,7 @@ class _NavItem extends StatelessWidget {
               ),
               if (count > 0)
                 Container(
+                  key: ValueKey('menu-${section.name}-count'),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6,
                     vertical: 1,

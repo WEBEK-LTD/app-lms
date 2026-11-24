@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp_community/core/routing/paths.dart';
 import 'package:yallapp_community/features/opening/opening_page.dart';
@@ -35,5 +36,26 @@ void main() {
     expect(key('opening-word'), findsOneWidget);
     expect(find.text('COMMUNITY'), findsOneWidget);
     expect(find.text('Build apps. Build together.'), findsOneWidget);
+  });
+
+  testWidgets('with reduced motion, the final frame stands still', (
+    tester,
+  ) async {
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    final app = await TestApp.start(tester, signedIn: false, opening: true);
+    // The words already fully shown (moving, they're still hidden now).
+    double wordsOpacity() => tester
+        .widget<Opacity>(
+          find
+              .ancestor(of: key('opening-word'), matching: find.byType(Opacity))
+              .first,
+        )
+        .opacity;
+    expect(wordsOpacity(), 1);
+    await tester.pump(OpeningPage.duration);
+    await TestApp.settle(tester);
+    expect(app.path, Paths.welcome);
   });
 }

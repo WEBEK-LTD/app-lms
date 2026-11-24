@@ -171,6 +171,7 @@ class MemberSummary {
     this.team = false,
     this.deleted = false,
     this.relationship,
+    this.rank,
   });
 
   factory MemberSummary.fromJson(Json json) => MemberSummary(
@@ -179,7 +180,13 @@ class MemberSummary {
     username: str(json, 'username'),
     avatarUrl: optStr(json, 'avatar_url'),
     badge: BadgeKind.parse(optStr(json, 'top_badge')),
-    level: optStr(json, 'headline'),
+    // The level's name in the reader's language ("Pro"), else their
+    // headline.
+    level:
+        optStr(json, 'level_label') ??
+        optStr(json, 'rank_label') ??
+        optStr(json, 'headline'),
+    rank: optStr(json, 'level') ?? optStr(json, 'rank'),
     team: boolean(json, 'team'),
     deleted: boolean(json, 'deleted'),
     relationship: optObject(json, 'relationship') == null
@@ -207,6 +214,10 @@ class MemberSummary {
 
   /// Where the viewer stands with them (signed in only).
   final Relationship? relationship;
+
+  /// Their level by points (`level`): newcomer, member, contributor, pro,
+  /// expert, master.
+  final String? rank;
 
   String get initial => name.trim().isEmpty ? '?' : name.trim().characters1;
 }
@@ -241,6 +252,7 @@ class Account {
     this.role = 'member',
     this.unreadNotifications = 0,
     this.pendingFriendRequests = 0,
+    this.communityRole,
   });
 
   factory Account.fromJson(Json json) => Account(
@@ -253,6 +265,7 @@ class Account {
     role: str(json, 'role', 'member'),
     unreadNotifications: integer(json, 'unread_notifications'),
     pendingFriendRequests: integer(json, 'pending_friend_requests'),
+    communityRole: optStr(json, 'community_role'),
   );
 
   final String? email;
@@ -270,6 +283,10 @@ class Account {
   final String role;
   final int unreadNotifications;
   final int pendingFriendRequests;
+
+  /// `admin` or `moderator` for those who run the community (the website
+  /// has their tools), else null.
+  final String? communityRole;
 }
 
 /// A member's profile (the contract's `Profile`; with [account], `Me`).
@@ -293,6 +310,7 @@ class Profile {
     this.yallappLinked = false,
     this.relationship = const Relationship(),
     this.account,
+    this.levelProgress = 0,
   });
 
   /// [apps] come from `GET /members/{member}/apps`.
@@ -318,6 +336,7 @@ class Profile {
       yallappLinked: boolean(json, 'yallapp_linked'),
       relationship: Relationship.fromJson(optObject(json, 'relationship')),
       account: own ? Account.fromJson(json) : null,
+      levelProgress: number(json, 'level_progress').clamp(0, 1).toDouble(),
     );
   }
 
@@ -348,18 +367,11 @@ class Profile {
   /// The member's own account (their own profile only).
   final Account? account;
 
-  static const _milestones = [0, 100, 500, 1000, 2500, 5000, 10000, 25000];
+  /// How far toward the next level, 0 to 1 (`level_progress`, the side
+  /// menu's bar; 1 at the top level).
+  final double levelProgress;
 
-  /// How far to the next points milestone, 0 to 1 (the menu's bar).
-  double get progress {
-    for (var i = 1; i < _milestones.length; i++) {
-      if (points < _milestones[i]) {
-        return (points - _milestones[i - 1]) /
-            (_milestones[i] - _milestones[i - 1]);
-      }
-    }
-    return 1;
-  }
+  double get progress => levelProgress;
 
   Profile copyWith({
     MemberSummary? member,
@@ -390,6 +402,7 @@ class Profile {
     yallappLinked: yallappLinked ?? this.yallappLinked,
     relationship: relationship ?? this.relationship,
     account: account ?? this.account,
+    levelProgress: levelProgress,
   );
 }
 
@@ -463,14 +476,14 @@ class FriendRequest {
 /// Why something is reported (the contract's reasons).
 enum ReportReason {
   spam,
-  abuse,
   harassment,
-  offTopic,
+  hate,
   inappropriate,
-  copyright,
+  misinformation,
+  impersonation,
   other;
 
-  String get wire => this == offTopic ? 'off_topic' : name;
+  String get wire => name;
 }
 
 /// A section of the side menu or the tab bar (`GET /config`).

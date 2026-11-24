@@ -211,6 +211,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeJoin => 'انضم الآن';
 
   @override
+  String get homeStartTutorial => 'ابدأ الدرس';
+
+  @override
+  String homeAnswers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count إجابة',
+      many: '$count إجابة',
+      few: '$count إجابات',
+      two: 'إجابتان',
+      one: 'إجابة واحدة',
+      zero: 'لا إجابات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeTeam => 'فريق Yallapp';
+
+  @override
   String get homeDays => 'أيام';
 
   @override
@@ -462,7 +483,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get socialReasonSpam => 'رسائل مزعجة أو إعلانات';
 
   @override
-  String get socialReasonAbuse => 'إساءة أو كراهية';
+  String get socialReasonHarassment => 'تحرّش أو تنمّر';
+
+  @override
+  String get socialReasonHate => 'خطاب كراهية';
+
+  @override
+  String get socialReasonMisinformation => 'معلومات مضلِّلة';
+
+  @override
+  String get socialReasonImpersonation => 'انتحال شخصية';
 
   @override
   String get socialReasonInappropriate => 'محتوى غير لائق';
@@ -565,15 +595,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get profileApplyLine =>
       'لديك 5 تطبيقات أو أكثر على يلا آب. تقدّم بطلب شارة المطوّر المحترف.';
-
-  @override
-  String get socialReasonHarassment => 'تحرّش أو مضايقة';
-
-  @override
-  String get socialReasonOffTopic => 'خارج الموضوع';
-
-  @override
-  String get socialReasonCopyright => 'عمل شخص آخر';
 
   @override
   String get commonShowMore => 'عرض المزيد';

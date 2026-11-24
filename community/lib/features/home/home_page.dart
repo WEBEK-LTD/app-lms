@@ -332,7 +332,13 @@ class _Featured extends StatelessWidget {
                             borderRadius: BorderRadius.circular(13),
                           ),
                           child: Text(
-                            item.endsAt != null ? l.homeJoin : l.homeRead,
+                            // Any kind of item fits the slot (phase 3's
+                            // challenges with their countdown).
+                            item.endsAt != null
+                                ? l.homeJoin
+                                : (item.kind == FeedKind.tutorial
+                                      ? l.homeStartTutorial
+                                      : l.homeRead),
                             style: const TextStyle(
                               color: Brand.navy,
                               fontWeight: FontWeight.w700,
@@ -707,6 +713,7 @@ class _Post extends ConsumerWidget {
                               name: author.name,
                               url: author.avatarUrl,
                               size: 34,
+                              team: author.team,
                               border: const Color(0xCCFFFFFF),
                             ),
                           ),
@@ -773,7 +780,10 @@ class _Post extends ConsumerWidget {
                         ],
                       ),
                     ),
-                  if (item.label != null)
+                  // The glass chip: a tutorial's "Start tutorial", a
+                  // question's answers (phase 2's showcase brings back
+                  // "Build one like it").
+                  if (_chip(context, item) case final chip?)
                     PositionedDirectional(
                       bottom: 12,
                       start: 12,
@@ -795,9 +805,14 @@ class _Post extends ConsumerWidget {
                               Sym(
                                 item.locked
                                     ? Symbols.lock_rounded
-                                    : (item.kind == FeedKind.question
-                                          ? Symbols.forum_rounded
-                                          : Symbols.storefront_rounded),
+                                    : switch (item.kind) {
+                                        FeedKind.question =>
+                                          Symbols.forum_rounded,
+                                        FeedKind.tutorial =>
+                                          Symbols.school_rounded,
+                                        FeedKind.announcement =>
+                                          Symbols.campaign_rounded,
+                                      },
                                 size: 16,
                                 fill: item.locked,
                                 color: Colors.white,
@@ -805,9 +820,7 @@ class _Post extends ConsumerWidget {
                               const SizedBox(width: 7),
                               Flexible(
                                 child: Text(
-                                  item.locked
-                                      ? '${item.label!} · ${context.l10n.commonLocked}'
-                                      : item.label!,
+                                  chip,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
@@ -916,4 +929,16 @@ class _Empty extends StatelessWidget {
       ),
     );
   }
+}
+
+/// What a post's glass chip says: a question's answers, a tutorial's
+/// "Start tutorial" (locked: the lock, never a price), else its label.
+String? _chip(BuildContext context, FeedItem item) {
+  final l = context.l10n;
+  return switch (item.kind) {
+    FeedKind.question => l.homeAnswers(item.answers),
+    FeedKind.tutorial when item.locked => l.commonLocked,
+    FeedKind.tutorial => l.homeStartTutorial,
+    FeedKind.announcement => item.label,
+  };
 }

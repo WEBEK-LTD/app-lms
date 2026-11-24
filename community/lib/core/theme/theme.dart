@@ -8,7 +8,11 @@ abstract final class Fonts {
   static const text = 'Inter';
   static const arabic = 'IBM Plex Sans Arabic';
   static const brand = 'Readex Pro';
-  static const fallback = [arabic];
+
+  /// Emoji come from the phone's own font; naming it lets tests (and
+  /// phones that have it) draw them in colour.
+  static const emoji = 'Noto Color Emoji';
+  static const fallback = [arabic, emoji];
 }
 
 ThemeData communityTheme({required bool dark}) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'logo.dart';
 
 /// A member's avatar (common.css `.av`): their photo, else their initial on
 /// one of the six gradients, chosen by their id so it never changes.
@@ -14,6 +15,7 @@ class Avatar extends StatelessWidget {
     this.border,
     this.borderWidth = 2,
     this.colors,
+    this.team = false,
   });
 
   final String id;
@@ -28,7 +30,18 @@ class Avatar extends StatelessWidget {
   /// Its gradient, when not the one its id picks.
   final List<Color>? colors;
 
+  /// Yallapp's team: the Community logo stands for them (the design's
+  /// official answers).
+  final bool team;
+
+  /// The demo's members wear their colours in the design (mobile.html:
+  /// Mohamed `.a3`, Nour `.a5`, Karim `.a6`); everyone else's comes from
+  /// their id.
+  static const _design = {'m-mohamed': 2, 'm-nour': 4, 'm-karim': 5};
+
   static List<Color> gradientFor(String id) {
+    final named = _design[id];
+    if (named != null) return Brand.avatars[named];
     var h = 0;
     for (final c in id.codeUnits) {
       h = (h * 31 + c) & 0x7fffffff;
@@ -43,6 +56,10 @@ class Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (team && (url == null || url!.isEmpty)) {
+      // The logo's corners at 10 of 32, as the design draws it.
+      return CommunityLogo(size: size, radius: size * 10 / 32);
+    }
     final colors = this.colors ?? gradientFor(id);
     final photo = url;
     return Container(
@@ -112,8 +129,6 @@ class MeAvatar extends StatelessWidget {
       name: name,
       url: url,
       size: size,
-      // The design draws the member's own initial green (`.av.a3`).
-      colors: Brand.avatars[2],
       border: edge ?? context.palette.screen,
     ),
   );

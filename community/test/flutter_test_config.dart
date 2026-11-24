@@ -41,5 +41,15 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
       symbols.path,
     ]);
   }
+  // Emoji in colour, where the machine has the font (the shots).
+  for (final path in [
+    '/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf',
+    '/opt/flutter/engine/src/flutter/txt/third_party/fonts/NotoColorEmoji.ttf',
+  ]) {
+    if (File(path).existsSync()) {
+      await load('Noto Color Emoji', [path]);
+      break;
+    }
+  }
   await testMain();
 }

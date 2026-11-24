@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp_community/features/opening/opening_page.dart';
 import 'package:yallapp_community/l10n/app_localizations.dart';
+import 'package:yallapp_community/core/routing/feature_routes.dart';
 import 'package:yallapp_community/core/routing/paths.dart';
+import 'package:yallapp_community/core/theme/theme.dart';
 
 import '../support/app_shots.dart';
 import '../support/finders.dart';
@@ -12,6 +14,10 @@ import '../support/test_app.dart';
 /// Area D's screens at 390 × 844, 2x, beside design/mobile.html and
 /// design/opening.html. Every run checks they draw without an error;
 /// `YC_SHOTS_DIR=<dir> flutter test test/shots` also writes them.
+/// Area E's count of new questions (0 on this branch until theirs is
+/// merged), as the mockup's 12: the menu's badge and the tab bar's dot.
+final newQuestions = [newQuestionsProvider.overrideWithValue(12)];
+
 void main() {
   // Each moment of the opening, drawn as it is at that time.
   for (final (name, at) in [
@@ -27,6 +33,7 @@ void main() {
           container: app.container,
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
+            theme: communityTheme(dark: false),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: OpeningPage(at: at),
@@ -50,13 +57,13 @@ void main() {
 
     testWidgets('home$suffix', (tester) async {
       designInsets(tester);
-      await TestApp.start(tester, theme: theme);
+      await TestApp.start(tester, theme: theme, overrides: newQuestions);
       await appShot(tester, 'home$suffix');
     });
 
     testWidgets('menu$suffix', (tester) async {
       designInsets(tester);
-      await TestApp.start(tester, theme: theme);
+      await TestApp.start(tester, theme: theme, overrides: newQuestions);
       await tap(tester, 'header-menu');
       await TestApp.settle(tester, 8);
       await appShot(tester, 'menu$suffix');

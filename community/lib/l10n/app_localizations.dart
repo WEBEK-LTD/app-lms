@@ -490,6 +490,24 @@ abstract class AppLocalizations {
   /// **'Join now'**
   String get homeJoin;
 
+  /// No description provided for @homeStartTutorial.
+  ///
+  /// In en, this message translates to:
+  /// **'Start tutorial'**
+  String get homeStartTutorial;
+
+  /// No description provided for @homeAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 answer} other{{count} answers}}'**
+  String homeAnswers(int count);
+
+  /// No description provided for @homeTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Yallapp Team'**
+  String get homeTeam;
+
   /// No description provided for @homeDays.
   ///
   /// In en, this message translates to:
@@ -970,11 +988,29 @@ abstract class AppLocalizations {
   /// **'Spam or ads'**
   String get socialReasonSpam;
 
-  /// No description provided for @socialReasonAbuse.
+  /// No description provided for @socialReasonHarassment.
   ///
   /// In en, this message translates to:
-  /// **'Abuse or hate'**
-  String get socialReasonAbuse;
+  /// **'Harassment or bullying'**
+  String get socialReasonHarassment;
+
+  /// No description provided for @socialReasonHate.
+  ///
+  /// In en, this message translates to:
+  /// **'Hate speech'**
+  String get socialReasonHate;
+
+  /// No description provided for @socialReasonMisinformation.
+  ///
+  /// In en, this message translates to:
+  /// **'False information'**
+  String get socialReasonMisinformation;
+
+  /// No description provided for @socialReasonImpersonation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pretending to be someone else'**
+  String get socialReasonImpersonation;
 
   /// No description provided for @socialReasonInappropriate.
   ///
@@ -1167,24 +1203,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have 5+ apps on Yallapp. Apply for the Pro Developer badge.'**
   String get profileApplyLine;
-
-  /// No description provided for @socialReasonHarassment.
-  ///
-  /// In en, this message translates to:
-  /// **'Harassment'**
-  String get socialReasonHarassment;
-
-  /// No description provided for @socialReasonOffTopic.
-  ///
-  /// In en, this message translates to:
-  /// **'Off topic'**
-  String get socialReasonOffTopic;
-
-  /// No description provided for @socialReasonCopyright.
-  ///
-  /// In en, this message translates to:
-  /// **'Someone else’s work'**
-  String get socialReasonCopyright;
 
   /// No description provided for @commonShowMore.
   ///

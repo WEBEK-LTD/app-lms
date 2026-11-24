@@ -62,6 +62,8 @@ class FeedItem {
   factory FeedItem.tutorial(Json json) => FeedItem(
     id: str(json, 'slug', str(json, 'id')),
     kind: FeedKind.tutorial,
+    // Tutorials are official: the Yallapp Team's, drawn with the logo.
+    author: yallappTeam,
     title: str(json, 'title'),
     text: str(json, 'summary'),
     imageUrl: optStr(json, 'cover_url'),
@@ -94,6 +96,14 @@ class FeedItem {
   /// lock, never a price.
   final bool locked;
 }
+
+/// The author of official tutorials.
+const yallappTeam = MemberSummary(
+  id: 'yallapp-team',
+  name: 'Yallapp Team',
+  username: 'yallapp',
+  team: true,
+);
 
 abstract class HomeApi {
   Future<HomeFeed> feed();
@@ -135,35 +145,29 @@ class FakeHomeApi implements HomeApi {
 
   final HomeFeed _feed;
 
+  /// Phase 1's kinds only: an official tutorial on top, then a tutorial
+  /// and members' questions, in the design's look.
   static final sample = HomeFeed(
     newTutorial: true,
-    news: false,
     featured: FeedItem(
-      id: 't-winter',
-      kind: FeedKind.announcement,
+      id: 'winter-store',
+      kind: FeedKind.tutorial,
       title: 'Coziest winter store ❄️',
-      label: 'November challenge · 214 entries',
+      label: 'Studio · Beginner · 12 min',
       imageUrl: 'asset:assets/images/beanie-girl.jpg',
-      endsAt: DateTime.now().add(
-        const Duration(days: 4, hours: 11, minutes: 32, seconds: 30),
-      ),
+      author: yallappTeam,
+      at: DateTime.now().subtract(const Duration(hours: 5)),
     ),
     items: [
       FeedItem(
-        id: 'p-runway',
+        id: 'runway-product-page',
         at: DateTime.now().subtract(const Duration(hours: 2)),
         kind: FeedKind.tutorial,
-        title: 'Launched my store today with the Runway template 🎉',
+        title: 'Launch a fashion store with the Runway template 🎉',
         imageUrl: 'asset:assets/images/abaya-desert.jpg',
-        author: const MemberSummary(
-          id: 'm-nour',
-          name: 'Nour El Hoda',
-          username: 'nour',
-          badge: BadgeKind.blue,
-          level: 'Expert',
-        ),
+        author: yallappTeam,
         score: 128,
-        label: 'Lujain · Build one like it',
+        label: 'Studio',
       ),
       FeedItem(
         id: 'q-product-page',
@@ -176,7 +180,23 @@ class FakeHomeApi implements HomeApi {
           username: 'karim',
         ),
         score: 42,
-        answers: 4,
+        answers: 12,
+        label: 'Studio',
+      ),
+      FeedItem(
+        id: 'q-photos',
+        at: DateTime.now().subtract(const Duration(hours: 6)),
+        kind: FeedKind.question,
+        title: 'Which photo ratio works best for clothes?',
+        author: const MemberSummary(
+          id: 'm-nour',
+          name: 'Nour El Hoda',
+          username: 'nour',
+          badge: BadgeKind.blue,
+          level: 'Expert',
+        ),
+        score: 18,
+        answers: 3,
         label: 'Studio',
       ),
     ],

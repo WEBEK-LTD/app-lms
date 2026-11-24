@@ -65,6 +65,16 @@
   "homeEvening": "Good evening 🌙",
   "homeRead": "Read",
   "homeJoin": "Join now",
+  "homeStartTutorial": "Start tutorial",
+  "homeAnswers": "{count, plural, =1{1 answer} other{{count} answers}}",
+  "@homeAnswers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeTeam": "Yallapp Team",
   "homeDays": "days",
   "homeHours": "hrs",
   "homeMinutes": "min",
@@ -167,7 +177,10 @@
   "socialReport": "Report",
   "socialReportTitle": "Why are you reporting this?",
   "socialReasonSpam": "Spam or ads",
-  "socialReasonAbuse": "Abuse or hate",
+  "socialReasonHarassment": "Harassment or bullying",
+  "socialReasonHate": "Hate speech",
+  "socialReasonMisinformation": "False information",
+  "socialReasonImpersonation": "Pretending to be someone else",
   "socialReasonInappropriate": "Inappropriate content",
   "socialReasonOther": "Something else",
   "socialReportNote": "Anything to add? (optional)",
@@ -207,9 +220,6 @@
   "savedEmpty": "Questions and tutorials you save show here.",
   "profileApply": "Apply",
   "profileApplyLine": "You have 5+ apps on Yallapp. Apply for the Pro Developer badge.",
-  "socialReasonHarassment": "Harassment",
-  "socialReasonOffTopic": "Off topic",
-  "socialReasonCopyright": "Someone else’s work",
   "commonShowMore": "Show more",
   "settingsEmail": "Email",
   "settingsEmailUnconfirmed": "Not confirmed",

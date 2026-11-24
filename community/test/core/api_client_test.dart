@@ -129,6 +129,12 @@ void main() {
       'top_badge': 'green',
       'team': false,
       'deleted': false,
+      'rank': 'contributor',
+      'rank_label': 'Contributor',
+      'level': 'contributor',
+      'level_label': 'Contributor',
+      'level_progress': .4,
+      'headline': 'Fashion stores',
       'bio': 'Hi',
       'skills': ['Fashion'],
       'links': [],
@@ -159,6 +165,11 @@ void main() {
       'yallapp_linked': true,
     });
     expect(p.member.badge, BadgeKind.green);
+    // Under the name: the rank's own name, before the headline.
+    expect(p.member.level, 'Contributor');
+    expect(p.member.rank, 'contributor');
+    // The bar is the server's, never worked out here.
+    expect(p.progress, .4);
     expect(topBadge(p.badges)!.company, 'Lujain');
     expect(p.appsCount, 6);
     expect(p.followers, 3);
