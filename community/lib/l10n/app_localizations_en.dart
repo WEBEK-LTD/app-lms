@@ -566,4 +566,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savedEmpty => 'Questions and tutorials you save show here.';
+
+  @override
+  String get profileApply => 'Apply';
+
+  @override
+  String get profileApplyLine =>
+      'You have 5+ apps on Yallapp. Apply for the Pro Developer badge.';
 }

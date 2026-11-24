@@ -561,4 +561,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get savedEmpty => 'تظهر هنا الأسئلة والدروس التي تحفظها.';
+
+  @override
+  String get profileApply => 'تقدّم بطلب';
+
+  @override
+  String get profileApplyLine =>
+      'لديك 5 تطبيقات أو أكثر على يلا آب. تقدّم بطلب شارة المطوّر المحترف.';
 }

@@ -34,27 +34,21 @@ abstract final class FeatureLinks {
   static const verify = '/verify';
 }
 
-/// The tab roots of E's tabs (Q&A, Learn), under the shell's tab bar.
+/// E's screens under the shell's floating tab bar: the tab roots (Q&A,
+/// Learn) and what opens from them (a question, a tutorial, notifications,
+/// search, saved), as the approved question screen keeps the bar.
 List<RouteBase> featureTabRoutes() => [
   GoRoute(
     path: FeatureLinks.qa,
     builder: (context, state) => const ComingSoonPage(title: 'Q&A'),
   ),
   GoRoute(
-    path: FeatureLinks.learn,
-    builder: (context, state) => const ComingSoonPage(title: 'Learn'),
-  ),
-];
-
-/// E's other screens, pushed over the shell.
-List<RouteBase> featureRoutes() => [
-  GoRoute(
     path: '/qa/:id',
     builder: (context, state) => const ComingSoonPage(title: 'Q&A'),
   ),
   GoRoute(
-    path: FeatureLinks.ask,
-    builder: (context, state) => const ComingSoonPage(title: 'Ask'),
+    path: FeatureLinks.learn,
+    builder: (context, state) => const ComingSoonPage(title: 'Learn'),
   ),
   GoRoute(
     path: '/learn/:id',
@@ -71,6 +65,14 @@ List<RouteBase> featureRoutes() => [
   GoRoute(
     path: FeatureLinks.saved,
     builder: (context, state) => const ComingSoonPage(title: 'Saved'),
+  ),
+];
+
+/// E's full-screen forms, over the tab bar (asking, the verification form).
+List<RouteBase> featureRoutes() => [
+  GoRoute(
+    path: FeatureLinks.ask,
+    builder: (context, state) => const ComingSoonPage(title: 'Ask'),
   ),
   GoRoute(
     path: FeatureLinks.verify,

@@ -176,5 +176,7 @@
   "settingsAbout": "Hakkında",
   "settingsVersion": "Sürüm {version}",
   "settingsLogOutConfirm": "Bu telefonda Yallapp Topluluk’tan çıkış yapılsın mı?",
-  "savedEmpty": "Kaydettiğin sorular ve eğitimler burada görünür."
+  "savedEmpty": "Kaydettiğin sorular ve eğitimler burada görünür.",
+  "profileApply": "Başvur",
+  "profileApplyLine": "Yallapp’te 5+ uygulaman var. Profesyonel Geliştirici rozetine başvur."
 }

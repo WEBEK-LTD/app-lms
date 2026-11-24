@@ -205,5 +205,7 @@
     }
   },
   "settingsLogOutConfirm": "Log out of Yallapp Community on this phone?",
-  "savedEmpty": "Questions and tutorials you save show here."
+  "savedEmpty": "Questions and tutorials you save show here.",
+  "profileApply": "Apply",
+  "profileApplyLine": "You have 5+ apps on Yallapp. Apply for the Pro Developer badge."
 }
