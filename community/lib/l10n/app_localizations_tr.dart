@@ -613,4 +613,400 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get openingTag => 'Uygulama yap. Birlikte yap.';
+
+  @override
+  String get socialReasonMisleading => 'Yanıltıcı veya dolandırıcılık';
+
+  @override
+  String get qaTitle => 'Soru-Cevap';
+
+  @override
+  String get qaAskQuestion => 'Soru sor';
+
+  @override
+  String qaViews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count görüntülenme',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaAnswerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cevap',
+      zero: 'Cevap yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaReplyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yanıt',
+      zero: 'Yanıtla',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qaAccepted => 'Kabul edildi';
+
+  @override
+  String get qaOfficial => 'Resmî';
+
+  @override
+  String get qaJustNow => 'şimdi';
+
+  @override
+  String qaMinutes(int count) {
+    return '$count dk';
+  }
+
+  @override
+  String qaHours(int count) {
+    return '$count sa';
+  }
+
+  @override
+  String qaDays(int count) {
+    return '$count g';
+  }
+
+  @override
+  String qaAgo(String time) {
+    return '$time önce';
+  }
+
+  @override
+  String get qaSave => 'Kaydet';
+
+  @override
+  String get qaSaved => 'Kaydedildi';
+
+  @override
+  String get qaVoteUp => 'Yukarı oy';
+
+  @override
+  String get qaVoteDown => 'Aşağı oy';
+
+  @override
+  String get qaAccept => 'Bu cevabı kabul et';
+
+  @override
+  String get qaUnaccept => 'Kabulü geri al';
+
+  @override
+  String get qaWriteAnswer => 'Cevap yaz';
+
+  @override
+  String get qaAnswerHint => 'Sizin için işe yarayanı paylaşın…';
+
+  @override
+  String get qaPost => 'Gönder';
+
+  @override
+  String get qaReplyHint => 'Yanıt yaz…';
+
+  @override
+  String get qaPending =>
+      'İnceleme bekliyor. Bir moderatör onaylayınca herkese görünür.';
+
+  @override
+  String qaTooShort(int count) {
+    return 'En az $count karakter yazın.';
+  }
+
+  @override
+  String get qaOwnVote => 'Kendi gönderinize oy veremezsiniz.';
+
+  @override
+  String get qaReport => 'Bildir';
+
+  @override
+  String get qaRankNewcomer => 'Yeni';
+
+  @override
+  String get qaRankMember => 'Üye';
+
+  @override
+  String get qaRankContributor => 'Katkıcı';
+
+  @override
+  String get qaRankExpert => 'Uzman';
+
+  @override
+  String get qaRankPro => 'Pro';
+
+  @override
+  String get qaFilterAll => 'Tümü';
+
+  @override
+  String get qaFilterUnanswered => 'Cevapsız';
+
+  @override
+  String get qaFilterAnswered => 'Cevaplanmış';
+
+  @override
+  String get qaFilterOfficial => 'Resmî cevaplar';
+
+  @override
+  String get qaFilterFollowing => 'Takip edilen';
+
+  @override
+  String get qaSortActive => 'Aktif';
+
+  @override
+  String get qaSortNewest => 'En yeni';
+
+  @override
+  String get qaSortVotes => 'En çok oy';
+
+  @override
+  String get qaEmpty => 'Burada henüz soru yok. İlk soran siz olun.';
+
+  @override
+  String get qaAskTitleLabel => 'Sorunuz';
+
+  @override
+  String get qaAskTitleHint => 'Nasıl…';
+
+  @override
+  String get qaAskBodyLabel => 'Ayrıntılar';
+
+  @override
+  String get qaAskBodyHint => 'Ne yapmaya çalışıyorsunuz, neleri denediniz?';
+
+  @override
+  String get qaAskSection => 'Bölüm';
+
+  @override
+  String get qaAskTags => 'Etiketler (en fazla 5)';
+
+  @override
+  String get qaAskLanguage => 'Dil';
+
+  @override
+  String get qaSimilarTitle => 'Daha önce soruldu mu?';
+
+  @override
+  String get qaSimilarBody =>
+      'Bunlar sizinkine benziyor. Cevabınız birinde olabilir.';
+
+  @override
+  String get qaAskSend => 'Soruyu gönder';
+
+  @override
+  String get qaSearchHint => 'Soru ve eğitimlerde ara';
+
+  @override
+  String qaSearchEmpty(String query) {
+    return '“$query” ile eşleşen bir şey yok.';
+  }
+
+  @override
+  String get qaSearchQuestions => 'Sorular';
+
+  @override
+  String get qaSearchTutorials => 'Eğitimler';
+
+  @override
+  String get tutTitle => 'Öğren';
+
+  @override
+  String get tutSubtitle => 'Yallapp ekibinden resmî eğitimler';
+
+  @override
+  String get tutArticle => 'Makale';
+
+  @override
+  String get tutVideo => 'Video';
+
+  @override
+  String get tutAllKinds => 'Tümü';
+
+  @override
+  String get tutLevelBeginner => 'Başlangıç';
+
+  @override
+  String get tutLevelIntermediate => 'Orta';
+
+  @override
+  String get tutLevelAdvanced => 'İleri';
+
+  @override
+  String get tutAnyLevel => 'Her seviye';
+
+  @override
+  String get tutAnyLanguage => 'Her dil';
+
+  @override
+  String tutMinRead(int count) {
+    return '$count dk okuma';
+  }
+
+  @override
+  String get tutWatch => 'Videoyu izle';
+
+  @override
+  String get tutOfficial => 'Resmî';
+
+  @override
+  String get tutEmpty => 'Burada henüz eğitim yok.';
+
+  @override
+  String get tutCannotOpen => 'Video açılamadı.';
+
+  @override
+  String get verifyTitle => 'Profesyonel Geliştirici';
+
+  @override
+  String get verifyIntro =>
+      'Yallapp ile 5 veya daha fazla uygulama yapan üyelerin altın rozeti. Studio Market şablonları sayılır.';
+
+  @override
+  String get verifyNotLinked =>
+      'Önce Yallapp hesabınızı bağlayın. Uygulamalarınız oradan gelir, yalnızca sizinkiler sayılır.';
+
+  @override
+  String get verifyLink => 'Yallapp hesabımı bağla';
+
+  @override
+  String verifyProgress(int count, int needed) {
+    return '$needed uygulamadan $count';
+  }
+
+  @override
+  String verifyNeedMore(int needed) {
+    return 'Yallapp hesabınızda $needed uygulama olduğunda başvurabilirsiniz.';
+  }
+
+  @override
+  String get verifyHasGold =>
+      'Profesyonel Geliştiricisiniz. Altın rozet adınızın yanında görünür.';
+
+  @override
+  String get verifyPending =>
+      'Başvurunuzu inceliyoruz. Sonucu her durumda size bildireceğiz.';
+
+  @override
+  String verifySentOn(String date) {
+    return '$date tarihinde gönderildi';
+  }
+
+  @override
+  String get verifyRejected => 'Son başvurunuz onaylanmadı.';
+
+  @override
+  String verifyReason(String reason) {
+    return 'Neden: $reason';
+  }
+
+  @override
+  String get verifyFullName => 'Ad soyad (kimlikteki gibi)';
+
+  @override
+  String get verifyIdProof => 'Kimlik belgesi';
+
+  @override
+  String get verifyIdProofHint =>
+      'Kimlik kartınızın veya pasaportunuzun fotoğrafı. Yalnızca başvurunuzu inceleyen ekip görür.';
+
+  @override
+  String get verifyPickId => 'Fotoğraf seç';
+
+  @override
+  String get verifyChangeId => 'Değiştir';
+
+  @override
+  String get verifyPortfolio => 'Portfolyo bağlantıları (en fazla 5)';
+
+  @override
+  String get verifyAddLink => 'Bağlantı ekle';
+
+  @override
+  String get verifyApps => 'Uygulamalarınız';
+
+  @override
+  String get verifyAppsFrom => 'Bağlı Yallapp hesabınızdan';
+
+  @override
+  String get verifyTemplate => 'Şablon';
+
+  @override
+  String get verifySend => 'Başvurumu gönder';
+
+  @override
+  String get verifyNameNeeded => 'Adınızı ve soyadınızı yazın.';
+
+  @override
+  String get verifyIdNeeded => 'Kimliğinizin fotoğrafını ekleyin.';
+
+  @override
+  String get verifyBadLink => 'Bağlantılar https:// ile başlar';
+
+  @override
+  String get verifySent => 'Gönderildi. İncelendiğinde size haber vereceğiz.';
+
+  @override
+  String get notifTitle => 'Bildirimler';
+
+  @override
+  String get notifMarkAll => 'Tümünü okundu say';
+
+  @override
+  String get notifEmpty =>
+      'Yeni bir şey yok. Cevaplar, takipler ve rozetler burada görünür.';
+
+  @override
+  String get notifUnread => 'Okunmamış';
+
+  @override
+  String get notifAll => 'Tümü';
+
+  @override
+  String get notifEmail => 'Bana e-posta gönder';
+
+  @override
+  String get notifEmailBody =>
+      'Bildirimler her zaman burada görünür. Hangilerinin e-postayla da geleceğini seçin.';
+
+  @override
+  String get notifKindAnswer => 'Sorularıma gelen cevaplar';
+
+  @override
+  String get notifKindAccepted => 'Cevabımın kabul edilmesi';
+
+  @override
+  String get notifKindOfficial => 'Resmî cevaplar';
+
+  @override
+  String get notifKindFriend => 'Arkadaşlık istekleri';
+
+  @override
+  String get notifKindFollow => 'Yeni takipçiler';
+
+  @override
+  String get notifKindBadge => 'Rozetler';
+
+  @override
+  String get notifKindVerification => 'Doğrulama başvurum';
+
+  @override
+  String get notifKindOther => 'Diğer';
+
+  @override
+  String get qaSearchMembers => 'Üyeler';
+
+  @override
+  String get qaSearchTags => 'Etiketler';
+
+  @override
+  String get qaAcceptShort => 'Kabul et';
 }

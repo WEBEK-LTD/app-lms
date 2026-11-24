@@ -1251,6 +1251,690 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Build apps. Build together.'**
   String get openingTag;
+
+  /// No description provided for @socialReasonMisleading.
+  ///
+  /// In en, this message translates to:
+  /// **'Misleading or a scam'**
+  String get socialReasonMisleading;
+
+  /// No description provided for @qaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Q&A'**
+  String get qaTitle;
+
+  /// No description provided for @qaAskQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a question'**
+  String get qaAskQuestion;
+
+  /// No description provided for @qaViews.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 view} other{{count} views}}'**
+  String qaViews(int count);
+
+  /// No description provided for @qaAnswerCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No answers} =1{1 answer} other{{count} answers}}'**
+  String qaAnswerCount(int count);
+
+  /// No description provided for @qaReplyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Reply} =1{1 reply} other{{count} replies}}'**
+  String qaReplyCount(int count);
+
+  /// No description provided for @qaAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get qaAccepted;
+
+  /// No description provided for @qaOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official'**
+  String get qaOfficial;
+
+  /// No description provided for @qaJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'now'**
+  String get qaJustNow;
+
+  /// No description provided for @qaMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m'**
+  String qaMinutes(int count);
+
+  /// No description provided for @qaHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h'**
+  String qaHours(int count);
+
+  /// No description provided for @qaDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d'**
+  String qaDays(int count);
+
+  /// No description provided for @qaAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} ago'**
+  String qaAgo(String time);
+
+  /// No description provided for @qaSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get qaSave;
+
+  /// No description provided for @qaSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get qaSaved;
+
+  /// No description provided for @qaVoteUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote up'**
+  String get qaVoteUp;
+
+  /// No description provided for @qaVoteDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote down'**
+  String get qaVoteDown;
+
+  /// No description provided for @qaAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept this answer'**
+  String get qaAccept;
+
+  /// No description provided for @qaUnaccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo accept'**
+  String get qaUnaccept;
+
+  /// No description provided for @qaWriteAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Write an answer'**
+  String get qaWriteAnswer;
+
+  /// No description provided for @qaAnswerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share what worked for you…'**
+  String get qaAnswerHint;
+
+  /// No description provided for @qaPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get qaPost;
+
+  /// No description provided for @qaReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a reply…'**
+  String get qaReplyHint;
+
+  /// No description provided for @qaPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for review. It shows to others once a moderator approves it.'**
+  String get qaPending;
+
+  /// No description provided for @qaTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Write at least {count} characters.'**
+  String qaTooShort(int count);
+
+  /// No description provided for @qaOwnVote.
+  ///
+  /// In en, this message translates to:
+  /// **'You can’t vote on your own post.'**
+  String get qaOwnVote;
+
+  /// No description provided for @qaReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get qaReport;
+
+  /// No description provided for @qaRankNewcomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Newcomer'**
+  String get qaRankNewcomer;
+
+  /// No description provided for @qaRankMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get qaRankMember;
+
+  /// No description provided for @qaRankContributor.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributor'**
+  String get qaRankContributor;
+
+  /// No description provided for @qaRankExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Expert'**
+  String get qaRankExpert;
+
+  /// No description provided for @qaRankPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get qaRankPro;
+
+  /// No description provided for @qaFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get qaFilterAll;
+
+  /// No description provided for @qaFilterUnanswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Unanswered'**
+  String get qaFilterUnanswered;
+
+  /// No description provided for @qaFilterAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered'**
+  String get qaFilterAnswered;
+
+  /// No description provided for @qaFilterOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official answers'**
+  String get qaFilterOfficial;
+
+  /// No description provided for @qaFilterFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get qaFilterFollowing;
+
+  /// No description provided for @qaSortActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get qaSortActive;
+
+  /// No description provided for @qaSortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get qaSortNewest;
+
+  /// No description provided for @qaSortVotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Most votes'**
+  String get qaSortVotes;
+
+  /// No description provided for @qaEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions here yet. Be the first to ask.'**
+  String get qaEmpty;
+
+  /// No description provided for @qaAskTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your question'**
+  String get qaAskTitleLabel;
+
+  /// No description provided for @qaAskTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I…'**
+  String get qaAskTitleHint;
+
+  /// No description provided for @qaAskBodyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get qaAskBodyLabel;
+
+  /// No description provided for @qaAskBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you trying to do, and what have you tried?'**
+  String get qaAskBodyHint;
+
+  /// No description provided for @qaAskSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Section'**
+  String get qaAskSection;
+
+  /// No description provided for @qaAskTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags (up to 5)'**
+  String get qaAskTags;
+
+  /// No description provided for @qaAskLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get qaAskLanguage;
+
+  /// No description provided for @qaSimilarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Already asked?'**
+  String get qaSimilarTitle;
+
+  /// No description provided for @qaSimilarBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These look like yours. One may already have your answer.'**
+  String get qaSimilarBody;
+
+  /// No description provided for @qaAskSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Post question'**
+  String get qaAskSend;
+
+  /// No description provided for @qaSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search questions and tutorials'**
+  String get qaSearchHint;
+
+  /// No description provided for @qaSearchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches “{query}”.'**
+  String qaSearchEmpty(String query);
+
+  /// No description provided for @qaSearchQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get qaSearchQuestions;
+
+  /// No description provided for @qaSearchTutorials.
+  ///
+  /// In en, this message translates to:
+  /// **'Tutorials'**
+  String get qaSearchTutorials;
+
+  /// No description provided for @tutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn'**
+  String get tutTitle;
+
+  /// No description provided for @tutSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Official tutorials from the Yallapp team'**
+  String get tutSubtitle;
+
+  /// No description provided for @tutArticle.
+  ///
+  /// In en, this message translates to:
+  /// **'Article'**
+  String get tutArticle;
+
+  /// No description provided for @tutVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get tutVideo;
+
+  /// No description provided for @tutAllKinds.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get tutAllKinds;
+
+  /// No description provided for @tutLevelBeginner.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner'**
+  String get tutLevelBeginner;
+
+  /// No description provided for @tutLevelIntermediate.
+  ///
+  /// In en, this message translates to:
+  /// **'Intermediate'**
+  String get tutLevelIntermediate;
+
+  /// No description provided for @tutLevelAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get tutLevelAdvanced;
+
+  /// No description provided for @tutAnyLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Any level'**
+  String get tutAnyLevel;
+
+  /// No description provided for @tutAnyLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Any language'**
+  String get tutAnyLanguage;
+
+  /// No description provided for @tutMinRead.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min read'**
+  String tutMinRead(int count);
+
+  /// No description provided for @tutWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the video'**
+  String get tutWatch;
+
+  /// No description provided for @tutOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official'**
+  String get tutOfficial;
+
+  /// No description provided for @tutEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No tutorials here yet.'**
+  String get tutEmpty;
+
+  /// No description provided for @tutCannotOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'The video could not be opened.'**
+  String get tutCannotOpen;
+
+  /// No description provided for @verifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro Developer'**
+  String get verifyTitle;
+
+  /// No description provided for @verifyIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The gold badge for members who have built 5 or more apps with Yallapp. Studio Market templates count.'**
+  String get verifyIntro;
+
+  /// No description provided for @verifyNotLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Link your Yallapp account first. Your apps come from it, so only your own apps count.'**
+  String get verifyNotLinked;
+
+  /// No description provided for @verifyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Link my Yallapp account'**
+  String get verifyLink;
+
+  /// No description provided for @verifyProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {needed} apps'**
+  String verifyProgress(int count, int needed);
+
+  /// No description provided for @verifyNeedMore.
+  ///
+  /// In en, this message translates to:
+  /// **'You can apply once your Yallapp account has {needed} apps.'**
+  String verifyNeedMore(int needed);
+
+  /// No description provided for @verifyHasGold.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re a Pro Developer. The gold badge shows beside your name.'**
+  String get verifyHasGold;
+
+  /// No description provided for @verifyPending.
+  ///
+  /// In en, this message translates to:
+  /// **'We’re reviewing your request. We’ll let you know either way.'**
+  String get verifyPending;
+
+  /// No description provided for @verifySentOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent on {date}'**
+  String verifySentOn(String date);
+
+  /// No description provided for @verifyRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last request wasn’t approved.'**
+  String get verifyRejected;
+
+  /// No description provided for @verifyReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason: {reason}'**
+  String verifyReason(String reason);
+
+  /// No description provided for @verifyFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name (as on your ID)'**
+  String get verifyFullName;
+
+  /// No description provided for @verifyIdProof.
+  ///
+  /// In en, this message translates to:
+  /// **'ID proof'**
+  String get verifyIdProof;
+
+  /// No description provided for @verifyIdProofHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A photo of your ID card or passport. Only the team reviewing your request sees it.'**
+  String get verifyIdProofHint;
+
+  /// No description provided for @verifyPickId.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo'**
+  String get verifyPickId;
+
+  /// No description provided for @verifyChangeId.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get verifyChangeId;
+
+  /// No description provided for @verifyPortfolio.
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio links (up to 5)'**
+  String get verifyPortfolio;
+
+  /// No description provided for @verifyAddLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a link'**
+  String get verifyAddLink;
+
+  /// No description provided for @verifyApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Your apps'**
+  String get verifyApps;
+
+  /// No description provided for @verifyAppsFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From your linked Yallapp account'**
+  String get verifyAppsFrom;
+
+  /// No description provided for @verifyTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Template'**
+  String get verifyTemplate;
+
+  /// No description provided for @verifySend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send my request'**
+  String get verifySend;
+
+  /// No description provided for @verifyNameNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your full name.'**
+  String get verifyNameNeeded;
+
+  /// No description provided for @verifyIdNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo of your ID.'**
+  String get verifyIdNeeded;
+
+  /// No description provided for @verifyBadLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Links start with https://'**
+  String get verifyBadLink;
+
+  /// No description provided for @verifySent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. We’ll let you know when it’s reviewed.'**
+  String get verifySent;
+
+  /// No description provided for @notifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifTitle;
+
+  /// No description provided for @notifMarkAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notifMarkAll;
+
+  /// No description provided for @notifEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing new. Answers, follows and badges show here.'**
+  String get notifEmpty;
+
+  /// No description provided for @notifUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get notifUnread;
+
+  /// No description provided for @notifAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get notifAll;
+
+  /// No description provided for @notifEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email me about'**
+  String get notifEmail;
+
+  /// No description provided for @notifEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications always show here. Choose which also come by email.'**
+  String get notifEmailBody;
+
+  /// No description provided for @notifKindAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers to my questions'**
+  String get notifKindAnswer;
+
+  /// No description provided for @notifKindAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'My answer accepted'**
+  String get notifKindAccepted;
+
+  /// No description provided for @notifKindOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official answers'**
+  String get notifKindOfficial;
+
+  /// No description provided for @notifKindFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend requests'**
+  String get notifKindFriend;
+
+  /// No description provided for @notifKindFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'New followers'**
+  String get notifKindFollow;
+
+  /// No description provided for @notifKindBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges'**
+  String get notifKindBadge;
+
+  /// No description provided for @notifKindVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'My verification request'**
+  String get notifKindVerification;
+
+  /// No description provided for @notifKindOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get notifKindOther;
+
+  /// No description provided for @qaSearchMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get qaSearchMembers;
+
+  /// No description provided for @qaSearchTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get qaSearchTags;
+
+  /// No description provided for @qaAcceptShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get qaAcceptShort;
 }
 
 class _AppLocalizationsDelegate

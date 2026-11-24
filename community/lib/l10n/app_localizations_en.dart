@@ -620,4 +620,404 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get openingTag => 'Build apps. Build together.';
+
+  @override
+  String get socialReasonMisleading => 'Misleading or a scam';
+
+  @override
+  String get qaTitle => 'Q&A';
+
+  @override
+  String get qaAskQuestion => 'Ask a question';
+
+  @override
+  String qaViews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count views',
+      one: '1 view',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaAnswerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count answers',
+      one: '1 answer',
+      zero: 'No answers',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaReplyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count replies',
+      one: '1 reply',
+      zero: 'Reply',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qaAccepted => 'Accepted';
+
+  @override
+  String get qaOfficial => 'Official';
+
+  @override
+  String get qaJustNow => 'now';
+
+  @override
+  String qaMinutes(int count) {
+    return '${count}m';
+  }
+
+  @override
+  String qaHours(int count) {
+    return '${count}h';
+  }
+
+  @override
+  String qaDays(int count) {
+    return '${count}d';
+  }
+
+  @override
+  String qaAgo(String time) {
+    return '$time ago';
+  }
+
+  @override
+  String get qaSave => 'Save';
+
+  @override
+  String get qaSaved => 'Saved';
+
+  @override
+  String get qaVoteUp => 'Vote up';
+
+  @override
+  String get qaVoteDown => 'Vote down';
+
+  @override
+  String get qaAccept => 'Accept this answer';
+
+  @override
+  String get qaUnaccept => 'Undo accept';
+
+  @override
+  String get qaWriteAnswer => 'Write an answer';
+
+  @override
+  String get qaAnswerHint => 'Share what worked for you…';
+
+  @override
+  String get qaPost => 'Post';
+
+  @override
+  String get qaReplyHint => 'Write a reply…';
+
+  @override
+  String get qaPending =>
+      'Waiting for review. It shows to others once a moderator approves it.';
+
+  @override
+  String qaTooShort(int count) {
+    return 'Write at least $count characters.';
+  }
+
+  @override
+  String get qaOwnVote => 'You can’t vote on your own post.';
+
+  @override
+  String get qaReport => 'Report';
+
+  @override
+  String get qaRankNewcomer => 'Newcomer';
+
+  @override
+  String get qaRankMember => 'Member';
+
+  @override
+  String get qaRankContributor => 'Contributor';
+
+  @override
+  String get qaRankExpert => 'Expert';
+
+  @override
+  String get qaRankPro => 'Pro';
+
+  @override
+  String get qaFilterAll => 'All';
+
+  @override
+  String get qaFilterUnanswered => 'Unanswered';
+
+  @override
+  String get qaFilterAnswered => 'Answered';
+
+  @override
+  String get qaFilterOfficial => 'Official answers';
+
+  @override
+  String get qaFilterFollowing => 'Following';
+
+  @override
+  String get qaSortActive => 'Active';
+
+  @override
+  String get qaSortNewest => 'Newest';
+
+  @override
+  String get qaSortVotes => 'Most votes';
+
+  @override
+  String get qaEmpty => 'No questions here yet. Be the first to ask.';
+
+  @override
+  String get qaAskTitleLabel => 'Your question';
+
+  @override
+  String get qaAskTitleHint => 'How do I…';
+
+  @override
+  String get qaAskBodyLabel => 'Details';
+
+  @override
+  String get qaAskBodyHint =>
+      'What are you trying to do, and what have you tried?';
+
+  @override
+  String get qaAskSection => 'Section';
+
+  @override
+  String get qaAskTags => 'Tags (up to 5)';
+
+  @override
+  String get qaAskLanguage => 'Language';
+
+  @override
+  String get qaSimilarTitle => 'Already asked?';
+
+  @override
+  String get qaSimilarBody =>
+      'These look like yours. One may already have your answer.';
+
+  @override
+  String get qaAskSend => 'Post question';
+
+  @override
+  String get qaSearchHint => 'Search questions and tutorials';
+
+  @override
+  String qaSearchEmpty(String query) {
+    return 'Nothing matches “$query”.';
+  }
+
+  @override
+  String get qaSearchQuestions => 'Questions';
+
+  @override
+  String get qaSearchTutorials => 'Tutorials';
+
+  @override
+  String get tutTitle => 'Learn';
+
+  @override
+  String get tutSubtitle => 'Official tutorials from the Yallapp team';
+
+  @override
+  String get tutArticle => 'Article';
+
+  @override
+  String get tutVideo => 'Video';
+
+  @override
+  String get tutAllKinds => 'All';
+
+  @override
+  String get tutLevelBeginner => 'Beginner';
+
+  @override
+  String get tutLevelIntermediate => 'Intermediate';
+
+  @override
+  String get tutLevelAdvanced => 'Advanced';
+
+  @override
+  String get tutAnyLevel => 'Any level';
+
+  @override
+  String get tutAnyLanguage => 'Any language';
+
+  @override
+  String tutMinRead(int count) {
+    return '$count min read';
+  }
+
+  @override
+  String get tutWatch => 'Watch the video';
+
+  @override
+  String get tutOfficial => 'Official';
+
+  @override
+  String get tutEmpty => 'No tutorials here yet.';
+
+  @override
+  String get tutCannotOpen => 'The video could not be opened.';
+
+  @override
+  String get verifyTitle => 'Pro Developer';
+
+  @override
+  String get verifyIntro =>
+      'The gold badge for members who have built 5 or more apps with Yallapp. Studio Market templates count.';
+
+  @override
+  String get verifyNotLinked =>
+      'Link your Yallapp account first. Your apps come from it, so only your own apps count.';
+
+  @override
+  String get verifyLink => 'Link my Yallapp account';
+
+  @override
+  String verifyProgress(int count, int needed) {
+    return '$count of $needed apps';
+  }
+
+  @override
+  String verifyNeedMore(int needed) {
+    return 'You can apply once your Yallapp account has $needed apps.';
+  }
+
+  @override
+  String get verifyHasGold =>
+      'You’re a Pro Developer. The gold badge shows beside your name.';
+
+  @override
+  String get verifyPending =>
+      'We’re reviewing your request. We’ll let you know either way.';
+
+  @override
+  String verifySentOn(String date) {
+    return 'Sent on $date';
+  }
+
+  @override
+  String get verifyRejected => 'Your last request wasn’t approved.';
+
+  @override
+  String verifyReason(String reason) {
+    return 'Reason: $reason';
+  }
+
+  @override
+  String get verifyFullName => 'Full name (as on your ID)';
+
+  @override
+  String get verifyIdProof => 'ID proof';
+
+  @override
+  String get verifyIdProofHint =>
+      'A photo of your ID card or passport. Only the team reviewing your request sees it.';
+
+  @override
+  String get verifyPickId => 'Choose a photo';
+
+  @override
+  String get verifyChangeId => 'Change';
+
+  @override
+  String get verifyPortfolio => 'Portfolio links (up to 5)';
+
+  @override
+  String get verifyAddLink => 'Add a link';
+
+  @override
+  String get verifyApps => 'Your apps';
+
+  @override
+  String get verifyAppsFrom => 'From your linked Yallapp account';
+
+  @override
+  String get verifyTemplate => 'Template';
+
+  @override
+  String get verifySend => 'Send my request';
+
+  @override
+  String get verifyNameNeeded => 'Write your full name.';
+
+  @override
+  String get verifyIdNeeded => 'Add a photo of your ID.';
+
+  @override
+  String get verifyBadLink => 'Links start with https://';
+
+  @override
+  String get verifySent => 'Sent. We’ll let you know when it’s reviewed.';
+
+  @override
+  String get notifTitle => 'Notifications';
+
+  @override
+  String get notifMarkAll => 'Mark all read';
+
+  @override
+  String get notifEmpty =>
+      'Nothing new. Answers, follows and badges show here.';
+
+  @override
+  String get notifUnread => 'Unread';
+
+  @override
+  String get notifAll => 'All';
+
+  @override
+  String get notifEmail => 'Email me about';
+
+  @override
+  String get notifEmailBody =>
+      'Notifications always show here. Choose which also come by email.';
+
+  @override
+  String get notifKindAnswer => 'Answers to my questions';
+
+  @override
+  String get notifKindAccepted => 'My answer accepted';
+
+  @override
+  String get notifKindOfficial => 'Official answers';
+
+  @override
+  String get notifKindFriend => 'Friend requests';
+
+  @override
+  String get notifKindFollow => 'New followers';
+
+  @override
+  String get notifKindBadge => 'Badges';
+
+  @override
+  String get notifKindVerification => 'My verification request';
+
+  @override
+  String get notifKindOther => 'Other';
+
+  @override
+  String get qaSearchMembers => 'Members';
+
+  @override
+  String get qaSearchTags => 'Tags';
+
+  @override
+  String get qaAcceptShort => 'Accept';
 }

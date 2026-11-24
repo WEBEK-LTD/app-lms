@@ -1,7 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../widgets/coming_soon.dart';
+import '../auth/session.dart';
+
+import '../../features/badges/ui/verification_screen.dart';
+import '../../features/notifications/ui/notifications_screen.dart';
+import '../../features/qa/state/questions_controller.dart';
+import '../../features/qa/ui/ask_screen.dart';
+import '../../features/qa/ui/question_screen.dart';
+import '../../features/qa/ui/questions_screen.dart';
+import '../../features/qa/ui/widgets/section_header.dart';
+import '../../features/search/ui/saved_screen.dart';
+import '../../features/search/ui/search_screen.dart';
+import '../../features/shell/side_menu.dart';
+import '../../features/tutorials/ui/tutorial_screen.dart';
+import '../../features/tutorials/ui/tutorials_screen.dart';
 
 /// Area E's screens in the app (lib/features/qa, tutorials, badges,
 /// notifications): this file is E's. The shell (area D) links to them only
@@ -40,31 +53,36 @@ abstract final class FeatureLinks {
 List<RouteBase> featureTabRoutes() => [
   GoRoute(
     path: FeatureLinks.qa,
-    builder: (context, state) => const ComingSoonPage(title: 'Q&A'),
+    builder: (context, state) =>
+        const QuestionsScreen(header: SectionHeader(section: MenuSection.qa)),
   ),
   GoRoute(
     path: '/qa/:id',
-    builder: (context, state) => const ComingSoonPage(title: 'Q&A'),
+    builder: (context, state) =>
+        QuestionScreen(id: state.pathParameters['id']!),
   ),
   GoRoute(
     path: FeatureLinks.learn,
-    builder: (context, state) => const ComingSoonPage(title: 'Learn'),
+    builder: (context, state) => const TutorialsScreen(
+      header: SectionHeader(section: MenuSection.tutorials),
+    ),
   ),
   GoRoute(
     path: '/learn/:id',
-    builder: (context, state) => const ComingSoonPage(title: 'Learn'),
+    builder: (context, state) =>
+        TutorialScreen(id: state.pathParameters['id']!),
   ),
   GoRoute(
     path: FeatureLinks.notifications,
-    builder: (context, state) => const ComingSoonPage(title: 'Notifications'),
+    builder: (context, state) => const NotificationsScreen(),
   ),
   GoRoute(
     path: FeatureLinks.search,
-    builder: (context, state) => const ComingSoonPage(title: 'Search'),
+    builder: (context, state) => const SearchScreen(),
   ),
   GoRoute(
     path: FeatureLinks.saved,
-    builder: (context, state) => const ComingSoonPage(title: 'Saved'),
+    builder: (context, state) => const SavedScreen(),
   ),
 ];
 
@@ -72,16 +90,24 @@ List<RouteBase> featureTabRoutes() => [
 List<RouteBase> featureRoutes() => [
   GoRoute(
     path: FeatureLinks.ask,
-    builder: (context, state) => const ComingSoonPage(title: 'Ask'),
+    builder: (context, state) => const AskScreen(),
   ),
   GoRoute(
     path: FeatureLinks.verify,
-    builder: (context, state) => const ComingSoonPage(title: 'Verify'),
+    builder: (context, state) => const VerificationScreen(),
   ),
 ];
 
 /// The counts E's features show on the shell: the bell's number (unread
 /// notifications) and the Q&A tab's dot and menu badge (new questions since
 /// the member last looked). Zero until E fills them in.
-final unreadNotificationsProvider = Provider<int>((ref) => 0);
-final newQuestionsProvider = Provider<int>((ref) => 0);
+final unreadNotificationsProvider = Provider<int>(
+  (ref) =>
+      ref.watch(notificationsProvider).value?.unreadCount ??
+      // Until the list loads: the count that came with the member.
+      ref.watch(meProvider)?.account?.unreadNotifications ??
+      0,
+);
+final newQuestionsProvider = Provider<int>(
+  (ref) => ref.watch(newQuestionsCountProvider),
+);

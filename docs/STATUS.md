@@ -27,6 +27,11 @@ Roadmap 231, area D (the Yallapp Community app, `community/`): the opening,
 welcome and signing in (Apple, Google, email), the shell, Home, the side
 menu, profiles with follow, friends, block and report, and settings, on area
 A's contract; no payments in the app (a test guards it); not yet released.
+Roadmap 231 (area E, the Community app's features): the question screen
+as the approved dark question phone, the Q&A tab, asking with similar
+questions, official tutorials (all free, never a lock),
+the Gold badge's verification form, notifications with the bell's count,
+search and saved, in English, Arabic and Turkish, light and dark.
 
 Roadmap 231 area F (Yallapp Community's website, under `src/app/community/`,
 served on `community.yallapp.com.tr`): the approved look in English, Arabic

@@ -227,5 +227,220 @@
   "settingsDeleteLine": "This deletes your profile, follows and friends at once. Your questions and answers stay, shown as from “Deleted member”.",
   "settingsDeletePassword": "Your password",
   "settingsDeleteConfirm": "Delete my account",
-  "openingTag": "Build apps. Build together."
+  "openingTag": "Build apps. Build together.",
+  "socialReasonMisleading": "Misleading or a scam",
+  "qaTitle": "Q&A",
+  "qaAskQuestion": "Ask a question",
+  "qaViews": "{count, plural, =1{1 view} other{{count} views}}",
+  "@qaViews": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaAnswerCount": "{count, plural, =0{No answers} =1{1 answer} other{{count} answers}}",
+  "@qaAnswerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaReplyCount": "{count, plural, =0{Reply} =1{1 reply} other{{count} replies}}",
+  "@qaReplyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaAccepted": "Accepted",
+  "qaOfficial": "Official",
+  "qaJustNow": "now",
+  "qaMinutes": "{count}m",
+  "@qaMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaHours": "{count}h",
+  "@qaHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaDays": "{count}d",
+  "@qaDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaAgo": "{time} ago",
+  "@qaAgo": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "qaSave": "Save",
+  "qaSaved": "Saved",
+  "qaVoteUp": "Vote up",
+  "qaVoteDown": "Vote down",
+  "qaAccept": "Accept this answer",
+  "qaUnaccept": "Undo accept",
+  "qaWriteAnswer": "Write an answer",
+  "qaAnswerHint": "Share what worked for you…",
+  "qaPost": "Post",
+  "qaReplyHint": "Write a reply…",
+  "qaPending": "Waiting for review. It shows to others once a moderator approves it.",
+  "qaTooShort": "Write at least {count} characters.",
+  "@qaTooShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qaOwnVote": "You can’t vote on your own post.",
+  "qaReport": "Report",
+  "qaRankNewcomer": "Newcomer",
+  "qaRankMember": "Member",
+  "qaRankContributor": "Contributor",
+  "qaRankExpert": "Expert",
+  "qaRankPro": "Pro",
+  "qaFilterAll": "All",
+  "qaFilterUnanswered": "Unanswered",
+  "qaFilterAnswered": "Answered",
+  "qaFilterOfficial": "Official answers",
+  "qaFilterFollowing": "Following",
+  "qaSortActive": "Active",
+  "qaSortNewest": "Newest",
+  "qaSortVotes": "Most votes",
+  "qaEmpty": "No questions here yet. Be the first to ask.",
+  "qaAskTitleLabel": "Your question",
+  "qaAskTitleHint": "How do I…",
+  "qaAskBodyLabel": "Details",
+  "qaAskBodyHint": "What are you trying to do, and what have you tried?",
+  "qaAskSection": "Section",
+  "qaAskTags": "Tags (up to 5)",
+  "qaAskLanguage": "Language",
+  "qaSimilarTitle": "Already asked?",
+  "qaSimilarBody": "These look like yours. One may already have your answer.",
+  "qaAskSend": "Post question",
+  "qaSearchHint": "Search questions and tutorials",
+  "qaSearchEmpty": "Nothing matches “{query}”.",
+  "@qaSearchEmpty": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "qaSearchQuestions": "Questions",
+  "qaSearchTutorials": "Tutorials",
+  "tutTitle": "Learn",
+  "tutSubtitle": "Official tutorials from the Yallapp team",
+  "tutArticle": "Article",
+  "tutVideo": "Video",
+  "tutAllKinds": "All",
+  "tutLevelBeginner": "Beginner",
+  "tutLevelIntermediate": "Intermediate",
+  "tutLevelAdvanced": "Advanced",
+  "tutAnyLevel": "Any level",
+  "tutAnyLanguage": "Any language",
+  "tutMinRead": "{count} min read",
+  "@tutMinRead": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tutWatch": "Watch the video",
+  "tutOfficial": "Official",
+  "tutEmpty": "No tutorials here yet.",
+  "tutCannotOpen": "The video could not be opened.",
+  "verifyTitle": "Pro Developer",
+  "verifyIntro": "The gold badge for members who have built 5 or more apps with Yallapp. Studio Market templates count.",
+  "verifyNotLinked": "Link your Yallapp account first. Your apps come from it, so only your own apps count.",
+  "verifyLink": "Link my Yallapp account",
+  "verifyProgress": "{count} of {needed} apps",
+  "@verifyProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "verifyNeedMore": "You can apply once your Yallapp account has {needed} apps.",
+  "@verifyNeedMore": {
+    "placeholders": {
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "verifyHasGold": "You’re a Pro Developer. The gold badge shows beside your name.",
+  "verifyPending": "We’re reviewing your request. We’ll let you know either way.",
+  "verifySentOn": "Sent on {date}",
+  "@verifySentOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyRejected": "Your last request wasn’t approved.",
+  "verifyReason": "Reason: {reason}",
+  "@verifyReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyFullName": "Full name (as on your ID)",
+  "verifyIdProof": "ID proof",
+  "verifyIdProofHint": "A photo of your ID card or passport. Only the team reviewing your request sees it.",
+  "verifyPickId": "Choose a photo",
+  "verifyChangeId": "Change",
+  "verifyPortfolio": "Portfolio links (up to 5)",
+  "verifyAddLink": "Add a link",
+  "verifyApps": "Your apps",
+  "verifyAppsFrom": "From your linked Yallapp account",
+  "verifyTemplate": "Template",
+  "verifySend": "Send my request",
+  "verifyNameNeeded": "Write your full name.",
+  "verifyIdNeeded": "Add a photo of your ID.",
+  "verifyBadLink": "Links start with https://",
+  "verifySent": "Sent. We’ll let you know when it’s reviewed.",
+  "notifTitle": "Notifications",
+  "notifMarkAll": "Mark all read",
+  "notifEmpty": "Nothing new. Answers, follows and badges show here.",
+  "notifUnread": "Unread",
+  "notifAll": "All",
+  "notifEmail": "Email me about",
+  "notifEmailBody": "Notifications always show here. Choose which also come by email.",
+  "notifKindAnswer": "Answers to my questions",
+  "notifKindAccepted": "My answer accepted",
+  "notifKindOfficial": "Official answers",
+  "notifKindFriend": "Friend requests",
+  "notifKindFollow": "New followers",
+  "notifKindBadge": "Badges",
+  "notifKindVerification": "My verification request",
+  "notifKindOther": "Other",
+  "qaSearchMembers": "Members",
+  "qaSearchTags": "Tags",
+  "qaAcceptShort": "Accept"
 }

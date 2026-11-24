@@ -619,4 +619,410 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get openingTag => 'ابنِ تطبيقات. ابنِ معًا.';
+
+  @override
+  String get socialReasonMisleading => 'مضلّل أو احتيال';
+
+  @override
+  String get qaTitle => 'سؤال وجواب';
+
+  @override
+  String get qaAskQuestion => 'اطرح سؤالًا';
+
+  @override
+  String qaViews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مشاهدة',
+      many: '$count مشاهدة',
+      few: '$count مشاهدات',
+      two: 'مشاهدتان',
+      one: 'مشاهدة واحدة',
+      zero: 'لا مشاهدات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaAnswerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count إجابة',
+      many: '$count إجابة',
+      few: '$count إجابات',
+      two: 'إجابتان',
+      one: 'إجابة واحدة',
+      zero: 'لا إجابات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qaReplyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count رد',
+      many: '$count ردًا',
+      few: '$count ردود',
+      two: 'ردّان',
+      one: 'رد واحد',
+      zero: 'رد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get qaAccepted => 'مقبولة';
+
+  @override
+  String get qaOfficial => 'رسمي';
+
+  @override
+  String get qaJustNow => 'الآن';
+
+  @override
+  String qaMinutes(int count) {
+    return '$count د';
+  }
+
+  @override
+  String qaHours(int count) {
+    return '$count س';
+  }
+
+  @override
+  String qaDays(int count) {
+    return '$count ي';
+  }
+
+  @override
+  String qaAgo(String time) {
+    return 'منذ $time';
+  }
+
+  @override
+  String get qaSave => 'احفظ';
+
+  @override
+  String get qaSaved => 'محفوظ';
+
+  @override
+  String get qaVoteUp => 'صوّت لأعلى';
+
+  @override
+  String get qaVoteDown => 'صوّت لأسفل';
+
+  @override
+  String get qaAccept => 'اقبل هذه الإجابة';
+
+  @override
+  String get qaUnaccept => 'تراجع عن القبول';
+
+  @override
+  String get qaWriteAnswer => 'اكتب إجابة';
+
+  @override
+  String get qaAnswerHint => 'شارك ما نجح معك…';
+
+  @override
+  String get qaPost => 'انشر';
+
+  @override
+  String get qaReplyHint => 'اكتب ردًّا…';
+
+  @override
+  String get qaPending => 'بانتظار المراجعة. سيظهر للآخرين بعد موافقة المشرف.';
+
+  @override
+  String qaTooShort(int count) {
+    return 'اكتب $count حرفًا على الأقل.';
+  }
+
+  @override
+  String get qaOwnVote => 'لا يمكنك التصويت على ما كتبته.';
+
+  @override
+  String get qaReport => 'أبلغ';
+
+  @override
+  String get qaRankNewcomer => 'جديد';
+
+  @override
+  String get qaRankMember => 'عضو';
+
+  @override
+  String get qaRankContributor => 'مساهم';
+
+  @override
+  String get qaRankExpert => 'خبير';
+
+  @override
+  String get qaRankPro => 'محترف';
+
+  @override
+  String get qaFilterAll => 'الكل';
+
+  @override
+  String get qaFilterUnanswered => 'بلا إجابة';
+
+  @override
+  String get qaFilterAnswered => 'مُجاب';
+
+  @override
+  String get qaFilterOfficial => 'إجابات رسمية';
+
+  @override
+  String get qaFilterFollowing => 'أتابعه';
+
+  @override
+  String get qaSortActive => 'الأنشط';
+
+  @override
+  String get qaSortNewest => 'الأحدث';
+
+  @override
+  String get qaSortVotes => 'الأعلى تصويتًا';
+
+  @override
+  String get qaEmpty => 'لا أسئلة هنا بعد. كن أول من يسأل.';
+
+  @override
+  String get qaAskTitleLabel => 'سؤالك';
+
+  @override
+  String get qaAskTitleHint => 'كيف أستطيع…';
+
+  @override
+  String get qaAskBodyLabel => 'التفاصيل';
+
+  @override
+  String get qaAskBodyHint => 'ماذا تحاول أن تفعل، وما الذي جرّبته؟';
+
+  @override
+  String get qaAskSection => 'القسم';
+
+  @override
+  String get qaAskTags => 'الوسوم (حتى 5)';
+
+  @override
+  String get qaAskLanguage => 'اللغة';
+
+  @override
+  String get qaSimilarTitle => 'هل سُئل من قبل؟';
+
+  @override
+  String get qaSimilarBody =>
+      'هذه الأسئلة تشبه سؤالك، وقد تجد إجابتك في أحدها.';
+
+  @override
+  String get qaAskSend => 'انشر السؤال';
+
+  @override
+  String get qaSearchHint => 'ابحث في الأسئلة والدروس';
+
+  @override
+  String qaSearchEmpty(String query) {
+    return 'لا نتائج لـ «$query».';
+  }
+
+  @override
+  String get qaSearchQuestions => 'الأسئلة';
+
+  @override
+  String get qaSearchTutorials => 'الدروس';
+
+  @override
+  String get tutTitle => 'تعلّم';
+
+  @override
+  String get tutSubtitle => 'دروس رسمية من فريق يلا آب';
+
+  @override
+  String get tutArticle => 'مقال';
+
+  @override
+  String get tutVideo => 'فيديو';
+
+  @override
+  String get tutAllKinds => 'الكل';
+
+  @override
+  String get tutLevelBeginner => 'مبتدئ';
+
+  @override
+  String get tutLevelIntermediate => 'متوسط';
+
+  @override
+  String get tutLevelAdvanced => 'متقدم';
+
+  @override
+  String get tutAnyLevel => 'أي مستوى';
+
+  @override
+  String get tutAnyLanguage => 'أي لغة';
+
+  @override
+  String tutMinRead(int count) {
+    return 'قراءة $count د';
+  }
+
+  @override
+  String get tutWatch => 'شاهد الفيديو';
+
+  @override
+  String get tutOfficial => 'رسمي';
+
+  @override
+  String get tutEmpty => 'لا دروس هنا بعد.';
+
+  @override
+  String get tutCannotOpen => 'تعذّر فتح الفيديو.';
+
+  @override
+  String get verifyTitle => 'مطوّر محترف';
+
+  @override
+  String get verifyIntro =>
+      'الشارة الذهبية للأعضاء الذين بنوا 5 تطبيقات أو أكثر بيلا آب. قوالب متجر Studio تُحتسب.';
+
+  @override
+  String get verifyNotLinked =>
+      'اربط حساب يلا آب أولًا. تطبيقاتك تأتي منه، فلا تُحتسب إلا تطبيقاتك.';
+
+  @override
+  String get verifyLink => 'اربط حساب يلا آب';
+
+  @override
+  String verifyProgress(int count, int needed) {
+    return '$count من $needed تطبيقات';
+  }
+
+  @override
+  String verifyNeedMore(int needed) {
+    return 'يمكنك التقديم عندما يصبح في حساب يلا آب $needed تطبيقات.';
+  }
+
+  @override
+  String get verifyHasGold =>
+      'أنت مطوّر محترف. تظهر الشارة الذهبية بجانب اسمك.';
+
+  @override
+  String get verifyPending => 'نراجع طلبك، وسنخبرك بالنتيجة في الحالتين.';
+
+  @override
+  String verifySentOn(String date) {
+    return 'أُرسل في $date';
+  }
+
+  @override
+  String get verifyRejected => 'لم يُقبل طلبك الأخير.';
+
+  @override
+  String verifyReason(String reason) {
+    return 'السبب: $reason';
+  }
+
+  @override
+  String get verifyFullName => 'الاسم الكامل (كما في الهوية)';
+
+  @override
+  String get verifyIdProof => 'إثبات الهوية';
+
+  @override
+  String get verifyIdProofHint =>
+      'صورة لبطاقة الهوية أو جواز السفر. لا يراها إلا الفريق الذي يراجع طلبك.';
+
+  @override
+  String get verifyPickId => 'اختر صورة';
+
+  @override
+  String get verifyChangeId => 'غيّر';
+
+  @override
+  String get verifyPortfolio => 'روابط أعمالك (حتى 5)';
+
+  @override
+  String get verifyAddLink => 'أضف رابطًا';
+
+  @override
+  String get verifyApps => 'تطبيقاتك';
+
+  @override
+  String get verifyAppsFrom => 'من حساب يلا آب المرتبط';
+
+  @override
+  String get verifyTemplate => 'قالب';
+
+  @override
+  String get verifySend => 'أرسل طلبي';
+
+  @override
+  String get verifyNameNeeded => 'اكتب اسمك الكامل.';
+
+  @override
+  String get verifyIdNeeded => 'أضف صورة لهويتك.';
+
+  @override
+  String get verifyBadLink => 'تبدأ الروابط بـ https://';
+
+  @override
+  String get verifySent => 'أُرسل. سنخبرك عند مراجعته.';
+
+  @override
+  String get notifTitle => 'الإشعارات';
+
+  @override
+  String get notifMarkAll => 'تعليم الكل كمقروء';
+
+  @override
+  String get notifEmpty => 'لا جديد. تظهر هنا الإجابات والمتابعات والشارات.';
+
+  @override
+  String get notifUnread => 'غير المقروءة';
+
+  @override
+  String get notifAll => 'الكل';
+
+  @override
+  String get notifEmail => 'راسلني بالبريد عن';
+
+  @override
+  String get notifEmailBody =>
+      'تظهر الإشعارات هنا دائمًا. اختر ما يصلك منها بالبريد أيضًا.';
+
+  @override
+  String get notifKindAnswer => 'إجابات أسئلتي';
+
+  @override
+  String get notifKindAccepted => 'قبول إجابتي';
+
+  @override
+  String get notifKindOfficial => 'الإجابات الرسمية';
+
+  @override
+  String get notifKindFriend => 'طلبات الصداقة';
+
+  @override
+  String get notifKindFollow => 'متابعون جدد';
+
+  @override
+  String get notifKindBadge => 'الشارات';
+
+  @override
+  String get notifKindVerification => 'طلب التوثيق';
+
+  @override
+  String get notifKindOther => 'أخرى';
+
+  @override
+  String get qaSearchMembers => 'الأعضاء';
+
+  @override
+  String get qaSearchTags => 'الوسوم';
+
+  @override
+  String get qaAcceptShort => 'اقبل';
 }
