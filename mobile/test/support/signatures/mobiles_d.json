@@ -345,7 +345,7 @@
            }
           },
           "flash_sale": {
-           "look": "banner",
+           "look": "carousel",
            "limit": 1,
            "countdown": true,
            "stock_bar": true,
