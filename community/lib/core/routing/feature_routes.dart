@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../features/qa/ui/ask_screen.dart';
 import '../../features/qa/ui/question_screen.dart';
 import '../../features/qa/ui/questions_screen.dart';
+import '../../features/qa/ui/widgets/section_header.dart';
+import '../../features/shell/side_menu.dart';
 import '../widgets/coming_soon.dart';
 
 /// Area E's screens in the app (lib/features/qa, tutorials, badges,
@@ -43,7 +45,8 @@ abstract final class FeatureLinks {
 List<RouteBase> featureTabRoutes() => [
   GoRoute(
     path: FeatureLinks.qa,
-    builder: (context, state) => const QuestionsScreen(),
+    builder: (context, state) =>
+        const QuestionsScreen(header: SectionHeader(section: MenuSection.qa)),
   ),
   GoRoute(
     path: '/qa/:id',
