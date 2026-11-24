@@ -71,3 +71,8 @@
 - **bottom-jeans.jpg**: "City Woman" by Matt Moloney, CC0 1.0, cut square around the garment (fence-jeans.jpg's photo, 223). https://stocksnap.io/photo/city-woman-NBGPDH7RS9
 - **bottom-velvet.jpg**: "Woman Fashion" by Matt Moloney, CC0 1.0, cut square around the garment (turtleneck.jpg's photo, 223). https://stocksnap.io/photo/woman-fashion-PT99RR9DAE
 - **bottom-skirt.jpg**: "People Woman" by Zeny Rosalina, CC0 1.0, cut square around the garment (red-skirt.jpg's photo, 223). https://stocksnap.io/photo/people-woman-D85KN9KIDN
+- **stripe-dress.jpg**: "Woman Cover" by Daria Shevtsova, CC0 1.0. https://stocksnap.io/photo/woman-cover-A79NQ95LOI
+- **fur-jacket.jpg**: "Woman Fashion" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/woman-fashion-94TN6BQCV4
+- **editor-hat.jpg**: "Blackandwhite Monochrome" by Luke Braswell, CC0 1.0. https://stocksnap.io/photo/blackandwhite-monochrome-XZI69BCJTX
+- **brown-coat.jpg**: "People Girl" by Kaci Baum, CC0 1.0. https://stocksnap.io/photo/people-girl-0GZIHFBPFQ
+- **black-coat.jpg**: "Woman Red" by Nick Demou, CC0 1.0. https://stocksnap.io/photo/woman-red-1JF6CRZOCE

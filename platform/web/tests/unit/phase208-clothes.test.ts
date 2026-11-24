@@ -207,7 +207,7 @@ describe("208 Lujain, the clothes shop's demo", () => {
     const v = clothesVariants(dress, 0)!;
     expect(v.attributes).toEqual([
       { name: "Size", values: ["XS", "S", "M", "L", "XL"] },
-      { name: "Colour", values: ["Rust", "Black", "Olive"] },
+      { name: "Colour", values: ["Blue", "Black", "Olive"] },
     ]);
     expect(v.items).toHaveLength(15);
     expect(v.items.some((i) => i.stock === 0)).toBe(true);
@@ -285,7 +285,7 @@ describe("208 Lujain, the clothes shop's demo", () => {
       expect(arProducts.items.map((p) => p.name)).toContain(CLOTHES_PRODUCT_NAMES["CL-101"]!.ar);
       expect(arProducts.items.every((p) => /[\u0600-\u06FF]/u.test(p.name))).toBe(true);
       const trProducts = (await call("/store/products", { per_page: "100" }, "tr")).body as { items: { name: string }[] };
-      expect(trProducts.items.map((p) => p.name)).toContain("Kiremit saten midi elbise");
+      expect(trProducts.items.map((p) => p.name)).toContain("Çizgili gömlek elbise");
       const inDresses = (await call("/store/products", { category: String(dresses.id), per_page: "50" })).body as { items: { id: number }[] };
       expect(inDresses.items).toHaveLength(dresses.count);
       const config = (await call("/config", { platform: "android", app_version: "1.0.0" })).body as { store: { size_chart: { headers: string[]; unit: string } | null; returns: { days: number } | null } };

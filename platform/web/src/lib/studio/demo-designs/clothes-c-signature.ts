@@ -160,9 +160,9 @@ function look(ctx: SectionContext, photo: string, kicker: SectionWord, title: Se
 export function runwayLooks(ctx: SectionContext): StudioNode {
   const looks: [string, SectionWord, SectionWord][] = [
     ["camel-dress", "rwyLook1Kicker", "rwyLook1Title"],
-    ["red-dress", "rwyLook2Kicker", "rwyLook2Title"],
+    ["stripe-dress", "rwyLook2Kicker", "rwyLook2Title"],
     ["olive-jacket", "rwyLook3Kicker", "rwyLook3Title"],
-    ["camel-jacket", "rwyLook4Kicker", "rwyLook4Title"],
+    ["fur-jacket", "rwyLook4Kicker", "rwyLook4Title"],
   ];
   const first = sigPhoto(ctx, P(looks[0]![0]));
   return {
@@ -257,7 +257,7 @@ function editorQuote(ctx: SectionContext): StudioNode {
     id: idOf(ctx)(),
     type: "photo_hero",
     name: ctx.w("rwyEditorKicker"),
-    image_url: sigPhoto(ctx, P("velvet")),
+    image_url: sigPhoto(ctx, P("editor-hat")),
     height: 440,
     radius: 0,
     background: "#141211",

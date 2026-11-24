@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { ICON_NAMES } from "@/components/icon-names";
 import { CLOTHES_DEMO, KIDS_DEMO, type StudioDemoId } from "@/lib/demo/constants";
-import { CLOTHES_CATEGORIES } from "@/lib/demo/clothes";
+import { CLOTHES_CATEGORIES, CLOTHES_PRODUCTS } from "@/lib/demo/clothes";
 import { KIDS_CATEGORIES } from "@/lib/demo/kids";
 import { appUrl } from "@/lib/env";
 import type { StudioPage } from "@/lib/pages/types";
@@ -220,5 +220,25 @@ describe("223 Lujain's and Toota's templates C and D", () => {
     expect(withDemoFacts(KIDS_DEMO, signatureDesign(KIDS_DEMO, "c")!.home(ctxOf("Toota")), "ar").header?.title).toBe("توتة");
     const nursery = withDemoFacts(KIDS_DEMO, signatureDesign(KIDS_DEMO, "d")!.home(ctxOf("Toota")), "ar");
     expect([nursery.header?.title, ...allNodes(nursery).map((n) => n.text)]).toContain("توتة · الحضانة");
+  });
+
+  it("shows RUNWAY's looks, its editor's note and its home's pieces on the editorial photos, the two lists sharing no piece", () => {
+    const home = signatureDesign(CLOTHES_DEMO, "c")!.home(ctxOf("Lujain"));
+    const photos = allNodes(home).map((n) => n.image_url ?? n.image_background_url ?? "").filter((u) => u.includes("/clothes-photos/"));
+    for (const shot of ["camel-dress", "stripe-dress", "olive-jacket", "fur-jacket", "editor-hat"]) expect(photos.some((u) => u.endsWith(`/${shot}.jpg`)), shot).toBe(true);
+    // The street snaps it had are gone from the lookbook.
+    for (const snap of ["red-dress", "camel-jacket", "velvet"]) expect(photos.some((u) => u.endsWith(`/${snap}.jpg`)), snap).toBe(false);
+    // New in (the newest four) and the most wanted (the eight dearest, at the price they sell for): no piece in both, each on its own editorial photo.
+    const price = (p: (typeof CLOTHES_PRODUCTS)[number]) => (p.salePriceCents !== null && p.salePriceCents < p.priceCents ? p.salePriceCents : p.priceCents);
+    const newest = CLOTHES_PRODUCTS.slice(0, 4).map((p) => p.sku);
+    const dearest = [...CLOTHES_PRODUCTS].sort((a, b) => price(b) - price(a));
+    const wanted = dearest.slice(0, 8);
+    // No tie at the edge, so the list is the same whatever order the store keeps equal prices in.
+    expect(price(dearest[7]!)).toBeGreaterThan(price(dearest[8]!));
+    expect(wanted.filter((p) => newest.includes(p.sku))).toEqual([]);
+    for (const p of [...CLOTHES_PRODUCTS.slice(0, 4), ...wanted]) expect(["rust-1", "yellow-coat", "pink-trench", "c-black-coat", "orange-coat", "camel-jacket"], p.sku).not.toContain(p.photos[0]);
+    expect(CLOTHES_PRODUCTS.find((p) => p.sku === "CL-101")).toMatchObject({ name: "Striped shirt dress", photos: ["stripe-dress"] });
+    const credits = JSON.parse(readFileSync(join(ROOT, "public/clothes-photos/CREDITS.json"), "utf8")) as { file: string; page: string; license: string }[];
+    for (const f of ["stripe-dress", "fur-jacket", "editor-hat", "brown-coat", "black-coat"]) expect(credits.find((c) => c.file === `${f}.jpg`), f).toMatchObject({ license: "CC0 1.0", page: expect.stringMatching(/^https:\/\/stocksnap\.io\/photo\//) });
   });
 });

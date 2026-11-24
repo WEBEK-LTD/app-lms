@@ -102,7 +102,7 @@ export const BEAUTY_PRODUCT_NAMES: ProductNames = {
 
 /** 223 Lujain's (clothes) products. */
 export const CLOTHES_PRODUCT_NAMES: ProductNames = {
-  "CL-101": { ar: "فستان ساتان ميدي صدئي", tr: "Kiremit saten midi elbise" },
+  "CL-101": { ar: "فستان قميص مخطّط", tr: "Çizgili gömlek elbise" },
   "CL-107": { ar: "فستان منقّط بقصّة A", tr: "Puantiyeli A kesim elbise" },
   "CL-104": { ar: "فستان ماكسي كريمي بطبقات", tr: "Krem katlı maksi elbise" },
   "CL-110": { ar: "الفستان الأسود القصير", tr: "Küçük siyah elbise" },
@@ -117,8 +117,8 @@ export const CLOTHES_PRODUCT_NAMES: ProductNames = {
   "CL-203": { ar: "عباءة كيمونو مزهّرة", tr: "Çiçekli kimono abaya" },
   "CL-301": { ar: "جاكيت زيتي بأزرار", tr: "Düğmeli zeytin yeşili ceket" },
   "CL-302": { ar: "ترنش وردي بحزام", tr: "Kemerli pembe trençkot" },
-  "CL-303": { ar: "معطف صوف خردلي", tr: "Hardal yün kaban" },
-  "CL-304": { ar: "جاكيت شامواه قصير بياقة فرو", tr: "Kürk yakalı kısa süet ceket" },
+  "CL-303": { ar: "معطف صوف بني", tr: "Kahverengi yün kaban" },
+  "CL-304": { ar: "جاكيت جملي بفرو صناعي", tr: "Deve tüyü suni kürk ceket" },
   "CL-305": { ar: "معطف تيدي برتقالي", tr: "Turuncu peluş kaban" },
   "CL-306": { ar: "معطف صوف أسود", tr: "Siyah yün kaban" },
   "CL-307": { ar: "معطف طويل داكن", tr: "Uzun koyu palto" },
