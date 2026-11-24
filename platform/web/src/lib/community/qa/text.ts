@@ -1,3 +1,4 @@
+import { levelOf } from "../levels";
 import type { MemberRank } from "./types";
 
 /** 231 Limits of what members write. */
@@ -105,12 +106,9 @@ export function links(text: string): string[] {
 }
 
 /** A member's standing from their points: the mockup's "Expert" beside a name. */
+/** The member's level by their points: the community's one table (lib/community/levels.ts). */
 export function rankOf(points: number): MemberRank {
-  if (points >= 5000) return "pro";
-  if (points >= 1000) return "expert";
-  if (points >= 250) return "contributor";
-  if (points >= 25) return "member";
-  return "newcomer";
+  return levelOf(points).level;
 }
 
 /** Points per thing done (the mockup's "Answer accepted · +25 points"). */

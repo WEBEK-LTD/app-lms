@@ -56,17 +56,15 @@ const SHOWN: readonly ContentStatus[] = ["published"];
 // ——— Points ———
 
 /** Gives points and tells area A the member's total (their profile's points). */
+/** Gives points once per reason and ref; the member's profile moves only by what was recorded. */
 async function award(e: Parameters<QaStore["addPoints"]>[0]): Promise<void> {
-  await qaStore().addPoints(e);
-  if (e.points) await qaHooks().pointsChanged(e.memberId, e.points);
+  if ((await qaStore().addPoints(e)) && e.points) await qaHooks().pointsChanged(e.memberId, e.points);
 }
+/** Takes back what that reason and ref gave, by exactly what was taken. */
 async function unaward(memberId: string, reason: Parameters<QaStore["removePoints"]>[1], ref: string): Promise<void> {
-  const before = await totalOf(memberId);
-  await qaStore().removePoints(memberId, reason, ref);
-  const delta = (await totalOf(memberId)) - before;
-  if (delta) await qaHooks().pointsChanged(memberId, delta);
+  const taken = await qaStore().removePoints(memberId, reason, ref);
+  if (taken) await qaHooks().pointsChanged(memberId, -taken);
 }
-const totalOf = async (memberId: string) => (await qaStore().pointsOf([memberId]))[memberId] ?? 0;
 
 // ——— Sections ———
 
@@ -142,8 +140,10 @@ export async function listTags(input: { q?: string; section?: string; limit?: nu
     const inSection = new Set((await qaStore().listQuestions({ statuses: SHOWN, sectionIds: section ? [section.id] : [] }, "newest", { offset: 0, limit: 500 })).flatMap((q) => q.tagIds));
     tags = tags.filter((t) => inSection.has(t.id));
   }
+  // Only tags on a published question: one made by a held or removed question doesn't show.
   return tags
     .map((t) => ({ slug: t.slug, name: t.name, count: counts.tags[t.id] ?? 0 }))
+    .filter((t) => t.count > 0)
     .sort((a, b) => b.count - a.count || a.slug.localeCompare(b.slug))
     .slice(0, Math.min(input.limit ?? 30, 100));
 }
@@ -364,6 +364,17 @@ async function moderated(memberId: string, kind: ModeratedKind, contentId: strin
   return qaHooks().moderate({ memberId, targetType: kind === "reply" ? "comment" : kind, targetId: contentId, text });
 }
 
+/**
+ * A published post's words changed: moderation sees them again (an edit into
+ * spam or a bad link is held), and a held one waits as pending, out of the
+ * lists and counts, until a moderator approves it. The team's edits aren't held.
+ */
+async function moderateEdit(kind: "question" | "answer", post: { id: string; status: ContentStatus }, member: string, text: string, changed: boolean, now: Date): Promise<void> {
+  if (!changed || post.status !== "published") return;
+  const status = await moderated(member, kind, post.id, text, await isTeam(member));
+  if (status === "pending") await setContentStatus(kind, post.id, "pending", now);
+}
+
 async function tagsFor(input: readonly string[] | undefined, now: Date): Promise<TagRecord[]> {
   const names: { slug: string; name: string }[] = [];
   for (const t of (input ?? []).map(tagOf)) if (t.slug && !names.some((n) => n.slug === t.slug)) names.push(t);
@@ -423,6 +434,7 @@ export async function editQuestion(viewerId: string | null, idOrSlug: string, in
   }
   if (input.tags !== undefined) patch.tagIds = (await tagsFor(input.tags, now)).map((t) => t.id);
   await qaStore().updateQuestion(q.id, patch);
+  await moderateEdit("question", q, member, `${patch.title ?? q.title}\n${patch.body ?? q.body}`, patch.title !== undefined || patch.body !== undefined, now);
   return getQuestion(q.id, { viewerId: member, lang: input.lang });
 }
 
@@ -470,7 +482,9 @@ export async function editAnswer(viewerId: string | null, answerId: string, inpu
   const a = await qaStore().getAnswer(answerId);
   if (!a || a.status === "removed") throw new QaError("not_found", "There's no such answer.");
   if (a.authorId !== member) throw new QaError("not_allowed", "Only its author can change an answer.");
-  await qaStore().updateAnswer(a.id, { body: check(input.body, LIMITS.answerMin, LIMITS.answerMax, "body", "The answer"), updatedAt: now });
+  const body = check(input.body, LIMITS.answerMin, LIMITS.answerMax, "body", "The answer");
+  await qaStore().updateAnswer(a.id, { body, updatedAt: now });
+  await moderateEdit("answer", a, member, body, body !== a.body, now);
   return (await getQuestion(a.questionId, { viewerId: member, lang: input.lang })).answers.find((x) => x.id === a.id)!;
 }
 
@@ -502,7 +516,9 @@ export async function replyToAnswer(viewerId: string | null, answerId: string, i
   const a = await qaStore().getAnswer(answerId);
   const q = a ? await qaStore().getQuestion(a.questionId) : null;
   if (!a || !q || a.status !== "published" || q.status !== "published") throw new QaError("not_found", "There's no such answer.");
-  if ((await qaHooks().hiddenFor(member)).includes(a.authorId)) throw new QaError("not_allowed", "You can't reply to this member.");
+  // Neither the answer's author nor the asker blocked (or was blocked by) the member.
+  const hidden = await qaHooks().hiddenFor(member);
+  if (hidden.includes(a.authorId) || hidden.includes(q.authorId)) throw new QaError("not_allowed", "You can't reply to this member.");
   const body = check(input.body, 1, LIMITS.replyMax, "body", "The reply");
   const reply: ReplyRecord = { id: randomUUID(), answerId: a.id, body, authorId: member, status: "pending", createdAt: now };
   await qaStore().createReply(reply);
@@ -543,12 +559,13 @@ export async function vote(viewerId: string | null, input: { kind: VoteKind; id:
   if (![1, -1, 0].includes(input.value)) throw new QaError("invalid_request", "A vote is 1, -1 or 0.", "value");
   const target = input.kind === "question" ? await findQuestion(input.id) : await qaStore().getAnswer(input.id);
   if (!target || target.status !== "published") throw new QaError("not_found", `There's no such ${input.kind}.`);
+  // An answer counts only under a question that is shown.
+  if (input.kind === "answer" && (await qaStore().getQuestion((target as AnswerRecord).questionId))?.status !== "published") throw new QaError("not_found", "There's no such answer.");
   if (target.authorId === member) throw new QaError("not_allowed", "You can't vote on your own post.");
   if ((await qaHooks().hiddenFor(member)).includes(target.authorId)) throw new QaError("not_allowed", "You can't vote on this member's posts.");
-  const before = await qaStore().setVote(member, input.kind, target.id, input.value, now);
-  const score = target.score + input.value - before;
-  if (input.kind === "question") await qaStore().updateQuestion(target.id, { score });
-  else await qaStore().updateAnswer(target.id, { score });
+  const { before, score } = await qaStore().castVote(member, input.kind, target.id, input.value, now);
+  // The same vote again (or at once in parallel) changes nothing more.
+  if (before === input.value) return { score, myVote: input.value };
   // Points: the vote's reason taken back, then given again for the new one.
   const ref = `${input.kind}:${target.id}:${member}`;
   const [up, down] = input.kind === "question" ? (["question_upvoted", "question_downvoted"] as const) : (["answer_upvoted", "answer_downvoted"] as const);
@@ -558,7 +575,7 @@ export async function vote(viewerId: string | null, input: { kind: VoteKind; id:
     const reason = input.value > 0 ? up : down;
     await award({ id: randomUUID(), memberId: target.authorId, reason, points: POINTS[reason], ref, createdAt: now });
   }
-  if (input.value === 1 && score > target.score && (VOTE_MILESTONES as readonly number[]).includes(score)) {
+  if (input.value === 1 && (VOTE_MILESTONES as readonly number[]).includes(score)) {
     const q = input.kind === "question" ? (target as QuestionRecord) : await qaStore().getQuestion((target as AnswerRecord).questionId);
     if (q) await qaHooks().notify({ memberId: target.authorId, kind: "vote_milestone", actorId: member, targetType: input.kind, targetId: target.id, data: { title: q.title, count: score }, link: input.kind === "question" ? questionLink(q) : answerLink(q, target.id) });
   }

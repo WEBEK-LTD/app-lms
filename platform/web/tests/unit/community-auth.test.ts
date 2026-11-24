@@ -154,7 +154,8 @@ describe("231 community auth: Apple and Google", () => {
     const r = await api<Session>(c, "POST", "/auth/google", { body: { id_token: token } });
     expect(r.status).toBe(200);
     expect(r.body.created).toBe(false);
-    expect(r.body.member).toMatchObject({ id: joined.id, email_verified: true, providers: ["email", "google"] });
+    // The address was never confirmed by whoever joined with it: Google's proof wins, the old password goes (community-security.test.ts).
+    expect(r.body.member).toMatchObject({ id: joined.id, email_verified: true, providers: ["google"] });
     // An unverified email is never taken as a member's: a new member.
     const other = await api<Session>(c, "POST", "/auth/google", { body: { id_token: await c.idToken("google", { sub: "google-88", email: "x@members.test", email_verified: false, name: "Xu" }) } });
     expect(other.status).toBe(201);

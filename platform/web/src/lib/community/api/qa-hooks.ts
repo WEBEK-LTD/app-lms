@@ -67,5 +67,5 @@ export function trustForQa(ctx: CommunityContext): Partial<Pick<QaHooks, "modera
 
 /** Area A's MemberSummary, kept whole (its rank and rank_label too) so the app and site see one shape everywhere. */
 function fromView(v: MemberSummaryView): MemberPerson {
-  return { id: v.id, username: v.username, displayName: v.display_name, avatarUrl: v.avatar_url, headline: v.headline, topBadge: v.top_badge, team: v.team, deleted: v.deleted, rank: v.rank, rankLabel: v.rank_label };
+  return { id: v.id, username: v.username, displayName: v.display_name, avatarUrl: v.avatar_url, headline: v.headline, topBadge: v.top_badge, team: v.team, deleted: v.deleted, rank: v.rank, rankLabel: v.rank_label, level: v.level, levelLabel: v.level_label, levelProgress: v.level_progress };
 }
