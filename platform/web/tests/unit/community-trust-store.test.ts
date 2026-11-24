@@ -39,7 +39,7 @@ function suite(name: string, make: () => Promise<{ store: TrustStore; member: ()
     it("verification: pending oldest first, decided once, the latest per member", async () => {
       const { store, member } = await make();
       const [a, b] = [await member(), await member()];
-      const first = await store.addVerification({ memberId: a, fullName: "Nour El Hoda", idProofKey: "community/id-proof/a.jpg", portfolioLinks: ["https://nour.dev"], apps: [{ appId: "1", name: "One" }], createdAt: at(0) });
+      const first = (await store.addVerification({ memberId: a, fullName: "Nour El Hoda", idProofKey: "community/id-proof/a.jpg", portfolioLinks: ["https://nour.dev"], apps: [{ appId: "1", name: "One" }], createdAt: at(0) }))!;
       await store.addVerification({ memberId: b, fullName: "Ali Kaya", idProofKey: "community/id-proof/b.pdf", portfolioLinks: [], apps: [], createdAt: at(1) });
       const pending = await store.listVerifications({ status: "pending", offset: 0, limit: 50 });
       const mine = pending.items.filter((r) => r.memberId === a || r.memberId === b);
@@ -49,6 +49,18 @@ function suite(name: string, make: () => Promise<{ store: TrustStore; member: ()
       expect(await store.getVerification(first.id)).toMatchObject({ reviewedAt: at(5), reviewedBy: b, portfolioLinks: ["https://nour.dev"], apps: [{ appId: "1", name: "One" }] });
       expect((await store.latestVerification(a))!.id).toBe(first.id);
       expect(await store.latestVerification(randomUUID())).toBeNull();
+    });
+
+    it("verification: one request waiting per member, even two sent at once", async () => {
+      const { store, member } = await make();
+      const m = await member();
+      const form = (n: number) => ({ memberId: m, fullName: "Sami Aydın", idProofKey: `community/id-proof/${n}.pdf`, portfolioLinks: [], apps: [], createdAt: at(n) });
+      const both = await Promise.all([store.addVerification(form(1)), store.addVerification(form(2))]);
+      expect(both.filter(Boolean)).toHaveLength(1);
+      expect(await store.addVerification(form(3))).toBeNull();
+      const waiting = both.find(Boolean)!;
+      await store.decideVerification(waiting.id, { status: "rejected", at: at(4), by: m, reason: "Blurry" });
+      expect(await store.addVerification(form(5))).not.toBeNull();
     });
 
     it("the audit log: newest first, by member and action, paged", async () => {

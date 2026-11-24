@@ -51,7 +51,16 @@ export function parseVerificationForm(input: { full_name?: unknown; portfolio_li
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, value: { fullName, portfolioLinks: [...new Set(links!)] } };
 }
 
-/** Whether the uploaded ID proof is one the form takes: a JPEG, PNG or PDF of at most 10 MB. */
+/** A file's type by its first bytes: JPEG (FF D8 FF), PNG (89 50 4E 47 0D 0A 1A 0A) or PDF ("%PDF-"); null for anything else. */
+export function fileTypeOf(bytes: Uint8Array): "image/jpeg" | "image/png" | "application/pdf" | null {
+  const starts = (sig: number[]) => sig.every((b, i) => bytes[i] === b);
+  if (starts([0xff, 0xd8, 0xff])) return "image/jpeg";
+  if (starts([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return "image/png";
+  if (starts([0x25, 0x50, 0x44, 0x46, 0x2d])) return "application/pdf";
+  return null;
+}
+
+/** Whether the uploaded ID proof is one the form takes: a JPEG, PNG or PDF of at most 10 MB (its bytes are checked too: `fileTypeOf`). */
 export function idProofProblem(file: { type: string; size: number } | null): string | null {
   if (!file || file.size === 0) return "Upload a photo of your ID.";
   if (!ID_PROOF_TYPES[file.type]) return "Upload a JPEG, PNG or PDF.";

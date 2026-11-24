@@ -92,6 +92,7 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
     store,
     now: () => ctx.now,
     member,
+    blockedEitherWay: (id) => base.blockedEitherWay(id),
     platformAdmin: async (id) => {
       const m = await base.getMember(id);
       if (!m?.yallappUserId) return false;

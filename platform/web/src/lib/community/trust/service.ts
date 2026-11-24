@@ -2,7 +2,7 @@ import type { CommunityRole, CommunityTargetType } from "../types";
 import { GOLD_MIN_APPS, heldBadges, isActive, reconcileAutoBadges, shownBadge, type BadgeDetails, type CommunityBadge, type MemberBadge, type MemberFacts } from "./badges";
 import { holdCause, moderationGate, type HoldReason } from "./moderation";
 import { BADGE_NAMES, communityLang, DEFAULT_NOTIFICATION_PREFS, emails, notificationEmail, notificationText, parsePrefs, prefsView, type NotificationData, type NotificationKind } from "./notifications";
-import { ID_PROOF_TYPES, idProofProblem, parseDecision, parseGrant, parseReason, parseReport, parseVerificationForm, verificationBlocked, type AuditAction, type AuditEntry, type LinkedApp, type Report, type ReportStatus, type VerificationRequest, type VerificationStatus } from "./requests";
+import { fileTypeOf, ID_PROOF_TYPES, idProofProblem, parseDecision, parseGrant, parseReason, parseReport, parseVerificationForm, verificationBlocked, type AuditAction, type AuditEntry, type LinkedApp, type Report, type ReportStatus, type VerificationRequest, type VerificationStatus } from "./requests";
 import { blueRulesOf, mayCreateGroups, parseSettings, settingsOf, type CommunitySettings } from "./settings";
 import type { ContentKind, ModerationItem, ModerationStatus, Page, TrustStore } from "./store";
 
@@ -54,6 +54,8 @@ export interface TrustDeps {
   member: (id: string) => Promise<TrustMember | null>;
   /** Whether the member's linked Yallapp account is a platform admin (owner or admin of Yallapp's team), checked now: a Community admin. */
   platformAdmin: (id: string) => Promise<boolean>;
+  /** Everyone the member blocked or who blocked them (area A): no notice from them reaches the member. */
+  blockedEitherWay?: (id: string) => Promise<Set<string>>;
   /** One more of their posts appeared (A's `approved_posts`). */
   countApprovedPost: (id: string) => Promise<void>;
   /** Suspends or restores a member (a suspension signs every device out). */
@@ -201,6 +203,8 @@ export async function notify(deps: TrustDeps, input: { memberId: string; kind: N
   if (input.actorId && input.actorId === input.memberId) return;
   const member = await deps.member(input.memberId);
   if (!member || member.status !== "active") return;
+  // Never from someone the member blocked or who blocked them: not in the list, not counted, not emailed.
+  if (input.actorId && (await deps.blockedEitherWay?.(member.id))?.has(input.actorId)) return;
   const n = await deps.store.addNotification({ memberId: member.id, kind: input.kind, actorId: input.actorId ?? null, targetType: input.targetType ?? null, targetId: input.targetId ?? null, data: { ...(input.data ?? {}), link: input.link }, createdAt: deps.now() });
   const prefs = (await deps.store.getNotificationPrefs(member.id)) ?? DEFAULT_NOTIFICATION_PREFS;
   if (!member.email || !emails(input.kind, prefs)) return;
@@ -343,7 +347,7 @@ export async function grantBadge(deps: TrustDeps, adminId: string, memberId: str
   const details = parsed.value.badge === "green" ? (parsed.value.details ?? (await deps.linked(memberId))?.business ?? null) : null;
   const badge = await deps.store.addMemberBadge({ memberId, badge: parsed.value.badge, source: "manual", reason: parsed.value.reason, grantedAt: now, grantedBy: adminId, expiresAt: parsed.value.expiresAt, details });
   await audit(deps, { actorId: adminId, action: "badge.grant", memberId, targetType: "badge", targetId: badge.id, reason: parsed.value.reason, details: { badge: badge.badge, expiresAt: parsed.value.expiresAt?.toISOString() ?? null } });
-  await notify(deps, { memberId, kind: "badge_granted", actorId: adminId, data: { badge: badge.badge }, link: "/me" });
+  await notify(deps, { memberId, kind: "badge_granted", actorId: null, data: { badge: badge.badge }, link: "/me" });
   return { ok: true, badge };
 }
 
@@ -361,7 +365,7 @@ export async function revokeBadge(deps: TrustDeps, adminId: string, memberId: st
     await deps.store.revokeMemberBadge(b.id, { at: now, by: adminId, reason: parsed.value });
     await audit(deps, { actorId: adminId, action: "badge.revoke", memberId, targetType: "badge", targetId: b.id, reason: parsed.value, details: { badge: kind, source: b.source } });
   }
-  await notify(deps, { memberId, kind: "badge_revoked", actorId: adminId, data: { badge: kind, reason: parsed.value }, link: "/me" });
+  await notify(deps, { memberId, kind: "badge_revoked", actorId: null, data: { badge: kind, reason: parsed.value }, link: "/me" });
   return { ok: true };
 }
 
@@ -396,11 +400,17 @@ export async function submitVerification(deps: TrustDeps, memberId: string, inpu
     return fail(403, "not_eligible", state.yallappLinked ? `You need at least ${GOLD_MIN_APPS} apps made with Yallapp.` : "Link your Yallapp account first.");
   }
   const parsed = parseVerificationForm(input);
-  const fileProblem = idProofProblem(input.idProof);
+  let fileProblem = idProofProblem(input.idProof);
+  // The file's real type, by its first bytes (never the type it claims): a JPEG, PNG or PDF only.
+  const bytes = !fileProblem && input.idProof ? await input.idProof.bytes() : null;
+  const type = bytes ? fileTypeOf(bytes) : null;
+  if (bytes && !type) fileProblem = "Upload a JPEG, PNG or PDF.";
   if (!parsed.ok || fileProblem) return fail(400, "invalid_request", "Check the form.", { ...(parsed.ok ? {} : parsed.errors), ...(fileProblem ? { id_proof: fileProblem } : {}) });
-  const key = `community/id-proof/${memberId}/${crypto.randomUUID()}.${ID_PROOF_TYPES[input.idProof!.type]}`;
-  await deps.files.put(key, await input.idProof!.bytes(), input.idProof!.type);
-  await deps.store.addVerification({ memberId, fullName: parsed.value.fullName, idProofKey: key, portfolioLinks: parsed.value.portfolioLinks, apps: state.apps.map((a) => ({ appId: a.appId, name: a.name })), createdAt: deps.now() });
+  const key = `community/id-proof/${memberId}/${crypto.randomUUID()}.${ID_PROOF_TYPES[type!]}`;
+  await deps.files.put(key, bytes!, type!);
+  // One request waiting at a time, even when two are sent at once.
+  const made = await deps.store.addVerification({ memberId, fullName: parsed.value.fullName, idProofKey: key, portfolioLinks: parsed.value.portfolioLinks, apps: state.apps.map((a) => ({ appId: a.appId, name: a.name })), createdAt: deps.now() });
+  if (!made) return fail(409, "already_pending", "Your request is already being reviewed.");
   return { ok: true, state: await verificationState(deps, memberId) };
 }
 
@@ -436,10 +446,10 @@ export async function decideVerification(deps: TrustDeps, adminId: string, reque
       await deps.store.addMemberBadge({ memberId: request.memberId, badge: "gold", source: "request", reason: parsed.value.reason, grantedAt: now, grantedBy: adminId, expiresAt: null, details: null });
     }
     await audit(deps, { actorId: adminId, action: "verification.approve", memberId: request.memberId, targetType: "verification", targetId: request.id, reason: parsed.value.reason, details: { badge: "gold" } });
-    await notify(deps, { memberId: request.memberId, kind: "verification_approved", actorId: adminId, targetType: "verification", targetId: request.id, data: { reason: parsed.value.reason }, link: "/me" });
+    await notify(deps, { memberId: request.memberId, kind: "verification_approved", actorId: null, targetType: "verification", targetId: request.id, data: { reason: parsed.value.reason }, link: "/me" });
   } else {
     await audit(deps, { actorId: adminId, action: "verification.reject", memberId: request.memberId, targetType: "verification", targetId: request.id, reason: parsed.value.reason });
-    await notify(deps, { memberId: request.memberId, kind: "verification_rejected", actorId: adminId, targetType: "verification", targetId: request.id, data: { reason: parsed.value.reason }, link: "/verify" });
+    await notify(deps, { memberId: request.memberId, kind: "verification_rejected", actorId: null, targetType: "verification", targetId: request.id, data: { reason: parsed.value.reason }, link: "/verify" });
   }
   return { ok: true, request };
 }
@@ -527,17 +537,18 @@ export async function decideModeration(deps: TrustDeps, adminId: string, itemId:
     // Held for being new (or by reports found fine): it now counts toward their first posts.
     if (author && item.cause !== "reports") await deps.countApprovedPost(author);
     await audit(deps, { actorId: adminId, action: "moderation.approve", memberId: author, targetType: item.targetType, targetId: item.targetId, reason: note });
-    if (author && item.cause !== "reports") await notify(deps, { memberId: author, kind: "post_approved", actorId: adminId, targetType: item.targetType, targetId: item.targetId, data: { title: info?.title ?? null }, link: info?.link ?? "/" });
+    if (author && item.cause !== "reports") await notify(deps, { memberId: author, kind: "post_approved", actorId: null, targetType: item.targetType, targetId: item.targetId, data: { title: info?.title ?? null }, link: info?.link ?? "/" });
   } else {
     await deps.content.setStatus(item.targetType, item.targetId, "hidden");
     if (author) await deps.store.addViolation({ memberId: author, kind: "content_removed", targetType: item.targetType, targetId: item.targetId, createdBy: adminId, createdAt: now });
     await audit(deps, { actorId: adminId, action: "moderation.remove", memberId: author, targetType: item.targetType, targetId: item.targetId, reason: note });
-    if (author) await notify(deps, { memberId: author, kind: "post_removed", actorId: adminId, targetType: item.targetType, targetId: item.targetId, data: { title: info?.title ?? null, reason: note }, link: "/" });
+    // The moderator's note is private: the author is told the post was removed, never the note.
+    if (author) await notify(deps, { memberId: author, kind: "post_removed", actorId: null, targetType: item.targetType, targetId: item.targetId, data: { title: info?.title ?? null }, link: "/" });
   }
   // The reports on it are settled with it.
   for (const r of await deps.store.openReportsOn(item.targetType, item.targetId)) {
     await deps.store.resolveReport(r.id, { status: item.status === "removed" ? "actioned" : "dismissed", at: now, by: adminId });
-    await notify(deps, { memberId: r.reporterId, kind: "report_resolved", actorId: adminId, link: "/" });
+    await notify(deps, { memberId: r.reporterId, kind: "report_resolved", actorId: null, link: "/" });
   }
   return { ok: true, item };
 }
@@ -576,12 +587,41 @@ export async function afterReported(deps: TrustDeps, made: Report): Promise<void
   await deps.store.addReport({ id: made.id, reporterId: made.reporterId, targetType: made.targetType, targetId: made.targetId, reason: made.reason, note: made.note, createdAt: made.createdAt });
   if (made.targetType === "member") return;
   const targetType = made.targetType;
+  if (await deps.store.openModeration(targetType, made.targetId)) return;
   const settings = await getSettings(deps);
-  const open = await deps.store.countOpenReports(targetType, made.targetId);
-  if (open < settings.spam_filter.hide_after_reports || (await deps.store.openModeration(targetType, made.targetId))) return;
+  const weight = await reportWeight(deps, await deps.store.openReportsOn(targetType, made.targetId));
+  if (weight < settings.spam_filter.hide_after_reports) return;
   const info = await deps.content.info(targetType, made.targetId);
-  await deps.content.setStatus(targetType, made.targetId, "hidden");
-  await deps.store.addModeration({ targetType, targetId: made.targetId, authorId: info?.authorId ?? null, cause: "reports", note: `${open} reports`, createdAt: deps.now() });
+  // The team's and the staff's posts (an official answer among them) are queued for a look, never hidden by reports.
+  const author = info?.authorId ? await deps.member(info.authorId) : null;
+  const protectedAuthor = !!author && (author.role === "team" || (await staffRole(deps, author.id)) !== null);
+  if (!protectedAuthor) await deps.content.setStatus(targetType, made.targetId, "hidden");
+  await deps.store.addModeration({ targetType, targetId: made.targetId, authorId: info?.authorId ?? null, cause: "reports", note: `${weight} reports`, createdAt: deps.now() });
+}
+
+/** Members at least this many days old count when reports hide a post (a ring of new accounts can't). */
+export const REPORTER_MIN_DAYS = 7;
+
+/**
+ * How much the open reports on a post weigh toward hiding it: a report
+ * counts from an established member only (an account at least 7 days old,
+ * no violation within Blue's window, no open report against them), and a
+ * member holding a badge counts twice.
+ */
+async function reportWeight(deps: TrustDeps, reports: readonly Report[]): Promise<number> {
+  const now = deps.now();
+  const settings = await getSettings(deps);
+  let total = 0;
+  for (const r of reports) {
+    const m = await deps.member(r.reporterId);
+    if (!m || m.status !== "active") continue;
+    if (now.getTime() - m.createdAt.getTime() < REPORTER_MIN_DAYS * 86_400_000) continue;
+    const violation = await deps.store.lastViolationAt(m.id);
+    if (violation && now.getTime() - violation.getTime() < settings.blue_badge.violation_free_days * 86_400_000) continue;
+    if ((await deps.store.countOpenReports("member", m.id)) > 0) continue;
+    total += heldBadges(await deps.store.listMemberBadges(m.id), now).length ? 2 : 1;
+  }
+  return total;
 }
 
 export async function listReports(deps: TrustDeps, adminId: string, input: { status?: ReportStatus; offset?: number; limit?: number }): Promise<{ ok: true; page: Page<Report> } | Fail> {
@@ -610,7 +650,7 @@ export async function resolveReport(deps: TrustDeps, adminId: string, reportId: 
   const all = await deps.store.openReportsOn(target, first.targetId);
   for (const r of all) {
     await deps.store.resolveReport(r.id, { status: v.status, at: now, by: adminId });
-    await notify(deps, { memberId: r.reporterId, kind: "report_resolved", actorId: adminId, link: "/" });
+    await notify(deps, { memberId: r.reporterId, kind: "report_resolved", actorId: null, link: "/" });
   }
   const authorId = target === "member" ? first.targetId : ((await deps.content.info(target, first.targetId))?.authorId ?? null);
   const held = target === "member" ? null : await deps.store.openModeration(target, first.targetId);

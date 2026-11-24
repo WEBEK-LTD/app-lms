@@ -4,6 +4,7 @@ import type { MySql2Database } from "drizzle-orm/mysql2";
 import {
   communityAuditLog,
   communityBadges,
+  communityMembers,
   communityModerationItems,
   communityNotificationPrefs,
   communityNotifications,
@@ -146,8 +147,16 @@ export class MysqlTrustStore implements TrustStore {
 
   async addVerification(input: Omit<VerificationRequest, "id" | "status" | "reason" | "reviewedBy" | "reviewedAt">) {
     const row = { id: randomUUID(), ...input, status: "pending" as const, reason: null, reviewedBy: null, reviewedAt: null };
-    await this.db.insert(communityVerificationRequests).values(row);
-    return verificationOf(row);
+    const t = communityVerificationRequests;
+    // The member's row locked for the transaction: two requests sent at once wait for each other, and the second finds the first.
+    const made = await this.db.transaction(async (tx) => {
+      await tx.select({ id: communityMembers.id }).from(communityMembers).where(eq(communityMembers.id, input.memberId)).for("update");
+      const [waiting] = await tx.select({ id: t.id }).from(t).where(and(eq(t.memberId, input.memberId), eq(t.status, "pending"))).limit(1);
+      if (waiting) return false;
+      await tx.insert(t).values(row);
+      return true;
+    });
+    return made ? verificationOf(row) : null;
   }
   async getVerification(id: string) {
     const [row] = await this.db.select().from(communityVerificationRequests).where(eq(communityVerificationRequests.id, id));

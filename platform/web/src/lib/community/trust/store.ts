@@ -77,7 +77,8 @@ export interface TrustStore {
   membersWithAutoBadges(): Promise<string[]>;
 
   // Verification
-  addVerification(input: Omit<VerificationRequest, "id" | "status" | "reason" | "reviewedBy" | "reviewedAt">): Promise<VerificationRequest>;
+  /** Null when the member already has a request waiting (one at a time, even two sent at once). */
+  addVerification(input: Omit<VerificationRequest, "id" | "status" | "reason" | "reviewedBy" | "reviewedAt">): Promise<VerificationRequest | null>;
   getVerification(id: string): Promise<VerificationRequest | null>;
   latestVerification(memberId: string): Promise<VerificationRequest | null>;
   listVerifications(input: { status: VerificationStatus; offset: number; limit: number }): Promise<Page<VerificationRequest>>;
@@ -169,6 +170,7 @@ export class MemoryTrustStore implements TrustStore {
   }
 
   async addVerification(input: Omit<VerificationRequest, "id" | "status" | "reason" | "reviewedBy" | "reviewedAt">) {
+    if ([...this.verifications.values()].some((x) => x.memberId === input.memberId && x.status === "pending")) return null;
     const r: VerificationRequest = this.made({ ...clone(input), id: randomUUID(), status: "pending", reason: null, reviewedBy: null, reviewedAt: null });
     this.verifications.set(r.id, r);
     return clone(r);
