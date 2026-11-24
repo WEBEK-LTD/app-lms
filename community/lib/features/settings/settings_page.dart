@@ -193,12 +193,13 @@ class SettingsPage extends ConsumerWidget {
           // Paid things are bought on the website only: no price, no link.
           Padding(
             padding: const EdgeInsets.fromLTRB(4, 18, 4, 0),
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 LockedMark(label: l.commonLocked, dark: p.dark),
-                const SizedBox(width: 10),
-                Expanded(
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 2),
                   child: Text(
                     l.settingsPaidNote,
                     key: const ValueKey('settings-paid-note'),
