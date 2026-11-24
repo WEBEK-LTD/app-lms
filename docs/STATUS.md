@@ -14,9 +14,9 @@ from its own parts file and in light and dark, English, Arabic and Turkish:
 furniture C MIZAN the architect (monochrome hairlines, a room scene with
 numbered hotspots, the rooms as an index, W × D × H first, a floor plan
 that sends the room's size as a custom-order request, the line bar) and D
-MANZIL room by room (a pinned room switcher, each room switched in place,
-the materials, large horizontal cards, the order-to-assembly timeline, the
-segment bar); decor C ATHAR the gallery (a framed piece with its museum
+MANZIL room by room (its own top and a room switcher pinned under it, the
+rooms as swipeable cards, the materials, large horizontal cards, the
+order-to-assembly steps, the navy island bar); decor C ATHAR the gallery (a framed piece with its museum
 label, a framed asymmetric masonry, the halls, the curator's note, the
 words-only bar) and D MAZAJ the moodboard (a collage of taped polaroids,
 shop by colour, the season's palettes, polaroid cards, the drop bar). A and
