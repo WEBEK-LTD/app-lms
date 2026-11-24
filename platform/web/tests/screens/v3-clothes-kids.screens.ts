@@ -166,10 +166,13 @@ async function shoot(browser: Browser, t: (typeof TYPES)[number], look: "c" | "d
     await shop.screenshot({ path: shot(`product-${mode}`) });
     await shop.context().close();
   }
-  // In Arabic, light.
+  // In Arabic, light and dark.
   const ar = await phone(browser, appId, address, "ar", false);
   await ar.screenshot({ path: shot("home-ar") });
   await ar.context().close();
+  const arDark = await phone(browser, appId, address, "ar", true);
+  await arDark.screenshot({ path: shot("home-ar-dark") });
+  await arDark.context().close();
 }
 
 for (const t of shown) {

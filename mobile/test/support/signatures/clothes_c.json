@@ -381,8 +381,8 @@
          {
           "id": "sig-9",
           "type": "photo_hero",
-          "name": "Red, said quietly",
-          "image_url": "http://localhost:3000/clothes-photos/red-dress.jpg",
+          "name": "Stripes, said quietly",
+          "image_url": "http://localhost:3000/clothes-photos/stripe-dress.jpg",
           "height": 640,
           "radius": 0,
           "background": "#141211",
@@ -432,7 +432,7 @@
            {
             "id": "sig-11",
             "type": "text",
-            "text": "Red, said quietly",
+            "text": "Stripes, said quietly",
             "font": {
              "family": "Reem Kufi",
              "size": 38,
@@ -450,10 +450,10 @@
             },
             "translations": {
              "ar": {
-              "text": "أحمر يُقال بهدوء"
+              "text": "خطوط تُقال بهدوء"
              },
              "tr": {
-              "text": "Sessizce söylenen kırmızı"
+              "text": "Sessizce söylenen çizgiler"
              }
             }
            },
@@ -634,7 +634,7 @@
           "id": "sig-21",
           "type": "photo_hero",
           "name": "A jacket for every season",
-          "image_url": "http://localhost:3000/clothes-photos/camel-jacket.jpg",
+          "image_url": "http://localhost:3000/clothes-photos/fur-jacket.jpg",
           "height": 640,
           "radius": 0,
           "background": "#141211",
@@ -1240,7 +1240,7 @@
         "id": "sig-63",
         "type": "photo_hero",
         "name": "The editor",
-        "image_url": "http://localhost:3000/clothes-photos/velvet.jpg",
+        "image_url": "http://localhost:3000/clothes-photos/editor-hat.jpg",
         "height": 440,
         "radius": 0,
         "background": "#141211",
