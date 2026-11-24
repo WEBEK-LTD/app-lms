@@ -1,6 +1,6 @@
 # Yallapp Community app (area D): screenshots beside the design
 
-Made from `wip-community-app` at 6a9120130. Each phone is 390 × 844 at 2x.
+Made from `wip-community-app` at 8f7acb67d. Each phone is 390 × 844 at 2x.
 
 - **Design:** `design/mobile.html` and `design/opening.html` (branch
   `wip-community-design`) rendered in Chromium at 2x, with the bezel cut off.
@@ -46,9 +46,6 @@ and welcome, home and the menu also in Arabic (right to left) and Turkish.
    - The Q&A badge is area E's count of new questions, hidden at 0. The
      home and menu shots set it to the mockup's 12, so the badge and the
      tab bar's dot show.
-   - The level bar is the way to the next rank (A's points: 25, 250,
-     1,000, 5,000) until A's `level_progress` lands, so 1,240 points
-     shows 6%, where the mockup draws 64%.
 4. **Home, phase 1 only:** the mockup's November challenge and "Build
    one like it" are later phases.
    - The featured slot shows the newest official tutorial ("Start
