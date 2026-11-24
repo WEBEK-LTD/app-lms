@@ -3,7 +3,7 @@ import { newApp } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import { fileLinkValid, type PrivateFiles } from "@/lib/community/trust/context";
 import type { MemoryStore } from "@/lib/data/memory";
-import { api, joinWithEmail, NOW, testCommunity, type TestCommunity } from "./community-support";
+import { api, joinWithEmail, NOW, testCommunity, type TestCommunity, makeYallappStaff } from "./community-support";
 
 /**
  * 231 Yallapp Community, area C, through the API (/api/community/v1, as the
@@ -29,7 +29,8 @@ beforeEach(async () => {
   admin = await joinWithEmail(c, "Community Admin");
   nour = await joinWithEmail(c, "Nour El Hoda");
   ali = await joinWithEmail(c, "Ali Kaya");
-  await c.deps.store.base.updateMember(admin.id, { role: "admin" });
+  // 231 A Community admin is a member whose linked Yallapp account is on Yallapp's admin team (lib/community/staff.ts).
+  await makeYallappStaff(c, admin.id);
 });
 
 /** Links a Yallapp account with `apps` apps to the member, as confirming the link on yallapp.com.tr does. */

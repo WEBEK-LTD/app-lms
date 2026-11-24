@@ -3,7 +3,7 @@ import { newMember } from "@/lib/community/base/accounts";
 import { linkedMail } from "@/lib/community/base/linking";
 import { communityOrigins, cookieRequestAllowed } from "@/lib/community/csrf";
 import { safeHref } from "@/lib/content/markdown";
-import { api, joinWithEmail, NOW, testCommunity, type TestCommunity } from "./community-support";
+import { api, joinWithEmail, makeYallappStaff, NOW, testCommunity, type TestCommunity } from "./community-support";
 
 /** A member made in the store (past the sign-up limits per IP). */
 async function made(c: TestCommunity, n: number) {
@@ -128,5 +128,43 @@ describe("231 security: links in members' markdown", () => {
     expect(safeHref("//evil.test")).toBeNull();
     expect(safeHref("javascript:alert(1)")).toBeNull();
     expect(safeHref("https://yallapp.com.tr/x")).toBe("https://yallapp.com.tr/x");
+  });
+});
+
+describe("231 who runs the community: a linked Yallapp owner or admin, asked on every request", () => {
+  it("the stored role makes no admin; a linked Yallapp admin is one, and stops being one when Yallapp's team drops them", async () => {
+    const c = await testCommunity();
+    const me = await joinWithEmail(c, "Would Be Admin");
+    await c.deps.store.base.updateMember(me.id, { role: "admin" });
+    expect((await api<ErrorBody>(c, "GET", "/admin/settings", { token: me.token })).body.error.code).toBe("not_admin");
+    expect((await api(c, "GET", "/me", { token: me.token })).body).toMatchObject({ community_role: null });
+    await makeYallappStaff(c, me.id, "admin");
+    expect((await api(c, "GET", "/me", { token: me.token })).body).toMatchObject({ community_role: "admin", team: true });
+    expect((await api(c, "GET", "/admin/settings", { token: me.token })).status).toBe(200);
+    const userId = (await c.deps.store.base.getMember(me.id))!.yallappUserId!;
+    await c.deps.platform.deleteAdminMember(userId);
+    expect((await api(c, "GET", "/admin/settings", { token: me.token })).status).toBe(403);
+  });
+
+  it("Yallapp's support staff are the team (official answers, the team's names) but not admins", async () => {
+    const c = await testCommunity();
+    const me = await joinWithEmail(c, "Support Person");
+    await makeYallappStaff(c, me.id, "support");
+    expect((await api(c, "GET", "/me", { token: me.token })).body).toMatchObject({ community_role: null, team: true });
+    expect((await api(c, "PATCH", "/me", { token: me.token, body: { display_name: "Yallapp Support" } })).status).toBe(200);
+    expect((await api(c, "GET", "/admin/settings", { token: me.token })).status).toBe(403);
+  });
+});
+
+describe("231 levels by points", () => {
+  it("gives the level, its name and the way to the next, from the one table /config lists", async () => {
+    const c = await testCommunity();
+    const me = await joinWithEmail(c, "Climber");
+    await c.deps.store.base.addPoints(me.id, 1240);
+    expect((await api(c, "GET", `/members/${me.id}`, { lang: "tr" })).body).toMatchObject({ level: "expert", level_label: "Uzman", level_progress: 0.06 });
+    const config = await api<{ levels: { key: string; min_points: number }[] }>(c, "GET", "/config");
+    expect(config.body.levels.map((l) => [l.key, l.min_points])).toEqual([["newcomer", 0], ["member", 25], ["contributor", 250], ["expert", 1000], ["pro", 5000]]);
+    await c.deps.store.base.addPoints(me.id, 10_000);
+    expect((await api(c, "GET", `/members/${me.id}`)).body).toMatchObject({ level: "pro", level_progress: 1 });
   });
 });

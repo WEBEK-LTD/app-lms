@@ -5,6 +5,7 @@ import { notify, onReported } from "../api/trust-hooks";
 import { linkedAppView, memberSummaries, profileView, relationshipWith } from "../api/views";
 import type { CommunityMember, CommunityReportReason, CommunityTargetType } from "../types";
 import { linkedApps } from "../yallapp";
+import { isCommunityAdmin } from "../staff";
 import { limitMember } from "./accounts";
 import { findMember } from "./profile";
 
@@ -20,7 +21,7 @@ async function visibleMember(ctx: CommunityContext): Promise<CommunityMember> {
   const member = await findMember(ctx, ctx.params.member ?? "");
   if (!member) fail(404, "not_found");
   // A suspended member's profile is hidden from everyone but the admins.
-  if (member.status === "suspended" && ctx.member?.role !== "admin" && ctx.member?.id !== member.id) fail(404, "not_found");
+  if (member.status === "suspended" && ctx.member?.id !== member.id && !(ctx.member && (await isCommunityAdmin(ctx.req, ctx.deps.platform, ctx.member)))) fail(404, "not_found");
   if (ctx.member && ctx.member.id !== member.id && (await ctx.store.base.hasBlocked(member.id, ctx.member.id))) fail(404, "not_found");
   return member;
 }

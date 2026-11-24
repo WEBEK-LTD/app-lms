@@ -106,3 +106,16 @@ export async function joinWithEmail(
   if (r.status !== 201) throw new Error(`sign-up failed: ${r.status} ${JSON.stringify(r.body)}`);
   return { token: r.body.access_token, refresh: r.body.refresh_token, id: r.body.member.id, username: r.body.member.username, email };
 }
+
+/**
+ * 231 Makes the member one of those who run the community: their linked
+ * Yallapp account is on Yallapp's admin team with `role` (owner or admin:
+ * a Community admin; support: "Yallapp Team" only), as lib/community/staff.ts
+ * asks on every request.
+ */
+export async function makeYallappStaff(community: TestCommunity, memberId: string, role: "owner" | "admin" | "support" = "admin"): Promise<void> {
+  const platform = community.deps.platform;
+  const user = await platform.createUser({ email: `staff-${memberId}@yallapp.test`, name: "Yallapp staff", passwordHash: null, now: community.deps.now });
+  await platform.saveAdminMember({ userId: user.id, role, addedBy: "owner@yallapp.test", addedAt: community.deps.now, updatedAt: community.deps.now });
+  await community.deps.store.base.updateMember(memberId, { yallappUserId: user.id, linkedAt: community.deps.now });
+}

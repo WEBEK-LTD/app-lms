@@ -1,6 +1,7 @@
 import { ok, type CommunityContext, type CommunityResult } from "../api/http";
 import { groupsCreatePolicy } from "../api/trust-hooks";
 import { t } from "../i18n";
+import { LEVELS } from "../levels";
 import { COMMUNITY_LANGUAGES } from "../types";
 
 /**
@@ -38,6 +39,7 @@ export async function getConfig(ctx: CommunityContext): Promise<CommunityResult>
     default_language: "en",
     sections: COMMUNITY_SECTIONS.map(section),
     tabs: COMMUNITY_TABS.map(section),
+    levels: LEVELS.map((l) => ({ key: l.key, name: t(ctx.lang, `rank.${l.key}`), min_points: l.minPoints })),
     groups_create_policy: await groupsCreatePolicy(ctx),
     site_url: ctx.deps.siteUrl,
   });
