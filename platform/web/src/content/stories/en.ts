@@ -1133,7 +1133,7 @@ export const STORIES_EN: StoryCopy = {
       navName: "Clothes shop app",
       metaTitle: "A clothes shop app with sizes, a category menu and complete the look, designed in Yallapp Studio",
       metaDescription: "A day with Lujain: a wedding on Thursday, the category menu, a dress in her size and colour, the size guide and the heels that complete the look.",
-      summary: "Sizes and colours with the stock of each, a category menu of every row, a size chart, complete the look and exchanges, in two premium looks.",
+      summary: "Sizes and colours with the stock of each, a category menu of every row, a size chart, complete the look and exchanges, in four premium templates.",
       eyebrow: "Yallapp Studio · The clothes shop",
       title: "Thursday, in rust satin",
       intro: "Noura has a wedding on Thursday and nothing she wants to wear. It's Monday evening in Riyadh. This is how a few minutes with her phone become a dress in her size, and the heels to go with it.",
@@ -1143,13 +1143,13 @@ export const STORIES_EN: StoryCopy = {
           time: "21:10",
           kicker: "Riyadh, after dinner",
           title: "A wedding on Thursday",
-          text: "Noura opens Lujain on the sofa. The home is small and quick: the search, the categories in circles, and the season's collections in cards that slide, the next one peeking from the edge. Under them, what came in this week."
+          text: "Noura opens Lujain on the sofa. The home is a lookbook: under a tiny wordmark, the season's looks fill the screen edge to edge, and she swipes from one to the next. Under them, the categories as words on a thin line, and what came in this week, tall and boxless."
         },
         {
           time: "21:13",
           kicker: "The menu",
           title: "Every category, a row",
-          text: "She taps the menu beside the bell. Every category of the shop is a row of cards with their photos: Dresses first, with Midi, Maxi and Mini sliding after it, then Abayas, Coats & jackets, Shoes, Bags. She slides the Dresses row and taps Midi."
+          text: "She taps the menu in the corner of the header. Every category of the shop is a row of cards with their photos: Dresses first, with Midi, Maxi and Mini sliding after it, then Abayas, Coats & jackets, Shoes, Bags. She slides the Dresses row and taps Midi."
         },
         {
           time: "21:17",
@@ -1193,7 +1193,7 @@ export const STORIES_EN: StoryCopy = {
         "languages, Arabic right to left"
       ],
       systemsTitle: "Every part, explained",
-      systemsText: "The category menu, sizes and colours, complete the look and the offers, the two looks, and where the products come from.",
+      systemsText: "The category menu, sizes and colours, complete the look and the offers, the four templates, and where the products come from.",
       systems: [
         {
           name: "The category menu",
@@ -1381,7 +1381,7 @@ export const STORIES_EN: StoryCopy = {
       navName: "Cosmetics shop app",
       metaTitle: "A cosmetics shop app with shades, a skin quiz, routines and ingredients, designed in Yallapp Studio",
       metaDescription: "A day with Velours: a foundation that ran out, the shade finder, the skin quiz, a ready-made routine, and every product's ingredients and expiry.",
-      summary: "Shades as swatches with the stock of each, a skin quiz, filters by skin type and brand, ingredients and how to use, genuine products with their expiry and ready-made routines, in two premium looks.",
+      summary: "Shades as swatches with the stock of each, a skin quiz, filters by skin type and brand, ingredients and how to use, genuine products with their expiry and ready-made routines, in four premium templates.",
       eyebrow: "Yallapp Studio · The cosmetics shop",
       title: "Friday, in warm beige",
       intro: "Layla's foundation ran out on Wednesday, and her cousin's engagement party is on Friday. It's Wednesday night in Dubai. This is how a few minutes with her phone become the right shade, and a routine for her skin.",
@@ -1391,13 +1391,13 @@ export const STORIES_EN: StoryCopy = {
           time: "22:05",
           kicker: "Dubai, late evening",
           title: "An empty compact",
-          text: "Layla opens Velours on her bed. The home is small and quick: the search, the categories as chips, this week's edits in cards that slide, the next one peeking from the edge, and the flash deals with their timer."
+          text: "Layla opens Velours on her bed. The home is calm and white, like a clinic: the clinic's name in the middle, then the skin test on frosted glass over a face, and under it the daily routine, morning and evening, as numbered steps."
         },
         {
           time: "22:08",
           kicker: "The shade finder",
           title: "Twelve shades, one tap",
-          text: "Further down, the shade finder shows the cushion foundation's shades as round swatches. Warm beige, 3W, is already chosen: light to medium skin with a warm undertone, the shade most women pick. She taps Shop the foundation."
+          text: "Further down, the lab's cards are numbered like formulas. One is the cushion foundation, in warm beige, 3W: light to medium skin with a warm undertone, the shade most women pick. She taps it."
         },
         {
           time: "22:11",
@@ -1409,7 +1409,7 @@ export const STORIES_EN: StoryCopy = {
           time: "22:15",
           kicker: "Know your skin type",
           title: "Combination, it says",
-          text: "She has never been sure about her skin. The quiz asks four questions, one at a time: how it feels after washing, the pores, a new cream, the end of the day. Combination. One tap opens every product the shop has for combination skin."
+          text: "She has never been sure about her skin. Back at the top of the home, the skin test asks four questions, one at a time: how it feels after washing, the pores, a new cream, the end of the day. Combination. One tap opens every product the shop has for combination skin."
         },
         {
           time: "22:19",
@@ -1441,7 +1441,7 @@ export const STORIES_EN: StoryCopy = {
         "languages, Arabic right to left"
       ],
       systemsTitle: "Every part, explained",
-      systemsText: "Shades, the skin quiz and the filters, what a product's page tells, routines and offers, the two looks, and where the products come from.",
+      systemsText: "Shades, the skin quiz and the filters, what a product's page tells, routines and offers, the four templates, and where the products come from.",
       systems: [
         {
           name: "Shades",
@@ -1494,12 +1494,12 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           name: "Designed in Yallapp Studio",
-          title: "Two looks, every part yours to change",
-          text: "Velours comes in two premium looks, built only from Studio's elements.",
+          title: "Four templates, every part yours to change",
+          text: "Velours comes in four premium templates, built only from Studio's elements.",
           features: [
-            ["VELOURS", "Look A: luxury in plum, blush and gold."],
-            ["NAQA LAB", "Look B: a clinic in ink and cobalt on porcelain, with the active ingredients."],
-            ["Light and dark", "Both looks have a designed night."],
+            ["RITUAL CLINIC", "Template C, the demo: a clinic in white and teal, the skin test first and the routine step by step."],
+            ["SHADE STUDIO", "Template D: deep plum and gloss, the shade carousel first. Looks A and B, kept."],
+            ["Light and dark", "Every template has a designed night."],
             ["A compact hero", "The edits in cards about 210 points tall, the next one peeking."],
             ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one a pill with its name."],
             ["Ready sections", "The shade finder, the skin quiz, the routine, the brands and more, for any store."],
@@ -1550,7 +1550,7 @@ export const STORIES_EN: StoryCopy = {
       navName: "Kids' clothes shop app",
       metaTitle: "A kids' clothes shop app with sizes by age, newborn gifts and ready sets, designed in Yallapp Studio",
       metaDescription: "A day with Toota: a new nephew, a gift box wrapped with a card, the size finder by age and a raincoat for a four-year-old.",
-      summary: "Sizes by age from birth to 12, a size finder and chart, boys', girls' and baby categories, newborn gifts with wrapping and a card, and ready-made sets, in two premium looks.",
+      summary: "Sizes by age from birth to 12, a size finder and chart, boys', girls' and baby categories, newborn gifts with wrapping and a card, and ready-made sets, in four premium templates.",
       eyebrow: "Yallapp Studio · The kids' clothes shop",
       title: "A gift for Adam, a raincoat for Youssef",
       intro: "Salma's sister had a baby boy this morning, and her own son Youssef has grown out of his raincoat just as the rain came. It's a Wednesday evening in Cairo. This is how a few minutes with her phone become both.",
@@ -1560,13 +1560,13 @@ export const STORIES_EN: StoryCopy = {
           time: "20:40",
           kicker: "Cairo, after bath time",
           title: "Two things to buy tonight",
-          text: "Salma opens Toota on the sofa while Youssef sleeps. The home is soft and quick: the search, the categories in circles, the season's collection in cards that slide, and under them the ages, from 0–6 months to 8–12 years, each a pastel tile."
+          text: "Salma opens Toota on the sofa while Youssef sleeps. Tooti the bunny, in his knit jumper, says hello on a card at the top. Under him, the ages are big round bubbles, 0–2, 3–5, 6–9 and 10+, and the new pieces sit on a band of mint, each in its own bubble."
         },
         {
           time: "20:43",
           kicker: "The menu",
           title: "Girls, boys and baby",
-          text: "She taps the menu beside the bell. Every category of the shop is a row of cards with their photos: Baby & newborn first, with Newborn sets, Bodysuits and Sleepwear sliding after it, then Girls, Boys, Shoes, Newborn gifts and Ready sets."
+          text: "She taps the menu at the top. Every category of the shop is a row of round cards with their photos: Baby & newborn first, with Newborn sets, Bodysuits and Sleepwear sliding after it, then Girls, Boys, Shoes, Newborn gifts and Ready sets."
         },
         {
           time: "20:46",
@@ -1610,7 +1610,7 @@ export const STORIES_EN: StoryCopy = {
         "languages, Arabic right to left"
       ],
       systemsTitle: "Every part, explained",
-      systemsText: "Sizes by age, the category menu, the gifts and the sets, the two looks, and where the products come from.",
+      systemsText: "Sizes by age, the category menu, the gifts and the sets, the four templates, and where the products come from.",
       systems: [
         {
           name: "Sizes by age",
@@ -1799,7 +1799,7 @@ export const STORIES_EN: StoryCopy = {
       navName: "Toy shop app",
       metaTitle: "A toy shop app with shopping by age, safety and materials and birthday gifts with a card, designed in Yallapp Studio",
       metaDescription: "A day with Toot: a fourth birthday on Saturday, the toys for 3 to 5 years, a bear's safety and materials, the gift finder, the wrapping and the card in her words.",
-      summary: "Shopping by age and by type of toy, each toy's age, safety and materials, a gift finder, gift wrapping and a birthday card, gifts under a price, in two premium looks.",
+      summary: "Shopping by age and by type of toy, each toy's age, safety and materials, a gift finder, gift wrapping and a birthday card, gifts under a price, in four premium templates.",
       eyebrow: "Yallapp Studio · The toy shop",
       title: "Four candles and a bear",
       intro: "Huda's nephew Adam turns four on Saturday, and she is at work until Friday night. It's Wednesday evening in Dubai. This is how a few minutes with her phone become a wrapped present, with a card in her words.",
@@ -1809,13 +1809,13 @@ export const STORIES_EN: StoryCopy = {
           time: "20:40",
           kicker: "Dubai, after dinner",
           title: "A birthday on Saturday",
-          text: "Huda opens Toot on the balcony. The home is small and quick: the search, the categories in circles, the collections in cards that slide, the next one peeking from the edge. Under them, the ages in tall photos: 0–12 months, 1–2 years, 3–5 years."
+          text: "Huda opens Toot on the balcony. The home is a sea chart: the shop's corners are islands on the map, Wooden, Building, Science, Plush and Arts, and a tap on one sets off for it. Under the map, a strip of stickers, and the ages as chunky coloured blocks."
         },
         {
           time: "20:42",
           kicker: "By age",
           title: "3–5 years",
-          text: "She taps 3–5 years and the shop opens on the toys for that age only. From the menu beside the bell, every category is a row of cards: Wooden toys, Building, Plush, Puzzles & games, then By age and Birthday gifts, each with its own sub-categories sliding after it."
+          text: "She taps the 3–5 years block and the shop opens on the toys for that age only. From the menu at the top, every category is a row of cards: Wooden toys, Building, Plush, Puzzles & games, then By age and Birthday gifts, each with its own sub-categories sliding after it."
         },
         {
           time: "20:46",
@@ -1827,7 +1827,7 @@ export const STORIES_EN: StoryCopy = {
           time: "20:50",
           kicker: "The gift finder",
           title: "Three questions",
-          text: "Not sure, she goes back to the home and answers the perfect gift in 3 steps: four years old, loves building, up to 300. The finder says 3–5 years and opens it. She adds the little architect tower to the bear."
+          text: "Not sure, she goes back to the map and plays the gift quest: four years old, loves building, up to 300. The quest says 3–5 years and opens it. She adds the little architect tower to the bear."
         },
         {
           time: "20:54",
@@ -1859,7 +1859,7 @@ export const STORIES_EN: StoryCopy = {
         "languages, Arabic right to left"
       ],
       systemsTitle: "Every part, explained",
-      systemsText: "Shopping by age, safety and materials, the birthday gifts and the offers, the two looks, and where the toys come from.",
+      systemsText: "Shopping by age, safety and materials, the birthday gifts and the offers, the four templates, and where the toys come from.",
       systems: [
         {
           name: "Shopping by age",
@@ -1952,21 +1952,12 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           name: "Designed in Yallapp Studio",
-          title: "Two looks, every part yours to change",
-          text: "Toot comes in two premium looks, built only from Studio's elements.",
+          title: "Four templates, every part yours to change",
+          text: "Toot comes in four premium templates, built only from Studio's elements.",
           features: [
-            [
-              "Toot",
-              "Look A: playful and colourful, plum and gold on cream, round photos."
-            ],
-            [
-              "Mukaab",
-              "Look B: calm and educational, one clear blue on grey, tiles and a lab."
-            ],
-            [
-              "Light and dark",
-              "Both looks have a designed night."
-            ],
+            ["ADVENTURE MAP", "Template C, the demo: the shop as a sea chart, its categories islands, chunky pressed-out cards."],
+            ["MONTESSORI", "Template D: wood and sage, the toys by skill and by age in quiet rows. Looks A and B, kept."],
+            ["Light and dark", "Every template has a designed night."],
             [
               "A compact hero",
               "The collections in cards about 210 points tall, the next one peeking."
@@ -2047,7 +2038,7 @@ export const STORIES_EN: StoryCopy = {
       navName: "Crochet shop app",
       metaTitle: "A crochet and handmade shop app with custom orders, days to make, yarn and workshops, designed in Yallapp Studio",
       metaDescription: "A day with Ghurza: a blanket ordered in her mother's colours, the days it takes to make, the maker behind it, a starter kit and a seat at Saturday's workshop.",
-      summary: "Custom orders with their own request page, the days each piece takes to make, the maker's story, yarn and tools, workshops and gift wrapping by hand, in two premium looks.",
+      summary: "Custom orders with their own request page, the days each piece takes to make, the maker's story, yarn and tools, workshops and gift wrapping by hand, in four premium templates.",
       eyebrow: "Yallapp Studio · The crochet shop",
       title: "Olive and cream, in twelve days",
       intro: "Laila's mother turns sixty in two weeks, and Laila wants to give her something nobody else could. It's Wednesday evening in Maadi. This is how a few minutes with her phone become a blanket made by hand in her mother's colours, and a seat at a workshop for herself.",
@@ -2057,13 +2048,13 @@ export const STORIES_EN: StoryCopy = {
           time: "21:30",
           kicker: "Maadi, late evening",
           title: "Something nobody else could give",
-          text: "Laila opens Ghurza on the balcony. The home is warm and quick: the search, the categories in circles, the winter collection in cards that slide, the next one peeking from the edge. Under them, a card says a piece to your taste is made just for you, ready in 7 to 14 days."
+          text: "Laila opens Ghurza on the balcony. The home is a makers' market on stitched paper: a framed story in large calligraphy says every piece starts with a yarn and a hand that knows your name. Under it, the yarn's colours to pick, like skeins on a shelf."
         },
         {
           time: "21:34",
           kicker: "The custom order",
           title: "A blanket, in her mother's colours",
-          text: "She taps Start your order. The page says how it works in four steps, then asks: the piece, the size, the yarn's colour and the details. She chooses Blanket, writes 120 by 150 cm, olive and cream like her mother's sofa, and asks for her mother's name stitched in one corner. Her name, her phone, and she sends it."
+          text: "Further down, three stitched circles say how a piece is made: you order, we make it, we ship it. She taps Order a piece your way. The page asks the piece, the size, the yarn's colour and the details. She chooses Blanket, writes 120 by 150 cm, olive and cream like her mother's sofa, and asks for her mother's name stitched in a corner. Then her name and number, and she sends it."
         },
         {
           time: "21:41",
@@ -2075,7 +2066,7 @@ export const STORIES_EN: StoryCopy = {
           time: "22:05",
           kicker: "The maker",
           title: "Twenty-two years of stitches",
-          text: "The phone has gone dark for the night, and so has Ghurza, in coffee brown. Further down the home, Umm Youssef, who runs the workshop, says every piece takes days of her time and more of her heart. Twelve makers, 4,800 pieces, all of them by hand."
+          text: "The phone has gone dark for the night, and so has Ghurza's paper. Further down the home, between two stitched lines, Umm Youssef, who runs the workshop, says every piece takes days of her time and more of her heart. Twelve makers, 4,800 pieces, all of them by hand."
         },
         {
           time: "22:10",
@@ -2107,7 +2098,7 @@ export const STORIES_EN: StoryCopy = {
         "languages, Arabic right to left"
       ],
       systemsTitle: "Every part, explained",
-      systemsText: "The custom order, the days to make, yarn, tools and workshops, the two looks, and where the products come from.",
+      systemsText: "The custom order, the days to make, yarn, tools and workshops, the four templates, and where the products come from.",
       systems: [
         {
           name: "The custom order",
@@ -2146,14 +2137,14 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           name: "Designed in Yallapp Studio",
-          title: "Two looks, every part yours to change",
-          text: "Ghurza comes in two premium looks, built only from Studio's elements.",
+          title: "Four templates, every part yours to change",
+          text: "Ghurza comes in four premium templates, built only from Studio's elements.",
           features: [
-            ["GHURZA", "Look A: warm handmade, terracotta on beige paper, soft round corners."],
-            ["Light and dark", "Both looks have a designed night: coffee brown, and plum black."],
+            ["MAKERS' MARKET", "Template C, the demo: stitched paper and calligraphic headlines, who made each piece and how."],
+            ["Light and dark", "Every template has a designed night."],
             ["A compact hero", "The collections in cards about 210 points tall, the next one peeking."],
             ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one lit."],
-            ["HABKA", "Look B: colourful and playful, plum and berry, design your own piece."],
+            ["COZY STUDIO", "Template D: dusty rose, ready pieces or kits, the pattern of the week and the month's classes. Looks A and B, kept."],
             ["Three languages", "English, Arabic right to left, and Turkish."]
           ]
         },
@@ -2201,7 +2192,7 @@ export const STORIES_EN: StoryCopy = {
       navName: "Home decor shop app",
       metaTitle: "A home decor shop app with shop the look, rooms, styles and gifts with a card, designed in Yallapp Studio",
       metaDescription: "A day with Sakan: a new flat, a styled dining corner bought piece by piece, a vase sent as a gift with a card, and the lanterns for Ramadan.",
-      summary: "Shop the look on a styled room, shop by room and by style, sizes in cm, gifts wrapped with a card and the seasons' banners, in two premium looks.",
+      summary: "Shop the look on a styled room, shop by room and by style, sizes in cm, gifts wrapped with a card and the seasons' banners, in four premium templates.",
       eyebrow: "Yallapp Studio · The home decor shop",
       title: "A corner for two, by Friday",
       intro: "Hessa and her husband moved into a small flat in Riyadh last week. The dining corner is a table they borrowed and two boxes. It's Tuesday evening. This is how a few minutes with her phone become a corner they eat in, and a gift for her sister.",
@@ -2211,13 +2202,13 @@ export const STORIES_EN: StoryCopy = {
           time: "20:40",
           kicker: "Riyadh, after dinner",
           title: "Two boxes and a borrowed table",
-          text: "Hessa opens Sakan on the sofa. The home is small and quick: the search, the categories, and the season's collections in wide photo cards that slide, the next one peeking from the edge. Under them, four rooms: the bedroom, the living room, the dining room and the reading corner."
+          text: "Hessa opens Sakan on the sofa. The home is a gallery wall: \"Now showing\" in large letters, the autumn exhibition and its dates, then one piece hung on the white wall in a thick frame, with its museum label: the name, the maker, the material, the size."
         },
         {
           time: "20:44",
           kicker: "Complete the room",
           title: "A tap on the orchid",
-          text: "Further down, a styled dining corner fills the screen: a white table, two white chairs, an orchid in a white pot. Each piece has a numbered label on the photo. She taps the orchid, and its page opens. Under the photo, the three pieces in a row, with their prices."
+          text: "Further down, the collection hangs in two columns of frames, the second set a little lower, each with its label. In one, a white table, two white chairs and an orchid in a white pot. She taps the orchid's frame, and its page opens, with its price under the photo."
         },
         {
           time: "20:47",
@@ -2229,7 +2220,7 @@ export const STORIES_EN: StoryCopy = {
           time: "20:52",
           kicker: "The menu",
           title: "Every room, a row",
-          text: "She taps the menu beside the bell. Every room of the shop is a row of cards with their photos: the living room with its vases, cushions and chairs, the bedroom with its linen and lamps, then the plants, the seasons and the gifts. She slides the living room row and taps Vases & bowls."
+          text: "She taps the menu at the top. The gallery's plan opens: every hall of the shop is a row of cards with their photos, the living room with its vases, cushions and chairs, the bedroom with its linen and lamps, then the plants, the seasons and the gifts. She slides the living room row and taps Vases & bowls."
         },
         {
           time: "20:58",
@@ -2241,7 +2232,7 @@ export const STORIES_EN: StoryCopy = {
           time: "09:15",
           kicker: "Wednesday, at the shop",
           title: "Wrapped in olive paper",
-          text: "At Sakan, the morning's orders are open. Hessa's says a table, two chairs, an orchid, and the twin vases wrapped as a gift with a card. The card's words print on the packing slip. On the app's home, the Ramadan banner is already up, with the brass lanterns.",
+          text: "At Sakan, the morning's orders are open. Hessa's says a table, two chairs, an orchid, and the twin vases wrapped as a gift with a card. The card's words print on the packing slip. On the app's home, the next exhibition is already hung: Ramadan nights, with the brass lanterns.",
           push: {
             app: "Sakan",
             title: "Order 3124",
@@ -2261,7 +2252,7 @@ export const STORIES_EN: StoryCopy = {
         "languages, Arabic right to left"
       ],
       systemsTitle: "Every part, explained",
-      systemsText: "Shop the look, rooms and styles, gifts and seasons, the two looks, and where the products come from.",
+      systemsText: "Shop the look, rooms and styles, gifts and seasons, the four templates, and where the products come from.",
       systems: [
         {
           name: "Shop the look",
@@ -2334,17 +2325,12 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           name: "Designed in Yallapp Studio",
-          title: "Two looks, every part yours to change",
-          text: "Sakan comes in two premium looks, built only from Studio's elements.",
+          title: "Four templates, every part yours to change",
+          text: "Sakan comes in four premium templates, built only from Studio's elements.",
           features: [
-            [
-              "Teen",
-              "Look B: warm and calm, near-black ink on white and sand, oak and clay."
-            ],
-            [
-              "Light and dark",
-              "Both looks have a designed night."
-            ],
+            ["ATHAR", "Template C, the demo: a museum wall in gallery white, one framed piece with its label, the halls in Roman numerals."],
+            ["MAZAJ", "Template D: a moodboard in terracotta and cream, taped polaroids and shop by colour. Looks A and B, kept."],
+            ["Light and dark", "Every template has a designed night."],
             [
               "A compact hero",
               "The collections in cards about 210 points tall, the next one peeking."
@@ -2424,7 +2410,7 @@ export const STORIES_EN: StoryCopy = {
       navName: "Furniture shop app",
       metaTitle: "A furniture shop app with rooms, sizes in cm, delivery and assembly on your day, designed in Yallapp Studio",
       metaDescription: "A week with Rukn: a first living room, a sofa in the right fabric, 220 cm on a 240 cm wall, delivery and assembly on Saturday, and a unit made to measure.",
-      summary: "Rooms and their pieces, fabrics and colours with the stock of each, sizes in cm, delivery and assembly on the customer's day, made-to-measure requests, in two premium looks.",
+      summary: "Rooms and their pieces, fabrics and colours with the stock of each, sizes in cm, delivery and assembly on the customer's day, made-to-measure requests, in four premium templates.",
       eyebrow: "Yallapp Studio · The furniture shop",
       title: "A sofa that fits the wall",
       intro: "Sara has the keys to her first flat in Riyadh and a living room with nothing in it but a rug. It's Wednesday evening. This is how a week with her phone becomes a sofa in the right fabric, delivered and assembled on the day she chose.",
@@ -2434,25 +2420,25 @@ export const STORIES_EN: StoryCopy = {
           time: "20:40",
           kicker: "Riyadh, an empty room",
           title: "A living room with nothing in it",
-          text: "Sara opens Rukn sitting on the floor. The home is quiet and quick: the search, the rooms in circles, the season's collection in cards that slide. Under them, four promises side by side: free delivery and assembly, the warranty, a delivery day of her choosing, and a small tag that says installments are coming soon."
+          text: "Sara opens Rukn sitting on the floor. The home is a drawing: a title block with the sheet, the room and the scale, then a living room drawn full width, each piece numbered with its size, the Najd sofa 220 cm. Under it, the drawing's index of rooms, A to E."
         },
         {
           time: "20:44",
           kicker: "The menu",
           title: "Every room, a row",
-          text: "The menu beside the bell opens the whole house: Living room first, with Sofas, Armchairs, Coffee tables and TV units sliding after it, then Bedroom, Dining room, Office and Outdoor. She taps Sofas."
+          text: "The menu at the top opens the whole house, its rooms numbered like a drawing's index: Living room first, with Sofas, Armchairs, Coffee tables and TV units sliding after it, then Bedroom, Dining room, Office and Outdoor. She taps Sofas."
         },
         {
           time: "20:52",
           kicker: "The sofa's page",
           title: "Bouclé or velvet",
-          text: "The Sadeer sofa comes in bouclé, velvet or linen, in ivory, olive or sand. Olive velvet is down to the last two. She can't decide from a screen, so she asks for the free fabric samples on the home: five swatches, at her door in three days."
+          text: "The Sadeer sofa comes in bouclé, velvet or linen, in ivory, olive or sand. Olive velvet is down to the last two. She can't decide from a screen, so she asks the shop for its free fabric samples: five swatches, at her door in three days."
         },
         {
           time: "21:05",
           kicker: "With a tape measure",
           title: "220 cm on a 240 cm wall",
-          text: "Under the name, every card says its size: W 220 × D 95 × H 82 cm. She measures the wall between the window and the door: 240. Ten centimetres on each side. The Najd coffee table goes on the photo of the complete set, its spot one tap away."
+          text: "On every card the size comes first, as on a drawing: W 220 × D 95 × H 82 cm over a dimension rule, the name under it. She measures the wall between the window and the door: 240. Ten centimetres on each side. The Najd coffee table is number 3 in the home's drawing, one tap away."
         },
         {
           time: "Saturday",
@@ -2484,7 +2470,7 @@ export const STORIES_EN: StoryCopy = {
         "languages, Arabic right to left"
       ],
       systemsTitle: "Every part, explained",
-      systemsText: "Rooms and the menu, fabrics and sizes, delivery and assembly, made to measure, and the two looks.",
+      systemsText: "Rooms and the menu, fabrics and sizes, delivery and assembly, made to measure, and the four templates.",
       systems: [
         {
           name: "Shop by room",
@@ -2533,14 +2519,14 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           name: "Designed in Yallapp Studio",
-          title: "Two looks, every part yours to change",
-          text: "Rukn comes in two premium looks, built only from Studio's elements.",
+          title: "Four templates, every part yours to change",
+          text: "Rukn comes in four premium templates, built only from Studio's elements.",
           features: [
-            ["RUKN", "Look A: modern white and walnut, round corners and warm photos."],
-            ["Light and dark", "Both looks have a designed night."],
+            ["MIZAN", "Template C, the demo: the shop as a set of drawings in black and white, every piece with its width, depth and height."],
+            ["Light and dark", "Every template has a designed night."],
             ["A compact hero", "The collections in cards about 210 points tall, the next one peeking."],
             ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one marked."],
-            ["KANAF", "Look B: quiet luxury in deep green, build your sofa piece by piece and the showroom on a map."],
+            ["MANZIL", "Template D: room by room in oat and navy, a room switcher at the top. Looks A and B, kept."],
             ["Three languages", "English, Arabic right to left, and Turkish."]
           ]
         }
@@ -2578,7 +2564,7 @@ export const STORIES_EN: StoryCopy = {
       navName: "Electronics shop app",
       metaTitle: "An electronics shop app with specs, compare, warranty and trade-in, designed in Yallapp Studio",
       metaDescription: "A week with Madar: a new job, a laptop chosen by its specs, two phones compared side by side, a year more of warranty and an old phone traded in.",
-      summary: "Every product's specifications as a table, two or three compared side by side, colours and storages each with its price, the warranty and more cover, trade-in and installments coming soon, in two premium looks.",
+      summary: "Every product's specifications as a table, two or three compared side by side, colours and storages each with its price, the warranty and more cover, trade-in and installments coming soon, in four premium templates.",
       eyebrow: "Yallapp Studio · The electronics shop",
       title: "Sunday, with the right laptop",
       intro: "Faisal starts a new job on Sunday and his old laptop won't make it. It's Wednesday evening in Riyadh. This is how a few evenings with his phone become the right laptop, a new phone, and the old one traded in.",
@@ -2588,13 +2574,13 @@ export const STORIES_EN: StoryCopy = {
           time: "20:40",
           kicker: "Riyadh, after work",
           title: "A laptop by Sunday",
-          text: "Faisal opens Madar on the sofa. The home is small and quick: the search, the categories, the week's launches in cards that slide, the next one peeking. Under them, one line of promises: delivery in 24 hours, free installation, a certified warranty, and installments, coming soon."
+          text: "Faisal opens Madar on the sofa. The home is a grid of glass tiles: the smart home across the top with its spec chips, the deal of the day beside the best seller, the categories as four small tiles, then trade-in and compare. At the foot, a frosted glass bar."
         },
         {
           time: "20:44",
           kicker: "The menu",
           title: "Every category, a row",
-          text: "He taps the menu beside the bell. Phones, Laptops, Tablets & watches, TVs: each category is a row of cards, its sub-categories sliding after it. He slides Laptops and taps Thin & light."
+          text: "He taps the grid's menu tile. Phones, Laptops, Tablets & watches, TVs: each category is a row of cards, its sub-categories sliding after it. He slides Laptops and taps Thin & light."
         },
         {
           time: "20:51",
@@ -2638,7 +2624,7 @@ export const STORIES_EN: StoryCopy = {
         "languages, Arabic right to left"
       ],
       systemsTitle: "Every part, explained",
-      systemsText: "The specifications and the compare sheet, colours, storages and the warranty, trade-in, the two looks, and where the products come from.",
+      systemsText: "The specifications and the compare sheet, colours, storages and the warranty, trade-in, the four templates, and where the products come from.",
       systems: [
         {
           name: "Specifications and compare",
@@ -2677,12 +2663,12 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           name: "Designed in Yallapp Studio",
-          title: "Two looks, every part yours to change",
-          text: "Madar comes in two premium looks, built only from Studio's elements.",
+          title: "Four templates, every part yours to change",
+          text: "Madar comes in four premium templates, built only from Studio's elements.",
           features: [
-            ["MADAR", "Look A: clean white and one deep blue, the services in one card."],
-            ["NABD", "Look B: lime on near-black cards over warm stone, the top five and a bundle."],
-            ["Light and dark", "Both looks have a designed night."],
+            ["MADAR GRID", "Template C, the demo: a bento of dark glass tiles, the deal of the day beside the best seller."],
+            ["The colour stage", "Template D: every device on its own saturated colour, big snapping cards. Looks A and B, kept."],
+            ["Light and dark", "Every template has a designed night."],
             ["A compact hero", "The launches in cards about 210 points tall, the next one peeking."],
             ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one lit."],
             ["Ready sections", "Trade-in, compare, the specs, the services, the star of the season and more, for any store."],
@@ -2733,7 +2719,7 @@ export const STORIES_EN: StoryCopy = {
       navName: "Phone shop app",
       metaTitle: "A phone shop app with trade-in, certified used, specs and compare, designed in Yallapp Studio",
       metaDescription: "A day with Nova: an old phone valued in a minute, a new one in its storage, colour and warranty, two phones compared, and the trade-in landing with the shop.",
-      summary: "Storage and colour with a price for each, a local or an international warranty, specs in a table, two phones compared, certified used with grades and trade-in, in two premium looks.",
+      summary: "Storage and colour with a price for each, a local or an international warranty, specs in a table, two phones compared, certified used with grades and trade-in, in four premium templates.",
       eyebrow: "Yallapp Studio · The phone shop",
       title: "The old phone pays for part of the new one",
       intro: "Karim's phone has a cracked back and a camera that blurs at night. It's Wednesday evening in Cairo. This is how ten minutes with that same phone become a new one, with the old one taken off the price.",
@@ -2743,13 +2729,13 @@ export const STORIES_EN: StoryCopy = {
           time: "20:40",
           kicker: "Nasr City, after work",
           title: "A camera that blurs at night",
-          text: "Karim opens Nova on the balcony. The home is small and quick: the search, the categories in circles, and this season's phones in cards that slide, the next one peeking from the edge. Under them, three promises: trade-in, certified repair and a warranty on every device."
+          text: "Karim opens Nova on the balcony. The home is a launch on a black stage: a tiny wordmark, \"New\", the shop's flagship in big quiet type, the phone alone in a warm glow, its colours to pick and its price, installments coming soon."
         },
         {
           time: "20:43",
           kicker: "What it's worth",
           title: "His old phone, in under a minute",
-          text: "Halfway down the home, a card asks what his old phone is worth. He picks his model, its 256 GB and Good, not Like new, for the cracked back. The estimate appears at once, under the shop's own prices. He taps Start trade-in and leaves his name and number."
+          text: "Further down, after the specs one per row, a dark card asks what his old phone is worth. He picks his model, its 256 GB and Good, not Like new, for the cracked back. The estimate appears at once, under the shop's own prices. He taps Start trade-in and leaves his name and number."
         },
         {
           time: "20:47",
@@ -2767,7 +2753,7 @@ export const STORIES_EN: StoryCopy = {
           time: "21:05",
           kicker: "For his sister",
           title: "Certified used, grade A",
-          text: "Back on the home, at night now, the app has turned dark. His sister needs a phone for university: the certified used ones show their grade, their storage and their battery health. A Lumen 11, grade A, battery at 91%, with a 12-month warranty. He sends her the link."
+          text: "Back in the app at night, the stage is still black. His sister needs a phone for university: from the menu, the certified used ones show their grade, their storage and their battery health. A Lumen 11, grade A, battery at 91%, with a 12-month warranty. He sends her the link."
         },
         {
           time: "10:15",
@@ -2793,7 +2779,7 @@ export const STORIES_EN: StoryCopy = {
         "languages, Arabic right to left"
       ],
       systemsTitle: "Every part, explained",
-      systemsText: "Trade-in, the phone's page with its specs and compare, certified used, the two looks, and where the products come from.",
+      systemsText: "Trade-in, the phone's page with its specs and compare, certified used, the four templates, and where the products come from.",
       systems: [
         {
           name: "Trade-in",
@@ -2835,12 +2821,12 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           name: "Designed in Yallapp Studio",
-          title: "Two looks, every part yours to change",
-          text: "Nova comes in two premium looks, built only from Studio's elements.",
+          title: "Four templates, every part yours to change",
+          text: "Nova comes in four premium templates, built only from Studio's elements.",
           features: [
-            ["NOVA", "Look A: white, ink and one cobalt accent, the estimator on the home."],
-            ["Emerald", "Look B: deep green on warm stone, trade-in in three steps and a ready bundle."],
-            ["Light and dark", "Both looks have a designed night."],
+            ["KEYNOTE", "Template C, the demo: one phone alone on a black stage, the specs revealed one per row."],
+            ["DEALS HUB", "Template D: fast and dense in hot pink, today's deals with their countdown. Looks A and B, kept."],
+            ["Light and dark", "Every template has a designed night."],
             ["A compact hero", "This season's phones in cards about 210 points tall, the next one peeking."],
             ["A floating bar", "Home, Shop, Cart, Orders and Account, the open one a pill with its name."],
             ["Ready sections", "Trade-in, compare, by storage, certified used and more, for any store."],
@@ -2891,7 +2877,7 @@ export const STORIES_EN: StoryCopy = {
       navName: "Computers shop app",
       metaTitle: "A computers and gaming shop app with Build your PC, filters by spec and compare, designed in Yallapp Studio",
       metaDescription: "A week with Nawah: a gaming PC built part by part, every part checked, a laptop found by its specs, and two laptops compared side by side.",
-      summary: "Build your PC with its compatibility checks, filters by processor, memory, storage and graphics, specifications as a table, compare and configure, in two premium looks.",
+      summary: "Build your PC with its compatibility checks, filters by processor, memory, storage and graphics, specifications as a table, compare and configure, in four premium templates.",
       eyebrow: "Yallapp Studio · The computers shop",
       title: "Part by part, and it fits",
       intro: "Faisal has saved for a gaming PC all year, and his sister Reem starts university next month without a laptop. It's Thursday night in Jeddah. This is how one app built the first and found the second.",
@@ -2901,7 +2887,7 @@ export const STORIES_EN: StoryCopy = {
           time: "22:05",
           kicker: "Jeddah, Thursday night",
           title: "A PC, part by part",
-          text: "Faisal opens Nawah. The home is small and quick: the search, the categories, a hero card with the next one peeking, and under it a card that says Build your PC, its parts in a row: processor, motherboard, memory, graphics, storage, power, case.",
+          text: "Faisal opens Nawah. The home is a battle station, neon on black: tabs for what you play, Gaming, Streaming, Parts and Gear, and first of all Build the PC of your dreams, its steps in a column: the processor, the graphics card, the memory.",
         },
         {
           time: "22:09",
@@ -2946,7 +2932,7 @@ export const STORIES_EN: StoryCopy = {
       statsTitle: "Small facts behind one build",
       stats: ["parts in the demo's Build your PC, in their order", "checks between the parts: the socket, the memory, the power and the size", "days to return, shown with every order", "languages, Arabic right to left"],
       systemsTitle: "Every part, explained",
-      systemsText: "Build your PC, the filters by spec, the specifications and compare, the two looks, and where the products come from.",
+      systemsText: "Build your PC, the filters by spec, the specifications and compare, the four templates, and where the products come from.",
       systems: [
         {
           name: "Build your PC",
@@ -2988,12 +2974,12 @@ export const STORIES_EN: StoryCopy = {
         },
         {
           name: "Designed in Yallapp Studio",
-          title: "Two looks, every part yours to change",
-          text: "Nawah comes in two premium looks, built only from Studio's elements.",
+          title: "Four templates, every part yours to change",
+          text: "Nawah comes in four premium templates, built only from Studio's elements.",
           features: [
-            ["NAWAH", "Look A: cool white and one strong blue, deep cards for the deals and the gamer zone."],
-            ["SILICA", "Look B: deep green on warm stone, its sections numbered."],
-            ["Light and dark", "Both looks have a designed night."],
+            ["Battle station", "Template C, the demo: neon on black, cut-corner cards and Build your PC first."],
+            ["Workstation", "Template D: clean blue-grey for business, a spec sheet, compare and a quote form. Looks A and B, kept."],
+            ["Light and dark", "Every template has a designed night."],
             ["A compact hero", "Cards about 210 points tall, the next one peeking."],
             ["A floating bar", "Home, Shop, Cart, Orders and Account."],
             ["Ready sections", "Build your PC, the spec filters, ready builds compared and the device of the week, for any store."],

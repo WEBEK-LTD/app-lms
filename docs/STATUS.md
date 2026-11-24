@@ -8,16 +8,22 @@ Last updated: 24 November 2026.
 
 ## Current release
 
-Roadmap 228.7 (the looks' own product pages, furniture and decor): Rukn's
-looks C (MIZAN, a drawing's sheet) and D (MANZIL, room by room) and Sakan's
-C (ATHAR, the piece framed in a gallery) and D (MAZAJ, a moodboard's
-polaroid) each draw their own product page from the product page's
-elements and the look's own parts, with no app change. Known until 228.8's
-app PR: a choice's "chips" stretch across the row (legible); on a
-product page without a header that doesn't start with full-bleed photos the
-back button lies over the page as it scrolls; a product's size is drawn
-only as a line, so the architect's "W × D × H as the headline" is the line
-under a dimension rule.
+Roadmap 228.7 and 228.8 (the looks' own product pages): every round-3
+look C and D (Lujain, Toota, Velours, Ghurza, Toot, Nova, Madar, Nawah,
+Rukn, Sakan) draws its own product page, no two with the same skeleton;
+the demo shops' descriptions, choices and facts in MSA and Turkish. 228.8's
+app fixes (chips as wide as their words, the name's alignment, the top band
+on every header-less product page, the size as a headline, Arabic units in
+their own direction, Notify me in the part's accent) ship with the next app
+release (no `CLIENT_APP_RELEASE` change).
+
+Roadmap 225.9 (the demo guides in look C): the demo guides of Velours,
+Ghurza, Toot, Sakan, Rukn, Madar, Nova and Nawah show their apps as they
+are now, in each type's main look C (home, menu or Ghurza's custom order,
+and a product, from the real app), with their words in English, Arabic and
+Turkish; the ten shop types' story pages name their four templates and show
+no look A or B screen; Madar's and Nawah's Studio demo pages show their
+looks C and D.
 
 Roadmap 229 (prices that read cleanly): a product whose variations cost
 differently shows "From SAR 4,899" (Arabic "من SAR 4,899", Turkish
