@@ -18,6 +18,8 @@ import { SHOP_KIT_WORDS } from "./words/shop-kit";
 import { DECOR_WORDS } from "./words/decor";
 import { CROCHET_WORDS } from "./words/crochet";
 import { FURNITURE_WORDS } from "./words/furniture";
+import { BEAUTY_CD_WORDS } from "./words/beauty-cd";
+import { CROCHET_CD_WORDS } from "./words/crochet-cd";
 // 211 Madar's words (the electronics type), in a file of their own.
 import { EL_AR, EL_EN, EL_TR } from "./demo-designs/electronics-words";
 
@@ -1583,6 +1585,8 @@ export const en = {
   ...DECOR_WORDS.en,
   ...CROCHET_WORDS.en,
   ...FURNITURE_WORDS.en,
+  ...BEAUTY_CD_WORDS.en,
+  ...CROCHET_CD_WORDS.en,
   // ——— 211 Nova, the mobiles shop: its two Signature looks, its pages and ready sections (lib/studio/demo-designs/mobiles-signature.ts) ———
   mbWordmark: "{app}",
   mbSearch: "Search a phone, a watch or earbuds…",
@@ -3384,6 +3388,8 @@ export const ar: Record<AppWord, string> = {
   ...DECOR_WORDS.ar,
   ...CROCHET_WORDS.ar,
   ...FURNITURE_WORDS.ar,
+  ...BEAUTY_CD_WORDS.ar,
+  ...CROCHET_CD_WORDS.ar,
   // ——— 211 Nova ———
   mbWordmark: "{app}",
   mbSearch: "ابحث عن هاتف أو ساعة أو سماعة…",
@@ -5180,6 +5186,8 @@ export const tr: Record<AppWord, string> = {
   ...DECOR_WORDS.tr,
   ...CROCHET_WORDS.tr,
   ...FURNITURE_WORDS.tr,
+  ...BEAUTY_CD_WORDS.tr,
+  ...CROCHET_CD_WORDS.tr,
   // ——— 211 Nova ———
   mbWordmark: "{app}",
   mbSearch: "Telefon, saat ya da kulaklık arayın…",

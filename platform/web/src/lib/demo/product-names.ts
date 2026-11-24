@@ -1,0 +1,100 @@
+/**
+ * 224 The demo shops' products named in Arabic and Turkish too (the
+ * product's `translations`, 212), by SKU, so a demo app read in Arabic or
+ * Turkish shows its products in that language: Ghurza's (crochet) and
+ * Velours's (cosmetics). A kit without names keeps its English names.
+ */
+export type ProductNames = Readonly<Record<string, { ar: string; tr: string }>>;
+
+/** The product's `translations` from its names; none without. */
+export function namedTranslations(names: ProductNames | undefined, sku: string): { ar: { name: string }; tr: { name: string } } | null {
+  const n = names?.[sku];
+  return n ? { ar: { name: n.ar }, tr: { name: n.tr } } : null;
+}
+
+export const CROCHET_PRODUCT_NAMES: ProductNames = {
+  "CR-101": { ar: "كارديغان دفا", tr: "Dafa hırka" },
+  "CR-102": { ar: "كنزة غابة الإسكندنافية", tr: "Ghaba İskandinav kazak" },
+  "CR-103": { ar: "كنزة رمال الوافل", tr: "Rimal waffle kazak" },
+  "CR-104": { ar: "كارديغان حكاية السميك", tr: "Hekaya kalın hırka" },
+  "CR-111": { ar: "وشاح قرفة المضلّع", tr: "Qirfa fitilli atkı" },
+  "CR-112": { ar: "وشاح ليالي بالأهداب", tr: "Layali saçaklı atkı" },
+  "CR-121": { ar: "قبعة بُن بكرة الفرو", tr: "Bunn ponponlu bere" },
+  "CR-122": { ar: "قبعة ثلج الواسعة", tr: "Talj bol bere" },
+  "CR-131": { ar: "جوارب مدفأة المخطّطة", tr: "Mudfi'a çizgili çorap" },
+  "CR-132": { ar: "قفازات حضن", tr: "Hodn eldiven" },
+  "CR-133": { ar: "خفّ شتاء الإسكندنافي", tr: "Shita İskandinav patik" },
+  "CR-201": { ar: "طقم أغطية زيتون", tr: "Zaytoon şal seti" },
+  "CR-202": { ar: "بطانية الغرزة السميكة", tr: "Kalın ilmek battaniye" },
+  "CR-203": { ar: "بطانية غيم للرضّع", tr: "Ghaim bebek battaniyesi" },
+  "CR-301": { ar: "دبدوب بندق", tr: "Bundu oyuncak ayı" },
+  "CR-311": { ar: "أرنب جزرة", tr: "Jazara tavşan" },
+  "CR-321": { ar: "أقزام الشتاء، طقم من ثلاثة", tr: "Kış cüceleri, üçlü set" },
+  "CR-322": { ar: "رجل الثلج ثلج", tr: "Thalj kardan adam" },
+  "CR-401": { ar: "قبعة ساحل الرافيا للشمس", tr: "Sahil rafya güneş şapkası" },
+  "CR-402": { ar: "قبعة رافيا بلونين", tr: "İki renkli rafya şapka" },
+  "CR-411": { ar: "حقيبة سوق السلّة", tr: "Souk sepet çanta" },
+  "CR-501": { ar: "غطاءا أكواب، قطعتان", tr: "Kupa kılıfı, ikili" },
+  "CR-502": { ar: "غطاء وسادة بغرزة الوافل", tr: "Waffle kırlent kılıfı" },
+  "CR-601": { ar: "خيط قطن مصري، 100 غ", tr: "Mısır pamuğu ip, 100 g" },
+  "CR-602": { ar: "خيط قطن، خمس كرات", tr: "Pamuk ip, beşli paket" },
+  "CR-611": { ar: "صوف ميرينو، 50 غ", tr: "Merinos yünü, 50 g" },
+  "CR-612": { ar: "صوف سميك، 200 غ", tr: "Kalın yün, 200 g" },
+  "CR-621": { ar: "رافيا طبيعية، 100 غ", tr: "Doğal rafya, 100 g" },
+  "CR-631": { ar: "إبر وصنانير خشبية", tr: "Ahşap şiş ve tığlar" },
+  "CR-632": { ar: "خيوط خياطة، عشرة ألوان", tr: "Dikiş ipliği, on renk" },
+  "CR-633": { ar: "أزرار خشبية، 30 قطعة", tr: "Ahşap düğmeler, 30 adet" },
+  "CR-641": { ar: "عُدّة الوشاح للمبتدئات", tr: "Atkı başlangıç kiti" },
+  "CR-642": { ar: "عُدّة دبدوب الأميغورومي", tr: "Amigurumi ayı kiti" },
+  "CR-701": { ar: "أساسيات الكروشيه للمبتدئات", tr: "Yeni başlayanlara tığ işi" },
+  "CR-702": { ar: "دمى الأميغورومي", tr: "Amigurumi oyuncaklar" },
+  "CR-703": { ar: "بطانية سميكة في يوم", tr: "Bir günde kalın battaniye" },
+  "CR-901": { ar: "تغليف هدية مع بطاقة بخط اليد", tr: "El yazısı kartlı hediye paketi" },
+};
+
+export const BEAUTY_PRODUCT_NAMES: ProductNames = {
+  "BT-101": { ar: "سيروم فيتامين C للإشراق", tr: "Aydınlatıcı C vitamini serumu" },
+  "BT-102": { ar: "كريم الترطيب العميق", tr: "Yoğun nemlendirici krem" },
+  "BT-103": { ar: "سيروم النياسيناميد والزنك", tr: "Niasinamid ve çinko serumu" },
+  "BT-104": { ar: "كريم السيراميد لحاجز البشرة", tr: "Seramidli bariyer kremi" },
+  "BT-105": { ar: "زيت السكوالان النقي للوجه", tr: "Saf skualan yüz yağı" },
+  "BT-106": { ar: "بلسم جوز الهند المنظّف", tr: "Hindistan cevizli temizleme balmı" },
+  "BT-107": { ar: "صابونة الشوفان المنظّفة اللطيفة", tr: "Yulaflı nazik temizleme sabunu" },
+  "BT-108": { ar: "واقي شمس يومي شفاف SPF 50+", tr: "Şeffaf günlük güneş kremi SPF 50+" },
+  "BT-109": { ar: "سيروم حمض الهيالورونيك", tr: "Hyalüronik asit serumu" },
+  "BT-110": { ar: "زيت الورد للوجه", tr: "Gül yüz yağı" },
+  "BT-111": { ar: "سيروم الريتينول الليلي 0.3%", tr: "%0,3 retinol gece serumu" },
+  "BT-112": { ar: "مرطّب جل خفيف", tr: "Hafif jel nemlendirici" },
+  "BT-201": { ar: "كريم أساس كوشن مخملي SPF 25", tr: "Kadife kuşon fondöten SPF 25" },
+  "BT-202": { ar: "بلسم الورد للشفاه والخدود", tr: "Gül dudak ve yanak balmı" },
+  "BT-203": { ar: "بلسم شفاه ملوّن", tr: "Renkli dudak balmı" },
+  "BT-204": { ar: "طلاء أظافر جل", tr: "Jel oje" },
+  "BT-205": { ar: "أحمر شفاه مخملي مطفي", tr: "Kadife mat ruj" },
+  "BT-206": { ar: "باليت ظلال غروب الورد", tr: "Gül gün batımı far paleti" },
+  "BT-207": { ar: "باليت الظلال الدخانية", tr: "Dumanlı far paleti" },
+  "BT-208": { ar: "باليت الظلال النود", tr: "Nude far paleti" },
+  "BT-209": { ar: "فرشاة كابوكي للبودرة", tr: "Kabuki pudra fırçası" },
+  "BT-210": { ar: "أحمر خدود مضغوط", tr: "Sıkıştırılmış allık" },
+  "BT-211": { ar: "قلم آيلاينر سائل", tr: "Mürekkep eyeliner kalemi" },
+  "BT-212": { ar: "بلسم شفاه حريري", tr: "İpeksi dudak balmı stick" },
+  "BT-301": { ar: "عطر الوردة المخملية", tr: "Kadife gül eau de parfum" },
+  "BT-302": { ar: "عطر البتلات", tr: "Petal eau de parfum" },
+  "BT-303": { ar: "أعواد بخور العود", tr: "Ud tütsü çubukları" },
+  "BT-304": { ar: "شمعة معطّرة بالعنبر", tr: "Amber kokulu mum" },
+  "BT-305": { ar: "شمعة التين والأرز", tr: "İncir ve sedir mumu" },
+  "BT-401": { ar: "ثنائي أملاح الاستحمام المعدنية", tr: "Mineralli banyo tuzu ikilisi" },
+  "BT-402": { ar: "صابون زيت الزيتون المصنوع يدويًا", tr: "El yapımı zeytinyağlı sabun" },
+  "BT-403": { ar: "صابون اللافندر للسبا", tr: "Lavantalı spa sabunu" },
+  "BT-404": { ar: "طقم طقوس السبا", tr: "Spa ritüeli seti" },
+  "BT-405": { ar: "طقم كرة الاستحمام والمنشفة", tr: "Banyo bombası ve havlu seti" },
+  "BT-501": { ar: "زيت الأرغان للشعر", tr: "Argan saç yağı" },
+  "BT-502": { ar: "شامبو وبلسم الإصلاح", tr: "Onarıcı şampuan ve saç kremi" },
+  "BT-503": { ar: "سيروم مهدّئ لفروة الرأس", tr: "Yatıştırıcı saç derisi serumu" },
+  "BT-504": { ar: "زيت اللحية", tr: "Sakal yağı" },
+  "BT-505": { ar: "كريم الحلاقة", tr: "Tıraş kremi" },
+  "BT-701": { ar: "طقم فرش البشرة", tr: "Ten fırçası seti" },
+  "BT-601": { ar: "روتين الصباح للبشرة المختلطة", tr: "Karma cilt için sabah rutini" },
+  "BT-602": { ar: "روتين المساء للبشرة الجافة", tr: "Kuru cilt için akşam rutini" },
+  "BT-603": { ar: "روتين البشرة الصافية للبشرة الدهنية", tr: "Yağlı cilt için arınma rutini" },
+  "BT-604": { ar: "روتين التهدئة للبشرة الحساسة", tr: "Hassas cilt için yatıştırıcı rutin" },
+};

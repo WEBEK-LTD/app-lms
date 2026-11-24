@@ -66,6 +66,12 @@ const TAB_WORDS: Record<string, SectionWord> = {
   Bouquets: "lqTabBouquets",
   // 208 Lujain's shop.
   Shop: "tabShop",
+  // 224 Velours C's lab and D's shades, the wishlist; Ghurza C's market and pieces.
+  "The lab": "vcLabTitle",
+  Shades: "vdShadesMenu",
+  Wishlist: "vcWishlist",
+  Market: "gcMarket",
+  Pieces: "gcPieces",
 };
 
 /** The word over a screen and its icon; a screen that is all its own (the search, the club, the ride map) has none. */
