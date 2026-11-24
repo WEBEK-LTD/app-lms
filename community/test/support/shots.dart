@@ -38,7 +38,13 @@ void phoneInsets(WidgetTester tester) {
 }
 
 Future<void> shot(WidgetTester tester, String name) async {
-  expect(tester.takeException(), isNull);
+  // Taken first, so a fault (an overflow's stripes) shows in the shot too.
+  final fault = tester.takeException();
+  await _write(tester, name);
+  expect(fault, isNull);
+}
+
+Future<void> _write(WidgetTester tester, String name) async {
   if (shotsDir.isEmpty) return;
   // Let pictures (covers, photos) decode, then draw them.
   await tester.runAsync(
