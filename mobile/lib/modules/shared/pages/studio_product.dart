@@ -155,6 +155,9 @@ bool studioProductShows(BuildContext context, WidgetRef ref, StudioNode node) {
     StudioNodeType.productDescription =>
       product.descriptionHtml.trim().isNotEmpty ||
           (product.shortDescriptionHtml ?? '').trim().isNotEmpty,
+    // 228.8 The dimensions headline: the product's size.
+    StudioNodeType.productSpecs when node.productPart.look == 'dimensions' =>
+      product.dimensions != null,
     StudioNodeType.productSpecs =>
       product.specs.isNotEmpty || product.facts.isNotEmpty,
     StudioNodeType.productReviews =>
@@ -217,7 +220,17 @@ class StudioProductView extends ConsumerWidget {
           accent: accent,
         );
       case StudioNodeType.productTitle:
-        return _Title(controller: c, style: style, ink: ink, look: look);
+        return _Title(
+          controller: c,
+          style: style,
+          ink: ink,
+          look: look,
+          align: switch (node.textAlign) {
+            StudioTextAlign.center => TextAlign.center,
+            StudioTextAlign.end => TextAlign.end,
+            StudioTextAlign.start => TextAlign.start,
+          },
+        );
       case StudioNodeType.productPrice:
         return _Price(controller: c, style: style, ink: ink, look: look);
       case StudioNodeType.productVariants:
@@ -249,6 +262,15 @@ class StudioProductView extends ConsumerWidget {
                 ? (node.darkBorderColor ?? node.borderColor)
                 : node.borderColor,
           ),
+        );
+      case StudioNodeType.productSpecs when look == 'dimensions':
+        // 228.8 W × D × H as the headline figure over a dimension rule.
+        return _Dimensions(
+          controller: c,
+          style: style,
+          ink: ink,
+          title: title,
+          accent: accent,
         );
       case StudioNodeType.productSpecs:
         return _Specs(
@@ -517,12 +539,16 @@ class _Title extends ConsumerWidget {
     required this.style,
     required this.ink,
     required this.look,
+    this.align = TextAlign.start,
   });
 
   final ProductPageController controller;
   final TextStyle style;
   final Color ink;
   final String? look;
+
+  /// 228.8 Its alignment (`StudioNode.text_align`): a polaroid's name centred.
+  final TextAlign align;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -539,6 +565,7 @@ class _Title extends ConsumerWidget {
           child: Text(
             controller.product.name,
             key: const ValueKey('product-title'),
+            textAlign: align,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
@@ -1235,6 +1262,71 @@ class _DescriptionState extends State<_Description> {
             Padding(padding: const EdgeInsets.only(bottom: 14), child: words),
         ],
       ),
+    );
+  }
+}
+
+/// 228.8 The product's size (W × D × H) as the headline figure: its
+/// caption (the element's title, else the app's word), the size large in the
+/// element's font, and a dimension rule under it, a tick at each end.
+class _Dimensions extends StatelessWidget {
+  const _Dimensions({
+    required this.controller,
+    required this.style,
+    required this.ink,
+    required this.title,
+    required this.accent,
+  });
+
+  final ProductPageController controller;
+  final TextStyle style;
+  final Color ink;
+  final String title;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final size = controller.product.dimensions ?? '';
+    Widget tick() =>
+        SizedBox(width: 1.5, height: 10, child: ColoredBox(color: accent));
+    return Column(
+      key: const ValueKey('product-dimensions-headline'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          title.isNotEmpty ? title : context.l10n.productDimensions,
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.2,
+            color: p.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          size,
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
+            height: 1.2,
+            color: ink,
+          ).merge(style),
+        ),
+        const SizedBox(height: 8),
+        ExcludeSemantics(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              tick(),
+              Expanded(
+                child: SizedBox(height: 1.5, child: ColoredBox(color: accent)),
+              ),
+              tick(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

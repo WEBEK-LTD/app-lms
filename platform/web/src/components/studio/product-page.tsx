@@ -289,6 +289,21 @@ export function ProductPartCanvas({ node, pickable, dark, lang, brand, color, ti
       );
     }
     case "product_specs": {
+      // 228.8 The product's size as the headline figure over a dimension rule.
+      if (look === "dimensions") {
+        const tick = <span style={{ width: 1.5, height: 10, background: p.accent }} />;
+        return (
+          <span {...mark} style={{ display: "flex", flexDirection: "column", gap: 6, opacity: quiet }}>
+            <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 1.2, color: p.muted }}>{title || w.pSizeTitle}</span>
+            <span style={{ fontSize: font.size ?? 26, fontWeight: font.weight ?? 800, lineHeight: 1.2, color: p.ink }}>{w.pSampleSize}</span>
+            <span style={{ display: "flex", alignItems: "flex-end" }}>
+              {tick}
+              <span style={{ flex: 1, height: 1.5, background: p.accent }} />
+              {tick}
+            </span>
+          </span>
+        );
+      }
       const rows = product.specs.slice(0, node.product_part?.rows ?? product.specs.length);
       return (
         <span {...mark} style={{ display: "flex", flexDirection: "column", gap: look === "list" ? 6 : 0, opacity: quiet }}>

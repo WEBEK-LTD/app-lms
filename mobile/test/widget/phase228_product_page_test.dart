@@ -117,6 +117,8 @@ void main() {
     bool productPage = true,
     String language = 'en',
     String variants = 'grid',
+    List<Map<String, dynamic>>? nodes,
+    bool sized = false,
   }) async {
     tester.view
       ..devicePixelRatio = 3
@@ -170,9 +172,13 @@ void main() {
               node('welcome', 'text', {'text': 'Welcome'}),
               node('home-title', 'product_title'),
             ]),
-            if (productPage) 'product': page(productNodes(variants: variants)),
+            if (productPage)
+              'product': page(nodes ?? productNodes(variants: variants)),
           }
-          ..product = dress();
+          ..product = {
+            ...dress(),
+            if (sized) 'dimensions': {'text': 'W 220 × D 95 × H 82 cm'},
+          };
     final app = TestApp(
       appType: AppType.store,
       api: api,
@@ -242,7 +248,11 @@ void main() {
       find.byKey(const ValueKey('product-gallery-thumbs')),
       findsOneWidget,
     );
-    expect(find.text('Rust satin midi dress'), findsOneWidget);
+    // The name (the top band repeats it once the page scrolls).
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('product-title'))).data,
+      'Rust satin midi dress',
+    );
     // From the lowest size's price until a size is chosen.
     expect(find.text('From ₺990.00'), findsOneWidget);
     expect(find.text('Choose your size'), findsOneWidget);
@@ -336,9 +346,75 @@ void main() {
     Rect chip(String size) => tester.getRect(
       find.descendant(of: row, matching: find.widgetWithText(Material, size)),
     );
-    final tops = {for (final s in ['S', 'M', 'L']) chip(s).top};
+    final tops = {
+      for (final s in ['S', 'M', 'L']) chip(s).top,
+    };
     expect(tops.length, greaterThan(1));
     expect(chip('S').width, lessThan(tester.getSize(row).width));
+    app.container.dispose();
+  });
+
+  testWidgets('228.8 the size as the headline, a centred name, and the top '
+      'band once a page without photos at its top scrolls', (tester) async {
+    final app = await open(
+      tester,
+      sized: true,
+      nodes: [
+        node('top', 'spacer', {'height': 72}),
+        node('t', 'product_title', {'text_align': 'center'}),
+        node('d', 'product_specs', {
+          'product_part': {'look': 'dimensions'},
+        }),
+        node('s', 'spacer', {'height': 3000}),
+      ],
+    );
+    app.container.read(appRouterProvider).push(Paths.product(30));
+    await TestApp.settle(tester, 20);
+    expect(
+      find.byKey(const ValueKey('product-dimensions-headline')),
+      findsOneWidget,
+    );
+    expect(find.text('W 220 × D 95 × H 82 cm'), findsOneWidget);
+    expect(find.text('Dimensions'), findsWidgets);
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('product-title')))
+          .textAlign,
+      TextAlign.center,
+    );
+    double band() => tester
+        .widget<AnimatedOpacity>(
+          find.byKey(const ValueKey('product-page-top-band')),
+        )
+        .opacity;
+    expect(band(), 0);
+    await tester.drag(
+      find.byKey(const ValueKey('studio-product')),
+      const Offset(0, -300),
+    );
+    await TestApp.settle(tester, 10);
+    expect(band(), 1);
+    expect(tester.takeException(), isNull);
+    app.container.dispose();
+  });
+
+  testWidgets('228.8 without a size, the dimensions headline draws nothing', (
+    tester,
+  ) async {
+    final app = await open(
+      tester,
+      nodes: [
+        node('d', 'product_specs', {
+          'product_part': {'look': 'dimensions'},
+        }),
+      ],
+    );
+    app.container.read(appRouterProvider).push(Paths.product(30));
+    await TestApp.settle(tester, 20);
+    expect(
+      find.byKey(const ValueKey('product-dimensions-headline')),
+      findsNothing,
+    );
     app.container.dispose();
   });
 }

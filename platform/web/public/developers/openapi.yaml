@@ -17838,7 +17838,9 @@ components:
             with `pin`; out of stock, Notify me where the shop offers it);
             `product_description` (`plain`, `accordion`);
             `product_specs` its specs and facts (`table`, `list`; `rows` at
-            most);
+            most), 228.8 `dimensions` its size (`ProductDetail.dimensions`)
+            as the headline figure over a dimension rule, under its `text`
+            (else the app's word), left out without a size;
             `product_reviews` (`summary` its rating, count and a link to its
             reviews; `bars` the stars' bars, photos and first reviews of
             `ProductDetail.reviews_preview`);
@@ -17852,7 +17854,7 @@ components:
             `accent` the highlights' colour (`dark_accent` in dark mode). Each is left out when the
             product has nothing for it (no specs, no reviews, no related).
           properties:
-            look: { type: string, enum: [pager, card, thumbs, stacked, plain, rating, single, from, sale, chips, swatches, grid, stepper, pill, cart, buy_now, price, accordion, table, list, summary, bars, carousel, rows] }
+            look: { type: string, enum: [pager, card, thumbs, stacked, plain, rating, single, from, sale, chips, swatches, grid, stepper, pill, cart, buy_now, price, accordion, table, list, dimensions, summary, bars, carousel, rows] }
             related: { type: string, enum: [related, complete_look], default: related }
             rows: { type: integer, minimum: 1, maximum: 40 }
             accent: { type: [string, 'null'] }
