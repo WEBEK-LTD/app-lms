@@ -1,0 +1,70 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { siteContext } from "@/components/community/site/context";
+import { cmLinks } from "@/components/community/site/links";
+import { SitePage } from "@/components/community/site/page";
+import { notices } from "@/components/community/site/source";
+import { ago } from "@/components/community/site/words";
+import { readAllAction } from "../trust-actions";
+
+export const metadata: Metadata = { title: "Notifications", robots: { index: false } };
+
+const ICONS: Record<string, string> = {
+  answer_posted: "forum",
+  answer_accepted: "check_circle",
+  official_answer: "verified_user",
+  reply_posted: "reply",
+  follow: "person_add",
+  friend_request: "group_add",
+  friend_accepted: "diversity_3",
+  badge_granted: "workspace_premium",
+  badge_revoked: "remove_moderator",
+  verification_approved: "workspace_premium",
+  verification_rejected: "cancel",
+  content_approved: "task_alt",
+  content_rejected: "block",
+};
+
+/** 231 The member's notifications (the same ones are emailed, as they choose in Settings). */
+export default async function NotificationsPage({ searchParams }: { searchParams: Promise<{ cursor?: string }> }) {
+  const sp = await searchParams;
+  const { w, viewer } = await siteContext();
+  if (!viewer) redirect(cmLinks.signIn(cmLinks.notifications()));
+  const list = await notices(viewer.id, { cursor: sp.cursor });
+  return (
+    <SitePage active="none">
+      <div style={{ maxWidth: 760 }}>
+        <div className="cm-card cm-head">
+          <h1 style={{ flex: 1 }}>{w.notifications}</h1>
+          {list.unread ? (
+            <form action={readAllAction}>
+              <button type="submit" className="cm-btn g"><span className="ms">done_all</span>{w.markAllRead}</button>
+            </form>
+          ) : null}
+          <Link href={cmLinks.settings()} className="cm-link"><span className="ms">settings</span>{w.settings}</Link>
+        </div>
+        {list.items.length ? (
+          <ul className="cm-card cm-notices">
+            {list.items.map((n) => (
+              <li key={n.id} className={n.read ? "" : "new"}>
+                <span className="ic"><span className="ms f">{ICONS[n.kind] ?? "notifications"}</span></span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {n.link ? <Link href={n.link}>{n.text}</Link> : n.text}
+                  <div className="m">{ago(w, n.createdAt)}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="cm-empty"><span className="ms f">notifications</span>{w.noNotices}</div>
+        )}
+        {list.next ? (
+          <div className="cm-row" style={{ justifyContent: "center" }}>
+            <Link href={`${cmLinks.notifications()}?cursor=${encodeURIComponent(list.next)}`} className="cm-btn g">{w.more}</Link>
+          </div>
+        ) : null}
+      </div>
+    </SitePage>
+  );
+}

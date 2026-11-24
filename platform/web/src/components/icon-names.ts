@@ -326,6 +326,20 @@ export const ICON_NAMES = [
   "view_list",
   // 227 Nawah C's Home tab.
   "sports_esports",
+  // 231 Yallapp Community's website.
+  "admin_panel_settings",
+  "chat_bubble",
+  "diversity_3",
+  "done_all",
+  "group_add",
+  "inbox",
+  "lightbulb",
+  "person_add",
+  "person_off",
+  "remove_moderator",
+  "reply",
+  "save",
+  "search_off",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];
