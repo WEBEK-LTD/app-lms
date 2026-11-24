@@ -50,6 +50,8 @@ class FakeCommunityApi implements CommunityApi {
     skills: const ['Studio', 'Shops', 'Arabic apps'],
     badges: const [EarnedBadge(kind: BadgeKind.blue)],
     points: 1240,
+    // The design's "Pro · 1,240 pts" and its bar.
+    levelProgress: .64,
     followers: 128,
     following: 64,
     friends: 12,
