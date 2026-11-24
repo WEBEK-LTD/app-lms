@@ -1,9 +1,10 @@
-import { heldBadges, isActive, reconcileAutoBadges, shownBadge, GOLD_MIN_APPS, type CommunityBadge, type MemberBadge, type MemberFacts } from "./badges";
-import { moderationGate, type HoldReason } from "./moderation";
-import { BADGE_NAMES, communityLang, DEFAULT_NOTIFICATION_PREFS, emails, notificationEmail, notificationText, parsePrefs, type CommunityLang, type NotificationData, type NotificationKind, type NotificationPrefs } from "./notifications";
-import { parseDecision, parseGrant, parseReport, parseRevoke, parseVerificationForm, verificationBlocked, type AuditAction, type LinkedApp, type ReportTarget, type VerificationRequest } from "./requests";
-import { mayCreateGroups, parseSettings, settingsOf, type CommunitySettings } from "./settings";
-import type { ContentKind, ModerationItem, Page, TrustStore } from "./store";
+import type { CommunityRole, CommunityTargetType } from "../types";
+import { GOLD_MIN_APPS, heldBadges, isActive, reconcileAutoBadges, shownBadge, type BadgeDetails, type CommunityBadge, type MemberBadge, type MemberFacts } from "./badges";
+import { holdCause, moderationGate, type HoldReason } from "./moderation";
+import { BADGE_NAMES, communityLang, DEFAULT_NOTIFICATION_PREFS, emails, notificationEmail, notificationText, parsePrefs, prefsView, type NotificationData, type NotificationKind } from "./notifications";
+import { ID_PROOF_TYPES, idProofProblem, parseDecision, parseGrant, parseReason, parseReport, parseVerificationForm, verificationBlocked, type AuditAction, type AuditEntry, type LinkedApp, type Report, type ReportStatus, type VerificationRequest, type VerificationStatus } from "./requests";
+import { blueRulesOf, mayCreateGroups, parseSettings, settingsOf, type CommunitySettings } from "./settings";
+import type { ContentKind, ModerationItem, ModerationStatus, Page, TrustStore } from "./store";
 
 /**
  * 231 Yallapp Community, area C: badges, the verification form, the admin's
@@ -11,44 +12,64 @@ import type { ContentKind, ModerationItem, Page, TrustStore } from "./store";
  *
  * Every function takes `deps` first: area C's store, and what it reads from
  * the other areas (the member from A's base, a post and its status from B's
- * Q&A, the member's stats and their linked Yallapp account). The website
- * (area F) calls these from its pages, the API (src/app/api/community/v1)
- * from its routes, and B from its own: `moderateNew` when a post is made,
- * `notify` when something happens to a member.
+ * Q&A, the member's stats and their linked Yallapp account, private files,
+ * email). The API (src/app/api/community/v1) and the website (area F) call
+ * these; area B calls `moderateNew` when a post is made and `notify` when
+ * something happens to a member, area A `notify` for follows and friends.
  */
 
 /** A Community member as area C needs them (area A's base). */
 export interface TrustMember {
-  id: number;
+  id: string;
   displayName: string;
-  /** "team": the Yallapp Team (official answers). Admins and the team are never held by moderation. */
-  role: "member" | "admin" | "team";
+  role: CommunityRole;
+  status: "active" | "suspended" | "deleted";
   /** The language they chose (English when none). */
-  lang: string | null;
-  /** Where emails go; null: no email (an Apple sign-in that hid it and gave none). */
+  language: string | null;
+  /** Where emails go; null: no email (an Apple sign-in that hid it). */
   email: string | null;
-  joinedAt: Date;
+  createdAt: Date;
+  /** Their posts approved or published so far: the first ones are reviewed. */
+  approvedPosts: number;
 }
 
 /** A post as area C needs it (area B's Q&A and tutorials). */
 export interface ContentInfo {
-  memberId: number;
+  authorId: string;
+  /** The question or tutorial's title, or an answer's first words. */
   title: string;
   /** Its path on the Community ("/q/12#a31"). */
   link: string;
 }
 
+/** The member's linked Yallapp account: its apps (Studio Market templates too) and the business Green shows (an app on a paid plan). */
+export interface LinkedAccount {
+  apps: LinkedApp[];
+  business: BadgeDetails | null;
+}
+
 export interface TrustDeps {
   store: TrustStore;
   now: () => Date;
-  member: (id: number) => Promise<TrustMember | null>;
+  member: (id: string) => Promise<TrustMember | null>;
+  /** One more of their posts appeared (A's `approved_posts`). */
+  countApprovedPost: (id: string) => Promise<void>;
+  /** Suspends or restores a member (a suspension signs every device out). */
+  setMemberStatus: (id: string, status: "active" | "suspended") => Promise<void>;
   /** The member's points and activity (area B's ledger). */
-  stats: (id: number) => Promise<{ points: number; acceptedAnswers: number; approvedTutorials: number; lastActiveAt: Date | null }>;
-  /** Their linked Yallapp account: its apps (Studio Market templates too) and an app on a paid plan; null when none is linked. */
-  linked: (id: number) => Promise<{ apps: LinkedApp[]; paid: { company: string; appUrl: string | null } | null } | null>;
+  stats: (id: string) => Promise<{ points: number; acceptedAnswers: number; approvedTutorials: number; lastActiveAt: Date | null }>;
+  /** Their linked Yallapp account; null when none is linked. */
+  linked: (id: string) => Promise<LinkedAccount | null>;
   content: {
-    info: (kind: ContentKind, id: number) => Promise<ContentInfo | null>;
-    setStatus: (kind: ContentKind, id: number, status: "published" | "hidden") => Promise<void>;
+    info: (kind: ContentKind, id: string) => Promise<ContentInfo | null>;
+    setStatus: (kind: ContentKind, id: string, status: "published" | "hidden") => Promise<void>;
+    /** The member's last few posts' texts (the duplicate check); empty when B doesn't say. */
+    recentTexts?: (memberId: string) => Promise<string[]>;
+  };
+  /** Private files (the ID proof): never public; admins get a short-lived link. */
+  files: {
+    put: (key: string, bytes: Uint8Array, contentType: string) => Promise<void>;
+    link: (key: string, seconds: number) => Promise<string>;
   };
   /** Sends one email (lib/mail.ts in the platform, a fake in tests). */
   sendMail: (mail: { to: string; subject: string; text: string; html: string }) => Promise<void>;
@@ -58,23 +79,25 @@ export interface TrustDeps {
   logoUrl: string | null;
 }
 
+/** A refusal, as the API answers it (`{ error: { code, message } }` with `status`). */
 export type Fail = { ok: false; status: number; code: string; message: string; errors?: Record<string, string> };
 const fail = (status: number, code: string, message: string, errors?: Record<string, string>): Fail => ({ ok: false, status, code, message, ...(errors ? { errors } : {}) });
+export const isFail = (x: unknown): x is Fail => typeof x === "object" && x !== null && (x as { ok?: unknown }).ok === false;
 
-const LIMIT_MAX = 100;
-const pageOf = (input: { offset?: number; limit?: number }) => ({ offset: Math.max(0, Math.floor(input.offset ?? 0)), limit: Math.min(LIMIT_MAX, Math.max(1, Math.floor(input.limit ?? 20))) });
+/** The API's page size: at most 50, 20 by default. */
+export const PAGE_MAX = 50;
+export const pageInput = (input: { offset?: number; limit?: number }) => ({ offset: Math.max(0, Math.floor(input.offset ?? 0)), limit: Math.min(PAGE_MAX, Math.max(1, Math.floor(input.limit ?? 20))) });
 
-export function isCommunityAdmin(member: Pick<TrustMember, "role"> | null | undefined): boolean {
-  return member?.role === "admin";
+export function isCommunityAdmin(member: Pick<TrustMember, "role" | "status"> | null | undefined): boolean {
+  return member?.role === "admin" && member.status === "active";
 }
 
-async function audit(deps: TrustDeps, entry: { actorId: number | null; action: AuditAction; memberId?: number | null; badge?: CommunityBadge | null; subject?: string | null; reason?: string | null; detail?: Record<string, unknown> | null }) {
-  await deps.store.addAudit({ actorId: entry.actorId, action: entry.action, memberId: entry.memberId ?? null, badge: entry.badge ?? null, subject: entry.subject ?? null, reason: entry.reason ?? null, detail: entry.detail ?? null, at: deps.now() });
+async function audit(deps: TrustDeps, entry: { actorId: string | null; action: AuditAction; memberId?: string | null; targetType?: string | null; targetId?: string | null; reason?: string | null; details?: Record<string, unknown> | null }) {
+  await deps.store.addAudit({ actorId: entry.actorId, action: entry.action, memberId: entry.memberId ?? null, targetType: entry.targetType ?? null, targetId: entry.targetId ?? null, reason: entry.reason ?? null, details: entry.details ?? null, createdAt: deps.now() });
 }
 
-async function requireAdmin(deps: TrustDeps, adminId: number): Promise<TrustMember | Fail> {
-  const admin = await deps.member(adminId);
-  return isCommunityAdmin(admin) ? admin! : fail(403, "forbidden", "Only Community admins can do this.");
+async function requireAdmin(deps: TrustDeps, adminId: string): Promise<Fail | null> {
+  return isCommunityAdmin(await deps.member(adminId)) ? null : fail(403, "forbidden", "Only Community admins can do this.");
 }
 
 // ——— Settings ———
@@ -83,21 +106,25 @@ export async function getSettings(deps: TrustDeps): Promise<CommunitySettings> {
   return settingsOf(await deps.store.getSettingsDoc());
 }
 
-export async function updateSettings(deps: TrustDeps, adminId: number, input: unknown): Promise<{ ok: true; settings: CommunitySettings } | Fail> {
-  const admin = await requireAdmin(deps, adminId);
-  if ("ok" in admin) return admin;
+export async function adminSettings(deps: TrustDeps, adminId: string): Promise<{ ok: true; settings: CommunitySettings } | Fail> {
+  return (await requireAdmin(deps, adminId)) ?? { ok: true, settings: await getSettings(deps) };
+}
+
+export async function updateSettings(deps: TrustDeps, adminId: string, input: unknown): Promise<{ ok: true; settings: CommunitySettings } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
   const before = await getSettings(deps);
   const parsed = parseSettings(input, before);
   if (!parsed.ok) return fail(400, "invalid_settings", "Some settings aren't valid.", parsed.errors);
-  await deps.store.saveSettingsDoc(parsed.value, deps.now());
-  await audit(deps, { actorId: adminId, action: "settings_changed", detail: { before, after: parsed.value } });
+  await deps.store.saveSettingsDoc(parsed.value, { at: deps.now(), by: adminId });
+  await audit(deps, { actorId: adminId, action: "settings.update", targetType: "settings", details: { before, after: parsed.value } });
   return { ok: true, settings: parsed.value };
 }
 
 /** Phase 2's groups ask this: may the member create a group? */
-export async function canCreateGroups(deps: TrustDeps, memberId: number): Promise<boolean> {
+export async function canCreateGroups(deps: TrustDeps, memberId: string): Promise<boolean> {
   const member = await deps.member(memberId);
-  if (!member) return false;
+  if (!member || member.status !== "active") return false;
   const held = heldBadges(await deps.store.listMemberBadges(memberId), deps.now());
   return mayCreateGroups(await getSettings(deps), { id: memberId, hasBadge: held.length > 0, admin: isCommunityAdmin(member) });
 }
@@ -107,16 +134,16 @@ export async function canCreateGroups(deps: TrustDeps, memberId: number): Promis
 /**
  * Tells a member something happened: always in their list, and by email
  * when the kind emails and they haven't turned it off. Never for their own
- * action.
+ * action, and never to a member who isn't active.
  */
-export async function notify(deps: TrustDeps, input: { memberId: number; kind: NotificationKind; actorId?: number | null; data?: NotificationData; link: string }): Promise<void> {
+export async function notify(deps: TrustDeps, input: { memberId: string; kind: NotificationKind; actorId?: string | null; targetType?: string | null; targetId?: string | null; data?: NotificationData; link: string }): Promise<void> {
   if (input.actorId && input.actorId === input.memberId) return;
   const member = await deps.member(input.memberId);
-  if (!member) return;
-  const n = await deps.store.addNotification({ memberId: member.id, kind: input.kind, actorId: input.actorId ?? null, data: input.data ?? {}, link: input.link, createdAt: deps.now() });
+  if (!member || member.status !== "active") return;
+  const n = await deps.store.addNotification({ memberId: member.id, kind: input.kind, actorId: input.actorId ?? null, targetType: input.targetType ?? null, targetId: input.targetId ?? null, data: { ...(input.data ?? {}), link: input.link }, createdAt: deps.now() });
   const prefs = (await deps.store.getNotificationPrefs(member.id)) ?? DEFAULT_NOTIFICATION_PREFS;
   if (!member.email || !emails(input.kind, prefs)) return;
-  const mail = notificationEmail(input.kind, n.data, communityLang(member.lang), new URL(input.link, deps.siteUrl).toString(), deps.logoUrl);
+  const mail = notificationEmail(input.kind, n.data, communityLang(member.language), new URL(input.link, deps.siteUrl).toString(), deps.logoUrl);
   try {
     await deps.sendMail({ to: member.email, ...mail });
     await deps.store.markEmailed(n.id, deps.now());
@@ -127,330 +154,401 @@ export async function notify(deps: TrustDeps, input: { memberId: number; kind: N
 }
 
 export interface ListedNotification {
-  id: number;
+  id: string;
   kind: NotificationKind;
+  /** In the member's language. */
   text: string;
   link: string;
+  actorId: string | null;
+  targetType: string | null;
+  targetId: string | null;
   read: boolean;
-  at: string;
-  actorId: number | null;
+  createdAt: Date;
 }
 
-export async function listNotifications(deps: TrustDeps, memberId: number, input: { unreadOnly?: boolean; offset?: number; limit?: number } = {}): Promise<{ items: ListedNotification[]; total: number; unread: number }> {
+export async function listNotifications(deps: TrustDeps, memberId: string, input: { unreadOnly?: boolean; offset?: number; limit?: number } = {}): Promise<{ page: Page<ListedNotification>; unread: number }> {
   const member = await deps.member(memberId);
-  const lang = communityLang(member?.lang);
-  const list = await deps.store.listNotifications(memberId, { unreadOnly: input.unreadOnly, ...pageOf(input) });
+  const lang = communityLang(member?.language);
+  const list = await deps.store.listNotifications(memberId, { unreadOnly: input.unreadOnly, ...pageInput(input) });
   return {
-    items: list.items.map((n) => ({ id: n.id, kind: n.kind, text: notificationText(n.kind, n.data, lang), link: n.link, read: n.readAt !== null, at: n.createdAt.toISOString(), actorId: n.actorId })),
-    total: list.total,
+    page: {
+      items: list.items.map((n) => ({ id: n.id, kind: n.kind, text: notificationText(n.kind, n.data, lang), link: n.data.link, actorId: n.actorId, targetType: n.targetType, targetId: n.targetId, read: n.readAt !== null, createdAt: n.createdAt })),
+      next: list.next,
+    },
     unread: await deps.store.unreadNotifications(memberId),
   };
 }
 
-export async function markRead(deps: TrustDeps, memberId: number, input: { ids?: number[] | "all" }): Promise<{ ok: true; marked: number; unread: number } | Fail> {
-  const ids = input.ids ?? "all";
-  if (ids !== "all" && (!Array.isArray(ids) || ids.length > 500 || ids.some((x) => !Number.isSafeInteger(x)))) return fail(400, "invalid_request", "ids must be a list of notification IDs or \"all\".");
-  const marked = await deps.store.markNotificationsRead(memberId, ids, deps.now());
-  return { ok: true, marked, unread: await deps.store.unreadNotifications(memberId) };
+/** Marks the listed notifications read, or all of them when none are listed. */
+export async function markRead(deps: TrustDeps, memberId: string, input: unknown): Promise<{ ok: true; marked: number } | Fail> {
+  const ids = (input as { ids?: unknown } | null)?.ids;
+  if (ids !== undefined && (!Array.isArray(ids) || ids.length > 500 || ids.some((x) => typeof x !== "string"))) return fail(400, "invalid_request", "ids must be a list of notification ids.");
+  const marked = await deps.store.markNotificationsRead(memberId, ids === undefined || (ids as string[]).length === 0 ? "all" : (ids as string[]), deps.now());
+  return { ok: true, marked };
 }
 
-export async function getPrefs(deps: TrustDeps, memberId: number): Promise<NotificationPrefs> {
-  return (await deps.store.getNotificationPrefs(memberId)) ?? DEFAULT_NOTIFICATION_PREFS;
+/** Which kinds also come by email (`NotificationSettings`): every kind, on or off. */
+export async function getPrefs(deps: TrustDeps, memberId: string): Promise<{ email: Record<NotificationKind, boolean> }> {
+  return { email: prefsView((await deps.store.getNotificationPrefs(memberId)) ?? DEFAULT_NOTIFICATION_PREFS) };
 }
 
-export async function updatePrefs(deps: TrustDeps, memberId: number, input: unknown): Promise<{ ok: true; prefs: NotificationPrefs } | Fail> {
-  const parsed = parsePrefs(input, await getPrefs(deps, memberId));
+export async function updatePrefs(deps: TrustDeps, memberId: string, input: unknown): Promise<{ ok: true; email: Record<NotificationKind, boolean> } | Fail> {
+  const parsed = parsePrefs(input, (await deps.store.getNotificationPrefs(memberId)) ?? DEFAULT_NOTIFICATION_PREFS);
   if (!parsed.ok) return fail(400, "invalid_request", parsed.error);
-  await deps.store.saveNotificationPrefs(memberId, parsed.value);
-  return { ok: true, prefs: parsed.value };
+  await deps.store.saveNotificationPrefs(memberId, parsed.value, deps.now());
+  return { ok: true, email: prefsView(parsed.value) };
 }
 
 // ——— Badges ———
 
+/** A badge as anyone sees it (`Badge`): never its private reason. */
 export interface PublicBadge {
-  badge: CommunityBadge;
-  /** Its name in the language asked for ("Pro Developer"). */
-  name: string;
-  since: string;
-  /** Green: the business it verifies. */
-  business: { company: string; appUrl: string | null } | null;
+  kind: CommunityBadge;
+  /** In the reader's language ("Pro Developer"). */
+  label: string;
+  since: Date;
+  companyName: string | null;
+  appUrl: string | null;
 }
 
-/** A member's badges as anyone sees them: the one their card shows (the highest) and every one they hold, highest first. Never the private reason. */
-export async function memberBadges(deps: TrustDeps, memberId: number, lang?: string | null): Promise<{ shown: CommunityBadge | null; held: PublicBadge[] }> {
+/** A member's badges as anyone sees them: the one shown next to their name (the highest) and every one they hold, highest first. */
+export async function memberBadges(deps: TrustDeps, memberId: string, lang?: string | null): Promise<{ top: CommunityBadge | null; badges: PublicBadge[] }> {
   const now = deps.now();
   const all = await deps.store.listMemberBadges(memberId);
   const l = communityLang(lang);
   return {
-    shown: shownBadge(all, now),
-    held: heldBadges(all, now).map((b) => ({ badge: b.badge, name: BADGE_NAMES[l][b.badge], since: b.grantedAt.toISOString(), business: b.badge === "green" ? (b.business ?? null) : null })),
+    top: shownBadge(all, now),
+    badges: heldBadges(all, now).map((b) => ({ kind: b.badge, label: BADGE_NAMES[l][b.badge], since: b.grantedAt, companyName: b.badge === "green" ? (b.details?.companyName ?? null) : null, appUrl: b.badge === "green" ? (b.details?.appUrl ?? null) : null })),
   };
 }
 
-/** A member's badges as an admin sees them: every one ever, with who, when, why and until when. */
-export async function adminMemberBadges(deps: TrustDeps, adminId: number, memberId: number): Promise<{ ok: true; badges: MemberBadge[] } | Fail> {
-  const admin = await requireAdmin(deps, adminId);
-  if ("ok" in admin) return admin;
-  return { ok: true, badges: await deps.store.listMemberBadges(memberId) };
+/** The badges shown next to many members' names at once (lists, authors): the highest each holds. */
+export async function topBadges(deps: TrustDeps, memberIds: readonly string[]): Promise<Map<string, CommunityBadge | null>> {
+  const now = deps.now();
+  const out = new Map<string, CommunityBadge | null>();
+  for (const id of new Set(memberIds)) out.set(id, shownBadge(await deps.store.listMemberBadges(id), now));
+  return out;
+}
+
+/** A member's badges as an admin sees them (`BadgeGrant`): every one ever, newest first, with who, when, why and until when. */
+export async function adminMemberBadges(deps: TrustDeps, adminId: string, memberId: string): Promise<{ ok: true; badges: MemberBadge[] } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  if (!(await deps.member(memberId))) return fail(404, "not_found", "There's no such member.");
+  return { ok: true, badges: (await deps.store.listMemberBadges(memberId)).reverse() };
 }
 
 async function factsOf(deps: TrustDeps, member: TrustMember): Promise<MemberFacts> {
-  const [stats, linked, trust] = await Promise.all([deps.stats(member.id), deps.linked(member.id), deps.store.memberTrust(member.id)]);
-  return { joinedAt: member.joinedAt, ...stats, lastViolationAt: trust.lastViolationAt, linked: linked ? { apps: linked.apps.length, paid: linked.paid } : null };
+  const [stats, linked, lastViolationAt] = await Promise.all([deps.stats(member.id), deps.linked(member.id), deps.store.lastViolationAt(member.id)]);
+  return { joinedAt: member.createdAt, ...stats, lastViolationAt, linked: linked ? { apps: linked.apps.length, paid: linked.business } : null };
 }
 
 /**
  * Brings a member's automatic badges (Blue, Green) in line with the rules:
  * grants and takes away, logs each change and tells the member. Run when
- * something changes for them and by the daily job for everyone holding one.
+ * something changes for them and by the daily job.
  */
-export async function refreshAutoBadges(deps: TrustDeps, memberId: number): Promise<{ granted: CommunityBadge[]; revoked: CommunityBadge[] }> {
+export async function refreshAutoBadges(deps: TrustDeps, memberId: string): Promise<{ granted: CommunityBadge[]; revoked: CommunityBadge[] }> {
   const member = await deps.member(memberId);
-  if (!member) return { granted: [], revoked: [] };
+  if (!member || member.status === "deleted") return { granted: [], revoked: [] };
   const now = deps.now();
   const settings = await getSettings(deps);
-  const changes = reconcileAutoBadges(await deps.store.listMemberBadges(memberId), await factsOf(deps, member), settings.blue, now);
+  const changes = reconcileAutoBadges(await deps.store.listMemberBadges(memberId), await factsOf(deps, member), blueRulesOf(settings), now);
   for (const g of changes.grant) {
-    await deps.store.addMemberBadge({ memberId, badge: g.badge, source: "auto", reason: null, grantedAt: now, grantedBy: null, expiresAt: null, business: g.business ?? null });
-    await audit(deps, { actorId: null, action: "badge_granted", memberId, badge: g.badge, reason: "rules" });
-    await notify(deps, { memberId, kind: "badge_granted", data: { badge: g.badge }, link: `/u/${memberId}` });
+    const b = await deps.store.addMemberBadge({ memberId, badge: g.badge, source: "auto", reason: null, grantedAt: now, grantedBy: null, expiresAt: null, details: g.details ?? null });
+    await audit(deps, { actorId: null, action: "badge.auto_grant", memberId, targetType: "badge", targetId: b.id, details: { badge: g.badge } });
+    await notify(deps, { memberId, kind: "badge_granted", data: { badge: g.badge }, link: "/me" });
   }
   for (const r of changes.revoke) {
     await deps.store.revokeMemberBadge(r.id, { at: now, by: null, reason: r.reason });
-    await audit(deps, { actorId: null, action: "badge_revoked", memberId, badge: r.badge, subject: `badge:${r.id}`, reason: r.reason });
-    await notify(deps, { memberId, kind: "badge_revoked", data: { badge: r.badge }, link: `/u/${memberId}` });
+    await audit(deps, { actorId: null, action: "badge.auto_revoke", memberId, targetType: "badge", targetId: r.id, reason: r.reason, details: { badge: r.badge } });
+    await notify(deps, { memberId, kind: "badge_revoked", data: { badge: r.badge }, link: "/me" });
   }
   return { granted: changes.grant.map((g) => g.badge), revoked: changes.revoke.map((r) => r.badge) };
 }
 
-/** An admin grants any badge to anyone, whatever the rules: a private reason and an optional expiry. */
-export async function grantBadge(deps: TrustDeps, adminId: number, memberId: number, input: unknown): Promise<{ ok: true; badge: MemberBadge } | Fail> {
-  const admin = await requireAdmin(deps, adminId);
-  if ("ok" in admin) return admin;
-  const member = await deps.member(memberId);
-  if (!member) return fail(404, "not_found", "There's no such member.");
+/** An admin grants any badge to anyone, whatever the rules: a private reason, an optional expiry, Green's company and app. */
+export async function grantBadge(deps: TrustDeps, adminId: string, memberId: string, input: unknown): Promise<{ ok: true; badge: MemberBadge } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  if (!(await deps.member(memberId))) return fail(404, "not_found", "There's no such member.");
   const now = deps.now();
   const parsed = parseGrant(input, now);
   if (!parsed.ok) return fail(400, "invalid_request", parsed.error);
-  const held = (await deps.store.listMemberBadges(memberId)).filter((b) => b.badge === parsed.value.badge && isActive(b, now));
-  // One of each: an admin's grant replaces the one held (the automatic one never comes back over it).
-  for (const b of held) await deps.store.revokeMemberBadge(b.id, { at: now, by: adminId, reason: "Replaced by an admin's grant." });
-  const linked = parsed.value.badge === "green" ? await deps.linked(memberId) : null;
-  const badge = await deps.store.addMemberBadge({ memberId, badge: parsed.value.badge, source: "manual", reason: parsed.value.reason, grantedAt: now, grantedBy: adminId, expiresAt: parsed.value.expiresAt, business: linked?.paid ?? null });
-  await audit(deps, { actorId: adminId, action: "badge_granted", memberId, badge: badge.badge, subject: `badge:${badge.id}`, reason: parsed.value.reason, detail: parsed.value.expiresAt ? { expiresAt: parsed.value.expiresAt.toISOString() } : null });
-  await notify(deps, { memberId, kind: "badge_granted", actorId: adminId, data: { badge: badge.badge }, link: `/u/${memberId}` });
+  // One of each: an admin's grant replaces the one held (the rules never take it, nor add theirs over it).
+  for (const b of (await deps.store.listMemberBadges(memberId)).filter((x) => x.badge === parsed.value.badge && isActive(x, now))) {
+    await deps.store.revokeMemberBadge(b.id, { at: now, by: adminId, reason: "Replaced by an admin's grant." });
+  }
+  const details = parsed.value.badge === "green" ? (parsed.value.details ?? (await deps.linked(memberId))?.business ?? null) : null;
+  const badge = await deps.store.addMemberBadge({ memberId, badge: parsed.value.badge, source: "manual", reason: parsed.value.reason, grantedAt: now, grantedBy: adminId, expiresAt: parsed.value.expiresAt, details });
+  await audit(deps, { actorId: adminId, action: "badge.grant", memberId, targetType: "badge", targetId: badge.id, reason: parsed.value.reason, details: { badge: badge.badge, expiresAt: parsed.value.expiresAt?.toISOString() ?? null } });
+  await notify(deps, { memberId, kind: "badge_granted", actorId: adminId, data: { badge: badge.badge }, link: "/me" });
   return { ok: true, badge };
 }
 
-/** An admin takes away any badge (an automatic one, or one granted or approved), with a reason the member is told. */
-export async function revokeBadge(deps: TrustDeps, adminId: number, badgeId: number, input: unknown): Promise<{ ok: true; badge: MemberBadge } | Fail> {
-  const admin = await requireAdmin(deps, adminId);
-  if ("ok" in admin) return admin;
-  const parsed = parseRevoke(input);
+/** An admin takes away a member's badge of this kind (however it came), with a reason the member is told. */
+export async function revokeBadge(deps: TrustDeps, adminId: string, memberId: string, kind: string, input: unknown): Promise<{ ok: true } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  if (kind !== "gold" && kind !== "green" && kind !== "blue") return fail(404, "not_found", "There's no such badge.");
+  const parsed = parseReason(input);
   if (!parsed.ok) return fail(400, "invalid_request", parsed.error);
-  const badge = await deps.store.revokeMemberBadge(badgeId, { at: deps.now(), by: adminId, reason: parsed.value.reason });
-  if (!badge) return fail(404, "not_found", "That badge isn't held.");
-  await audit(deps, { actorId: adminId, action: "badge_revoked", memberId: badge.memberId, badge: badge.badge, subject: `badge:${badge.id}`, reason: parsed.value.reason });
-  await notify(deps, { memberId: badge.memberId, kind: "badge_revoked", actorId: adminId, data: { badge: badge.badge, reason: parsed.value.reason }, link: `/u/${badge.memberId}` });
-  return { ok: true, badge };
+  const now = deps.now();
+  const held = (await deps.store.listMemberBadges(memberId)).filter((b) => b.badge === kind && isActive(b, now));
+  if (!held.length) return fail(404, "not_found", "The member doesn't hold that badge.");
+  for (const b of held) {
+    await deps.store.revokeMemberBadge(b.id, { at: now, by: adminId, reason: parsed.value });
+    await audit(deps, { actorId: adminId, action: "badge.revoke", memberId, targetType: "badge", targetId: b.id, reason: parsed.value, details: { badge: kind, source: b.source } });
+  }
+  await notify(deps, { memberId, kind: "badge_revoked", actorId: adminId, data: { badge: kind, reason: parsed.value }, link: "/me" });
+  return { ok: true };
 }
 
 // ——— The verification form (Gold) ———
 
-/** Whether the member may apply for Gold, why not, and their linked account's apps (the form lists them; never typed). */
-export async function goldEligibility(deps: TrustDeps, memberId: number): Promise<{ canApply: boolean; blocked: ReturnType<typeof verificationBlocked>; apps: LinkedApp[]; minApps: number }> {
-  const [linked, badges, latest] = await Promise.all([deps.linked(memberId), deps.store.listMemberBadges(memberId), deps.store.latestVerification(memberId)]);
-  const holdsGold = heldBadges(badges, deps.now()).some((b) => b.badge === "gold");
-  const blocked = verificationBlocked({ linked: linked ? { apps: linked.apps.length, paid: linked.paid } : null }, { holdsGold, pending: latest?.status === "pending" });
-  return { canApply: blocked === null, blocked, apps: linked?.apps ?? [], minApps: GOLD_MIN_APPS };
+/** The member's Gold verification state (`VerificationState`). */
+export interface VerificationState {
+  hasGold: boolean;
+  appCount: number;
+  requiredApps: number;
+  yallappLinked: boolean;
+  canApply: boolean;
+  /** The linked account's apps: the form lists them (never typed by the member). */
+  apps: LinkedApp[];
+  /** Their latest request (with the admin's reason once decided); null: none yet. */
+  request: VerificationRequest | null;
 }
 
-export async function submitVerification(deps: TrustDeps, memberId: number, input: unknown): Promise<{ ok: true; request: VerificationRequest } | Fail> {
-  const eligibility = await goldEligibility(deps, memberId);
-  if (!eligibility.canApply) {
-    const messages = { no_linked_account: "Link your Yallapp account first.", not_enough_apps: `You need at least ${GOLD_MIN_APPS} apps made with Yallapp.`, pending: "Your request is already being reviewed.", already_gold: "You're already a Pro Developer." } as const;
-    return fail(409, eligibility.blocked!, messages[eligibility.blocked!]);
+export async function verificationState(deps: TrustDeps, memberId: string): Promise<VerificationState> {
+  const [linked, badges, latest] = await Promise.all([deps.linked(memberId), deps.store.listMemberBadges(memberId), deps.store.latestVerification(memberId)]);
+  const hasGold = heldBadges(badges, deps.now()).some((b) => b.badge === "gold");
+  const blocked = verificationBlocked({ linked: linked ? { apps: linked.apps.length, paid: linked.business } : null }, { holdsGold: hasGold, pending: latest?.status === "pending" });
+  return { hasGold, appCount: linked?.apps.length ?? 0, requiredApps: GOLD_MIN_APPS, yallappLinked: linked !== null, canApply: blocked === null, apps: linked?.apps ?? [], request: latest };
+}
+
+/** Applies for Gold: a full name, the ID proof (kept private) and up to 5 links; the apps are the linked account's. */
+export async function submitVerification(deps: TrustDeps, memberId: string, input: { full_name?: unknown; portfolio_links?: unknown; idProof: { type: string; size: number; bytes: () => Promise<Uint8Array> } | null }): Promise<{ ok: true; state: VerificationState } | Fail> {
+  const state = await verificationState(deps, memberId);
+  if (!state.canApply) {
+    if (state.request?.status === "pending") return fail(409, "already_pending", "Your request is already being reviewed.");
+    if (state.hasGold) return fail(409, "already_gold", "You're already a Pro Developer.");
+    return fail(403, "not_eligible", state.yallappLinked ? `You need at least ${GOLD_MIN_APPS} apps made with Yallapp.` : "Link your Yallapp account first.");
   }
   const parsed = parseVerificationForm(input);
-  if (!parsed.ok) return fail(400, "invalid_request", "Check the form.", parsed.errors);
-  const request = await deps.store.addVerification({ memberId, ...parsed.value, apps: eligibility.apps, createdAt: deps.now() });
-  return { ok: true, request };
+  const fileProblem = idProofProblem(input.idProof);
+  if (!parsed.ok || fileProblem) return fail(400, "invalid_request", "Check the form.", { ...(parsed.ok ? {} : parsed.errors), ...(fileProblem ? { id_proof: fileProblem } : {}) });
+  const key = `community/id-proof/${memberId}/${crypto.randomUUID()}.${ID_PROOF_TYPES[input.idProof!.type]}`;
+  await deps.files.put(key, await input.idProof!.bytes(), input.idProof!.type);
+  await deps.store.addVerification({ memberId, fullName: parsed.value.fullName, idProofKey: key, portfolioLinks: parsed.value.portfolioLinks, apps: state.apps.map((a) => ({ appId: a.appId, name: a.name })), createdAt: deps.now() });
+  return { ok: true, state: await verificationState(deps, memberId) };
 }
 
-/** The member's latest request, as they see it (never the ID proof's file). */
-export async function myVerification(deps: TrustDeps, memberId: number): Promise<{ status: VerificationRequest["status"]; createdAt: string; decidedAt: string | null; reason: string | null } | null> {
-  const r = await deps.store.latestVerification(memberId);
-  return r ? { status: r.status, createdAt: r.createdAt.toISOString(), decidedAt: r.decidedAt?.toISOString() ?? null, reason: r.status === "rejected" ? r.reason : null } : null;
+export async function listVerifications(deps: TrustDeps, adminId: string, input: { status?: VerificationStatus; offset?: number; limit?: number }): Promise<{ ok: true; page: Page<VerificationRequest> } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  return { ok: true, page: await deps.store.listVerifications({ status: input.status ?? "pending", ...pageInput(input) }) };
 }
 
-export async function listVerifications(deps: TrustDeps, adminId: number, input: { status?: VerificationRequest["status"]; offset?: number; limit?: number }): Promise<{ ok: true; page: Page<VerificationRequest> } | Fail> {
-  const admin = await requireAdmin(deps, adminId);
-  if ("ok" in admin) return admin;
-  return { ok: true, page: await deps.store.listVerifications({ status: input.status, ...pageOf(input) }) };
+/** A short-lived private link to a request's ID proof, for admins only (5 minutes). */
+export async function idProofLink(deps: TrustDeps, adminId: string, requestId: string): Promise<{ ok: true; url: string; expiresAt: Date } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  const r = await deps.store.getVerification(requestId);
+  if (!r) return fail(404, "not_found", "There's no such request.");
+  const seconds = 300;
+  return { ok: true, url: await deps.files.link(r.idProofKey, seconds), expiresAt: new Date(deps.now().getTime() + seconds * 1000) };
 }
 
-/** An admin approves (the member gets Gold) or rejects with a reason; either way the member is told and it is logged. */
-export async function decideVerification(deps: TrustDeps, adminId: number, requestId: number, input: unknown): Promise<{ ok: true; request: VerificationRequest } | Fail> {
-  const admin = await requireAdmin(deps, adminId);
-  if ("ok" in admin) return admin;
+/** An admin approves (the member gets Gold) or rejects, with a reason; either way the member is told and it is logged. */
+export async function decideVerification(deps: TrustDeps, adminId: string, requestId: string, input: unknown): Promise<{ ok: true; request: VerificationRequest } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
   const parsed = parseDecision(input);
   if (!parsed.ok) return fail(400, "invalid_request", parsed.error);
+  if (!(await deps.store.getVerification(requestId))) return fail(404, "not_found", "There's no such request.");
   const now = deps.now();
   const request = await deps.store.decideVerification(requestId, { status: parsed.value.approve ? "approved" : "rejected", at: now, by: adminId, reason: parsed.value.reason });
-  if (!request) return fail(409, "already_decided", "That request was already decided or doesn't exist.");
+  if (!request) return fail(409, "already_decided", "That request was already decided.");
   if (parsed.value.approve) {
-    await deps.store.addMemberBadge({ memberId: request.memberId, badge: "gold", source: "approved", reason: parsed.value.reason, grantedAt: now, grantedBy: adminId, expiresAt: null, business: null });
-    await audit(deps, { actorId: adminId, action: "verification_approved", memberId: request.memberId, badge: "gold", subject: `verification:${request.id}`, reason: parsed.value.reason });
-    await notify(deps, { memberId: request.memberId, kind: "verification_approved", actorId: adminId, link: `/u/${request.memberId}` });
+    // A Gold the member already holds (an admin's grant) stays; never two.
+    if (!heldBadges(await deps.store.listMemberBadges(request.memberId), now).some((b) => b.badge === "gold")) {
+      await deps.store.addMemberBadge({ memberId: request.memberId, badge: "gold", source: "request", reason: parsed.value.reason, grantedAt: now, grantedBy: adminId, expiresAt: null, details: null });
+    }
+    await audit(deps, { actorId: adminId, action: "verification.approve", memberId: request.memberId, targetType: "verification", targetId: request.id, reason: parsed.value.reason, details: { badge: "gold" } });
+    await notify(deps, { memberId: request.memberId, kind: "verification_approved", actorId: adminId, targetType: "verification", targetId: request.id, data: { reason: parsed.value.reason }, link: "/me" });
   } else {
-    await audit(deps, { actorId: adminId, action: "verification_rejected", memberId: request.memberId, subject: `verification:${request.id}`, reason: parsed.value.reason });
-    await notify(deps, { memberId: request.memberId, kind: "verification_rejected", actorId: adminId, data: { reason: parsed.value.reason }, link: "/verify" });
+    await audit(deps, { actorId: adminId, action: "verification.reject", memberId: request.memberId, targetType: "verification", targetId: request.id, reason: parsed.value.reason });
+    await notify(deps, { memberId: request.memberId, kind: "verification_rejected", actorId: adminId, targetType: "verification", targetId: request.id, data: { reason: parsed.value.reason }, link: "/verify" });
   }
   return { ok: true, request };
 }
 
-export async function auditLog(deps: TrustDeps, adminId: number, input: { memberId?: number; action?: AuditAction; offset?: number; limit?: number }) {
-  const admin = await requireAdmin(deps, adminId);
-  if ("ok" in admin) return admin;
-  return { ok: true as const, page: await deps.store.listAudit({ memberId: input.memberId, action: input.action, ...pageOf(input) }) };
+export async function auditLog(deps: TrustDeps, adminId: string, input: { memberId?: string; action?: string; offset?: number; limit?: number }): Promise<{ ok: true; page: Page<AuditEntry> } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  return { ok: true, page: await deps.store.listAudit({ memberId: input.memberId, action: input.action, ...pageInput(input) }) };
+}
+
+/** An admin suspends (a violation; every device signed out) or restores a member, with a reason. */
+export async function setStatus(deps: TrustDeps, adminId: string, memberId: string, input: unknown): Promise<{ ok: true } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  const status = (input as { status?: unknown } | null)?.status;
+  if (status !== "active" && status !== "suspended") return fail(400, "invalid_request", "status must be active or suspended.");
+  const reason = parseReason(input);
+  if (!reason.ok) return fail(400, "invalid_request", reason.error);
+  const member = await deps.member(memberId);
+  if (!member || member.status === "deleted") return fail(404, "not_found", "There's no such member.");
+  if (memberId === adminId) return fail(400, "invalid_request", "You can't change your own status.");
+  await deps.setMemberStatus(memberId, status);
+  if (status === "suspended") await deps.store.addViolation({ memberId, kind: "suspended", targetType: "member", targetId: memberId, createdBy: adminId, createdAt: deps.now() });
+  await audit(deps, { actorId: adminId, action: status === "suspended" ? "member.suspend" : "member.restore", memberId, targetType: "member", targetId: memberId, reason: reason.value });
+  return { ok: true };
 }
 
 // ——— Moderation ———
 
-const RECENT_TEXTS = 5;
-
 /**
- * Area B calls this when a post is made: it appears at once, or waits in the
- * moderation queue (a new member's first posts, or the filter's catch). The
- * post stays "pending" in B's store until an admin decides.
+ * Area B calls this right after storing a post (as pending): it appears at
+ * once, or waits in the moderation queue (a new member's first posts, or
+ * the filter's catch) until a moderator decides.
  */
-export async function moderateNew(deps: TrustDeps, input: { memberId: number; kind: ContentKind; contentId: number; text: string }): Promise<{ status: "published" } | { status: "pending"; reasons: HoldReason[] }> {
+export async function moderateNew(deps: TrustDeps, input: { memberId: string; targetType: ContentKind; targetId: string; text: string }): Promise<{ status: "published" } | { status: "pending"; reasons: HoldReason[] }> {
   const member = await deps.member(input.memberId);
   const settings = await getSettings(deps);
-  const trust = await deps.store.memberTrust(input.memberId);
-  const result = moderationGate({ role: member?.role ?? "member", publishedPosts: trust.publishedPosts }, input.text, settings.moderation, trust.recentTexts);
-  const recentTexts = [input.text, ...trust.recentTexts].slice(0, RECENT_TEXTS);
+  const recent = (await deps.content.recentTexts?.(input.memberId)) ?? [];
+  const result = moderationGate({ role: member?.role ?? "member", publishedPosts: member?.approvedPosts ?? 0 }, input.text, settings, recent);
   if (result.status === "published") {
-    await deps.store.saveMemberTrust({ ...trust, publishedPosts: trust.publishedPosts + 1, recentTexts });
+    await deps.countApprovedPost(input.memberId);
     return result;
   }
-  await deps.store.saveMemberTrust({ ...trust, recentTexts });
-  await deps.store.addModeration({ kind: input.kind, contentId: input.contentId, memberId: input.memberId, reasons: result.reasons, excerpt: input.text.slice(0, 500), createdAt: deps.now() });
+  await deps.store.addModeration({ targetType: input.targetType, targetId: input.targetId, authorId: input.memberId, cause: holdCause(result.reasons), note: result.reasons.join(", "), createdAt: deps.now() });
   return result;
 }
 
-export async function moderationQueue(deps: TrustDeps, adminId: number, input: { status?: ModerationItem["status"]; offset?: number; limit?: number }): Promise<{ ok: true; page: Page<ModerationItem & { title: string | null; link: string | null }> } | Fail> {
-  const admin = await requireAdmin(deps, adminId);
-  if ("ok" in admin) return admin;
-  const list = await deps.store.listModeration({ status: input.status ?? "pending", ...pageOf(input) });
-  const items = await Promise.all(list.items.map(async (m) => {
-    const info = await deps.content.info(m.kind, m.contentId);
-    return { ...m, title: info?.title ?? null, link: info?.link ?? null };
-  }));
-  return { ok: true, page: { items, total: list.total } };
+/** A queue item with what the queue shows of it (`ModerationItem`): the post's title or first words and its open reports. */
+export type QueuedItem = ModerationItem & { preview: string; link: string | null; reportCount: number };
+
+export async function moderationQueue(deps: TrustDeps, adminId: string, input: { status?: ModerationStatus; offset?: number; limit?: number }): Promise<{ ok: true; page: Page<QueuedItem> } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  const list = await deps.store.listModeration({ status: input.status ?? "open", ...pageInput(input) });
+  const items = await Promise.all(
+    list.items.map(async (m) => {
+      const info = await deps.content.info(m.targetType, m.targetId);
+      return { ...m, preview: info?.title ?? "", link: info?.link ?? null, reportCount: await deps.store.countOpenReports(m.targetType, m.targetId) };
+    }),
+  );
+  return { ok: true, page: { items, next: list.next } };
 }
 
-/** An admin approves a held post (it appears) or rejects it with a reason (it stays hidden, the member is told, it counts as a violation). */
-export async function decideModeration(deps: TrustDeps, adminId: number, itemId: number, input: unknown): Promise<{ ok: true; item: ModerationItem } | Fail> {
-  const admin = await requireAdmin(deps, adminId);
-  if ("ok" in admin) return admin;
-  const parsed = parseDecision(input);
-  if (!parsed.ok) return fail(400, "invalid_request", parsed.error);
+/** A moderator approves a held post (it appears) or removes it (hidden, a violation, the member told), with an optional note. */
+export async function decideModeration(deps: TrustDeps, adminId: string, itemId: string, input: unknown): Promise<{ ok: true; item: ModerationItem } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  const v = (input ?? {}) as Record<string, unknown>;
+  if (v.decision !== "approve" && v.decision !== "remove") return fail(400, "invalid_request", "decision must be approve or remove.");
+  const note = typeof v.note === "string" && v.note.trim() ? v.note.trim().slice(0, 1000) : null;
+  if (!(await deps.store.getModeration(itemId))) return fail(404, "not_found", "There's no such item.");
   const now = deps.now();
-  const item = await deps.store.decideModeration(itemId, { status: parsed.value.approve ? "approved" : "rejected", at: now, by: adminId, reason: parsed.value.reason });
-  if (!item) return fail(409, "already_decided", "That post was already decided or doesn't exist.");
-  const info = await deps.content.info(item.kind, item.contentId);
-  const trust = await deps.store.memberTrust(item.memberId);
-  if (parsed.value.approve) {
-    await deps.content.setStatus(item.kind, item.contentId, "published");
-    await deps.store.saveMemberTrust({ ...trust, publishedPosts: trust.publishedPosts + 1 });
-    await audit(deps, { actorId: adminId, action: "post_approved", memberId: item.memberId, subject: `${item.kind}:${item.contentId}` });
-    await notify(deps, { memberId: item.memberId, kind: "post_approved", actorId: adminId, data: { title: info?.title ?? null }, link: info?.link ?? "/" });
+  const item = await deps.store.decideModeration(itemId, { status: v.decision === "approve" ? "approved" : "removed", at: now, by: adminId, note });
+  if (!item) return fail(409, "already_decided", "That item was already decided.");
+  const info = await deps.content.info(item.targetType, item.targetId);
+  const author = item.authorId ?? info?.authorId ?? null;
+  if (item.status === "approved") {
+    await deps.content.setStatus(item.targetType, item.targetId, "published");
+    // Held for being new (or by reports found fine): it now counts toward their first posts.
+    if (author && item.cause !== "reports") await deps.countApprovedPost(author);
+    await audit(deps, { actorId: adminId, action: "moderation.approve", memberId: author, targetType: item.targetType, targetId: item.targetId, reason: note });
+    if (author && item.cause !== "reports") await notify(deps, { memberId: author, kind: "post_approved", actorId: adminId, targetType: item.targetType, targetId: item.targetId, data: { title: info?.title ?? null }, link: info?.link ?? "/" });
   } else {
-    await deps.content.setStatus(item.kind, item.contentId, "hidden");
-    // Held only for being new is no violation; anything the filter caught is.
-    if (item.reasons.some((r) => r !== "new_member")) await deps.store.saveMemberTrust({ ...trust, lastViolationAt: now });
-    await audit(deps, { actorId: adminId, action: "post_rejected", memberId: item.memberId, subject: `${item.kind}:${item.contentId}`, reason: parsed.value.reason });
-    await notify(deps, { memberId: item.memberId, kind: "post_rejected", actorId: adminId, data: { title: info?.title ?? null, reason: parsed.value.reason }, link: "/" });
+    await deps.content.setStatus(item.targetType, item.targetId, "hidden");
+    if (author) await deps.store.addViolation({ memberId: author, kind: "content_removed", targetType: item.targetType, targetId: item.targetId, createdBy: adminId, createdAt: now });
+    await audit(deps, { actorId: adminId, action: "moderation.remove", memberId: author, targetType: item.targetType, targetId: item.targetId, reason: note });
+    if (author) await notify(deps, { memberId: author, kind: "post_removed", actorId: adminId, targetType: item.targetType, targetId: item.targetId, data: { title: info?.title ?? null, reason: note }, link: "/" });
+  }
+  // The reports on it are settled with it.
+  for (const r of await deps.store.openReportsOn(item.targetType, item.targetId)) {
+    await deps.store.resolveReport(r.id, { status: item.status === "removed" ? "actioned" : "dismissed", at: now, by: adminId });
+    await notify(deps, { memberId: r.reporterId, kind: "report_resolved", actorId: adminId, link: "/" });
   }
   return { ok: true, item };
 }
 
 // ——— Reports ———
 
-/** A member reports a post or a member. Enough reports on one post hide it until an admin looks. */
-export async function report(deps: TrustDeps, memberId: number, input: unknown): Promise<{ ok: true; id: number } | Fail> {
+/** A member reports a member or a post, once each. Enough reports on one post hide it until a moderator decides. */
+export async function report(deps: TrustDeps, memberId: string, input: unknown): Promise<{ ok: true; id: string } | Fail> {
   const parsed = parseReport(input);
   if (!parsed.ok) return fail(400, "invalid_request", parsed.error);
-  const { target, targetId, reason, details } = parsed.value;
-  let targetMemberId: number;
-  let excerpt = "";
-  if (target === "member") {
-    if (!(await deps.member(targetId))) return fail(404, "not_found", "There's no such member.");
-    targetMemberId = targetId;
+  const { targetType, targetId, reason, note } = parsed.value;
+  let authorId: string;
+  if (targetType === "member") {
+    const target = await deps.member(targetId);
+    if (!target || target.status === "deleted") return fail(404, "not_found", "There's no such member.");
+    authorId = target.id;
   } else {
-    const info = await deps.content.info(target, targetId);
+    const info = await deps.content.info(targetType, targetId);
     if (!info) return fail(404, "not_found", "That post doesn't exist.");
-    targetMemberId = info.memberId;
-    excerpt = info.title;
+    authorId = info.authorId;
   }
-  if (targetMemberId === memberId) return fail(400, "invalid_request", "You can't report yourself.");
-  const already = await deps.store.openReportBy(memberId, target, targetId);
-  if (already) return { ok: true, id: already.id };
-  const made = await deps.store.addReport({ reporterId: memberId, target, targetId, targetMemberId, reason, details, createdAt: deps.now() });
-  if (target !== "member") {
+  if (authorId === memberId) return fail(400, "invalid_request", "You can't report yourself.");
+  const made = await deps.store.addReport({ reporterId: memberId, targetType, targetId, reason, note, createdAt: deps.now() });
+  if (!made) return fail(409, "already_reported", "You already reported this.");
+  if (targetType !== "member") {
     const settings = await getSettings(deps);
-    const open = await deps.store.countOpenReports(target, targetId);
-    const queued = (await deps.store.findModeration(target, targetId))?.status === "pending";
-    if (open >= settings.moderation.hideAfterReports && !queued) {
-      await deps.content.setStatus(target, targetId, "hidden");
-      await deps.store.addModeration({ kind: target, contentId: targetId, memberId: targetMemberId, reasons: ["reported"], excerpt: excerpt.slice(0, 500), createdAt: deps.now() });
+    const open = await deps.store.countOpenReports(targetType, targetId);
+    if (open >= settings.spam_filter.hide_after_reports && !(await deps.store.openModeration(targetType, targetId))) {
+      await deps.content.setStatus(targetType, targetId, "hidden");
+      await deps.store.addModeration({ targetType, targetId, authorId, cause: "reports", note: `${open} reports`, createdAt: deps.now() });
     }
   }
   return { ok: true, id: made.id };
 }
 
-export async function listReports(deps: TrustDeps, adminId: number, input: { status?: "open" | "upheld" | "dismissed"; offset?: number; limit?: number }) {
-  const admin = await requireAdmin(deps, adminId);
-  if ("ok" in admin) return admin;
-  return { ok: true as const, page: await deps.store.listReports({ status: input.status ?? "open", ...pageOf(input) }) };
+export async function listReports(deps: TrustDeps, adminId: string, input: { status?: ReportStatus; offset?: number; limit?: number }): Promise<{ ok: true; page: Page<Report> } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  return { ok: true, page: await deps.store.listReports({ status: input.status ?? "open", ...pageInput(input) }) };
 }
 
 /**
- * An admin upholds a report (optionally hiding the post; the member it is
- * about gets a violation) or dismisses it. Every open report on the same
- * target is closed with it, and each reporter is thanked.
+ * A moderator closes a report: actioned (a post is hidden, the member it is
+ * about gets a violation) or dismissed (a post hidden by reports alone comes
+ * back). Every open report on the same target closes with it, and each
+ * reporter is thanked.
  */
-export async function resolveReport(deps: TrustDeps, adminId: number, reportId: number, input: unknown): Promise<{ ok: true; resolved: number } | Fail> {
-  const admin = await requireAdmin(deps, adminId);
-  if ("ok" in admin) return admin;
+export async function resolveReport(deps: TrustDeps, adminId: string, reportId: string, input: unknown): Promise<{ ok: true; report: Report } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
   const v = (input ?? {}) as Record<string, unknown>;
-  if (v.decision !== "uphold" && v.decision !== "dismiss") return fail(400, "invalid_request", "decision must be uphold or dismiss.");
-  const note = typeof v.note === "string" && v.note.trim() ? v.note.trim().slice(0, 500) : null;
+  if (v.status !== "actioned" && v.status !== "dismissed") return fail(400, "invalid_request", "status must be actioned or dismissed.");
+  const note = typeof v.note === "string" && v.note.trim() ? v.note.trim().slice(0, 1000) : null;
   const first = await deps.store.getReport(reportId);
-  if (!first || first.status !== "open") return fail(409, "already_decided", "That report was already resolved or doesn't exist.");
+  if (!first) return fail(404, "not_found", "There's no such report.");
+  if (first.status !== "open") return fail(409, "already_decided", "That report was already closed.");
   const now = deps.now();
-  const status = v.decision === "uphold" ? "upheld" : "dismissed";
-  const all = await deps.store.openReportsOn(first.target, first.targetId);
+  const target = first.targetType as CommunityTargetType;
+  const all = await deps.store.openReportsOn(target, first.targetId);
   for (const r of all) {
-    await deps.store.resolveReport(r.id, { status, at: now, by: adminId, note });
+    await deps.store.resolveReport(r.id, { status: v.status, at: now, by: adminId });
     await notify(deps, { memberId: r.reporterId, kind: "report_resolved", actorId: adminId, link: "/" });
   }
-  const target = first.target as ReportTarget;
-  if (status === "upheld") {
-    const trust = await deps.store.memberTrust(first.targetMemberId);
-    await deps.store.saveMemberTrust({ ...trust, lastViolationAt: now });
-    if (target !== "member" && v.hide !== false) await deps.content.setStatus(target, first.targetId, "hidden");
-  } else if (target !== "member") {
-    // Hidden by reports alone and found fine: it comes back.
-    const held = await deps.store.findModeration(target, first.targetId);
-    if (held?.status === "pending" && held.reasons.length === 1 && held.reasons[0] === "reported") {
-      await deps.store.decideModeration(held.id, { status: "approved", at: now, by: adminId, reason: note });
-      await deps.content.setStatus(target, first.targetId, "published");
+  const authorId = target === "member" ? first.targetId : ((await deps.content.info(target, first.targetId))?.authorId ?? null);
+  const held = target === "member" ? null : await deps.store.openModeration(target, first.targetId);
+  if (v.status === "actioned") {
+    if (authorId) await deps.store.addViolation({ memberId: authorId, kind: "report_actioned", targetType: target, targetId: first.targetId, createdBy: adminId, createdAt: now });
+    if (target !== "member") {
+      await deps.content.setStatus(target, first.targetId, "hidden");
+      if (held) await deps.store.decideModeration(held.id, { status: "removed", at: now, by: adminId, note });
     }
+  } else if (held?.cause === "reports") {
+    // Hidden by reports alone and found fine: it comes back.
+    await deps.store.decideModeration(held.id, { status: "approved", at: now, by: adminId, note });
+    await deps.content.setStatus(target as ContentKind, first.targetId, "published");
   }
-  await audit(deps, { actorId: adminId, action: status === "upheld" ? "report_upheld" : "report_dismissed", memberId: first.targetMemberId, subject: `${first.target}:${first.targetId}`, reason: note, detail: { reports: all.map((r) => r.id) } });
-  return { ok: true, resolved: all.length };
+  await audit(deps, { actorId: adminId, action: v.status === "actioned" ? "report.action" : "report.dismiss", memberId: authorId, targetType: target, targetId: first.targetId, reason: note, details: { reports: all.map((r) => r.id) } });
+  return { ok: true, report: (await deps.store.getReport(reportId))! };
 }
 
-export type { CommunityLang };
+export type { CommunityBadge, MemberBadge, ModerationItem, Report, VerificationRequest, AuditEntry, CommunitySettings };

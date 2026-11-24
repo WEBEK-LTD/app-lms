@@ -22,29 +22,36 @@
 export const COMMUNITY_BADGES = ["gold", "green", "blue"] as const;
 export type CommunityBadge = (typeof COMMUNITY_BADGES)[number];
 
-/** How a member came to hold a badge: the automatic rules, an admin's approval of the form (Gold), or an admin's grant. */
-export const BADGE_SOURCES = ["auto", "approved", "manual"] as const;
+/** How a member came to hold a badge: the automatic rules, an admin's grant, or an admin's approval of the form (Gold). */
+export const BADGE_SOURCES = ["auto", "manual", "request"] as const;
 export type BadgeSource = (typeof BADGE_SOURCES)[number];
 
 /** A badge a member holds or held. */
 export interface MemberBadge {
-  id: number;
-  memberId: number;
+  id: string;
+  memberId: string;
   badge: CommunityBadge;
   source: BadgeSource;
   /** Private: only admins see it. Null for the automatic rules. */
   reason: string | null;
   grantedAt: Date;
   /** The admin who granted or approved it; null for the automatic rules. */
-  grantedBy: number | null;
+  grantedBy: string | null;
   /** When it ends on its own (an admin's grant only); null: never. */
   expiresAt: Date | null;
   /** When it was taken away (an admin, or the automatic rules); null while held. */
   revokedAt: Date | null;
-  revokedBy: number | null;
+  revokedBy: string | null;
   revokeReason: string | null;
   /** Green: the business it verifies, as the badge shows it. */
-  business?: { company: string; appUrl: string | null } | null;
+  details: BadgeDetails | null;
+}
+
+/** Green's company and app, as the badge shows them. */
+export interface BadgeDetails {
+  companyName?: string;
+  appUrl?: string;
+  appId?: string;
 }
 
 /** The minimum apps made with Yallapp to apply for Gold. */
@@ -88,7 +95,7 @@ export interface MemberFacts {
     /** Apps made with Yallapp (Studio Market templates count). */
     apps: number;
     /** An app on a paid plan, with its company and link, as Green shows them; null: none. */
-    paid: { company: string; appUrl: string | null } | null;
+    paid: BadgeDetails | null;
   } | null;
 }
 
@@ -132,7 +139,7 @@ export function isActiveMember(facts: Pick<MemberFacts, "lastActiveAt">, rules: 
 }
 
 /** What the automatic rules say the member should hold: Blue and Green. Gold is never automatic. */
-export function autoBadges(facts: MemberFacts, rules: BlueRules, now: Date): { blue: boolean; green: { company: string; appUrl: string | null } | null } {
+export function autoBadges(facts: MemberFacts, rules: BlueRules, now: Date): { blue: boolean; green: BadgeDetails | null } {
   return {
     blue: meetsBlueRules(facts, rules, now) && isActiveMember(facts, rules, now),
     green: facts.linked?.paid ?? null,
@@ -141,9 +148,9 @@ export function autoBadges(facts: MemberFacts, rules: BlueRules, now: Date): { b
 
 /** What to change so the member's automatic badges follow the rules. */
 export interface BadgeChanges {
-  grant: { badge: "blue" | "green"; business?: { company: string; appUrl: string | null } }[];
+  grant: { badge: "blue" | "green"; details?: BadgeDetails }[];
   /** The automatic badges to take away, by id, and why (for the audit log and the member's notice). */
-  revoke: { id: number; badge: "blue" | "green"; reason: "inactive" | "rules" | "plan_lapsed" }[];
+  revoke: { id: string; badge: "blue" | "green"; reason: "inactive" | "rules" | "plan_lapsed" }[];
 }
 
 /**
@@ -159,7 +166,7 @@ export function reconcileAutoBadges(current: readonly MemberBadge[], facts: Memb
     const mine = held.filter((b) => b.badge === badge);
     const auto = mine.filter((b) => b.source === "auto");
     const wanted = badge === "blue" ? want.blue : want.green !== null;
-    if (wanted && !mine.length) changes.grant.push(badge === "green" ? { badge, business: want.green! } : { badge });
+    if (wanted && !mine.length) changes.grant.push(badge === "green" ? { badge, details: want.green! } : { badge });
     if (!wanted) {
       const reason = badge === "green" ? "plan_lapsed" : meetsBlueRules(facts, rules, now) ? "inactive" : "rules";
       for (const b of auto) changes.revoke.push({ id: b.id, badge, reason });
