@@ -23,6 +23,8 @@ if (process.env.PW_CHROMIUM) test.use({ launchOptions: { executablePath: process
 const OUT = path.resolve(__dirname, "../../public/screens");
 const REVIEW = path.resolve(__dirname, "../../.data/tech-cd-shots");
 const review = process.env.SHOTS_REVIEW === "1";
+// 228.7 With SHOTS_PRODUCT=1 too, only each look's product page, down its length.
+const productOnly = process.env.SHOTS_PRODUCT === "1";
 const headers = { "x-forwarded-for": "203.0.113.227" };
 const REVIEW_PHONE = { width: 390, height: 844 } as const;
 
@@ -162,6 +164,16 @@ for (const l of LOOKS) {
       for (const dark of [false, true]) {
         const page = await openApp(browser, appId, lang, dark, REVIEW_PHONE, 2);
         const name = (part: string) => path.join(REVIEW, `${base}-${part}${dark ? "-dark" : ""}-${lang}.png`);
+        if (productOnly) {
+          await go(page, `#/product/${await firstProduct(page, appId)}`);
+          await page.screenshot({ path: name("product") });
+          for (const n of [2, 3, 4]) {
+            await swipe(page, 700, REVIEW_PHONE);
+            await page.screenshot({ path: name(`product-${n}`) });
+          }
+          await page.context().close();
+          continue;
+        }
         await page.screenshot({ path: name("home") });
         if (lang === "ar") {
           for (const n of [2, 3, 4, 5, 6]) {
@@ -178,6 +190,7 @@ for (const l of LOOKS) {
         await page.context().close();
       }
     }
+    if (productOnly) return;
     const tr = await openApp(browser, appId, "tr", false, REVIEW_PHONE, 2);
     await tr.screenshot({ path: path.join(REVIEW, `${base}-home-tr.png`) });
     await tr.context().close();
