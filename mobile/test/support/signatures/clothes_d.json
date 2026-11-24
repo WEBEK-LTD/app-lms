@@ -2078,11 +2078,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-154",
+      "id": "sig-180",
       "type": "column",
       "children": [
        {
-        "id": "sig-155",
+        "id": "sig-181",
         "type": "row",
         "name": "Moods",
         "gap": 8,
@@ -2095,7 +2095,7 @@
         },
         "children": [
          {
-          "id": "sig-156",
+          "id": "sig-182",
           "type": "row",
           "name": "Work",
           "height": 40,
@@ -2116,7 +2116,7 @@
           },
           "children": [
            {
-            "id": "sig-157",
+            "id": "sig-183",
             "type": "icon",
             "icon": "work",
             "icon_size": 18,
@@ -2124,7 +2124,7 @@
             "dark_color": "#231D19"
            },
            {
-            "id": "sig-158",
+            "id": "sig-184",
             "type": "text",
             "text": "Work",
             "max_lines": 1,
@@ -2147,7 +2147,7 @@
           ]
          },
          {
-          "id": "sig-159",
+          "id": "sig-185",
           "type": "row",
           "name": "Weekend",
           "height": 40,
@@ -2168,7 +2168,7 @@
           },
           "children": [
            {
-            "id": "sig-160",
+            "id": "sig-186",
             "type": "icon",
             "icon": "wb_sunny",
             "icon_size": 18,
@@ -2176,7 +2176,7 @@
             "dark_color": "#F3ECE3"
            },
            {
-            "id": "sig-161",
+            "id": "sig-187",
             "type": "text",
             "text": "Weekend",
             "max_lines": 1,
@@ -2199,7 +2199,7 @@
           ]
          },
          {
-          "id": "sig-162",
+          "id": "sig-188",
           "type": "row",
           "name": "Evening",
           "height": 40,
@@ -2220,7 +2220,7 @@
           },
           "children": [
            {
-            "id": "sig-163",
+            "id": "sig-189",
             "type": "icon",
             "icon": "nights_stay",
             "icon_size": 18,
@@ -2228,7 +2228,7 @@
             "dark_color": "#F3ECE3"
            },
            {
-            "id": "sig-164",
+            "id": "sig-190",
             "type": "text",
             "text": "Evening",
             "max_lines": 1,
@@ -2251,7 +2251,7 @@
           ]
          },
          {
-          "id": "sig-165",
+          "id": "sig-191",
           "type": "row",
           "name": "Travel",
           "height": 40,
@@ -2272,7 +2272,7 @@
           },
           "children": [
            {
-            "id": "sig-166",
+            "id": "sig-192",
             "type": "icon",
             "icon": "flight",
             "icon_size": 18,
@@ -2280,7 +2280,7 @@
             "dark_color": "#F3ECE3"
            },
            {
-            "id": "sig-167",
+            "id": "sig-193",
             "type": "text",
             "text": "Travel",
             "max_lines": 1,
@@ -2305,7 +2305,7 @@
         ]
        },
        {
-        "id": "sig-168",
+        "id": "sig-194",
         "type": "listing_filters",
         "name": "Sizes",
         "color": "#2A221C",
@@ -2360,7 +2360,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-169",
+      "id": "sig-195",
       "type": "column",
       "children": []
      },
@@ -2405,11 +2405,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-171",
+      "id": "sig-197",
       "type": "column",
       "children": [
        {
-        "id": "sig-170",
+        "id": "sig-196",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -3256,6 +3256,505 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#EEE7DD",
+     "dark_background": "#171310",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-170",
+      "type": "column",
+      "gap": 0,
+      "children": [
+       {
+        "id": "sig-171",
+        "type": "product_gallery",
+        "aspect_ratio": 0.8,
+        "product_part": {
+         "look": "card",
+         "radius": 28
+        },
+        "margin": {
+         "top": 8,
+         "end": 14,
+         "bottom": 0,
+         "start": 14
+        }
+       },
+       {
+        "id": "sig-157",
+        "type": "row",
+        "name": "Moods",
+        "gap": 8,
+        "scroll": true,
+        "padding": {
+         "top": 16,
+         "end": 18,
+         "bottom": 4,
+         "start": 18
+        },
+        "children": [
+         {
+          "id": "sig-158",
+          "type": "row",
+          "name": "Work",
+          "height": 40,
+          "radius": 20,
+          "gap": 6,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "background": "#2A221C",
+          "dark_background": "#F3ECE3",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-159",
+            "type": "icon",
+            "icon": "work",
+            "icon_size": 18,
+            "color": "#FBF8F3",
+            "dark_color": "#231D19"
+           },
+           {
+            "id": "sig-160",
+            "type": "text",
+            "text": "Work",
+            "max_lines": 1,
+            "font": {
+             "family": "Tajawal",
+             "size": 14,
+             "weight": 500
+            },
+            "color": "#FBF8F3",
+            "dark_color": "#231D19",
+            "translations": {
+             "ar": {
+              "text": "للعمل"
+             },
+             "tr": {
+              "text": "İş"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-161",
+          "type": "row",
+          "name": "Weekend",
+          "height": 40,
+          "radius": 20,
+          "gap": 6,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "background": "#FBF8F3",
+          "dark_background": "#231D19",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-162",
+            "type": "icon",
+            "icon": "wb_sunny",
+            "icon_size": 18,
+            "color": "#2A221C",
+            "dark_color": "#F3ECE3"
+           },
+           {
+            "id": "sig-163",
+            "type": "text",
+            "text": "Weekend",
+            "max_lines": 1,
+            "font": {
+             "family": "Tajawal",
+             "size": 14,
+             "weight": 500
+            },
+            "color": "#2A221C",
+            "dark_color": "#F3ECE3",
+            "translations": {
+             "ar": {
+              "text": "عطلة"
+             },
+             "tr": {
+              "text": "Hafta sonu"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-164",
+          "type": "row",
+          "name": "Evening",
+          "height": 40,
+          "radius": 20,
+          "gap": 6,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "background": "#FBF8F3",
+          "dark_background": "#231D19",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-165",
+            "type": "icon",
+            "icon": "nights_stay",
+            "icon_size": 18,
+            "color": "#2A221C",
+            "dark_color": "#F3ECE3"
+           },
+           {
+            "id": "sig-166",
+            "type": "text",
+            "text": "Evening",
+            "max_lines": 1,
+            "font": {
+             "family": "Tajawal",
+             "size": 14,
+             "weight": 500
+            },
+            "color": "#2A221C",
+            "dark_color": "#F3ECE3",
+            "translations": {
+             "ar": {
+              "text": "سهرة"
+             },
+             "tr": {
+              "text": "Akşam"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-167",
+          "type": "row",
+          "name": "Travel",
+          "height": 40,
+          "radius": 20,
+          "gap": 6,
+          "cross": "center",
+          "padding": {
+           "top": 0,
+           "end": 16,
+           "bottom": 0,
+           "start": 14
+          },
+          "background": "#FBF8F3",
+          "dark_background": "#231D19",
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-168",
+            "type": "icon",
+            "icon": "flight",
+            "icon_size": 18,
+            "color": "#2A221C",
+            "dark_color": "#F3ECE3"
+           },
+           {
+            "id": "sig-169",
+            "type": "text",
+            "text": "Travel",
+            "max_lines": 1,
+            "font": {
+             "family": "Tajawal",
+             "size": 14,
+             "weight": 500
+            },
+            "color": "#2A221C",
+            "dark_color": "#F3ECE3",
+            "translations": {
+             "ar": {
+              "text": "سفر"
+             },
+             "tr": {
+              "text": "Seyahat"
+             }
+            }
+           }
+          ]
+         }
+        ],
+        "margin": {
+         "top": 14,
+         "end": 0,
+         "bottom": 0,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-172",
+        "type": "product_title",
+        "font": {
+         "family": "Tajawal",
+         "size": 22,
+         "weight": 800,
+         "line_height": 1.3
+        },
+        "margin": {
+         "top": 18,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "product_part": {
+         "look": "plain"
+        },
+        "color": "#2A221C",
+        "dark_color": "#F3ECE3"
+       },
+       {
+        "id": "sig-173",
+        "type": "product_price",
+        "font": {
+         "family": "Tajawal",
+         "size": 19,
+         "weight": 800,
+         "line_height": 1.25
+        },
+        "margin": {
+         "top": 4,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "product_part": {
+         "look": "sale"
+        },
+        "color": "#9C5F3C",
+        "dark_color": "#E0A27A"
+       },
+       {
+        "id": "sig-154",
+        "type": "column",
+        "name": "Complete the outfit",
+        "gap": 10,
+        "radius": 28,
+        "padding": {
+         "top": 18,
+         "end": 14,
+         "bottom": 16,
+         "start": 14
+        },
+        "margin": {
+         "top": 22,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "background": "#E4D9CA",
+        "dark_background": "#2C2520",
+        "children": [
+         {
+          "id": "sig-155",
+          "type": "product_related",
+          "margin": {
+           "top": 16,
+           "end": 0,
+           "bottom": 8,
+           "start": 0
+          },
+          "product_part": {
+           "look": "grid",
+           "related": "complete_look",
+           "rows": 4
+          },
+          "text": "Complete the outfit",
+          "color": "#2A221C",
+          "dark_color": "#F3ECE3",
+          "translations": {
+           "ar": {
+            "text": "أكملي الإطلالة"
+           },
+           "tr": {
+            "text": "Kombini tamamlayın"
+           }
+          }
+         },
+         {
+          "id": "sig-156",
+          "type": "text",
+          "text": "Chosen to finish this piece: tap one to see it.",
+          "font": {
+           "family": "Tajawal",
+           "size": 13,
+           "weight": 500,
+           "line_height": 1.25
+          },
+          "color": "#6E6257",
+          "dark_color": "#B3A697",
+          "padding": {
+           "top": 0,
+           "end": 4,
+           "bottom": 0,
+           "start": 4
+          },
+          "translations": {
+           "ar": {
+            "text": "اخترناها لتُكمل هذه القطعة: اضغطي على أيٍّ منها لتريها."
+           },
+           "tr": {
+            "text": "Bu parçayı tamamlamak için seçildi: görmek için birine dokunun."
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-174",
+        "type": "product_variants",
+        "margin": {
+         "top": 24,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "product_part": {
+         "look": "grid",
+         "accent": "#9C5F3C",
+         "dark_accent": "#E0A27A"
+        },
+        "color": "#2A221C",
+        "dark_color": "#F3ECE3"
+       },
+       {
+        "id": "sig-175",
+        "type": "product_quantity",
+        "margin": {
+         "top": 16,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "product_part": {
+         "look": "stepper"
+        },
+        "color": "#2A221C",
+        "dark_color": "#F3ECE3"
+       },
+       {
+        "id": "sig-176",
+        "type": "product_description",
+        "margin": {
+         "top": 22,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "product_part": {
+         "look": "plain"
+        },
+        "color": "#2A221C",
+        "dark_color": "#F3ECE3"
+       },
+       {
+        "id": "sig-177",
+        "type": "product_delivery",
+        "margin": {
+         "top": 18,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "product_part": {
+         "look": "rows",
+         "accent": "#9C5F3C",
+         "dark_accent": "#E0A27A"
+        },
+        "color": "#2A221C",
+        "dark_color": "#F3ECE3"
+       },
+       {
+        "id": "sig-178",
+        "type": "product_reviews",
+        "margin": {
+         "top": 20,
+         "end": 18,
+         "bottom": 96,
+         "start": 18
+        },
+        "product_part": {
+         "look": "summary",
+         "accent": "#9C5F3C",
+         "dark_accent": "#E0A27A"
+        },
+        "color": "#2A221C",
+        "dark_color": "#F3ECE3"
+       },
+       {
+        "id": "sig-179",
+        "type": "product_buy",
+        "pin": "bottom",
+        "radius": 30,
+        "padding": {
+         "top": 8,
+         "end": 18,
+         "bottom": 14,
+         "start": 18
+        },
+        "product_part": {
+         "look": "cart",
+         "accent": "#9C5F3C",
+         "dark_accent": "#E0A27A"
+        },
+        "text": "Add to my bag",
+        "color": "#FFFFFF",
+        "dark_color": "#1A1410",
+        "translations": {
+         "ar": {
+          "text": "أضيفي إلى حقيبتي"
+         },
+         "tr": {
+          "text": "Çantama ekle"
+         }
+        }
+       }
+      ]
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "cart",
     "title": "Your cart",
     "translations": {
@@ -3268,11 +3767,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-172",
+      "id": "sig-198",
       "type": "column",
       "children": [
        {
-        "id": "sig-180",
+        "id": "sig-206",
         "type": "row",
         "name": "Complete the outfit",
         "cross": "center",
@@ -3285,7 +3784,7 @@
         },
         "children": [
          {
-          "id": "sig-181",
+          "id": "sig-207",
           "type": "text",
           "text": "Complete the outfit",
           "font": {
@@ -3310,7 +3809,7 @@
         ]
        },
        {
-        "id": "sig-182",
+        "id": "sig-208",
         "type": "items",
         "name": "Complete the outfit",
         "source": "products",
@@ -3330,17 +3829,17 @@
          "ids": []
         },
         "card": {
-         "id": "sig-183",
+         "id": "sig-209",
          "type": "column",
          "gap": 4,
          "children": [
           {
-           "id": "sig-184",
+           "id": "sig-210",
            "type": "stack",
            "height": 140,
            "children": [
             {
-             "id": "sig-185",
+             "id": "sig-211",
              "type": "image",
              "bind": "image",
              "width": "fill",
@@ -3351,7 +3850,7 @@
              "dark_background": "#2C2520"
             },
             {
-             "id": "sig-186",
+             "id": "sig-212",
              "type": "row",
              "width": 34,
              "height": 34,
@@ -3366,7 +3865,7 @@
              },
              "children": [
               {
-               "id": "sig-187",
+               "id": "sig-213",
                "type": "icon",
                "icon": "add",
                "icon_size": 20,
@@ -3378,7 +3877,7 @@
            ]
           },
           {
-           "id": "sig-188",
+           "id": "sig-214",
            "type": "text",
            "bind": "title",
            "max_lines": 1,
@@ -3397,7 +3896,7 @@
            "dark_color": "#F3ECE3"
           },
           {
-           "id": "sig-189",
+           "id": "sig-215",
            "type": "text",
            "bind": "price",
            "max_lines": 1,
@@ -3459,11 +3958,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-173",
+      "id": "sig-199",
       "type": "column",
       "children": [
        {
-        "id": "sig-190",
+        "id": "sig-216",
         "type": "row",
         "name": "Where your order is",
         "cross": "center",
@@ -3476,7 +3975,7 @@
         },
         "children": [
          {
-          "id": "sig-191",
+          "id": "sig-217",
           "type": "text",
           "text": "Where your order is",
           "font": {
@@ -3501,7 +4000,7 @@
         ]
        },
        {
-        "id": "sig-192",
+        "id": "sig-218",
         "type": "timeline",
         "name": "Where your order is",
         "timeline": {
@@ -3625,7 +4124,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-174",
+      "id": "sig-200",
       "type": "column",
       "children": []
      },
@@ -3667,7 +4166,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-175",
+      "id": "sig-201",
       "type": "column",
       "children": []
      },
@@ -3709,7 +4208,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-176",
+      "id": "sig-202",
       "type": "column",
       "children": []
      },
@@ -3751,7 +4250,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-177",
+      "id": "sig-203",
       "type": "column",
       "children": []
      },
@@ -3785,7 +4284,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-178",
+      "id": "sig-204",
       "type": "column",
       "children": []
      },
@@ -3802,7 +4301,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-179",
+      "id": "sig-205",
       "type": "column",
       "children": []
      },

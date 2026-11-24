@@ -39,6 +39,10 @@ Lujain's look A is the first look with its own (`lib/studio/product-page.ts`).
 Madar's (electronics) looks C and D and Nawah's (computers) have theirs
 (228.7): a bento of dark glass tiles, a colour stage, neon cut-corner
 frames, and a dense spec sheet with the business quote.
+228.7: Lujain's templates C and D (RUNWAY's lookbook of photos and
+minimal bar, the outfit builder's "Complete the outfit" card) and Toota's
+(the story world's Tooti and ages on a bubble, the nursery's size-by-age
+ruler and thin lines) draw their own product pages, each its own skeleton.
 The app part ships with the next app release (no `CLIENT_APP_RELEASE`
 change). Without a header, the status bar and the back button stay over
 the page as it scrolls, as on any pushed Studio page without one.

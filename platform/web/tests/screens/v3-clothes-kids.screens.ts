@@ -7,6 +7,7 @@ import { DEMO_BRANDS } from "../../src/lib/demo/content";
 import { LIVE_PHONE } from "../../src/lib/demo/live";
 import { CLOTHES_PRODUCTS } from "../../src/lib/demo/clothes";
 import { KIDS_PRODUCTS } from "../../src/lib/demo/kids";
+import { CLOTHES_PRODUCT_NAMES, KIDS_PRODUCT_NAMES } from "../../src/lib/demo/product-names";
 import { createPreviewToken, previewAppPath, previewKey } from "../../src/lib/preview/token";
 
 /**
@@ -113,6 +114,12 @@ const preview = (appId: string) => previewAppPath(createPreviewToken({ appId, dr
 async function shoot(browser: Browser, t: (typeof TYPES)[number], look: "c" | "d", appId: string, address: string): Promise<void> {
   const shot = (name: string) => path.join(REVIEW, `${t.id}-${look}-${name}.png`);
   const listed = (await (await (await browser.newContext()).request.get(`/api/app/${appId}/store/products?platform=android&per_page=1`)).json().catch(() => ({}))) as { items?: { id: number; name: string }[] };
+  // 223.11 The products' Arabic names, as the Arabic app lists them.
+  const arListed = (await (await (await browser.newContext({ locale: "ar-EG", extraHTTPHeaders: { "accept-language": "ar" } })).request.get(`/api/app/${appId}/store/products?platform=android&per_page=40`)).json().catch(() => ({}))) as { items?: { name: string }[] };
+  const arNames = (arListed.items ?? []).map((p) => p.name);
+  // 228.7 And the Shop tab's Arabic name, as the Arabic app's bar shows it.
+  const arNav = (await (await (await browser.newContext({ locale: "ar-EG", extraHTTPHeaders: { "accept-language": "ar" } })).request.get(`/api/app/${appId}/pages?platform=android`)).json().catch(() => ({}))) as { tabs?: { label: string; target: { type: string; screen?: string } }[] };
+  const arShopTab = arNav.tabs?.find((tab) => tab.target.type === "screen" && tab.target.screen === "search")?.label ?? "";
   for (const dark of [false, true]) {
     const mode = dark ? "dark" : "light";
     // The site's picture of the home, as the other looks' are.
@@ -164,7 +171,43 @@ async function shoot(browser: Browser, t: (typeof TYPES)[number], look: "c" | "d
     expect(await tapProduct(shop, t.id, listed), "a product of the listing").toBe(true);
     await shop.waitForTimeout(4500);
     await shop.screenshot({ path: shot(`product-${mode}`) });
+    // 228.7 The rest of the look's own product page.
+    await scrollDown(shop, 700);
+    await shop.screenshot({ path: shot(`product-${mode}-2`) });
+    await scrollDown(shop, 700);
+    await shop.screenshot({ path: shot(`product-${mode}-3`) });
     await shop.context().close();
+    // 228.7 And in Arabic: a product of the home, by its Arabic name.
+    const arShop = await phone(browser, appId, address, "ar", dark);
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    await semantics(arShop);
+    // The tab's Arabic name from the app's pages, else Studio's ("Shop", RUNWAY's "Discover") for a project's draft.
+    const shopTab = arShopTab ? new RegExp(`^${escape(arShopTab)}$`) : /^(المتجر|اكتشفي)$/;
+    expect(await tapNamed(arShop, shopTab), "the Arabic Shop tab").toBe(true);
+    await arShop.waitForTimeout(3500);
+    await semantics(arShop);
+    let opened = false;
+    // The listing's Arabic names; for a project's draft, the demo's in Arabic, then in English (a project may keep them so).
+    const demoNames = t.id === "clothes" ? CLOTHES_PRODUCT_NAMES : KIDS_PRODUCT_NAMES;
+    const names = [...arNames, ...Object.values(demoNames).map((n) => n.ar), ...(t.id === "clothes" ? CLOTHES_PRODUCTS : KIDS_PRODUCTS).map((p) => p.name)];
+    // Opened when its buy button shows (each look's words, the app's, or "Notify me" for a size gone); else the next name.
+    const buyShows = () =>
+      arShop.evaluate(() => [...document.querySelectorAll("flt-semantics")].some((x) => /(أضيفي إلى|أضف إلى السلة|إلى السلة|أبلغني)/.test((x.getAttribute("aria-label") ?? x.textContent ?? "").trim()) && x.getBoundingClientRect().width > 0));
+    for (const name of names) {
+      if (!(await tapNamed(arShop, new RegExp(`^${escape(name)}`)))) continue;
+      await arShop.waitForTimeout(3000);
+      await semantics(arShop);
+      if (await buyShows()) {
+        opened = true;
+        break;
+      }
+    }
+    expect(opened, "a product of the Arabic listing").toBe(true);
+    await arShop.waitForTimeout(4500);
+    await arShop.screenshot({ path: shot(`product-ar${dark ? "-dark" : ""}`) });
+    await scrollDown(arShop, 700);
+    await arShop.screenshot({ path: shot(`product-ar${dark ? "-dark" : ""}-2`) });
+    await arShop.context().close();
   }
   // In Arabic, light and dark.
   const ar = await phone(browser, appId, address, "ar", false);
