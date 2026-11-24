@@ -73,7 +73,7 @@ export async function demoElectronicsProducts(deps: EntryDeps, app: App): Promis
       addon: false,
       addonFor: null,
       // 227 Its name in Arabic and Turkish too.
-      translations: namedTranslations(ELECTRONICS_PRODUCT_NAMES, seed.sku, { variants: electronicsVariants(seed, ELECTRONICS_PRODUCTS.indexOf(seed), money), optionGroups: seed.cover ? electronicsCover(money) : null }),
+      translations: namedTranslations(ELECTRONICS_PRODUCT_NAMES, seed.sku, { variants: electronicsVariants(seed, ELECTRONICS_PRODUCTS.indexOf(seed), money), optionGroups: seed.cover ? electronicsCover(money) : null, specs: seed.specs }),
       ...marked,
     };
     if (deps.sample) {

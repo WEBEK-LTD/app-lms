@@ -1,4 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { MemoryStore } from "@/lib/data/memory";
+import { MOBILES_DEMO, TOYS_DEMO } from "@/lib/demo/constants";
+import { setupDemoApps } from "@/lib/demo/setup";
+import { FACT_WORDS } from "@/lib/demo/fact-words";
+import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
+import { LogSender } from "@/lib/hosted/otp-sender";
+import { handleHosted } from "@/lib/hosted/service";
+import { clearPlatformSettingsCache } from "@/lib/settings/platform";
+import { KEY, NOW } from "./helpers";
 import * as NAMES from "@/lib/demo/product-names";
 import { productWords } from "@/lib/catalog/product-langs";
 import { CHOICE_WORDS } from "@/lib/demo/choice-words";
@@ -146,6 +155,49 @@ describe("228.7 a demo phone, device or computer opens on a choice in stock", ()
     }
     for (const type of ["mobiles", "electronics", "computers"]) {
       expect(CHOOSING.some((p) => p.type === type && p.variants?.items.some((x) => x.stock === 0)), type).toBe(true);
+    }
+  });
+});
+
+describe("228.7 the demo products' facts, lines and specs in Arabic and Turkish, on the hosted API", () => {
+  async function product(demo: string, sku: string, lang: string) {
+    clearPlatformSettingsCache();
+    const store = new MemoryStore();
+    const assetUrl = (id: string) => `https://yallapp.test/api/v1/assets/${id}`;
+    const made = await setupDemoApps({ store, encryptionKey: KEY, putBlob: async () => undefined, assetUrl, platformUrl: "https://yallapp.test", contact: { whatsapp: "+90 544 673 19 42", email: "info@yallapp.test" }, actorEmail: "admin@yallapp.test", now: NOW }, [demo] as never);
+    const app = (await store.getAppById(made.apps[0]!.appId))!;
+    const id = (await store.listCatalogProducts(app.id)).find((p) => p.sku === sku)!.id;
+    const context = { store, app, active: true, now: NOW, ip: "203.0.113.31", secret: "test-hosted-secret", sender: new LogSender(), push: false, assetUrl, platformUrl: "https://yallapp.test", connector: new CatalogConnector({ store, app, assetUrl, platformUrl: "https://yallapp.test" }) };
+    const result = await handleHosted(context, { method: "GET", path: ["store", "products", String(id)], query: new URLSearchParams({ platform: "android" }), body: undefined, token: null, headers: new Headers({ "accept-language": lang }) });
+    return result.body as { attributes: { name: string; variation: boolean; options: { value: string; label: string }[] }[]; info?: { text: string }[]; specs: { label: string; value: string }[]; description_html: string };
+  }
+
+  it("a toy's facts and lines in Arabic and Turkish, in English as before", async () => {
+    const ar = await product(TOYS_DEMO, "TY-301", "ar");
+    const facts = ar.attributes.filter((a) => !a.variation);
+    expect(facts.map((f) => f.name)).toContain(FACT_WORDS.Age!.ar);
+    expect(facts.find((f) => f.name === FACT_WORDS.Age!.ar)!.options[0]!.label).toBe(FACT_WORDS["From birth"]!.ar);
+    for (const i of ar.info ?? []) expect(i.text).toMatch(/[\u0600-\u06FF]/);
+    expect(ar.description_html).toMatch(/[\u0600-\u06FF]/);
+    const tr = await product(TOYS_DEMO, "TY-301", "tr");
+    expect(tr.attributes.filter((a) => !a.variation).map((f) => f.name)).toContain(FACT_WORDS.Age!.tr);
+    const en = await product(TOYS_DEMO, "TY-301", "en");
+    expect(en.attributes.filter((a) => !a.variation).map((f) => f.name)).toContain("Age");
+  }, 60000);
+
+  it("a phone's spec values and choices in Arabic; units and numbers kept", async () => {
+    const ar = await product(MOBILES_DEMO, "MB-101", "ar");
+    const english = ar.specs.filter((s) => FACT_WORDS[s.value] && FACT_WORDS[s.value]!.ar !== s.value);
+    expect(english.map((s) => s.value)).toEqual([]);
+    expect(ar.attributes.find((a) => a.variation)!.name).toBe(CHOICE_WORDS.Storage!.ar);
+    // The choices' values stay what the cart sends.
+    expect(ar.attributes.find((a) => a.name === CHOICE_WORDS.Colour!.ar)!.options.map((o) => o.value)).toContain("Titanium");
+  }, 60000);
+
+  it("every fact word keeps the English's numbers (as digits, or as the words Arabic writes for one and two)", () => {
+    for (const [en, t] of Object.entries(FACT_WORDS)) {
+      const nums = (en.match(/\d+/g) ?? []).filter((n) => !["1", "2"].includes(n));
+      for (const n of nums) expect(t.ar, `${en} ar`).toContain(n);
     }
   });
 });

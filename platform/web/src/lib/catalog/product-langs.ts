@@ -47,6 +47,17 @@ export function translatedAttributes(p: Pick<CatalogProduct, "translations">, la
   return list.map((a) => ({ ...a, name: wordIn(p, lang, a.name), options: a.options.map((o) => ({ ...o, label: wordIn(p, lang, o.value) })) }));
 }
 
+/** 228.7 Its details' lines (materials, care, safety, how to use, what's in the box) in `lang`, each its own translation in the product's `words`. */
+export function translatedInfo<T extends { info?: { kind: string; text: string }[] }>(p: Pick<CatalogProduct, "translations">, lang: string | null | undefined, details: T): T {
+  if (!details.info || !translationOf(p, lang)) return details;
+  return { ...details, info: details.info.map((i) => ({ ...i, text: wordIn(p, lang, i.text) })) };
+}
+
+/** 228.7 A spec's value in `lang` (its label is Studio's own, by its key); the main value without a translation. */
+export function translatedSpec<T extends { value: string }>(p: Pick<CatalogProduct, "translations">, lang: string | null | undefined, spec: T): T {
+  return translationOf(p, lang) ? { ...spec, value: wordIn(p, lang, spec.value) } : spec;
+}
+
 /** Its option groups (a dish's size, its extras) named in `lang`; their ids stay. */
 export function translatedOptionGroups(p: Pick<CatalogProduct, "translations">, lang: string | null | undefined, groups: CatalogOptionGroup[]): CatalogOptionGroup[] {
   if (!translationOf(p, lang)) return groups;

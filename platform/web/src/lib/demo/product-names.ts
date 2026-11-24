@@ -1,6 +1,8 @@
 import { productWords } from "../catalog/product-langs";
 import type { ProductTranslation } from "../data/shop-features-types";
+import type { ProductDetails, ProductSpec } from "../data/types";
 import { choiceWordsIn } from "./choice-words";
+import { factWordsIn } from "./fact-words";
 import { PRODUCT_DESCRIPTIONS } from "./product-descriptions";
 
 /**
@@ -22,17 +24,27 @@ export function namedTranslations(names: ProductNames | undefined, sku: string, 
   const n = names?.[sku];
   if (!n) return null;
   const d = PRODUCT_DESCRIPTIONS[sku];
-  // 228.7 Its choices' names and values too ("Colour" → "اللون", "Sand" → "رملي").
+  // 228.7 Its choices' names and values too ("Colour" → "اللون", "Sand" → "رملي"), and its facts', lines' and specs' words.
   const words = productWords(choices);
+  const facts = factTexts(choices);
   const lang = (l: "ar" | "tr") => {
-    const w = choiceWordsIn(words, l);
-    return { name: n[l], ...(d ? { description: d[l] } : {}), ...(w ? { words: w } : {}) };
+    const w = { ...choiceWordsIn(words, l), ...factWordsIn(facts, l) };
+    return { name: n[l], ...(d ? { description: d[l] } : {}), ...(Object.keys(w).length ? { words: w } : {}) };
   };
   return { ar: lang("ar"), tr: lang("tr") };
 }
 
-/** What a product's choices are made of: its variations' attributes and its option groups. */
-type ChoiceSource = Parameters<typeof productWords>[0];
+/** What a product's words are made of: its variations' attributes and its option groups, its details and its specs. */
+type ChoiceSource = Parameters<typeof productWords>[0] & { details?: ProductDetails | null; specs?: readonly ProductSpec[] | null };
+
+/** Its facts' names and values (its brand left as it is), its details' lines (not its ingredients: their names are international) and its specs' values. */
+function factTexts(p: ChoiceSource): string[] {
+  const out: string[] = [];
+  for (const f of p.details?.facts ?? []) out.push(f.name, ...(f.name === "Brand" || f.name === "Brands" ? [] : [f.value]));
+  for (const i of p.details?.info ?? []) if (i.kind !== "ingredients") out.push(i.text);
+  for (const x of p.specs ?? []) out.push(x.value);
+  return out;
+}
 
 export const CROCHET_PRODUCT_NAMES: ProductNames = {
   "CR-101": { ar: "كارديغان دفا", tr: "Dafa hırka" },

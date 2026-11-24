@@ -93,7 +93,7 @@ export async function demoToysProducts(deps: EntryDeps, app: App): Promise<void>
           // Its age, safety, materials and what it promises, as its page shows them.
           details: structuredClone(seed.details),
           // 226 Its name in Arabic and Turkish too.
-          translations: namedTranslations(TOYS_PRODUCT_NAMES, seed.sku),
+          translations: namedTranslations(TOYS_PRODUCT_NAMES, seed.sku, { details: seed.details }),
         },
       };
     }),

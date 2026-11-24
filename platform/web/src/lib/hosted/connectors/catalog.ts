@@ -42,7 +42,7 @@ import { completeLookFor, fashionOf, sizeChartJson } from "../../selling/fashion
 import { isSpecKey, sameSpecValue, specFacets, specJson, specLabel, specLine, specValue } from "../../selling/specs";
 import { pcBuilderJson, techOf, tradeInJson } from "../../selling/tech";
 import { appStageJson } from "../../catalog/stage-json";
-import { productDescriptionIn, productNameIn, translatedAttributes, translatedOptionGroups, wordIn } from "../../catalog/product-langs";
+import { productDescriptionIn, productNameIn, translatedAttributes, translatedInfo, translatedOptionGroups, translatedSpec, wordIn } from "../../catalog/product-langs";
 import { facetsJson, matchesFilters, readListingFilters } from "../../selling/filters";
 import { appPause, pauseJson, pauseMessage } from "../../shop/pause";
 
@@ -363,7 +363,7 @@ export class CatalogConnector implements Connector {
       subtitle: productLine(p, this.lang),
       // 211 Its main specs on one line ("256 GB · 6.7″ OLED · 5G"); null: none.
       spec_line: specLine(p.specs ?? null),
-      ...(this.withSpecs ? { specs: (p.specs ?? []).map((x) => specJson(x, this.lang)) } : {}),
+      ...(this.withSpecs ? { specs: (p.specs ?? []).map((x) => translatedSpec(p, this.lang, specJson(x, this.lang))) } : {}),
     };
   }
 
@@ -552,9 +552,10 @@ export class CatalogConnector implements Connector {
         // 209 Each option's swatch colour where it has one, then its facts as attributes not chosen.
         attributes: [
           ...(variants ? translatedAttributes(product, this.lang, attributesJson(variants)) : []).map((a) => ({ ...a, options: a.options.map((o) => (swatchFor(details, o.value) ? { ...o, swatch: swatchFor(details, o.value) } : o)) })),
-          ...factAttributesJson(details),
+          // 228.7 Its facts' names and values in the app's language too.
+          ...translatedAttributes(product, this.lang, factAttributesJson(details)),
         ],
-        ...detailsJson(details),
+        ...translatedInfo(product, this.lang, detailsJson(details)),
         // 131 The one chosen when its page opens (a bouquet's Deluxe), when the shop set one it sells.
         ...(() => {
           const chosen = variants?.defaultId != null ? variants.items.find((v) => v.id === variants.defaultId && v.active) : undefined;
@@ -594,7 +595,8 @@ export class CatalogConnector implements Connector {
         addons: addons.map((p) => this.summary(p, now)),
         complete_look: look.map((p) => this.summary(p, now)),
         // 211 Its specifications in the app's language, and the shop's matching accessories (its accessories category's, the featured and best selling first).
-        specs: (product.specs ?? []).map((x) => specJson(x, this.lang)),
+        // 228.7 Their values in the app's language too, where the shop wrote them ("65 W wired" → "65 W سلكي").
+        specs: (product.specs ?? []).map((x) => translatedSpec(product, this.lang, specJson(x, this.lang))),
         accessories: this.accessoriesFor(product, all, categories).map((p) => this.summary(p, now)),
         external_url: null,
         permalink: productUrl(this.deps.platformUrl, app.id, product.id),
