@@ -1011,4 +1011,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qaSearchTags => 'Tags';
+
+  @override
+  String get qaAcceptShort => 'Accept';
 }

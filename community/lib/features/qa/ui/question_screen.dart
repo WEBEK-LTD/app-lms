@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -66,11 +68,32 @@ class QuestionScreen extends ConsumerWidget {
               ],
             ),
           ),
+          if (question.value != null && ref.watch(meProvider) != null)
+            PositionedDirectional(
+              start: 14,
+              end: 14,
+              bottom: _barBottom + MediaQuery.paddingOf(context).bottom,
+              child: _AnswerBar(
+                onTap: () => showComposeSheet(
+                  context,
+                  title: context.l10n.qaWriteAnswer,
+                  hint: context.l10n.qaAnswerHint,
+                  minLength: 10,
+                  maxLength: 20000,
+                  onSend: (text) =>
+                      ref.read(questionProvider(id).notifier).answer(text),
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 }
+
+/// Where the answer bar floats: above the shell's tab bar (20 up, 72 tall)
+/// and its + button (14 above it), with a gap.
+const double _barBottom = 20 + 72 + 22;
 
 /// Runs what the member did and says so when the server refuses it.
 Future<void> _run(BuildContext context, Future<void> Function() action) async {
@@ -196,7 +219,7 @@ class _Body extends ConsumerWidget {
     final meId = ref.watch(meProvider)?.member.id;
     return ListView(
       padding: EdgeInsets.only(
-        bottom: 120 + MediaQuery.paddingOf(context).bottom,
+        bottom: _barBottom + 50 + 24 + MediaQuery.paddingOf(context).bottom,
       ),
       children: [
         GestureDetector(
@@ -325,20 +348,6 @@ class _Body extends ConsumerWidget {
               ),
             ),
           ),
-        if (signedIn)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 16, 14, 0),
-            child: _WriteAnswer(
-              onTap: () => showComposeSheet(
-                context,
-                title: l.qaWriteAnswer,
-                hint: l.qaAnswerHint,
-                minLength: 10,
-                maxLength: 20000,
-                onSend: (text) => controller.answer(text),
-              ),
-            ),
-          ),
       ],
     );
   }
@@ -430,41 +439,75 @@ Future<void> _answerMenu(
   );
 }
 
-/// "Write an answer": a quiet glass row at the end of the answers.
-class _WriteAnswer extends StatelessWidget {
-  const _WriteAnswer({required this.onTap});
+/// "Write an answer…": a glass bar in the floating tab bar's style (its
+/// frosted fill, rim, corners and shadow), just above it; a tap opens the
+/// composer.
+class _AnswerBar extends StatelessWidget {
+  const _AnswerBar({required this.onTap});
 
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    return Material(
-      color: p.dark ? const Color(0x0BFFFFFF) : Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: p.dark ? const Color(0x12FFFFFF) : const Color(0x0A141327),
-        ),
-      ),
-      child: InkWell(
+    return Semantics(
+      button: true,
+      label: context.l10n.qaWriteAnswer,
+      excludeSemantics: true,
+      child: GestureDetector(
+        key: const ValueKey('answer-bar'),
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              const Sym(Symbols.edit, size: 20, color: Brand.orange2),
-              const SizedBox(width: 10),
-              Text(
-                context.l10n.qaWriteAnswer,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: p.ink,
-                ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: p.tabShadow,
+                blurRadius: 44,
+                offset: const Offset(0, 20),
               ),
             ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(22),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 11, sigmaY: 11),
+              child: Container(
+                height: 50,
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 6, 0),
+                decoration: BoxDecoration(
+                  color: p.tabBar,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: p.tabRim),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        context.l10n.qaAnswerHint,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 14, color: p.tabIcon),
+                      ),
+                    ),
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        gradient: Brand.sunrise,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Sym(
+                        Symbols.send,
+                        size: 20,
+                        fill: true,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

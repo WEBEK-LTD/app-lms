@@ -414,23 +414,10 @@ class AnswerCard extends StatelessWidget {
                 ),
               ],
               const Spacer(),
-              if (canAccept && onAccept != null)
-                Semantics(
-                  button: true,
-                  label: accepted
-                      ? context.l10n.qaUnaccept
-                      : context.l10n.qaAccept,
-                  child: InkResponse(
-                    onTap: onAccept,
-                    radius: 20,
-                    child: Sym(
-                      accepted ? Symbols.check_circle : Symbols.check_circle,
-                      size: 22,
-                      fill: accepted,
-                      color: accepted ? const Color(0xFF22C483) : quiet,
-                    ),
-                  ),
-                ),
+              // The asker's Accept, on an answer not yet accepted: an
+              // outline of the Accepted badge's green. Others see none.
+              if (canAccept && !accepted && onAccept != null)
+                AcceptPill(onTap: onAccept!),
             ],
           ),
         ],
@@ -462,4 +449,50 @@ class _PendingNote extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// "✓ Accept": the asker's button on an answer, the Accepted badge's green
+/// as an outline.
+class AcceptPill extends StatelessWidget {
+  const AcceptPill({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = context.palette.dark;
+    final ink = dark ? Brand.mint : const Color(0xFF0E8F63);
+    return Semantics(
+      button: true,
+      label: context.l10n.qaAccept,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          key: const ValueKey('accept-pill'),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: ink, width: 1.2),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Sym(Symbols.check_circle, size: 14, color: ink),
+              const SizedBox(width: 4),
+              Text(
+                context.l10n.qaAcceptShort,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: ink,
+                  height: 1.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

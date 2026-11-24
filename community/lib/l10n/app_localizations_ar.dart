@@ -1012,4 +1012,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get qaSearchTags => 'الوسوم';
+
+  @override
+  String get qaAcceptShort => 'اقبل';
 }

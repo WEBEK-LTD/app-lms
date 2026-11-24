@@ -1929,6 +1929,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tags'**
   String get qaSearchTags;
+
+  /// No description provided for @qaAcceptShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get qaAcceptShort;
 }
 
 class _AppLocalizationsDelegate

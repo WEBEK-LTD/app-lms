@@ -191,10 +191,10 @@ class FakeQaApi implements QaApi {
         tags: ['photos', 'product-page'],
         author: mohamed,
         score: 8,
-        answers: 5,
+        answers: 1,
         views: 412,
-        accepted: true,
-        official: true,
+        accepted: false,
+        official: false,
         age: const Duration(days: 1),
       ),
       (
@@ -230,6 +230,20 @@ class FakeQaApi implements QaApi {
             createdAt: now.subtract(m.age),
           ),
           body: '${m.title} I looked in the help pages but found nothing.',
+          // The demo member asked it: they may accept its answer.
+          canAccept: m.author.member.id == meId,
+          canEdit: m.author.member.id == meId,
+          answers: [
+            if (m.id == 'q-photos')
+              Answer(
+                id: 'a-photos-nour',
+                questionId: m.id,
+                body: '3:4, at least 1200 pixels wide, on a plain background.',
+                author: nour,
+                score: 4,
+                createdAt: now.subtract(const Duration(hours: 20)),
+              ),
+          ],
         ),
       );
     }

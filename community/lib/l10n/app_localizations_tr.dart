@@ -1006,4 +1006,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get qaSearchTags => 'Etiketler';
+
+  @override
+  String get qaAcceptShort => 'Kabul et';
 }

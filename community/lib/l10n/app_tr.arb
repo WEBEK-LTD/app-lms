@@ -304,5 +304,6 @@
   "notifKindVerification": "Doğrulama başvurum",
   "notifKindOther": "Diğer",
   "qaSearchMembers": "Üyeler",
-  "qaSearchTags": "Etiketler"
+  "qaSearchTags": "Etiketler",
+  "qaAcceptShort": "Kabul et"
 }

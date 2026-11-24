@@ -304,5 +304,6 @@
   "notifKindVerification": "طلب التوثيق",
   "notifKindOther": "أخرى",
   "qaSearchMembers": "الأعضاء",
-  "qaSearchTags": "الوسوم"
+  "qaSearchTags": "الوسوم",
+  "qaAcceptShort": "اقبل"
 }

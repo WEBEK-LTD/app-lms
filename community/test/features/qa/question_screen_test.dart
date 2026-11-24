@@ -80,11 +80,8 @@ void main() {
 
   testWidgets('writing an answer adds it to the end', (tester) async {
     final (_, qa) = await _open(tester);
-    await tester.scrollUntilVisible(find.text('Write an answer'), 200);
-    // Clear of the floating tab bar.
-    await tester.drag(find.byType(ListView).first, const Offset(0, -200));
-    await TestApp.settle(tester);
-    await tester.tap(find.text('Write an answer'));
+    // The answer bar floats over the page, above the tab bar.
+    await tester.tap(find.byKey(const ValueKey('answer-bar')));
     await TestApp.settle(tester);
     await tester.enterText(
       find.byType(TextField),
@@ -117,6 +114,25 @@ void main() {
     expect(find.text('Report'), findsOneWidget);
     // Nour's answer has no replies yet: the menu offers the first.
     expect(find.text('Reply'), findsOneWidget);
+  });
+
+  testWidgets('no Accept for a viewer who did not ask', (tester) async {
+    await _open(tester);
+    expect(find.byKey(const ValueKey('accept-pill')), findsNothing);
+  });
+
+  testWidgets('the asker sees Accept on an unaccepted answer, and it '
+      'accepts it', (tester) async {
+    final (app, qa) = await _open(tester);
+    app.container.read(routerProvider).go('/qa/q-photos');
+    await TestApp.settle(tester);
+    expect(find.byKey(const ValueKey('accept-pill')), findsOneWidget);
+    await shot(tester, 'question-asker-dark-en');
+    await tester.tap(find.byKey(const ValueKey('accept-pill')));
+    await TestApp.settle(tester);
+    expect(qa.calls, contains('accept:a-photos-nour:true'));
+    expect(find.text('Accepted'), findsOneWidget);
+    expect(find.byKey(const ValueKey('accept-pill')), findsNothing);
   });
 
   testWidgets('by day and in Arabic', (tester) async {
