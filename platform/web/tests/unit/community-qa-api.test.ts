@@ -20,6 +20,8 @@ async function setup() {
   const team = await joinWithEmail(c, "Tariq Staff");
   // "Yallapp Team": their linked Yallapp account is on Yallapp's support team.
   await makeYallappStaff(c, team.id, "support");
+  // Established members: a new member's first 2 posts wait for review (area C's moderation, tested there).
+  for (const m of [asker, helper]) await c.deps.store.base.updateMember(m.id, { approvedPosts: 2 });
   return { c, asker, helper, team };
 }
 
