@@ -1,158 +1,191 @@
 <!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
 <style>
 body{width:2200px;height:1190px;overflow:hidden;background:radial-gradient(900px 600px at 80% 10%,rgba(255,90,31,.28),transparent 60%),radial-gradient(800px 600px at 10% 90%,rgba(107,91,255,.22),transparent 60%),linear-gradient(160deg,#121130,#0A0920);position:relative}
-.top{position:absolute;top:56px;left:0;right:0;text-align:center;color:var(--cream)}
+.top{position:absolute;top:50px;left:0;right:0;text-align:center;color:var(--cream)}
 .top .lg{display:inline-flex;align-items:center;gap:16px}
 .top img{width:64px;height:64px;border-radius:16px;box-shadow:0 10px 30px rgba(255,90,31,.35)}
 .top h1{font-family:'Readex Pro';font-size:44px;font-weight:600;direction:ltr}
 .top p{margin-top:10px;font-size:20px;color:rgba(244,239,230,.7)}
-.row{position:absolute;top:220px;left:0;right:0;display:flex;justify-content:center;gap:90px;align-items:flex-start}
-.phone{width:410px;height:864px;border-radius:62px;background:#050510;padding:10px;box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 1.5px rgba(255,255,255,.08) inset;position:relative}
+.row{position:absolute;top:205px;left:0;right:0;display:flex;justify-content:center;gap:90px;align-items:flex-start}
+.phone{width:410px;height:864px;border-radius:62px;background:linear-gradient(145deg,#2a2940,#07070f 40%,#1b1a2c);padding:10px;box-shadow:0 50px 100px rgba(0,0,0,.6),0 0 0 1.5px rgba(255,255,255,.12) inset;position:relative}
 .phone.mid{margin-top:-30px}
-.scr{width:390px;height:844px;border-radius:52px;overflow:hidden;position:relative;background:var(--paper);color:var(--ink)}
-.notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#050510;border-radius:20px;z-index:9}
-.sb{height:50px;display:flex;justify-content:space-between;align-items:center;padding:0 30px;font-weight:600;font-size:15px;direction:ltr}
+.scr{width:390px;height:844px;border-radius:52px;overflow:hidden;position:relative;background:#F7F3EC;color:var(--ink)}
+.notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#050510;border-radius:20px;z-index:20}
+.sb{height:50px;display:flex;justify-content:space-between;align-items:center;padding:0 30px;font-weight:600;font-size:15px;direction:ltr;position:relative;z-index:5}
 .sb .r{display:flex;gap:5px;align-items:center}.sb .ms{font-size:17px}
-.cap{position:absolute;bottom:-58px;left:0;right:0;text-align:center;color:rgba(244,239,230,.75);font-size:18px;font-weight:500}
-/* tab bar */
-.tb{position:absolute;bottom:0;left:0;right:0;height:86px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px}
-.tb .t{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#8A879A;width:64px}
-.tb .t .ms{font-size:25px}.tb .t.on{color:var(--orange);font-weight:600}
-.tb .plus{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--orange2),var(--orange));display:flex;align-items:center;justify-content:center;color:#fff;margin-top:-8px;box-shadow:0 10px 22px rgba(255,90,31,.45)}
+.cap{position:absolute;bottom:-56px;left:0;right:0;text-align:center;color:rgba(244,239,230,.75);font-size:18px;font-weight:500}
+/* floating glass tab bar */
+.tb{position:absolute;bottom:22px;left:16px;right:16px;height:68px;border-radius:26px;background:rgba(14,13,36,.86);backdrop-filter:blur(18px);display:flex;justify-content:space-around;align-items:center;box-shadow:0 18px 40px rgba(14,13,36,.35),0 0 0 1px rgba(255,255,255,.08) inset;z-index:10}
+.tb .t{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:rgba(244,239,230,.55);width:56px}
+.tb .t .ms{font-size:24px}
+.tb .t.on{color:#fff;font-weight:600}.tb .t.on .ms{color:#FF8A5C}
+.tb .t.on::after{content:"";width:4px;height:4px;border-radius:50%;background:#FF8A5C;margin-top:1px}
+.tb .plus{width:52px;height:52px;border-radius:18px;background:linear-gradient(135deg,#FFB23D,#FF5A1F 60%,#E8410E);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 8px 20px rgba(255,90,31,.55),0 0 0 4px rgba(255,255,255,.06)}
 .tb .plus .ms{font-size:30px}
-.dark .tb{background:rgba(14,13,36,.92);border-top-color:rgba(255,255,255,.07)}
-/* home */
-.hd{display:flex;align-items:center;justify-content:space-between;padding:4px 20px 10px}
-.hd .l{display:flex;align-items:center;gap:9px}.hd .l img{width:34px;height:34px;border-radius:10px}
-.hd .l b{font-family:'Readex Pro';font-size:19px;font-weight:600;direction:ltr}
-.icb{width:40px;height:40px;border-radius:14px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative}
-.icb .ms{font-size:22px}.icb i{position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid #fff}
-.stories{display:flex;gap:14px;padding:6px 18px 12px;overflow:hidden}
-.st{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;font-weight:500;width:70px;text-align:center}
-.st .ring{width:64px;height:64px;border-radius:50%;padding:3px;background:conic-gradient(from 200deg,#FF5A1F,#FFB23D,#7C6BFF,#FF5A1F)}
-.st .ring div{width:100%;height:100%;border-radius:50%;border:3px solid var(--paper);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff}
-.seg{display:flex;gap:8px;padding:0 18px 12px}
-.seg span{padding:8px 16px;border-radius:20px;font-size:13.5px;font-weight:600;background:#fff;border:1px solid var(--line);color:var(--muted)}
-.seg span.on{background:var(--navy);color:var(--cream);border-color:var(--navy)}
-.card{background:#fff;border-radius:24px;margin:0 14px 12px;padding:14px;box-shadow:0 1px 0 var(--line),0 8px 24px rgba(20,19,39,.05)}
-.who{display:flex;align-items:center;gap:10px}
-.who .n{font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:6px}
-.who .m{font-size:12px;color:var(--muted)}
-.ptxt{font-size:14.5px;line-height:1.65;margin:10px 2px}
-.pimg{height:200px;border-radius:18px;background-size:cover;background-position:center 30%;position:relative}
-.pimg .tag{position:absolute;bottom:10px;right:10px;background:rgba(14,13,36,.72);backdrop-filter:blur(6px);color:#fff;font-size:11.5px;padding:5px 10px;border-radius:12px;display:flex;align-items:center;gap:5px}
-.act{display:flex;align-items:center;gap:18px;margin-top:12px;font-size:13px;color:var(--muted);font-weight:600}
-.act span{display:flex;align-items:center;gap:5px}.act .ms{font-size:21px}.act .sp{flex:1}
-.qtag{display:flex;gap:6px;margin-bottom:8px}
-.pill{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:20px}
-.p-or{background:#FFEDE5;color:#E2480F}.p-gy{background:#F2EEE7;color:#5C596E}
-.qt{font-size:16px;font-weight:700;line-height:1.5}
-.qm{display:flex;gap:12px;margin-top:10px;font-size:12.5px;color:var(--muted);align-items:center}
-.qm .ok{color:var(--green);font-weight:600;display:flex;align-items:center;gap:4px}.qm .ok .ms{font-size:17px}
-/* dark question */
-.dark .scr{background:#0E0D24;color:#EDEAF5}
+.glass{background:rgba(255,255,255,.16);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.22)}
+/* ===== HOME ===== */
+.home-bg{position:absolute;inset:0 0 auto 0;height:330px;background:radial-gradient(260px 200px at 85% 10%,rgba(255,138,61,.35),transparent 70%),radial-gradient(300px 220px at 0% 40%,rgba(124,107,255,.25),transparent 70%)}
+.greet{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 14px;position:relative}
+.greet .l{display:flex;align-items:center;gap:12px}
+.greet small{font-size:12.5px;color:var(--muted);display:block}
+.greet b{font-size:21px;font-weight:700}
+.ring2{padding:2.5px;border-radius:50%;background:conic-gradient(#FF5A1F,#FFB23D,#7C6BFF,#FF5A1F)}
+.ring2 .av{border:2.5px solid #F7F3EC}
+.ib{width:42px;height:42px;border-radius:15px;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.9);box-shadow:0 6px 16px rgba(20,19,39,.06);display:flex;align-items:center;justify-content:center;position:relative}
+.ib .ms{font-size:22px}.ib i{position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid #fff}
+.feat{margin:0 16px 14px;height:178px;border-radius:28px;position:relative;overflow:hidden;background-size:cover;background-position:center 35%;box-shadow:0 18px 36px rgba(20,19,39,.18)}
+.feat::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,36,.05),rgba(14,13,36,.82))}
+.feat .in{position:absolute;inset:auto 16px 14px 16px;color:#fff}
+.feat .k{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:20px;color:#fff}
+.feat h3{font-size:21px;margin:8px 0 10px;line-height:1.3}
+.feat .row2{display:flex;justify-content:space-between;align-items:center}
+.cd{display:flex;gap:6px}.cd div{border-radius:12px;padding:4px 9px;text-align:center;font-size:10px}.cd b{font-family:'Readex Pro';font-size:15px;display:block;line-height:1.2}
+.join{background:#fff;color:var(--navy);font-weight:700;font-size:13px;padding:9px 14px;border-radius:13px}
+.stories{display:flex;gap:14px;padding:0 18px 14px}
+.st{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;font-weight:500;width:62px;text-align:center;color:#3C3A50}
+.st .rg{width:58px;height:58px;border-radius:20px;padding:2.5px;background:conic-gradient(from 200deg,#FF5A1F,#FFB23D,#7C6BFF,#FF5A1F)}
+.st .rg div{width:100%;height:100%;border-radius:17px;border:2.5px solid #F7F3EC;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff}
+.st.seen .rg{background:#DDD6CB}
+.post{margin:0 16px 14px;border-radius:28px;overflow:hidden;background:#fff;box-shadow:0 14px 34px rgba(20,19,39,.08)}
+.post .img{height:262px;background-size:cover;background-position:center 30%;position:relative}
+.post .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,36,.55),transparent 35%,transparent 60%,rgba(14,13,36,.55))}
+.post .au{position:absolute;top:12px;right:12px;left:12px;display:flex;align-items:center;gap:9px;color:#fff;z-index:2}
+.post .au .n{font-weight:700;font-size:14px;display:flex;align-items:center;gap:5px}.post .au .m{font-size:11.5px;opacity:.85}
+.post .au .fl{margin-right:auto;font-size:12px;font-weight:700;padding:6px 12px;border-radius:12px;color:#fff}
+.post .app{position:absolute;bottom:12px;right:12px;z-index:2;display:flex;align-items:center;gap:8px;color:#fff;padding:6px 10px 6px 12px;border-radius:14px;font-size:12px;font-weight:600}
+.post .app span.ms{font-size:16px}
+.post .likes{position:absolute;bottom:12px;left:12px;z-index:2;display:flex;align-items:center;gap:4px;color:#fff;font-size:12.5px;font-weight:700;padding:6px 10px;border-radius:14px}
+.post .bd{padding:12px 16px 14px}
+.post .bd p{font-size:14px;line-height:1.6}
+.post .ac{display:flex;gap:16px;margin-top:10px;color:var(--muted);font-size:12.5px;font-weight:600;align-items:center}
+.post .ac span{display:flex;gap:5px;align-items:center}.post .ac .ms{font-size:20px}
+/* ===== QUESTION DARK ===== */
+.dark .scr{background:#0B0A1F;color:#EDEAF5}
 .dark .sb{color:#fff}
-.qh{display:flex;justify-content:space-between;align-items:center;padding:4px 18px 8px}
-.qh .icb{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:#fff}
-.qh b{font-size:16px}
-.qbody{padding:6px 20px 0}
-.qbody .tags{display:flex;gap:6px}
-.dp{background:rgba(255,255,255,.08);color:#CFCBE0}
-.dp.o{background:rgba(255,90,31,.16);color:#FF8A5C}
-.qbody h2{font-size:21px;line-height:1.5;margin:12px 0 12px;font-weight:700}
-.qbody .who .m{color:#9C98B5}
-.qbody p{font-size:14px;line-height:1.7;color:#C9C5DA;margin:12px 0}
-.code{background:#07061A;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px 12px;font-family:monospace;font-size:12px;color:#9FE3C4;direction:ltr;text-align:left}
-.ahd{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 10px}
-.ahd b{font-size:15.5px}.ahd span{font-size:12px;color:#C9C5DA;background:rgba(255,255,255,.07);padding:5px 10px;border-radius:12px;display:flex;align-items:center;gap:4px}
-.ans{margin:0 14px 12px;border-radius:22px;background:#17163A;padding:14px;display:flex;gap:12px;border:1px solid rgba(255,255,255,.06)}
-.ans.acc{border:1.5px solid rgba(24,165,107,.7);background:linear-gradient(180deg,rgba(24,165,107,.12),#17163A 60%)}
-.vote{display:flex;flex-direction:column;align-items:center;gap:2px;color:#9C98B5;font-weight:700;font-size:15px}
-.vote .ms{font-size:26px}.vote .up{color:#FF8A5C}
-.ans .tx{flex:1}.ans .tx p{font-size:13.5px;line-height:1.7;color:#DAD6EA;margin-top:8px}
-.accb{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:#2FD392;background:rgba(24,165,107,.15);padding:4px 9px;border-radius:12px;margin-top:10px}
-.inp{position:absolute;bottom:0;left:0;right:0;padding:12px 14px 30px;background:#0E0D24;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:10px;align-items:center}
-.inp div{flex:1;height:46px;border-radius:16px;background:#17163A;color:#8A86A6;display:flex;align-items:center;padding:0 14px;font-size:14px;gap:8px}
-.inp .snd{flex:none;width:46px;padding:0;justify-content:center;background:linear-gradient(135deg,var(--orange2),var(--orange));color:#fff}
-/* learn */
-.lh{padding:2px 20px 12px;display:flex;justify-content:space-between;align-items:center}
-.lh h2{font-size:26px;font-weight:700}
-.cont{margin:0 14px 16px;border-radius:26px;padding:18px;color:#fff;background:radial-gradient(260px 160px at 10% 0%,rgba(255,90,31,.55),transparent 70%),linear-gradient(140deg,#1D1B4A,#0E0D24);position:relative;overflow:hidden}
-.cont small{font-size:12px;color:rgba(255,255,255,.7)}
-.cont h3{font-size:21px;margin:4px 0 2px}
-.cont .sub{font-size:12.5px;color:rgba(255,255,255,.75)}
-.bar{height:8px;border-radius:8px;background:rgba(255,255,255,.15);margin:16px 0 8px;overflow:hidden}.bar i{display:block;height:100%;width:38%;border-radius:8px;background:linear-gradient(90deg,#FFB23D,var(--orange))}
-.cont .bm{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.8)}
-.play{position:absolute;left:18px;top:18px;width:50px;height:50px;border-radius:50%;background:#fff;color:var(--navy);display:flex;align-items:center;justify-content:center}.play .ms{font-size:30px}
+.qglow{position:absolute;inset:0 0 auto 0;height:360px;background:radial-gradient(300px 220px at 90% 0%,rgba(255,90,31,.35),transparent 70%),radial-gradient(300px 220px at 0% 30%,rgba(107,91,255,.3),transparent 70%)}
+.qh{display:flex;justify-content:space-between;align-items:center;padding:4px 18px 10px;position:relative}
+.dib{width:42px;height:42px;border-radius:15px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff}.dib .ms{font-size:22px}
+.qh b{font-size:15px;color:#CFCBE0;font-weight:600}
+.qb{padding:4px 20px 0;position:relative}
+.tags{display:flex;gap:6px}
+.dp{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:20px;background:rgba(255,255,255,.08);color:#CFCBE0;border:1px solid rgba(255,255,255,.08)}
+.dp.o{background:rgba(255,90,31,.18);color:#FFA37E;border-color:rgba(255,90,31,.3)}
+.qb h2{font-size:22px;line-height:1.5;margin:12px 0 14px;font-weight:700;letter-spacing:-.2px}
+.who{display:flex;align-items:center;gap:10px}.who .n{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:6px}.who .m{font-size:11.5px;color:#9C98B5}
+.stats{display:flex;gap:8px;margin:14px 0 4px}
+.stats div{flex:1;border-radius:16px;padding:9px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);text-align:center}
+.stats b{font-family:'Readex Pro';font-size:16px;display:block}.stats span{font-size:10.5px;color:#9C98B5}
+.ahd{display:flex;justify-content:space-between;align-items:center;padding:14px 20px 10px}
+.ahd b{font-size:15.5px}.ahd span{font-size:11.5px;color:#C9C5DA;background:rgba(255,255,255,.07);padding:6px 10px;border-radius:12px;display:flex;align-items:center;gap:4px}
+.ans{margin:0 14px 12px;border-radius:24px;padding:15px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);position:relative}
+.ans.acc{background:linear-gradient(180deg,rgba(24,165,107,.16),rgba(255,255,255,.04) 70%);border:1px solid rgba(47,211,146,.45);box-shadow:0 0 0 4px rgba(24,165,107,.07)}
+.ans .accb{position:absolute;top:-11px;left:16px;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#05301F;background:linear-gradient(135deg,#5BE7AE,#22C483);padding:4px 10px;border-radius:12px}
+.ans p{font-size:13.5px;line-height:1.7;color:#DAD6EA;margin-top:9px}
+.code{margin-top:10px;background:#05041A;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px 12px;font-family:monospace;font-size:12px;color:#9FE3C4;direction:ltr;text-align:left}
+.vt{display:flex;align-items:center;gap:6px;margin-top:12px}
+.vp{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.07);border-radius:14px;padding:4px 6px;font-weight:700;font-size:13px}
+.vp .ms{font-size:22px;color:#9C98B5}.vp .ms.up{color:#FF8A5C}
+.vt .sm{font-size:12px;color:#9C98B5;display:flex;align-items:center;gap:4px;margin-right:8px}.vt .sm .ms{font-size:17px}
+.inp{position:absolute;bottom:22px;left:16px;right:16px;height:60px;border-radius:24px;background:rgba(30,28,70,.85);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);display:flex;gap:10px;align-items:center;padding:0 7px 0 14px;box-shadow:0 18px 40px rgba(0,0,0,.4);z-index:10}
+.inp .ph{flex:1;color:#8A86A6;font-size:14px;display:flex;align-items:center;gap:8px}
+.inp .ms{font-size:21px}
+.inp .snd{width:46px;height:46px;border-radius:17px;background:linear-gradient(135deg,#FFB23D,#FF5A1F 60%);display:flex;align-items:center;justify-content:center;color:#fff}
+/* ===== LEARN ===== */
+.lh{padding:2px 20px 14px;display:flex;justify-content:space-between;align-items:center}
+.lh small{font-size:12.5px;color:var(--muted);display:block}.lh h2{font-size:26px;font-weight:700}
+.streak{display:flex;align-items:center;gap:5px;font-weight:700;font-size:14px;padding:8px 12px;border-radius:15px;background:#fff;box-shadow:0 6px 16px rgba(20,19,39,.06)}
+.streak .ms{color:#FF5A1F;font-size:22px}
+.cont{margin:0 16px 18px;border-radius:30px;height:236px;position:relative;overflow:hidden;background-size:cover;background-position:center 40%;color:#fff;box-shadow:0 20px 40px rgba(20,19,39,.22)}
+.cont::before{content:"";position:absolute;inset:0;background:linear-gradient(200deg,rgba(14,13,36,.15),rgba(14,13,36,.92) 75%)}
+.cont .in{position:absolute;inset:auto 18px 16px 18px}
+.cont .chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px}
+.cont h3{font-size:23px;margin:8px 0 2px}.cont .sub{font-size:12.5px;color:rgba(255,255,255,.8)}
+.cont .bt{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.prog{display:flex;align-items:center;gap:10px;font-size:12px}
+.pring{width:46px;height:46px;border-radius:50%;background:conic-gradient(#FF8A3D 0 38%,rgba(255,255,255,.2) 38% 100%);display:flex;align-items:center;justify-content:center}
+.pring b{width:36px;height:36px;border-radius:50%;background:#18173a;display:flex;align-items:center;justify-content:center;font-family:'Readex Pro';font-size:12px}
+.playb{display:flex;align-items:center;gap:6px;background:#fff;color:var(--navy);font-weight:700;font-size:13.5px;padding:10px 16px;border-radius:15px}.playb .ms{font-size:22px}
 .sh{display:flex;justify-content:space-between;align-items:center;padding:0 20px 10px}.sh b{font-size:16.5px}.sh a{font-size:12.5px;color:var(--orange);font-weight:600}
-.paths{display:flex;gap:12px;padding:0 14px 16px;overflow:hidden}
-.path{width:200px;flex:none;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 1px 0 var(--line),0 8px 20px rgba(20,19,39,.05)}
-.path .im{height:104px;background-size:cover;background-position:center}
-.path .b{padding:10px 12px 12px}.path b{font-size:14px}.path .m{font-size:11.5px;color:var(--muted);margin-top:3px;display:flex;gap:4px;align-items:center}.path .m .ms{font-size:15px}
-.crs{margin:0 14px 10px;background:#fff;border-radius:20px;padding:12px;display:flex;gap:12px;align-items:center;box-shadow:0 1px 0 var(--line)}
-.crs .ic{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff}.crs .ic .ms{font-size:28px}
-.crs .t{flex:1}.crs b{font-size:14px}.crs .m{font-size:11.5px;color:var(--muted);margin-top:3px}
-.lock{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#5C596E;background:#F2EEE7;padding:5px 9px;border-radius:12px}.lock .ms{font-size:15px}
-.cert{color:var(--green);background:#E5F6EE}
+.paths{display:flex;gap:12px;padding:0 16px 18px}
+.path{width:168px;height:150px;flex:none;border-radius:24px;overflow:hidden;position:relative;background-size:cover;background-position:center;box-shadow:0 12px 26px rgba(20,19,39,.14)}
+.path::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(14,13,36,.85))}
+.path .b{position:absolute;bottom:12px;right:12px;left:12px;color:#fff}.path b{font-size:14.5px}.path .m{font-size:11px;opacity:.85;margin-top:2px}
+.path .lv{position:absolute;top:10px;right:10px;font-size:10.5px;font-weight:600;color:#fff;padding:4px 9px;border-radius:10px}
+.cert{margin:0 16px;border-radius:24px;padding:16px;display:flex;gap:14px;align-items:center;color:#fff;background:radial-gradient(200px 120px at 0% 0%,rgba(255,214,140,.35),transparent 70%),linear-gradient(135deg,#2A2560,#14123A);box-shadow:0 14px 30px rgba(20,19,39,.22);position:relative;overflow:hidden}
+.cert .md{width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#FFE2A6,#E7A93C 55%,#B9781C);display:flex;align-items:center;justify-content:center;color:#3B2606;box-shadow:0 6px 16px rgba(231,169,60,.4)}
+.cert .md .ms{font-size:30px}
+.cert b{font-size:15px}.cert .m{font-size:11.5px;color:rgba(255,255,255,.7);margin-top:3px}
+.cert .lk{margin-right:auto;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:6px 10px;border-radius:12px}
 </style></head><body>
 <div class="top"><div class="lg"><img src="logo.svg"><h1>Yallapp Community</h1></div><p>تعلّم، اسأل، واعرض تطبيقك — مجتمع صُنّاع التطبيقات</p></div>
 <div class="row">
 <!-- LEARN -->
 <div class="phone"><div class="notch"></div><div class="scr">
  <div class="sb"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
- <div class="lh"><h2>التعلّم</h2><div class="icb"><span class="ms">workspace_premium</span></div></div>
- <div class="cont"><div class="play"><span class="ms f">play_arrow</span></div><small>تابِع من حيث توقفت</small><h3>احترف Studio</h3><div class="sub">الدرس 4 · صفحة المنتج لكل تمبلت</div><div class="bar"><i></i></div><div class="bm"><span>3 من 8 دروس</span><span>12 دقيقة متبقية</span></div></div>
+ <div class="lh"><div><small>رحلتك في التعلّم</small><h2>التعلّم</h2></div><div class="streak"><span class="ms f">local_fire_department</span>7 أيام</div></div>
+ <div class="cont" style="background-image:url(pub/clothes-photos/black-dress.jpg)"><div class="in">
+  <span class="chip glass"><span class="ms f" style="font-size:14px">play_circle</span>تابِع من حيث توقفت</span>
+  <h3>احترف Studio</h3><div class="sub">الدرس 4 · صفحة منتج مختلفة لكل تمبلت</div>
+  <div class="bt"><div class="prog"><div class="pring"><b>3/8</b></div><span>12 دقيقة<br>متبقية</span></div><span class="playb"><span class="ms f">play_arrow</span>أكمل</span></div>
+ </div></div>
  <div class="sh"><b>المسارات</b><a>عرض الكل</a></div>
  <div class="paths">
-  <div class="path"><div class="im" style="background-image:url(pub/clothes-photos/beige-dress.jpg)"></div><div class="b"><b>أول متجر لك</b><div class="m"><span class="ms">play_circle</span>6 دروس · مبتدئ</div></div></div>
-  <div class="path"><div class="im" style="background-image:url(pub/furniture-photos/armchair.jpg)"></div><div class="b"><b>انشر على المتاجر</b><div class="m"><span class="ms">play_circle</span>5 دروس · متوسط</div></div></div>
+  <div class="path" style="background-image:url(pub/clothes-photos/beige-dress.jpg)"><span class="lv glass">مبتدئ</span><div class="b"><b>أول متجر لك</b><div class="m">6 دروس · 45 دقيقة</div></div></div>
+  <div class="path" style="background-image:url(pub/furniture-photos/armchair.jpg)"><span class="lv glass">متوسط</span><div class="b"><b>انشر على المتاجر</b><div class="m">5 دروس · 38 دقيقة</div></div></div>
  </div>
- <div class="sh"><b>الأكاديمية</b><a>كل الكورسات</a></div>
- <div class="crs"><div class="ic a2"><span class="ms f">school</span></div><div class="t"><b>مطوّر Yallapp معتمد</b><div class="m">12 درسًا · شهادة في ملفك</div></div><span class="lock cert"><span class="ms f">verified</span>شهادة</span></div>
- <div class="crs"><div class="ic a1"><span class="ms f">rocket_launch</span></div><div class="t"><b>المستوى المتقدم: متاجر كبيرة</b><div class="m">9 دروس · للأعضاء المشتركين</div></div><span class="lock"><span class="ms f">lock</span>مقفول</span></div>
+ <div class="cert"><div class="md"><span class="ms f">workspace_premium</span></div><div><b>مطوّر Yallapp معتمد</b><div class="m">12 درسًا · شهادة تظهر في ملفك</div></div><span class="lk glass"><span class="ms f" style="font-size:14px">lock</span>مقفول</span></div>
  <div class="tb"><div class="t"><span class="ms">home</span>الرئيسية</div><div class="t"><span class="ms">forum</span>الأسئلة</div><div class="plus"><span class="ms">add</span></div><div class="t on"><span class="ms f">school</span>التعلّم</div><div class="t"><span class="ms">person</span>حسابي</div></div>
 </div><div class="cap">التعلّم · فاتح</div></div>
 
 <!-- QUESTION DARK -->
 <div class="phone mid dark"><div class="notch"></div><div class="scr">
+ <div class="qglow"></div>
  <div class="sb"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
- <div class="qh"><div class="icb"><span class="ms">arrow_forward</span></div><b>سؤال</b><div class="icb"><span class="ms">bookmark</span></div></div>
- <div class="qbody">
-  <div class="tags"><span class="pill dp o">Studio</span><span class="pill dp">صفحة المنتج</span></div>
+ <div class="qh"><div class="dib"><span class="ms">arrow_forward</span></div><b>سؤال · Studio</b><div class="dib"><span class="ms">bookmark</span></div></div>
+ <div class="qb">
+  <div class="tags"><span class="dp o">Studio</span><span class="dp">صفحة المنتج</span><span class="dp">تمبلت</span></div>
   <h2>كيف أجعل صفحة المنتج بشكل مختلف لكل تمبلت في متجري؟</h2>
-  <div class="who"><div class="av a6" style="width:34px;height:34px;font-size:14px">ك</div><div><div class="n" style="font-size:13.5px">كريم سامي <span class="lvl" style="background:rgba(63,169,245,.15);color:#7CC4FF">مبتدئ</span></div><div class="m">منذ 3 ساعات · 284 مشاهدة</div></div></div>
-  <p>غيّرت التمبلت إلى Runway لكن صفحة المنتج بقيت بالشكل القديم. هل أحتاج لإعداد خاص؟</p>
+  <div class="who"><div class="av a6" style="width:36px;height:36px;font-size:14px">ك</div><div><div class="n">كريم سامي <span class="lvl" style="background:rgba(63,169,245,.15);color:#7CC4FF">مبتدئ</span></div><div class="m">منذ 3 ساعات</div></div></div>
+  <div class="stats"><div><b>284</b><span>مشاهدة</span></div><div><b>4</b><span>إجابات</span></div><div><b>12</b><span>متابِع</span></div></div>
  </div>
- <div class="ahd"><b>4 إجابات</b><span><span class="ms" style="font-size:16px">swap_vert</span>الأعلى تصويتًا</span></div>
- <div class="ans acc"><div class="vote"><span class="ms f up">keyboard_arrow_up</span>42<span class="ms">keyboard_arrow_down</span></div><div class="tx">
-  <div class="who"><img src="logo.svg" style="width:30px;height:30px;border-radius:9px"><div><div class="n" style="font-size:13.5px">فريق Yallapp <span class="badge-team"><span class="ms f" style="font-size:12px">verified</span>رسمي</span></div><div class="m">منذ ساعتين</div></div></div>
+ <div class="ahd"><b>الإجابات</b><span><span class="ms" style="font-size:16px">swap_vert</span>الأعلى تصويتًا</span></div>
+ <div class="ans acc"><span class="accb"><span class="ms f" style="font-size:14px">check_circle</span>الإجابة المقبولة</span>
+  <div class="who"><img src="logo.svg" style="width:32px;height:32px;border-radius:10px"><div><div class="n">فريق Yallapp <span class="badge-team" style="background:rgba(255,255,255,.1)"><span class="ms f" style="font-size:12px;color:#5BE7AE">verified</span>رسمي</span></div><div class="m">منذ ساعتين</div></div></div>
   <p>من Studio افتح «الصفحات» ثم «صفحة المنتج» واختر «من التمبلت». كل تمبلت له صفحته الخاصة وتتغير تلقائيًا.</p>
   <div class="code">Studio › Pages › Product › From template</div>
-  <span class="accb"><span class="ms f" style="font-size:15px">check_circle</span>الإجابة المقبولة</span></div></div>
- <div class="ans"><div class="vote"><span class="ms">keyboard_arrow_up</span>17<span class="ms">keyboard_arrow_down</span></div><div class="tx">
-  <div class="who"><div class="av a5" style="width:30px;height:30px;font-size:13px">ن</div><div><div class="n" style="font-size:13.5px">نور الهدى <span class="lvl" style="background:rgba(255,110,154,.15);color:#FF8FB3">خبيرة</span></div><div class="m">منذ ساعة</div></div></div>
-  <p>وتأكد أن المنتج له صور بنسبة 3:4 حتى يظهر المعرض بالكامل…</p></div></div>
- <div class="inp"><div><span class="ms" style="font-size:20px">edit</span>اكتب إجابتك…</div><div class="snd"><span class="ms f" style="transform:scaleX(-1)">send</span></div></div>
+  <div class="vt"><div class="vp"><span class="ms f up">arrow_upward</span>42<span class="ms">arrow_downward</span></div><span class="sm"><span class="ms">chat_bubble</span>5 ردود</span></div>
+ </div>
+ <div class="ans"><div class="who"><div class="av a5" style="width:32px;height:32px;font-size:13px">ن</div><div><div class="n">نور الهدى <span class="lvl" style="background:rgba(255,110,154,.15);color:#FF8FB3">خبيرة</span></div><div class="m">منذ ساعة</div></div></div>
+  <p>وتأكد أن صور المنتج بنسبة 3:4 حتى يظهر المعرض بالكامل…</p></div>
+ <div class="inp"><div class="ph"><span class="ms">edit_note</span>اكتب إجابتك…</div><span class="ms" style="color:#8A86A6">image</span><div class="snd"><span class="ms f" style="transform:scaleX(-1)">send</span></div></div>
 </div><div class="cap">صفحة سؤال · غامق</div></div>
 
 <!-- HOME -->
 <div class="phone"><div class="notch"></div><div class="scr">
+ <div class="home-bg"></div>
  <div class="sb"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
- <div class="hd"><div class="l"><img src="logo.svg"><b>Community</b></div><div style="display:flex;gap:8px"><div class="icb"><span class="ms">search</span></div><div class="icb"><span class="ms">notifications</span><i></i></div></div></div>
+ <div class="greet"><div class="l"><div class="ring2"><div class="av a3" style="width:44px;height:44px;font-size:17px">م</div></div><div><small>صباح الخير ☀️</small><b>محمد علي</b></div></div><div style="display:flex;gap:8px"><div class="ib"><span class="ms">search</span></div><div class="ib"><span class="ms">notifications</span><i></i></div></div></div>
+ <div class="feat" style="background-image:url(pub/crochet-photos/beanie-girl.jpg)"><div class="in">
+  <span class="k glass"><span class="ms f" style="font-size:14px;color:#FFD27A">emoji_events</span>تحدّي نوفمبر · 214 مشاركة</span>
+  <h3>أجمل متجر شتوي ❄️</h3>
+  <div class="row2"><div class="cd"><div class="glass"><b>04</b>أيام</div><div class="glass"><b>11</b>ساعة</div><div class="glass"><b>32</b>دقيقة</div></div><span class="join">شارك الآن</span></div>
+ </div></div>
  <div class="stories">
-  <div class="st"><div class="ring"><div style="background:linear-gradient(135deg,#FF8A3D,#FF4A1A)"><span class="ms f" style="font-size:28px">emoji_events</span></div></div>تحدّي الشهر</div>
-  <div class="st"><div class="ring"><div style="background-image:url(pub/crochet-photos/bunny-knit.jpg)"></div></div>شرح جديد</div>
-  <div class="st"><div class="ring"><div style="background:linear-gradient(135deg,#7C6BFF,#3B2BD0)"><span class="ms f" style="font-size:28px">live_tv</span></div></div>لايف الخميس</div>
-  <div class="st"><div class="ring"><div style="background-image:url(pub/beauty-photos/argan.jpg)"></div></div>من المعرض</div>
+  <div class="st"><div class="rg"><div style="background:linear-gradient(135deg,#7C6BFF,#3B2BD0)"><span class="ms f" style="font-size:26px">live_tv</span></div></div>لايف الخميس</div>
+  <div class="st"><div class="rg"><div style="background-image:url(pub/crochet-photos/bunny-knit.jpg)"></div></div>شرح جديد</div>
+  <div class="st"><div class="rg"><div style="background-image:url(pub/beauty-photos/bath-set.jpg)"></div></div>من المعرض</div>
+  <div class="st seen"><div class="rg"><div style="background-image:url(pub/furniture-photos/bed-bright.jpg)"></div></div>نصيحة اليوم</div>
+  <div class="st seen"><div class="rg"><div style="background:linear-gradient(135deg,#1FC08A,#0E8F63)"><span class="ms f" style="font-size:26px">campaign</span></div></div>جديدنا</div>
  </div>
- <div class="seg"><span class="on">لك</span><span>المتابَعون</span><span>الأحدث</span></div>
- <div class="card">
-  <div class="who"><div class="av a5" style="width:40px;height:40px;font-size:16px">ن</div><div style="flex:1"><div class="n">نور الهدى <span class="lvl" style="background:#FFE9F0;color:#D93368">خبيرة</span></div><div class="m">منذ ساعتين · متاجر</div></div><span class="ms" style="color:#9A97AA">more_horiz</span></div>
-  <div class="ptxt">أطلقت متجري اليوم بتمبلت Runway 🎉 شكرًا لكل من ساعدني في إعداد الدفع!</div>
-  <div class="pimg" style="background-image:url(pub/clothes-photos/abaya-desert.jpg)"><span class="tag"><span class="ms" style="font-size:15px">storefront</span>لُجين · متجر ملابس</span></div>
-  <div class="act"><span style="color:var(--orange)"><span class="ms f">favorite</span>128</span><span><span class="ms">chat_bubble</span>24</span><span class="sp"></span><span><span class="ms">bookmark</span></span><span><span class="ms">ios_share</span></span></div>
+ <div class="post">
+  <div class="img" style="background-image:url(pub/clothes-photos/abaya-desert.jpg)">
+   <div class="au"><div class="av a5" style="width:36px;height:36px;font-size:14px;border:2px solid rgba(255,255,255,.8)">ن</div><div><div class="n">نور الهدى <span class="ms f" style="font-size:15px;color:#7CC4FF">verified</span></div><div class="m">منذ ساعتين · خبيرة</div></div><span class="fl glass">متابَعة</span></div>
+   <span class="app glass"><span class="ms">storefront</span>لُجين · اعمل زيه<span class="ms" style="font-size:15px">arrow_back</span></span>
+   <span class="likes glass"><span class="ms f" style="font-size:16px;color:#FF7A7A">favorite</span>128</span>
+  </div>
+  <div class="bd"><p>أطلقت متجري اليوم بتمبلت Runway 🎉 أول 40 طلبًا في يومين!</p>
+   <div class="ac"><span><span class="ms">favorite</span>إعجاب</span><span><span class="ms">chat_bubble</span>24</span><span style="margin-right:auto"><span class="ms">bookmark</span></span><span><span class="ms">ios_share</span></span></div></div>
  </div>
- <div class="card"><div class="qtag"><span class="pill p-or">سؤال</span><span class="pill p-gy">الدفع</span></div><div class="qt">كيف أربط بوابة الدفع بمتجري خطوة بخطوة؟</div><div class="qm"><span>6 إجابات</span><span>·</span><span class="ok"><span class="ms f">check_circle</span>إجابة مقبولة</span></div></div>
  <div class="tb"><div class="t on"><span class="ms f">home</span>الرئيسية</div><div class="t"><span class="ms">forum</span>الأسئلة</div><div class="plus"><span class="ms">add</span></div><div class="t"><span class="ms">school</span>التعلّم</div><div class="t"><span class="ms">person</span>حسابي</div></div>
 </div><div class="cap">الرئيسية · فاتح</div></div>
 </div>
