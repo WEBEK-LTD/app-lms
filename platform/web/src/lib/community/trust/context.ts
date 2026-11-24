@@ -1,6 +1,6 @@
 import { isCommunityAdmin } from "../staff";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { adminRoleOf } from "../../admin/team";
+import { isCommunityAdmin } from "../staff";
 import type { CommunityContext } from "../api/http";
 import { withQa } from "../qa/hooks";
 import { contentInfo, memberStats, recentTexts, setContentStatus, type QaContentKind } from "../qa/service";
@@ -70,7 +70,7 @@ export function trustMemberOf(m: CommunityMember): TrustMember {
 }
 
 /** Area C's deps for this request. `files` and `secret` are given in tests; Yallapp's blob store and signing secret otherwise. */
-export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now">, options: { files?: PrivateFiles; secret?: string } = {}): TrustDeps {
+export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"> & { req?: object }, options: { files?: PrivateFiles; secret?: string } = {}): TrustDeps {
   const base = ctx.store.base;
   const store = ctx.store.trust as TrustStore;
   // Area B's functions read its store from the call's scope.
@@ -100,12 +100,8 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
     blockedEitherWay: (id) => base.blockedEitherWay(id),
     platformAdmin: async (id) => {
       const m = await base.getMember(id);
-      if (!m?.yallappUserId) return false;
-      const user = await ctx.deps.platform.getUserById(m.yallappUserId);
-      if (!user) return false;
-      // The same check as Yallapp's own admin (src/app/admin): SUPER_ADMIN_EMAILS, else the team's role; owners and admins only.
-      const role = await adminRoleOf(ctx.deps.platform, user);
-      return role === "owner" || role === "admin";
+      // A's check (lib/community/staff.ts): an active member whose linked Yallapp account is an owner or admin of Yallapp's admin, asked now.
+      return m ? isCommunityAdmin(ctx.req ?? ctx, ctx.deps.platform, m) : false;
     },
     countApprovedPost: async (id) => {
       const m = await base.getMember(id);

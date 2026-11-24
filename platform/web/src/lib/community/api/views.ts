@@ -1,6 +1,7 @@
 import { t } from "../i18n";
 import { levelOf, type CommunityLevel } from "../levels";
-import { isCommunityAdmin, isYallappTeam } from "../staff";
+import { isYallappTeam } from "../staff";
+import { communityRoleOf } from "../trust/roles";
 import type { CommunityMember } from "../types";
 import { linkedApps } from "../yallapp";
 import { heldBadges, topBadge, type HeldBadge } from "./badge-lookup";
@@ -167,8 +168,8 @@ export async function meView(ctx: CommunityContext, member: CommunityMember) {
     language: member.language,
     theme: member.theme,
     role: member.role,
-    // Who runs the community: a linked Yallapp owner or admin (lib/community/staff.ts); area C adds "moderator".
-    community_role: (await isCommunityAdmin(ctx.req, ctx.deps.platform, member)) ? "admin" : null,
+    // Who runs the community: a linked Yallapp owner or admin (lib/community/staff.ts), or a moderator an admin named (area C).
+    community_role: await communityRoleOf(ctx, member),
     status: member.status === "suspended" ? "suspended" : "active",
     unread_notifications: await unreadNotifications(ctx, member.id),
     pending_friend_requests: pendingFriends,

@@ -35,7 +35,6 @@ beforeEach(async () => {
   admin = await joinWithEmail(c, "Community Admin");
   nour = await joinWithEmail(c, "Nour El Hoda");
   ali = await joinWithEmail(c, "Ali Kaya");
-  // 231 A Community admin is a member whose linked Yallapp account is on Yallapp's admin team (lib/community/staff.ts).
   await makeYallappStaff(c, admin.id);
 });
 
@@ -279,10 +278,15 @@ describe("231 the Community's staff through the API", () => {
     expect(granted.status).toBe(200);
     expect(granted.body.items).toEqual([expect.objectContaining({ member: expect.objectContaining({ id: ali.id }), granted_by: expect.objectContaining({ id: admin.id }), reason: "Knows the Turkish questions" })]);
     for (const path of ["/admin/moderation", "/admin/reports"]) expect((await api(c, "GET", path, { token: ali.token })).status, path).toBe(200);
+    // /me tells the apps which tools to show.
+    expect((await api<{ community_role: string | null }>(c, "GET", "/me", { token: ali.token })).body.community_role).toBe("moderator");
+    expect((await api<{ community_role: string | null }>(c, "GET", "/me", { token: admin.token })).body.community_role).toBe("admin");
+    expect((await api<{ community_role: string | null }>(c, "GET", "/me", { token: nour.token })).body.community_role).toBeNull();
     for (const path of ["/admin/settings", "/admin/verification-requests", "/admin/audit-log", "/admin/members", "/admin/moderators"]) expect((await api(c, "GET", path, { token: ali.token })).status, path).toBe(403);
     expect((await api(c, "POST", `/admin/members/${nour.id}/badges`, { token: ali.token, body: { badge: "blue", reason: "Nice" } })).status).toBe(403);
     expect((await api(c, "DELETE", `/admin/moderators/${ali.id}`, { token: admin.token, body: { reason: "Stepped down" } })).status).toBe(204);
     expect((await api(c, "GET", "/admin/moderation", { token: ali.token })).status).toBe(403);
+    expect((await api<{ community_role: string | null }>(c, "GET", "/me", { token: ali.token })).body.community_role).toBeNull();
     const log = await api<{ items: { action: string; reason: string }[] }>(c, "GET", `/admin/audit-log?member=${ali.id}`, { token: admin.token });
     expect(log.body.items.map((e) => [e.action, e.reason])).toEqual([
       ["moderator.revoke", "Stepped down"],
