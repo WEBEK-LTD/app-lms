@@ -118,7 +118,7 @@ void main() {
       page: 'home',
     );
     // The first look's words, as the platform wrote them in Arabic.
-    expect(find.text('أخضر في كامل تفتّحه', skipOffstage: false), findsWidgets);
+    expect(find.text('جملي في حركة', skipOffstage: false), findsWidgets);
   });
 
   testWidgets(

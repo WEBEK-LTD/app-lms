@@ -2,7 +2,7 @@
  "screens": {
   "sign_in": {
    "style": "photo",
-   "image_url": "http://localhost:3000/clothes-photos/hero-green.jpg",
+   "image_url": "http://localhost:3000/clothes-photos/camel-dress.jpg",
    "title": {
     "en": "Welcome to the runway",
     "ar": "أهلًا بكِ على المنصّة",
@@ -64,7 +64,7 @@
   },
   "system": {
    "look": "photo",
-   "image_url": "http://localhost:3000/clothes-photos/hero-green.jpg"
+   "image_url": "http://localhost:3000/clothes-photos/camel-dress.jpg"
   }
  },
  "layout": {
@@ -77,7 +77,7 @@
    "cards": "outlined",
    "secondary_color": "#7A1F30",
    "font_family": "Reem Kufi",
-   "arabic_font": "Reem Kufi",
+   "arabic_font": "Noto Kufi Arabic",
    "dark_background": "#0D0C0B",
    "dark_surface": "#171513",
    "font_files": [
@@ -88,7 +88,7 @@
    ],
    "arabic_font_files": [
     {
-     "url": "http://localhost:3000/api/v1/fonts/ofl/reemkufi/ReemKufi%5Bwght%5D.ttf",
+     "url": "http://localhost:3000/api/v1/fonts/ofl/notokufiarabic/NotoKufiArabic%5Bwght%5D.ttf",
      "weight": null
     }
    ]
@@ -243,7 +243,7 @@
          "count": "padded"
         },
         "background": "#141211",
-        "image_background_url": "http://localhost:3000/clothes-photos/hero-green.jpg",
+        "image_background_url": "http://localhost:3000/clothes-photos/camel-dress.jpg",
         "scrim": {
          "color": "#000000",
          "from": 0.34,
@@ -255,8 +255,8 @@
          {
           "id": "sig-3",
           "type": "photo_hero",
-          "name": "Green, in full bloom",
-          "image_url": "http://localhost:3000/clothes-photos/hero-green.jpg",
+          "name": "Camel, in motion",
+          "image_url": "http://localhost:3000/clothes-photos/camel-dress.jpg",
           "height": 640,
           "radius": 0,
           "background": "#141211",
@@ -284,7 +284,7 @@
             "type": "text",
             "text": "Spring 2027 · Look 01",
             "font": {
-             "family": "Reem Kufi",
+             "family": "Noto Kufi Arabic",
              "size": 11,
              "weight": 500,
              "letter_spacing": 2.4,
@@ -306,7 +306,7 @@
            {
             "id": "sig-5",
             "type": "text",
-            "text": "Green, in full bloom",
+            "text": "Camel, in motion",
             "font": {
              "family": "Reem Kufi",
              "size": 38,
@@ -324,10 +324,10 @@
             },
             "translations": {
              "ar": {
-              "text": "أخضر في كامل تفتّحه"
+              "text": "جملي في حركة"
              },
              "tr": {
-              "text": "Tam açmış bir yeşil"
+              "text": "Hareket hâlinde deve tüyü"
              }
             }
            },
@@ -349,7 +349,7 @@
               "type": "text",
               "text": "Discover the look",
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 13.5,
                "weight": 500,
                "letter_spacing": 0.8
@@ -381,8 +381,8 @@
          {
           "id": "sig-9",
           "type": "photo_hero",
-          "name": "The abaya, unhurried",
-          "image_url": "http://localhost:3000/clothes-photos/abaya-road.jpg",
+          "name": "Red, said quietly",
+          "image_url": "http://localhost:3000/clothes-photos/red-dress.jpg",
           "height": 640,
           "radius": 0,
           "background": "#141211",
@@ -410,7 +410,7 @@
             "type": "text",
             "text": "Spring 2027 · Look 02",
             "font": {
-             "family": "Reem Kufi",
+             "family": "Noto Kufi Arabic",
              "size": 11,
              "weight": 500,
              "letter_spacing": 2.4,
@@ -432,7 +432,7 @@
            {
             "id": "sig-11",
             "type": "text",
-            "text": "The abaya, unhurried",
+            "text": "Red, said quietly",
             "font": {
              "family": "Reem Kufi",
              "size": 38,
@@ -450,10 +450,10 @@
             },
             "translations": {
              "ar": {
-              "text": "العباءة، بلا عجلة"
+              "text": "أحمر يُقال بهدوء"
              },
              "tr": {
-              "text": "Acelesiz bir abaya"
+              "text": "Sessizce söylenen kırmızı"
              }
             }
            },
@@ -475,7 +475,7 @@
               "type": "text",
               "text": "Discover the look",
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 13.5,
                "weight": 500,
                "letter_spacing": 0.8
@@ -507,8 +507,8 @@
          {
           "id": "sig-15",
           "type": "photo_hero",
-          "name": "Cream for long evenings",
-          "image_url": "http://localhost:3000/clothes-photos/cream-maxi.jpg",
+          "name": "Olive, sharply cut",
+          "image_url": "http://localhost:3000/clothes-photos/olive-jacket.jpg",
           "height": 640,
           "radius": 0,
           "background": "#141211",
@@ -536,7 +536,7 @@
             "type": "text",
             "text": "Spring 2027 · Look 03",
             "font": {
-             "family": "Reem Kufi",
+             "family": "Noto Kufi Arabic",
              "size": 11,
              "weight": 500,
              "letter_spacing": 2.4,
@@ -558,7 +558,7 @@
            {
             "id": "sig-17",
             "type": "text",
-            "text": "Cream for long evenings",
+            "text": "Olive, sharply cut",
             "font": {
              "family": "Reem Kufi",
              "size": 38,
@@ -576,10 +576,10 @@
             },
             "translations": {
              "ar": {
-              "text": "لونٌ كريمي للأمسيات الطويلة"
+              "text": "زيتوني بقصّة حادّة"
              },
              "tr": {
-              "text": "Uzun akşamlar için krem"
+              "text": "Keskin kesim zeytin yeşili"
              }
             }
            },
@@ -601,7 +601,7 @@
               "type": "text",
               "text": "Discover the look",
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 13.5,
                "weight": 500,
                "letter_spacing": 0.8
@@ -633,8 +633,8 @@
          {
           "id": "sig-21",
           "type": "photo_hero",
-          "name": "Dark wool, quiet steps",
-          "image_url": "http://localhost:3000/clothes-photos/dark-coat.jpg",
+          "name": "A jacket for every season",
+          "image_url": "http://localhost:3000/clothes-photos/camel-jacket.jpg",
           "height": 640,
           "radius": 0,
           "background": "#141211",
@@ -662,7 +662,7 @@
             "type": "text",
             "text": "Spring 2027 · Look 04",
             "font": {
-             "family": "Reem Kufi",
+             "family": "Noto Kufi Arabic",
              "size": 11,
              "weight": 500,
              "letter_spacing": 2.4,
@@ -684,7 +684,7 @@
            {
             "id": "sig-23",
             "type": "text",
-            "text": "Dark wool, quiet steps",
+            "text": "A jacket for every season",
             "font": {
              "family": "Reem Kufi",
              "size": 38,
@@ -702,10 +702,10 @@
             },
             "translations": {
              "ar": {
-              "text": "صوفٌ داكن وخطوات هادئة"
+              "text": "سترة لكل موسم"
              },
              "tr": {
-              "text": "Koyu yün, sessiz adımlar"
+              "text": "Her mevsime bir ceket"
              }
             }
            },
@@ -727,7 +727,7 @@
               "type": "text",
               "text": "Discover the look",
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 13.5,
                "weight": 500,
                "letter_spacing": 0.8
@@ -798,9 +798,9 @@
               "text": "Dresses",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 600
+               "weight": 700
               },
               "color": "#141211",
               "dark_color": "#F2EDE4",
@@ -839,9 +839,9 @@
               "text": "Abayas",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 400
+               "weight": 500
               },
               "color": "#5F5850",
               "dark_color": "#A89E92",
@@ -880,9 +880,9 @@
               "text": "Coats & jackets",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 400
+               "weight": 500
               },
               "color": "#5F5850",
               "dark_color": "#A89E92",
@@ -921,9 +921,9 @@
               "text": "Shoes",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 400
+               "weight": 500
               },
               "color": "#5F5850",
               "dark_color": "#A89E92",
@@ -962,9 +962,9 @@
               "text": "Bags",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 400
+               "weight": 500
               },
               "color": "#5F5850",
               "dark_color": "#A89E92",
@@ -1003,9 +1003,9 @@
               "text": "Accessories",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 400
+               "weight": 500
               },
               "color": "#5F5850",
               "dark_color": "#A89E92",
@@ -1099,7 +1099,7 @@
             "text": "View all",
             "max_lines": 1,
             "font": {
-             "family": "Reem Kufi",
+             "family": "Noto Kufi Arabic",
              "size": 13,
              "weight": 500,
              "letter_spacing": 0.6
@@ -1183,9 +1183,9 @@
              "width": "fill",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
-              "size": 13,
-              "weight": 400
+              "family": "Noto Kufi Arabic",
+              "size": 14,
+              "weight": 500
              },
              "color": "#141211",
              "dark_color": "#F2EDE4"
@@ -1212,9 +1212,9 @@
              "bind": "price",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
-              "size": 13,
-              "weight": 600
+              "family": "Noto Kufi Arabic",
+              "size": 14,
+              "weight": 700
              },
              "color": "#141211",
              "dark_color": "#F2EDE4"
@@ -1225,7 +1225,7 @@
              "bind": "was_price",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
+              "family": "Noto Kufi Arabic",
               "size": 11.5
              },
              "color": "#5F5850",
@@ -1240,7 +1240,7 @@
         "id": "sig-63",
         "type": "photo_hero",
         "name": "The editor",
-        "image_url": "http://localhost:3000/clothes-photos/walk-white.jpg",
+        "image_url": "http://localhost:3000/clothes-photos/velvet.jpg",
         "height": 440,
         "radius": 0,
         "background": "#141211",
@@ -1274,7 +1274,7 @@
           "type": "text",
           "text": "The editor",
           "font": {
-           "family": "Reem Kufi",
+           "family": "Noto Kufi Arabic",
            "size": 11,
            "weight": 500,
            "letter_spacing": 2.4,
@@ -1339,7 +1339,7 @@
             "type": "text",
             "text": "Read the edit",
             "font": {
-             "family": "Reem Kufi",
+             "family": "Noto Kufi Arabic",
              "size": 13.5,
              "weight": 500,
              "letter_spacing": 0.8
@@ -1429,7 +1429,7 @@
             "text": "View all",
             "max_lines": 1,
             "font": {
-             "family": "Reem Kufi",
+             "family": "Noto Kufi Arabic",
              "size": 13,
              "weight": 500,
              "letter_spacing": 0.6
@@ -1472,8 +1472,8 @@
         "query": {
          "limit": 8,
          "category_id": null,
-         "featured": true,
-         "sort": "popular",
+         "featured": false,
+         "sort": "price_desc",
          "ids": []
         },
         "card": {
@@ -1512,9 +1512,9 @@
              "width": "fill",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
-              "size": 13,
-              "weight": 400
+              "family": "Noto Kufi Arabic",
+              "size": 14,
+              "weight": 500
              },
              "color": "#141211",
              "dark_color": "#F2EDE4"
@@ -1541,9 +1541,9 @@
              "bind": "price",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
-              "size": 13,
-              "weight": 600
+              "family": "Noto Kufi Arabic",
+              "size": 14,
+              "weight": 700
              },
              "color": "#141211",
              "dark_color": "#F2EDE4"
@@ -1554,7 +1554,7 @@
              "bind": "was_price",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
+              "family": "Noto Kufi Arabic",
               "size": 11.5
              },
              "color": "#5F5850",
@@ -1611,7 +1611,7 @@
             "type": "text",
             "text": "Every category, quietly",
             "font": {
-             "family": "Reem Kufi",
+             "family": "Noto Kufi Arabic",
              "size": 12.5
             },
             "color": "#5F5850",
@@ -1674,7 +1674,7 @@
               "type": "text",
               "text": "01",
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 11,
                "weight": 500,
                "letter_spacing": 1.6
@@ -1750,7 +1750,7 @@
               "type": "text",
               "text": "02",
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 11,
                "weight": 500,
                "letter_spacing": 1.6
@@ -1826,7 +1826,7 @@
               "type": "text",
               "text": "03",
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 11,
                "weight": 500,
                "letter_spacing": 1.6
@@ -1902,7 +1902,7 @@
               "type": "text",
               "text": "04",
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 11,
                "weight": 500,
                "letter_spacing": 1.6
@@ -1978,7 +1978,7 @@
               "type": "text",
               "text": "05",
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 11,
                "weight": 500,
                "letter_spacing": 1.6
@@ -2108,7 +2108,7 @@
             "type": "text",
             "text": "Measurements for every piece, and how each one falls.",
             "font": {
-             "family": "Reem Kufi",
+             "family": "Noto Kufi Arabic",
              "size": 12.5,
              "line_height": 1.5
             },
@@ -2142,7 +2142,7 @@
               "text": "Size guide",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 13,
                "weight": 500,
                "letter_spacing": 0.6
@@ -2279,9 +2279,9 @@
              "width": "fill",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
-              "size": 13,
-              "weight": 400
+              "family": "Noto Kufi Arabic",
+              "size": 14,
+              "weight": 500
              },
              "color": "#141211",
              "dark_color": "#F2EDE4"
@@ -2308,9 +2308,9 @@
              "bind": "price",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
-              "size": 13,
-              "weight": 600
+              "family": "Noto Kufi Arabic",
+              "size": 14,
+              "weight": 700
              },
              "color": "#141211",
              "dark_color": "#F2EDE4"
@@ -2321,7 +2321,7 @@
              "bind": "was_price",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
+              "family": "Noto Kufi Arabic",
               "size": 11.5
              },
              "color": "#5F5850",
@@ -2357,7 +2357,7 @@
         "type": "text",
         "text": "Every piece of the season, newest first",
         "font": {
-         "family": "Reem Kufi",
+         "family": "Noto Kufi Arabic",
          "size": 13
         },
         "color": "#5F5850",
@@ -2418,9 +2418,9 @@
               "text": "Dresses",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 600
+               "weight": 700
               },
               "color": "#141211",
               "dark_color": "#F2EDE4",
@@ -2459,9 +2459,9 @@
               "text": "Abayas",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 400
+               "weight": 500
               },
               "color": "#5F5850",
               "dark_color": "#A89E92",
@@ -2500,9 +2500,9 @@
               "text": "Coats & jackets",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 400
+               "weight": 500
               },
               "color": "#5F5850",
               "dark_color": "#A89E92",
@@ -2541,9 +2541,9 @@
               "text": "Shoes",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 400
+               "weight": 500
               },
               "color": "#5F5850",
               "dark_color": "#A89E92",
@@ -2582,9 +2582,9 @@
               "text": "Bags",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 400
+               "weight": 500
               },
               "color": "#5F5850",
               "dark_color": "#A89E92",
@@ -2623,9 +2623,9 @@
               "text": "Accessories",
               "max_lines": 1,
               "font": {
-               "family": "Reem Kufi",
+               "family": "Noto Kufi Arabic",
                "size": 15,
-               "weight": 400
+               "weight": 500
               },
               "color": "#5F5850",
               "dark_color": "#A89E92",
@@ -2803,7 +2803,7 @@
           "type": "text",
           "text": "Free exchanges within 14 days, with the tag still on.",
           "font": {
-           "family": "Reem Kufi",
+           "family": "Noto Kufi Arabic",
            "size": 13,
            "line_height": 1.45
           },
@@ -2929,9 +2929,9 @@
              "width": "fill",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
-              "size": 13,
-              "weight": 400
+              "family": "Noto Kufi Arabic",
+              "size": 14,
+              "weight": 500
              },
              "color": "#141211",
              "dark_color": "#F2EDE4"
@@ -2958,9 +2958,9 @@
              "bind": "price",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
-              "size": 13,
-              "weight": 600
+              "family": "Noto Kufi Arabic",
+              "size": 14,
+              "weight": 700
              },
              "color": "#141211",
              "dark_color": "#F2EDE4"
@@ -2971,7 +2971,7 @@
              "bind": "was_price",
              "max_lines": 1,
              "font": {
-              "family": "Reem Kufi",
+              "family": "Noto Kufi Arabic",
               "size": 11.5
              },
              "color": "#5F5850",
@@ -3204,7 +3204,7 @@
                 "type": "text",
                 "text": "My account",
                 "font": {
-                 "family": "Reem Kufi",
+                 "family": "Noto Kufi Arabic",
                  "size": 15,
                  "weight": 500
                 },
@@ -3281,7 +3281,7 @@
                 "type": "text",
                 "text": "My orders",
                 "font": {
-                 "family": "Reem Kufi",
+                 "family": "Noto Kufi Arabic",
                  "size": 15,
                  "weight": 500
                 },
@@ -3358,7 +3358,7 @@
                 "type": "text",
                 "text": "Wishlist",
                 "font": {
-                 "family": "Reem Kufi",
+                 "family": "Noto Kufi Arabic",
                  "size": 15,
                  "weight": 500
                 },
@@ -3435,7 +3435,7 @@
                 "type": "text",
                 "text": "Language",
                 "font": {
-                 "family": "Reem Kufi",
+                 "family": "Noto Kufi Arabic",
                  "size": 15,
                  "weight": 500
                 },
@@ -3512,7 +3512,7 @@
                 "type": "text",
                 "text": "Talk to a stylist",
                 "font": {
-                 "family": "Reem Kufi",
+                 "family": "Noto Kufi Arabic",
                  "size": 15,
                  "weight": 500
                 },
@@ -3533,7 +3533,7 @@
                 "type": "text",
                 "text": "Questions about a size or a fit, answered by a person.",
                 "font": {
-                 "family": "Reem Kufi",
+                 "family": "Noto Kufi Arabic",
                  "size": 12
                 },
                 "color": "#5F5850",
@@ -3628,7 +3628,7 @@
         "type": "text",
         "text": "Measurements for every piece, and how each one falls.",
         "font": {
-         "family": "Reem Kufi",
+         "family": "Noto Kufi Arabic",
          "size": 14,
          "line_height": 1.6
         },
@@ -4195,7 +4195,7 @@
    "dark_inactive": "#A89E92",
    "design": "minimal",
    "labels": "always",
-   "font": "Reem Kufi"
+   "font": "Noto Kufi Arabic"
   }
  }
 }

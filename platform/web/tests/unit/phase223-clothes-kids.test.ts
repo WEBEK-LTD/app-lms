@@ -13,6 +13,9 @@ import { mainLookOf, signatureDesign, signatureDesigns } from "@/lib/studio/demo
 import type { SignatureLook } from "@/lib/studio/demo-designs/signature";
 import type { SectionContext } from "@/lib/studio/sections";
 import { allNodes } from "@/lib/studio/tree";
+import { lookColour } from "@/lib/demo/picker";
+import { DEMO_BRANDS } from "@/lib/demo/content";
+import { readFileSync as readSource } from "node:fs";
 
 /**
  * 223 Lujain's and Toota's templates C and D (the owner, 23 November 2026):
@@ -174,7 +177,7 @@ describe("223 Lujain's and Toota's templates C and D", () => {
 
   it("greets with Tooti over the ages as four bubbles, wavy edges between the sections; the nursery's ruler and gift list on a page of its own", () => {
     const story = allNodes(signatureDesign(KIDS_DEMO, "c")!.home(ctxOf("Toota")));
-    expect(story.some((n) => n.name === "Tooti" && n.type === "stack")).toBe(true);
+    expect(story.some((n) => n.name === "Tooti" && n.type === "image" && n.image_url?.endsWith("/design-pictures/kids-tooti.png"))).toBe(true);
     expect(story.filter((n) => n.name?.match(/^(0–2|3–5|6–9|10\+) /)).length).toBe(4);
     expect(story.filter((n) => n.name === "~").length).toBeGreaterThanOrEqual(2);
     expect(story.some((n) => n.type === "size_finder")).toBe(true);
@@ -183,5 +186,20 @@ describe("223 Lujain's and Toota's templates C and D", () => {
     expect(nodes.filter((n) => n.shadow && n.shadow !== "none")).toEqual([]);
     expect(nodes.some((n) => n.action?.type === "page" && n.action.page_slug === "gift-list")).toBe(true);
     expect(nursery.pages!(ctxOf("Toota")).map((p) => p.slug)).toEqual(["menu", "size-guide", "gift-list"]);
+  });
+
+  it("starts a project from a look in that look's own colour (/start/<slug>/make?look=d): the first swatch and the default", () => {
+    expect(lookColour(CLOTHES_DEMO, "d")).toBe(signatureDesign(CLOTHES_DEMO, "d")!.project.primary);
+    expect(lookColour(CLOTHES_DEMO, "d")).toBe("#9C5F3C");
+    expect(lookColour(KIDS_DEMO, "d")).toBe("#5D6F4E");
+    expect(lookColour(CLOTHES_DEMO, "c")).toBe("#141211");
+    // A look without a colour of its own, and a demo with no look chosen, start in the demo's.
+    expect(lookColour(CLOTHES_DEMO, "a")).toBe(signatureDesign(CLOTHES_DEMO, "a")!.project.primary ?? DEMO_BRANDS[CLOTHES_DEMO].primaryColor);
+    expect(lookColour("store", null)).toBe(DEMO_BRANDS.store.primaryColor);
+    // The make page and the action use it, not the brand's colour.
+    const page = readSource(join(ROOT, "src", "app", "start", "[demo]", "make", "page.tsx"), "utf8");
+    expect(page).toContain("swatchesFor(colour)");
+    expect(page).not.toContain("swatchesFor(brand.primaryColor)");
+    expect(readSource(join(ROOT, "src", "app", "actions", "start.ts"), "utf8")).toContain("lookColour(demo, look)");
   });
 });

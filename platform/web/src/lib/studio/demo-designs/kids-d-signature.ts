@@ -263,7 +263,7 @@ function sets(ctx: SectionContext): StudioNode {
     columns: 2,
     gap: 16,
     padding: sides(0, 20, 0, 20),
-    query: { limit: 4, category_id: null, featured: true, sort: "popular", ids: [] },
+    query: { limit: 4, category_id: null, featured: false, sort: "price_desc", ids: [] },
     card: { id: id(), type: "column", gap: 6, children: [{ id: id(), type: "image", bind: "image", width: "fill", aspect_ratio: 0.85, radius: 0, fit: "cover", background: SAGE_TINT.day, dark_background: SAGE_TINT.night }, { id: id(), type: "text", bind: "title", max_lines: 1, font: { family: FACE, size: 13.5, weight: 400 }, color: K.ink, dark_color: K.darkInk }, { id: id(), type: "text", bind: "price", max_lines: 1, font: { family: FACE, size: 13.5, weight: 600 }, color: K.accent, dark_color: K.darkAccent }] },
   };
 }

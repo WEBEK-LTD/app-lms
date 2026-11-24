@@ -1674,8 +1674,8 @@
         "query": {
          "limit": 4,
          "category_id": null,
-         "featured": true,
-         "sort": "popular",
+         "featured": false,
+         "sort": "price_desc",
          "ids": []
         },
         "card": {

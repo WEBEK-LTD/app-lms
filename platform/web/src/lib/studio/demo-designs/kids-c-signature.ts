@@ -11,8 +11,8 @@ import { inked, sides, sigEntry, sigImage, sigTexts, signatureBar, type Signatur
  *
  * - soft blobs of colour (peach, mint, sky, lilac, sun) and illustrated
  *   shapes drawn from Studio's own elements;
- * - Tooti, the mascot, greets on a card at the top (a round face of shapes)
- *   with "Let's go";
+ * - Tooti, the mascot (an illustrated bunny in a knit jumper), greets on a
+ *   card at the top with "Let's go";
  * - a big round age selector (0–2, 3–5, 6–9, 10+), each a bubble;
  * - scalloped, wavy edges between the sections, a band of mint under the
  *   new pieces, each piece's photo a round bubble on its own colour;
@@ -110,26 +110,17 @@ export function scallops(ctx: SectionContext, b: Blob, down = false, on?: Blob):
 
 // ——— The home ———
 
-/** Tooti, the mascot: a round sunny face of shapes, its eyes, cheeks and smile. */
+/**
+ * Tooti, the mascot: a bunny in a striped knit jumper holding a star, drawn
+ * for the story world in its own colours (Yallapp's picture,
+ * public/design-pictures/kids-tooti.png, on a transparent ground; the owner
+ * can change it like any picture). Without the platform's pictures, a soft
+ * sun blob in its place.
+ */
 function tooti(ctx: SectionContext): StudioNode {
-  const id = idOf(ctx);
-  const eye = (x: number): StudioNode => ({ id: id(), type: "row", width: 11, height: 15, radius: 6, background: "#3A2952", dark_background: "#3A2952", place: { x, y: 40 }, children: [] });
-  const cheek = (x: number): StudioNode => ({ id: id(), type: "row", width: 15, height: 9, radius: 5, background: "#FF9FA8", dark_background: "#FF9FA8", opacity: 0.75, place: { x, y: 58 }, children: [] });
-  return {
-    id: id(),
-    type: "stack",
-    name: ctx.w("stwMascot"),
-    width: 108,
-    height: 108,
-    children: [
-      { id: id(), type: "row", width: 108, height: 108, radius: 54, background: SUN.day, dark_background: "#FFD873", corners: { top_start: 56, top_end: 52, bottom_end: 50, bottom_start: 58 }, children: [] },
-      eye(36),
-      eye(64),
-      cheek(20),
-      cheek(80),
-      { id: id(), type: "row", width: 28, height: 14, background: "#3A2952", dark_background: "#3A2952", corners: { top_start: 0, top_end: 0, bottom_start: 14, bottom_end: 14 }, place: { x: 50, y: 66 }, children: [] },
-    ],
-  };
+  const url = ctx.picture?.("kids-tooti.png") ?? null;
+  const look: Partial<StudioNode> = { name: ctx.w("stwMascot"), width: 124, height: 136 };
+  return url ? { id: idOf(ctx)(), type: "image", image_url: url, fit: "contain", ...look } : { id: idOf(ctx)(), type: "row", radius: 60, ...blob(SUN), ...look, children: [] };
 }
 
 /** The greeting card: Tooti on a sky blob, its hello, the day's line and "Let's go". */
@@ -146,7 +137,7 @@ export function greetingCard(ctx: SectionContext): StudioNode {
     children: [
       dot(ctx, 150, LILAC, { place: { x: 0, y: 100 }, corners: { top_start: 80, top_end: 70, bottom_end: 40, bottom_start: 0 } }),
       dot(ctx, 46, PEACH, { place: { x: 92, y: 8 } }),
-      { ...tooti(ctx), place: { x: 6, y: 86 }, motion: { loop: "float" } },
+      { ...tooti(ctx), place: { x: 4, y: 96 }, motion: { loop: "float" } },
       {
         id: id(),
         type: "column",
@@ -168,10 +159,10 @@ export function ageBubbles(ctx: SectionContext): StudioNode {
   const id = idOf(ctx);
   // Each bubble a soft blob of its own shape, on a wave: the second and fourth a little lower.
   const SHAPES = [
-    { top_start: 44, top_end: 30, bottom_end: 42, bottom_start: 34 },
-    { top_start: 32, top_end: 46, bottom_end: 30, bottom_start: 44 },
-    { top_start: 40, top_end: 34, bottom_end: 46, bottom_start: 30 },
-    { top_start: 30, top_end: 42, bottom_end: 34, bottom_start: 46 },
+    { corners: { top_start: 58, top_end: 22, bottom_end: 50, bottom_start: 30 }, width: 86, height: 76 },
+    { corners: { top_start: 24, top_end: 56, bottom_end: 28, bottom_start: 52 }, width: 78, height: 84 },
+    { corners: { top_start: 50, top_end: 30, bottom_end: 60, bottom_start: 20 }, width: 84, height: 78 },
+    { corners: { top_start: 28, top_end: 52, bottom_end: 22, bottom_start: 58 }, width: 80, height: 82 },
   ];
   let i = 0;
   const age = (n: string, unit: SectionWord, stage: SectionWord, b: Blob, on: boolean): StudioNode => ({
@@ -187,9 +178,7 @@ export function ageBubbles(ctx: SectionContext): StudioNode {
       {
         id: id(),
         type: "column",
-        width: 80,
-        height: 80,
-        corners: SHAPES[i++ % 4]!,
+        ...SHAPES[i++ % 4]!,
         align: "center",
         cross: "center",
         ...blob(b),
@@ -298,7 +287,7 @@ function loved(ctx: SectionContext): StudioNode {
     layout: "list",
     gap: 10,
     padding: sides(0, 16, 0, 16),
-    query: { limit: 3, category_id: null, featured: true, sort: "popular", ids: [] },
+    query: { limit: 3, category_id: null, featured: false, sort: "price_asc", ids: [] },
     card: {
       id: id(),
       type: "row",

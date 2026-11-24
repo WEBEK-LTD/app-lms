@@ -285,115 +285,22 @@
          },
          {
           "id": "sig-5",
-          "type": "stack",
+          "type": "image",
+          "image_url": "http://localhost:3000/design-pictures/kids-tooti.png",
+          "fit": "contain",
           "name": "Tooti",
-          "width": 108,
-          "height": 108,
-          "children": [
-           {
-            "id": "sig-6",
-            "type": "row",
-            "width": 108,
-            "height": 108,
-            "radius": 54,
-            "background": "#FFE7A3",
-            "dark_background": "#FFD873",
-            "corners": {
-             "top_start": 56,
-             "top_end": 52,
-             "bottom_end": 50,
-             "bottom_start": 58
-            },
-            "children": []
-           },
-           {
-            "id": "sig-7",
-            "type": "row",
-            "width": 11,
-            "height": 15,
-            "radius": 6,
-            "background": "#3A2952",
-            "dark_background": "#3A2952",
-            "place": {
-             "x": 36,
-             "y": 40
-            },
-            "children": []
-           },
-           {
-            "id": "sig-8",
-            "type": "row",
-            "width": 11,
-            "height": 15,
-            "radius": 6,
-            "background": "#3A2952",
-            "dark_background": "#3A2952",
-            "place": {
-             "x": 64,
-             "y": 40
-            },
-            "children": []
-           },
-           {
-            "id": "sig-9",
-            "type": "row",
-            "width": 15,
-            "height": 9,
-            "radius": 5,
-            "background": "#FF9FA8",
-            "dark_background": "#FF9FA8",
-            "opacity": 0.75,
-            "place": {
-             "x": 20,
-             "y": 58
-            },
-            "children": []
-           },
-           {
-            "id": "sig-10",
-            "type": "row",
-            "width": 15,
-            "height": 9,
-            "radius": 5,
-            "background": "#FF9FA8",
-            "dark_background": "#FF9FA8",
-            "opacity": 0.75,
-            "place": {
-             "x": 80,
-             "y": 58
-            },
-            "children": []
-           },
-           {
-            "id": "sig-11",
-            "type": "row",
-            "width": 28,
-            "height": 14,
-            "background": "#3A2952",
-            "dark_background": "#3A2952",
-            "corners": {
-             "top_start": 0,
-             "top_end": 0,
-             "bottom_start": 14,
-             "bottom_end": 14
-            },
-            "place": {
-             "x": 50,
-             "y": 66
-            },
-            "children": []
-           }
-          ],
+          "width": 124,
+          "height": 136,
           "place": {
-           "x": 6,
-           "y": 86
+           "x": 4,
+           "y": 96
           },
           "motion": {
            "loop": "float"
           }
          },
          {
-          "id": "sig-12",
+          "id": "sig-6",
           "type": "column",
           "gap": 6,
           "padding": {
@@ -404,7 +311,7 @@
           },
           "children": [
            {
-            "id": "sig-13",
+            "id": "sig-7",
             "type": "text",
             "text": "Hi! I'm Tooti.",
             "font": {
@@ -425,7 +332,7 @@
             }
            },
            {
-            "id": "sig-14",
+            "id": "sig-8",
             "type": "text",
             "text": "Let's find today's clothes",
             "font": {
@@ -447,7 +354,7 @@
             }
            },
            {
-            "id": "sig-15",
+            "id": "sig-9",
             "type": "text",
             "text": "Choose an age and we'll set out a little world of pieces.",
             "font": {
@@ -468,7 +375,7 @@
             }
            },
            {
-            "id": "sig-16",
+            "id": "sig-10",
             "type": "button",
             "name": "Let's go",
             "text": "Let's go",
@@ -520,7 +427,7 @@
         ]
        },
        {
-        "id": "sig-17",
+        "id": "sig-11",
         "type": "row",
         "name": "Shop by age",
         "gap": 6,
@@ -532,7 +439,7 @@
         },
         "children": [
          {
-          "id": "sig-18",
+          "id": "sig-12",
           "type": "column",
           "name": "0–2 year",
           "width": "fill",
@@ -550,16 +457,16 @@
           },
           "children": [
            {
-            "id": "sig-19",
+            "id": "sig-13",
             "type": "column",
-            "width": 80,
-            "height": 80,
             "corners": {
-             "top_start": 44,
-             "top_end": 30,
-             "bottom_end": 42,
-             "bottom_start": 34
+             "top_start": 58,
+             "top_end": 22,
+             "bottom_end": 50,
+             "bottom_start": 30
             },
+            "width": 86,
+            "height": 76,
             "align": "center",
             "cross": "center",
             "background": "#FFD2B8",
@@ -570,7 +477,7 @@
             },
             "children": [
              {
-              "id": "sig-20",
+              "id": "sig-14",
               "type": "text",
               "text": "0–2",
               "max_lines": 1,
@@ -584,7 +491,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-21",
+              "id": "sig-15",
               "type": "text",
               "text": "year",
               "max_lines": 1,
@@ -607,7 +514,7 @@
             ]
            },
            {
-            "id": "sig-22",
+            "id": "sig-16",
             "type": "text",
             "text": "Babies",
             "font": {
@@ -631,7 +538,7 @@
           ]
          },
          {
-          "id": "sig-23",
+          "id": "sig-17",
           "type": "column",
           "name": "3–5 years",
           "width": "fill",
@@ -649,16 +556,16 @@
           },
           "children": [
            {
-            "id": "sig-24",
+            "id": "sig-18",
             "type": "column",
-            "width": 80,
-            "height": 80,
             "corners": {
-             "top_start": 32,
-             "top_end": 46,
-             "bottom_end": 30,
-             "bottom_start": 44
+             "top_start": 24,
+             "top_end": 56,
+             "bottom_end": 28,
+             "bottom_start": 52
             },
+            "width": 78,
+            "height": 84,
             "align": "center",
             "cross": "center",
             "background": "#BFEBD9",
@@ -672,7 +579,7 @@
             "border_width": 3,
             "children": [
              {
-              "id": "sig-25",
+              "id": "sig-19",
               "type": "text",
               "text": "3–5",
               "max_lines": 1,
@@ -686,7 +593,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-26",
+              "id": "sig-20",
               "type": "text",
               "text": "years",
               "max_lines": 1,
@@ -709,7 +616,7 @@
             ]
            },
            {
-            "id": "sig-27",
+            "id": "sig-21",
             "type": "text",
             "text": "Little ones",
             "font": {
@@ -733,7 +640,7 @@
           ]
          },
          {
-          "id": "sig-28",
+          "id": "sig-22",
           "type": "column",
           "name": "6–9 years",
           "width": "fill",
@@ -751,16 +658,16 @@
           },
           "children": [
            {
-            "id": "sig-29",
+            "id": "sig-23",
             "type": "column",
-            "width": 80,
-            "height": 80,
             "corners": {
-             "top_start": 40,
-             "top_end": 34,
-             "bottom_end": 46,
-             "bottom_start": 30
+             "top_start": 50,
+             "top_end": 30,
+             "bottom_end": 60,
+             "bottom_start": 20
             },
+            "width": 84,
+            "height": 78,
             "align": "center",
             "cross": "center",
             "background": "#C6E2FF",
@@ -771,7 +678,7 @@
             },
             "children": [
              {
-              "id": "sig-30",
+              "id": "sig-24",
               "type": "text",
               "text": "6–9",
               "max_lines": 1,
@@ -785,7 +692,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-31",
+              "id": "sig-25",
               "type": "text",
               "text": "years",
               "max_lines": 1,
@@ -808,7 +715,7 @@
             ]
            },
            {
-            "id": "sig-32",
+            "id": "sig-26",
             "type": "text",
             "text": "School days",
             "font": {
@@ -832,7 +739,7 @@
           ]
          },
          {
-          "id": "sig-33",
+          "id": "sig-27",
           "type": "column",
           "name": "10+ years",
           "width": "fill",
@@ -850,16 +757,16 @@
           },
           "children": [
            {
-            "id": "sig-34",
+            "id": "sig-28",
             "type": "column",
-            "width": 80,
-            "height": 80,
             "corners": {
-             "top_start": 30,
-             "top_end": 42,
-             "bottom_end": 34,
-             "bottom_start": 46
+             "top_start": 28,
+             "top_end": 52,
+             "bottom_end": 22,
+             "bottom_start": 58
             },
+            "width": 80,
+            "height": 82,
             "align": "center",
             "cross": "center",
             "background": "#E4D6FF",
@@ -870,7 +777,7 @@
             },
             "children": [
              {
-              "id": "sig-35",
+              "id": "sig-29",
               "type": "text",
               "text": "10+",
               "max_lines": 1,
@@ -884,7 +791,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-36",
+              "id": "sig-30",
               "type": "text",
               "text": "years",
               "max_lines": 1,
@@ -907,7 +814,7 @@
             ]
            },
            {
-            "id": "sig-37",
+            "id": "sig-31",
             "type": "text",
             "text": "Big kids",
             "font": {
@@ -933,7 +840,7 @@
         ]
        },
        {
-        "id": "sig-38",
+        "id": "sig-32",
         "type": "row",
         "name": "~",
         "height": 20,
@@ -945,6 +852,96 @@
          "start": 0
         },
         "children": [
+         {
+          "id": "sig-33",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-34",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-35",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-36",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-37",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-38",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
          {
           "id": "sig-39",
           "type": "row",
@@ -1034,101 +1031,11 @@
            "bottom_end": 0
           },
           "children": []
-         },
-         {
-          "id": "sig-45",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-46",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-47",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-48",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-49",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-50",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
          }
         ]
        },
        {
-        "id": "sig-51",
+        "id": "sig-45",
         "type": "column",
         "name": "New in the tiny world",
         "padding": {
@@ -1141,7 +1048,7 @@
         "dark_background": "#24493F",
         "children": [
          {
-          "id": "sig-52",
+          "id": "sig-46",
           "type": "row",
           "name": "New in the tiny world",
           "cross": "center",
@@ -1154,7 +1061,7 @@
           },
           "children": [
            {
-            "id": "sig-53",
+            "id": "sig-47",
             "type": "text",
             "text": "New in the tiny world",
             "font": {
@@ -1177,7 +1084,7 @@
             }
            },
            {
-            "id": "sig-54",
+            "id": "sig-48",
             "type": "row",
             "width": 40,
             "height": 40,
@@ -1197,7 +1104,7 @@
             },
             "children": [
              {
-              "id": "sig-55",
+              "id": "sig-49",
               "type": "icon",
               "icon": "arrow_forward",
               "icon_size": 22,
@@ -1209,7 +1116,7 @@
           ]
          },
          {
-          "id": "sig-56",
+          "id": "sig-50",
           "type": "items",
           "name": "New in the tiny world",
           "source": "products",
@@ -1229,7 +1136,7 @@
            "ids": []
           },
           "card": {
-           "id": "sig-57",
+           "id": "sig-51",
            "type": "column",
            "width": 156,
            "gap": 6,
@@ -1244,7 +1151,7 @@
            "dark_background": "#4F4426",
            "children": [
             {
-             "id": "sig-58",
+             "id": "sig-52",
              "type": "image",
              "bind": "image",
              "width": 136,
@@ -1256,7 +1163,7 @@
              "dark_background": "#272040"
             },
             {
-             "id": "sig-59",
+             "id": "sig-53",
              "type": "text",
              "bind": "title",
              "max_lines": 1,
@@ -1275,7 +1182,7 @@
              "dark_color": "#F6EEFF"
             },
             {
-             "id": "sig-60",
+             "id": "sig-54",
              "type": "row",
              "gap": 6,
              "cross": "center",
@@ -1287,7 +1194,7 @@
              },
              "children": [
               {
-               "id": "sig-61",
+               "id": "sig-55",
                "type": "text",
                "bind": "price",
                "width": "fill",
@@ -1301,7 +1208,7 @@
                "dark_color": "#F6EEFF"
               },
               {
-               "id": "sig-62",
+               "id": "sig-56",
                "type": "row",
                "width": 32,
                "height": 32,
@@ -1312,7 +1219,7 @@
                "dark_background": "#FFD2B8",
                "children": [
                 {
-                 "id": "sig-63",
+                 "id": "sig-57",
                  "type": "icon",
                  "icon": "add",
                  "icon_size": 18,
@@ -1329,7 +1236,7 @@
         ]
        },
        {
-        "id": "sig-64",
+        "id": "sig-58",
         "type": "row",
         "name": "~",
         "height": 20,
@@ -1341,6 +1248,96 @@
          "start": 0
         },
         "children": [
+         {
+          "id": "sig-59",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "bottom_start": 20,
+           "bottom_end": 20,
+           "top_start": 0,
+           "top_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-60",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "bottom_start": 20,
+           "bottom_end": 20,
+           "top_start": 0,
+           "top_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-61",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "bottom_start": 20,
+           "bottom_end": 20,
+           "top_start": 0,
+           "top_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-62",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "bottom_start": 20,
+           "bottom_end": 20,
+           "top_start": 0,
+           "top_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-63",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "bottom_start": 20,
+           "bottom_end": 20,
+           "top_start": 0,
+           "top_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-64",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#BFEBD9",
+          "dark_background": "#24493F",
+          "corners": {
+           "bottom_start": 20,
+           "bottom_end": 20,
+           "top_start": 0,
+           "top_end": 0
+          },
+          "children": []
+         },
          {
           "id": "sig-65",
           "type": "row",
@@ -1430,101 +1427,11 @@
            "top_end": 0
           },
           "children": []
-         },
-         {
-          "id": "sig-71",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "bottom_start": 20,
-           "bottom_end": 20,
-           "top_start": 0,
-           "top_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-72",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "bottom_start": 20,
-           "bottom_end": 20,
-           "top_start": 0,
-           "top_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-73",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "bottom_start": 20,
-           "bottom_end": 20,
-           "top_start": 0,
-           "top_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-74",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "bottom_start": 20,
-           "bottom_end": 20,
-           "top_start": 0,
-           "top_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-75",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "bottom_start": 20,
-           "bottom_end": 20,
-           "top_start": 0,
-           "top_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-76",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#BFEBD9",
-          "dark_background": "#24493F",
-          "corners": {
-           "bottom_start": 20,
-           "bottom_end": 20,
-           "top_start": 0,
-           "top_end": 0
-          },
-          "children": []
          }
         ]
        },
        {
-        "id": "sig-77",
+        "id": "sig-71",
         "type": "row",
         "name": "Toota's worlds",
         "cross": "center",
@@ -1537,7 +1444,7 @@
         },
         "children": [
          {
-          "id": "sig-78",
+          "id": "sig-72",
           "type": "text",
           "text": "Toota's worlds",
           "font": {
@@ -1560,7 +1467,7 @@
           }
          },
          {
-          "id": "sig-79",
+          "id": "sig-73",
           "type": "row",
           "width": 40,
           "height": 40,
@@ -1580,7 +1487,7 @@
           },
           "children": [
            {
-            "id": "sig-80",
+            "id": "sig-74",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 22,
@@ -1592,7 +1499,7 @@
         ]
        },
        {
-        "id": "sig-81",
+        "id": "sig-75",
         "type": "grid",
         "name": "Toota's worlds",
         "columns": 2,
@@ -1605,7 +1512,7 @@
         },
         "children": [
          {
-          "id": "sig-82",
+          "id": "sig-76",
           "type": "stack",
           "name": "Girls",
           "height": 184,
@@ -1626,7 +1533,7 @@
           },
           "children": [
            {
-            "id": "sig-83",
+            "id": "sig-77",
             "type": "image",
             "image_url": "http://localhost:3000/kids-photos/tiered-dress.jpg",
             "fit": "cover",
@@ -1647,7 +1554,7 @@
             "dark_background": "#272040"
            },
            {
-            "id": "sig-84",
+            "id": "sig-78",
             "type": "column",
             "gap": 2,
             "padding": {
@@ -1658,7 +1565,7 @@
             },
             "children": [
              {
-              "id": "sig-85",
+              "id": "sig-79",
               "type": "text",
               "text": "Girls",
               "font": {
@@ -1680,7 +1587,7 @@
               }
              },
              {
-              "id": "sig-86",
+              "id": "sig-80",
               "type": "text",
               "text": "Dresses that twirl",
               "font": {
@@ -1704,7 +1611,7 @@
           ]
          },
          {
-          "id": "sig-87",
+          "id": "sig-81",
           "type": "stack",
           "name": "Boys",
           "height": 184,
@@ -1725,7 +1632,7 @@
           },
           "children": [
            {
-            "id": "sig-88",
+            "id": "sig-82",
             "type": "image",
             "image_url": "http://localhost:3000/kids-photos/denim-jacket.jpg",
             "fit": "cover",
@@ -1746,7 +1653,7 @@
             "dark_background": "#272040"
            },
            {
-            "id": "sig-89",
+            "id": "sig-83",
             "type": "column",
             "gap": 2,
             "padding": {
@@ -1757,7 +1664,7 @@
             },
             "children": [
              {
-              "id": "sig-90",
+              "id": "sig-84",
               "type": "text",
               "text": "Boys",
               "font": {
@@ -1779,7 +1686,7 @@
               }
              },
              {
-              "id": "sig-91",
+              "id": "sig-85",
               "type": "text",
               "text": "Ready for adventure",
               "font": {
@@ -1803,7 +1710,7 @@
           ]
          },
          {
-          "id": "sig-92",
+          "id": "sig-86",
           "type": "stack",
           "name": "Baby & newborn",
           "height": 184,
@@ -1824,7 +1731,7 @@
           },
           "children": [
            {
-            "id": "sig-93",
+            "id": "sig-87",
             "type": "image",
             "image_url": "http://localhost:3000/kids-photos/newborn-knit.jpg",
             "fit": "cover",
@@ -1845,7 +1752,7 @@
             "dark_background": "#272040"
            },
            {
-            "id": "sig-94",
+            "id": "sig-88",
             "type": "column",
             "gap": 2,
             "padding": {
@@ -1856,7 +1763,7 @@
             },
             "children": [
              {
-              "id": "sig-95",
+              "id": "sig-89",
               "type": "text",
               "text": "Baby & newborn",
               "font": {
@@ -1878,7 +1785,7 @@
               }
              },
              {
-              "id": "sig-96",
+              "id": "sig-90",
               "type": "text",
               "text": "The softest first days",
               "font": {
@@ -1902,7 +1809,7 @@
           ]
          },
          {
-          "id": "sig-97",
+          "id": "sig-91",
           "type": "stack",
           "name": "Newborn gifts",
           "height": 184,
@@ -1923,7 +1830,7 @@
           },
           "children": [
            {
-            "id": "sig-98",
+            "id": "sig-92",
             "type": "image",
             "image_url": "http://localhost:3000/kids-photos/gift-pink.jpg",
             "fit": "cover",
@@ -1944,7 +1851,7 @@
             "dark_background": "#272040"
            },
            {
-            "id": "sig-99",
+            "id": "sig-93",
             "type": "column",
             "gap": 2,
             "padding": {
@@ -1955,7 +1862,7 @@
             },
             "children": [
              {
-              "id": "sig-100",
+              "id": "sig-94",
               "type": "text",
               "text": "Newborn gifts",
               "font": {
@@ -1977,7 +1884,7 @@
               }
              },
              {
-              "id": "sig-101",
+              "id": "sig-95",
               "type": "text",
               "text": "Wrapped with love",
               "font": {
@@ -2003,7 +1910,7 @@
         ]
        },
        {
-        "id": "sig-102",
+        "id": "sig-96",
         "type": "size_finder",
         "name": "What size fits your child?",
         "text": "What size fits your child?",
@@ -2041,7 +1948,7 @@
         "dark_color": "#F6EEFF"
        },
        {
-        "id": "sig-103",
+        "id": "sig-97",
         "type": "row",
         "name": "Most loved",
         "cross": "center",
@@ -2054,7 +1961,7 @@
         },
         "children": [
          {
-          "id": "sig-104",
+          "id": "sig-98",
           "type": "text",
           "text": "Most loved",
           "font": {
@@ -2077,7 +1984,7 @@
           }
          },
          {
-          "id": "sig-105",
+          "id": "sig-99",
           "type": "row",
           "width": 40,
           "height": 40,
@@ -2097,7 +2004,7 @@
           },
           "children": [
            {
-            "id": "sig-106",
+            "id": "sig-100",
             "type": "icon",
             "icon": "arrow_forward",
             "icon_size": 22,
@@ -2109,7 +2016,7 @@
         ]
        },
        {
-        "id": "sig-107",
+        "id": "sig-101",
         "type": "items",
         "name": "Most loved",
         "source": "products",
@@ -2124,12 +2031,12 @@
         "query": {
          "limit": 3,
          "category_id": null,
-         "featured": true,
-         "sort": "popular",
+         "featured": false,
+         "sort": "price_asc",
          "ids": []
         },
         "card": {
-         "id": "sig-108",
+         "id": "sig-102",
          "type": "row",
          "gap": 12,
          "cross": "center",
@@ -2144,7 +2051,7 @@
          "dark_background": "#272040",
          "children": [
           {
-           "id": "sig-109",
+           "id": "sig-103",
            "type": "image",
            "bind": "image",
            "width": 64,
@@ -2155,13 +2062,13 @@
            "dark_background": "#5A3A44"
           },
           {
-           "id": "sig-110",
+           "id": "sig-104",
            "type": "column",
            "width": "fill",
            "gap": 2,
            "children": [
             {
-             "id": "sig-111",
+             "id": "sig-105",
              "type": "text",
              "bind": "title",
              "max_lines": 1,
@@ -2174,7 +2081,7 @@
              "dark_color": "#F6EEFF"
             },
             {
-             "id": "sig-112",
+             "id": "sig-106",
              "type": "text",
              "bind": "price",
              "max_lines": 1,
@@ -2189,7 +2096,7 @@
            ]
           },
           {
-           "id": "sig-113",
+           "id": "sig-107",
            "type": "icon",
            "icon": "favorite",
            "icon_size": 22,
@@ -2222,11 +2129,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-157",
+      "id": "sig-151",
       "type": "column",
       "children": [
        {
-        "id": "sig-158",
+        "id": "sig-152",
         "type": "text",
         "text": "Every little piece",
         "font": {
@@ -2254,7 +2161,7 @@
         }
        },
        {
-        "id": "sig-159",
+        "id": "sig-153",
         "type": "row",
         "name": "Shop by age",
         "gap": 6,
@@ -2266,7 +2173,7 @@
         },
         "children": [
          {
-          "id": "sig-160",
+          "id": "sig-154",
           "type": "column",
           "name": "0–2 year",
           "width": "fill",
@@ -2284,16 +2191,16 @@
           },
           "children": [
            {
-            "id": "sig-161",
+            "id": "sig-155",
             "type": "column",
-            "width": 80,
-            "height": 80,
             "corners": {
-             "top_start": 44,
-             "top_end": 30,
-             "bottom_end": 42,
-             "bottom_start": 34
+             "top_start": 58,
+             "top_end": 22,
+             "bottom_end": 50,
+             "bottom_start": 30
             },
+            "width": 86,
+            "height": 76,
             "align": "center",
             "cross": "center",
             "background": "#FFD2B8",
@@ -2304,7 +2211,7 @@
             },
             "children": [
              {
-              "id": "sig-162",
+              "id": "sig-156",
               "type": "text",
               "text": "0–2",
               "max_lines": 1,
@@ -2318,7 +2225,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-163",
+              "id": "sig-157",
               "type": "text",
               "text": "year",
               "max_lines": 1,
@@ -2341,7 +2248,7 @@
             ]
            },
            {
-            "id": "sig-164",
+            "id": "sig-158",
             "type": "text",
             "text": "Babies",
             "font": {
@@ -2365,7 +2272,7 @@
           ]
          },
          {
-          "id": "sig-165",
+          "id": "sig-159",
           "type": "column",
           "name": "3–5 years",
           "width": "fill",
@@ -2383,16 +2290,16 @@
           },
           "children": [
            {
-            "id": "sig-166",
+            "id": "sig-160",
             "type": "column",
-            "width": 80,
-            "height": 80,
             "corners": {
-             "top_start": 32,
-             "top_end": 46,
-             "bottom_end": 30,
-             "bottom_start": 44
+             "top_start": 24,
+             "top_end": 56,
+             "bottom_end": 28,
+             "bottom_start": 52
             },
+            "width": 78,
+            "height": 84,
             "align": "center",
             "cross": "center",
             "background": "#BFEBD9",
@@ -2406,7 +2313,7 @@
             "border_width": 3,
             "children": [
              {
-              "id": "sig-167",
+              "id": "sig-161",
               "type": "text",
               "text": "3–5",
               "max_lines": 1,
@@ -2420,7 +2327,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-168",
+              "id": "sig-162",
               "type": "text",
               "text": "years",
               "max_lines": 1,
@@ -2443,7 +2350,7 @@
             ]
            },
            {
-            "id": "sig-169",
+            "id": "sig-163",
             "type": "text",
             "text": "Little ones",
             "font": {
@@ -2467,7 +2374,7 @@
           ]
          },
          {
-          "id": "sig-170",
+          "id": "sig-164",
           "type": "column",
           "name": "6–9 years",
           "width": "fill",
@@ -2485,16 +2392,16 @@
           },
           "children": [
            {
-            "id": "sig-171",
+            "id": "sig-165",
             "type": "column",
-            "width": 80,
-            "height": 80,
             "corners": {
-             "top_start": 40,
-             "top_end": 34,
-             "bottom_end": 46,
-             "bottom_start": 30
+             "top_start": 50,
+             "top_end": 30,
+             "bottom_end": 60,
+             "bottom_start": 20
             },
+            "width": 84,
+            "height": 78,
             "align": "center",
             "cross": "center",
             "background": "#C6E2FF",
@@ -2505,7 +2412,7 @@
             },
             "children": [
              {
-              "id": "sig-172",
+              "id": "sig-166",
               "type": "text",
               "text": "6–9",
               "max_lines": 1,
@@ -2519,7 +2426,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-173",
+              "id": "sig-167",
               "type": "text",
               "text": "years",
               "max_lines": 1,
@@ -2542,7 +2449,7 @@
             ]
            },
            {
-            "id": "sig-174",
+            "id": "sig-168",
             "type": "text",
             "text": "School days",
             "font": {
@@ -2566,7 +2473,7 @@
           ]
          },
          {
-          "id": "sig-175",
+          "id": "sig-169",
           "type": "column",
           "name": "10+ years",
           "width": "fill",
@@ -2584,16 +2491,16 @@
           },
           "children": [
            {
-            "id": "sig-176",
+            "id": "sig-170",
             "type": "column",
-            "width": 80,
-            "height": 80,
             "corners": {
-             "top_start": 30,
-             "top_end": 42,
-             "bottom_end": 34,
-             "bottom_start": 46
+             "top_start": 28,
+             "top_end": 52,
+             "bottom_end": 22,
+             "bottom_start": 58
             },
+            "width": 80,
+            "height": 82,
             "align": "center",
             "cross": "center",
             "background": "#E4D6FF",
@@ -2604,7 +2511,7 @@
             },
             "children": [
              {
-              "id": "sig-177",
+              "id": "sig-171",
               "type": "text",
               "text": "10+",
               "max_lines": 1,
@@ -2618,7 +2525,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-178",
+              "id": "sig-172",
               "type": "text",
               "text": "years",
               "max_lines": 1,
@@ -2641,7 +2548,7 @@
             ]
            },
            {
-            "id": "sig-179",
+            "id": "sig-173",
             "type": "text",
             "text": "Big kids",
             "font": {
@@ -2667,7 +2574,7 @@
         ]
        },
        {
-        "id": "sig-180",
+        "id": "sig-174",
         "type": "row",
         "name": "Size guide",
         "gap": 8,
@@ -2695,7 +2602,7 @@
         },
         "children": [
          {
-          "id": "sig-181",
+          "id": "sig-175",
           "type": "icon",
           "icon": "straighten",
           "icon_size": 18,
@@ -2703,7 +2610,7 @@
           "dark_color": "#F6EEFF"
          },
          {
-          "id": "sig-182",
+          "id": "sig-176",
           "type": "text",
           "text": "Size guide",
           "font": {
@@ -2726,7 +2633,7 @@
         ]
        },
        {
-        "id": "sig-183",
+        "id": "sig-177",
         "type": "listing_filters",
         "name": "Sizes by age",
         "color": "#3A2952",
@@ -2781,7 +2688,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-184",
+      "id": "sig-178",
       "type": "column",
       "children": []
      },
@@ -2826,11 +2733,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-185",
+      "id": "sig-179",
       "type": "column",
       "children": [
        {
-        "id": "sig-186",
+        "id": "sig-180",
         "type": "row",
         "name": "A newborn gift can be wrapped, with your card written by hand.",
         "gap": 12,
@@ -2852,7 +2759,7 @@
         "dark_background": "#5A3A44",
         "children": [
          {
-          "id": "sig-187",
+          "id": "sig-181",
           "type": "icon",
           "icon": "redeem",
           "icon_size": 24,
@@ -2860,7 +2767,7 @@
           "dark_color": "#F6EEFF"
          },
          {
-          "id": "sig-188",
+          "id": "sig-182",
           "type": "text",
           "text": "A newborn gift can be wrapped, with your card written by hand.",
           "font": {
@@ -2927,11 +2834,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-190",
+      "id": "sig-184",
       "type": "column",
       "children": [
        {
-        "id": "sig-189",
+        "id": "sig-183",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -2992,7 +2899,7 @@
      "background": "#FFF6EC",
      "dark_background": "#1B1530",
      "body": {
-      "id": "sig-114",
+      "id": "sig-108",
       "type": "column",
       "padding": {
        "top": 0,
@@ -3002,7 +2909,7 @@
       },
       "children": [
        {
-        "id": "sig-115",
+        "id": "sig-109",
         "type": "search",
         "name": "Dresses, pyjamas, shoes…",
         "text": "Dresses, pyjamas, shoes…",
@@ -3030,7 +2937,7 @@
         }
        },
        {
-        "id": "sig-116",
+        "id": "sig-110",
         "type": "categories",
         "name": "All the worlds",
         "source": "products",
@@ -3049,7 +2956,7 @@
         }
        },
        {
-        "id": "sig-117",
+        "id": "sig-111",
         "type": "row",
         "name": "~",
         "height": 20,
@@ -3061,6 +2968,96 @@
          "start": 0
         },
         "children": [
+         {
+          "id": "sig-112",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#E4D6FF",
+          "dark_background": "#3B2D5E",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-113",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#E4D6FF",
+          "dark_background": "#3B2D5E",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-114",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#E4D6FF",
+          "dark_background": "#3B2D5E",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-115",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#E4D6FF",
+          "dark_background": "#3B2D5E",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-116",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#E4D6FF",
+          "dark_background": "#3B2D5E",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-117",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#E4D6FF",
+          "dark_background": "#3B2D5E",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
          {
           "id": "sig-118",
           "type": "row",
@@ -3150,101 +3147,11 @@
            "bottom_end": 0
           },
           "children": []
-         },
-         {
-          "id": "sig-124",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#E4D6FF",
-          "dark_background": "#3B2D5E",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-125",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#E4D6FF",
-          "dark_background": "#3B2D5E",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-126",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#E4D6FF",
-          "dark_background": "#3B2D5E",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-127",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#E4D6FF",
-          "dark_background": "#3B2D5E",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-128",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#E4D6FF",
-          "dark_background": "#3B2D5E",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
-         },
-         {
-          "id": "sig-129",
-          "type": "row",
-          "width": 40,
-          "height": 20,
-          "background": "#E4D6FF",
-          "dark_background": "#3B2D5E",
-          "corners": {
-           "top_start": 20,
-           "top_end": 20,
-           "bottom_start": 0,
-           "bottom_end": 0
-          },
-          "children": []
          }
         ]
        },
        {
-        "id": "sig-130",
+        "id": "sig-124",
         "type": "column",
         "name": "Me",
         "gap": 14,
@@ -3258,12 +3165,12 @@
         "dark_background": "#3B2D5E",
         "children": [
          {
-          "id": "sig-131",
+          "id": "sig-125",
           "type": "row",
           "gap": 6,
           "children": [
            {
-            "id": "sig-132",
+            "id": "sig-126",
             "type": "column",
             "name": "Me",
             "width": "fill",
@@ -3275,7 +3182,7 @@
             },
             "children": [
              {
-              "id": "sig-133",
+              "id": "sig-127",
               "type": "row",
               "width": 64,
               "height": 64,
@@ -3290,7 +3197,7 @@
               },
               "children": [
                {
-                "id": "sig-134",
+                "id": "sig-128",
                 "type": "icon",
                 "icon": "person",
                 "icon_size": 26,
@@ -3300,7 +3207,7 @@
               ]
              },
              {
-              "id": "sig-135",
+              "id": "sig-129",
               "type": "text",
               "text": "Me",
               "font": {
@@ -3324,7 +3231,7 @@
             ]
            },
            {
-            "id": "sig-136",
+            "id": "sig-130",
             "type": "column",
             "name": "Orders",
             "width": "fill",
@@ -3336,7 +3243,7 @@
             },
             "children": [
              {
-              "id": "sig-137",
+              "id": "sig-131",
               "type": "row",
               "width": 64,
               "height": 64,
@@ -3351,7 +3258,7 @@
               },
               "children": [
                {
-                "id": "sig-138",
+                "id": "sig-132",
                 "type": "icon",
                 "icon": "package_2",
                 "icon_size": 26,
@@ -3361,7 +3268,7 @@
               ]
              },
              {
-              "id": "sig-139",
+              "id": "sig-133",
               "type": "text",
               "text": "Orders",
               "font": {
@@ -3385,7 +3292,7 @@
             ]
            },
            {
-            "id": "sig-140",
+            "id": "sig-134",
             "type": "column",
             "name": "Favourites",
             "width": "fill",
@@ -3397,7 +3304,7 @@
             },
             "children": [
              {
-              "id": "sig-141",
+              "id": "sig-135",
               "type": "row",
               "width": 64,
               "height": 64,
@@ -3412,7 +3319,7 @@
               },
               "children": [
                {
-                "id": "sig-142",
+                "id": "sig-136",
                 "type": "icon",
                 "icon": "favorite",
                 "icon_size": 26,
@@ -3422,7 +3329,7 @@
               ]
              },
              {
-              "id": "sig-143",
+              "id": "sig-137",
               "type": "text",
               "text": "Favourites",
               "font": {
@@ -3446,7 +3353,7 @@
             ]
            },
            {
-            "id": "sig-144",
+            "id": "sig-138",
             "type": "column",
             "name": "Language",
             "width": "fill",
@@ -3458,7 +3365,7 @@
             },
             "children": [
              {
-              "id": "sig-145",
+              "id": "sig-139",
               "type": "row",
               "width": 64,
               "height": 64,
@@ -3473,7 +3380,7 @@
               },
               "children": [
                {
-                "id": "sig-146",
+                "id": "sig-140",
                 "type": "icon",
                 "icon": "language",
                 "icon_size": 26,
@@ -3483,7 +3390,7 @@
               ]
              },
              {
-              "id": "sig-147",
+              "id": "sig-141",
               "type": "text",
               "text": "Language",
               "font": {
@@ -3509,7 +3416,7 @@
           ]
          },
          {
-          "id": "sig-148",
+          "id": "sig-142",
           "type": "row",
           "name": "Ask Toota's team",
           "gap": 12,
@@ -3529,7 +3436,7 @@
           },
           "children": [
            {
-            "id": "sig-149",
+            "id": "sig-143",
             "type": "icon",
             "icon": "waving_hand",
             "icon_size": 24,
@@ -3537,13 +3444,13 @@
             "dark_color": "#FF9EC0"
            },
            {
-            "id": "sig-150",
+            "id": "sig-144",
             "type": "column",
             "width": "fill",
             "gap": 2,
             "children": [
              {
-              "id": "sig-151",
+              "id": "sig-145",
               "type": "text",
               "text": "Ask Toota's team",
               "font": {
@@ -3563,7 +3470,7 @@
               }
              },
              {
-              "id": "sig-152",
+              "id": "sig-146",
               "type": "text",
               "text": "Sizes, gifts and deliveries: we answer every message.",
               "font": {
@@ -3585,7 +3492,7 @@
             ]
            },
            {
-            "id": "sig-153",
+            "id": "sig-147",
             "type": "icon",
             "icon": "chat",
             "icon_size": 20,
@@ -3638,7 +3545,7 @@
      "background": "#FFF6EC",
      "dark_background": "#1B1530",
      "body": {
-      "id": "sig-154",
+      "id": "sig-148",
       "type": "column",
       "padding": {
        "top": 0,
@@ -3648,7 +3555,7 @@
       },
       "children": [
        {
-        "id": "sig-155",
+        "id": "sig-149",
         "type": "size_finder",
         "name": "What size fits your child?",
         "text": "What size fits your child?",
@@ -3686,7 +3593,7 @@
         "dark_color": "#F6EEFF"
        },
        {
-        "id": "sig-156",
+        "id": "sig-150",
         "type": "size_chart",
         "name": "Sizes by age",
         "text": "Sizes by age",
@@ -3756,11 +3663,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-191",
+      "id": "sig-185",
       "type": "column",
       "children": [
        {
-        "id": "sig-198",
+        "id": "sig-192",
         "type": "row",
         "name": "Your parcel's journey",
         "cross": "center",
@@ -3773,7 +3680,7 @@
         },
         "children": [
          {
-          "id": "sig-199",
+          "id": "sig-193",
           "type": "text",
           "text": "Your parcel's journey",
           "font": {
@@ -3798,7 +3705,7 @@
         ]
        },
        {
-        "id": "sig-200",
+        "id": "sig-194",
         "type": "timeline",
         "name": "Your parcel's journey",
         "timeline": {
@@ -3922,7 +3829,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-192",
+      "id": "sig-186",
       "type": "column",
       "children": []
      },
@@ -3964,7 +3871,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-193",
+      "id": "sig-187",
       "type": "column",
       "children": []
      },
@@ -4006,7 +3913,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-194",
+      "id": "sig-188",
       "type": "column",
       "children": []
      },
@@ -4048,7 +3955,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-195",
+      "id": "sig-189",
       "type": "column",
       "children": []
      },
@@ -4082,7 +3989,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-196",
+      "id": "sig-190",
       "type": "column",
       "children": []
      },
@@ -4099,7 +4006,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-197",
+      "id": "sig-191",
       "type": "column",
       "children": []
      },

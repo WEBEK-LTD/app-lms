@@ -50,6 +50,8 @@ export const RUNWAY_INK: SignatureInk = {
 };
 const K = RUNWAY_INK;
 const FACE = "Reem Kufi";
+/** The face of everything that isn't display: names, prices, tabs, links, the bar (sturdier than Reem Kufi at small sizes; the project's Arabic font). */
+const UI = "Noto Kufi Arabic";
 const WHITE = "#FFFFFF";
 
 /** Lujain's photos (public/clothes-photos, CC0, credited in CREDITS.md). */
@@ -85,7 +87,7 @@ function underlined(ctx: SectionContext, word: SectionWord, action: Action, whit
     self_align: "start",
     action,
     children: [
-      { id: id(), type: "text", text: ctx.w(word), max_lines: 1, font: { family: FACE, size: 13, weight: 500, letter_spacing: 0.6 }, color: day, dark_color: night },
+      { id: id(), type: "text", text: ctx.w(word), max_lines: 1, font: { family: UI, size: 13, weight: 500, letter_spacing: 0.6 }, color: day, dark_color: night },
       { id: id(), type: "divider", height: 1, background: day, dark_background: night },
     ],
   };
@@ -103,7 +105,7 @@ function onPhotoLink(ctx: SectionContext, word: SectionWord): StudioNode {
     cross: "center",
     self_align: "start",
     action: shop,
-    children: [onPhoto(ctx, word, { family: FACE, size: 13.5, weight: 500, letter_spacing: 0.8 }, { max_lines: 1 }), { id: id(), type: "icon", icon: "arrow_forward", icon_size: 18, color: WHITE, dark_color: WHITE }],
+    children: [onPhoto(ctx, word, { family: UI, size: 13.5, weight: 500, letter_spacing: 0.8 }, { max_lines: 1 }), { id: id(), type: "icon", icon: "arrow_forward", icon_size: 18, color: WHITE, dark_color: WHITE }],
   };
 }
 
@@ -123,7 +125,7 @@ function headOf(ctx: SectionContext, title: SectionWord, link: { word: SectionWo
         type: "column",
         width: "fill",
         gap: 4,
-        children: [say(ctx, title, face(28, { weight: 300, line_height: 1.15 }), { max_lines: 2 }), ...(line ? [say(ctx, line, { family: FACE, size: 12.5 }, { muted: true, max_lines: 2 })] : [])],
+        children: [say(ctx, title, face(28, { weight: 300, line_height: 1.15 }), { max_lines: 2 }), ...(line ? [say(ctx, line, { family: UI, size: 12.5 }, { muted: true, max_lines: 2 })] : [])],
       },
       ...(link ? [underlined(ctx, link.word, link.action, false, true)] : []),
     ],
@@ -147,7 +149,7 @@ function look(ctx: SectionContext, photo: string, kicker: SectionWord, title: Se
     padding: sides(0, 24, 64, 24),
     action: shop,
     children: [
-      onPhoto(ctx, kicker, { family: FACE, size: 11, weight: 500, letter_spacing: 2.4, uppercase: true }, { opacity: 0.88, max_lines: 1 }),
+      onPhoto(ctx, kicker, { family: UI, size: 11, weight: 500, letter_spacing: 2.4, uppercase: true }, { opacity: 0.88, max_lines: 1 }),
       onPhoto(ctx, title, face(38, { weight: 400, line_height: 1.14 }), { max_lines: 3, margin: sides(10, 0, 14, 0) }),
       onPhotoLink(ctx, "rwyDiscoverLook"),
     ],
@@ -157,10 +159,10 @@ function look(ctx: SectionContext, photo: string, kicker: SectionWord, title: Se
 /** The season's looks, edge to edge under the header: one at a time, the progress line at their foot. */
 export function runwayLooks(ctx: SectionContext): StudioNode {
   const looks: [string, SectionWord, SectionWord][] = [
-    ["hero-green", "rwyLook1Kicker", "rwyLook1Title"],
-    ["abaya-road", "rwyLook2Kicker", "rwyLook2Title"],
-    ["cream-maxi", "rwyLook3Kicker", "rwyLook3Title"],
-    ["dark-coat", "rwyLook4Kicker", "rwyLook4Title"],
+    ["camel-dress", "rwyLook1Kicker", "rwyLook1Title"],
+    ["red-dress", "rwyLook2Kicker", "rwyLook2Title"],
+    ["olive-jacket", "rwyLook3Kicker", "rwyLook3Title"],
+    ["camel-jacket", "rwyLook4Kicker", "rwyLook4Title"],
   ];
   const first = sigPhoto(ctx, P(looks[0]![0]));
   return {
@@ -193,7 +195,7 @@ function categoryTabs(ctx: SectionContext): StudioNode {
     gap: 10,
     action: shop,
     children: [
-      { id: id(), type: "text", text: ctx.w(word), max_lines: 1, font: { family: FACE, size: 15, weight: on ? 600 : 400 }, color: on ? K.ink : K.muted, dark_color: on ? K.darkInk : K.darkMuted },
+      { id: id(), type: "text", text: ctx.w(word), max_lines: 1, font: { family: UI, size: 15, weight: on ? 700 : 500 }, color: on ? K.ink : K.muted, dark_color: on ? K.darkInk : K.darkMuted },
       { id: id(), type: "divider", height: 1.5, background: on ? K.accent : K.page, dark_background: on ? K.darkAccent : K.darkPage },
     ],
   });
@@ -226,7 +228,7 @@ function piece(ctx: SectionContext, width: number | "fill"): StudioNode {
         cross: "center",
         margin: sides(8, 0, 0, 0),
         children: [
-          { id: id(), type: "text", bind: "title", width: "fill", max_lines: 1, font: { family: FACE, size: 13, weight: 400 }, color: K.ink, dark_color: K.darkInk },
+          { id: id(), type: "text", bind: "title", width: "fill", max_lines: 1, font: { family: UI, size: 14, weight: 500 }, color: K.ink, dark_color: K.darkInk },
           { id: id(), type: "icon", icon: "favorite", icon_size: 18, color: K.ink, dark_color: K.darkInk },
         ],
       },
@@ -236,8 +238,8 @@ function piece(ctx: SectionContext, width: number | "fill"): StudioNode {
         gap: 6,
         cross: "center",
         children: [
-          { id: id(), type: "text", bind: "price", max_lines: 1, font: { family: FACE, size: 13, weight: 600 }, color: K.ink, dark_color: K.darkInk },
-          { id: id(), type: "text", bind: "was_price", max_lines: 1, font: { family: FACE, size: 11.5 }, color: K.muted, dark_color: K.darkMuted },
+          { id: id(), type: "text", bind: "price", max_lines: 1, font: { family: UI, size: 14, weight: 700 }, color: K.ink, dark_color: K.darkInk },
+          { id: id(), type: "text", bind: "was_price", max_lines: 1, font: { family: UI, size: 11.5 }, color: K.muted, dark_color: K.darkMuted },
         ],
       },
     ],
@@ -255,7 +257,7 @@ function editorQuote(ctx: SectionContext): StudioNode {
     id: idOf(ctx)(),
     type: "photo_hero",
     name: ctx.w("rwyEditorKicker"),
-    image_url: sigPhoto(ctx, P("walk-white")),
+    image_url: sigPhoto(ctx, P("velvet")),
     height: 440,
     radius: 0,
     background: "#141211",
@@ -265,7 +267,7 @@ function editorQuote(ctx: SectionContext): StudioNode {
     margin: sides(42, 0, 0, 0),
     action: shop,
     children: [
-      onPhoto(ctx, "rwyEditorKicker", { family: FACE, size: 11, weight: 500, letter_spacing: 2.4, uppercase: true }, { opacity: 0.88, max_lines: 1 }),
+      onPhoto(ctx, "rwyEditorKicker", { family: UI, size: 11, weight: 500, letter_spacing: 2.4, uppercase: true }, { opacity: 0.88, max_lines: 1 }),
       onPhoto(ctx, "rwyEditorQuote", face(24, { weight: 300, line_height: 1.35 }), { max_lines: 4, margin: sides(10, 0, 16, 0) }),
       onPhotoLink(ctx, "rwyEditorLink"),
     ],
@@ -274,7 +276,7 @@ function editorQuote(ctx: SectionContext): StudioNode {
 
 /** The most wanted, in a row of tall pieces. */
 function wanted(ctx: SectionContext): StudioNode {
-  return { id: idOf(ctx)(), type: "items", name: ctx.w("rwyWanted"), source: "products", layout: "carousel", gap: 12, padding: sides(0, 22, 0, 22), query: { limit: 8, category_id: null, featured: true, sort: "popular", ids: [] }, card: piece(ctx, 150) };
+  return { id: idOf(ctx)(), type: "items", name: ctx.w("rwyWanted"), source: "products", layout: "carousel", gap: 12, padding: sides(0, 22, 0, 22), query: { limit: 8, category_id: null, featured: false, sort: "price_desc", ids: [] }, card: piece(ctx, 150) };
 }
 
 /** The index: each main category a line of text with an arrow, hairlines between (each named as the demo's category, so it opens it). */
@@ -293,7 +295,7 @@ function categoryIndex(ctx: SectionContext): StudioNode {
         cross: "center",
         padding: sides(16, 0, 16, 0),
         children: [
-          { id: id(), type: "text", text: n, font: { family: FACE, size: 11, weight: 500, letter_spacing: 1.6 }, color: K.accent, dark_color: K.darkAccent },
+          { id: id(), type: "text", text: n, font: { family: UI, size: 11, weight: 500, letter_spacing: 1.6 }, color: K.accent, dark_color: K.darkAccent },
           say(ctx, word, face(20, { weight: 300 }), { width: "fill", max_lines: 1 }),
           { id: id(), type: "icon", icon: "arrow_forward", icon_size: 20, color: K.ink, dark_color: K.darkInk },
         ],
@@ -340,7 +342,7 @@ function fitLine(ctx: SectionContext): StudioNode {
         width: "fill",
         gap: 6,
         padding: sides(0, 18, 0, 0),
-        children: [say(ctx, "rwyFit", face(19, { weight: 400 })), say(ctx, "rwyFitLine", { family: FACE, size: 12.5, line_height: 1.5 }, { muted: true, max_lines: 3 }), { ...underlined(ctx, "rwyFitLink", ownPage(ctx, RUNWAY_SIZE_PAGE)), margin: sides(6, 0, 0, 0) }],
+        children: [say(ctx, "rwyFit", face(19, { weight: 400 })), say(ctx, "rwyFitLine", { family: UI, size: 12.5, line_height: 1.5 }, { muted: true, max_lines: 3 }), { ...underlined(ctx, "rwyFitLink", ownPage(ctx, RUNWAY_SIZE_PAGE)), margin: sides(6, 0, 0, 0) }],
       },
     ],
   };
@@ -406,7 +408,7 @@ function menuLine(ctx: SectionContext, word: SectionWord, icon: string, action: 
         padding: sides(15, 0, 15, 0),
         children: [
           { id: id(), type: "icon", icon, icon_size: 22, color: K.ink, dark_color: K.darkInk },
-          { id: id(), type: "column", width: "fill", gap: 3, children: [say(ctx, word, { family: FACE, size: 15, weight: 500 }, { max_lines: 1 }), ...(line ? [say(ctx, line, { family: FACE, size: 12 }, { muted: true, max_lines: 2 })] : [])] },
+          { id: id(), type: "column", width: "fill", gap: 3, children: [say(ctx, word, { family: UI, size: 15, weight: 500 }, { max_lines: 1 }), ...(line ? [say(ctx, line, { family: UI, size: 12 }, { muted: true, max_lines: 2 })] : [])] },
           { id: id(), type: "icon", icon: "arrow_forward", icon_size: 18, color: K.muted, dark_color: K.darkMuted },
         ],
       },
@@ -484,7 +486,7 @@ export function runwaySizePage(ctx: SectionContext): StudioPage {
       type: "column",
       padding: sides(0, 0, 36, 0),
       children: [
-        { ...say(ctx, "rwyFitLine", { family: FACE, size: 14, line_height: 1.6 }, { muted: true }), padding: sides(16, 22, 6, 22) },
+        { ...say(ctx, "rwyFitLine", { family: UI, size: 14, line_height: 1.6 }, { muted: true }), padding: sides(16, 22, 6, 22) },
         { id: id(), type: "size_chart", name: ctx.w("rwySizeChart"), text: ctx.w("rwySizeChart"), color: K.ink, dark_color: K.darkInk, background: K.page, dark_background: K.darkPage, border_color: K.ink, dark_border_color: K.darkInk, border_width: 1, radius: 0, padding: sides(14, 14, 14, 14), margin: sides(12, 22, 4, 22) },
         headOf(ctx, "rwyMeasure", null),
         { id: id(), type: "timeline", name: ctx.w("rwyMeasure"), timeline: { style: "vertical" }, color: K.ink, dark_color: K.darkInk, background: K.page, dark_background: K.darkPage, padding: sides(0, 22, 0, 22), entries: [step("rwyBust", "rwyBustText"), step("rwyWaist", "rwyWaistText"), step("rwyHips", "rwyHipsText")] },
@@ -497,7 +499,7 @@ export function runwaySizePage(ctx: SectionContext): StudioPage {
 function shopTop(ctx: SectionContext): StudioNode[] {
   const id = idOf(ctx);
   return [
-    { ...say(ctx, "rwyCollectionLine", { family: FACE, size: 13 }, { muted: true, max_lines: 2 }), padding: sides(14, 22, 0, 22) },
+    { ...say(ctx, "rwyCollectionLine", { family: UI, size: 13 }, { muted: true, max_lines: 2 }), padding: sides(14, 22, 0, 22) },
     categoryTabs(ctx),
     { id: id(), type: "listing_filters", name: ctx.w("rwySizeChart"), color: K.ink, dark_color: K.darkInk, padding: sides(10, 22, 6, 22) },
   ];
@@ -518,7 +520,7 @@ function cartTop(ctx: SectionContext): StudioNode[] {
       border_color: K.line,
       dark_border_color: K.darkLine,
       border_width: 1,
-      children: [{ id: id(), type: "icon", icon: "sync", icon_size: 20, color: K.accent, dark_color: K.darkAccent, margin: sides(0, 0, 0, 14) }, say(ctx, "rwyReturns", { family: FACE, size: 13, line_height: 1.45 }, { width: "fill", max_lines: 3, padding: sides(0, 14, 0, 0) })],
+      children: [{ id: id(), type: "icon", icon: "sync", icon_size: 20, color: K.accent, dark_color: K.darkAccent, margin: sides(0, 0, 0, 14) }, say(ctx, "rwyReturns", { family: UI, size: 13, line_height: 1.45 }, { width: "fill", max_lines: 3, padding: sides(0, 14, 0, 0) })],
     },
     headOf(ctx, "rwyFinish", null),
     { id: id(), type: "items", name: ctx.w("rwyFinish"), source: "products", layout: "carousel", gap: 10, padding: sides(0, 22, 6, 22), query: { limit: 6, category_id: null, featured: false, sort: "popular", ids: [] }, card: piece(ctx, 112) },
@@ -575,11 +577,11 @@ export function runwayTabs(tabs: readonly LayoutTab[]): LayoutTab[] {
 }
 
 /** The minimal bar: across the foot on the page's ivory, icons with their words, the open one in ink; no pill. */
-export const RUNWAY_BAR = signatureBar(K, { design: "minimal", background: K.page, dark_background: K.darkPage, active: K.ink, dark_active: K.darkInk, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always", font: FACE });
+export const RUNWAY_BAR = signatureBar(K, { design: "minimal", background: K.page, dark_background: K.darkPage, active: K.ink, dark_active: K.darkInk, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always", font: UI });
 
 const RUNWAY_SCREENS = signatureScreens({
   style: "photo",
-  photo: P("hero-green"),
+  photo: P("camel-dress"),
   title: { en: "Welcome to the runway", ar: "أهلًا بكِ على المنصّة", tr: "Podyuma hoş geldiniz" },
   subtitle: { en: "Sign in to keep your looks, your sizes and your orders.", ar: "سجّلي الدخول لتحتفظي بإطلالاتكِ ومقاساتكِ وطلباتكِ.", tr: "Görünümlerinizi, bedenlerinizi ve siparişlerinizi saklamak için giriş yapın." },
   menu: "cover",
@@ -603,7 +605,7 @@ export const RUNWAY_C: SignatureDesign = {
   isNew: true,
   project: {
     primary: K.fill,
-    appearance: { secondary_color: K.accent, font: "DM Sans", font_family: FACE, arabic_font: FACE, dark_background: K.darkPage, dark_surface: K.darkSurface },
+    appearance: { secondary_color: K.accent, font: "DM Sans", font_family: FACE, arabic_font: UI, dark_background: K.darkPage, dark_surface: K.darkSurface },
     screens: RUNWAY_SCREENS,
   },
 };

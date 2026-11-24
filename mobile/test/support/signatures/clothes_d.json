@@ -626,7 +626,7 @@
              {
               "id": "sig-26",
               "type": "image",
-              "image_url": "http://localhost:3000/clothes-photos/lace-top.jpg",
+              "image_url": "http://localhost:3000/clothes-photos/top-black.jpg",
               "fit": "cover",
               "name": "Tops & knitwear",
               "width": 78,
@@ -644,7 +644,7 @@
              {
               "id": "sig-27",
               "type": "image",
-              "image_url": "http://localhost:3000/clothes-photos/black-top.jpg",
+              "image_url": "http://localhost:3000/clothes-photos/top-cream.jpg",
               "fit": "cover",
               "name": "Tops & knitwear",
               "width": 116,
@@ -665,7 +665,7 @@
              {
               "id": "sig-28",
               "type": "image",
-              "image_url": "http://localhost:3000/clothes-photos/turtleneck.jpg",
+              "image_url": "http://localhost:3000/clothes-photos/top-knit.jpg",
               "fit": "cover",
               "name": "Tops & knitwear",
               "width": 78,
@@ -683,7 +683,7 @@
              {
               "id": "sig-29",
               "type": "image",
-              "image_url": "http://localhost:3000/clothes-photos/flannel.jpg",
+              "image_url": "http://localhost:3000/clothes-photos/top-plaid.jpg",
               "fit": "cover",
               "name": "Tops & knitwear",
               "width": 78,
@@ -786,7 +786,7 @@
              {
               "id": "sig-35",
               "type": "image",
-              "image_url": "http://localhost:3000/clothes-photos/fence-jeans.jpg",
+              "image_url": "http://localhost:3000/clothes-photos/bottom-jeans.jpg",
               "fit": "cover",
               "name": "Denim",
               "width": 116,
@@ -807,7 +807,7 @@
              {
               "id": "sig-36",
               "type": "image",
-              "image_url": "http://localhost:3000/clothes-photos/red-skirt.jpg",
+              "image_url": "http://localhost:3000/clothes-photos/bottom-skirt.jpg",
               "fit": "cover",
               "name": "Denim",
               "width": 78,
@@ -825,7 +825,7 @@
              {
               "id": "sig-37",
               "type": "image",
-              "image_url": "http://localhost:3000/clothes-photos/rust-2.jpg",
+              "image_url": "http://localhost:3000/clothes-photos/bottom-velvet.jpg",
               "fit": "cover",
               "name": "Denim",
               "width": 78,

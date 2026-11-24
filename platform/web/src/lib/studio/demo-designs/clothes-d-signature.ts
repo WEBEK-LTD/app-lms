@@ -178,8 +178,8 @@ export function outfitBuilder(ctx: SectionContext): StudioNode {
         padding: sides(0, 18, 0, 18),
         children: [{ id: id(), type: "column", width: "fill", gap: 3, children: [say(ctx, "obdBuild", face(21)), say(ctx, "obdBuildLine", { family: FACE, size: 12.5 }, { muted: true, max_lines: 2 })] }, { ...disc(ctx, "sync", shop, 42, true), name: ctx.w("obdShuffle") }],
       },
-      lane(ctx, "obdTop", "obdTops", ["lace-top", "black-top", "turtleneck", "flannel"]),
-      lane(ctx, "obdBottom", "obdDenim", ["denim", "fence-jeans", "red-skirt", "rust-2"]),
+      lane(ctx, "obdTop", "obdTops", ["top-black", "top-cream", "top-knit", "top-plaid"]),
+      lane(ctx, "obdBottom", "obdDenim", ["denim", "bottom-jeans", "bottom-skirt", "bottom-velvet"]),
       lane(ctx, "obdFeet", "obdShoes", ["nude-heels", "black-heels", "sneak-white", "red-pumps"]),
       { id: id(), type: "divider", height: 1, background: K.line, dark_background: K.darkLine, margin: sides(16, 18, 14, 18) },
       {
