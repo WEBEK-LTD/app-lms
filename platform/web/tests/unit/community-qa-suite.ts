@@ -214,10 +214,10 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       const personal = await answer(TEAM, question.id, "And from me personally: try it on a test app first.", later(32), false);
       expect(personal.official).toBe(false);
       expect(notices.map((n) => [n.to, n.kind, n.link])).toEqual([
-        ["karim", "answer_posted", `/questions/${question.slug}#a${nour.id}`],
+        ["karim", "answer", `/questions/${question.slug}#a${nour.id}`],
         ["karim", "official_answer", `/questions/${question.slug}#a${team.id}`],
-        ["karim", "answer_posted", `/questions/${question.slug}#a${omar.id}`],
-        ["karim", "answer_posted", `/questions/${question.slug}#a${personal.id}`],
+        ["karim", "answer", `/questions/${question.slug}#a${omar.id}`],
+        ["karim", "answer", `/questions/${question.slug}#a${personal.id}`],
       ]);
       expect((await getQuestion(question.id, { viewerId: null, lang: "en" })).hasOfficialAnswer).toBe(true);
       // Votes: never one's own; changed and taken back; the author's points follow.
@@ -229,7 +229,7 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       expect(await vote("karim", { kind: "answer", id: omar.id, value: 0 })).toEqual({ score: 1, myVote: 0 });
       expect((await memberStats("omar")).points).toBe(5);
       // Told at the first upvote, not each time.
-      expect(notices.map((n) => [n.to, n.kind, n.count])).toEqual([["omar", "answer_voted", 1]]);
+      expect(notices.map((n) => [n.to, n.kind, n.count])).toEqual([["omar", "vote_milestone", 1]]);
       let detail = await getQuestion(question.id, { viewerId: "karim", lang: "en" });
       expect(detail.answers.map((a) => a.id)).toEqual([team.id, omar.id, nour.id, personal.id]);
       // Only the asker accepts; the answerer earns 25 and is told.
@@ -252,7 +252,7 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       expect((await acceptAnswer("karim", omar.id, false, "en")).accepted).toBe(false);
       // Replies under an answer; its author told; the newest three come with the question, all of them a page at a time.
       for (let i = 1; i <= 4; i++) await replyToAnswer(i % 2 ? "karim" : "nour", team.id, { body: `Reply ${i}`, lang: "en" }, later(60 + i));
-      expect(notices.filter((n) => n.kind === "reply_posted").map((n) => n.to)).toEqual([TEAM, TEAM, TEAM, TEAM]);
+      expect(notices.filter((n) => n.kind === "reply").map((n) => n.to)).toEqual([TEAM, TEAM, TEAM, TEAM]);
       detail = await getQuestion(question.id, { viewerId: "karim", lang: "en" });
       expect(detail.answers.find((a) => a.id === team.id)).toMatchObject({ replyCount: 4, replies: [{ body: "Reply 2" }, { body: "Reply 3", canEdit: true }, { body: "Reply 4", canEdit: false }] });
       const firstPage = await listReplies(team.id, { viewerId: null, limit: 3 });
@@ -273,7 +273,7 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       expect(notices).toEqual([]);
       expect((await getQuestion(question.id, { viewerId: "karim", lang: "en" })).answers).toEqual([]);
       await setContentStatus("answer", held.id, "published");
-      expect(notices).toMatchObject([{ to: "karim", kind: "answer_posted" }]);
+      expect(notices).toMatchObject([{ to: "karim", kind: "answer" }]);
       expect((await getQuestion(question.id, { viewerId: null, lang: "en" })).answerCount).toBe(1);
       await getQuestion(question.slug, { viewerId: null, lang: "en", countView: true });
       await getQuestion(question.slug, { viewerId: null, lang: "en", countView: true });

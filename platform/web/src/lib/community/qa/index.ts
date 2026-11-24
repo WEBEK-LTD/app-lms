@@ -41,6 +41,7 @@ export {
   qaStats,
   activeMembers,
   memberStats,
+  recentTexts,
   pointsOf,
   listTutorials,
   getTutorial,

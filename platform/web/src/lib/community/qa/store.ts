@@ -170,6 +170,8 @@ export interface QaStore {
   /** Oldest first. */
   listAnswers(questionIds: readonly string[], filter?: { statuses?: readonly ContentStatus[]; orAuthorId?: string | null }): Promise<AnswerRecord[]>;
   countAnswers(filter: { authorId: string; statuses?: readonly ContentStatus[]; accepted?: boolean }): Promise<number>;
+  /** A member's last answers, newest first, whatever their status. */
+  answersBy(authorId: string, limit: number): Promise<AnswerRecord[]>;
   createReply(r: ReplyRecord): Promise<ReplyRecord>;
   getReply(id: string): Promise<ReplyRecord | null>;
   updateReply(id: string, patch: Partial<Omit<ReplyRecord, "id">>): Promise<void>;

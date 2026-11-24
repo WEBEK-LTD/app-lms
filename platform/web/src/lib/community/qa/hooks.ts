@@ -10,7 +10,8 @@ import type { MemberSummary } from "./types";
  */
 
 export type ModeratedKind = "question" | "answer" | "reply" | "tutorial";
-export type QaNoticeKind = "answer_posted" | "answer_accepted" | "official_answer" | "reply_posted" | "question_voted" | "answer_voted";
+/** Area C's notice kinds the Q&A sends: an answer (to the asker), an official one, an accepted one, a reply (to the answer's author), a vote milestone (1, 10, 50, 100 upvotes). */
+export type QaNoticeKind = "answer" | "answer_accepted" | "official_answer" | "reply" | "vote_milestone";
 
 export interface QaHooks {
   /** The members with these ids as shown beside a post; missing ids are shown as deleted. */
@@ -28,7 +29,7 @@ export interface QaHooks {
    */
   moderate(input: { memberId: string; kind: ModeratedKind; contentId: string; text: string }): Promise<"published" | "pending">;
   /** Tells a member (the list in the app and email): area C's notify. Never about their own doing. */
-  notify(input: { memberId: string; kind: QaNoticeKind; actorId: string | null; data: { actor?: string; title?: string; count?: number }; link: string }): Promise<void>;
+  notify(input: { memberId: string; kind: QaNoticeKind; actorId: string | null; targetType: "question" | "answer" | "reply"; targetId: string; data: { actor?: string; title?: string; count?: number }; link: string }): Promise<void>;
 }
 
 const DEFAULTS: QaHooks = {

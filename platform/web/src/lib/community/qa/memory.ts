@@ -164,6 +164,13 @@ export class MemoryQaStore implements QaStore {
     const accepted = new Set([...this.questions.values()].map((q) => q.acceptedAnswerId).filter(Boolean));
     return [...this.answers.values()].filter((a) => a.authorId === filter.authorId && (!filter.statuses || filter.statuses.includes(a.status)) && (filter.accepted === undefined || accepted.has(a.id) === filter.accepted)).length;
   }
+  async answersBy(authorId: string, limit: number) {
+    return [...this.answers.values()]
+      .filter((a) => a.authorId === authorId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit)
+      .map((a) => structuredClone(a));
+  }
   async createReply(r: ReplyRecord) {
     this.replies.set(r.id, structuredClone(r));
     return structuredClone(r);

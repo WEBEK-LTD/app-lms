@@ -310,6 +310,11 @@ export class MysqlQaStore implements QaStore {
     return Number(row?.n ?? 0);
   }
 
+  async answersBy(authorId: string, limit: number): Promise<AnswerRecord[]> {
+    const rows = await this.db.select().from(communityAnswers).where(eq(communityAnswers.authorId, authorId)).orderBy(desc(communityAnswers.createdAt), desc(communityAnswers.id)).limit(limit);
+    return rows.map((r) => this.answer(r));
+  }
+
   async createReply(r: ReplyRecord): Promise<ReplyRecord> {
     await this.db.insert(communityReplies).values({ ...r });
     return { ...r };

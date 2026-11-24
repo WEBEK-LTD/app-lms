@@ -438,7 +438,7 @@ async function publishAnswer(a: AnswerRecord, q: QuestionRecord, now: Date): Pro
   await qaStore().addAnswerCount(q.id, 1, now);
   if (a.authorId !== q.authorId) {
     const actor = (await membersOf([a.authorId]))[a.authorId]!;
-    await qaHooks().notify({ memberId: q.authorId, kind: a.official ? "official_answer" : "answer_posted", actorId: a.authorId, data: { actor: actor.displayName, title: q.title }, link: answerLink(q, a.id) });
+    await qaHooks().notify({ memberId: q.authorId, kind: a.official ? "official_answer" : "answer", actorId: a.authorId, targetType: "answer", targetId: a.id, data: { actor: actor.displayName, title: q.title }, link: answerLink(q, a.id) });
   }
 }
 
@@ -495,7 +495,7 @@ async function publishReply(r: ReplyRecord, a: AnswerRecord, q: QuestionRecord, 
   await qaStore().updateQuestion(q.id, { lastActivityAt: now });
   if (r.authorId !== a.authorId) {
     const actor = (await membersOf([r.authorId]))[r.authorId]!;
-    await qaHooks().notify({ memberId: a.authorId, kind: "reply_posted", actorId: r.authorId, data: { actor: actor.displayName, title: q.title }, link: answerLink(q, a.id) });
+    await qaHooks().notify({ memberId: a.authorId, kind: "reply", actorId: r.authorId, targetType: "reply", targetId: r.id, data: { actor: actor.displayName, title: q.title }, link: answerLink(q, a.id) });
   }
 }
 
@@ -537,7 +537,7 @@ export async function vote(viewerId: string | null, input: { kind: VoteKind; id:
   }
   if (input.value === 1 && score > target.score && (VOTE_MILESTONES as readonly number[]).includes(score)) {
     const q = input.kind === "question" ? (target as QuestionRecord) : await qaStore().getQuestion((target as AnswerRecord).questionId);
-    if (q) await qaHooks().notify({ memberId: target.authorId, kind: input.kind === "question" ? "question_voted" : "answer_voted", actorId: member, data: { title: q.title, count: score }, link: input.kind === "question" ? questionLink(q) : answerLink(q, target.id) });
+    if (q) await qaHooks().notify({ memberId: target.authorId, kind: "vote_milestone", actorId: member, targetType: input.kind, targetId: target.id, data: { title: q.title, count: score }, link: input.kind === "question" ? questionLink(q) : answerLink(q, target.id) });
   }
   return { score, myVote: input.value };
 }
@@ -567,7 +567,7 @@ export async function acceptAnswer(viewerId: string | null, answerId: string, on
       await qaStore().addPoints({ id: randomUUID(), memberId: a.authorId, reason: "answer_accepted", points: POINTS.answer_accepted, ref: a.id, createdAt: now });
       await qaStore().addPoints({ id: randomUUID(), memberId: member, reason: "accepted_an_answer", points: POINTS.accepted_an_answer, ref: q.id, createdAt: now });
       const actor = (await membersOf([member]))[member]!;
-      await qaHooks().notify({ memberId: a.authorId, kind: "answer_accepted", actorId: member, data: { actor: actor.displayName, title: q.title, count: POINTS.answer_accepted }, link: answerLink(q, a.id) });
+      await qaHooks().notify({ memberId: a.authorId, kind: "answer_accepted", actorId: member, targetType: "answer", targetId: a.id, data: { actor: actor.displayName, title: q.title, count: POINTS.answer_accepted }, link: answerLink(q, a.id) });
     }
   }
   return getQuestion(q.id, { viewerId: member, lang });
@@ -765,6 +765,18 @@ export async function memberStats(memberId: string): Promise<MemberQaStats> {
     qaStore().lastActivityOf(memberId),
   ]);
   return { points: points[memberId] ?? 0, questions, answers, acceptedAnswers: accepted, approvedTutorials: tutorials, lastActiveAt: last?.toISOString() ?? null };
+}
+
+/** A member's last few posts' texts, newest first: area C's duplicate-post check. */
+export async function recentTexts(memberId: string, limit = 5): Promise<string[]> {
+  const [qs, as] = await Promise.all([
+    qaStore().listQuestions({ authorIds: [memberId] }, "newest", { offset: 0, limit }),
+    qaStore().countAnswers({ authorId: memberId }).then(async (n) => (n ? qaStore().answersBy(memberId, limit) : [])),
+  ]);
+  return [...qs.map((q) => ({ at: q.createdAt, text: `${q.title}\n${q.body}` })), ...as.map((a) => ({ at: a.createdAt, text: a.body }))]
+    .sort((a, b) => b.at.getTime() - a.at.getTime())
+    .slice(0, limit)
+    .map((x) => x.text);
 }
 
 /** The points of several members at once (their rank beside their name). */
