@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { E2E } from "../../playwright.config";
 import { all, API, as, heldItem, join as joinWith, joinAsAdmin, json, type Json, type Member } from "./community-helpers";
 
 /**
@@ -10,13 +11,13 @@ import { all, API, as, heldItem, join as joinWith, joinAsAdmin, json, type Json,
  * admin granting Blue by hand with a reason, shown as the member's badge,
  * then revoking it, both in the audit log (C); a report reaching the admins'
  * list (A, C); and the notifications of all of it (C), also in Arabic and
- * Turkish.
- *
- * The admin is made in the database: no API gives a member the admin role.
+ * Turkish. Also the spam filter (a post with too many links held, an
+ * edit into one held again) and a removed post staying hidden. The admin
+ * is a member linked to one of the e2e's Yallapp super admins
+ * (lib/community/staff.ts), on a fresh database.
  */
 test.describe.configure({ mode: "serial" });
 test.use({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.232" } });
-test.skip(!process.env.E2E_DATABASE_URL, "needs E2E_DATABASE_URL (a MySQL or MariaDB database)");
 
 const suffix = Date.now().toString(36);
 
@@ -29,12 +30,11 @@ let admin: Member;
 let question: Json;
 let answer: Json;
 
-test("joining, the profile, following and friends", async ({ request }) => {
+test("joining, the profile, following and friends", async ({ browser, request }) => {
   karim = await join(request, "Karim");
   nour = await join(request, "Nour");
   omar = await join(request, "Omar");
-  admin = (await joinAsAdmin(request, suffix))!;
-  expect(((await json(request.get(`${API}/me`, as(admin)))) as Json).role).toBe("admin");
+  admin = await joinAsAdmin(browser, request, suffix, E2E.communityJourneyAdminEmail);
 
   const me = await json(request.patch(`${API}/me`, { ...as(karim), data: { headline: "Building a store app", bio: "I sell handmade bags." } }));
   expect(me).toMatchObject({ headline: "Building a store app", bio: "I sell handmade bags." });
@@ -87,6 +87,30 @@ test("another member answers, the asker accepts, and the points reach the profil
   expect(profile.points - before).toBe(25);
   expect(profile.counts).toMatchObject({ answers: 1, accepted_answers: 1 });
   expect((await json(request.get(`${API}/members/${karim.id}`))).counts.questions).toBe(1);
+});
+
+const SPAM = "Get it here: https://a.example/1 https://b.example/2 https://c.example/3 https://d.example/4";
+
+test("the spam filter holds a post with too many links; removed, it stays hidden and its author is told", async ({ request }) => {
+  const spam = await json(request.post(`${API}/qa/questions`, { ...as(omar), data: { title: `Cheap app installs for your store ${suffix}`, body: SPAM, section: "general" } }), 201);
+  expect(spam.status).toBe("pending");
+  const item = await heldItem(request, admin, spam.id);
+  expect(item).toMatchObject({ target_type: "question", cause: "spam_filter", author: { id: omar.id } });
+  await json(request.post(`${API}/admin/moderation/${item!.id}`, { ...as(admin), data: { decision: "remove", note: "Spam links" } }));
+  expect((await request.get(`${API}/qa/questions/${spam.id}`)).status()).toBe(404);
+  expect((await request.get(`${API}/qa/questions/${spam.id}`, as(omar))).status()).toBe(404);
+  expect((await json(request.get(`${API}/search?q=${encodeURIComponent(`cheap installs ${suffix}`)}`))).questions.map((q: Json) => q.id)).not.toContain(spam.id);
+  expect((await all(request, `${API}/notifications`, omar)).map((n) => n.kind)).toContain("post_removed");
+});
+
+test("an edit of a published question into spam is held again until approved", async ({ request }) => {
+  const edited = await json(request.patch(`${API}/qa/questions/${question.id}`, { ...as(karim), data: { body: SPAM } }));
+  expect(edited.status).toBe("pending");
+  expect((await request.get(`${API}/qa/questions/${question.id}`)).status()).toBe(404);
+  const item = await heldItem(request, admin, question.id);
+  expect(item).toMatchObject({ cause: "spam_filter" });
+  await json(request.post(`${API}/admin/moderation/${item!.id}`, { ...as(admin), data: { decision: "approve" } }));
+  expect((await json(request.get(`${API}/qa/questions/${question.id}?view=0`))).status).toBe("published");
 });
 
 test("an admin grants Blue with a reason, it shows as the badge, the admin revokes it; both are in the audit log", async ({ request }) => {
