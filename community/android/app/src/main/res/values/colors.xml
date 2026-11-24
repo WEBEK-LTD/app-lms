@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 231 The opening's first frame (design/opening.html): its navy (the
+         frame's average) and the orange dot, the same day and night, so the
+         Flutter opening takes over with no flash. -->
+    <color name="launch_background">#19122F</color>
+    <color name="community_orange">#FF5A1F</color>
+</resources>

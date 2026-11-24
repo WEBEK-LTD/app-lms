@@ -212,6 +212,17 @@ class AppLocalizationsTr extends AppLocalizations {
   String get homeJoin => 'Hemen katıl';
 
   @override
+  String get homeStartTutorial => 'Derse başla';
+
+  @override
+  String homeAnswers(int count) {
+    return '$count yanıt';
+  }
+
+  @override
+  String get homeTeam => 'Yallapp Ekibi';
+
+  @override
   String get homeDays => 'gün';
 
   @override

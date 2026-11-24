@@ -24,6 +24,16 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- 231 Back from linking a Yallapp account in the browser
+                 (yallappcommunity://linked): the app opens, nothing more. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="yallappcommunity" android:host="linked"/>
+            </intent-filter>
+            <!-- The link opens the app; it is not a route. -->
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="false"/>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

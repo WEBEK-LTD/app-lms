@@ -122,6 +122,7 @@ class MemberRow extends ConsumerWidget {
             name: member.name,
             url: member.avatarUrl,
             size: 42,
+            team: member.team,
           ),
           title: Row(
             children: [

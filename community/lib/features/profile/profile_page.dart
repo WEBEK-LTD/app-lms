@@ -143,6 +143,7 @@ class _ProfileView extends ConsumerWidget {
                         )
                       : Avatar(
                           id: m.id,
+                          team: m.team,
                           name: m.name,
                           url: m.avatarUrl,
                           size: 92,
@@ -411,9 +412,21 @@ Future<void> _run(BuildContext context, Future<void> Function() call) async {
 /// Starts linking a Yallapp account: the page where the member confirms it.
 Future<void> linkYallapp(BuildContext context, WidgetRef ref) async {
   final messenger = ScaffoldMessenger.of(context);
+  // The app's container, not this page's ref: the page may be gone when
+  // the browser comes back.
+  final container = ProviderScope.containerOf(context, listen: false);
   final l = context.l10n;
   try {
     final page = await ref.read(communityApiProvider).startYallappLink();
+    // The browser comes back (yallappcommunity://linked): then the
+    // profile shows the account and its apps.
+    late final AppLifecycleListener back;
+    back = AppLifecycleListener(
+      onResume: () {
+        back.dispose();
+        container.read(sessionProvider.notifier).refresh().ignore();
+      },
+    );
     await ref.read(openExternalProvider)(page);
     messenger.showSnackBar(SnackBar(content: Text(l.profileLinkOpened)));
   } on ApiException catch (e) {

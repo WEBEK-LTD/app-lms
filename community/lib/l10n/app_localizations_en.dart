@@ -212,6 +212,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeJoin => 'Join now';
 
   @override
+  String get homeStartTutorial => 'Start tutorial';
+
+  @override
+  String homeAnswers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count answers',
+      one: '1 answer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeTeam => 'Yallapp Team';
+
+  @override
   String get homeDays => 'days';
 
   @override

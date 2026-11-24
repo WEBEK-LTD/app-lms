@@ -65,6 +65,16 @@
   "homeEvening": "Good evening 🌙",
   "homeRead": "Read",
   "homeJoin": "Join now",
+  "homeStartTutorial": "Start tutorial",
+  "homeAnswers": "{count, plural, =1{1 answer} other{{count} answers}}",
+  "@homeAnswers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeTeam": "Yallapp Team",
   "homeDays": "days",
   "homeHours": "hrs",
   "homeMinutes": "min",

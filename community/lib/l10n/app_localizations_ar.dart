@@ -211,6 +211,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeJoin => 'انضم الآن';
 
   @override
+  String get homeStartTutorial => 'ابدأ الدرس';
+
+  @override
+  String homeAnswers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count إجابة',
+      many: '$count إجابة',
+      few: '$count إجابات',
+      two: 'إجابتان',
+      one: 'إجابة واحدة',
+      zero: 'لا إجابات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeTeam => 'فريق Yallapp';
+
+  @override
   String get homeDays => 'أيام';
 
   @override

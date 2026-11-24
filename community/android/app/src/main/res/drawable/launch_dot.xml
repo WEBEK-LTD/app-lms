@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 231 Android 12's splash icon: the opening's dot, 22dp in its 240dp box. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <path
+        android:fillColor="@color/community_orange"
+        android:pathData="M120,109a11,11 0,1 1,0 22a11,11 0,1 1,0 -22z" />
+</vector>

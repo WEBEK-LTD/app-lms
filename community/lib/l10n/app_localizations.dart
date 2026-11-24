@@ -490,6 +490,24 @@ abstract class AppLocalizations {
   /// **'Join now'**
   String get homeJoin;
 
+  /// No description provided for @homeStartTutorial.
+  ///
+  /// In en, this message translates to:
+  /// **'Start tutorial'**
+  String get homeStartTutorial;
+
+  /// No description provided for @homeAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 answer} other{{count} answers}}'**
+  String homeAnswers(int count);
+
+  /// No description provided for @homeTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Yallapp Team'**
+  String get homeTeam;
+
   /// No description provided for @homeDays.
   ///
   /// In en, this message translates to:
