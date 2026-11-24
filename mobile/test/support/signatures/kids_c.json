@@ -199,7 +199,7 @@
       "title": "Toota",
       "translations": {
        "ar": {
-        "title": "Toota"
+        "title": "توتة"
        },
        "tr": {
         "title": "Toota"
@@ -1459,7 +1459,7 @@
           "max_lines": 2,
           "translations": {
            "ar": {
-            "text": "عوالم Toota"
+            "text": "عوالم توتة"
            },
            "tr": {
             "text": "Toota dünyaları"
@@ -3462,7 +3462,7 @@
               "dark_color": "#F6EEFF",
               "translations": {
                "ar": {
-                "text": "اسأل فريق Toota"
+                "text": "اسأل فريق توتة"
                },
                "tr": {
                 "text": "Toota ekibine sorun"

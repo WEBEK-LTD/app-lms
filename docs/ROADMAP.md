@@ -4915,6 +4915,7 @@ The owner (23 November 2026) found that the ten shop types' templates A and B (#
 | [ ] | 223.10 RUNWAY's lookbook and its product cards on editorial, campaign-grade CC0 photos (studio or clean location, one styling): stocksnap.io is not reachable from the session that built it, so its slides use the cleanest studio and wall shots of the demo's set for now | — |
 | [ ] | 223.7 Runway's looks slide sideways: Studio's slider has no vertical direction, and one would need a new element in the app (the owner decides) | — |
 | [x] | 223.11 Lujain's and Toota's products named in Arabic and Turkish, by SKU (`lib/demo/product-names.ts`, the kits' `productNames`, 224.8): the Arabic store shows them in Arabic | phase223-clothes-kids.test.ts |
+| [x] | 223.12 The demos' names in Arabic letters in the Arabic app: لُجين and توتة in every look's wordmark (and the story world's "worlds" and team line, the nursery's title), through the demo's words (`DEMO_FACTS`), as Rukn's and Sakan's | phase223-clothes-kids.test.ts, signature-looks.test.ts |
 
 ## Phase 224: Cosmetics and crochet, templates C and D
 

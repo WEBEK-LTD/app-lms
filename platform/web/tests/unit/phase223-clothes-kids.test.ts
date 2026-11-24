@@ -15,6 +15,7 @@ import type { SectionContext } from "@/lib/studio/sections";
 import { allNodes } from "@/lib/studio/tree";
 import { lookColour } from "@/lib/demo/picker";
 import { DEMO_BRANDS } from "@/lib/demo/content";
+import { withDemoFacts } from "@/lib/studio/demo-templates";
 import { readFileSync as readSource } from "node:fs";
 
 /**
@@ -201,5 +202,23 @@ describe("223 Lujain's and Toota's templates C and D", () => {
     expect(page).toContain("swatchesFor(colour)");
     expect(page).not.toContain("swatchesFor(brand.primaryColor)");
     expect(readSource(join(ROOT, "src", "app", "actions", "start.ts"), "utf8")).toContain("lookColour(demo, look)");
+  });
+
+  it("names the demo in Arabic in its Arabic header: لُجين and توتة, every look", () => {
+    const arabic: Record<string, string> = { Lujain: "لُجين", Toota: "توتة" };
+    for (const [demo, look, name] of [...LOOKS, [CLOTHES_DEMO, "a", "Lujain"], [CLOTHES_DEMO, "b", "Lujain"], [KIDS_DEMO, "a", "Toota"], [KIDS_DEMO, "b", "Toota"]] as [StudioDemoId, SignatureLook, string][]) {
+      const home = signatureDesign(demo, look)!.home(ctxOf(name));
+      const ar = withDemoFacts(demo, home, "ar");
+      const title = ar.header?.title ?? "";
+      if (!home.header?.title?.includes(name)) continue;
+      expect(title, `${demo} ${look}`).toContain(arabic[name]);
+      expect(title, `${demo} ${look}`).not.toMatch(/[A-Za-z]/);
+      expect(withDemoFacts(demo, home, "en").header?.translations?.ar?.title, `${demo} ${look}`).toContain(arabic[name]);
+    }
+    // The wordmark in RUNWAY's, the story world's and the nursery's headers.
+    expect(withDemoFacts(CLOTHES_DEMO, signatureDesign(CLOTHES_DEMO, "c")!.home(ctxOf("Lujain")), "ar").header?.title).toBe("لُجين");
+    expect(withDemoFacts(KIDS_DEMO, signatureDesign(KIDS_DEMO, "c")!.home(ctxOf("Toota")), "ar").header?.title).toBe("توتة");
+    const nursery = withDemoFacts(KIDS_DEMO, signatureDesign(KIDS_DEMO, "d")!.home(ctxOf("Toota")), "ar");
+    expect([nursery.header?.title, ...allNodes(nursery).map((n) => n.text)]).toContain("توتة · الحضانة");
   });
 });
