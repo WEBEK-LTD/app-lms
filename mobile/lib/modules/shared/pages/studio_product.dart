@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/api/models/models.dart';
+import '../../../core/format/bidi.dart';
 import '../../../core/format/money.dart';
 import '../../../core/format/text_case.dart';
 import '../../../core/gate/app_gate.dart' show appConfigProvider;
@@ -160,9 +161,13 @@ bool studioProductShows(BuildContext context, WidgetRef ref, StudioNode node) {
       product.dimensions != null,
     StudioNodeType.productSpecs =>
       product.specs.isNotEmpty || product.facts.isNotEmpty,
+    // 228.8 Only with a review to show, the customer's own, or a way to
+    // write one: the shop sends its preview even with none ("0.0").
     StudioNodeType.productReviews =>
-      product.reviewsPreview != null ||
-          (product.summary.rating != null && product.summary.ratingCount > 0),
+      (product.summary.rating != null && product.summary.ratingCount > 0) ||
+          (product.reviewsPreview?.summary.ratingCount ?? 0) > 0 ||
+          product.reviewsPreview?.mine != null ||
+          (product.reviewsPreview?.canReview ?? false),
     StudioNodeType.productRelated =>
       (node.productPart.completeLook ? product.completeLook : product.related)
           .isNotEmpty,
@@ -821,7 +826,8 @@ class _Cell extends StatelessWidget {
           child: Center(
             widthFactor: width == null ? 1 : null,
             child: Text(
-              label,
+              // 228.8 A size or option kept whole in its own direction.
+              isolate(label),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -1019,6 +1025,9 @@ class _Buy extends ConsumerWidget {
           productId: product.id,
           variationId: c.variation!.id,
           waiting: product.backInStock!.waitsFor(c.variation!.id),
+          // 228.8 In the part's colour and corners.
+          accent: accent,
+          radius: radius,
         ),
       ProductCta.unavailableOption => Row(
         children: [button(context.l10n.notAvailableInOptions, onPressed: null)],
@@ -1029,6 +1038,9 @@ class _Buy extends ConsumerWidget {
           productId: product.id,
           variationId: c.variation?.id,
           waiting: product.backInStock!.waitsFor(c.variation?.id),
+          // 228.8 In the part's colour and corners.
+          accent: accent,
+          radius: radius,
         ),
       ProductCta.outOfStock => Row(
         children: [button(context.l10n.outOfStock, onPressed: null)],
@@ -1381,7 +1393,8 @@ class _Specs extends StatelessWidget {
                       text: '$label: ',
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    TextSpan(text: value),
+                    // 228.8 Kept whole in its own direction ("256 GB", not "GB 256").
+                    TextSpan(text: isolate(value)),
                   ],
                 ),
                 style: TextStyle(fontSize: 14, color: ink, height: 1.45),
@@ -1406,7 +1419,7 @@ class _Specs extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      value,
+                      isolate(value),
                       textAlign: TextAlign.end,
                       style: TextStyle(
                         fontSize: 13,

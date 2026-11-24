@@ -18,6 +18,13 @@ import '../support/test_app.dart';
 /// chose; the size chosen sets the price and goes into the cart with Add to
 /// cart, Buy now opens the cart. A shop without one keeps the app's own
 /// product screen, and the elements draw nothing on any other page.
+/// 228.8 A text as the customer reads it, its bidi isolates left out.
+Finder isoText(String text) => find.byWidgetPredicate(
+  (w) =>
+      w is Text &&
+      (w.data ?? '').replaceAll(RegExp('[\u2066-\u2069]'), '') == text,
+);
+
 void main() {
   Map<String, dynamic> dress() => {
     ...productSummaryJson(
@@ -119,6 +126,8 @@ void main() {
     String variants = 'grid',
     List<Map<String, dynamic>>? nodes,
     bool sized = false,
+    Map<String, dynamic> more = const {},
+    Map<String, dynamic> storeMore = const {},
   }) async {
     tester.view
       ..devicePixelRatio = 3
@@ -135,6 +144,7 @@ void main() {
               'store': {
                 ...storeConfigJson(),
                 'returns': {'enabled': true, 'days': 14},
+                ...storeMore,
               },
             },
           )
@@ -178,6 +188,7 @@ void main() {
           ..product = {
             ...dress(),
             if (sized) 'dimensions': {'text': 'W 220 × D 95 × H 82 cm'},
+            ...more,
           };
     final app = TestApp(
       appType: AppType.store,
@@ -292,10 +303,10 @@ void main() {
     app.container.read(appRouterProvider).push(Paths.product(30));
     await TestApp.settle(tester, 20);
     expect(find.bySemanticsLabel(RegExp('L')), findsWidgets);
-    await tester.tap(find.text('L'), warnIfMissed: false);
+    await tester.tap(isoText('L'), warnIfMissed: false);
     await TestApp.settle(tester, 10);
     expect(find.byKey(const ValueKey('product-buy-now')), findsNothing);
-    await tester.tap(find.text('S'));
+    await tester.tap(isoText('S'));
     await TestApp.settle(tester, 10);
     expect(find.text('اشترِ الآن'), findsOneWidget);
     expect(find.text('أضف إلى السلة'), findsOneWidget);
@@ -316,7 +327,12 @@ void main() {
       expect(row, findsOneWidget);
       final width = tester.getSize(row).width;
       Rect chip(String size) => tester.getRect(
-        find.descendant(of: row, matching: find.widgetWithText(Material, size)),
+        find
+            .ancestor(
+              of: find.descendant(of: row, matching: isoText(size)),
+              matching: find.byType(Material),
+            )
+            .first,
       );
       for (final size in ['S', 'M', 'L']) {
         expect(chip(size).width, lessThan(width / 3), reason: size);
@@ -344,7 +360,12 @@ void main() {
     await TestApp.settle(tester, 20);
     final row = find.byKey(const ValueKey('product-page-chips-a1'));
     Rect chip(String size) => tester.getRect(
-      find.descendant(of: row, matching: find.widgetWithText(Material, size)),
+      find
+          .ancestor(
+            of: find.descendant(of: row, matching: isoText(size)),
+            matching: find.byType(Material),
+          )
+          .first,
     );
     final tops = {
       for (final s in ['S', 'M', 'L']) chip(s).top,
@@ -415,6 +436,117 @@ void main() {
       find.byKey(const ValueKey('product-dimensions-headline')),
       findsNothing,
     );
+    app.container.dispose();
+  });
+
+  // 228.8 Reviews only when there are some, the customer's own, or a way to
+  // write one: the shop sends its preview even with none.
+  Map<String, dynamic> preview(int count, {bool canReview = false}) => {
+    'summary': {
+      'rating': count > 0 ? 4.3 : null,
+      'rating_count': count,
+      'counts': {'5': count},
+    },
+    'items': <Object>[],
+    'photos': <Object>[],
+    'photo_count': 0,
+    'can_review': canReview,
+  };
+
+  for (final (count, canReview, shows) in [
+    (0, false, false),
+    (3, false, true),
+    (0, true, true),
+  ]) {
+    testWidgets('228.8 reviews: $count, can review $canReview: '
+        '${shows ? 'shown' : 'left out'}', (tester) async {
+      final app = await open(
+        tester,
+        nodes: [
+          node('t', 'product_title'),
+          node('r', 'product_reviews'),
+        ],
+        more: {
+          'rating': count > 0 ? 4.3 : null,
+          'rating_count': count,
+          'reviews_preview': preview(count, canReview: canReview),
+        },
+      );
+      app.container.read(appRouterProvider).push(Paths.product(30));
+      await TestApp.settle(tester, 20);
+      expect(
+        find.byKey(const ValueKey('product-reviews-summary')),
+        shows ? findsOneWidget : findsNothing,
+      );
+      if (!shows) expect(find.text('0.0'), findsNothing);
+      app.container.dispose();
+    });
+  }
+
+  testWidgets('228.8 in Arabic, a spec value and a size keep their own '
+      'direction ("256 GB", "6.6″", never "GB 256")', (tester) async {
+    final app = await open(
+      tester,
+      language: 'ar',
+      variants: 'chips',
+      nodes: [
+        node('v', 'product_variants', {
+          'product_part': {'look': 'chips'},
+        }),
+        node('s', 'product_specs'),
+        node('l', 'product_specs', {
+          'product_part': {'look': 'list'},
+        }),
+      ],
+      more: {
+        'specs': [
+          {'label': 'التخزين', 'value': '256 GB'},
+          {'label': 'الشاشة', 'value': '6.6″'},
+        ],
+      },
+    );
+    app.container.read(appRouterProvider).push(Paths.product(30));
+    await TestApp.settle(tester, 20);
+    bool shown(String value) => tester
+        .widgetList<RichText>(find.byType(RichText))
+        .any((t) => t.text.toPlainText().contains('\u2068$value\u2069'));
+    expect(shown('256 GB'), isTrue);
+    expect(shown('6.6″'), isTrue);
+    expect(shown('S'), isTrue);
+    expect(tester.takeException(), isNull);
+    app.container.dispose();
+  });
+
+  testWidgets('228.8 Notify me in the part\'s own colour and corners', (
+    tester,
+  ) async {
+    final app = await open(
+      tester,
+      nodes: [
+        node('v', 'product_variants'),
+        node('b', 'product_buy', {
+          'product_part': {'look': 'cart', 'accent': '#7A1F30'},
+          'radius': 30,
+        }),
+      ],
+      more: {
+        'stock_status': 'out_of_stock',
+        'back_in_stock': {'waiting': false, 'variations': <Object>[]},
+      },
+      storeMore: {'back_in_stock': true},
+    );
+    app.container.read(appRouterProvider).push(Paths.product(30));
+    await TestApp.settle(tester, 20);
+    final button = tester.widget<FilledButton>(
+      find.byKey(const ValueKey('back-in-stock')),
+    );
+    expect(
+      button.style!.backgroundColor!.resolve(<WidgetState>{}),
+      const Color(0xFF7A1F30),
+    );
+    final shape =
+        button.style!.shape!.resolve(<WidgetState>{})! as RoundedRectangleBorder;
+    expect(shape.borderRadius, BorderRadius.circular(30));
     app.container.dispose();
   });
 }

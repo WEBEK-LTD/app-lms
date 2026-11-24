@@ -139,11 +139,18 @@ class BackInStockButton extends ConsumerStatefulWidget {
     required this.productId,
     required this.waiting,
     this.variationId,
+    this.accent,
+    this.radius,
   });
 
   final int productId;
   final int? variationId;
   final bool waiting;
+
+  /// 228.8 A look's product page: its button's colour and corners (the
+  /// part's accent), else the app's own button.
+  final Color? accent;
+  final double? radius;
 
   @override
   ConsumerState<BackInStockButton> createState() => _BackInStockButtonState();
@@ -202,6 +209,30 @@ class _BackInStockButtonState extends ConsumerState<BackInStockButton> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final accent = widget.accent;
+    if (accent != null && !_waiting) {
+      final on = accent.computeLuminance() > 0.5
+          ? const Color(0xFF111111)
+          : Colors.white;
+      return SizedBox(
+        width: double.infinity,
+        height: 52,
+        child: FilledButton.icon(
+          key: const ValueKey('back-in-stock'),
+          onPressed: _busy ? null : _press,
+          icon: AppIcon(AppIcons.notifications, size: 20, color: on),
+          label: Text(l10n.notifyMeBack),
+          style: FilledButton.styleFrom(
+            backgroundColor: accent,
+            foregroundColor: on,
+            textStyle: const TextStyle(fontWeight: FontWeight.w700),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(widget.radius ?? 14),
+            ),
+          ),
+        ),
+      );
+    }
     return _waiting
         ? SecondaryButton(
             key: const ValueKey('back-in-stock-waiting'),
