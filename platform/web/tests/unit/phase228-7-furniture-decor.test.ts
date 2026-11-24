@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parseStudioPage } from "@/lib/pages/validate";
 import { STUDIO_PRODUCT_TYPES, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { APP_WORDS } from "@/lib/studio/app-words";
-import { signatureDesign } from "@/lib/studio/demo-designs";
+import { signatureDesign, signatureDesigns } from "@/lib/studio/demo-designs";
 import { PRODUCT_PAGE_SLUG } from "@/lib/studio/product-page";
 import type { SectionContext } from "@/lib/studio/sections";
 import { allNodes } from "@/lib/studio/tree";
@@ -63,8 +63,11 @@ describe("228.7 furniture and decor looks C and D: their own product pages", () 
     }
   });
 
-  it("share no skeleton with each other, nor with Lujain A's", () => {
-    const pages = [...LOOKS.map(([d, l]) => productPageOf(d, l)!), productPageOf("clothes", "a")!];
+  it("share no skeleton with each other, nor with any other look's product page (Lujain A's, the other types' C and D)", () => {
+    const pages = signatureDesigns()
+      .map((d) => d.pages?.(ctx()).find((p) => p.slug === PRODUCT_PAGE_SLUG)?.studio)
+      .filter((p): p is StudioPage => Boolean(p));
+    expect(pages.length).toBeGreaterThanOrEqual(LOOKS.length + 1);
     const skeletons = pages.map(skeleton);
     expect(new Set(skeletons).size).toBe(skeletons.length);
     // Not even the same first element (how the page opens) or the same foot.
