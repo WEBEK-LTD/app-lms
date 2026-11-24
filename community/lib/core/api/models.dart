@@ -1,16 +1,20 @@
 import 'json.dart';
 
-/// A verification badge (the brief: Gold "Pro Developer", Green "Verified
-/// Business", Blue "Active Member"). Only the highest shows beside a name.
+// The shapes of area A's contract (docs/api/community.yaml, components):
+// MemberSummary, Relationship, Badge, Profile, Me, LinkedApp, Session,
+// FriendRequest, Config. JSON is snake_case.
+
+/// A verification badge: Gold "Pro Developer", Green "Verified Business",
+/// Blue "Active Member". Only the highest shows beside a name.
 enum BadgeKind {
   gold,
   green,
   blue;
 
   static BadgeKind? parse(String? value) => switch (value) {
-    'gold' || 'pro_developer' => gold,
-    'green' || 'verified_business' => green,
-    'blue' || 'active_member' => blue,
+    'gold' => gold,
+    'green' => green,
+    'blue' => blue,
     _ => null,
   };
 
@@ -22,24 +26,28 @@ enum BadgeKind {
   };
 }
 
+/// A badge the member holds (the contract's `Badge`).
 class EarnedBadge {
   const EarnedBadge({
     required this.kind,
+    this.label,
     this.since,
     this.company,
     this.appUrl,
   });
 
   factory EarnedBadge.fromJson(Json json) => EarnedBadge(
-    kind:
-        BadgeKind.parse(optStr(json, 'kind') ?? optStr(json, 'type')) ??
-        BadgeKind.blue,
-    since: optDate(json, 'granted_at') ?? optDate(json, 'since'),
-    company: optStr(json, 'company_name') ?? optStr(json, 'company'),
+    kind: BadgeKind.parse(optStr(json, 'kind')) ?? BadgeKind.blue,
+    label: optStr(json, 'label'),
+    since: optDate(json, 'since'),
+    company: optStr(json, 'company_name'),
     appUrl: optStr(json, 'app_url'),
   );
 
   final BadgeKind kind;
+
+  /// In the reader's language, from the server.
+  final String? label;
   final DateTime? since;
 
   /// Green: the business and its app.
@@ -56,32 +64,39 @@ EarnedBadge? topBadge(Iterable<EarnedBadge> badges) {
   return top;
 }
 
-/// An app of the member's linked Yallapp account.
+/// An app made with the member's linked Yallapp account. Whether it is on
+/// a paid plan is the server's to know; the app never shows it.
 class LinkedApp {
   const LinkedApp({
     required this.id,
     required this.name,
-    this.url,
     this.iconUrl,
-    this.kind,
+    this.appStoreUrl,
+    this.playStoreUrl,
+    this.fromTemplate = false,
   });
 
   factory LinkedApp.fromJson(Json json) => LinkedApp(
     id: str(json, 'id'),
     name: str(json, 'name'),
-    url: optStr(json, 'url'),
     iconUrl: optStr(json, 'icon_url'),
-    kind: optStr(json, 'kind'),
+    appStoreUrl: optStr(json, 'app_store_url'),
+    playStoreUrl: optStr(json, 'play_store_url'),
+    fromTemplate: boolean(json, 'from_template'),
   );
 
   final String id;
   final String name;
-  final String? url;
   final String? iconUrl;
-  final String? kind;
+  final String? appStoreUrl;
+  final String? playStoreUrl;
+  final bool fromTemplate;
+
+  /// Where a tap opens the app: its App Store page, else Google Play's.
+  String? get url => appStoreUrl ?? playStoreUrl;
 }
 
-/// Where the viewer stands with a member.
+/// Where the viewer stands with a member, as friends.
 enum FriendState {
   none,
 
@@ -93,18 +108,20 @@ enum FriendState {
   friends;
 
   static FriendState parse(String? value) => switch (value) {
-    'requested' || 'outgoing' || 'pending_outgoing' => requested,
-    'incoming' || 'pending_incoming' => incoming,
-    'friends' || 'accepted' => friends,
+    'requested' => requested,
+    'incoming' => incoming,
+    'friends' => friends,
     _ => none,
   };
 }
 
+/// How the signed-in member stands with a member (absent signed out).
 class Relationship {
   const Relationship({
     this.following = false,
     this.followsYou = false,
     this.friend = FriendState.none,
+    this.friendRequestId,
     this.blocked = false,
   });
 
@@ -112,32 +129,37 @@ class Relationship {
       ? const Relationship()
       : Relationship(
           following: boolean(json, 'following'),
-          followsYou:
-              boolean(json, 'followed_by') || boolean(json, 'follows_you'),
-          friend: FriendState.parse(
-            optStr(json, 'friend') ?? optStr(json, 'friendship'),
-          ),
+          followsYou: boolean(json, 'followed_by'),
+          friend: FriendState.parse(optStr(json, 'friend')),
+          friendRequestId: optStr(json, 'friend_request_id'),
           blocked: boolean(json, 'blocked'),
         );
 
   final bool following;
   final bool followsYou;
   final FriendState friend;
+
+  /// The request between the two, while one is waiting.
+  final String? friendRequestId;
+
+  /// The viewer blocked them.
   final bool blocked;
 
   Relationship copyWith({
     bool? following,
+    bool? followsYou,
     FriendState? friend,
     bool? blocked,
   }) => Relationship(
     following: following ?? this.following,
-    followsYou: followsYou,
+    followsYou: followsYou ?? this.followsYou,
     friend: friend ?? this.friend,
+    friendRequestId: friend == null ? friendRequestId : null,
     blocked: blocked ?? this.blocked,
   );
 }
 
-/// A community member as a list shows them.
+/// A community member wherever they appear (an author, a follower).
 class MemberSummary {
   const MemberSummary({
     required this.id,
@@ -147,16 +169,22 @@ class MemberSummary {
     this.badge,
     this.level,
     this.team = false,
+    this.deleted = false,
+    this.relationship,
   });
 
   factory MemberSummary.fromJson(Json json) => MemberSummary(
     id: str(json, 'id'),
-    name: str(json, 'display_name', str(json, 'name')),
+    name: str(json, 'display_name'),
     username: str(json, 'username'),
     avatarUrl: optStr(json, 'avatar_url'),
-    badge: BadgeKind.parse(optStr(json, 'badge') ?? optStr(json, 'top_badge')),
-    level: optStr(json, 'level'),
-    team: boolean(json, 'team') || boolean(json, 'is_team'),
+    badge: BadgeKind.parse(optStr(json, 'top_badge')),
+    level: optStr(json, 'headline'),
+    team: boolean(json, 'team'),
+    deleted: boolean(json, 'deleted'),
+    relationship: optObject(json, 'relationship') == null
+        ? null
+        : Relationship.fromJson(optObject(json, 'relationship')),
   );
 
   final String id;
@@ -167,11 +195,18 @@ class MemberSummary {
   /// The highest badge only.
   final BadgeKind? badge;
 
-  /// "Expert", "Pro"… (the member's level).
+  /// The member's headline ("Expert", "Flutter developer"), as the design
+  /// shows it under a name.
   final String? level;
 
-  /// The Yallapp Team (official answers).
+  /// Yallapp's team ("Yallapp Team").
   final bool team;
+
+  /// A deleted member ("Deleted member", nothing to open).
+  final bool deleted;
+
+  /// Where the viewer stands with them (signed in only).
+  final Relationship? relationship;
 
   String get initial => name.trim().isEmpty ? '?' : name.trim().characters1;
 }
@@ -181,60 +216,128 @@ extension on String {
       isEmpty ? '' : String.fromCharCode(runes.first).toUpperCase();
 }
 
-/// A member's profile.
+/// A link on a profile.
+class ProfileLink {
+  const ProfileLink({required this.label, required this.url});
+
+  factory ProfileLink.fromJson(Json json) =>
+      ProfileLink(label: str(json, 'label'), url: str(json, 'url'));
+
+  final String label;
+  final String url;
+
+  Json toJson() => {'label': label, 'url': url};
+}
+
+/// What only the member sees of their own account (the contract's `Me`).
+class Account {
+  const Account({
+    this.email,
+    this.emailVerified = false,
+    this.hasPassword = false,
+    this.providers = const [],
+    this.language = 'en',
+    this.theme = 'system',
+    this.role = 'member',
+    this.unreadNotifications = 0,
+    this.pendingFriendRequests = 0,
+  });
+
+  factory Account.fromJson(Json json) => Account(
+    email: optStr(json, 'email'),
+    emailVerified: boolean(json, 'email_verified'),
+    hasPassword: boolean(json, 'has_password'),
+    providers: strings(json, 'providers'),
+    language: str(json, 'language', 'en'),
+    theme: str(json, 'theme', 'system'),
+    role: str(json, 'role', 'member'),
+    unreadNotifications: integer(json, 'unread_notifications'),
+    pendingFriendRequests: integer(json, 'pending_friend_requests'),
+  );
+
+  final String? email;
+  final bool emailVerified;
+  final bool hasPassword;
+
+  /// `email`, `apple`, `google`.
+  final List<String> providers;
+  final String language;
+
+  /// `system`, `light`, `dark`.
+  final String theme;
+
+  /// `member`, `team`, `admin`.
+  final String role;
+  final int unreadNotifications;
+  final int pendingFriendRequests;
+}
+
+/// A member's profile (the contract's `Profile`; with [account], `Me`).
 class Profile {
   const Profile({
     required this.member,
     this.bio = '',
     this.skills = const [],
+    this.links = const [],
     this.badges = const [],
     this.points = 0,
     this.followers = 0,
     this.following = 0,
     this.friends = 0,
+    this.questions = 0,
+    this.answers = 0,
+    this.acceptedAnswers = 0,
+    this.appsCount = 0,
     this.joinedAt,
     this.apps = const [],
     this.yallappLinked = false,
     this.relationship = const Relationship(),
-    this.answers = 0,
-    this.questions = 0,
-    this.levelProgress,
+    this.account,
   });
 
-  factory Profile.fromJson(Json json) {
-    final counts = optObject(json, 'counts') ?? json;
+  /// [apps] come from `GET /members/{member}/apps`.
+  factory Profile.fromJson(Json json, {List<LinkedApp> apps = const []}) {
+    final counts = optObject(json, 'counts') ?? const {};
+    final own = json.containsKey('email_verified');
     return Profile(
       member: MemberSummary.fromJson(json),
       bio: str(json, 'bio'),
       skills: strings(json, 'skills'),
+      links: listOf(json, 'links', ProfileLink.fromJson),
       badges: listOf(json, 'badges', EarnedBadge.fromJson),
       points: integer(json, 'points'),
       followers: integer(counts, 'followers'),
       following: integer(counts, 'following'),
       friends: integer(counts, 'friends'),
-      answers: integer(counts, 'answers'),
       questions: integer(counts, 'questions'),
-      joinedAt: optDate(json, 'joined_at') ?? optDate(json, 'created_at'),
-      apps: listOf(json, 'apps', LinkedApp.fromJson),
-      yallappLinked:
-          boolean(json, 'yallapp_linked') || optObject(json, 'yallapp') != null,
+      answers: integer(counts, 'answers'),
+      acceptedAnswers: integer(counts, 'accepted_answers'),
+      appsCount: integer(counts, 'apps'),
+      joinedAt: optDate(json, 'joined_at'),
+      apps: apps,
+      yallappLinked: boolean(json, 'yallapp_linked'),
       relationship: Relationship.fromJson(optObject(json, 'relationship')),
-      levelProgress: optNumber(json, 'level_progress'),
+      account: own ? Account.fromJson(json) : null,
     );
   }
 
   final MemberSummary member;
   final String bio;
   final List<String> skills;
+  final List<ProfileLink> links;
 
-  /// Every badge earned (the profile lists them all).
+  /// Every badge held (the profile lists them all).
   final List<EarnedBadge> badges;
   final int points;
   final int followers;
   final int following;
   final int friends;
-  final int answers;
   final int questions;
+  final int answers;
+  final int acceptedAnswers;
+
+  /// How many apps the linked account has (the Gold form opens at 5).
+  final int appsCount;
   final DateTime? joinedAt;
 
   /// The linked Yallapp account's apps.
@@ -242,15 +345,13 @@ class Profile {
   final bool yallappLinked;
   final Relationship relationship;
 
-  /// How far to the next level, 0 to 1 (the menu's bar); the server's, else
-  /// the share of the way to the next points milestone.
-  final double? levelProgress;
+  /// The member's own account (their own profile only).
+  final Account? account;
 
   static const _milestones = [0, 100, 500, 1000, 2500, 5000, 10000, 25000];
 
+  /// How far to the next points milestone, 0 to 1 (the menu's bar).
   double get progress {
-    final own = levelProgress;
-    if (own != null) return own.clamp(0, 1).toDouble();
     for (var i = 1; i < _milestones.length; i++) {
       if (points < _milestones[i]) {
         return (points - _milestones[i - 1]) /
@@ -261,64 +362,82 @@ class Profile {
   }
 
   Profile copyWith({
+    MemberSummary? member,
+    String? bio,
+    List<String>? skills,
     Relationship? relationship,
     int? followers,
     int? friends,
-    String? bio,
-    List<String>? skills,
-    MemberSummary? member,
+    List<LinkedApp>? apps,
+    bool? yallappLinked,
+    Account? account,
   }) => Profile(
     member: member ?? this.member,
     bio: bio ?? this.bio,
     skills: skills ?? this.skills,
+    links: links,
     badges: badges,
     points: points,
     followers: followers ?? this.followers,
     following: following,
     friends: friends ?? this.friends,
-    answers: answers,
     questions: questions,
+    answers: answers,
+    acceptedAnswers: acceptedAnswers,
+    appsCount: appsCount,
     joinedAt: joinedAt,
-    apps: apps,
-    yallappLinked: yallappLinked,
+    apps: apps ?? this.apps,
+    yallappLinked: yallappLinked ?? this.yallappLinked,
     relationship: relationship ?? this.relationship,
-    levelProgress: levelProgress,
+    account: account ?? this.account,
   );
 }
 
-/// The signed-in member's session.
+/// The member's tokens: a short access token (15 minutes) and a refresh
+/// token (60 days, renewed each time it is used).
 class Session {
-  const Session({required this.accessToken, this.refreshToken, this.expiresAt});
+  const Session({
+    required this.accessToken,
+    this.refreshToken,
+    this.accessExpiresAt,
+  });
 
   factory Session.fromJson(Json json) => Session(
-    accessToken: str(json, 'access_token', str(json, 'token')),
+    accessToken: str(json, 'access_token'),
     refreshToken: optStr(json, 'refresh_token'),
-    expiresAt: optDate(json, 'expires_at'),
+    accessExpiresAt: optDate(json, 'access_expires_at'),
   );
 
   final String accessToken;
   final String? refreshToken;
-  final DateTime? expiresAt;
+  final DateTime? accessExpiresAt;
 
   Json toJson() => {
     'access_token': accessToken,
     'refresh_token': ?refreshToken,
-    if (expiresAt != null) 'expires_at': expiresAt!.toIso8601String(),
+    if (accessExpiresAt != null)
+      'access_expires_at': accessExpiresAt!.toIso8601String(),
   };
 }
 
-/// What signing in answers: the session and the member.
+/// What signing in answers: the tokens and the member.
 class SignedIn {
   const SignedIn({required this.session, required this.me, this.isNew = false});
+
+  factory SignedIn.fromJson(Json json) => SignedIn(
+    session: Session.fromJson(json),
+    me: Profile.fromJson(optObject(json, 'member') ?? const {}),
+    isNew: boolean(json, 'created'),
+  );
 
   final Session session;
   final Profile me;
 
-  /// A new account (the app asks for the rest of the profile).
+  /// This sign-in made the member.
   final bool isNew;
 }
 
-/// A friend request waiting for the viewer, or sent by them.
+/// A friend request sent to the member ([incoming]) or by them.
 class FriendRequest {
   const FriendRequest({
     required this.id,
@@ -327,14 +446,13 @@ class FriendRequest {
     this.at,
   });
 
-  factory FriendRequest.fromJson(Json json) => FriendRequest(
-    id: str(json, 'id'),
-    member: MemberSummary.fromJson(
-      optObject(json, 'member') ?? optObject(json, 'from') ?? json,
-    ),
-    incoming: str(json, 'direction', 'incoming') == 'incoming',
-    at: optDate(json, 'created_at'),
-  );
+  factory FriendRequest.fromJson(Json json, {bool incoming = true}) =>
+      FriendRequest(
+        id: str(json, 'id'),
+        member: MemberSummary.fromJson(optObject(json, 'member') ?? const {}),
+        incoming: incoming,
+        at: optDate(json, 'created_at'),
+      );
 
   final String id;
   final MemberSummary member;
@@ -342,5 +460,86 @@ class FriendRequest {
   final DateTime? at;
 }
 
-/// Why something is reported.
-enum ReportReason { spam, abuse, inappropriate, misleading, other }
+/// Why something is reported (the contract's reasons).
+enum ReportReason {
+  spam,
+  abuse,
+  harassment,
+  offTopic,
+  inappropriate,
+  copyright,
+  other;
+
+  String get wire => this == offTopic ? 'off_topic' : name;
+}
+
+/// A section of the side menu or the tab bar (`GET /config`).
+class Section {
+  const Section({
+    required this.slug,
+    required this.name,
+    required this.icon,
+    this.count,
+    this.comingSoon = false,
+  });
+
+  factory Section.fromJson(Json json) => Section(
+    slug: str(json, 'slug'),
+    name: str(json, 'name'),
+    icon: str(json, 'icon'),
+    count: optInt(json, 'count'),
+    comingSoon: boolean(json, 'coming_soon'),
+  );
+
+  final String slug;
+
+  /// In the reader's language.
+  final String name;
+
+  /// A Material Symbols Rounded name.
+  final String icon;
+  final int? count;
+  final bool comingSoon;
+}
+
+/// The sections, what is coming soon, the languages (`GET /config`).
+class CommunityConfig {
+  const CommunityConfig({
+    this.sections = const [],
+    this.tabs = const [],
+    this.languages = const ['en', 'ar', 'tr'],
+    this.siteUrl,
+  });
+
+  factory CommunityConfig.fromJson(Json json) => CommunityConfig(
+    sections: listOf(json, 'sections', Section.fromJson),
+    tabs: listOf(json, 'tabs', Section.fromJson),
+    languages: strings(json, 'languages'),
+    siteUrl: optStr(json, 'site_url'),
+  );
+
+  final List<Section> sections;
+  final List<Section> tabs;
+  final List<String> languages;
+  final String? siteUrl;
+
+  /// Phase 1: home, Q&A, tutorials and friends open; the rest are coming.
+  static const phase1Open = {'home', 'qa', 'tutorials', 'friends', 'learn'};
+
+  /// Whether the section [slug] opens nothing yet: the server's word, else
+  /// phase 1's.
+  bool comingSoon(String slug) {
+    for (final s in [...sections, ...tabs]) {
+      if (s.slug == slug) return s.comingSoon;
+    }
+    return !phase1Open.contains(slug);
+  }
+
+  /// The section's count (the menu's numbers), if the server sends one.
+  int? count(String slug) {
+    for (final s in sections) {
+      if (s.slug == slug) return s.count;
+    }
+    return null;
+  }
+}

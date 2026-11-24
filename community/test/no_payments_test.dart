@@ -58,8 +58,9 @@ void main() {
       for (final s in literals(f.readAsStringSync())) {
         if (s.startsWith('package:') ||
             s.startsWith('../') ||
-            s.endsWith('.dart'))
+            s.endsWith('.dart')) {
           continue;
+        }
         if (banned.hasMatch(s)) hits.add('${f.path}: $s');
       }
     }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../core/api/models.dart';
 import '../../core/auth/session.dart';
 import '../../core/l10n.dart';
 import '../../core/providers.dart';
@@ -84,63 +85,91 @@ class SideMenu extends ConsumerWidget {
     }
 
     final questions = ref.watch(newQuestionsProvider);
+    final config = ref.watch(sectionsProvider).value ?? const CommunityConfig();
+    // A section opens when the server says it is live and the app has its
+    // screen; otherwise "Coming soon", never a dead tap.
+    VoidCallback open(MenuSection s, String label, VoidCallback? screen) =>
+        screen == null || config.comingSoon(s.name)
+        ? () => soon(label)
+        : screen;
+    int countOf(MenuSection s, [int own = 0]) => config.count(s.name) ?? own;
     final items = <(MenuSection, IconData, String, VoidCallback, int)>[
-      (MenuSection.home, Symbols.home, l.menuHome, () => go(Paths.home), 0),
+      (
+        MenuSection.home,
+        Symbols.home,
+        l.menuHome,
+        open(MenuSection.home, l.menuHome, () => go(Paths.home)),
+        0,
+      ),
       (
         MenuSection.qa,
         Symbols.forum,
         l.menuQa,
-        () => go(FeatureLinks.qa),
-        questions,
+        open(MenuSection.qa, l.menuQa, () => go(FeatureLinks.qa)),
+        countOf(MenuSection.qa, questions),
       ),
       (
         MenuSection.tutorials,
         Symbols.menu_book,
         l.menuTutorials,
-        () => go(FeatureLinks.learn),
-        0,
+        open(
+          MenuSection.tutorials,
+          l.menuTutorials,
+          () => go(FeatureLinks.learn),
+        ),
+        countOf(MenuSection.tutorials),
       ),
       (
         MenuSection.academy,
         Symbols.school,
         l.menuAcademy,
-        () => soon(l.menuAcademy),
+        open(MenuSection.academy, l.menuAcademy, null),
         0,
       ),
       (
         MenuSection.showcase,
         Symbols.apps,
         l.menuShowcase,
-        () => soon(l.menuShowcase),
+        open(MenuSection.showcase, l.menuShowcase, null),
         0,
       ),
       (
         MenuSection.challenges,
         Symbols.emoji_events,
         l.menuChallenges,
-        () => soon(l.menuChallenges),
+        open(MenuSection.challenges, l.menuChallenges, null),
         0,
       ),
       (
         MenuSection.groups,
         Symbols.groups,
         l.menuGroups,
-        () => soon(l.menuGroups),
+        open(MenuSection.groups, l.menuGroups, null),
         0,
       ),
       (
         MenuSection.friends,
         Symbols.diversity_3,
         l.menuFriends,
-        () => push(me == null ? Paths.me : Paths.friends(me.member.id)),
+        open(
+          MenuSection.friends,
+          l.menuFriends,
+          () => push(me == null ? Paths.me : Paths.friends(me.member.id)),
+        ),
+        countOf(MenuSection.friends),
+      ),
+      (
+        MenuSection.pros,
+        Symbols.work,
+        l.menuPros,
+        open(MenuSection.pros, l.menuPros, null),
         0,
       ),
-      (MenuSection.pros, Symbols.work, l.menuPros, () => soon(l.menuPros), 0),
       (
         MenuSection.events,
         Symbols.event,
         l.menuEvents,
-        () => soon(l.menuEvents),
+        open(MenuSection.events, l.menuEvents, null),
         0,
       ),
     ];

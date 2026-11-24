@@ -62,12 +62,14 @@ class _EmailAuthPageState extends ConsumerState<EmailAuthPage> {
             email: _email.text.trim(),
             password: _password.text,
             language: ref.read(languageProvider),
+            device: ref.read(deviceProvider),
           );
           await ref.read(sessionProvider.notifier).signedIn(r);
         case EmailMode.logIn:
           final r = await api.logInWithEmail(
             email: _email.text.trim(),
             password: _password.text,
+            device: ref.read(deviceProvider),
           );
           await ref.read(sessionProvider.notifier).signedIn(r);
         case EmailMode.forgot:

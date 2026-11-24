@@ -462,13 +462,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get socialReasonSpam => 'رسائل مزعجة أو إعلانات';
 
   @override
-  String get socialReasonAbuse => 'تحرّش أو كراهية';
+  String get socialReasonAbuse => 'إساءة أو كراهية';
 
   @override
   String get socialReasonInappropriate => 'محتوى غير لائق';
-
-  @override
-  String get socialReasonMisleading => 'مضلّل أو احتيال';
 
   @override
   String get socialReasonOther => 'سبب آخر';
@@ -568,4 +565,41 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get profileApplyLine =>
       'لديك 5 تطبيقات أو أكثر على يلا آب. تقدّم بطلب شارة المطوّر المحترف.';
+
+  @override
+  String get socialReasonHarassment => 'تحرّش أو مضايقة';
+
+  @override
+  String get socialReasonOffTopic => 'خارج الموضوع';
+
+  @override
+  String get socialReasonCopyright => 'عمل شخص آخر';
+
+  @override
+  String get commonShowMore => 'عرض المزيد';
+
+  @override
+  String get settingsEmail => 'البريد الإلكتروني';
+
+  @override
+  String get settingsEmailUnconfirmed => 'غير مؤكَّد';
+
+  @override
+  String get settingsResend => 'أرسل الرابط مجددًا';
+
+  @override
+  String get settingsResent => 'أُرسل. تفقّد بريدك الوارد.';
+
+  @override
+  String get settingsDeleteAccount => 'حذف الحساب';
+
+  @override
+  String get settingsDeleteLine =>
+      'يحذف هذا ملفك الشخصي ومتابعاتك وأصدقاءك فورًا. تبقى أسئلتك وإجاباتك باسم «عضو محذوف».';
+
+  @override
+  String get settingsDeletePassword => 'كلمة المرور';
+
+  @override
+  String get settingsDeleteConfirm => 'احذف حسابي';
 }

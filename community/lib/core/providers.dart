@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -11,6 +12,7 @@ import 'api/community_api.dart';
 import 'api/fake_community_api.dart';
 import 'api/json.dart';
 import 'api/models.dart';
+import 'auth/session.dart';
 import 'auth/social_sign_in.dart';
 import 'config.dart';
 
@@ -153,14 +155,35 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   final client = ApiClient(baseUrl: ref.watch(configProvider).apiBaseUrl);
   client.token = () => ref.read(accessTokenProvider);
   client.language = () => ref.read(languageProvider);
+  client.renew = () => ref.read(sessionProvider.notifier).renew();
   return client;
 });
+
+/// This phone, as the contract's DeviceInput (the member's devices list).
+final deviceProvider = Provider<Json>(
+  (ref) => {
+    'platform': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
+    'name': defaultTargetPlatform == TargetPlatform.iOS
+        ? 'iPhone'
+        : 'Android phone',
+  },
+);
 
 final communityApiProvider = Provider<CommunityApi>(
   (ref) => ref.watch(configProvider).demo
       ? FakeCommunityApi()
       : HttpCommunityApi(ref.watch(apiClientProvider)),
 );
+
+/// The sections and what is coming soon (`GET /config`); phase 1's until
+/// it answers, and if it cannot.
+final sectionsProvider = FutureProvider<CommunityConfig>((ref) async {
+  try {
+    return await ref.watch(communityApiProvider).config();
+  } on Object {
+    return const CommunityConfig();
+  }
+});
 
 /// Sign in with Apple and Google (each provider's own sheet).
 final appleSignInProvider = Provider<SocialSignIn>(

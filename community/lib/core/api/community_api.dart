@@ -2,38 +2,58 @@ import 'api_client.dart';
 import 'json.dart';
 import 'models.dart';
 
-/// The calls of the Community API (`/api/community/v1`, area A's contract)
-/// that the app shell makes: signing in, the member's own profile, other
-/// members, follow, friends, block, report and the Yallapp link. The Q&A,
-/// tutorials, badges and notifications have their own APIs in their
-/// features (lib/features/*/data), on the same [ApiClient].
+/// A page of a list: the contract's `{ items, next_cursor }`.
+class Page<T> {
+  const Page(this.items, [this.nextCursor]);
+
+  final List<T> items;
+
+  /// Null at the end.
+  final String? nextCursor;
+}
+
+/// The calls of area A's contract (`/api/community/v1`,
+/// docs/api/community.yaml) that the app shell makes: signing in, the
+/// member's own account, other members, follow, friends, block, report,
+/// the Yallapp link and the config. The Q&A, tutorials, badges and
+/// notifications have their own APIs in their features
+/// (lib/features/*/data), on the same [ApiClient].
 abstract class CommunityApi {
-  // Signing in.
+  // Signing in. [device] is the contract's DeviceInput.
   Future<SignedIn> signUpWithEmail({
     required String name,
     required String email,
     required String password,
     required String language,
+    Json? device,
   });
   Future<SignedIn> logInWithEmail({
     required String email,
     required String password,
+    Json? device,
   });
 
-  /// What Sign in with Apple gave the app (the server checks it with Apple).
+  /// Sign in with Apple's identity token and the raw [nonce] whose SHA-256
+  /// the app gave Apple. Apple gives the [name] only the first time.
   Future<SignedIn> signInWithApple({
-    required String identityToken,
-    String? authorizationCode,
+    required String idToken,
+    String? nonce,
     String? name,
     required String language,
+    Json? device,
   });
 
-  /// What Google gave the app (the server checks it with Google).
+  /// Google Sign-In's ID token.
   Future<SignedIn> signInWithGoogle({
     required String idToken,
     required String language,
+    Json? device,
   });
+
+  /// New tokens for [refreshToken]; the old one stops working.
+  Future<SignedIn> refresh(String refreshToken);
   Future<void> requestPasswordReset(String email);
+  Future<void> resendVerification();
   Future<void> signOut();
 
   // The member.
@@ -41,44 +61,54 @@ abstract class CommunityApi {
   Future<Profile> updateMe({
     String? name,
     String? username,
+    String? headline,
     String? bio,
     List<String>? skills,
     String? language,
+    String? theme,
   });
   Future<Profile> uploadAvatar(String filePath);
 
-  /// Starts linking a Yallapp account: the page where the member confirms it.
+  /// Deletes the account: email members send their [password], Apple and
+  /// Google members confirm with `DELETE`.
+  Future<void> deleteAccount({String? password});
+
+  /// Starts linking a Yallapp account: the page on yallapp.com.tr where the
+  /// member confirms it.
   Future<Uri> startYallappLink();
   Future<void> unlinkYallapp();
 
-  // Other members.
+  // Other members (`id` or `@username`).
   Future<Profile> member(String id);
-  Future<List<MemberSummary>> followers(String id);
-  Future<List<MemberSummary>> following(String id);
-  Future<List<MemberSummary>> friends(String id);
-  Future<List<MemberSummary>> searchMembers(String query);
+  Future<Page<MemberSummary>> followers(String id, {String? cursor});
+  Future<Page<MemberSummary>> following(String id, {String? cursor});
+  Future<Page<MemberSummary>> friends(String id, {String? cursor});
 
-  Future<void> follow(String id);
-  Future<void> unfollow(String id);
+  Future<Relationship> follow(String id);
+  Future<Relationship> unfollow(String id);
 
-  /// Friends: ask, answer, remove.
-  Future<void> requestFriend(String id);
-  Future<void> cancelFriendRequest(String id);
-  Future<List<FriendRequest>> friendRequests();
+  /// Asks to be friends, or accepts when they already asked.
+  Future<Relationship> requestFriend(String id);
+
+  /// Unfriends, or takes back the request sent.
+  Future<Relationship> removeFriend(String id);
+  Future<List<FriendRequest>> friendRequests({bool incoming = true});
   Future<void> answerFriendRequest(String requestId, {required bool accept});
-  Future<void> removeFriend(String id);
 
-  Future<void> block(String id);
-  Future<void> unblock(String id);
-  Future<List<MemberSummary>> blocked();
+  Future<Relationship> block(String id);
+  Future<Relationship> unblock(String id);
+  Future<Page<MemberSummary>> blocked({String? cursor});
 
-  /// Reports a member, a question, an answer or a tutorial.
+  /// Reports a member, a question, an answer, a tutorial or a comment.
   Future<void> report({
     required String targetType,
     required String targetId,
     required ReportReason reason,
     String note = '',
   });
+
+  /// The sections of the menu and the tab bar, and what is coming soon.
+  Future<CommunityConfig> config();
 }
 
 /// [CommunityApi] over HTTP.
@@ -87,19 +117,12 @@ class HttpCommunityApi implements CommunityApi {
 
   final ApiClient client;
 
-  SignedIn _signedIn(Json json) => SignedIn(
-    session: Session.fromJson(optObject(json, 'session') ?? json),
-    me: Profile.fromJson(
-      optObject(json, 'member') ?? optObject(json, 'user') ?? const {},
-    ),
-    isNew: boolean(json, 'created') || boolean(json, 'is_new'),
+  static Page<MemberSummary> _members(Json json) => Page(
+    listOf(json, 'items', MemberSummary.fromJson),
+    optStr(json, 'next_cursor'),
   );
 
-  List<MemberSummary> _members(Json json) => listOf(
-    json,
-    json.containsKey('items') ? 'items' : 'members',
-    MemberSummary.fromJson,
-  );
+  static String _path(String id) => Uri.encodeComponent(id);
 
   @override
   Future<SignedIn> signUpWithEmail({
@@ -107,14 +130,16 @@ class HttpCommunityApi implements CommunityApi {
     required String email,
     required String password,
     required String language,
-  }) async => _signedIn(
+    Json? device,
+  }) async => SignedIn.fromJson(
     await client.post(
-      '/auth/email/signup',
+      '/auth/email/sign-up',
       body: {
         'display_name': name,
         'email': email,
         'password': password,
         'language': language,
+        'device': ?device,
       },
     ),
   );
@@ -123,27 +148,30 @@ class HttpCommunityApi implements CommunityApi {
   Future<SignedIn> logInWithEmail({
     required String email,
     required String password,
-  }) async => _signedIn(
+    Json? device,
+  }) async => SignedIn.fromJson(
     await client.post(
-      '/auth/email/login',
-      body: {'email': email, 'password': password},
+      '/auth/email/log-in',
+      body: {'email': email, 'password': password, 'device': ?device},
     ),
   );
 
   @override
   Future<SignedIn> signInWithApple({
-    required String identityToken,
-    String? authorizationCode,
+    required String idToken,
+    String? nonce,
     String? name,
     required String language,
-  }) async => _signedIn(
+    Json? device,
+  }) async => SignedIn.fromJson(
     await client.post(
       '/auth/apple',
       body: {
-        'identity_token': identityToken,
-        'authorization_code': ?authorizationCode,
+        'id_token': idToken,
+        'nonce': ?nonce,
         'display_name': ?name,
         'language': language,
+        'device': ?device,
       },
     ),
   );
@@ -152,127 +180,165 @@ class HttpCommunityApi implements CommunityApi {
   Future<SignedIn> signInWithGoogle({
     required String idToken,
     required String language,
-  }) async => _signedIn(
+    Json? device,
+  }) async => SignedIn.fromJson(
     await client.post(
       '/auth/google',
-      body: {'id_token': idToken, 'language': language},
+      body: {'id_token': idToken, 'language': language, 'device': ?device},
+    ),
+  );
+
+  @override
+  Future<SignedIn> refresh(String refreshToken) async => SignedIn.fromJson(
+    await client.post(
+      '/auth/refresh',
+      body: {'refresh_token': refreshToken},
+      renew: false,
     ),
   );
 
   @override
   Future<void> requestPasswordReset(String email) async =>
-      client.post('/auth/email/reset', body: {'email': email});
+      client.post('/auth/password-reset', body: {'email': email});
 
   @override
-  Future<void> signOut() async => client.post('/auth/logout');
+  Future<void> resendVerification() async =>
+      client.post('/auth/email/verify/resend');
 
   @override
-  Future<Profile> me() async {
-    final json = await client.get('/me');
-    return Profile.fromJson(optObject(json, 'member') ?? json);
+  Future<void> signOut() async => client.post('/auth/log-out', renew: false);
+
+  /// The profile with its apps (a second call: the apps come from the
+  /// linked Yallapp account).
+  Future<Profile> _withApps(Json json) async {
+    final profile = Profile.fromJson(json);
+    if (!profile.yallappLinked || profile.member.id.isEmpty) return profile;
+    final apps = await client.get('/members/${_path(profile.member.id)}/apps');
+    return profile.copyWith(apps: listOf(apps, 'items', LinkedApp.fromJson));
   }
+
+  @override
+  Future<Profile> me() async => _withApps(await client.get('/me'));
 
   @override
   Future<Profile> updateMe({
     String? name,
     String? username,
+    String? headline,
     String? bio,
     List<String>? skills,
     String? language,
-  }) async {
-    final json = await client.patch(
+    String? theme,
+  }) async => _withApps(
+    await client.patch(
       '/me',
       body: {
         'display_name': ?name,
         'username': ?username,
+        'headline': ?headline,
         'bio': ?bio,
         'skills': ?skills,
         'language': ?language,
+        'theme': ?theme,
       },
-    );
-    return Profile.fromJson(optObject(json, 'member') ?? json);
-  }
+    ),
+  );
 
   @override
-  Future<Profile> uploadAvatar(String filePath) async {
-    final json = await client.upload(
+  Future<Profile> uploadAvatar(String filePath) async => _withApps(
+    await client.upload(
       '/me/avatar',
-      field: 'avatar',
+      method: 'PUT',
+      field: 'file',
       filePath: filePath,
-    );
-    return Profile.fromJson(optObject(json, 'member') ?? json);
-  }
+    ),
+  );
 
   @override
-  Future<Uri> startYallappLink() async =>
-      Uri.parse(str(await client.post('/me/yallapp-link'), 'url'));
+  Future<void> deleteAccount({String? password}) => client.delete(
+    '/me',
+    body: password == null ? {'confirm': 'DELETE'} : {'password': password},
+  );
+
+  @override
+  Future<Uri> startYallappLink() async => Uri.parse(
+    str(
+      await client.post('/me/yallapp-link/start', body: {'return_to': 'app'}),
+      'confirm_url',
+    ),
+  );
 
   @override
   Future<void> unlinkYallapp() => client.delete('/me/yallapp-link');
 
   @override
-  Future<Profile> member(String id) async {
-    final json = await client.get('/members/$id');
-    return Profile.fromJson(optObject(json, 'member') ?? json);
-  }
+  Future<Profile> member(String id) async =>
+      _withApps(await client.get('/members/${_path(id)}'));
+
+  Future<Page<MemberSummary>> _list(String path, String? cursor) async =>
+      _members(await client.get(path, query: {'cursor': cursor, 'limit': 50}));
 
   @override
-  Future<List<MemberSummary>> followers(String id) async =>
-      _members(await client.get('/members/$id/followers'));
+  Future<Page<MemberSummary>> followers(String id, {String? cursor}) =>
+      _list('/members/${_path(id)}/followers', cursor);
 
   @override
-  Future<List<MemberSummary>> following(String id) async =>
-      _members(await client.get('/members/$id/following'));
+  Future<Page<MemberSummary>> following(String id, {String? cursor}) =>
+      _list('/members/${_path(id)}/following', cursor);
 
   @override
-  Future<List<MemberSummary>> friends(String id) async =>
-      _members(await client.get('/members/$id/friends'));
+  Future<Page<MemberSummary>> friends(String id, {String? cursor}) =>
+      _list('/members/${_path(id)}/friends', cursor);
 
   @override
-  Future<List<MemberSummary>> searchMembers(String query) async =>
-      _members(await client.get('/members', query: {'q': query}));
+  Future<Relationship> follow(String id) async =>
+      Relationship.fromJson(await client.put('/members/${_path(id)}/follow'));
 
   @override
-  Future<void> follow(String id) async => client.post('/members/$id/follow');
-
-  @override
-  Future<void> unfollow(String id) => client.delete('/members/$id/follow');
-
-  @override
-  Future<void> requestFriend(String id) async =>
-      client.post('/members/$id/friend-request');
-
-  @override
-  Future<void> cancelFriendRequest(String id) =>
-      client.delete('/members/$id/friend-request');
-
-  @override
-  Future<List<FriendRequest>> friendRequests() async => listOf(
-    await client.get('/me/friend-requests'),
-    'items',
-    FriendRequest.fromJson,
+  Future<Relationship> unfollow(String id) async => Relationship.fromJson(
+    await client.deleteJson('/members/${_path(id)}/follow'),
   );
+
+  @override
+  Future<Relationship> requestFriend(String id) async =>
+      Relationship.fromJson(await client.put('/members/${_path(id)}/friend'));
+
+  @override
+  Future<Relationship> removeFriend(String id) async => Relationship.fromJson(
+    await client.deleteJson('/members/${_path(id)}/friend'),
+  );
+
+  @override
+  Future<List<FriendRequest>> friendRequests({bool incoming = true}) async =>
+      listOf(
+        await client.get(
+          '/me/friend-requests',
+          query: {'direction': incoming ? 'incoming' : 'outgoing', 'limit': 50},
+        ),
+        'items',
+        (j) => FriendRequest.fromJson(j, incoming: incoming),
+      );
 
   @override
   Future<void> answerFriendRequest(
     String requestId, {
     required bool accept,
   }) async => client.post(
-    '/friend-requests/$requestId/${accept ? 'accept' : 'decline'}',
+    '/me/friend-requests/${_path(requestId)}/${accept ? 'accept' : 'decline'}',
   );
 
   @override
-  Future<void> removeFriend(String id) => client.delete('/members/$id/friend');
+  Future<Relationship> block(String id) async =>
+      Relationship.fromJson(await client.put('/members/${_path(id)}/block'));
 
   @override
-  Future<void> block(String id) async => client.post('/members/$id/block');
+  Future<Relationship> unblock(String id) async => Relationship.fromJson(
+    await client.deleteJson('/members/${_path(id)}/block'),
+  );
 
   @override
-  Future<void> unblock(String id) => client.delete('/members/$id/block');
-
-  @override
-  Future<List<MemberSummary>> blocked() async =>
-      _members(await client.get('/me/blocked'));
+  Future<Page<MemberSummary>> blocked({String? cursor}) =>
+      _list('/me/blocks', cursor);
 
   @override
   Future<void> report({
@@ -285,8 +351,12 @@ class HttpCommunityApi implements CommunityApi {
     body: {
       'target_type': targetType,
       'target_id': targetId,
-      'reason': reason.name,
+      'reason': reason.wire,
       if (note.isNotEmpty) 'note': note,
     },
   );
+
+  @override
+  Future<CommunityConfig> config() async =>
+      CommunityConfig.fromJson(await client.get('/config'));
 }

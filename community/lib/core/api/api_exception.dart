@@ -51,10 +51,10 @@ class ApiException implements Exception {
       code: switch (statusCode) {
         400 || 422 => invalidRequest,
         401 => invalidToken,
-        403 => forbidden,
+        403 => notAllowed,
         404 => notFound,
         409 => conflict,
-        429 => rateLimited,
+        429 => tooManyAttempts,
         _ => serverError,
       },
       statusCode: statusCode,
@@ -72,13 +72,16 @@ class ApiException implements Exception {
   static const usernameTaken = 'username_taken';
   static const invalidToken = 'invalid_token';
   static const invalidRequest = 'invalid_request';
-  static const forbidden = 'forbidden';
+  static const notAllowed = 'not_allowed';
   static const notFound = 'not_found';
-  static const conflict = 'conflict';
-  static const rateLimited = 'rate_limited';
-  static const blocked = 'blocked';
+  static const tooManyAttempts = 'too_many_attempts';
   static const suspended = 'account_suspended';
-  static const notConfigured = 'not_configured';
+  static const notConfigured = 'provider_not_configured';
+  static const alreadyReported = 'already_reported';
+  static const alreadyLinked = 'already_linked';
+
+  /// A 409 the server gave no code for.
+  static const conflict = 'conflict';
 
   // The app's own codes.
   static const network = 'network_error';

@@ -973,7 +973,7 @@ abstract class AppLocalizations {
   /// No description provided for @socialReasonAbuse.
   ///
   /// In en, this message translates to:
-  /// **'Harassment or hate'**
+  /// **'Abuse or hate'**
   String get socialReasonAbuse;
 
   /// No description provided for @socialReasonInappropriate.
@@ -981,12 +981,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Inappropriate content'**
   String get socialReasonInappropriate;
-
-  /// No description provided for @socialReasonMisleading.
-  ///
-  /// In en, this message translates to:
-  /// **'Misleading or a scam'**
-  String get socialReasonMisleading;
 
   /// No description provided for @socialReasonOther.
   ///
@@ -1173,6 +1167,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have 5+ apps on Yallapp. Apply for the Pro Developer badge.'**
   String get profileApplyLine;
+
+  /// No description provided for @socialReasonHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment'**
+  String get socialReasonHarassment;
+
+  /// No description provided for @socialReasonOffTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Off topic'**
+  String get socialReasonOffTopic;
+
+  /// No description provided for @socialReasonCopyright.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else’s work'**
+  String get socialReasonCopyright;
+
+  /// No description provided for @commonShowMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get commonShowMore;
+
+  /// No description provided for @settingsEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get settingsEmail;
+
+  /// No description provided for @settingsEmailUnconfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not confirmed'**
+  String get settingsEmailUnconfirmed;
+
+  /// No description provided for @settingsResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the link again'**
+  String get settingsResend;
+
+  /// No description provided for @settingsResent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. Check your inbox.'**
+  String get settingsResent;
+
+  /// No description provided for @settingsDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get settingsDeleteAccount;
+
+  /// No description provided for @settingsDeleteLine.
+  ///
+  /// In en, this message translates to:
+  /// **'This deletes your profile, follows and friends at once. Your questions and answers stay, shown as from “Deleted member”.'**
+  String get settingsDeleteLine;
+
+  /// No description provided for @settingsDeletePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password'**
+  String get settingsDeletePassword;
+
+  /// No description provided for @settingsDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get settingsDeleteConfirm;
 }
 
 class _AppLocalizationsDelegate

@@ -36,6 +36,7 @@ class SettingsPage extends ConsumerWidget {
       _ => l.langEnglish,
     };
     final linked = me?.yallappLinked ?? false;
+    final account = me?.account;
     return Scaffold(
       backgroundColor: p.screen,
       appBar: AppBar(
@@ -58,6 +59,36 @@ class SettingsPage extends ConsumerWidget {
                 title: l.profileEdit,
                 onTap: () => context.push(Paths.editProfile),
               ),
+              if (account?.email case final email?)
+                _Row(
+                  key: const ValueKey('settings-email'),
+                  icon: Symbols.mail,
+                  title: email,
+                  value: account!.emailVerified
+                      ? null
+                      : l.settingsEmailUnconfirmed,
+                  onTap: account.emailVerified
+                      ? null
+                      : () async {
+                          final messenger = ScaffoldMessenger.of(context);
+                          try {
+                            await ref
+                                .read(communityApiProvider)
+                                .resendVerification();
+                            messenger.showSnackBar(
+                              SnackBar(content: Text(l.settingsResent)),
+                            );
+                          } on ApiException catch (e) {
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  e.message.isEmpty ? l.commonError : e.message,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                ),
               _Row(
                 key: const ValueKey('settings-yallapp'),
                 icon: Symbols.link,
@@ -137,8 +168,16 @@ class SettingsPage extends ConsumerWidget {
                     ),
                   ],
                   selected: {mode},
-                  onSelectionChanged: (s) =>
-                      ref.read(themeModeProvider.notifier).set(s.first),
+                  onSelectionChanged: (s) {
+                    ref.read(themeModeProvider.notifier).set(s.first);
+                    // Kept with the account too (the website follows it).
+                    if (me != null) {
+                      ref
+                          .read(communityApiProvider)
+                          .updateMe(theme: s.first.name)
+                          .then((_) {}, onError: (Object _) {});
+                    }
+                  },
                   style: SegmentedButton.styleFrom(
                     selectedBackgroundColor: p.dark ? Brand.orange : Brand.navy,
                     selectedForegroundColor: Colors.white,
@@ -232,7 +271,82 @@ class SettingsPage extends ConsumerWidget {
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          Center(
+            child: TextButton(
+              key: const ValueKey('settings-delete'),
+              onPressed: () => _deleteAccount(context, ref),
+              style: TextButton.styleFrom(foregroundColor: p.muted),
+              child: Text(l.settingsDeleteAccount),
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// Deleting the account (the stores require it in the app): email members
+/// type their password, Apple and Google members confirm.
+Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
+  final l = context.l10n;
+  final account = ref.read(meProvider)?.account;
+  final needsPassword = account?.hasPassword ?? true;
+  final password = TextEditingController();
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (d) => AlertDialog(
+      title: Text(l.settingsDeleteAccount),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.settingsDeleteLine),
+          if (needsPassword) ...[
+            const SizedBox(height: 12),
+            TextField(
+              key: const ValueKey('delete-password'),
+              controller: password,
+              obscureText: true,
+              autofillHints: const [AutofillHints.password],
+              decoration: InputDecoration(hintText: l.settingsDeletePassword),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(d, false),
+          child: Text(l.commonCancel),
+        ),
+        TextButton(
+          key: const ValueKey('delete-confirm'),
+          onPressed: () => Navigator.pop(d, true),
+          child: Text(
+            l.settingsDeleteConfirm,
+            style: const TextStyle(color: Color(0xFFE5484D)),
+          ),
+        ),
+      ],
+    ),
+  );
+  final typed = password.text;
+  password.dispose();
+  if (ok != true || !context.mounted) return;
+  final messenger = ScaffoldMessenger.of(context);
+  try {
+    await ref
+        .read(communityApiProvider)
+        .deleteAccount(password: needsPassword ? typed : null);
+    await ref.read(sessionProvider.notifier).forget();
+  } on ApiException catch (e) {
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          e.offline
+              ? l.commonOffline
+              : (e.message.isEmpty ? l.commonError : e.message),
+        ),
       ),
     );
   }
@@ -362,13 +476,13 @@ class BlockedPage extends ConsumerWidget {
         ),
       ),
       body: switch (blocked) {
-        AsyncData(:final value) when value.isEmpty => Center(
+        AsyncData(:final value) when value.items.isEmpty => Center(
           child: Text(l.settingsNoBlocked, style: TextStyle(color: p.muted)),
         ),
         AsyncData(:final value) => ListView(
           padding: const EdgeInsets.fromLTRB(14, 4, 14, 40),
           children: [
-            for (final m in value)
+            for (final m in value.items)
               MemberRow(
                 member: m,
                 trailing: TextButton(

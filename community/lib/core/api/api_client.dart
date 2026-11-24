@@ -7,18 +7,27 @@ import 'json.dart';
 /// member's token on every call, the app's language, and failures turned
 /// into [ApiException]. Every feature's API (lib/features/*/data) talks
 /// through it; nothing else makes HTTP calls.
+///
+/// Access tokens last 15 minutes. A call the server answers 401 asks
+/// [renew] for new tokens once (one renewal at a time, however many calls
+/// failed together) and is sent again.
 class ApiClient {
-  ApiClient({required String baseUrl, Dio? dio, this.token, this.language})
-    : _dio =
-          dio ??
-          Dio(
-            BaseOptions(
-              baseUrl: baseUrl,
-              connectTimeout: const Duration(seconds: 15),
-              receiveTimeout: const Duration(seconds: 30),
-              headers: {'accept': 'application/json'},
-            ),
-          );
+  ApiClient({
+    required String baseUrl,
+    Dio? dio,
+    this.token,
+    this.language,
+    this.renew,
+  }) : _dio =
+           dio ??
+           Dio(
+             BaseOptions(
+               baseUrl: baseUrl,
+               connectTimeout: const Duration(seconds: 15),
+               receiveTimeout: const Duration(seconds: 30),
+               headers: {'accept': 'application/json'},
+             ),
+           );
 
   final Dio _dio;
 
@@ -28,84 +37,115 @@ class ApiClient {
   /// The app's language (`en`, `ar`, `tr`), sent as `accept-language`.
   String Function()? language;
 
-  Options _options([Options? options]) {
-    final headers = <String, Object?>{...?options?.headers};
+  /// Gets new tokens after a 401; true when it did.
+  Future<bool> Function()? renew;
+  Future<bool>? _renewing;
+
+  Options _options() {
+    final headers = <String, Object?>{};
     final t = token?.call();
     if (t != null && t.isNotEmpty) headers['authorization'] = 'Bearer $t';
     final l = language?.call();
     if (l != null) headers['accept-language'] = l;
-    return (options ?? Options()).copyWith(headers: headers);
+    return Options(headers: headers);
   }
 
   Future<T> _run<T>(
-    Future<Response<Object?>> Function() call,
-    T Function(Object? body) read,
-  ) async {
+    Future<Response<Object?>> Function(Options options) call,
+    T Function(Object? body) read, {
+    bool canRenew = true,
+  }) async {
+    final sentWith = token?.call();
     try {
-      final response = await call();
-      return read(response.data);
+      return read((await call(_options())).data);
     } on DioException catch (e) {
+      final renewer = renew;
+      if (canRenew &&
+          renewer != null &&
+          sentWith != null &&
+          e.response?.statusCode == 401) {
+        // Another call may have renewed the tokens meanwhile.
+        final renewed =
+            token?.call() != sentWith ||
+            await (_renewing ??= renewer().whenComplete(
+              () => _renewing = null,
+            ));
+        if (renewed) {
+          try {
+            return read((await call(_options())).data);
+          } on DioException catch (again) {
+            throw ApiException.fromDio(again);
+          }
+        }
+      }
       throw ApiException.fromDio(e);
     }
   }
 
+  static Json _body(Object? b) =>
+      b == null || b == '' ? <String, dynamic>{} : asJson(b);
+
   Future<Json> get(String path, {Map<String, Object?>? query}) => _run(
-    () => _dio.get<Object?>(
-      path,
-      queryParameters: _clean(query),
-      options: _options(),
-    ),
+    (o) => _dio.get<Object?>(path, queryParameters: _clean(query), options: o),
     asJson,
   );
 
-  Future<Json> post(String path, {Object? body}) => _run(
-    () => _dio.post<Object?>(
+  /// [renew] false: a call that must not renew the tokens (renewing them,
+  /// signing out).
+  Future<Json> post(String path, {Object? body, bool renew = true}) => _run(
+    (o) => _dio.post<Object?>(
       path,
       data: body ?? const <String, Object?>{},
-      options: _options(),
+      options: o,
     ),
-    (b) => b == null || b == '' ? <String, dynamic>{} : asJson(b),
+    _body,
+    canRenew: renew,
   );
 
   Future<Json> patch(String path, {Object? body}) => _run(
-    () => _dio.patch<Object?>(
+    (o) => _dio.patch<Object?>(
       path,
       data: body ?? const <String, Object?>{},
-      options: _options(),
+      options: o,
     ),
-    (b) => b == null || b == '' ? <String, dynamic>{} : asJson(b),
+    _body,
   );
 
   Future<Json> put(String path, {Object? body}) => _run(
-    () => _dio.put<Object?>(
+    (o) => _dio.put<Object?>(
       path,
       data: body ?? const <String, Object?>{},
-      options: _options(),
+      options: o,
     ),
-    (b) => b == null || b == '' ? <String, dynamic>{} : asJson(b),
+    _body,
   );
 
-  Future<void> delete(String path, {Object? body}) => _run(
-    () => _dio.delete<Object?>(path, data: body, options: _options()),
-    (_) {},
-  );
+  Future<void> delete(String path, {Object? body}) =>
+      _run((o) => _dio.delete<Object?>(path, data: body, options: o), (_) {});
+
+  /// A DELETE whose answer is read (the contract's Relationship).
+  Future<Json> deleteJson(String path, {Object? body}) =>
+      _run((o) => _dio.delete<Object?>(path, data: body, options: o), _body);
 
   /// A file sent as `multipart/form-data` under [field].
   Future<Json> upload(
     String path, {
+    String method = 'POST',
     required String field,
     required String filePath,
     Map<String, Object?> fields = const {},
-  }) async {
+  }) => _run((o) async {
+    // A form is read once: each try builds its own.
     final form = FormData.fromMap({
       ...fields,
       field: await MultipartFile.fromFile(filePath),
     });
-    return _run(
-      () => _dio.post<Object?>(path, data: form, options: _options()),
-      asJson,
+    return _dio.request<Object?>(
+      path,
+      data: form,
+      options: o.copyWith(method: method),
     );
-  }
+  }, asJson);
 
   static Map<String, Object?>? _clean(Map<String, Object?>? query) =>
       query == null

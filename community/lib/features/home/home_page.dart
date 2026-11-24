@@ -780,17 +780,23 @@ class _Post extends ConsumerWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              // Paid on the website: a lock, never a price.
                               Sym(
-                                item.kind == FeedKind.question
-                                    ? Symbols.forum
-                                    : Symbols.storefront,
+                                item.locked
+                                    ? Symbols.lock
+                                    : (item.kind == FeedKind.question
+                                          ? Symbols.forum
+                                          : Symbols.storefront),
                                 size: 16,
+                                fill: item.locked,
                                 color: Colors.white,
                               ),
                               const SizedBox(width: 7),
                               Flexible(
                                 child: Text(
-                                  item.label!,
+                                  item.locked
+                                      ? '${item.label!} · ${context.l10n.commonLocked}'
+                                      : item.label!,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
