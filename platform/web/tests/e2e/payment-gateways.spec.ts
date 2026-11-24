@@ -145,11 +145,13 @@ test("ten tests every ten minutes, then a plain message", async () => {
     await expect(button).toHaveText(/Test connection$/);
   }
   await expect(limited).toBeVisible();
+  // `ran` counts the refused click too: the tests left in the window, plus one.
   if (earlier === 0) {
-    // A new window since the earlier tests: all ten, then the limit.
-    expect(ran).toBe(10);
+    // A new window since the earlier tests: all ten, then the eleventh refused.
+    expect(ran).toBe(11);
   } else {
-    expect(ran).toBeGreaterThanOrEqual(7);
-    expect(ran).toBeLessThanOrEqual(9);
+    // 7–9 with all three earlier tests in this window (11 − 3, give or take the one that sent no keys); fewer when a window ended between them.
+    expect(ran).toBeGreaterThanOrEqual(10 - earlier);
+    expect(ran).toBeLessThanOrEqual(12 - earlier);
   }
 });
