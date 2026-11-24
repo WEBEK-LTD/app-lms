@@ -494,14 +494,21 @@ class QuestionCard extends StatelessWidget {
                   children: [
                     MemberAvatar(member: q.author.member, size: 24),
                     const SizedBox(width: 8),
-                    Expanded(
+                    // The name in its own direction, then the age in the app's.
+                    Flexible(
                       child: Text(
-                        '${q.author.member.name} · ${shortAge(context, q.createdAt)}',
+                        q.author.member.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        textDirection: contentDirection(q.author.member.name),
                         style: TextStyle(fontSize: 12, color: quiet),
                       ),
                     ),
+                    Text(
+                      ' · ${shortAge(context, q.createdAt)}',
+                      style: TextStyle(fontSize: 12, color: quiet),
+                    ),
+                    const Spacer(),
                     const SizedBox(width: 10),
                     Sym(Symbols.arrow_upward, size: 17, color: quiet),
                     Text(
