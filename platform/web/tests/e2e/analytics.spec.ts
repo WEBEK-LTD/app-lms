@@ -186,7 +186,7 @@ test("Dashboard › Analytics shows the numbers, compared and split", async () =
   await expect(funnel).toContainText("Viewed");
   await expect(funnel).toContainText("Added to cart");
   await expect(funnel).toContainText("50.0% of views");
-  await expect(own.getByText(/Value taken to checkout: ₺350\.00/)).toBeVisible();
+  await expect(own.getByText(/Value taken to checkout: ₺350(?![.\d])/)).toBeVisible();
   // A search made twice shows; the one that looked like an email address was never kept.
   const searches = own.getByRole("region", { name: "Top searches" });
   await expect(searches.getByRole("row", { name: /tulips/ })).toContainText("2");
