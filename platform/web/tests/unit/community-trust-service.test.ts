@@ -73,6 +73,7 @@ beforeEach(() => {
     files: {
       put: async (key, bytes, type) => void files.set(key, { bytes, type }),
       link: async (key, seconds) => `https://files.test/${key}?expires=${seconds}`,
+      delete: async (key) => void files.delete(key),
     },
     sendMail: async (mail) => void mails.push(mail),
     siteUrl: "https://community.yallapp.com.tr",
@@ -451,5 +452,28 @@ describe("231 security: reports and notices", () => {
     await T.notify(deps, { memberId: NOUR, kind: "answer", actorId: ALI, data: { actor: "Ali", title: "x" }, link: "/q/1" });
     expect((await T.listNotifications(deps, NOUR)).unread).toBe(0);
     expect(mails).toHaveLength(0);
+  });
+});
+
+describe("231 the ID proof is deleted 30 days after the decision", () => {
+  it("the daily purge deletes the file of a request decided over 30 days ago, logs it, and the link is gone; the decision stays", async () => {
+    linked.set(NOUR, { apps: apps(5), business: null });
+    const r = ok(await T.submitVerification(deps, NOUR, { full_name: "Nour El Hoda", idProof: idProof() })).state.request!;
+    // Still pending: never deleted, however old.
+    clock = new Date(clock.getTime() + 60 * DAY);
+    expect(await T.purgeIdProofs(deps)).toBe(0);
+    ok(await T.decideVerification(deps, ADMIN, r.id, { decision: "approve", reason: "All checks out." }));
+    clock = new Date(clock.getTime() + 29 * DAY);
+    expect(await T.purgeIdProofs(deps)).toBe(0);
+    expect(files.has(r.idProofKey)).toBe(true);
+    clock = new Date(clock.getTime() + 2 * DAY);
+    expect(await T.purgeIdProofs(deps)).toBe(1);
+    expect(files.has(r.idProofKey)).toBe(false);
+    expect(await T.purgeIdProofs(deps)).toBe(0);
+    const kept = (await deps.store.getVerification(r.id))!;
+    expect(kept).toMatchObject({ idProofKey: "", status: "approved", fullName: "Nour El Hoda" });
+    expect(await T.idProofLink(deps, ADMIN, r.id)).toMatchObject({ ok: false, status: 404 });
+    const log = ok(await T.auditLog(deps, ADMIN, { action: "verification.id_proof_deleted" })).page.items;
+    expect(log).toEqual([expect.objectContaining({ actorId: null, memberId: NOUR, targetId: r.id })]);
   });
 });

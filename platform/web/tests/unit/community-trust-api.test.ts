@@ -195,7 +195,7 @@ describe("231 the daily trust run", () => {
     await trust.addMemberBadge({ memberId: nour.id, badge: "blue", source: "auto", reason: null, grantedAt: NOW, grantedBy: null, expiresAt: null, details: null });
     await api(c, "POST", `/admin/members/${ali.id}/badges`, { token: admin.token, body: { badge: "blue", reason: "Moderator" } });
     // Nour has no points and no activity: Blue's rules don't hold.
-    expect(await runCommunityTrustDaily({ deps: c.deps, store: c.deps.store, now: c.deps.now })).toEqual({ checked: 1, granted: 0, revoked: 1 });
+    expect(await runCommunityTrustDaily({ deps: c.deps, store: c.deps.store, now: c.deps.now })).toEqual({ checked: 1, granted: 0, revoked: 1, idProofsDeleted: 0 });
     expect((await api<{ top_badge: string | null }>(c, "GET", `/members/${nour.id}`)).body.top_badge).toBeNull();
     expect((await api<{ top_badge: string | null }>(c, "GET", `/members/${ali.id}`)).body.top_badge).toBe("blue");
   });
@@ -218,6 +218,20 @@ describe("231 area C's routes are exactly the contract's", () => {
 
 describe("231 moderation and notifications with the Q&A (area B)", () => {
   const QUESTION = { title: "How do I connect a payment gateway to my store?", body: "I built a store with Yallapp and want card payments at checkout. Where do I start?", section: "payments", tags: ["Payments"] };
+
+  it("a held answer shows its own words to the moderator; approved, the asker is told (the Q&A's own hooks run)", async () => {
+    await c.deps.store.base.updateMember(nour.id, { approvedPosts: 2 });
+    const q = await api<{ id: string }>(c, "POST", "/qa/questions", { token: nour.token, body: QUESTION });
+    const text = "Open Settings, then Payments, and connect your provider there.";
+    const a = await api<{ id: string; status: string }>(c, "POST", `/qa/questions/${q.body.id}/answers`, { token: ali.token, body: { body: text } });
+    expect(a.body.status).toBe("pending");
+    const queue = await api<{ items: { id: string; preview: string; target_id: string }[] }>(c, "GET", "/admin/moderation", { token: admin.token });
+    const item = queue.body.items.find((i) => i.target_id === a.body.id)!;
+    expect(item.preview).toBe(text);
+    expect((await api(c, "POST", `/admin/moderation/${item.id}`, { token: admin.token, body: { decision: "approve" } })).status).toBe(200);
+    const kinds = (await api<{ items: { kind: string }[] }>(c, "GET", "/notifications", { token: nour.token })).body.items.map((n) => n.kind);
+    expect(kinds).toContain("answer");
+  });
 
   it("a new member's first question waits in the queue; approved, it shows and its author is told; an answer tells the asker by email", async () => {
     const asked = await api<{ id: string; status: string }>(c, "POST", "/qa/questions", { token: nour.token, body: QUESTION });

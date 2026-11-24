@@ -1,6 +1,6 @@
 import type { CommunityContext } from "../api/http";
 import { trustDepsOf } from "./context";
-import { refreshAutoBadges } from "./service";
+import { purgeIdProofs, refreshAutoBadges } from "./service";
 import type { TrustStore } from "./store";
 
 /**
@@ -9,14 +9,15 @@ import type { TrustStore } from "./store";
  * goes after 90 days without activity, Green when the paid plan lapses) and
  * for the members who may have come to qualify (the base lists them when it
  * can: enough points, or a linked Yallapp account). Between runs a badge
- * comes when something changes for the member (`badgeCheck`).
+ * comes when something changes for the member (`badgeCheck`). Gold's ID
+ * proof files are deleted 30 days after the admin's decision.
  */
 interface Candidates {
   /** Members who may hold Blue or Green: enough points, or a linked Yallapp account (area A's store, when it has the list). */
   badgeCandidates?: (minPoints: number, offset: number, limit: number) => Promise<string[]>;
 }
 
-export async function runCommunityTrustDaily(ctx: Pick<CommunityContext, "deps" | "store" | "now">): Promise<{ checked: number; granted: number; revoked: number }> {
+export async function runCommunityTrustDaily(ctx: Pick<CommunityContext, "deps" | "store" | "now">): Promise<{ checked: number; granted: number; revoked: number; idProofsDeleted: number }> {
   const deps = trustDepsOf(ctx);
   const ids = new Set(await (ctx.store.trust as TrustStore).membersWithAutoBadges());
   const base = ctx.store.base as unknown as Candidates;
@@ -35,7 +36,9 @@ export async function runCommunityTrustDaily(ctx: Pick<CommunityContext, "deps" 
     granted += changes.granted.length;
     revoked += changes.revoked.length;
   }
-  return { checked: ids.size, granted, revoked };
+  // Gold's ID proofs go 30 days after the decision.
+  const idProofsDeleted = await purgeIdProofs(deps);
+  return { checked: ids.size, granted, revoked, idProofsDeleted };
 }
 
 /** Area B (an answer accepted, a tutorial approved, points given) and area A call this when a member's numbers change: Blue and Green follow at once. */

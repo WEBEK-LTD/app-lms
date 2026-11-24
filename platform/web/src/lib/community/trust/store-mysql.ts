@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, count, desc, eq, inArray, isNull, max, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNull, lt, max, ne, type SQL } from "drizzle-orm";
 import type { MySql2Database } from "drizzle-orm/mysql2";
 import {
   communityAuditLog,
@@ -176,6 +176,16 @@ export class MysqlTrustStore implements TrustStore {
     const t = communityVerificationRequests;
     const [res] = await this.db.update(t).set({ status: input.status, reviewedAt: input.at, reviewedBy: input.by, reason: input.reason }).where(and(eq(t.id, id), eq(t.status, "pending")));
     return res.affectedRows ? this.getVerification(id) : null;
+  }
+
+  async idProofsDecidedBefore(before: Date, limit: number) {
+    const t = communityVerificationRequests;
+    const rows = await this.db.select().from(t).where(and(ne(t.status, "pending"), ne(t.idProofKey, ""), lt(t.reviewedAt, before))).orderBy(asc(t.reviewedAt), asc(t.id)).limit(limit);
+    return rows.map(verificationOf);
+  }
+  async clearIdProof(id: string) {
+    const t = communityVerificationRequests;
+    await this.db.update(t).set({ idProofKey: "" }).where(eq(t.id, id));
   }
 
   async addAudit(input: Omit<AuditEntry, "id">) {

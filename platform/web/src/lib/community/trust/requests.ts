@@ -37,6 +37,8 @@ export const PORTFOLIO_MAX = 5;
 /** The ID proof: a photo or a PDF, at most 10 MB. */
 export const ID_PROOF_TYPES: Readonly<Record<string, string>> = { "image/jpeg": "jpg", "image/png": "png", "application/pdf": "pdf" };
 export const ID_PROOF_MAX_BYTES = 10 * 1024 * 1024;
+/** The ID proof file is deleted this many days after the admin's decision (approve or reject); the name, links and decision stay. */
+export const ID_PROOF_KEEP_DAYS = 30;
 
 const URL_RE = /^https?:\/\/[^\s/$.?#][^\s]*$/i;
 
@@ -118,6 +120,7 @@ export const AUDIT_ACTIONS = [
   "badge.auto_revoke",
   "verification.approve",
   "verification.reject",
+  "verification.id_proof_deleted",
   "member.suspend",
   "member.restore",
   "moderator.grant",
