@@ -216,7 +216,8 @@ describe("the gateways that keep their own pages", () => {
     expect(PAGE_CSP).toBe("base-uri 'self'; object-src 'none'; frame-ancestors 'none'");
     expect(PAGE_CSP).not.toMatch(/(default|script|frame|child|connect)-src/);
     // The nonce policy (scripts only with the request's nonce) isn't on the payment page.
-    const sources = proxyConfig.matcher.map((m) => new RegExp(`^${m.source}$`));
+    // 231 Yallapp's own host: the community host's matcher (`has` its host) never serves /pay.
+    const sources = proxyConfig.matcher.filter((m) => !("has" in m)).map((m) => new RegExp(`^${m.source}$`));
     expect(sources.some((r) => r.test("/dashboard/orders"))).toBe(true);
     for (const path of ["/pay/abc123", "/pay/abc123/order-received"]) expect(sources.some((r) => r.test(path)), path).toBe(false);
   });
