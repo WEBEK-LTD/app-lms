@@ -302,5 +302,7 @@
   "notifKindFollow": "متابعون جدد",
   "notifKindBadge": "الشارات",
   "notifKindVerification": "طلب التوثيق",
-  "notifKindOther": "أخرى"
+  "notifKindOther": "أخرى",
+  "qaSearchMembers": "الأعضاء",
+  "qaSearchTags": "الوسوم"
 }

@@ -1917,6 +1917,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other'**
   String get notifKindOther;
+
+  /// No description provided for @qaSearchMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get qaSearchMembers;
+
+  /// No description provided for @qaSearchTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get qaSearchTags;
 }
 
 class _AppLocalizationsDelegate

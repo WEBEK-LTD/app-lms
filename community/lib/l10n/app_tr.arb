@@ -302,5 +302,7 @@
   "notifKindFollow": "Yeni takipçiler",
   "notifKindBadge": "Rozetler",
   "notifKindVerification": "Doğrulama başvurum",
-  "notifKindOther": "Diğer"
+  "notifKindOther": "Diğer",
+  "qaSearchMembers": "Üyeler",
+  "qaSearchTags": "Etiketler"
 }

@@ -8,10 +8,11 @@ import '../../features/qa/ui/ask_screen.dart';
 import '../../features/qa/ui/question_screen.dart';
 import '../../features/qa/ui/questions_screen.dart';
 import '../../features/qa/ui/widgets/section_header.dart';
+import '../../features/search/ui/saved_screen.dart';
+import '../../features/search/ui/search_screen.dart';
 import '../../features/shell/side_menu.dart';
 import '../../features/tutorials/ui/tutorial_screen.dart';
 import '../../features/tutorials/ui/tutorials_screen.dart';
-import '../widgets/coming_soon.dart';
 
 /// Area E's screens in the app (lib/features/qa, tutorials, badges,
 /// notifications): this file is E's. The shell (area D) links to them only
@@ -75,11 +76,11 @@ List<RouteBase> featureTabRoutes() => [
   ),
   GoRoute(
     path: FeatureLinks.search,
-    builder: (context, state) => const ComingSoonPage(title: 'Search'),
+    builder: (context, state) => const SearchScreen(),
   ),
   GoRoute(
     path: FeatureLinks.saved,
-    builder: (context, state) => const ComingSoonPage(title: 'Saved'),
+    builder: (context, state) => const SavedScreen(),
   ),
 ];
 

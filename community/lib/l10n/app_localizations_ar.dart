@@ -1006,4 +1006,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notifKindOther => 'أخرى';
+
+  @override
+  String get qaSearchMembers => 'الأعضاء';
+
+  @override
+  String get qaSearchTags => 'الوسوم';
 }

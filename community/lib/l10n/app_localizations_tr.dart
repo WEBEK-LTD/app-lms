@@ -1000,4 +1000,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get notifKindOther => 'Diğer';
+
+  @override
+  String get qaSearchMembers => 'Üyeler';
+
+  @override
+  String get qaSearchTags => 'Etiketler';
 }

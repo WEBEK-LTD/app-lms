@@ -1005,4 +1005,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifKindOther => 'Other';
+
+  @override
+  String get qaSearchMembers => 'Members';
+
+  @override
+  String get qaSearchTags => 'Tags';
 }

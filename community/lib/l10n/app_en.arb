@@ -432,5 +432,7 @@
   "notifKindFollow": "New followers",
   "notifKindBadge": "Badges",
   "notifKindVerification": "My verification request",
-  "notifKindOther": "Other"
+  "notifKindOther": "Other",
+  "qaSearchMembers": "Members",
+  "qaSearchTags": "Tags"
 }
