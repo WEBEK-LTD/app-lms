@@ -65,6 +65,16 @@ done: upload the key set to the Google provider (`jwksJson`) so Google
 needs no call to the site, at the cost of uploading it again on every
 key rotation.
 
+Roadmap 224.10 (the faces Studio pages name, in the app): a project's Studio
+pages can name a face on an element besides the look's two fonts (a
+heading's display face); it is now served with the look
+(`Appearance.page_fonts`, at most 4, with their files) and the app downloads
+it as it does the look's own, so the heading shows in its face on phones,
+not only in Studio's canvas. Seven looks already on `main` (their numbers in
+JetBrains Mono) show it too. The shade finder's, size finder's and quiz
+result's buttons draw in the app's font too. The app's part rides the next
+app release.
+
 
 Roadmap 222 (the plugin's follow-ups): plugin 0.4.54 (after 0.4.53, #496)
 serves WordPress apps' Studio pages without an empty section, as hosted

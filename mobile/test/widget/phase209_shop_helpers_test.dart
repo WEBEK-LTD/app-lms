@@ -194,6 +194,21 @@ void main() {
       await tester.pump();
       expect(find.text('Espresso'), findsOneWidget);
       expect(find.text('Shop this shade'), findsOneWidget);
+      // 224.10 Its button in the app's font, as the page's other words.
+      final label = tester.widget<RichText>(
+        find.descendant(
+          of: find.byKey(const ValueKey('swatches-button')),
+          matching: find.byWidgetPredicate(
+            (w) => w is RichText && w.text.toPlainText() == 'Shop this shade',
+          ),
+        ),
+      );
+      final appFont = Theme.of(tester.element(find.text('Shop this shade')))
+          .textTheme
+          .bodyMedium
+          ?.fontFamily;
+      expect(appFont, isNotNull);
+      expect(label.text.style?.fontFamily, appFont);
       // The quiz: two answers for the second result, its words and button.
       await tester.ensureVisible(find.byKey(const ValueKey('studio-quiz')));
       expect(find.text('By noon your skin feels…'), findsOneWidget);

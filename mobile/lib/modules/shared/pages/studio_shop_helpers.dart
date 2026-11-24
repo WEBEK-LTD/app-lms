@@ -48,7 +48,10 @@ class _HelperButton extends StatelessWidget {
           minimumSize: const Size(0, 44),
           padding: const EdgeInsets.symmetric(horizontal: 18),
           shape: const StadiumBorder(),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+          // 224.10 In the app's font (its family and fallbacks), not a bare style.
+          textStyle:
+              (Theme.of(context).textTheme.labelLarge ?? const TextStyle())
+                  .copyWith(fontSize: 14, fontWeight: FontWeight.w700),
         ),
         onPressed: onTap,
         icon: const AppIcon(AppIcons.arrowForward, size: 18),
