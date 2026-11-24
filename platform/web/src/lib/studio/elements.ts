@@ -11,7 +11,8 @@ import { newPremiumNode, premiumWordEn, type PremiumText } from "./premium-conte
  */
 
 /** 129 `premium`: Studio's premium library, one group for all of it (motion & media 129.1–129.8, content & commerce 129.11–129.20). */
-export type ElementGroup = "layout" | "content" | "more" | "premium";
+/** 228 `product`: the product page's elements, bound to the product it is opened on (a shop's). */
+export type ElementGroup = "layout" | "content" | "more" | "premium" | "product";
 
 export interface ElementInfo {
   type: StudioNodeType;
@@ -107,6 +108,18 @@ export const ELEMENTS: readonly ElementInfo[] = [
   { type: "delivery_slots", group: "premium", icon: "event_available", keywords: "delivery date day time slot book booking assembly furniture schedule appointment checkout", only: "store" },
   // 212 The listing filters, for every shop type: sizes, colours, price, brand.
   { type: "listing_filters", group: "premium", icon: "tune", keywords: "filter filters sizes colours colors price brand sort refine listing shop products", only: "store" },
+  // 228 The product page's elements, each bound to the product the page is opened on.
+  { type: "product_gallery", group: "product", icon: "photo_library", keywords: "product gallery photos images pager carousel thumbnails stacked", only: "store" },
+  { type: "product_title", group: "product", icon: "title", keywords: "product name title heading rating stars", only: "store" },
+  { type: "product_price", group: "product", icon: "sell", keywords: "product price from sale was now percent off discount", only: "store" },
+  { type: "product_variants", group: "product", icon: "checkroom", keywords: "product variants options sizes colours colors shades swatches chips size grid choose", only: "store" },
+  { type: "product_quantity", group: "product", icon: "add", keywords: "product quantity amount how many stepper plus minus", only: "store" },
+  { type: "product_buy", group: "product", icon: "add_shopping_cart", keywords: "product add to cart buy now button sticky bar bottom checkout", only: "store" },
+  { type: "product_description", group: "product", icon: "description", keywords: "product description about text details read more", only: "store" },
+  { type: "product_specs", group: "product", icon: "table_rows", keywords: "product specs specifications details facts table material", only: "store" },
+  { type: "product_reviews", group: "product", icon: "reviews", keywords: "product reviews ratings stars customers summary bars photos", only: "store" },
+  { type: "product_related", group: "product", icon: "view_carousel", keywords: "product related you may also like complete the look similar carousel grid", only: "store" },
+  { type: "product_delivery", group: "product", icon: "local_shipping", keywords: "product delivery shipping returns exchange info days secure payment", only: "store" },
 ];
 
 export function elementInfo(type: StudioNodeType): ElementInfo {
@@ -247,6 +260,24 @@ export function newNode(
     // 210 The shop's next delivery days and times, on a card.
     case "delivery_slots":
       return { id, type, delivery_slots: { days: 5 }, radius: 18, padding: { top: 12, end: 12, bottom: 12, start: 12 }, margin: { top: 8, end: 16, bottom: 8, start: 16 } };
+    // 228 The product page's elements: each starts in its first look, spaced as the app's product screen.
+    case "product_gallery":
+      return { id, type, aspect_ratio: 1 };
+    case "product_title":
+      return { id, type, font: { size: 22, weight: 800 }, margin: { top: 16, end: 16, bottom: 4, start: 16 } };
+    case "product_price":
+      return { id, type, font: { size: 20, weight: 800 }, margin: { top: 4, end: 16, bottom: 4, start: 16 } };
+    case "product_variants":
+    case "product_quantity":
+    case "product_description":
+    case "product_specs":
+    case "product_reviews":
+    case "product_delivery":
+      return { id, type, margin: { top: 12, end: 16, bottom: 4, start: 16 } };
+    case "product_related":
+      return { id, type, margin: { top: 16, end: 0, bottom: 8, start: 0 } };
+    case "product_buy":
+      return { id, type, pin: "bottom", radius: 14, padding: { top: 10, end: 16, bottom: 10, start: 16 } };
     case "video":
       return { id, type, video_url: null, aspect_ratio: 16 / 9, radius: 14 };
     case "form":

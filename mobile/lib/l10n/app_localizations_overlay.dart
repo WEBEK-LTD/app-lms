@@ -13756,4 +13756,17 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get filterOpen => overlay.text('filterOpen') ?? base.filterOpen;
+
+  @override
+  String get productBuyNow =>
+      overlay.text('productBuyNow') ?? base.productBuyNow;
+
+  @override
+  String productPriceFrom(String price) =>
+      overlay.format('productPriceFrom', {'price': price}) ??
+      base.productPriceFrom(price);
+
+  @override
+  String get productDeliveryReturns =>
+      overlay.text('productDeliveryReturns') ?? base.productDeliveryReturns;
 }

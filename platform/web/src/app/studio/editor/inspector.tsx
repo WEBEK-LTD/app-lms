@@ -54,6 +54,7 @@ import {
   TAB_BAR_DESIGNS,
   type WebPageLook,
   STUDIO_TECH_TYPES,
+  STUDIO_PRODUCT_TYPES,
 } from "@/lib/pages/types";
 // 174 The field is in the direction of the language being edited (Arabic right to left, whatever the dashboard's).
 import { isRtl } from "@/lib/i18n/locales";
@@ -76,6 +77,7 @@ import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookCont
 // 129.11–129.20 The premium elements' options and lists, and a layout's premium card style.
 import { PremiumControls, SurfaceControls } from "./premium-controls";
 import { TechControls } from "./tech-controls";
+import { ProductControls } from "./product-controls";
 import { CommerceControls } from "./commerce-controls";
 import { CategoryListNote, TemplateDataNote } from "./category-list-note";
 import { fromDashboard, isStoryElement, StoriesSourceControls } from "./stories-source-controls";
@@ -939,6 +941,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "flash_sale" || node.type === "coupon" ? <CommerceControls node={node} onChange={onChange} pickable={props.pickable} /> : null}
       {/* 211 The electronics shops' elements: their products, category, spec and look. */}
       {(STUDIO_TECH_TYPES as readonly string[]).includes(node.type) ? <TechControls node={node} onChange={onChange} pickable={props.pickable} lang={props.lang} /> : null}
+      {/* 228 The product page's elements: their look, options and words. */}
+      {(STUDIO_PRODUCT_TYPES as readonly string[]).includes(node.type) ? <ProductControls node={node} onChange={onChange} lang={props.lang} defaultLang={props.defaultLang} onProductPage={props.page.screen === "product"} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.couponCode")}
@@ -2018,7 +2022,8 @@ function PagePanel(props: Props) {
             onChange={(e) => {
               const screen = (e.target.value || undefined) as StudioPage["screen"];
               // The header lying over the page can't lie over a screen.
-              props.onPage({ screen, ...(screen && props.page.header?.type === "transparent" ? { header: { ...props.page.header, type: "title_search" } } : {}) });
+              // 228 The product page is the page alone: its photos can lie under that header.
+              props.onPage({ screen, ...(screen && screen !== "product" && props.page.header?.type === "transparent" ? { header: { ...props.page.header, type: "title_search" } } : {}) });
             }}
             className="h-9 rounded-lg px-2 font-normal"
             style={{ border: "1px solid var(--sf-line)" }}

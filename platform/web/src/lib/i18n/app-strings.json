@@ -3442,4 +3442,7 @@
 {"key":"filterPrice","en":"Price","ar":"السعر","tr":"Fiyat","description":"212 The price range in the listing's filters."},
 {"key":"filterBrand","en":"Brand","ar":"العلامة التجارية","tr":"Marka","description":"212 The brands in the listing's filters."},
 {"key":"filterPriceRange","en":"{min} to {max}","ar":"من {min} إلى {max}","tr":"{min} – {max}","description":"212 The price range chosen in the filters.","placeholders":{"min":"String","max":"String"}},
-{"key":"filterOpen","en":"Filter the products","ar":"صفِّ المنتجات","tr":"Ürünleri filtrele","description":"212 A Studio listing filter's button: opens the shop with its filters."}]}
+{"key":"filterOpen","en":"Filter the products","ar":"صفِّ المنتجات","tr":"Ürünleri filtrele","description":"212 A Studio listing filter's button: opens the shop with its filters."},
+{"key":"productBuyNow","en":"Buy now","ar":"اشترِ الآن","tr":"Hemen al","description":"228 A Studio product page's second button: adds the product and opens the cart."},
+{"key":"productPriceFrom","en":"From {price}","ar":"ابتداءً من {price}","tr":"Başlangıç fiyatı {price}","description":"228 A Studio product page's price when it starts from its lowest size's.","placeholders":{"price":"String"}},
+{"key":"productDeliveryReturns","en":"Delivery & returns","ar":"التوصيل والإرجاع","tr":"Teslimat ve iade","description":"228 The title of a Studio product page's delivery and returns card."}]}

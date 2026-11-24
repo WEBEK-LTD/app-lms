@@ -13366,4 +13366,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get filterOpen => 'صفِّ المنتجات';
+
+  @override
+  String get productBuyNow => 'اشترِ الآن';
+
+  @override
+  String productPriceFrom(String price) {
+    return 'ابتداءً من $price';
+  }
+
+  @override
+  String get productDeliveryReturns => 'التوصيل والإرجاع';
 }

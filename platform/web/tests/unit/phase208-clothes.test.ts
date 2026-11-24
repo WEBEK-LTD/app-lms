@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
+import { PRODUCT_PAGE_SLUG } from "@/lib/studio/product-page";
 import { kindById } from "@/lib/app/kinds";
 import { registerClient } from "@/lib/auth/accounts";
 import { MemoryStore } from "@/lib/data/memory";
@@ -327,7 +328,8 @@ describe("208 Lujain's two looks: LUJAIN the boutique and NOUN streetwear", () =
     // Shop the look: three numbered spots on its photo, each opening a piece (the shop without entries).
     expect(nodes.filter((n) => n.place && n.type === "row").length).toBe(3);
     const pages = d.pages!(ctx());
-    expect(pages.map((p) => p.slug)).toEqual([MENU_PAGE, SIZE_PAGE]);
+    // 228 Look A draws its own product page too (lib/studio/product-page.ts).
+    expect(pages.map((p) => p.slug)).toEqual(look === "a" ? [MENU_PAGE, SIZE_PAGE, PRODUCT_PAGE_SLUG] : [MENU_PAGE, SIZE_PAGE]);
     const menu = allNodes(pages[0]!.studio).find((n) => n.type === "categories" && n.style === "rows")!;
     expect(menu.category_menu?.look).toBe(look === "a" ? "lead" : "label");
     const app = { appType: "store" as const, backend: "hosted" as const, vertical: null };

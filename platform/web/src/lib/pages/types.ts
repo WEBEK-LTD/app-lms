@@ -54,6 +54,72 @@ export const STUDIO_PREMIUM_CARD_TYPES = ["profile_card"] as const;
  * skin type", a gift finder).
  */
 export const STUDIO_SHOP_HELPER_TYPES = ["size_finder", "swatches", "quiz"] as const;
+/**
+ * 228 The product page's elements, bound to the product a Studio page drawn
+ * for the product screen (`StudioPage.screen` `product`) is opened on: its
+ * photos, name, price, choices (sizes, colours, shades), quantity, Add to
+ * cart and Buy now, description, specs, reviews, the products that go with
+ * it, and delivery and returns. Each has its looks (`StudioNode.product_part`).
+ * Anywhere else (a home) the app draws nothing for them; an app before them
+ * skips them, and shows its own product screen.
+ */
+export const STUDIO_PRODUCT_TYPES = [
+  "product_gallery",
+  "product_title",
+  "product_price",
+  "product_variants",
+  "product_quantity",
+  "product_buy",
+  "product_description",
+  "product_specs",
+  "product_reviews",
+  "product_related",
+  "product_delivery",
+] as const;
+export type StudioProductType = (typeof STUDIO_PRODUCT_TYPES)[number];
+/** 228 The looks each product element can take; the first is what it starts as. */
+export const STUDIO_PRODUCT_LOOKS = {
+  // A full-bleed pager, an inset card, a photo with its thumbnails under it, the photos one under the other.
+  product_gallery: ["pager", "card", "thumbs", "stacked"],
+  // The name alone, or with its stars and how many rated it.
+  product_title: ["plain", "rating"],
+  // Its price; "From" the lowest of its sizes; the sale's price with the one before it struck through and the share off.
+  product_price: ["single", "from", "sale"],
+  // The options as chips, as colour swatches, or as a grid of equal cells (sizes).
+  product_variants: ["chips", "swatches", "grid"],
+  // Its words and − / + beside them, or a pill of − n + alone.
+  product_quantity: ["stepper", "pill"],
+  // Add to cart; Add to cart and Buy now side by side; the price beside Add to cart.
+  product_buy: ["cart", "buy_now", "price"],
+  // Its words open, or under a title that opens them.
+  product_description: ["plain", "accordion"],
+  // Its specs and facts as a table of two columns, or as a list of lines.
+  product_specs: ["table", "list"],
+  // The rating and the count with a link to the reviews, or the bars of each star, its customers' photos and first reviews.
+  product_reviews: ["summary", "bars"],
+  // The products as a row that slides, or a grid of two.
+  product_related: ["carousel", "grid"],
+  // Lines with an icon each, or a card of them.
+  product_delivery: ["rows", "card"],
+} as const satisfies Record<StudioProductType, readonly string[]>;
+/** 228 What the related products element shows: the shop's "You may also like", or Complete the look (a piece of each other main category). */
+export const STUDIO_PRODUCT_RELATED = ["related", "complete_look"] as const;
+/** 228 For the product page's elements (`STUDIO_PRODUCT_TYPES`): their look and options. */
+export interface StudioProductPart {
+  look?: string;
+  /** For `product_related`: which products. */
+  related?: (typeof STUDIO_PRODUCT_RELATED)[number];
+  /** For `product_specs` the rows shown, for `product_related` the products: 1 to 40; missing, all. */
+  rows?: number;
+  /** Its highlights' colour (the chosen chip, the price, the button); missing, the app's main colour. */
+  accent?: string | null;
+  /** In dark mode; missing, `accent`. */
+  dark_accent?: string | null;
+  /** For `product_gallery`: its corners (the card's, the thumbnails'), 0 to 40. */
+  radius?: number;
+}
+/** 228 The page screen of the product page: not a screen a button opens (it needs its product), so not in `SCREENS`. */
+export const STUDIO_PRODUCT_SCREEN = "product" as const;
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
 /**
  * 129.4 and 129.7 Premium banners that hold what lies over them, as a cover
@@ -105,6 +171,8 @@ export const STUDIO_CONTENT_TYPES = [
   ...STUDIO_TECH_TYPES,
   // 212 The listing filters: the shop's sizes (or colours) as chips opening the shop filtered, and its Filters.
   "listing_filters",
+  // 228 The product page's elements, bound to the product it is opened on.
+  ...STUDIO_PRODUCT_TYPES,
 ] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
@@ -456,8 +524,12 @@ export const SCREENS = [
  * 120 The app's screens a Studio page can be drawn around (`StudioPage.screen`):
  * every screen but the ones that open one thing (a restaurant, a teacher, a class).
  */
-export const STUDIO_PAGE_SCREENS = SCREENS.filter((s) => s !== "restaurant" && s !== "teacher" && s !== "classroom");
-export type StudioPageScreen = (typeof SCREENS)[number];
+/**
+ * 228 And `product`: the product page, drawn for every product the app opens
+ * and bound to it, in place of the app's own product screen (a store's).
+ */
+export const STUDIO_PAGE_SCREENS: readonly (ScreenName | typeof STUDIO_PRODUCT_SCREEN)[] = [...SCREENS.filter((s) => s !== "restaurant" && s !== "teacher" && s !== "classroom"), STUDIO_PRODUCT_SCREEN];
+export type StudioPageScreen = (typeof SCREENS)[number] | typeof STUDIO_PRODUCT_SCREEN;
 export const ITEMS_LAYOUTS = ["carousel", "grid", "list"] as const;
 export const ITEMS_SORTS = ["newest", "popular", "price_asc", "price_desc"] as const;
 export const BUTTON_STYLES = ["filled", "outlined", "text"] as const;
@@ -1572,6 +1644,8 @@ export interface StudioNode {
   /** 211 For the tech elements (`STUDIO_TECH_TYPES`): what they show; the servers fill `tech_served`. */
   tech?: StudioTech | null;
   tech_served?: StudioTechServed | null;
+  /** 228 For the product page's elements (`STUDIO_PRODUCT_TYPES`): their look and options. */
+  product_part?: StudioProductPart | null;
   /** 112.4 For `coupon`: the code people copy. */
   code?: string | null;
   // ——— 131 The flower shop ———

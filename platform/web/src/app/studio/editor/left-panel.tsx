@@ -103,6 +103,8 @@ export function LeftPanel(props: {
     { id: "more", label: t("studio.groupMore") },
     // 129 The premium library: one group for the motion & media and the content & commerce elements.
     { id: "premium", label: t("studio.groupPremium") },
+    // 228 The product page's elements, bound to the product it is opened on.
+    { id: "product", label: t("studio.groupProduct") },
   ];
   // 129.21–129.24 The premium maps the search leaves (none without a way to add them).
   const premiumMaps = props.onAddPremiumMap ? PREMIUM_MAPS.filter((m) => matches(t(`studio.pmap_${m.id}` as DashKey), m.keywords)) : [];
