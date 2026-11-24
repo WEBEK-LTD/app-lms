@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { StudioDemoId } from "@/lib/demo/constants";
 import { parseStudioPage } from "@/lib/pages/validate";
 import type { StudioNode, StudioPage } from "@/lib/pages/types";
 import { APP_WORDS } from "@/lib/studio/app-words";
@@ -24,8 +25,8 @@ const LOOKS = [
   ["computers", "d"],
 ] as const;
 
-const productPageOfLook = (type: string, look: string): StudioPage | undefined =>
-  signatureDesign(type, look as "c" | "d" | "a" | "b")?.pages?.(ctx()).find((p) => p.slug === PRODUCT_PAGE_SLUG)?.studio;
+const productPageOfLook = (type: StudioDemoId, look: "c" | "d"): StudioPage | undefined =>
+  signatureDesign(type, look)?.pages?.(ctx()).find((p) => p.slug === PRODUCT_PAGE_SLUG)?.studio;
 
 // A page's skeleton: the element types in the tree, nested, with each product element's look.
 const skeleton = (n: StudioNode): string =>
