@@ -184,6 +184,12 @@ abstract class AppLocalizations {
   /// **'Unlocks on the account that has it'**
   String get commonLocked;
 
+  /// No description provided for @commonLockedIos.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get commonLockedIos;
+
   /// No description provided for @langTitle.
   ///
   /// In en, this message translates to:

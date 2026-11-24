@@ -54,6 +54,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get commonLocked => 'Sahip olan hesapta açılır';
 
   @override
+  String get commonLockedIos => 'Kilitli';
+
+  @override
   String get langTitle => 'Dil';
 
   @override

@@ -47,40 +47,59 @@ class WelcomePage extends ConsumerWidget {
           const buttonsBottom = 70.0;
           const buttonsHeight = 54.0 * 3 + 10 * 2;
           // The design's 476, up by the Google button and its gap (54 + 10).
-          const wordsTop = 476.0 - 64;
+          // A phone shorter than the design keeps the words the same height
+          // above the buttons, and the collage above shrinks to fit.
+          final short = (844 - h).clamp(0, 400).toDouble();
+          final wordsTop = 476.0 - 64 + extra - short;
+          // The collage under the status bar (the design's 96 under its 50).
+          final collageTop = 46 + MediaQuery.paddingOf(context).top;
+          // It reaches 44 points into the words' space, as in the design.
+          final scale = ((wordsTop + 44 - collageTop) / 360).clamp(.5, 1.0);
           return Stack(
             children: [
               const Positioned.fill(child: _Backdrop()),
-              // The collage (`.collage`, top 96).
+              // The collage (`.collage`, top 96) and the logo (`.lgo`, 140
+              // into it), scaled together from their top.
               Positioned(
-                top: 96,
+                top: collageTop,
                 left: 0,
                 right: 0,
                 height: 360,
-                child: _Collage(width: w),
-              ),
-              // The logo (`.lgo`).
-              Positioned(
-                top: 236,
-                left: (w - 92) / 2,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(26),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x8CFF5A1F),
-                        blurRadius: 50,
-                        offset: Offset(0, 20),
+                child: Transform.scale(
+                  scale: scale,
+                  alignment: Alignment.topCenter,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned.fill(child: _Collage(width: w)),
+                      Positioned(
+                        top: 140,
+                        left: (w - 92) / 2,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(26),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x8CFF5A1F),
+                                blurRadius: 50,
+                                offset: Offset(0, 20),
+                              ),
+                              BoxShadow(
+                                color: Color(0x0FFFFFFF),
+                                spreadRadius: 8,
+                              ),
+                            ],
+                          ),
+                          child: const CommunityLogo(size: 92, radius: 26),
+                        ),
                       ),
-                      BoxShadow(color: Color(0x0FFFFFFF), spreadRadius: 8),
                     ],
                   ),
-                  child: const CommunityLogo(size: 92, radius: 26),
                 ),
               ),
               // The words (`.lt`).
               Positioned(
-                top: wordsTop + extra,
+                top: wordsTop,
                 left: 24,
                 right: 24,
                 child: Column(

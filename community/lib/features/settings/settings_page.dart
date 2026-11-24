@@ -191,28 +191,31 @@ class SettingsPage extends ConsumerWidget {
             ],
           ),
           // Paid things are bought on the website only: no price, no link.
-          Padding(
-            padding: const EdgeInsets.fromLTRB(4, 18, 4, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                LockedMark(label: l.commonLocked, dark: p.dark),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 2),
-                  child: Text(
-                    l.settingsPaidNote,
-                    key: const ValueKey('settings-paid-note'),
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: p.muted,
-                      height: 1.45,
+          // Not on iOS: phase 1 has no paid content, and the App Store
+          // allows no hint of buying elsewhere.
+          if (!isIos(context))
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 18, 4, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  LockedMark(label: l.commonLocked, dark: p.dark),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 2),
+                    child: Text(
+                      l.settingsPaidNote,
+                      key: const ValueKey('settings-paid-note'),
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: p.muted,
+                        height: 1.45,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           _Group(
             title: l.settingsAbout,
             children: [

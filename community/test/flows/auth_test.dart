@@ -112,6 +112,22 @@ void main() {
     final context = tester.element(key('auth-apple'));
     expect(Directionality.of(context), TextDirection.rtl);
   });
+
+  // A phone shorter than the design (an iPhone SE, 375 × 667): the words
+  // stay above the buttons, the collage shrinks.
+  for (final size in [const Size(375, 667), const Size(411, 731)]) {
+    testWidgets('welcome fits ${size.width.toInt()} × ${size.height.toInt()}', (
+      tester,
+    ) async {
+      await TestApp.start(tester, signedIn: false);
+      tester.view.physicalSize = size * 2;
+      await TestApp.settle(tester);
+      expect(tester.takeException(), isNull);
+      final pitch = tester.getRect(find.textContaining('app makers'));
+      final apple = tester.getRect(key('auth-apple'));
+      expect(pitch.bottom, lessThan(apple.top));
+    });
+  }
 }
 
 /// Apple's sheet, with the nonce it was given.

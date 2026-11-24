@@ -48,7 +48,12 @@ class FakeCommunityApi implements CommunityApi {
     ),
     bio: 'Building shops with Studio since 2025.',
     skills: const ['Studio', 'Shops', 'Arabic apps'],
-    badges: const [EarnedBadge(kind: BadgeKind.blue)],
+    // Verified Business for the shop he runs, Active Member for his
+    // answers: the profile lists both, the highest by his name.
+    badges: const [
+      EarnedBadge(kind: BadgeKind.green, company: 'Lujain'),
+      EarnedBadge(kind: BadgeKind.blue),
+    ],
     points: 1240,
     // The design's "Pro · 1,240 pts" and its bar.
     levelProgress: .64,

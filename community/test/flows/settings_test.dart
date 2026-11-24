@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp_community/core/api/fake_community_api.dart';
@@ -63,5 +64,21 @@ void main() {
     await tap(tester, 'unblock-m-karim');
     expect(api.calls, contains('unblock:m-karim'));
     expect(key('unblock-m-karim'), findsNothing);
+  });
+
+  testWidgets('on iOS, no word about paid things or the website', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      final app = await TestApp.start(tester);
+      app.go(Paths.settings);
+      await TestApp.settle(tester);
+      expect(key('settings-paid-note'), findsNothing);
+      expect(find.textContaining('website'), findsNothing);
+      expect(find.textContaining('Unlocks'), findsNothing);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
   });
 }
