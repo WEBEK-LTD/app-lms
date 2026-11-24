@@ -100,7 +100,7 @@ const _sofa = _Piece(
   choiceAr: 'اللون',
   options: ['Ivory', 'Sand', 'Charcoal'],
   dimensions: 'W 220 × D 95 × H 82 cm',
-  dimensionsAr: 'ع 220 × عم 95 × ار 82 سم',
+  dimensionsAr: '220 × 95 × 82 سم',
   description: 'A low, deep three-seater in soft natural leather on a slim steel base, the heart of the Najd set.',
   descriptionAr: 'كنبة منخفضة وعميقة بثلاثة مقاعد من الجلد الطبيعي الناعم على قاعدة فولاذية نحيفة، قلب طقم نجد.',
   related: [
@@ -120,7 +120,7 @@ const _vase = _Piece(
   choiceAr: 'المقاس',
   options: ['Small', 'Large'],
   dimensions: 'W 14 × D 14 × H 28 cm',
-  dimensionsAr: 'ع 14 × عم 14 × ار 28 سم',
+  dimensionsAr: '14 × 14 × 28 سم',
   description: 'A tall matte vase with fine ribs, thrown in stoneware and glazed inside so it holds water for fresh stems.',
   descriptionAr: 'مزهرية طويلة غير لامعة بأضلاع رفيعة، مصنوعة من الحجر الخزفي ومزججة من الداخل لتحمل الماء للزهور الطازجة.',
   related: [

@@ -2888,7 +2888,7 @@ export const ar: Record<AppWord, string> = {
   pSampleFitValue: "واسعة",
   pSampleCare: "العناية",
   pSampleCareValue: "غسيل آلي على 30°",
-  pSampleSize: "ع 220 × عم 95 × ار 82 سم",
+  pSampleSize: "220 × 95 × 82 سم",
   pSizeTitle: "الأبعاد",
   // 211 The tech elements' own words (lib/pages/types.ts STUDIO_TECH_TYPES), as the app says them.
   techSpecs: "المواصفات",

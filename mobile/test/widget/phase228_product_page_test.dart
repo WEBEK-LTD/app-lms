@@ -419,6 +419,38 @@ void main() {
     app.container.dispose();
   });
 
+  testWidgets('228.8 under the size as the headline, the delivery lines '
+      'don\'t repeat it; without the headline, they show it', (tester) async {
+    for (final headline in [true, false]) {
+      final app = await open(
+        tester,
+        sized: true,
+        nodes: [
+          if (headline)
+            node('h', 'product_specs', {
+              'product_part': {'look': 'dimensions'},
+            }),
+          node('d', 'product_delivery', {
+            'product_part': {'look': 'card'},
+          }),
+        ],
+      );
+      app.container.read(appRouterProvider).push(Paths.product(30));
+      await TestApp.settle(tester, 20);
+      expect(
+        find.text('Dimensions: W 220 × D 95 × H 82 cm'),
+        headline ? findsNothing : findsOneWidget,
+      );
+      expect(
+        find.text('W 220 × D 95 × H 82 cm'),
+        headline ? findsOneWidget : findsNothing,
+      );
+      expect(find.text('Exchange or return within 14 days'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      app.container.dispose();
+    }
+  });
+
   testWidgets('228.8 without a size, the dimensions headline draws nothing', (
     tester,
   ) async {
@@ -462,10 +494,7 @@ void main() {
         '${shows ? 'shown' : 'left out'}', (tester) async {
       final app = await open(
         tester,
-        nodes: [
-          node('t', 'product_title'),
-          node('r', 'product_reviews'),
-        ],
+        nodes: [node('t', 'product_title'), node('r', 'product_reviews')],
         more: {
           'rating': count > 0 ? 4.3 : null,
           'rating_count': count,
@@ -545,7 +574,8 @@ void main() {
       const Color(0xFF7A1F30),
     );
     final shape =
-        button.style!.shape!.resolve(<WidgetState>{})! as RoundedRectangleBorder;
+        button.style!.shape!.resolve(<WidgetState>{})!
+            as RoundedRectangleBorder;
     expect(shape.borderRadius, BorderRadius.circular(30));
     app.container.dispose();
   });

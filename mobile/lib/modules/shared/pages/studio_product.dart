@@ -38,7 +38,7 @@ import 'studio_size_chart.dart' show showSizeGuide;
 
 /// The product a product page is drawn for, and what the customer chose.
 class ProductPageController extends ChangeNotifier {
-  ProductPageController(this.product) {
+  ProductPageController(this.product, {this.sizeHeadline = false}) {
     // 131 The variation the shop chose for when the page opens.
     for (final a in product.choices) {
       final value = product.defaultAttributes[a.slug];
@@ -49,6 +49,11 @@ class ProductPageController extends ChangeNotifier {
   }
 
   final ProductDetail product;
+
+  /// 228.8 Whether the page heads with the product's size
+  /// (`product_specs` `dimensions`): its delivery lines don't repeat it.
+  final bool sizeHeadline;
+
   final Map<String, String> chosen = {};
   int quantity = 1;
   int image = 0;
@@ -1620,7 +1625,7 @@ List<_Line> _deliveryLines(
   return [
     if (returns != null && returns.enabled && returns.days > 0)
       (AppIcons.exchange, context.l10n.exchangeWithin(returns.days)),
-    if (product.dimensions case final d?)
+    if (product.dimensions case final d? when !c.sizeHeadline)
       (AppIcons.sizeGuide, '${context.l10n.productDimensions}: $d'),
     if (product.makeDays case final d?)
       (AppIcons.schedule, '${context.l10n.productMadeToOrder}: $d'),

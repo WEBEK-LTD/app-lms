@@ -134,9 +134,20 @@ class ProductStudioPage extends ConsumerStatefulWidget {
 }
 
 class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
-  late ProductPageController _controller = ProductPageController(
-    widget.product,
-  );
+  late ProductPageController _controller = _controllerFor(widget);
+
+  static ProductPageController _controllerFor(ProductStudioPage w) =>
+      ProductPageController(w.product, sizeHeadline: _headsWithSize(w.page));
+
+  /// 228.8 Whether the page shows the product's size as its headline.
+  static bool _headsWithSize(StudioPage page) {
+    bool has(StudioNode n) =>
+        (!n.hidden &&
+            n.type == StudioNodeType.productSpecs &&
+            n.productPart.look == 'dimensions') ||
+        n.children.any(has);
+    return has(page.body);
+  }
 
   @override
   void initState() {
@@ -154,9 +165,9 @@ class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
   @override
   void didUpdateWidget(ProductStudioPage old) {
     super.didUpdateWidget(old);
-    if (old.product != widget.product) {
+    if (old.product != widget.product || old.page != widget.page) {
       _controller.dispose();
-      _controller = ProductPageController(widget.product);
+      _controller = _controllerFor(widget);
     }
   }
 

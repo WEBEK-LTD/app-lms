@@ -5036,7 +5036,7 @@ The owner (23 November): the ten shop types' looks A and B all look like one tem
 | [x] | 228.8.2 Reviews on a look's product page only when there are some, the customer's own, or the customer may write one: the shop sends its preview even with none, and the page showed "0.0" (`studioProductShows`) | `phase228_product_page_test.dart` |
 | [x] | 228.8.3 In Arabic, a spec's value and a size or option keep their own direction (`isolate`, core/format/bidi.dart): "256 GB", "6.6″", "2–3Y", never "GB 256" or "3Y–2" | `phase228_product_page_test.dart` |
 | [x] | 228.8.4 Notify me (back in stock) on a look's product page in the buy part's own accent and corners, as Add to cart is (`BackInStockButton.accent`, `radius`) | `phase228_product_page_test.dart` |
-| [x] | 228.8.5 The size as the headline (`product_specs` `dimensions`), the name's alignment, and the top band on every product page without a header once it scrolls: session 228's; MIZAN (furniture C) switched to it, its fixture regenerated (`furniture_c.json`) | `phase228_product_page_test.dart` |
+| [x] | 228.8.5 The size as the headline (`product_specs` `dimensions`), the name's alignment, and the top band on every product page without a header once it scrolls: session 228's; MIZAN (furniture C) switched to it, its fixture regenerated (`furniture_c.json`); under it the delivery lines don't repeat the size (`ProductPageController.sizeHeadline`); in Arabic a size reads "220 × 95 × 82 سم", without letters (no standard ones; the caption names width, depth, height; `dimensionsLine`), Turkish keeps G, D, Y | `phase228_product_page_test.dart` |
 | [ ] | 228.9 Ships with the next app release (no `CLIENT_APP_RELEASE` change here) | — |
 ## Phase 229: Prices that read cleanly
 
