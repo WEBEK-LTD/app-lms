@@ -7,3 +7,8 @@ Real shots of the Flutter preview app on a fresh /start project in each look,
 - `<demo>-<look>-product-full-<lang>[-dark].jpg`: the whole page
 
 Looks: toys C adventure map, toys D Montessori, mobiles C keynote, mobiles D deals hub.
+
+## demo-polish/ (wip-pp-demo-polish)
+
+Toys C and mobiles D product pages in Arabic and Turkish, light and dark, after the demo polish:
+descriptions in the reader's language, and no empty treasure chest when the shop has no code.
