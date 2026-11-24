@@ -14,15 +14,14 @@ export type CommunityLang = (typeof COMMUNITY_LANGS)[number];
 
 export const NOTIFICATION_KINDS = [
   // Q&A and tutorials (area B sends these)
-  "answer_posted",
+  "answer",
   "answer_accepted",
   "official_answer",
-  "reply_posted",
-  "question_voted",
-  "answer_voted",
-  "mentioned",
+  "reply",
+  "vote_milestone",
+  "mention",
   // People (area A sends these)
-  "followed",
+  "follow",
   "friend_request",
   "friend_accepted",
   // Trust (this area)
@@ -31,14 +30,16 @@ export const NOTIFICATION_KINDS = [
   "verification_approved",
   "verification_rejected",
   "post_approved",
-  "post_rejected",
+  "post_removed",
   "report_resolved",
+  // Area A sends this when the member links their Yallapp account.
+  "yallapp_linked",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
 /** The kinds that email by default (the member can turn each off); the rest only reach the list. */
 export const EMAILED_BY_DEFAULT: ReadonlySet<NotificationKind> = new Set<NotificationKind>([
-  "answer_posted",
+  "answer",
   "answer_accepted",
   "official_answer",
   "friend_request",
@@ -46,37 +47,33 @@ export const EMAILED_BY_DEFAULT: ReadonlySet<NotificationKind> = new Set<Notific
   "badge_revoked",
   "verification_approved",
   "verification_rejected",
-  "post_rejected",
+  "post_removed",
 ]);
 
-/** A member's email choices: all emails off, or each kind on or off (missing: its default). */
-export interface NotificationPrefs {
-  email: boolean;
-  kinds: Partial<Record<NotificationKind, boolean>>;
-}
+/** A member's email choices (`NotificationSettings.email`): each kind on or off; a kind missing takes its default. */
+export type NotificationPrefs = Partial<Record<NotificationKind, boolean>>;
 
-export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = { email: true, kinds: {} };
+export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {};
 
 /** Whether a notification of this kind is emailed to a member with these choices. */
 export function emails(kind: NotificationKind, prefs: NotificationPrefs): boolean {
-  return prefs.email && (prefs.kinds[kind] ?? EMAILED_BY_DEFAULT.has(kind));
+  return prefs[kind] ?? EMAILED_BY_DEFAULT.has(kind);
 }
 
-/** The member's choices as sent (only the fields sent change), checked. */
+/** Every kind with whether it emails, as `GET /notifications/settings` gives them. */
+export function prefsView(prefs: NotificationPrefs): Record<NotificationKind, boolean> {
+  return Object.fromEntries(NOTIFICATION_KINDS.map((k) => [k, emails(k, prefs)])) as Record<NotificationKind, boolean>;
+}
+
+/** The member's choices as sent (`{ email: { kind: true|false } }`, only the kinds sent change), checked. */
 export function parsePrefs(input: unknown, current: NotificationPrefs): { ok: true; value: NotificationPrefs } | { ok: false; error: string } {
-  const v = (input ?? {}) as Record<string, unknown>;
-  const out: NotificationPrefs = { email: current.email, kinds: { ...current.kinds } };
-  if (v.email !== undefined) {
-    if (typeof v.email !== "boolean") return { ok: false, error: "email must be true or false." };
-    out.email = v.email;
-  }
-  if (v.kinds !== undefined) {
-    if (!v.kinds || typeof v.kinds !== "object" || Array.isArray(v.kinds)) return { ok: false, error: "kinds must be an object." };
-    for (const [k, on] of Object.entries(v.kinds as Record<string, unknown>)) {
-      if (!(NOTIFICATION_KINDS as readonly string[]).includes(k)) return { ok: false, error: `Unknown kind ${k}.` };
-      if (typeof on !== "boolean") return { ok: false, error: `${k} must be true or false.` };
-      out.kinds[k as NotificationKind] = on;
-    }
+  const email = (input as { email?: unknown } | null)?.email;
+  if (!email || typeof email !== "object" || Array.isArray(email)) return { ok: false, error: "email must be an object of kinds." };
+  const out: NotificationPrefs = { ...current };
+  for (const [k, on] of Object.entries(email as Record<string, unknown>)) {
+    if (!(NOTIFICATION_KINDS as readonly string[]).includes(k)) return { ok: false, error: `Unknown kind ${k}.` };
+    if (typeof on !== "boolean") return { ok: false, error: `${k} must be true or false.` };
+    out[k as NotificationKind] = on;
   }
   return { ok: true, value: out };
 }
@@ -90,7 +87,7 @@ export interface NotificationData {
   badge?: CommunityBadge | null;
   /** An admin's reason, shown to the member (a rejection, a revoke). */
   reason?: string | null;
-  /** Votes reached (question_voted, answer_voted). */
+  /** Votes reached (vote_milestone). */
   count?: number | null;
 }
 
@@ -104,14 +101,13 @@ type Words = Record<NotificationKind, (d: Required<{ [K in keyof NotificationDat
 
 const WORDS: Record<CommunityLang, Words> = {
   en: {
-    answer_posted: (d) => `${d.actor} answered your question "${d.title}".`,
+    answer: (d) => `${d.actor} answered your question "${d.title}".`,
     answer_accepted: (d) => `Your answer to "${d.title}" was accepted.`,
     official_answer: (d) => `The Yallapp Team answered "${d.title}".`,
-    reply_posted: (d) => `${d.actor} replied to you in "${d.title}".`,
-    question_voted: (d) => `Your question "${d.title}" reached ${d.count} votes.`,
-    answer_voted: (d) => `Your answer to "${d.title}" reached ${d.count} votes.`,
-    mentioned: (d) => `${d.actor} mentioned you in "${d.title}".`,
-    followed: (d) => `${d.actor} started following you.`,
+    reply: (d) => `${d.actor} replied to you in "${d.title}".`,
+    vote_milestone: (d) => `Your post "${d.title}" reached ${d.count} votes.`,
+    mention: (d) => `${d.actor} mention you in "${d.title}".`,
+    follow: (d) => `${d.actor} started following you.`,
     friend_request: (d) => `${d.actor} sent you a friend request.`,
     friend_accepted: (d) => `${d.actor} accepted your friend request.`,
     badge_granted: (d) => `You earned the ${d.badge} badge.`,
@@ -119,18 +115,18 @@ const WORDS: Record<CommunityLang, Words> = {
     verification_approved: () => "Your verification request was approved. You are now a Pro Developer.",
     verification_rejected: (d) => `Your verification request was not approved.${d.reason ? ` Reason: ${d.reason}` : ""}`,
     post_approved: (d) => `Your post "${d.title}" was approved and is now visible.`,
-    post_rejected: (d) => `Your post "${d.title}" was not approved.${d.reason ? ` Reason: ${d.reason}` : ""}`,
+    post_removed: (d) => `Your post "${d.title}" was not approved.${d.reason ? ` Reason: ${d.reason}` : ""}`,
     report_resolved: () => "Thanks for your report. Our team has reviewed it.",
+    yallapp_linked: () => "Your Yallapp account is now linked. Your apps show on your profile.",
   },
   ar: {
-    answer_posted: (d) => `أجاب ${d.actor} عن سؤالك «${d.title}».`,
+    answer: (d) => `أجاب ${d.actor} عن سؤالك «${d.title}».`,
     answer_accepted: (d) => `قُبلت إجابتك عن «${d.title}».`,
     official_answer: (d) => `أجاب فريق Yallapp عن «${d.title}».`,
-    reply_posted: (d) => `ردّ عليك ${d.actor} في «${d.title}».`,
-    question_voted: (d) => `حصل سؤالك «${d.title}» على ${d.count} صوتًا.`,
-    answer_voted: (d) => `حصلت إجابتك عن «${d.title}» على ${d.count} صوتًا.`,
-    mentioned: (d) => `أشار إليك ${d.actor} في «${d.title}».`,
-    followed: (d) => `بدأ ${d.actor} متابعتك.`,
+    reply: (d) => `ردّ عليك ${d.actor} في «${d.title}».`,
+    vote_milestone: (d) => `حصلت مشاركتك «${d.title}» على ${d.count} صوتًا.`,
+    mention: (d) => `أشار إليك ${d.actor} في «${d.title}».`,
+    follow: (d) => `بدأ ${d.actor} متابعتك.`,
     friend_request: (d) => `أرسل إليك ${d.actor} طلب صداقة.`,
     friend_accepted: (d) => `قبل ${d.actor} طلب صداقتك.`,
     badge_granted: (d) => `حصلت على شارة ${d.badge}.`,
@@ -138,18 +134,18 @@ const WORDS: Record<CommunityLang, Words> = {
     verification_approved: () => "قُبل طلب التوثيق، وأصبحت الآن مطوّرًا محترفًا.",
     verification_rejected: (d) => `لم يُقبل طلب التوثيق.${d.reason ? ` السبب: ${d.reason}` : ""}`,
     post_approved: (d) => `قُبلت مشاركتك «${d.title}» وأصبحت ظاهرة للجميع.`,
-    post_rejected: (d) => `لم تُقبل مشاركتك «${d.title}».${d.reason ? ` السبب: ${d.reason}` : ""}`,
+    post_removed: (d) => `لم تُقبل مشاركتك «${d.title}».${d.reason ? ` السبب: ${d.reason}` : ""}`,
     report_resolved: () => "شكرًا على بلاغك، فقد راجعه فريقنا.",
+    yallapp_linked: () => "رُبط حسابك في Yallapp، وتظهر تطبيقاتك الآن في ملفك الشخصي.",
   },
   tr: {
-    answer_posted: (d) => `${d.actor}, "${d.title}" sorunuzu yanıtladı.`,
+    answer: (d) => `${d.actor}, "${d.title}" sorunuzu yanıtladı.`,
     answer_accepted: (d) => `"${d.title}" sorusuna verdiğiniz yanıt kabul edildi.`,
     official_answer: (d) => `Yallapp Ekibi "${d.title}" sorusunu yanıtladı.`,
-    reply_posted: (d) => `${d.actor}, "${d.title}" içinde size yanıt verdi.`,
-    question_voted: (d) => `"${d.title}" sorunuz ${d.count} oya ulaştı.`,
-    answer_voted: (d) => `"${d.title}" sorusuna verdiğiniz yanıt ${d.count} oya ulaştı.`,
-    mentioned: (d) => `${d.actor}, "${d.title}" içinde sizden bahsetti.`,
-    followed: (d) => `${d.actor} sizi takip etmeye başladı.`,
+    reply: (d) => `${d.actor}, "${d.title}" içinde size yanıt verdi.`,
+    vote_milestone: (d) => `"${d.title}" gönderiniz ${d.count} oya ulaştı.`,
+    mention: (d) => `${d.actor}, "${d.title}" içinde sizden bahsetti.`,
+    follow: (d) => `${d.actor} sizi takip etmeye başladı.`,
     friend_request: (d) => `${d.actor} size arkadaşlık isteği gönderdi.`,
     friend_accepted: (d) => `${d.actor} arkadaşlık isteğinizi kabul etti.`,
     badge_granted: (d) => `${d.badge} rozetini kazandınız.`,
@@ -157,8 +153,9 @@ const WORDS: Record<CommunityLang, Words> = {
     verification_approved: () => "Doğrulama başvurunuz onaylandı. Artık bir Profesyonel Geliştiricisiniz.",
     verification_rejected: (d) => `Doğrulama başvurunuz onaylanmadı.${d.reason ? ` Neden: ${d.reason}` : ""}`,
     post_approved: (d) => `"${d.title}" gönderiniz onaylandı ve artık görünüyor.`,
-    post_rejected: (d) => `"${d.title}" gönderiniz onaylanmadı.${d.reason ? ` Neden: ${d.reason}` : ""}`,
+    post_removed: (d) => `"${d.title}" gönderiniz onaylanmadı.${d.reason ? ` Neden: ${d.reason}` : ""}`,
     report_resolved: () => "Bildiriminiz için teşekkürler. Ekibimiz inceledi.",
+    yallapp_linked: () => "Yallapp hesabınız bağlandı. Uygulamalarınız artık profilinizde görünüyor.",
   },
 };
 

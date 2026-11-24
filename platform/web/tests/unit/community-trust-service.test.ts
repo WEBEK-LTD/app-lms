@@ -6,133 +6,162 @@ import { MemoryTrustStore, type ContentKind } from "@/lib/community/trust/store"
 /**
  * 231 Yallapp Community, area C: the service end to end over the memory
  * store, with the other areas (members, posts, stats, the linked Yallapp
- * account) and email faked.
+ * account), private files and email faked.
  */
 
 const DAY = 86_400_000;
 let clock = new Date("2026-11-24T12:00:00Z");
-const ADMIN = 1;
-const NOUR = 2;
-const ALI = 3;
-const TEAM = 4;
+const ADMIN = "00000000-0000-4000-8000-0000000000a1";
+const NOUR = "00000000-0000-4000-8000-0000000000b2";
+const ALI = "00000000-0000-4000-8000-0000000000c3";
+const TEAM = "00000000-0000-4000-8000-0000000000d4";
 
-type Member = T.TrustMember;
-let members: Map<number, Member>;
-let stats: Map<number, { points: number; acceptedAnswers: number; approvedTutorials: number; lastActiveAt: Date | null }>;
-let linked: Map<number, { apps: LinkedApp[]; paid: { company: string; appUrl: string | null } | null }>;
-let posts: Map<string, { memberId: number; title: string; status: "pending" | "published" | "hidden" }>;
+let members: Map<string, T.TrustMember>;
+let stats: Map<string, { points: number; acceptedAnswers: number; approvedTutorials: number; lastActiveAt: Date | null }>;
+let linked: Map<string, T.LinkedAccount>;
+let posts: Map<string, { authorId: string; title: string; status: "pending" | "published" | "hidden" }>;
+let files: Map<string, { bytes: Uint8Array; type: string }>;
 let mails: { to: string; subject: string; text: string; html: string }[];
 let deps: T.TrustDeps;
 
-const apps = (n: number): LinkedApp[] => Array.from({ length: n }, (_, i) => ({ id: `app${i + 1}`, name: `App ${i + 1}`, url: null, template: i === 0 }));
-const post = (kind: ContentKind, id: number, memberId: number, title: string) => posts.set(`${kind}:${id}`, { memberId, title, status: "pending" });
+const apps = (n: number): LinkedApp[] => Array.from({ length: n }, (_, i) => ({ appId: `app${i + 1}`, name: `App ${i + 1}`, iconUrl: null, appStoreUrl: null, playStoreUrl: null, fromTemplate: i === 0, paidPlan: false }));
+const post = (kind: ContentKind, id: string, authorId: string, title: string, status: "pending" | "published" = "pending") => posts.set(`${kind}:${id}`, { authorId, title, status });
+const idProof = (type = "image/jpeg", size = 200_000) => ({ type, size, bytes: async () => new Uint8Array([1, 2, 3]) });
+const ok = <T,>(x: T | T.Fail): T => {
+  if (T.isFail(x)) throw new Error(`${x.code}: ${x.message}`);
+  return x as T;
+};
 
 beforeEach(() => {
   clock = new Date("2026-11-24T12:00:00Z");
   const joined = new Date(clock.getTime() - 100 * DAY);
-  members = new Map<number, Member>([
-    [ADMIN, { id: ADMIN, displayName: "Admin", role: "admin", lang: "en", email: "admin@community.test", joinedAt: joined }],
-    [NOUR, { id: NOUR, displayName: "Nour", role: "member", lang: "ar", email: "nour@community.test", joinedAt: joined }],
-    [ALI, { id: ALI, displayName: "Ali", role: "member", lang: "tr", email: null, joinedAt: joined }],
-    [TEAM, { id: TEAM, displayName: "Yallapp Team", role: "team", lang: "en", email: null, joinedAt: joined }],
+  const m = (id: string, displayName: string, role: T.TrustMember["role"], language: string, email: string | null): T.TrustMember => ({ id, displayName, role, status: "active", language, email, createdAt: joined, approvedPosts: 0 });
+  members = new Map([
+    [ADMIN, m(ADMIN, "Admin", "admin", "en", "admin@community.test")],
+    [NOUR, m(NOUR, "Nour", "member", "ar", "nour@community.test")],
+    [ALI, m(ALI, "Ali", "member", "tr", null)],
+    [TEAM, m(TEAM, "Yallapp Team", "team", "en", null)],
   ]);
   stats = new Map();
   linked = new Map();
   posts = new Map();
+  files = new Map();
   mails = [];
   deps = {
     store: new MemoryTrustStore(),
     now: () => clock,
     member: async (id) => members.get(id) ?? null,
+    countApprovedPost: async (id) => void (members.get(id)!.approvedPosts += 1),
+    setMemberStatus: async (id, status) => void (members.get(id)!.status = status),
     stats: async (id) => stats.get(id) ?? { points: 0, acceptedAnswers: 0, approvedTutorials: 0, lastActiveAt: null },
     linked: async (id) => linked.get(id) ?? null,
     content: {
       info: async (kind, id) => {
         const p = posts.get(`${kind}:${id}`);
-        return p ? { memberId: p.memberId, title: p.title, link: `/q/${id}` } : null;
+        return p ? { authorId: p.authorId, title: p.title, link: `/q/${id}` } : null;
       },
       setStatus: async (kind, id, status) => {
         const p = posts.get(`${kind}:${id}`);
         if (p) p.status = status;
       },
     },
-    sendMail: async (m) => void mails.push(m),
+    files: {
+      put: async (key, bytes, type) => void files.set(key, { bytes, type }),
+      link: async (key, seconds) => `https://files.test/${key}?expires=${seconds}`,
+    },
+    sendMail: async (mail) => void mails.push(mail),
     siteUrl: "https://community.yallapp.com.tr",
     logoUrl: null,
   };
 });
 
 describe("231 Gold: the verification form, an admin's decision, the member told either way", () => {
-  it("shows Apply only from 5 linked apps, and lists those apps (never typed by the member)", async () => {
-    expect(await T.goldEligibility(deps, NOUR)).toMatchObject({ canApply: false, blocked: "no_linked_account", minApps: 5 });
-    linked.set(NOUR, { apps: apps(4), paid: null });
-    expect(await T.goldEligibility(deps, NOUR)).toMatchObject({ canApply: false, blocked: "not_enough_apps" });
-    linked.set(NOUR, { apps: apps(5), paid: null });
-    const ok = await T.goldEligibility(deps, NOUR);
-    expect(ok.canApply).toBe(true);
-    expect(ok.apps.map((a) => a.name)).toEqual(["App 1", "App 2", "App 3", "App 4", "App 5"]);
-    expect((await T.submitVerification(deps, ALI, { full_name: "Ali Kaya", id_proof_file_id: "file_12345678" })) as T.Fail).toMatchObject({ ok: false, code: "no_linked_account" });
+  it("can apply only from 5 linked apps, and the form lists those apps (never typed by the member)", async () => {
+    expect(await T.verificationState(deps, NOUR)).toMatchObject({ yallappLinked: false, canApply: false, appCount: 0, requiredApps: 5, request: null });
+    linked.set(NOUR, { apps: apps(4), business: null });
+    expect(await T.verificationState(deps, NOUR)).toMatchObject({ yallappLinked: true, canApply: false, appCount: 4 });
+    expect(await T.submitVerification(deps, NOUR, { full_name: "Nour El Hoda", idProof: idProof() })).toMatchObject({ ok: false, status: 403, code: "not_eligible" });
+    linked.set(NOUR, { apps: apps(5), business: null });
+    const state = await T.verificationState(deps, NOUR);
+    expect(state.canApply).toBe(true);
+    expect(state.apps.map((a) => a.name)).toEqual(["App 1", "App 2", "App 3", "App 4", "App 5"]);
   });
 
-  it("approval gives Gold, logs it and tells the member in their language by email", async () => {
-    linked.set(NOUR, { apps: apps(6), paid: null });
-    const sent = await T.submitVerification(deps, NOUR, { full_name: "Nour El Hoda", id_proof_file_id: "file_12345678", portfolio: ["https://nour.dev"], apps: [{ id: "fake" }] });
-    expect(sent.ok).toBe(true);
-    const request = (sent as { request: { id: number; apps: LinkedApp[] } }).request;
-    // The apps are the linked account's, whatever the form sent.
+  it("keeps the ID proof private; approval gives Gold, logs it and tells the member in their language by email", async () => {
+    linked.set(NOUR, { apps: apps(6), business: null });
+    const sent = ok(await T.submitVerification(deps, NOUR, { full_name: "Nour El Hoda", portfolio_links: ["https://nour.dev"], idProof: idProof() }));
+    const request = sent.state.request!;
+    expect(request).toMatchObject({ status: "pending", fullName: "Nour El Hoda", portfolioLinks: ["https://nour.dev"] });
     expect(request.apps).toHaveLength(6);
-    expect(await T.goldEligibility(deps, NOUR)).toMatchObject({ blocked: "pending" });
-    expect(await T.decideVerification(deps, NOUR, request.id, { decision: "approve" })).toMatchObject({ ok: false, status: 403 });
-    expect((await T.decideVerification(deps, ADMIN, request.id, { decision: "approve" })).ok).toBe(true);
-    expect(await T.memberBadges(deps, NOUR, "en")).toMatchObject({ shown: "gold", held: [{ badge: "gold", name: "Pro Developer" }] });
-    const log = (await T.auditLog(deps, ADMIN, { memberId: NOUR })) as { page: { items: { action: string; actorId: number }[] } };
-    expect(log.page.items[0]).toMatchObject({ action: "verification_approved", actorId: ADMIN });
+    expect([...files.keys()]).toEqual([request.idProofKey]);
+    expect(request.idProofKey).toMatch(new RegExp(`^community/id-proof/${NOUR}/[0-9a-f-]{36}\\.jpg$`));
+    expect(await T.submitVerification(deps, NOUR, { full_name: "Nour El Hoda", idProof: idProof() })).toMatchObject({ ok: false, status: 409, code: "already_pending" });
+    expect(await T.idProofLink(deps, NOUR, request.id)).toMatchObject({ ok: false, status: 403 });
+    expect(ok(await T.idProofLink(deps, ADMIN, request.id)).url).toContain("expires=300");
+    expect(await T.decideVerification(deps, NOUR, request.id, { decision: "approve", reason: "Looks good" })).toMatchObject({ ok: false, status: 403 });
+    ok(await T.decideVerification(deps, ADMIN, request.id, { decision: "approve", reason: "Six live apps, ID checked." }));
+    expect(await T.memberBadges(deps, NOUR, "en")).toMatchObject({ top: "gold", badges: [{ kind: "gold", label: "Pro Developer" }] });
+    const log = ok(await T.auditLog(deps, ADMIN, { memberId: NOUR }));
+    expect(log.page.items[0]).toMatchObject({ action: "verification.approve", actorId: ADMIN, targetType: "verification", targetId: request.id });
     expect(mails.at(-1)).toMatchObject({ to: "nour@community.test" });
     expect(mails.at(-1)!.html).toContain('dir="rtl"');
     expect(await T.decideVerification(deps, ADMIN, request.id, { decision: "reject", reason: "Again" })).toMatchObject({ ok: false, code: "already_decided" });
-    expect(await T.goldEligibility(deps, NOUR)).toMatchObject({ blocked: "already_gold" });
+    expect(await T.verificationState(deps, NOUR)).toMatchObject({ hasGold: true, canApply: false });
   });
 
-  it("a rejection needs a reason, which the member sees", async () => {
-    linked.set(NOUR, { apps: apps(5), paid: null });
-    const r = (await T.submitVerification(deps, NOUR, { full_name: "Nour El Hoda", id_proof_file_id: "file_12345678" })) as { request: { id: number } };
-    expect((await T.decideVerification(deps, ADMIN, r.request.id, { decision: "reject" })).ok).toBe(false);
-    expect((await T.decideVerification(deps, ADMIN, r.request.id, { decision: "reject", reason: "The ID photo is unreadable." })).ok).toBe(true);
-    expect(await T.myVerification(deps, NOUR)).toMatchObject({ status: "rejected", reason: "The ID photo is unreadable." });
-    expect((await T.memberBadges(deps, NOUR)).shown).toBeNull();
+  it("refuses a bad file or form; a rejection's reason reaches the member, who may apply again", async () => {
+    linked.set(NOUR, { apps: apps(5), business: null });
+    expect(await T.submitVerification(deps, NOUR, { full_name: "Nour", idProof: idProof("image/gif") })).toMatchObject({ ok: false, status: 400, errors: { full_name: expect.any(String), id_proof: expect.any(String) } });
+    expect(files.size).toBe(0);
+    const r = ok(await T.submitVerification(deps, NOUR, { full_name: "Nour El Hoda", idProof: idProof("application/pdf") })).state.request!;
+    ok(await T.decideVerification(deps, ADMIN, r.id, { decision: "reject", reason: "The ID photo is unreadable." }));
+    expect((await T.verificationState(deps, NOUR)).request).toMatchObject({ status: "rejected", reason: "The ID photo is unreadable." });
+    expect((await T.memberBadges(deps, NOUR)).top).toBeNull();
     const list = await T.listNotifications(deps, NOUR);
-    expect(list.items[0]).toMatchObject({ kind: "verification_rejected", read: false });
-    expect(list.items[0]!.text).toContain("The ID photo is unreadable.");
-    // They may apply again.
-    expect((await T.goldEligibility(deps, NOUR)).canApply).toBe(true);
+    expect(list.page.items[0]).toMatchObject({ kind: "verification_rejected", read: false, link: "/verify" });
+    expect(list.page.items[0]!.text).toContain("The ID photo is unreadable.");
+    expect((await T.verificationState(deps, NOUR)).canApply).toBe(true);
   });
 });
 
 describe("231 admin overrides and the audit log", () => {
   it("grants any badge with a private reason and optional expiry, revokes with a reason, logging who, when and why", async () => {
-    const g = await T.grantBadge(deps, ADMIN, ALI, { badge: "gold", reason: "Core contributor", expires_at: new Date(clock.getTime() + 30 * DAY).toISOString() });
-    expect(g.ok).toBe(true);
-    expect((await T.memberBadges(deps, ALI)).shown).toBe("gold");
+    const g = ok(await T.grantBadge(deps, ADMIN, ALI, { badge: "gold", reason: "Core contributor", expires_at: new Date(clock.getTime() + 30 * DAY).toISOString() }));
+    expect(g.badge).toMatchObject({ source: "manual", grantedBy: ADMIN, reason: "Core contributor" });
+    expect((await T.memberBadges(deps, ALI)).top).toBe("gold");
     // The private reason is never in what members see.
     expect(JSON.stringify(await T.memberBadges(deps, ALI))).not.toContain("Core contributor");
-    const id = (g as { badge: { id: number } }).badge.id;
-    expect(await T.revokeBadge(deps, ADMIN, id, {})).toMatchObject({ ok: false });
-    expect((await T.revokeBadge(deps, ADMIN, id, { reason: "Misused the badge" })).ok).toBe(true);
-    expect((await T.memberBadges(deps, ALI)).shown).toBeNull();
-    const log = (await T.auditLog(deps, ADMIN, { memberId: ALI })) as { page: { items: { action: string; actorId: number; reason: string; at: Date }[] } };
+    expect(await T.revokeBadge(deps, ADMIN, ALI, "gold", {})).toMatchObject({ ok: false, status: 400 });
+    expect(await T.revokeBadge(deps, ADMIN, ALI, "blue", { reason: "Nothing to take" })).toMatchObject({ ok: false, status: 404 });
+    ok(await T.revokeBadge(deps, ADMIN, ALI, "gold", { reason: "Misused the badge" }));
+    expect((await T.memberBadges(deps, ALI)).top).toBeNull();
+    const log = ok(await T.auditLog(deps, ADMIN, { memberId: ALI }));
     expect(log.page.items.map((e) => [e.action, e.actorId, e.reason])).toEqual([
-      ["badge_revoked", ADMIN, "Misused the badge"],
-      ["badge_granted", ADMIN, "Core contributor"],
+      ["badge.revoke", ADMIN, "Misused the badge"],
+      ["badge.grant", ADMIN, "Core contributor"],
     ]);
+    expect(ok(await T.adminMemberBadges(deps, ADMIN, ALI)).badges[0]).toMatchObject({ badge: "gold", revokeReason: "Misused the badge" });
     expect(await T.grantBadge(deps, NOUR, ALI, { badge: "blue", reason: "Friend" })).toMatchObject({ ok: false, status: 403 });
   });
 
-  it("an admin's badge outlives the rules; it ends at its expiry", async () => {
-    await T.grantBadge(deps, ADMIN, ALI, { badge: "blue", reason: "Event host", expires_at: new Date(clock.getTime() + 10 * DAY).toISOString() });
+  it("an admin's Green carries the company and app; a badge an admin granted outlives the rules and ends at its expiry", async () => {
+    ok(await T.grantBadge(deps, ADMIN, ALI, { badge: "green", reason: "Partner studio", company_name: "Kaya Apps", app_url: "https://kaya.app" }));
+    expect((await T.memberBadges(deps, ALI, "tr")).badges[0]).toMatchObject({ kind: "green", label: "Doğrulanmış İşletme", companyName: "Kaya Apps", appUrl: "https://kaya.app" });
+    ok(await T.grantBadge(deps, ADMIN, NOUR, { badge: "blue", reason: "Event host", expires_at: new Date(clock.getTime() + 10 * DAY).toISOString() }));
+    expect(await T.refreshAutoBadges(deps, NOUR)).toEqual({ granted: [], revoked: [] });
     expect(await T.refreshAutoBadges(deps, ALI)).toEqual({ granted: [], revoked: [] });
-    expect((await T.memberBadges(deps, ALI)).shown).toBe("blue");
     clock = new Date(clock.getTime() + 11 * DAY);
-    expect((await T.memberBadges(deps, ALI)).shown).toBeNull();
+    expect((await T.memberBadges(deps, NOUR)).top).toBeNull();
+  });
+
+  it("suspends a member (a violation) and restores them, with a reason, logged", async () => {
+    expect(await T.setStatus(deps, ADMIN, NOUR, { status: "suspended" })).toMatchObject({ ok: false, status: 400 });
+    ok(await T.setStatus(deps, ADMIN, NOUR, { status: "suspended", reason: "Repeated spam" }));
+    expect(members.get(NOUR)!.status).toBe("suspended");
+    expect(await deps.store.lastViolationAt(NOUR)).toEqual(clock);
+    ok(await T.setStatus(deps, ADMIN, NOUR, { status: "active", reason: "Appeal accepted" }));
+    expect(ok(await T.auditLog(deps, ADMIN, { memberId: NOUR })).page.items.map((e) => e.action)).toEqual(["member.restore", "member.suspend"]);
+    expect(await T.setStatus(deps, ADMIN, ADMIN, { status: "suspended", reason: "Testing" })).toMatchObject({ ok: false });
   });
 });
 
@@ -144,134 +173,153 @@ describe("231 automatic badges: Blue and Green follow the rules, logged with no 
     expect(await T.refreshAutoBadges(deps, NOUR)).toEqual({ granted: [], revoked: ["blue"] });
     stats.set(NOUR, { points: 1200, acceptedAnswers: 25, approvedTutorials: 0, lastActiveAt: clock });
     expect(await T.refreshAutoBadges(deps, NOUR)).toEqual({ granted: ["blue"], revoked: [] });
-    const log = (await T.auditLog(deps, ADMIN, { memberId: NOUR })) as { page: { items: { action: string; actorId: number | null; reason: string }[] } };
+    const log = ok(await T.auditLog(deps, ADMIN, { memberId: NOUR }));
     expect(log.page.items.map((e) => [e.action, e.actorId, e.reason])).toEqual([
-      ["badge_granted", null, "rules"],
-      ["badge_revoked", null, "inactive"],
-      ["badge_granted", null, "rules"],
+      ["badge.auto_grant", null, null],
+      ["badge.auto_revoke", null, "inactive"],
+      ["badge.auto_grant", null, null],
     ]);
   });
 
   it("Green shows the company and app link while a paid plan lasts", async () => {
-    linked.set(ALI, { apps: apps(1), paid: { company: "Kaya Apps", appUrl: "https://play.google.com/store/apps/details?id=x" } });
+    const business = { companyName: "Kaya Apps", appUrl: "https://play.google.com/store/apps/details?id=x" };
+    linked.set(ALI, { apps: apps(1), business });
     await T.refreshAutoBadges(deps, ALI);
-    expect((await T.memberBadges(deps, ALI, "tr")).held).toEqual([{ badge: "green", name: "Doğrulanmış İşletme", since: clock.toISOString(), business: { company: "Kaya Apps", appUrl: "https://play.google.com/store/apps/details?id=x" } }]);
-    linked.set(ALI, { apps: apps(1), paid: null });
+    expect((await T.memberBadges(deps, ALI, "tr")).badges).toEqual([{ kind: "green", label: "Doğrulanmış İşletme", since: clock, ...business }]);
+    linked.set(ALI, { apps: apps(1), business: null });
     expect((await T.refreshAutoBadges(deps, ALI)).revoked).toEqual(["green"]);
   });
 });
 
 describe("231 settings", () => {
-  it("only admins change them, every change logged with before and after", async () => {
-    expect((await T.getSettings(deps)).groups.creators).toBe("everyone");
-    expect(await T.updateSettings(deps, NOUR, { groups: { creators: "chosen" } })).toMatchObject({ ok: false, status: 403 });
-    expect(await T.updateSettings(deps, ADMIN, { blue: { minPoints: -5 } })).toMatchObject({ ok: false, errors: { "blue.minPoints": expect.any(String) } });
-    expect((await T.updateSettings(deps, ADMIN, { groups: { creators: "chosen", chosen: [ALI] } })).ok).toBe(true);
+  it("only admins read and change them, every change logged with before and after", async () => {
+    expect((await T.getSettings(deps)).groups_create_policy).toBe("everyone");
+    expect(await T.adminSettings(deps, NOUR)).toMatchObject({ ok: false, status: 403 });
+    expect(await T.updateSettings(deps, NOUR, { groups_create_policy: "chosen" })).toMatchObject({ ok: false, status: 403 });
+    expect(await T.updateSettings(deps, ADMIN, { blue_badge: { min_points: -5 } })).toMatchObject({ ok: false, errors: { "blue_badge.min_points": expect.any(String) } });
+    ok(await T.updateSettings(deps, ADMIN, { groups_create_policy: "chosen", groups_create_members: [ALI] }));
     expect(await T.canCreateGroups(deps, ALI)).toBe(true);
     expect(await T.canCreateGroups(deps, NOUR)).toBe(false);
-    const log = (await T.auditLog(deps, ADMIN, { action: "settings_changed" })) as { page: { items: { detail: { before: { groups: { creators: string } }; after: { groups: { creators: string } } } }[] } };
-    expect(log.page.items[0]!.detail.before.groups.creators).toBe("everyone");
-    expect(log.page.items[0]!.detail.after.groups.creators).toBe("chosen");
+    const entry = ok(await T.auditLog(deps, ADMIN, { action: "settings.update" })).page.items[0]!;
+    expect((entry.details as { before: { groups_create_policy: string } }).before.groups_create_policy).toBe("everyone");
+    expect((entry.details as { after: { groups_create_policy: string } }).after.groups_create_policy).toBe("chosen");
   });
 });
 
 describe("231 moderation: the queue", () => {
   it("holds a new member's first 2 posts; approving shows them; the third appears at once", async () => {
-    post("question", 10, NOUR, "Splash screen?");
-    post("answer", 11, NOUR, "Try the theme settings");
-    post("question", 12, NOUR, "Fonts?");
-    expect(await T.moderateNew(deps, { memberId: NOUR, kind: "question", contentId: 10, text: "How do I change the splash screen?" })).toEqual({ status: "pending", reasons: ["new_member"] });
-    expect(await T.moderateNew(deps, { memberId: NOUR, kind: "answer", contentId: 11, text: "Try the theme settings in Studio." })).toEqual({ status: "pending", reasons: ["new_member"] });
-    const queue = (await T.moderationQueue(deps, ADMIN, {})) as { page: { items: { id: number; title: string }[] } };
-    expect(queue.page.items.map((i) => i.title)).toEqual(["Splash screen?", "Try the theme settings"]);
-    for (const item of queue.page.items) expect((await T.decideModeration(deps, ADMIN, item.id, { decision: "approve" })).ok).toBe(true);
-    expect(posts.get("question:10")!.status).toBe("published");
-    expect(await T.moderateNew(deps, { memberId: NOUR, kind: "question", contentId: 12, text: "Which fonts can I use in the app?" })).toEqual({ status: "published" });
+    post("question", "q10", NOUR, "Splash screen?");
+    post("answer", "a11", NOUR, "Try the theme settings");
+    expect(await T.moderateNew(deps, { memberId: NOUR, targetType: "question", targetId: "q10", text: "How do I change the splash screen?" })).toEqual({ status: "pending", reasons: ["new_member"] });
+    expect(await T.moderateNew(deps, { memberId: NOUR, targetType: "answer", targetId: "a11", text: "Try the theme settings in Studio." })).toEqual({ status: "pending", reasons: ["new_member"] });
+    const queue = ok(await T.moderationQueue(deps, ADMIN, {}));
+    expect(queue.page.items.map((i) => [i.preview, i.cause, i.status])).toEqual([
+      ["Splash screen?", "first_posts", "open"],
+      ["Try the theme settings", "first_posts", "open"],
+    ]);
+    for (const item of queue.page.items) ok(await T.decideModeration(deps, ADMIN, item.id, { decision: "approve" }));
+    expect(posts.get("question:q10")!.status).toBe("published");
+    expect(members.get(NOUR)!.approvedPosts).toBe(2);
+    expect((await T.listNotifications(deps, NOUR)).page.items[0]!.kind).toBe("post_approved");
+    expect(await T.moderateNew(deps, { memberId: NOUR, targetType: "question", targetId: "q12", text: "Which fonts can I use in the app?" })).toEqual({ status: "published" });
+    expect(members.get(NOUR)!.approvedPosts).toBe(3);
   });
 
-  it("rejecting hides the post, tells the member why, and counts against Blue when the filter caught it", async () => {
-    post("answer", 20, ALI, "Cheap followers");
-    await T.moderateNew(deps, { memberId: ALI, kind: "answer", contentId: 20, text: "buy followers at https://bit.ly/zzz" });
-    const item = ((await T.moderationQueue(deps, ADMIN, {})) as { page: { items: { id: number; reasons: string[] }[] } }).page.items[0]!;
-    expect(item.reasons).toEqual(["new_member", "short_link", "blocked_word"]);
-    expect((await T.decideModeration(deps, ADMIN, item.id, { decision: "reject", reason: "Spam" })).ok).toBe(true);
-    expect(posts.get("answer:20")!.status).toBe("hidden");
-    expect((await deps.store.memberTrust(ALI)).lastViolationAt).toEqual(clock);
-    expect((await T.listNotifications(deps, ALI)).items[0]!.text).toContain("Spam");
+  it("removing hides the post, records a violation and tells the member why", async () => {
+    post("answer", "a20", ALI, "Cheap followers");
+    await T.moderateNew(deps, { memberId: ALI, targetType: "answer", targetId: "a20", text: "buy followers at https://bit.ly/zzz" });
+    const item = ok(await T.moderationQueue(deps, ADMIN, {})).page.items[0]!;
+    expect(item).toMatchObject({ cause: "spam_filter", note: "new_member, short_link, blocked_word" });
+    expect(await T.decideModeration(deps, ADMIN, item.id, { decision: "reject" })).toMatchObject({ ok: false, status: 400 });
+    ok(await T.decideModeration(deps, ADMIN, item.id, { decision: "remove", note: "Spam" }));
+    expect(posts.get("answer:a20")!.status).toBe("hidden");
+    expect(await deps.store.lastViolationAt(ALI)).toEqual(clock);
+    expect((await T.listNotifications(deps, ALI)).page.items[0]!.text).toContain("Spam");
+    expect(ok(await T.moderationQueue(deps, ADMIN, { status: "removed" })).page.items).toHaveLength(1);
   });
 
-  it("never holds the Yallapp Team", async () => {
-    expect(await T.moderateNew(deps, { memberId: TEAM, kind: "answer", contentId: 30, text: "Official: see the docs." })).toEqual({ status: "published" });
+  it("never holds the Yallapp Team; uses the member's recent posts for the duplicate check", async () => {
+    expect(await T.moderateNew(deps, { memberId: TEAM, targetType: "answer", targetId: "a30", text: "Official: see the docs." })).toEqual({ status: "published" });
+    members.get(NOUR)!.approvedPosts = 5;
+    deps.content.recentTexts = async () => ["How do I publish my app to the stores?"];
+    expect(await T.moderateNew(deps, { memberId: NOUR, targetType: "question", targetId: "q31", text: "How do I publish my app to the stores?" })).toEqual({ status: "pending", reasons: ["duplicate"] });
   });
 });
 
 describe("231 reports", () => {
-  it("one per member per post; enough reports hide it; upholding closes them all and thanks each reporter", async () => {
-    await T.updateSettings(deps, ADMIN, { moderation: { hideAfterReports: 2 } });
-    post("answer", 40, NOUR, "Rude answer");
-    posts.get("answer:40")!.status = "published";
-    expect(await T.report(deps, NOUR, { target: "answer", target_id: 40, reason: "spam" })).toMatchObject({ ok: false });
-    const first = (await T.report(deps, ALI, { target: "answer", target_id: 40, reason: "harassment" })) as { id: number };
-    expect(await T.report(deps, ALI, { target: "answer", target_id: 40, reason: "spam" })).toEqual({ ok: true, id: first.id });
-    expect(posts.get("answer:40")!.status).toBe("published");
-    await T.report(deps, TEAM, { target: "answer", target_id: 40, reason: "harassment" });
-    expect(posts.get("answer:40")!.status).toBe("hidden");
-    expect(await T.resolveReport(deps, ADMIN, first.id, { decision: "uphold", note: "Removed" })).toEqual({ ok: true, resolved: 2 });
-    expect((await T.listReports(deps, ADMIN, {})) as { page: { total: number } }).toMatchObject({ page: { total: 0 } });
-    expect((await T.listNotifications(deps, ALI)).items[0]!.kind).toBe("report_resolved");
-    expect((await deps.store.memberTrust(NOUR)).lastViolationAt).toEqual(clock);
+  it("once per member and target (409); enough reports hide a post; actioning closes them all and thanks each reporter", async () => {
+    ok(await T.updateSettings(deps, ADMIN, { spam_filter: { hide_after_reports: 2 } }));
+    post("answer", "a40", NOUR, "Rude answer", "published");
+    expect(await T.report(deps, NOUR, { target_type: "answer", target_id: "a40", reason: "spam" })).toMatchObject({ ok: false, status: 400 });
+    expect(await T.report(deps, ALI, { target_type: "answer", target_id: "nope", reason: "spam" })).toMatchObject({ ok: false, status: 404 });
+    const first = ok(await T.report(deps, ALI, { target_type: "answer", target_id: "a40", reason: "harassment" }));
+    expect(await T.report(deps, ALI, { target_type: "answer", target_id: "a40", reason: "spam" })).toMatchObject({ ok: false, status: 409, code: "already_reported" });
+    expect(posts.get("answer:a40")!.status).toBe("published");
+    ok(await T.report(deps, TEAM, { target_type: "answer", target_id: "a40", reason: "harassment" }));
+    expect(posts.get("answer:a40")!.status).toBe("hidden");
+    expect(ok(await T.moderationQueue(deps, ADMIN, {})).page.items[0]).toMatchObject({ cause: "reports", reportCount: 2 });
+    expect(ok(await T.resolveReport(deps, ADMIN, first.id, { status: "actioned", note: "Removed" })).report.status).toBe("actioned");
+    expect(ok(await T.listReports(deps, ADMIN, {})).page.items).toHaveLength(0);
+    expect(ok(await T.listReports(deps, ADMIN, { status: "actioned" })).page.items).toHaveLength(2);
+    expect((await T.listNotifications(deps, ALI)).page.items[0]!.kind).toBe("report_resolved");
+    expect(await deps.store.lastViolationAt(NOUR)).toEqual(clock);
+    expect(ok(await T.moderationQueue(deps, ADMIN, {})).page.items).toHaveLength(0);
   });
 
-  it("dismissing brings back a post hidden by reports alone", async () => {
-    await T.updateSettings(deps, ADMIN, { moderation: { hideAfterReports: 1 } });
-    post("question", 50, NOUR, "Fine question");
-    posts.get("question:50")!.status = "published";
-    const r = (await T.report(deps, ALI, { target: "question", target_id: 50, reason: "spam" })) as { id: number };
-    expect(posts.get("question:50")!.status).toBe("hidden");
-    await T.resolveReport(deps, ADMIN, r.id, { decision: "dismiss" });
-    expect(posts.get("question:50")!.status).toBe("published");
-    expect((await deps.store.memberTrust(NOUR)).lastViolationAt).toBeNull();
+  it("dismissing brings back a post hidden by reports alone; a member can be reported too", async () => {
+    ok(await T.updateSettings(deps, ADMIN, { spam_filter: { hide_after_reports: 1 } }));
+    post("question", "q50", NOUR, "Fine question", "published");
+    const r = ok(await T.report(deps, ALI, { target_type: "question", target_id: "q50", reason: "spam" }));
+    expect(posts.get("question:q50")!.status).toBe("hidden");
+    ok(await T.resolveReport(deps, ADMIN, r.id, { status: "dismissed" }));
+    expect(posts.get("question:q50")!.status).toBe("published");
+    expect(await deps.store.lastViolationAt(NOUR)).toBeNull();
+    ok(await T.report(deps, NOUR, { target_type: "member", target_id: ALI, reason: "other", note: "Pretends to be the Yallapp Team" }));
   });
 });
 
 describe("231 notifications: the list, read marks, email by the member's choices", () => {
-  it("lists newest first in the member's language, counts unread, marks read", async () => {
-    await T.notify(deps, { memberId: NOUR, kind: "followed", actorId: ALI, data: { actor: "Ali" }, link: "/u/3" });
-    await T.notify(deps, { memberId: NOUR, kind: "answer_posted", actorId: ALI, data: { actor: "Ali", title: "Fonts?" }, link: "/q/12" });
+  it("lists newest first in the member's language, counts unread, marks the ones listed or all", async () => {
+    await T.notify(deps, { memberId: NOUR, kind: "follow", actorId: ALI, data: { actor: "Ali" }, link: "/u/ali" });
+    await T.notify(deps, { memberId: NOUR, kind: "answer", actorId: ALI, targetType: "question", targetId: "q12", data: { actor: "Ali", title: "Fonts?" }, link: "/q/12" });
     const list = await T.listNotifications(deps, NOUR);
     expect(list.unread).toBe(2);
-    expect(list.items[0]!.text).toBe("أجاب Ali عن سؤالك «Fonts?».");
-    expect(await T.markRead(deps, NOUR, { ids: [list.items[0]!.id] })).toEqual({ ok: true, marked: 1, unread: 1 });
-    expect(await T.markRead(deps, NOUR, { ids: "all" })).toEqual({ ok: true, marked: 1, unread: 0 });
+    expect(list.page.items[0]).toMatchObject({ text: "أجاب Ali عن سؤالك «Fonts?».", targetType: "question", targetId: "q12", actorId: ALI });
+    expect(await T.markRead(deps, NOUR, { ids: [list.page.items[0]!.id] })).toEqual({ ok: true, marked: 1 });
+    expect((await T.listNotifications(deps, NOUR, { unreadOnly: true })).page.items).toHaveLength(1);
+    expect(await T.markRead(deps, NOUR, {})).toEqual({ ok: true, marked: 1 });
+    expect((await T.listNotifications(deps, NOUR)).unread).toBe(0);
   });
 
-  it("emails what matters, not a follow; never to a member without an email; never their own action", async () => {
-    await T.notify(deps, { memberId: NOUR, kind: "followed", actorId: ALI, data: { actor: "Ali" }, link: "/u/3" });
+  it("emails what matters, not a follow; never without an email, nor for the member's own action, nor to a suspended member", async () => {
+    await T.notify(deps, { memberId: NOUR, kind: "follow", actorId: ALI, data: { actor: "Ali" }, link: "/u/ali" });
     expect(mails).toHaveLength(0);
-    await T.notify(deps, { memberId: NOUR, kind: "answer_posted", actorId: ALI, data: { actor: "Ali", title: "Fonts?" }, link: "/q/12" });
+    await T.notify(deps, { memberId: NOUR, kind: "answer", actorId: ALI, data: { actor: "Ali", title: "Fonts?" }, link: "/q/12" });
     expect(mails).toHaveLength(1);
     expect(mails[0]!.text).toContain("https://community.yallapp.com.tr/q/12");
-    await T.notify(deps, { memberId: ALI, kind: "answer_posted", actorId: NOUR, data: { actor: "Nour", title: "x" }, link: "/q/1" });
+    await T.notify(deps, { memberId: ALI, kind: "answer", actorId: NOUR, data: { actor: "Nour", title: "x" }, link: "/q/1" });
     expect(mails).toHaveLength(1);
-    await T.notify(deps, { memberId: NOUR, kind: "answer_posted", actorId: NOUR, data: {}, link: "/q/1" });
-    expect((await T.listNotifications(deps, NOUR)).total).toBe(2);
+    await T.notify(deps, { memberId: NOUR, kind: "answer", actorId: NOUR, data: {}, link: "/q/1" });
+    members.get(NOUR)!.status = "suspended";
+    await T.notify(deps, { memberId: NOUR, kind: "answer", actorId: ALI, data: {}, link: "/q/1" });
+    expect((await T.listNotifications(deps, NOUR)).page.items).toHaveLength(2);
   });
 
-  it("follows the member's email choices", async () => {
-    expect((await T.updatePrefs(deps, NOUR, { kinds: { answer_posted: false } })).ok).toBe(true);
-    await T.notify(deps, { memberId: NOUR, kind: "answer_posted", actorId: ALI, data: { actor: "Ali", title: "x" }, link: "/q/1" });
+  it("follows the member's email choices, every kind listed with its state", async () => {
+    expect((await T.getPrefs(deps, NOUR)).email).toMatchObject({ answer: true, follow: false });
+    expect(ok(await T.updatePrefs(deps, NOUR, { email: { answer: false, follow: true } })).email).toMatchObject({ answer: false, follow: true });
+    await T.notify(deps, { memberId: NOUR, kind: "answer", actorId: ALI, data: { actor: "Ali", title: "x" }, link: "/q/1" });
     expect(mails).toHaveLength(0);
-    await T.updatePrefs(deps, NOUR, { email: false });
-    await T.notify(deps, { memberId: NOUR, kind: "verification_rejected", data: { reason: "x" }, link: "/verify" });
-    expect(mails).toHaveLength(0);
-    expect(await T.getPrefs(deps, NOUR)).toEqual({ email: false, kinds: { answer_posted: false } });
+    await T.notify(deps, { memberId: NOUR, kind: "follow", actorId: ALI, data: { actor: "Ali" }, link: "/u/ali" });
+    expect(mails).toHaveLength(1);
+    expect(await T.updatePrefs(deps, NOUR, { email: { nope: true } })).toMatchObject({ ok: false, status: 400 });
   });
 
   it("a failed email never fails what caused it", async () => {
     deps.sendMail = async () => {
       throw new Error("SMTP down");
     };
-    await expect(T.notify(deps, { memberId: NOUR, kind: "answer_posted", actorId: ALI, data: { actor: "Ali", title: "x" }, link: "/q/1" })).resolves.toBeUndefined();
-    expect((await T.listNotifications(deps, NOUR)).total).toBe(1);
+    await expect(T.notify(deps, { memberId: NOUR, kind: "answer", actorId: ALI, data: { actor: "Ali", title: "x" }, link: "/q/1" })).resolves.toBeUndefined();
+    expect((await T.listNotifications(deps, NOUR)).page.items).toHaveLength(1);
   });
 });

@@ -1,4 +1,7 @@
-import type { ModerationSettings } from "./settings";
+import type { CommunitySettings } from "./settings";
+
+/** The filter's settings (`AdminSettings.spam_filter`). */
+type FilterSettings = CommunitySettings["spam_filter"];
 
 /**
  * 231 Yallapp Community: moderation (area C). Before a post appears (a
@@ -54,19 +57,19 @@ function wordsIn(text: string, list: readonly string[]): string[] {
 }
 
 /** What the filter finds in a text: the reasons to hold it (none: it may appear). */
-export function spamReasons(text: string, settings: ModerationSettings, recent: readonly string[] = []): HoldReason[] {
+export function spamReasons(text: string, settings: FilterSettings, recent: readonly string[] = []): HoldReason[] {
   const reasons = new Set<HoldReason>();
   const links = linksIn(text);
   for (const { host } of links) {
     if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) reasons.add("ip_link");
     else if (SHORT_LINK_DOMAINS.some((d) => under(host, d))) reasons.add("short_link");
-    else if (settings.blockedDomains.some((d) => under(host, d))) reasons.add("blocked_link");
+    else if (settings.blocked_domains.some((d) => under(host, d))) reasons.add("blocked_link");
   }
   // A site the admin blocked, however it is written (with or without a scheme, any ending).
   const lower = text.toLowerCase();
-  if (settings.blockedDomains.some((d) => new RegExp(`(^|[^a-z0-9.-])([a-z0-9-]+\\.)*${d.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![a-z0-9-])`).test(lower))) reasons.add("blocked_link");
-  if (links.length > settings.maxLinks) reasons.add("too_many_links");
-  if (wordsIn(text, [...BUILT_IN_BLOCKED_WORDS, ...settings.blockedWords]).length) reasons.add("blocked_word");
+  if (settings.blocked_domains.some((d) => new RegExp(`(^|[^a-z0-9.-])([a-z0-9-]+\\.)*${d.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![a-z0-9-])`).test(lower))) reasons.add("blocked_link");
+  if (links.length > settings.max_links) reasons.add("too_many_links");
+  if (wordsIn(text, [...BUILT_IN_BLOCKED_WORDS, ...settings.blocked_words]).length) reasons.add("blocked_word");
   // Shouting: a long text in capitals (Latin letters only: Arabic has no case).
   const latin = text.replace(/[^A-Za-z]/g, "");
   if (latin.length >= 30 && latin.replace(/[^A-Z]/g, "").length / latin.length > 0.8) reasons.add("shouting");
@@ -90,9 +93,16 @@ export type GateResult = { status: "published" } | { status: "pending"; reasons:
  * Whether a new post appears at once or waits for review: a new member's
  * first posts wait, and so does anything the filter holds.
  */
-export function moderationGate(poster: Poster, text: string, settings: ModerationSettings, recent: readonly string[] = []): GateResult {
+export function moderationGate(poster: Poster, text: string, settings: CommunitySettings, recent: readonly string[] = []): GateResult {
   if (poster.role !== "member") return { status: "published" };
-  const reasons = spamReasons(text, settings, recent);
-  if (poster.publishedPosts < settings.reviewFirstPosts) reasons.unshift("new_member");
+  const reasons = settings.spam_filter.enabled ? spamReasons(text, settings.spam_filter, recent) : [];
+  if (poster.publishedPosts < settings.first_posts_reviewed) reasons.unshift("new_member");
   return reasons.length ? { status: "pending", reasons } : { status: "published" };
+}
+
+/** The queue's cause for a held post (`ModerationItem.cause`): the filter's catch outranks being new. */
+export function holdCause(reasons: readonly HoldReason[]): "first_posts" | "spam_filter" | "reports" {
+  if (reasons.some((r) => r !== "new_member" && r !== "reported")) return "spam_filter";
+  if (reasons.includes("new_member")) return "first_posts";
+  return "reports";
 }
