@@ -10,6 +10,7 @@ import 'content_direction.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/sym.dart';
 import '../data/qa_models.dart';
+import '../../social/report_sheet.dart';
 import '../state/question_controller.dart';
 import 'compose_sheet.dart';
 import 'qa_format.dart';
@@ -198,82 +199,94 @@ class _Body extends ConsumerWidget {
         bottom: 120 + MediaQuery.paddingOf(context).bottom,
       ),
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  QaChip.section(s.section.name),
-                  for (final t in s.tags) QaChip.tag(t.name),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                s.title,
-                textDirection: contentDirection(s.title),
-                style: TextStyle(
-                  fontSize: 22,
-                  height: 1.35,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -.4,
-                  color: p.ink,
+        GestureDetector(
+          // The question's menu (report): the design draws none, so a long
+          // press opens it.
+          onLongPress: !signedIn || s.author.member.id == meId
+              ? null
+              : () => _questionMenu(context, question.id),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    QaChip.section(s.section.name),
+                    for (final t in s.tags) QaChip.tag(t.name),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  MemberAvatar(member: s.author.member, size: 34),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AuthorName(s.author),
-                        Text(
-                          [
-                            shortAge(context, s.createdAt, now: now),
-                            l.qaViews(s.viewCount),
-                            l.qaAnswerCount(question.answers.length),
-                          ].join(' · '),
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            color: quiet,
-                            height: 1.3,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              if (s.status == ContentStatus.pending) ...[
-                const SizedBox(height: 10),
-                Text(
-                  l.qaPending,
-                  style: const TextStyle(fontSize: 12, color: Brand.amber),
-                ),
-              ],
-              if (question.body.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
-                  question.body,
-                  textDirection: contentDirection(question.body),
-                  style: TextStyle(fontSize: 13.5, height: 1.6, color: p.soft),
+                  s.title,
+                  textDirection: contentDirection(s.title),
+                  style: TextStyle(
+                    fontSize: 22,
+                    height: 1.35,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -.4,
+                    color: p.ink,
+                  ),
                 ),
-                const SizedBox(height: 10),
-                VotePill(
-                  score: s.score,
-                  myVote: question.myVote,
-                  onVote: !signedIn || s.author.member.id == meId
-                      ? null
-                      : (v) => _run(context, () => controller.voteQuestion(v)),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    MemberAvatar(member: s.author.member, size: 34),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AuthorName(s.author),
+                          Text(
+                            [
+                              shortAge(context, s.createdAt, now: now),
+                              l.qaViews(s.viewCount),
+                              l.qaAnswerCount(question.answers.length),
+                            ].join(' · '),
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              color: quiet,
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
+                if (s.status == ContentStatus.pending) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    l.qaPending,
+                    style: const TextStyle(fontSize: 12, color: Brand.amber),
+                  ),
+                ],
+                if (question.body.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    question.body,
+                    textDirection: contentDirection(question.body),
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      height: 1.6,
+                      color: p.soft,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  VotePill(
+                    score: s.score,
+                    myVote: question.myVote,
+                    onVote: !signedIn || s.author.member.id == meId
+                        ? null
+                        : (v) =>
+                              _run(context, () => controller.voteQuestion(v)),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
         for (final (i, a) in question.answers.indexed)
@@ -331,6 +344,32 @@ class _Body extends ConsumerWidget {
   }
 }
 
+/// The question's menu on a long press: report it.
+Future<void> _questionMenu(BuildContext context, String id) =>
+    showModalBottomSheet<void>(
+      context: context,
+      useRootNavigator: true,
+      useSafeArea: true,
+      builder: (sheet) => Material(
+        type: MaterialType.transparency,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Sym(Symbols.flag, size: 22),
+              title: Text(context.l10n.qaReport),
+              onTap: () {
+                Navigator.of(sheet).pop();
+                showReportSheet(context, targetType: 'question', targetId: id);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+
 /// An answer's menu on a long press: its replies (and a reply of one's
 /// own), accepting it (the asker), reporting it.
 Future<void> _answerMenu(
@@ -356,23 +395,36 @@ Future<void> _answerMenu(
           onTap();
         },
       );
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 8),
-          line(
-            Symbols.chat_bubble,
-            l.qaReplyCount(answer.replyCount),
-            onReplies,
-          ),
-          if (canAccept)
+      return Material(
+        type: MaterialType.transparency,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
             line(
-              Symbols.check_circle,
-              answer.accepted ? l.qaUnaccept : l.qaAccept,
-              onAccept,
+              Symbols.chat_bubble,
+              l.qaReplyCount(answer.replyCount),
+              onReplies,
             ),
-          const SizedBox(height: 8),
-        ],
+            if (canAccept)
+              line(
+                Symbols.check_circle,
+                answer.accepted ? l.qaUnaccept : l.qaAccept,
+                onAccept,
+              ),
+            if (signedIn)
+              line(
+                Symbols.flag,
+                l.qaReport,
+                () => showReportSheet(
+                  context,
+                  targetType: 'answer',
+                  targetId: answer.id,
+                ),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
       );
     },
   );

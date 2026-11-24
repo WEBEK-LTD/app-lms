@@ -108,6 +108,17 @@ void main() {
     expect(find.text('Great answer.'), findsOneWidget);
   });
 
+  testWidgets('a long press on an answer offers its replies and Report', (
+    tester,
+  ) async {
+    await _open(tester);
+    await tester.longPress(find.text('Nour El Hoda'));
+    await TestApp.settle(tester);
+    expect(find.text('Report'), findsOneWidget);
+    // Nour's answer has no replies yet: the menu offers the first.
+    expect(find.text('Reply'), findsOneWidget);
+  });
+
   testWidgets('by day and in Arabic', (tester) async {
     await _open(tester, theme: ThemeMode.light);
     expect(find.text('Accepted'), findsOneWidget);
