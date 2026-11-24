@@ -2,6 +2,7 @@ import { findMember } from "../base/profile";
 import { t } from "../i18n";
 import type { CommunityBadge, MemberBadge } from "../trust/badges";
 import { trustDepsOf } from "../trust/context";
+import { requireCommunityRole, type StaffRole } from "../trust/roles";
 import { prefsView } from "../trust/notifications";
 import type { AuditEntry, Report, VerificationRequest } from "../trust/requests";
 import * as T from "../trust/service";
@@ -279,6 +280,36 @@ async function resolveReport(ctx: CommunityContext): Promise<CommunityResult> {
   return ok(reportView(report, await summaries(ctx, [report.reporterId])));
 }
 
+/** The Community's staff only (lib/community/trust/roles.ts): an admin, or for the moderation queue and reports a moderator too. */
+function staff(need: StaffRole, handler: CommunityRoute["handler"]): CommunityRoute["handler"] {
+  return async (ctx) => {
+    await requireCommunityRole(ctx, need);
+    return handler(ctx);
+  };
+}
+
+async function listModerators(ctx: CommunityContext): Promise<CommunityResult> {
+  const { moderators } = unwrap(await T.listModerators(deps(ctx), me(ctx).id));
+  return ok({ items: await moderatorViews(ctx, moderators) });
+}
+
+async function grantModerator(ctx: CommunityContext): Promise<CommunityResult> {
+  const member = await memberOf(ctx);
+  const { moderators } = unwrap(await T.grantModerator(deps(ctx), me(ctx).id, member.id, ctx.json()));
+  return ok({ items: await moderatorViews(ctx, moderators) });
+}
+
+async function revokeModerator(ctx: CommunityContext): Promise<CommunityResult> {
+  const member = await memberOf(ctx);
+  unwrap(await T.revokeModerator(deps(ctx), me(ctx).id, member.id, ctx.json()));
+  return noContent();
+}
+
+async function moderatorViews(ctx: CommunityContext, list: T.ModeratorGrant[]) {
+  const people = await summaries(ctx, list.flatMap((m) => [m.memberId, m.grantedBy]));
+  return list.map((m) => ({ member: people.get(m.memberId)!, granted_by: people.get(m.grantedBy) ?? null, granted_at: m.grantedAt, reason: m.reason }));
+}
+
 export const TRUST_ROUTES: CommunityRoute[] = [
   { method: "GET", path: "/badges/verification", handler: getVerification },
   { method: "POST", path: "/badges/verification", handler: postVerification },
@@ -286,21 +317,24 @@ export const TRUST_ROUTES: CommunityRoute[] = [
   { method: "POST", path: "/notifications/read", handler: markRead },
   { method: "GET", path: "/notifications/settings", handler: getNotificationSettings },
   { method: "PUT", path: "/notifications/settings", handler: putNotificationSettings },
-  { method: "GET", path: "/admin/verification-requests", auth: "admin", handler: listVerificationRequests },
-  { method: "POST", path: "/admin/verification-requests/:request_id", auth: "admin", handler: decideVerificationRequest },
-  { method: "GET", path: "/admin/verification-requests/:request_id/id-proof", auth: "admin", handler: idProof },
-  { method: "GET", path: "/admin/members", auth: "admin", handler: searchMembers },
-  { method: "GET", path: "/admin/members/:member/badges", auth: "admin", handler: memberBadgesAdmin },
-  { method: "POST", path: "/admin/members/:member/badges", auth: "admin", handler: grantBadge },
-  { method: "DELETE", path: "/admin/members/:member/badges/:badge", auth: "admin", handler: revokeBadge },
-  { method: "PUT", path: "/admin/members/:member/status", auth: "admin", handler: memberStatus },
-  { method: "GET", path: "/admin/audit-log", auth: "admin", handler: auditLog },
-  { method: "GET", path: "/admin/settings", auth: "admin", handler: getSettings },
-  { method: "PUT", path: "/admin/settings", auth: "admin", handler: putSettings },
-  { method: "GET", path: "/admin/moderation", auth: "admin", handler: moderationQueue },
-  { method: "POST", path: "/admin/moderation/:item_id", auth: "admin", handler: decideModeration },
-  { method: "GET", path: "/admin/reports", auth: "admin", handler: listReports },
-  { method: "POST", path: "/admin/reports/:report_id", auth: "admin", handler: resolveReport },
+  { method: "GET", path: "/admin/verification-requests", handler: staff("admin", listVerificationRequests) },
+  { method: "POST", path: "/admin/verification-requests/:request_id", handler: staff("admin", decideVerificationRequest) },
+  { method: "GET", path: "/admin/verification-requests/:request_id/id-proof", handler: staff("admin", idProof) },
+  { method: "GET", path: "/admin/members", handler: staff("admin", searchMembers) },
+  { method: "GET", path: "/admin/members/:member/badges", handler: staff("admin", memberBadgesAdmin) },
+  { method: "POST", path: "/admin/members/:member/badges", handler: staff("admin", grantBadge) },
+  { method: "DELETE", path: "/admin/members/:member/badges/:badge", handler: staff("admin", revokeBadge) },
+  { method: "PUT", path: "/admin/members/:member/status", handler: staff("admin", memberStatus) },
+  { method: "GET", path: "/admin/moderators", handler: staff("admin", listModerators) },
+  { method: "PUT", path: "/admin/moderators/:member", handler: staff("admin", grantModerator) },
+  { method: "DELETE", path: "/admin/moderators/:member", handler: staff("admin", revokeModerator) },
+  { method: "GET", path: "/admin/audit-log", handler: staff("admin", auditLog) },
+  { method: "GET", path: "/admin/settings", handler: staff("admin", getSettings) },
+  { method: "PUT", path: "/admin/settings", handler: staff("admin", putSettings) },
+  { method: "GET", path: "/admin/moderation", handler: staff("moderator", moderationQueue) },
+  { method: "POST", path: "/admin/moderation/:item_id", handler: staff("moderator", decideModeration) },
+  { method: "GET", path: "/admin/reports", handler: staff("moderator", listReports) },
+  { method: "POST", path: "/admin/reports/:report_id", handler: staff("moderator", resolveReport) },
 ];
 
 /** The badge's label in the reader's language (for area F's pages). */

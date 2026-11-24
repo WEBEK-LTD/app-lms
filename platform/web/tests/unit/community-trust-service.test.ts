@@ -51,6 +51,8 @@ beforeEach(() => {
     store: new MemoryTrustStore(),
     now: () => clock,
     member: async (id) => members.get(id) ?? null,
+    // The admin's linked Yallapp account is a platform admin.
+    platformAdmin: async (id) => id === ADMIN,
     countApprovedPost: async (id) => void (members.get(id)!.approvedPosts += 1),
     setMemberStatus: async (id, status) => void (members.get(id)!.status = status),
     stats: async (id) => stats.get(id) ?? { points: 0, acceptedAnswers: 0, approvedTutorials: 0, lastActiveAt: null },
@@ -324,5 +326,38 @@ describe("231 notifications: the list, read marks, email by the member's choices
     };
     await expect(T.notify(deps, { memberId: NOUR, kind: "answer", actorId: ALI, data: { actor: "Ali", title: "x" }, link: "/q/1" })).resolves.toBeUndefined();
     expect((await T.listNotifications(deps, NOUR)).page.items).toHaveLength(1);
+  });
+});
+
+describe("231 the Community's staff: admins by their Yallapp account, moderators by an admin", () => {
+  it("an admin is checked every time against the platform; a stored role means nothing", async () => {
+    members.get(NOUR)!.role = "admin";
+    expect(await T.staffRole(deps, NOUR)).toBeNull();
+    expect(await T.adminSettings(deps, NOUR)).toMatchObject({ ok: false, status: 403 });
+    expect(await T.staffRole(deps, ADMIN)).toBe("admin");
+    deps.platformAdmin = async () => false;
+    expect(await T.staffRole(deps, ADMIN)).toBeNull();
+  });
+
+  it("a moderator works the queue and reports, never badges or settings; granted and revoked with a reason, logged", async () => {
+    expect(await T.grantModerator(deps, ADMIN, ALI, {})).toMatchObject({ ok: false, status: 400 });
+    expect(await T.grantModerator(deps, NOUR, ALI, { reason: "Friend" })).toMatchObject({ ok: false, status: 403 });
+    ok(await T.grantModerator(deps, ADMIN, ALI, { reason: "Answers every Turkish question" }));
+    expect(await T.staffRole(deps, ALI)).toBe("moderator");
+    expect(ok(await T.moderationQueue(deps, ALI, {})).page.items).toEqual([]);
+    expect(ok(await T.listReports(deps, ALI, {})).page.items).toEqual([]);
+    expect(await T.adminSettings(deps, ALI)).toMatchObject({ ok: false, status: 403 });
+    expect(await T.grantBadge(deps, ALI, NOUR, { badge: "blue", reason: "Nice" })).toMatchObject({ ok: false, status: 403 });
+    expect(await T.listModerators(deps, ALI)).toMatchObject({ ok: false, status: 403 });
+    expect(ok(await T.listModerators(deps, ADMIN)).moderators).toEqual([expect.objectContaining({ memberId: ALI, grantedBy: ADMIN, reason: "Answers every Turkish question" })]);
+    // Staff are never held by moderation.
+    expect(await T.moderateNew(deps, { memberId: ALI, targetType: "question", targetId: "q60", text: "A first question from a moderator" })).toEqual({ status: "published" });
+    ok(await T.revokeModerator(deps, ADMIN, ALI, { reason: "Stepped down" }));
+    expect(await T.staffRole(deps, ALI)).toBeNull();
+    expect(await T.revokeModerator(deps, ADMIN, ALI, { reason: "Again" })).toMatchObject({ ok: false, status: 404 });
+    expect(ok(await T.auditLog(deps, ADMIN, { memberId: ALI })).page.items.map((e) => [e.action, e.reason])).toEqual([
+      ["moderator.revoke", "Stepped down"],
+      ["moderator.grant", "Answers every Turkish question"],
+    ]);
   });
 });

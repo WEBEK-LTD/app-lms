@@ -111,6 +111,8 @@ export const AUDIT_ACTIONS = [
   "verification.reject",
   "member.suspend",
   "member.restore",
+  "moderator.grant",
+  "moderator.revoke",
   "settings.update",
   "moderation.approve",
   "moderation.remove",
