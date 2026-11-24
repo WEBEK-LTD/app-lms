@@ -33,7 +33,7 @@ class AppConfig {
   /// The Community API (`/api/community/v1`).
   final String apiBaseUrl;
 
-  /// The website, where anything paid is bought (never in the app).
+  /// The website (community.yallapp.com.tr).
   final String websiteUrl;
 
   /// Runs on the in-memory fake API with sample members (no server).

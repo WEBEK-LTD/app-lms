@@ -51,12 +51,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get commonEmpty => 'Burada henüz bir şey yok.';
 
   @override
-  String get commonLocked => 'Sahip olan hesapta açılır';
-
-  @override
-  String get commonLockedIos => 'Kilitli';
-
-  @override
   String get langTitle => 'Dil';
 
   @override
@@ -566,10 +560,6 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get settingsUnlinkConfirm =>
       'Yallapp hesabının bağlantısı kaldırılsın mı? Uygulamaların profilinden çıkar, onlara bağlı rozetler gider.';
-
-  @override
-  String get settingsPaidNote =>
-      'Ücretli öğeler web sitesinden alınır ve giriş yaptığında burada açılır.';
 
   @override
   String get settingsAbout => 'Hakkında';

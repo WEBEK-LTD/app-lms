@@ -13,8 +13,6 @@
   "commonError": "Something went wrong. Try again.",
   "commonOffline": "You’re offline. Check your connection and try again.",
   "commonEmpty": "Nothing here yet.",
-  "commonLocked": "Unlocks on the account that has it",
-  "commonLockedIos": "Locked",
   "langTitle": "Language",
   "langEnglish": "English",
   "langArabic": "العربية",
@@ -207,7 +205,6 @@
   "settingsLink": "Link",
   "settingsUnlink": "Unlink",
   "settingsUnlinkConfirm": "Unlink your Yallapp account? Your apps leave your profile, and badges that need them go.",
-  "settingsPaidNote": "Paid items are bought on the website and unlock here when you sign in.",
   "settingsAbout": "About",
   "settingsVersion": "Version {version}",
   "@settingsVersion": {

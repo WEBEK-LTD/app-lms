@@ -29,9 +29,8 @@ What the app does not collect:
   areas D and E alike.
 - No push device tokens: there are no push notifications in phase 1, and no
   Firebase or APNs registration.
-- No purchases: phase 1 has no paid content (`review-notes.md`). When the
-  academy comes in phase 3, Purchase History (Apple) and Financial info →
-  Purchase history (Google) are added here.
+- No purchases and no purchase history: nothing in the app is paid, and
+  every tutorial is free (the owner, 24 November 2026).
 - No location, contacts, calendar, health or financial details. No IP
   address is stored with a session. No tracking across other companies' apps
   or websites.

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp_community/core/api/fake_community_api.dart';
@@ -35,12 +34,15 @@ void main() {
     expect(api.calls, contains('updateMe:theme=dark'));
   });
 
-  testWidgets('paid things: a lock and a note, no price', (tester) async {
+  testWidgets('nothing about paid things or unlocking', (tester) async {
+    // Every tutorial is free (the owner, 24 November 2026).
     final app = await TestApp.start(tester);
     app.go(Paths.settings);
     await TestApp.settle(tester);
-    await tester.ensureVisible(key('settings-paid-note'));
-    expect(key('locked'), findsOneWidget);
+    expect(key('settings-paid-note'), findsNothing);
+    expect(key('locked'), findsNothing);
+    expect(find.textContaining('website'), findsNothing);
+    expect(find.textContaining('Unlocks'), findsNothing);
   });
 
   testWidgets('delete account with the password signs out', (tester) async {
@@ -64,21 +66,5 @@ void main() {
     await tap(tester, 'unblock-m-karim');
     expect(api.calls, contains('unblock:m-karim'));
     expect(key('unblock-m-karim'), findsNothing);
-  });
-
-  testWidgets('on iOS, no word about paid things or the website', (
-    tester,
-  ) async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    try {
-      final app = await TestApp.start(tester);
-      app.go(Paths.settings);
-      await TestApp.settle(tester);
-      expect(key('settings-paid-note'), findsNothing);
-      expect(find.textContaining('website'), findsNothing);
-      expect(find.textContaining('Unlocks'), findsNothing);
-    } finally {
-      debugDefaultTargetPlatformOverride = null;
-    }
   });
 }
