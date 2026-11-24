@@ -57,6 +57,8 @@ export const BASE_WORDS: CommunityDictionary = {
     "link.confirm.body": "Link your Yallapp account to the community member {name} (@{username})? Your apps made with Yallapp will show on your community profile.",
     "link.confirm.button": "Link my account",
     "link.done": "Your Yallapp account is linked. You can go back to Yallapp Community.",
+    "link.back": "Back to Yallapp Community",
+    "link.signedInAs": "Signed in to Yallapp as {name} ({email}).",
   },
   ar: {
     "error.generic": "حدث خطأ. يُرجى المحاولة مرة أخرى.",
@@ -110,6 +112,8 @@ export const BASE_WORDS: CommunityDictionary = {
     "link.confirm.body": "هل تربط حسابك في Yallapp بعضو المجتمع {name} (@{username})؟ ستظهر تطبيقاتك المصنوعة بYallapp في ملفك الشخصي في المجتمع.",
     "link.confirm.button": "اربط حسابي",
     "link.done": "تم ربط حسابك في Yallapp. يمكنك العودة إلى مجتمع Yallapp.",
+    "link.back": "العودة إلى مجتمع Yallapp",
+    "link.signedInAs": "تم تسجيل الدخول إلى Yallapp باسم {name} ({email}).",
   },
   tr: {
     "error.generic": "Bir sorun oluştu. Lütfen tekrar deneyin.",
@@ -163,5 +167,7 @@ export const BASE_WORDS: CommunityDictionary = {
     "link.confirm.body": "Yallapp hesabınızı topluluk üyesi {name} (@{username}) ile bağlamak istiyor musunuz? Yallapp ile yaptığınız uygulamalar topluluk profilinizde görünecek.",
     "link.confirm.button": "Hesabımı bağla",
     "link.done": "Yallapp hesabınız bağlandı. Yallapp Topluluğu'na dönebilirsiniz.",
+    "link.back": "Yallapp Topluluğu'na dön",
+    "link.signedInAs": "Yallapp'a {name} ({email}) olarak giriş yapıldı.",
   },
 };
