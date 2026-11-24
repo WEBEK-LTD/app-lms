@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PRODUCT_DESCRIPTIONS } from "@/lib/demo/product-descriptions";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import type { App } from "@/lib/data/types";
@@ -297,5 +298,12 @@ describe("130.30 the premium whole designs write Modern Standard Arabic into the
     }
     expect(seen).toBeGreaterThan(2000);
     expect(bad).toEqual([]);
+  });
+});
+
+describe("228.7 the demo products' Arabic descriptions are Modern Standard Arabic", () => {
+  it("has no Egyptian form in any of them", () => {
+    const found = Object.entries(PRODUCT_DESCRIPTIONS).flatMap(([sku, d]) => (egyptian(d.ar) ? [`${sku}: ${egyptian(d.ar)}`] : []));
+    expect(found).toEqual([]);
   });
 });

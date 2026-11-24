@@ -1,3 +1,5 @@
+import { PRODUCT_DESCRIPTIONS } from "./product-descriptions";
+
 /**
  * 224 The demo shops' products named in Arabic and Turkish too (the
  * product's `translations`, 212), by SKU, so a demo app read in Arabic or
@@ -7,10 +9,15 @@
  */
 export type ProductNames = Readonly<Record<string, { ar: string; tr: string }>>;
 
-/** The product's `translations` from its names; none without. */
-export function namedTranslations(names: ProductNames | undefined, sku: string): { ar: { name: string }; tr: { name: string } } | null {
+/**
+ * The product's `translations` from its names, and 228.7 its description in
+ * Arabic and Turkish too (./product-descriptions.ts); none without names.
+ */
+export function namedTranslations(names: ProductNames | undefined, sku: string): { ar: { name: string; description?: string }; tr: { name: string; description?: string } } | null {
   const n = names?.[sku];
-  return n ? { ar: { name: n.ar }, tr: { name: n.tr } } : null;
+  if (!n) return null;
+  const d = PRODUCT_DESCRIPTIONS[sku];
+  return { ar: { name: n.ar, ...(d ? { description: d.ar } : {}) }, tr: { name: n.tr, ...(d ? { description: d.tr } : {}) } };
 }
 
 export const CROCHET_PRODUCT_NAMES: ProductNames = {
