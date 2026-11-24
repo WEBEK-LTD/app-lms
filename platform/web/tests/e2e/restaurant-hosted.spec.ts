@@ -221,7 +221,7 @@ test("a customer orders the dish with options for delivery, on the iPhone, and p
 
   // The server prices the choices; a missing size is refused.
   const quote = await (await request.post(`${api}/store/cart?platform=ios`, { data: { lines: [{ product_id: id, quantity: 1, options: [double, cheddar] }] } })).json();
-  expect(quote).toMatchObject({ subtotal: "₺650.00", lines: [{ unit_price: "₺650.00", options: [{ name: "Double" }, { name: "Cheddar" }] }] });
+  expect(quote).toMatchObject({ subtotal: "₺650", lines: [{ unit_price: "₺650", options: [{ name: "Double" }, { name: "Cheddar" }] }] });
   const missing = await (await request.post(`${api}/store/cart?platform=ios`, { data: { lines: [{ product_id: id, quantity: 1, options: [cheddar] }] } })).json();
   expect(missing.lines[0]).toMatchObject({ available: false, problem: "Choose a size." });
 

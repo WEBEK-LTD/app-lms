@@ -243,7 +243,7 @@ test("135.5–135.7 a customer in another currency: shown in it, charged in poun
 
   // In dollars: shown in them; charged in pounds, the dollars approximate.
   const dollars = await checkout(request, "Basbousa tray", "USD");
-  expect(dollars.cart).toMatchObject({ total: "E£600.00", display: { currency: "USD", total: "$12.37" }, charge: { currency: "EGP", total: "E£600.00", in_customer_currency: false } });
+  expect(dollars.cart).toMatchObject({ total: "E£600", display: { currency: "USD", total: "$12.37" }, charge: { currency: "EGP", total: "E£600", in_customer_currency: false } });
   expect(dollars.link.charge).toMatchObject({ currency: "EGP", in_customer_currency: false });
   const customer = await browser.newPage({ extraHTTPHeaders });
   await customer.goto(dollars.link.url);
@@ -308,7 +308,7 @@ test("149 per app: only some currencies, then none, set on the shop's settings",
   expect(await codes()).toEqual(["EGP", "USD"]);
   const dinars = await checkout(request, "Basbousa tray", "KWD");
   expect(dinars.cart).not.toHaveProperty("display");
-  expect(dinars.link.charge).toMatchObject({ currency: "EGP", total: "E£600.00", in_customer_currency: false, reason: null });
+  expect(dinars.link.charge).toMatchObject({ currency: "EGP", total: "E£600", in_customer_currency: false, reason: null });
   const customer = await browser.newPage({ extraHTTPHeaders });
   await customer.goto(dinars.link.url);
   await expect(customer.getByRole("button", { name: /^Pay E£600\.00$/ })).toBeVisible();

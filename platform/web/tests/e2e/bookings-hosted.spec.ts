@@ -91,7 +91,7 @@ test("the app sees the services and free times", async ({ request }) => {
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
   expect(config.bookings).toMatchObject({ plugin: "yallapp", timezone: "Europe/Istanbul", currency: "TRY", staff_choice: false, min_minutes_ahead: 0 });
   const services = await (await request.get(`${api}/bookings/services`)).json();
-  expect(services).toMatchObject({ total: 1, items: [{ name: "Haircut", duration_minutes: 30, price: { formatted: "₺300.00" } }] });
+  expect(services).toMatchObject({ total: 1, items: [{ name: "Haircut", duration_minutes: 30, price: { formatted: "₺300" } }] });
   const detail = await (await request.get(`${api}/bookings/services/${services.items[0].id}`)).json();
   expect(detail).toMatchObject({ description_html: "<p>A wash and a cut.</p>", staff: [{ name: "Ayşe Kaya", title: "Stylist" }] });
 

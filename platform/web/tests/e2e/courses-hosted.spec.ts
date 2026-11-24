@@ -95,7 +95,7 @@ test("the app sees the course and its preview lesson", async ({ request }) => {
   expect(config.features).toMatchObject({ lms: "yallapp" });
   expect(config.purchases).toEqual({ enroll_button: false, free_enrollment: true });
   const courses = await (await request.get(`${api}/courses`)).json();
-  expect(courses).toMatchObject({ total: 1, items: [{ title: "Turkish for Beginners", price: { formatted: "₺450.00" }, lesson_count: 1, instructor: { name: "Selin Arslan" } }] });
+  expect(courses).toMatchObject({ total: 1, items: [{ title: "Turkish for Beginners", price: { formatted: "₺450" }, lesson_count: 1, instructor: { name: "Selin Arslan" } }] });
   const id = courses.items[0].id;
   // Payments aren't set up: the course can't be bought yet.
   expect(await (await request.get(`${api}/courses/${id}?platform=android`)).json()).toMatchObject({ purchase: { action: "none" }, description_html: "<p>Speak from day one.</p>" });
@@ -327,7 +327,7 @@ test("113.1 the academy sells two courses together in a bundle at its own price,
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
   expect(config.features).toMatchObject({ bundles: true });
   const bundles = await (await request.get(`${api}/bundles`)).json();
-  expect(bundles.items).toEqual([expect.objectContaining({ title: "Turkish, complete", course_count: 2, price: expect.objectContaining({ formatted: "₺600.00" }), compare_at: expect.objectContaining({ formatted: "₺750.00" }), owned: false })]);
+  expect(bundles.items).toEqual([expect.objectContaining({ title: "Turkish, complete", course_count: 2, price: expect.objectContaining({ formatted: "₺600" }), compare_at: expect.objectContaining({ formatted: "₺750" }), owned: false })]);
   const id = bundles.items[0].id;
   // Payments aren't set up: nothing to buy it with yet.
   const detail = await (await request.get(`${api}/bundles/${id}?platform=android`)).json();

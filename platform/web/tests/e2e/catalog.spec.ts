@@ -202,7 +202,7 @@ test("a customer pays in the app and the order reaches the dashboard", async ({ 
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
   expect(config).toMatchObject({ store: { currency: "TRY" }, features: { orders: true } });
   const products = await (await request.get(`${api}/store/products`)).json();
-  expect(products).toMatchObject({ total: 1, items: [{ name: "Tulip Bouquet", price: { formatted: "₺350.00", on_sale: true } }] });
+  expect(products).toMatchObject({ total: 1, items: [{ name: "Tulip Bouquet", price: { formatted: "₺350", on_sale: true } }] });
   const productId = products.items[0].id as number;
 
   const link = await request.post(`${api}/store/checkout-link?platform=android`, { data: { lines: [{ product_id: productId, quantity: 2 }] } });
@@ -369,7 +369,7 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
   await loyalty.getByRole("button", { name: "Save loyalty points" }).click();
   await expect(loyalty.getByText("Loyalty points saved.")).toBeVisible();
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
-  expect(config.store.loyalty).toEqual({ enabled: true, spend_per_point: "10.00", spend_per_point_formatted: "₺10.00", point_value: "0.10", point_value_formatted: "₺0.10", min_points: 10, currency: "TRY" });
+  expect(config.store.loyalty).toEqual({ enabled: true, spend_per_point: "10.00", spend_per_point_formatted: "₺10", point_value: "0.10", point_value_formatted: "₺0.10", min_points: 10, currency: "TRY" });
 
   const email = `deniz-${suffix}@example.com`;
   const device = { id: `e2e-points-${suffix}`, platform: "android", name: "Pixel", app_version: "1.0.0" };
@@ -444,15 +444,15 @@ test("91.5 a product in two colours, and KDV inside the prices, from the dashboa
 
   const products = (await (await request.get(`${api}/store/products`)).json()) as { items: { id: number; name: string; type: string; price: { formatted: string } }[] };
   const vase = products.items.find((p) => p.name === "Tulip Vase")!;
-  expect(vase).toMatchObject({ type: "variable", price: { formatted: "₺200.00 – ₺240.00" } });
+  expect(vase).toMatchObject({ type: "variable", price: { formatted: "From ₺200", range: true, amount: "200.00", max_amount: "240.00" } });
   const detail = await (await request.get(`${api}/store/products/${vase.id}`)).json();
   expect(detail.attributes).toEqual([{ slug: "a1", name: "Colour", variation: true, options: [{ value: "Red", label: "Red" }, { value: "White", label: "White" }] }]);
   const red = (detail.variations as { id: number; attributes: { a1: string } }[]).find((v) => v.attributes.a1 === "Red")!;
-  expect(red).toMatchObject({ max_quantity: 1, price: { formatted: "₺200.00" } });
+  expect(red).toMatchObject({ max_quantity: 1, price: { formatted: "₺200" } });
 
   // ₺200 + ₺50 shipping, of which ₺41.67 is KDV.
   const lines = [{ product_id: vase.id, variation_id: red.id, quantity: 1 }];
-  expect(await (await request.post(`${api}/store/cart`, { data: { lines } })).json()).toMatchObject({ total: "₺250.00", tax: null, tax_included: "₺41.67", tax_label: "KDV 20%" });
+  expect(await (await request.post(`${api}/store/cart`, { data: { lines } })).json()).toMatchObject({ total: "₺250", tax: null, tax_included: "₺41.67", tax_label: "KDV 20%" });
   const link = await request.post(`${api}/store/checkout-link?platform=android`, { data: { lines } });
   await page.goto(((await link.json()) as { url: string }).url);
   const summary = page.getByRole("region", { name: /Order \d+/ });
@@ -801,7 +801,7 @@ test("162 the owner sets up Build your bouquet; the cart and the order show the 
     [true, id, "wrap"],
     [true, id, "card"],
   ]);
-  expect(cart.subtotal).toBe("₺355.00");
+  expect(cart.subtotal).toBe("₺355");
 
   // Paid, as any order (the gift checkout's details when the shop has it on).
   const gift = config.store.checkout_mode === "gift";
