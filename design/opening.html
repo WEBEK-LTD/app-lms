@@ -1,0 +1,68 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&family=Inter:wght@400;500;600&display=block" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#ECE7DE;font-family:Inter,sans-serif;padding:56px 60px 48px;width:1360px}
+h1{font-family:'Readex Pro';font-size:30px;color:#0E0D24;font-weight:600}
+.sub{color:#6E6B80;font-size:15px;margin:6px 0 34px}
+.row{display:flex;gap:44px;align-items:flex-start}
+.col{display:flex;flex-direction:column;align-items:center;gap:22px;width:390px}
+.cap{font-size:14px;color:#3a3850;font-weight:500}.cap b{color:#FF5A1F}
+.ph{width:390px;height:844px;border-radius:54px;position:relative;overflow:hidden;box-shadow:0 30px 70px rgba(14,13,36,.28),0 0 0 10px #0b0a1c,0 0 0 11px #2a2940}
+.ph.sm{transform:scale(.82);transform-origin:bottom center;margin:0 -35px -76px}
+.bg{position:absolute;inset:0;background:
+ radial-gradient(120% 60% at 50% 18%,#1E1B4B 0%,rgba(30,27,75,0) 60%),
+ radial-gradient(70% 40% at 50% 52%,rgba(255,90,31,.20),rgba(255,90,31,0) 70%),
+ radial-gradient(60% 35% at 85% 85%,rgba(107,91,255,.16),rgba(107,91,255,0) 70%),
+ linear-gradient(180deg,#121133 0%,#0B0A22 55%,#06061A 100%)}
+.grain{position:absolute;inset:0;opacity:.5;mix-blend-mode:screen}
+.status{position:absolute;top:18px;left:0;right:0;display:flex;justify-content:space-between;padding:0 34px;color:#fff;font:600 16px Inter}
+.home{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:#fff}
+.net{position:absolute;inset:0}
+.center{position:absolute;left:0;right:0;top:340px;display:flex;flex-direction:column;align-items:center}
+.logo{width:112px;height:112px;filter:drop-shadow(0 18px 40px rgba(255,90,31,.45))}
+.halo{position:absolute;top:-34px;width:180px;height:180px;border-radius:50%;border:1px solid rgba(255,138,61,.22)}
+.halo.h2{top:-64px;width:240px;height:240px;border-color:rgba(255,138,61,.10)}
+.word{margin-top:34px;display:flex;align-items:baseline;gap:12px}
+.y{font-family:'Readex Pro';font-weight:600;font-size:38px;color:#F4EFE6;letter-spacing:-.6px}
+.y i{font-style:normal;color:#FF5A1F}
+.c{font-family:'Readex Pro';font-weight:500;font-size:15px;letter-spacing:5px;color:#FF9A5C}
+.tag{margin-top:14px;color:rgba(244,239,230,.55);font-size:14px;letter-spacing:.3px}
+.bar{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);width:120px;height:3px;border-radius:2px;background:rgba(255,255,255,.10);overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:linear-gradient(90deg,#FF8A3D,#FF4A1A)}
+.dot{position:absolute;left:50%;top:410px;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:#FF5A1F;box-shadow:0 0 0 10px rgba(255,90,31,.15),0 0 60px 20px rgba(255,90,31,.45)}
+</style></head><body>
+<h1>Yallapp Community — opening screen</h1>
+<div class="sub">The screen that opens as soon as someone taps the icon. Deep navy with a soft orange glow and a faint member network in the background. The motion lasts 1.2 seconds, then the welcome screen opens.</div>
+<div class="row">
+
+<div class="col"><div class="ph"><div class="bg"></div><svg class="grain" width="390" height="844"><filter id="n1"><feTurbulence baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .07 0"/></filter><rect width="100%" height="100%" filter="url(#n1)"/></svg>
+<div class="status"><span>4:33</span><span>●●●</span></div><div class="dot"></div><div class="home"></div></div>
+<div class="cap"><b>0.0s</b> — one orange dot glows in the middle</div></div>
+
+<div class="col"><div class="ph"><div class="bg"></div><svg class="grain" width="390" height="844"><filter id="n2"><feTurbulence baseFrequency=".9" numOctaves="2" seed="5"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .07 0"/></filter><rect width="100%" height="100%" filter="url(#n2)"/></svg>
+<div class="status"><span>4:33</span><span>●●●</span></div>
+<svg class="net" width="390" height="844" style="opacity:.9">
+ <g stroke="#FF8A3D" stroke-opacity=".35" stroke-width="1.4" stroke-linecap="round">
+  <line x1="153" y1="372" x2="195" y2="410"/><line x1="237" y1="372" x2="195" y2="410"/><line x1="195" y1="410" x2="195" y2="440"/></g>
+ <circle cx="153" cy="372" r="8" fill="#F4EFE6"/><circle cx="237" cy="372" r="8" fill="#F4EFE6"/><circle cx="195" cy="440" r="9" fill="#FF5A1F" style="filter:drop-shadow(0 0 14px #FF5A1F)"/>
+ <path d="M195 318c-48 0-86 33-86 74 0 22 11 42 29 55l-8 33 39-17c8 2 17 3 26 3 48 0 86-33 86-74s-38-74-86-74z" fill="none" stroke="#F4EFE6" stroke-opacity=".5" stroke-width="2" stroke-dasharray="330 600"/>
+</svg><div class="home"></div></div>
+<div class="cap"><b>0.6s</b> — the dot becomes three members, joined; the bubble draws around them</div></div>
+
+<div class="col"><div class="ph"><div class="bg"></div><svg class="grain" width="390" height="844"><filter id="n3"><feTurbulence baseFrequency=".9" numOctaves="2" seed="9"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .07 0"/></filter><rect width="100%" height="100%" filter="url(#n3)"/></svg>
+<svg class="net" width="390" height="844" style="opacity:.55">
+ <g stroke="#F4EFE6" stroke-opacity=".08" stroke-width="1">
+  <line x1="40" y1="150" x2="120" y2="210"/><line x1="120" y1="210" x2="210" y2="160"/><line x1="210" y1="160" x2="330" y2="230"/><line x1="330" y1="230" x2="360" y2="120"/>
+  <line x1="30" y1="640" x2="110" y2="700"/><line x1="110" y1="700" x2="250" y2="660"/><line x1="250" y1="660" x2="350" y2="730"/><line x1="250" y1="660" x2="300" y2="590"/></g>
+ <g fill="#F4EFE6" fill-opacity=".22"><circle cx="40" cy="150" r="2.5"/><circle cx="120" cy="210" r="3"/><circle cx="210" cy="160" r="2"/><circle cx="330" cy="230" r="3"/><circle cx="360" cy="120" r="2"/>
+ <circle cx="30" cy="640" r="2"/><circle cx="110" cy="700" r="3"/><circle cx="350" cy="730" r="2.5"/><circle cx="300" cy="590" r="2"/></g>
+ <circle cx="250" cy="660" r="3.5" fill="#FF5A1F" fill-opacity=".7"/><circle cx="210" cy="160" r="3" fill="#FF5A1F" fill-opacity=".6"/>
+</svg>
+<div class="status"><span>4:33</span><span>●●●</span></div>
+<div class="center"><div class="halo h2"></div><div class="halo"></div><img class="logo" src="logo.svg">
+<div class="word"><span class="y">yallapp<i>.</i></span><span class="c">COMMUNITY</span></div>
+<div class="tag">Build apps. Build together.</div></div>
+<div class="bar"><i style="width:68%"></i></div><div class="home"></div></div>
+<div class="cap"><b>1.2s</b> — final: logo, “yallapp. COMMUNITY”, a short line that fills while the app loads</div></div>
+</div></body></html>
