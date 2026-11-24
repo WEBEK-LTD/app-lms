@@ -193,12 +193,14 @@ export class MemoryQaStore implements QaStore {
   async getVote(memberId: string, kind: VoteKind, targetId: string) {
     return this.votes.get(`${memberId}|${kind}|${targetId}`) ?? 0;
   }
-  async setVote(memberId: string, kind: VoteKind, targetId: string, value: VoteValue) {
+  async castVote(memberId: string, kind: VoteKind, targetId: string, value: VoteValue) {
     const key = `${memberId}|${kind}|${targetId}`;
     const before = this.votes.get(key) ?? 0;
     if (value === 0) this.votes.delete(key);
     else this.votes.set(key, value);
-    return before;
+    const post = kind === "question" ? this.questions.get(targetId) : this.answers.get(targetId);
+    if (post) post.score += value - before;
+    return { before, score: post?.score ?? 0 };
   }
   async votesOf(memberId: string, kind: VoteKind, targetIds: readonly string[]) {
     return Object.fromEntries(targetIds.map((id) => [id, this.votes.get(`${memberId}|${kind}|${id}`) ?? 0])) as Record<string, VoteValue>;
@@ -266,10 +268,14 @@ export class MemoryQaStore implements QaStore {
   }
 
   async addPoints(e: PointEvent) {
+    if (this.points.some((p) => p.memberId === e.memberId && p.reason === e.reason && p.ref === e.ref)) return false;
     this.points.push({ ...e });
+    return true;
   }
   async removePoints(memberId: string, reason: PointReason, ref: string) {
-    this.points = this.points.filter((p) => !(p.memberId === memberId && p.reason === reason && p.ref === ref));
+    const gone = this.points.filter((p) => p.memberId === memberId && p.reason === reason && p.ref === ref);
+    this.points = this.points.filter((p) => !gone.includes(p));
+    return gone.reduce((sum, p) => sum + p.points, 0);
   }
   async pointsOf(memberIds: readonly string[]) {
     const out: Record<string, number> = Object.fromEntries(memberIds.map((id) => [id, 0]));

@@ -181,6 +181,27 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       expect((await ask(TEAM, "A question from the Yallapp team itself")).status).toBe("published");
     });
 
+    it("holds an edit of a published question or answer that moderation holds, until it is approved again", async () => {
+      const question = await ask("karim", "How do I show delivery fees at checkout?");
+      const reply = await answer("nour", question.id, "Settings, then Delivery, then fees by zone.", later(5));
+      await acceptAnswer("karim", reply.id, true, "en", later(6));
+      expect((await memberStats("nour")).points).toBe(25);
+      // Edited into what the spam filter holds.
+      pendingFor.add("karim").add("nour");
+      expect((await editQuestion("karim", question.id, { body: "Cheap followers here: https://spam.example/buy", lang: "en" }, later(7))).status).toBe("pending");
+      expect((await listQuestions({ viewerId: null, lang: "en" })).items).toEqual([]);
+      await setContentStatus("question", question.id, "published");
+      const edited = await editAnswer("nour", reply.id, { body: "Visit https://spam.example/now for the answer.", lang: "en" }, later(8));
+      expect(edited.status).toBe("pending");
+      const shown = await getQuestion(question.id, { viewerId: null, lang: "en", countView: false });
+      expect(shown).toMatchObject({ answerCount: 0, accepted: false, acceptedAnswerId: null, answers: [] });
+      expect((await memberStats("nour")).points).toBe(0);
+      // A change that leaves the words as they were isn't moderated again; the team's never are.
+      pendingFor = new Set([TEAM]);
+      const team = await answer(TEAM, question.id, "From the team: Settings, then Delivery.", later(9));
+      expect((await editAnswer(TEAM, team.id, { body: "From the team: Settings, then Delivery, then Fees.", lang: "en" }, later(10))).status).toBe("published");
+    });
+
     it("lets only the asker change or delete a question, and only an author their answer or reply", async () => {
       const q = await ask("karim", "How do I give each template its own product page?", { tags: ["Studio"] });
       await expect(editQuestion("nour", q.id, { title: "Somebody else's new title", lang: "en" })).rejects.toMatchObject({ code: "not_allowed", status: 403 });
@@ -263,6 +284,19 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       detail = await getQuestion(question.id, { viewerId: null, lang: "en" });
       expect(detail.answers.map((a) => a.id)).toEqual([team.id, nour.id, personal.id]);
       expect(detail.answerCount).toBe(3);
+    });
+
+    it("counts the same vote sent many times at once only once, and its points once", async () => {
+      const question = await ask("karim", "How do I stop a double tap voting twice?");
+      const reply = await answer("nour", question.id, "The server counts one vote per member, whatever arrives.", later(5));
+      const results = await Promise.all(Array.from({ length: 10 }, () => vote("karim", { kind: "answer", id: reply.id, value: 1 })));
+      expect(results.every((r) => r.myVote === 1)).toBe(true);
+      expect((await getQuestion(question.id, { viewerId: null, lang: "en", countView: false })).answers[0]!.score).toBe(1);
+      expect((await memberStats("nour")).points).toBe(5);
+      // And taken back once, however many times.
+      await Promise.all(Array.from({ length: 5 }, () => vote("karim", { kind: "answer", id: reply.id, value: 0 })));
+      expect((await getQuestion(question.id, { viewerId: null, lang: "en", countView: false })).answers[0]!.score).toBe(0);
+      expect((await memberStats("nour")).points).toBe(0);
     });
 
     it("holds a new member's answer for a moderator, tells the asker once it is approved, and counts views", async () => {

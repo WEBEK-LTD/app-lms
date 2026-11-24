@@ -1,7 +1,8 @@
 import { withQa } from "../qa/hooks";
 import * as qa from "../qa/service";
 import { QaError, type CommunityLang, type QuestionFilterName, type QuestionSort, type TutorialKind, type TutorialLevel, type VoteValue } from "../qa/types";
-import { CommunityError, noContent, ok, requireMember, str, type CommunityContext, type CommunityResult, type CommunityRoute } from "./http";
+import { CommunityError, noContent, ok, requireMember, str, tooMany, type CommunityContext, type CommunityResult, type CommunityRoute } from "./http";
+import { hitRateLimit, type RateLimitRule } from "../../rate-limit";
 import { hasWord } from "../i18n";
 import { isYallappTeam } from "../staff";
 import { qaHooksFor } from "./qa-hooks";
@@ -18,6 +19,35 @@ const FILTERS = ["all", "unanswered", "answered", "official", "following", "for_
 const SORTS = ["active", "newest", "votes"] as const;
 
 type Handler = (ctx: CommunityContext) => Promise<CommunityResult>;
+
+/** Per member an hour (writes), per IP a minute (public search): enough for anyone, too few to spam or scrape with. */
+export const QA_LIMITS = {
+  ask: { name: "community-qa-ask:member", limit: 10, windowSeconds: 60 * 60 },
+  answer: { name: "community-qa-answer:member", limit: 30, windowSeconds: 60 * 60 },
+  reply: { name: "community-qa-reply:member", limit: 60, windowSeconds: 60 * 60 },
+  edit: { name: "community-qa-edit:member", limit: 60, windowSeconds: 60 * 60 },
+  vote: { name: "community-qa-vote:member", limit: 200, windowSeconds: 60 * 60 },
+  save: { name: "community-qa-save:member", limit: 300, windowSeconds: 60 * 60 },
+  follow: { name: "community-qa-follow:member", limit: 120, windowSeconds: 60 * 60 },
+  publish: { name: "community-qa-publish:member", limit: 30, windowSeconds: 60 * 60 },
+  search: { name: "community-qa-search:ip", limit: 60, windowSeconds: 60 },
+  similar: { name: "community-qa-similar:ip", limit: 120, windowSeconds: 60 },
+} satisfies Record<string, RateLimitRule>;
+
+/** One more of the rule: per the signed-in member for writes, per IP for public reads; 429 too_many_attempts past it. */
+async function limit(ctx: CommunityContext, rule: keyof typeof QA_LIMITS): Promise<void> {
+  const subject = rule === "search" || rule === "similar" ? ctx.deps.ip : (ctx.member?.id ?? ctx.deps.ip);
+  const hit = await hitRateLimit(ctx.deps.platform, QA_LIMITS[rule], subject, ctx.now);
+  if (!hit.allowed) tooMany(hit.retryAfter);
+}
+
+/** The handler after one more of the rule. */
+const limited =
+  (rule: keyof typeof QA_LIMITS, handler: Handler): Handler =>
+  async (ctx) => {
+    await limit(ctx, rule);
+    return handler(ctx);
+  };
 
 /** Runs a handler with this call's Q&A store and hooks; a vote refused is 400 (docs: NotAllowed), other refusals 403. */
 function run(handler: Handler, options: { refusedStatus?: number } = {}): Handler {
@@ -250,38 +280,38 @@ const memberRoute = (method: CommunityRoute["method"], path: string, handler: Ha
 export const QA_ROUTES: CommunityRoute[] = [
   // Sections and tags
   publicRoute("GET", "/qa/sections", listSections),
-  memberRoute("PUT", "/qa/sections/:section/follow", followSection(true)),
-  memberRoute("DELETE", "/qa/sections/:section/follow", followSection(false)),
+  memberRoute("PUT", "/qa/sections/:section/follow", limited("follow", followSection(true))),
+  memberRoute("DELETE", "/qa/sections/:section/follow", limited("follow", followSection(false))),
   publicRoute("GET", "/qa/tags", listTags),
   publicRoute("GET", "/qa/home", home),
   memberRoute("GET", "/qa/saved", saved),
   // Questions
   publicRoute("GET", "/qa/questions", listQuestions),
-  memberRoute("POST", "/qa/questions", ask),
-  publicRoute("GET", "/qa/questions/similar", similar),
+  memberRoute("POST", "/qa/questions", limited("ask", ask)),
+  publicRoute("GET", "/qa/questions/similar", limited("similar", similar)),
   publicRoute("GET", "/qa/questions/:question_id", getQuestion),
-  memberRoute("PATCH", "/qa/questions/:question_id", editQuestion),
+  memberRoute("PATCH", "/qa/questions/:question_id", limited("edit", editQuestion)),
   memberRoute("DELETE", "/qa/questions/:question_id", deleteQuestion),
-  memberRoute("PUT", "/qa/questions/:question_id/vote", voteOn("question", "question_id"), { refusedStatus: 400 }),
-  memberRoute("PUT", "/qa/questions/:question_id/bookmark", bookmarkOn("question", "question_id", true)),
-  memberRoute("DELETE", "/qa/questions/:question_id/bookmark", bookmarkOn("question", "question_id", false)),
-  memberRoute("POST", "/qa/questions/:question_id/answers", answer),
+  memberRoute("PUT", "/qa/questions/:question_id/vote", limited("vote", voteOn("question", "question_id")), { refusedStatus: 400 }),
+  memberRoute("PUT", "/qa/questions/:question_id/bookmark", limited("save", bookmarkOn("question", "question_id", true))),
+  memberRoute("DELETE", "/qa/questions/:question_id/bookmark", limited("save", bookmarkOn("question", "question_id", false))),
+  memberRoute("POST", "/qa/questions/:question_id/answers", limited("answer", answer)),
   // Answers and replies
-  memberRoute("PATCH", "/qa/answers/:answer_id", editAnswer),
+  memberRoute("PATCH", "/qa/answers/:answer_id", limited("edit", editAnswer)),
   memberRoute("DELETE", "/qa/answers/:answer_id", deleteAnswer),
-  memberRoute("PUT", "/qa/answers/:answer_id/vote", voteOn("answer", "answer_id"), { refusedStatus: 400 }),
+  memberRoute("PUT", "/qa/answers/:answer_id/vote", limited("vote", voteOn("answer", "answer_id")), { refusedStatus: 400 }),
   memberRoute("PUT", "/qa/answers/:answer_id/accept", accept(true)),
   memberRoute("DELETE", "/qa/answers/:answer_id/accept", accept(false)),
   publicRoute("GET", "/qa/answers/:answer_id/replies", listReplies),
-  memberRoute("POST", "/qa/answers/:answer_id/replies", reply),
+  memberRoute("POST", "/qa/answers/:answer_id/replies", limited("reply", reply)),
   memberRoute("DELETE", "/qa/replies/:reply_id", deleteReply),
   // Tutorials
   publicRoute("GET", "/tutorials/sections", tutorialSections),
   publicRoute("GET", "/tutorials", listTutorials),
-  memberRoute("POST", "/tutorials", publishTutorial),
+  memberRoute("POST", "/tutorials", limited("publish", publishTutorial)),
   publicRoute("GET", "/tutorials/:tutorial", getTutorial),
-  memberRoute("PUT", "/tutorials/:tutorial/bookmark", bookmarkOn("tutorial", "tutorial", true)),
-  memberRoute("DELETE", "/tutorials/:tutorial/bookmark", bookmarkOn("tutorial", "tutorial", false)),
+  memberRoute("PUT", "/tutorials/:tutorial/bookmark", limited("save", bookmarkOn("tutorial", "tutorial", true))),
+  memberRoute("DELETE", "/tutorials/:tutorial/bookmark", limited("save", bookmarkOn("tutorial", "tutorial", false))),
   // Search
-  publicRoute("GET", "/search", search),
+  publicRoute("GET", "/search", limited("search", search)),
 ];

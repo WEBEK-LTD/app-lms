@@ -432,7 +432,8 @@ export const communityPointEvents = mysqlTable(
     ref: varchar("ref", { length: 120 }).notNull(),
     createdAt: time("created_at").notNull(),
   },
-  (t) => [index("community_point_events_member").on(t.memberId, t.reason, t.ref), index("community_point_events_time").on(t.createdAt)],
+  // Once per member, reason and ref: a repeated award (parallel votes) is ignored (migration 0157).
+  (t) => [uniqueIndex("community_point_events_once").on(t.memberId, t.reason, t.ref), index("community_point_events_time").on(t.createdAt)],
 );
 
 // ---------------------------------------------------------------- Area C

@@ -160,6 +160,14 @@ describe("231 Community Q&A API", () => {
     expect(tr.body.error.fields.section).toBe("Bir bölüm seçin.");
   });
 
+  it("limits how often a member asks, and says when to try again", async () => {
+    const { c, asker } = await setup();
+    for (let i = 0; i < 10; i++) expect((await api(c, "POST", "/qa/questions", { token: asker.token, body: { ...QUESTION, title: `${QUESTION.title} (${i})` } })).status).toBe(201);
+    const refused = await api<Json>(c, "POST", "/qa/questions", { token: asker.token, body: { ...QUESTION, title: `${QUESTION.title} (again)` } });
+    expect(refused.status).toBe(429);
+    expect(refused.body.error.code).toBe("too_many_attempts");
+  });
+
   it("has a word in every language for every field the Q&A can refuse", async () => {
     const { allWords } = await import("@/lib/community/i18n");
     const fields = ["title", "body", "summary", "section", "tags", "value", "kind", "level", "language", "cover_url", "video_url", "duration_seconds"];
