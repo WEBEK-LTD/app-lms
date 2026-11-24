@@ -1,3 +1,4 @@
+import { isCommunityAdmin } from "../staff";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { adminRoleOf } from "../../admin/team";
 import type { CommunityContext } from "../api/http";
@@ -81,7 +82,11 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
   const secret = async () => options.secret ?? ctx.deps.fileSecret ?? (await import("../../env")).signingSecret();
   const member = async (id: string) => {
     const m = await base.getMember(id);
-    return m ? trustMemberOf(m) : null;
+    if (!m) return null;
+    // 231 An admin is a member whose linked Yallapp account is an owner or admin of Yallapp's admin,
+    // asked now (lib/community/staff.ts); the stored role "admin" makes no one an admin.
+    const admin = await isCommunityAdmin(ctx, ctx.deps.platform, m);
+    return trustMemberOf({ ...m, role: admin ? "admin" : m.role === "admin" ? "member" : m.role });
   };
   const info = async (kind: ContentKind, id: string): Promise<ContentInfo | null> => {
     const k = qaKind(kind);

@@ -412,8 +412,10 @@ describe("67 Google: the favicon, and every public page indexed", () => {
   const blocked = (url: string) => PRIVATE_PATHS.some((p) => url.startsWith(p));
 
   /** Every page.tsx under src/app with its route ("/docs/[slug]"), route groups left out. */
+  // 231 Not the community's pages: they live on their own host (community.yallapp.com.tr), not yallapp.com.tr's sitemap.
   const pages = (dir = APP, route = ""): { route: string; file: string }[] =>
     readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+      if (e.isDirectory() && dir === APP && e.name === "community") return [];
       if (e.isDirectory()) return pages(path.join(dir, e.name), /^\(.*\)$/.test(e.name) ? route : `${route}/${e.name}`);
       return e.name === "page.tsx" ? [{ route: route || "/", file: path.join(dir, e.name) }] : [];
     });
