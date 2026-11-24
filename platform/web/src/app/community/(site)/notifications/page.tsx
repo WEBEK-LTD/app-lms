@@ -11,19 +11,23 @@ import { readAllAction } from "../trust-actions";
 export const metadata: Metadata = { title: "Notifications", robots: { index: false } };
 
 const ICONS: Record<string, string> = {
-  answer_posted: "forum",
-  answer_accepted: "check_circle",
-  official_answer: "verified_user",
-  reply_posted: "reply",
   follow: "person_add",
   friend_request: "group_add",
   friend_accepted: "diversity_3",
+  answer: "forum",
+  answer_accepted: "check_circle",
+  official_answer: "verified_user",
+  reply: "reply",
+  mention: "alternate_email",
+  vote_milestone: "trending_up",
   badge_granted: "workspace_premium",
   badge_revoked: "remove_moderator",
   verification_approved: "workspace_premium",
   verification_rejected: "cancel",
-  content_approved: "task_alt",
-  content_rejected: "block",
+  post_approved: "task_alt",
+  post_removed: "block",
+  report_resolved: "flag",
+  yallapp_linked: "link",
 };
 
 /** 231 The member's notifications (the same ones are emailed, as they choose in Settings). */
@@ -31,7 +35,7 @@ export default async function NotificationsPage({ searchParams }: { searchParams
   const sp = await searchParams;
   const { w, viewer } = await siteContext();
   if (!viewer) redirect(cmLinks.signIn(cmLinks.notifications()));
-  const list = await notices(viewer.id, { cursor: sp.cursor });
+  const list = await notices({ cursor: sp.cursor });
   return (
     <SitePage active="none">
       <div style={{ maxWidth: 760 }}>

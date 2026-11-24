@@ -3,19 +3,18 @@ import { ActionForm } from "@/components/community/site/action-form";
 import { AdminPage, adminContext, Pager, StatusTabs, When, Who } from "@/components/community/site/admin";
 import { cmLinks } from "@/components/community/site/links";
 import { adminVerifications } from "@/components/community/site/source";
-import { decideVerificationAction } from "../../trust-actions";
+import { decideVerificationAction, idProofAction } from "../../trust-actions";
 
 export const metadata: Metadata = { title: "Verification requests", robots: { index: false } };
 
 const STATUSES = ["pending", "approved", "rejected"] as const;
 
-/** 231 Pro Developer requests: the ID, the portfolio and the apps; approve, or reject with a reason the member is told. */
-export default async function VerificationsPage({ searchParams }: { searchParams: Promise<{ status?: string; offset?: string }> }) {
+/** 231 Pro Developer requests: the ID (a link that lasts minutes), the portfolio and the apps; approve or reject with a reason the member is told. */
+export default async function VerificationsPage({ searchParams }: { searchParams: Promise<{ status?: string; cursor?: string }> }) {
   const sp = await searchParams;
-  const { lang, w, viewer } = await adminContext();
+  const { lang, w } = await adminContext();
   const status = STATUSES.find((s) => s === sp.status) ?? "pending";
-  const offset = Math.max(0, Number(sp.offset) || 0);
-  const list = await adminVerifications(viewer.id, { status, offset });
+  const list = await adminVerifications({ status, cursor: sp.cursor });
   const base = cmLinks.admin("verifications");
   return (
     <AdminPage w={w} tab="verifications">
@@ -29,33 +28,38 @@ export default async function VerificationsPage({ searchParams }: { searchParams
             </div>
             <dl>
               <dt>{w.idProof}</dt>
-              <dd>{r.idProofUrl ? <a href={r.idProofUrl} target="_blank" rel="noopener noreferrer">{w.openFile}</a> : "—"}</dd>
+              <dd>
+                <form action={idProofAction} target="_blank">
+                  <input type="hidden" name="id" value={r.id} />
+                  <button type="submit" className="cm-link"><span className="ms">open_in_new</span>{w.openFile}</button>
+                </form>
+              </dd>
               <dt>{w.portfolio}</dt>
               <dd>{r.portfolio.length ? r.portfolio.map((u) => <div key={u}><a href={u} target="_blank" rel="noopener noreferrer nofollow">{u}</a></div>) : "—"}</dd>
               <dt>{w.yourApps}</dt>
-              <dd className="num">{r.apps.length} · {r.apps.map((a) => a.name).join(", ")}</dd>
+              <dd><span className="num">{r.apps.length}</span> · {r.apps.map((a) => a.name).join(", ")}</dd>
             </dl>
             {r.status === "pending" ? (
               <ActionForm action={decideVerificationAction} className="cm-decide">
                 <input type="hidden" name="id" value={r.id} />
                 <label className="cm-field">
                   {w.reasonToMember}
-                  <input name="reason" maxLength={500} />
+                  <input name="reason" required minLength={3} maxLength={1000} />
                 </label>
                 <div className="cm-row" style={{ marginTop: 10 }}>
                   <button type="submit" name="decision" value="approve" className="cm-btn o"><span className="ms">check</span>{w.approve}</button>
                   <button type="submit" name="decision" value="reject" className="cm-btn g"><span className="ms">close</span>{w.reject}</button>
                 </div>
               </ActionForm>
-            ) : (
-              <p className="cm-muted">{r.reason}</p>
-            )}
+            ) : r.reason ? (
+              <p className="cm-muted" style={{ marginTop: 8 }}>{r.reason}</p>
+            ) : null}
           </article>
         ))
       ) : (
         <div className="cm-empty"><span className="ms f">inbox</span>{w.queueEmpty}</div>
       )}
-      <Pager w={w} base={`${base}?status=${status}`} offset={offset} total={list.total} />
+      <Pager w={w} base={`${base}?status=${status}`} cursor={sp.cursor} next={list.next} />
     </AdminPage>
   );
 }

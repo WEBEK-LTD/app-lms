@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- the logo, avatars and app icons: small files the site and the platform serve already sized. */
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LangSelect } from "./client";

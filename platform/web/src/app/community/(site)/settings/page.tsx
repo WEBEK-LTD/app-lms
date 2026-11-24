@@ -7,9 +7,14 @@ import { siteContext } from "@/components/community/site/context";
 import { cmLinks } from "@/components/community/site/links";
 import { SitePage } from "@/components/community/site/page";
 import { linkedAccount, noticePrefs } from "@/components/community/site/source";
-import { fill } from "@/components/community/site/words";
+import { fill, type CmWords } from "@/components/community/site/words";
 import { linkAction, prefsAction, unlinkAction } from "../trust-actions";
 import { signOutAction } from "../auth-actions";
+
+/** A notification kind's name in the member's language (its code when the site has no word for it yet). */
+function kindLabel(w: CmWords, kind: string): string {
+  return (w as Record<string, string>)[`kind_${kind}`] ?? kind.replace(/_/g, " ");
+}
 
 export const metadata: Metadata = { title: "Settings", robots: { index: false } };
 
@@ -18,7 +23,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const sp = await searchParams;
   const { lang, w, viewer } = await siteContext();
   if (!viewer) redirect(cmLinks.signIn(cmLinks.settings()));
-  const [link, prefs] = await Promise.all([linkedAccount(viewer.id), noticePrefs(viewer.id)]);
+  const [link, prefs] = await Promise.all([linkedAccount(), noticePrefs()]);
+  const kinds = Object.keys(prefs);
   return (
     <SitePage active="none">
       <div style={{ maxWidth: 760 }}>
@@ -48,12 +54,18 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         </section>
         <section className="cm-card cm-set">
           <h2>{w.emails}</h2>
+          <p className="cm-muted">{w.emailsHint}</p>
           <ActionForm action={prefsAction}>
-            <label className="cm-check">
-              <input type="checkbox" name="email" value="1" defaultChecked={prefs.email} />
-              {w.emailNotices}
-            </label>
-            <button type="submit" className="cm-btn g" style={{ marginTop: 12 }}>{w.saveChanges}</button>
+            <input type="hidden" name="kinds" value={kinds.join(",")} />
+            <div className="cm-grid2">
+              {kinds.map((k) => (
+                <label key={k} className="cm-check" style={{ marginTop: 8 }}>
+                  <input type="checkbox" name={`email_${k}`} value="1" defaultChecked={prefs[k]} />
+                  {kindLabel(w, k)}
+                </label>
+              ))}
+            </div>
+            <button type="submit" className="cm-btn g" style={{ marginTop: 14 }}>{w.saveChanges}</button>
           </ActionForm>
         </section>
         <section className="cm-card cm-set">

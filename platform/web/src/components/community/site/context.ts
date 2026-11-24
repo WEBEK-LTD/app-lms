@@ -26,6 +26,6 @@ export type SiteContext = { lang: CmLang; w: CmWords; viewer: Viewer | null };
 /** The language, its words and the signed-in member (or null), once per request. */
 export const siteContext = cache(async (): Promise<SiteContext> => {
   const lang = await siteLang();
-  const viewer = await communityViewer(lang);
+  const viewer = await communityViewer();
   return { lang, w: CM_WORDS[lang], viewer };
 });

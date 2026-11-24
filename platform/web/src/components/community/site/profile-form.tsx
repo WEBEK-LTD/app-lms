@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- the logo, avatars and app icons: small files the site and the platform serve already sized. */
 import { useActionState, useState } from "react";
 import { profileAction } from "@/app/community/(site)/social-actions";
 import { Note } from "./forms";

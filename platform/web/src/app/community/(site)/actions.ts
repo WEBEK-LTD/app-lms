@@ -123,13 +123,13 @@ export async function bookmarkAction(form: FormData): Promise<void> {
 
 export async function reportAction(_prev: FormState, form: FormData): Promise<FormState> {
   const back = text(form, "back") || cmLinks.home();
-  const { viewer, w } = await member(back);
+  const { w } = await member(back);
   const kinds = ["question", "answer", "reply", "member", "tutorial"] as const;
   const kind = kinds.find((k) => k === text(form, "kind"));
   const reason = text(form, "reason");
   if (!kind || !reason) return { error: w.errorGeneric, at: Date.now() };
   try {
-    await source.report(viewer.id, { kind, id: text(form, "id"), reason, note: text(form, "note").slice(0, 500) || undefined });
+    await source.report({ kind, id: text(form, "id"), reason, note: text(form, "note").slice(0, 500) || undefined });
     return { ok: w.reportSent, at: Date.now() };
   } catch (e) {
     return failed(w, e);

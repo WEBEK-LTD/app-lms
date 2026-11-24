@@ -48,15 +48,14 @@ export function When({ at, lang }: { at: string; lang: string }) {
   return <time dateTime={at}>{new Date(at).toLocaleString(lang === "ar" ? "ar-EG-u-nu-latn" : lang, { dateStyle: "medium", timeStyle: "short" })}</time>;
 }
 
-/** Previous and next pages of a list shown 20 at a time. */
-export function Pager({ w, base, offset, total, size = 20 }: { w: CmWords; base: string; offset: number; total: number; size?: number }) {
-  if (total <= size) return null;
-  const at = (o: number) => `${base}${base.includes("?") ? "&" : "?"}offset=${o}`;
+/** The next page of a list (the API's cursor), and back to its start. */
+export function Pager({ w, base, cursor, next }: { w: CmWords; base: string; cursor?: string; next: string | null }) {
+  if (!cursor && !next) return null;
+  const at = (c: string) => `${base}${base.includes("?") ? "&" : "?"}cursor=${encodeURIComponent(c)}`;
   return (
     <div className="cm-row" style={{ justifyContent: "center" }}>
-      {offset > 0 ? <Link href={at(Math.max(0, offset - size))} className="cm-btn g">{w.previous}</Link> : null}
-      <span className="cm-muted num">{offset + 1}–{Math.min(total, offset + size)} / {total}</span>
-      {offset + size < total ? <Link href={at(offset + size)} className="cm-btn g">{w.next}</Link> : null}
+      {cursor ? <Link href={base} className="cm-btn g">{w.firstPage}</Link> : null}
+      {next ? <Link href={at(next)} className="cm-btn g">{w.next}</Link> : null}
     </div>
   );
 }

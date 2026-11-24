@@ -15,26 +15,28 @@ export const metadata: Metadata = { title: "Pro Developer verification", robots:
 /**
  * 231 The Gold badge's ("Pro Developer") request: full name, an ID, portfolio
  * links, and the apps of the linked Yallapp account, filled in from it. The
- * form shows only to a member with 5 or more apps.
+ * form (and its Apply button) shows only to a member with 5 or more apps.
  */
 export default async function VerifyPage() {
   const { w, viewer } = await siteContext();
   if (!viewer) redirect(cmLinks.signIn(cmLinks.verify()));
-  const g = await goldStatus(viewer.id);
-  const count = g.apps.length;
+  const g = await goldStatus();
+  const need = g.requiredApps;
   return (
     <SitePage active="none">
       <div style={{ maxWidth: 760 }}>
         <section className="cm-card">
           <BadgePill kind="gold" w={w} />
           <h1 style={{ marginTop: 10 }}>{w.verifyTitle}</h1>
-          <p className="cm-muted" style={{ marginTop: 6 }}>{fill(w.verifyIntro, { n: g.minApps })}</p>
-          <div className="cm-meter" role="progressbar" aria-valuemin={0} aria-valuemax={g.minApps} aria-valuenow={Math.min(count, g.minApps)} aria-label={w.appsMade}>
-            <i style={{ width: `${Math.min(100, (count / g.minApps) * 100)}%` }} />
+          <p className="cm-muted" style={{ marginTop: 6 }}>{fill(w.verifyIntro, { n: need })}</p>
+          <div className="cm-meter" role="progressbar" aria-valuemin={0} aria-valuemax={need} aria-valuenow={Math.min(g.appCount, need)} aria-label={w.appsMade}>
+            <i style={{ width: `${Math.min(100, (g.appCount / need) * 100)}%` }} />
           </div>
-          <div className="cm-muted num" style={{ fontSize: 13, marginTop: 6 }}>{fill(w.appsCount, { n: count, min: g.minApps })}</div>
+          <div className="cm-muted num" style={{ fontSize: 13, marginTop: 6 }}>{fill(w.appsCount, { n: g.appCount, min: need })}</div>
         </section>
-        {g.request ? (
+        {g.hasGold ? (
+          <div className="cm-note ok" role="status" style={{ marginBottom: 16 }}><span className="ms f">check_circle</span><b>{w.verifyApproved}</b></div>
+        ) : g.request ? (
           <div className={`cm-note ${g.request.status === "rejected" ? "err" : g.request.status === "approved" ? "ok" : ""}`} role="status" style={{ marginBottom: 16 }}>
             <span className="ms f">{g.request.status === "pending" ? "hourglass_top" : g.request.status === "approved" ? "check_circle" : "cancel"}</span>
             <div>
@@ -43,13 +45,14 @@ export default async function VerifyPage() {
             </div>
           </div>
         ) : null}
-        {g.blocked === "no_linked_account" ? (
+        {!g.linked ? (
           <div className="cm-card cm-row">
             <span style={{ flex: 1 }}>{w.linkFirst}</span>
             <Link href={cmLinks.settings()} className="cm-btn n"><span className="ms">link</span>{w.linkAccount}</Link>
           </div>
+        ) : !g.hasGold && g.appCount < need ? (
+          <div className="cm-card cm-muted">{fill(w.needMoreApps, { n: need - g.appCount })}</div>
         ) : null}
-        {g.blocked === "not_enough_apps" ? <div className="cm-card cm-muted">{fill(w.needMoreApps, { n: g.minApps - count })}</div> : null}
         {g.canApply ? (
           <ActionForm action={verifyAction} className="cm-card">
             <h2>{w.verifyForm}</h2>
@@ -59,7 +62,7 @@ export default async function VerifyPage() {
             </label>
             <label className="cm-field">
               {w.idProof}
-              <input name="idProof" type="file" required accept="image/png,image/jpeg,image/webp,application/pdf" />
+              <input name="idProof" type="file" required accept="image/png,image/jpeg,application/pdf" />
               <small>{w.idProofHint}</small>
             </label>
             <div className="cm-field">

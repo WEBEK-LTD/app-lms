@@ -11,6 +11,7 @@ import type { CmWords } from "./words";
 export function GoogleReturn({ w }: { w: CmWords }) {
   const [state, setState] = useState<FormState>(undefined);
   useEffect(() => {
+    void (async () => {
     const got = new URLSearchParams(window.location.hash.slice(1));
     let kept: { state: string; nonce: string; next: string } | null = null;
     try {
@@ -26,7 +27,12 @@ export function GoogleReturn({ w }: { w: CmWords }) {
       setState({ error: w.errorProvider, at: Date.now() });
       return;
     }
-    continueAction("google", { idToken: token, nonce: kept.nonce, next: kept.next }).then(setState, () => setState({ error: w.errorProvider, at: Date.now() }));
+    try {
+      setState(await continueAction("google", { idToken: token, nonce: kept.nonce, next: kept.next }));
+    } catch {
+      setState({ error: w.errorProvider, at: Date.now() });
+    }
+    })();
   }, [w]);
   return state ? <Note state={state} /> : <p className="cm-muted">{w.signingIn}</p>;
 }

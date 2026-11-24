@@ -97,6 +97,8 @@ export type EarnedBadge = { kind: BadgeKind; since: string; detail: string | nul
 
 export type LinkedApp = { id: string; name: string; iconUrl: string | null; url: string | null };
 
+export type AdminMember = MemberRef;
+
 export type Profile = {
   member: MemberRef & { handle: string };
   bio: string;
@@ -114,31 +116,30 @@ export type Profile = {
   answersCount: number;
 };
 
-export type Notice = { id: string; kind: string; text: string; link: string | null; createdAt: string; read: boolean };
+export type Notice = { id: string; kind: string; text: string; link: string | null; actor: MemberRef | null; createdAt: string; read: boolean };
 
 export type SiteStats = { members: number; answeredRate: number; apps: number; newQuestions: number };
 
 // ----- Trust (area C): badges, verification, admin, moderation, reports -----
 
-export type GoldApp = { id: string; name: string; url: string | null; template: boolean };
+export type GoldApp = { id: string; name: string; template: boolean };
 
 export type GoldStatus = {
+  hasGold: boolean;
+  linked: boolean;
+  appCount: number;
+  requiredApps: number;
   canApply: boolean;
-  blocked: null | "no_linked_account" | "not_enough_apps" | "pending" | "already_gold";
   apps: GoldApp[];
-  minApps: number;
-  request: { status: "pending" | "approved" | "rejected"; createdAt: string; decidedAt: string | null; reason: string | null } | null;
+  request: { status: "pending" | "approved" | "rejected"; createdAt: string; reviewedAt: string | null; reason: string | null } | null;
 };
-
-export type AdminMember = { id: string; name: string; handle: string | null };
 
 export type VerificationRow = {
   id: string;
-  member: AdminMember;
+  member: MemberRef;
   fullName: string;
-  idProofUrl: string | null;
   portfolio: string[];
-  apps: GoldApp[];
+  apps: { id: string; name: string }[];
   status: "pending" | "approved" | "rejected";
   createdAt: string;
   reason: string | null;
@@ -147,24 +148,26 @@ export type VerificationRow = {
 export type BadgeRow = {
   id: string;
   badge: BadgeKind;
-  source: string;
+  source: "auto" | "manual" | "request";
   reason: string | null;
+  grantedBy: MemberRef | null;
   grantedAt: string;
   expiresAt: string | null;
   revokedAt: string | null;
   revokeReason: string | null;
 };
 
-export type AuditRow = { id: string; actor: AdminMember | null; action: string; member: AdminMember | null; badge: BadgeKind | null; subject: string | null; reason: string | null; at: string };
+export type AuditRow = { id: string; actor: MemberRef | null; action: string; member: MemberRef | null; target: string | null; reason: string | null; at: string };
 
-export type ModerationRow = { id: string; kind: string; member: AdminMember; reasons: string[]; excerpt: string; title: string | null; link: string | null; status: string; createdAt: string };
+export type ModerationRow = { id: string; targetType: string; targetId: string; cause: "first_posts" | "spam_filter" | "reports"; status: "open" | "approved" | "removed"; preview: string; author: MemberRef | null; reportCount: number; note: string | null; createdAt: string; link: string | null };
 
-export type ReportRow = { id: string; reporter: AdminMember; target: string; targetId: string; targetMember: AdminMember; reason: string; details: string | null; status: string; createdAt: string; link: string | null };
+export type ReportRow = { id: string; reporter: MemberRef; targetType: string; targetId: string; reason: string; note: string; status: "open" | "actioned" | "dismissed"; createdAt: string; link: string | null };
 
 export type SettingsView = {
-  blue: { minAccountDays: number; minPoints: number; minAcceptedAnswers: number; minApprovedTutorials: number; cleanDays: number; inactiveDays: number };
-  groups: { creators: "everyone" | "badge_holders" | "chosen"; chosen: AdminMember[] };
-  moderation: { reviewFirstPosts: number; maxLinks: number; blockedDomains: string[]; blockedWords: string[]; hideAfterReports: number };
+  blue: { minAccountDays: number; minPoints: number; minAcceptedAnswers: number; minApprovedTutorials: number; violationFreeDays: number; inactiveDays: number };
+  groups: { policy: "everyone" | "badge_holders" | "chosen"; chosen: MemberRef[] };
+  spam: { enabled: boolean; blockedDomains: string[]; blockedWords: string[]; maxLinks: number; hideAfterReports: number };
+  firstPostsReviewed: number;
 };
 
 export type Result = { ok: true } | { ok: false; code: string; errors?: Record<string, string> };

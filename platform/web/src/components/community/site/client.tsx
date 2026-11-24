@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useSiteDark } from "@/components/theme-switch";
 import { THEME_KEY } from "@/components/theme-script";
 import { setDocumentLang } from "@/components/html-shell";
@@ -108,9 +108,12 @@ export function GoSelect({ label, value, options }: { label: string; value: stri
 
 /** The search box's "⌘ K" (Ctrl K elsewhere): the keys that put the cursor in it. */
 export function SearchKey() {
-  const [mac, setMac] = useState(true);
+  const mac = useSyncExternalStore(
+    () => () => {},
+    () => /Mac|iPhone|iPad/.test(navigator.platform),
+    () => true,
+  );
   useEffect(() => {
-    setMac(/Mac|iPhone|iPad/.test(navigator.platform));
     const key = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         const input = document.querySelector<HTMLInputElement>(".cm-search input");

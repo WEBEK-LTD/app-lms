@@ -106,14 +106,10 @@ export function AnswerForm({ w, questionId, slug }: { w: CmWords; questionId: st
 
 export function ReplyForm({ w, answerId, slug }: { w: CmWords; answerId: string; slug: string }) {
   const [state, action, pending] = useActionState(replyAction, undefined);
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLFormElement>(null);
-  useEffect(() => {
-    if (state?.ok) {
-      ref.current?.reset();
-      setOpen(false);
-    }
-  }, [state]);
+  // Open since this moment; a reply posted after it closes the form.
+  const [openedAt, setOpenedAt] = useState(0);
+  const open = openedAt > 0 && !(state?.ok && (state.at ?? 0) >= openedAt);
+  const setOpen = (on: boolean) => setOpenedAt(on ? Date.now() : 0);
   if (!open) {
     return (
       <>
@@ -123,7 +119,7 @@ export function ReplyForm({ w, answerId, slug }: { w: CmWords; answerId: string;
     );
   }
   return (
-    <form ref={ref} action={action} className="cm-reply-form">
+    <form action={action} className="cm-reply-form">
       <input type="hidden" name="answerId" value={answerId} />
       <input type="hidden" name="slug" value={slug} />
       <label className="cm-field">
@@ -139,7 +135,7 @@ export function ReplyForm({ w, answerId, slug }: { w: CmWords; answerId: string;
   );
 }
 
-const REASONS = ["spam", "abuse", "harassment", "off_topic", "inappropriate", "copyright", "other"] as const;
+const REASONS = ["spam", "harassment", "hate", "inappropriate", "misinformation", "impersonation", "other"] as const;
 
 /** Report: a small form under a menu; the moderators get it in their queue. */
 export function ReportButton({ w, kind, id, back }: { w: CmWords; kind: "question" | "answer" | "reply" | "member" | "tutorial"; id: string; back: string }) {

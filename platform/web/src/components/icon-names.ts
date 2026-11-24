@@ -340,6 +340,7 @@ export const ICON_NAMES = [
   "reply",
   "save",
   "search_off",
+  "alternate_email",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];
