@@ -3,7 +3,7 @@ import { newApp } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import { fileLinkValid, type PrivateFiles } from "@/lib/community/trust/context";
 import type { MemoryStore } from "@/lib/data/memory";
-import { api, joinWithEmail, NOW, testCommunity, type TestCommunity } from "./community-support";
+import { api, joinWithEmail, NOW, testCommunity, type TestCommunity, makeYallappStaff } from "./community-support";
 
 /**
  * 231 Yallapp Community, area C, through the API (/api/community/v1, as the
@@ -29,16 +29,9 @@ beforeEach(async () => {
   admin = await joinWithEmail(c, "Community Admin");
   nour = await joinWithEmail(c, "Nour El Hoda");
   ali = await joinWithEmail(c, "Ali Kaya");
-  await makePlatformAdmin(admin.id);
+  // 231 A Community admin is a member whose linked Yallapp account is on Yallapp's admin team (lib/community/staff.ts).
+  await makeYallappStaff(c, admin.id);
 });
-
-/** Links a Yallapp account on Yallapp's admin team (role admin) to the member: a Community admin. */
-async function makePlatformAdmin(memberId: string) {
-  const platform = c.deps.platform as MemoryStore;
-  const user = await platform.createUser({ email: `team-${memberId}@yallapp.test`, name: "Yallapp Team", passwordHash: null, now: NOW });
-  await platform.saveAdminMember({ userId: user.id, role: "admin", addedBy: "owner@yallapp.test", addedAt: NOW, updatedAt: NOW });
-  await c.deps.store.base.updateMember(memberId, { yallappUserId: user.id, linkedAt: NOW });
-}
 
 /** Links a Yallapp account with `apps` apps to the member, as confirming the link on yallapp.com.tr does. */
 async function linkYallapp(memberId: string, apps: number) {

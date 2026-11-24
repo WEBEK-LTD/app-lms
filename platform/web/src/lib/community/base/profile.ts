@@ -2,6 +2,7 @@ import { hashPassword, verifyPassword } from "../../auth/password";
 import { fail, noContent, ok, type CommunityContext, type CommunityResult, type MemberContext } from "../api/http";
 import { onYallappLinkChanged } from "../api/trust-hooks";
 import { meView } from "../api/views";
+import { isYallappTeam } from "../staff";
 import { limitMember } from "./accounts";
 import type { CommunityMember } from "../types";
 import { isDuplicate } from "../store/db";
@@ -20,7 +21,7 @@ export async function patchMe(ctx: MemberContext): Promise<CommunityResult> {
   const body = ctx.json();
   const fields = new Fields();
   const patch: Partial<CommunityMember> = {};
-  const team = ctx.member.role !== "member";
+  const team = await isYallappTeam(ctx.req, ctx.deps.platform, ctx.member);
   const displayName = readDisplayName(body.display_name, fields, { required: body.display_name !== undefined, team });
   if (displayName !== undefined) patch.displayName = displayName;
   const username = readUsername(body.username, fields, "username", team);

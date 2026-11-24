@@ -1,4 +1,5 @@
 import { authenticate } from "../auth/sessions";
+import { isCommunityAdmin } from "../staff";
 import { errorMessage, languageFromHeader, t } from "../i18n";
 import { BASE_ROUTES } from "./base-routes";
 import { CommunityError, type CommunityContext, type CommunityDeps, type CommunityRequest, type CommunityResult, type CommunityRoute } from "./http";
@@ -85,7 +86,8 @@ export async function handleCommunity(deps: CommunityDeps, req: CommunityRequest
       // A suspended member can still sign out and read their own account.
       const own = route.path === "/auth/log-out" || (route.path === "/me" && route.method === "GET");
       if (ctx.member.status === "suspended" && !own) throw new CommunityError(403, "account_suspended");
-      if (auth === "admin" && ctx.member.role !== "admin") throw new CommunityError(403, "not_admin");
+      // 231 A Community admin's linked Yallapp account is an owner or admin of Yallapp's admin, asked again now (lib/community/staff.ts).
+      if (auth === "admin" && !(await isCommunityAdmin(req, deps.platform, ctx.member))) throw new CommunityError(403, "not_admin");
     }
     return await route.handler(ctx);
   } catch (error) {
