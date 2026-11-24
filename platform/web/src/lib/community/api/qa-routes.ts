@@ -31,6 +31,8 @@ export const QA_LIMITS = {
   follow: { name: "community-qa-follow:member", limit: 120, windowSeconds: 60 * 60 },
   publish: { name: "community-qa-publish:member", limit: 30, windowSeconds: 60 * 60 },
   search: { name: "community-qa-search:ip", limit: 60, windowSeconds: 60 },
+  // A view counts once per reader (a member, else an IP) and post in 6 hours.
+  view: { name: "community-qa-view", limit: 1, windowSeconds: 6 * 60 * 60 },
   similar: { name: "community-qa-similar:ip", limit: 120, windowSeconds: 60 },
 } satisfies Record<string, RateLimitRule>;
 
@@ -39,6 +41,13 @@ async function limit(ctx: CommunityContext, rule: keyof typeof QA_LIMITS): Promi
   const subject = rule === "search" || rule === "similar" ? ctx.deps.ip : (ctx.member?.id ?? ctx.deps.ip);
   const hit = await hitRateLimit(ctx.deps.platform, QA_LIMITS[rule], subject, ctx.now);
   if (!hit.allowed) tooMany(hit.retryAfter);
+}
+
+/** Whether this read counts as a view: asked for (not `view=0`) and the reader's first of the post in the window. */
+async function countsView(ctx: CommunityContext, post: string): Promise<boolean> {
+  if (ctx.query.get("view") === "0") return false;
+  const reader = ctx.member?.id ?? `ip:${ctx.deps.ip}`;
+  return (await hitRateLimit(ctx.deps.platform, QA_LIMITS.view, `${reader}:${post}`, ctx.now)).allowed;
 }
 
 /** The handler after one more of the rule. */
@@ -133,7 +142,7 @@ const ask: Handler = async (ctx) => {
 const similar: Handler = async (ctx) =>
   ok({ items: wire(await qa.similarQuestions({ title: ctx.query.get("title") ?? "", body: ctx.query.get("body") ?? undefined, section: ctx.query.get("section") ?? undefined, viewerId: viewer(ctx), lang: lang(ctx), limit: limitOf(ctx, 5, 10) })) });
 
-const getQuestion: Handler = async (ctx) => ok(wire(await qa.getQuestion(ctx.params.question_id!, { viewerId: viewer(ctx), lang: lang(ctx), countView: ctx.query.get("view") !== "0" })));
+const getQuestion: Handler = async (ctx) => ok(wire(await qa.getQuestion(ctx.params.question_id!, { viewerId: viewer(ctx), lang: lang(ctx), countView: await countsView(ctx, `q:${ctx.params.question_id!}`) })));
 
 const editQuestion: Handler = async (ctx) => {
   const body = ctx.json();
@@ -234,7 +243,7 @@ const listTutorials: Handler = async (ctx) =>
     ),
   );
 
-const getTutorial: Handler = async (ctx) => ok(wire(await qa.getTutorial(ctx.params.tutorial!, { viewerId: viewer(ctx), lang: lang(ctx), countView: ctx.query.get("view") !== "0" })));
+const getTutorial: Handler = async (ctx) => ok(wire(await qa.getTutorial(ctx.params.tutorial!, { viewerId: viewer(ctx), lang: lang(ctx), countView: await countsView(ctx, `t:${ctx.params.tutorial!}`) })));
 
 /** Yallapp's team publishes an official tutorial. */
 const publishTutorial: Handler = async (ctx) => {

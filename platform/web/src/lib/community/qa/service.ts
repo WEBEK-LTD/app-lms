@@ -140,8 +140,10 @@ export async function listTags(input: { q?: string; section?: string; limit?: nu
     const inSection = new Set((await qaStore().listQuestions({ statuses: SHOWN, sectionIds: section ? [section.id] : [] }, "newest", { offset: 0, limit: 500 })).flatMap((q) => q.tagIds));
     tags = tags.filter((t) => inSection.has(t.id));
   }
+  // Only tags on a published question: one made by a held or removed question doesn't show.
   return tags
     .map((t) => ({ slug: t.slug, name: t.name, count: counts.tags[t.id] ?? 0 }))
+    .filter((t) => t.count > 0)
     .sort((a, b) => b.count - a.count || a.slug.localeCompare(b.slug))
     .slice(0, Math.min(input.limit ?? 30, 100));
 }
@@ -514,7 +516,9 @@ export async function replyToAnswer(viewerId: string | null, answerId: string, i
   const a = await qaStore().getAnswer(answerId);
   const q = a ? await qaStore().getQuestion(a.questionId) : null;
   if (!a || !q || a.status !== "published" || q.status !== "published") throw new QaError("not_found", "There's no such answer.");
-  if ((await qaHooks().hiddenFor(member)).includes(a.authorId)) throw new QaError("not_allowed", "You can't reply to this member.");
+  // Neither the answer's author nor the asker blocked (or was blocked by) the member.
+  const hidden = await qaHooks().hiddenFor(member);
+  if (hidden.includes(a.authorId) || hidden.includes(q.authorId)) throw new QaError("not_allowed", "You can't reply to this member.");
   const body = check(input.body, 1, LIMITS.replyMax, "body", "The reply");
   const reply: ReplyRecord = { id: randomUUID(), answerId: a.id, body, authorId: member, status: "pending", createdAt: now };
   await qaStore().createReply(reply);
@@ -555,6 +559,8 @@ export async function vote(viewerId: string | null, input: { kind: VoteKind; id:
   if (![1, -1, 0].includes(input.value)) throw new QaError("invalid_request", "A vote is 1, -1 or 0.", "value");
   const target = input.kind === "question" ? await findQuestion(input.id) : await qaStore().getAnswer(input.id);
   if (!target || target.status !== "published") throw new QaError("not_found", `There's no such ${input.kind}.`);
+  // An answer counts only under a question that is shown.
+  if (input.kind === "answer" && (await qaStore().getQuestion((target as AnswerRecord).questionId))?.status !== "published") throw new QaError("not_found", "There's no such answer.");
   if (target.authorId === member) throw new QaError("not_allowed", "You can't vote on your own post.");
   if ((await qaHooks().hiddenFor(member)).includes(target.authorId)) throw new QaError("not_allowed", "You can't vote on this member's posts.");
   const { before, score } = await qaStore().castVote(member, input.kind, target.id, input.value, now);
