@@ -128,9 +128,9 @@ export interface CommunityLinkRequest {
 }
 
 /** What can be reported, liked, voted on or moderated. */
-export type CommunityTargetType = "member" | "question" | "answer" | "tutorial" | "comment";
+export type CommunityTargetType = "member" | "question" | "answer" | "reply" | "tutorial" | "comment";
 
-export type CommunityReportReason = "spam" | "abuse" | "harassment" | "off_topic" | "inappropriate" | "copyright" | "other";
+export type CommunityReportReason = "spam" | "harassment" | "hate" | "inappropriate" | "misinformation" | "impersonation" | "other";
 export type CommunityReportStatus = "open" | "actioned" | "dismissed";
 
 export interface CommunityReport {

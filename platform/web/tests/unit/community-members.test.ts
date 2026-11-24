@@ -185,7 +185,7 @@ describe("231 reports and the sections", () => {
     const r = await api<{ id: string }>(c, "POST", "/reports", { token: a.token, body: { target_type: "member", target_id: `@${b.username}`, reason: "spam", note: "Sends links to everyone" } });
     expect(r.status).toBe(201);
     expect((await c.deps.store.base.getReport(r.body.id))).toMatchObject({ reporterId: a.id, reason: "spam", status: "open" });
-    expect(((await api<ErrorBody>(c, "POST", "/reports", { token: a.token, body: { target_type: "member", target_id: `@${b.username}`, reason: "abuse" } })).body).error.code).toBe("already_reported");
+    expect(((await api<ErrorBody>(c, "POST", "/reports", { token: a.token, body: { target_type: "member", target_id: `@${b.username}`, reason: "harassment" } })).body).error.code).toBe("already_reported");
     expect((await api(c, "POST", "/reports", { token: a.token, body: { target_type: "member", target_id: a.id, reason: "spam" } })).status).toBe(404);
     expect((await api(c, "POST", "/reports", { token: a.token, body: { target_type: "planet", target_id: "x", reason: "why" } })).status).toBe(400);
   });
@@ -199,6 +199,16 @@ describe("231 reports and the sections", () => {
     expect(r.body.sections[1]!.name).toBe("الأسئلة والأجوبة");
     expect(r.body.tabs.map((t) => [t.slug, t.coming_soon])).toEqual([["home", false], ["qa", false], ["create", false], ["learn", false], ["groups", true]]);
     expect(r.body.groups_create_policy).toBe("everyone");
+  });
+});
+
+describe("231 a member's standing", () => {
+  it("shows the rank by points beside the name, in the reader's language", async () => {
+    const c = await testCommunity();
+    const me = await joinWithEmail(c, "Nour El Hoda");
+    expect((await api(c, "GET", `/members/${me.id}`)).body).toMatchObject({ rank: "newcomer", rank_label: "Newcomer", points: 0 });
+    await c.deps.store.base.addPoints(me.id, 1240);
+    expect((await api(c, "GET", `/members/${me.id}`, { lang: "ar" })).body).toMatchObject({ rank: "expert", rank_label: "خبير", points: 1240 });
   });
 });
 

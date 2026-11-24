@@ -3,6 +3,7 @@ import type { CommunityMember } from "../types";
 import { linkedApps } from "../yallapp";
 import { heldBadges, topBadge, type HeldBadge } from "./badge-lookup";
 import type { CommunityContext } from "./http";
+import { memberRank, type MemberRank } from "./member-rank";
 import { unreadNotifications } from "./notification-count";
 import { qaStats } from "./profile-stats";
 
@@ -30,12 +31,15 @@ export interface MemberSummaryView {
   top_badge: HeldBadge["kind"] | null;
   team: boolean;
   deleted: boolean;
+  /** Their standing by points ("Expert"), and its name in the reader's language. */
+  rank: MemberRank;
+  rank_label: string;
   relationship?: RelationshipView;
 }
 
 /** A member who deleted their account, wherever their questions and answers stay. */
 export function deletedMember(ctx: Pick<CommunityContext, "lang">, id: string): MemberSummaryView {
-  return { id, username: "", display_name: t(ctx.lang, "member.deleted"), avatar_url: null, headline: "", top_badge: null, team: false, deleted: true };
+  return { id, username: "", display_name: t(ctx.lang, "member.deleted"), avatar_url: null, headline: "", top_badge: null, team: false, deleted: true, rank: "newcomer", rank_label: t(ctx.lang, "rank.newcomer") };
 }
 
 /** How the signed-in member stands with `other` (none for oneself or when signed out). */
@@ -53,7 +57,8 @@ export async function relationshipWith(ctx: CommunityContext, otherId: string): 
   return { following, followed_by: followedBy, friend, friend_request_id: friendship?.status === "pending" ? friendship.id : null, blocked };
 }
 
-function summaryOf(member: CommunityMember, badges: HeldBadge[] | undefined): MemberSummaryView {
+function summaryOf(ctx: Pick<CommunityContext, "lang">, member: CommunityMember, badges: HeldBadge[] | undefined): MemberSummaryView {
+  const rank = memberRank(member.points);
   return {
     id: member.id,
     username: member.username,
@@ -63,6 +68,8 @@ function summaryOf(member: CommunityMember, badges: HeldBadge[] | undefined): Me
     top_badge: topBadge(badges),
     team: member.role === "team" || member.role === "admin",
     deleted: false,
+    rank,
+    rank_label: t(ctx.lang, `rank.${rank}`),
   };
 }
 
@@ -79,7 +86,7 @@ export async function memberSummaries(ctx: CommunityContext, ids: readonly strin
     ids.map(async (id) => {
       const member = byId.get(id);
       if (!member) return deletedMember(ctx, id);
-      const view = summaryOf(member, badges.get(id));
+      const view = summaryOf(ctx, member, badges.get(id));
       if (options.relationships) {
         const relationship = await relationshipWith(ctx, id);
         if (relationship) view.relationship = relationship;
@@ -109,7 +116,7 @@ export async function profileView(ctx: CommunityContext, member: CommunityMember
   const relationship = await relationshipWith(ctx, member.id);
   const own = ctx.member?.id === member.id;
   return {
-    ...summaryOf(member, held),
+    ...summaryOf(ctx, member, held),
     ...(relationship ? { relationship } : {}),
     bio: member.bio,
     skills: member.skills,
