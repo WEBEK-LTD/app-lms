@@ -1461,7 +1461,7 @@ components:
     MemberSummary:
       type: object
       description: "A member wherever they appear (an author, a follower). A deleted member is `{ id, display_name: \"Deleted member\", deleted: true }`."
-      required: [id, username, display_name, avatar_url, top_badge, team, deleted, rank, rank_label]
+      required: [id, username, display_name, avatar_url, top_badge, team, deleted, rank, rank_label, level, level_label, level_progress]
       properties:
         id: { type: string, format: uuid }
         username: { type: string }
@@ -1471,8 +1471,11 @@ components:
         top_badge: { oneOf: [{ $ref: "#/components/schemas/BadgeKind" }, { type: "null" }], description: "The one badge shown next to the name." }
         team: { type: boolean, description: "Yallapp's team (\"Yallapp Team\")." }
         deleted: { type: boolean }
-        rank: { type: string, enum: [newcomer, member, contributor, expert, pro], description: "Their standing by points (newcomer, member from 25, contributor from 250, expert from 1,000, pro from 5,000)." }
+        rank: { type: string, enum: [newcomer, member, contributor, pro, expert, master], description: "Their standing by points: the same as level (newcomer, member from 25, contributor from 250, pro from 1,000, expert from 1,375, master from 5,000)." }
         rank_label: { type: string, description: "The rank's name in the reader's language (\"Expert\")." }
+        level: { type: string, enum: [newcomer, member, contributor, pro, expert, master], description: "The level by points, from one table (`/config` levels); the same as rank." }
+        level_label: { type: string, description: "The level's name in the reader's language." }
+        level_progress: { type: number, minimum: 0, maximum: 1, description: "How far toward the next level (1 at the top): the side menu's bar." }
         relationship: { $ref: "#/components/schemas/Relationship" }
     Relationship:
       type: object
@@ -1526,7 +1529,8 @@ components:
             providers: { type: array, items: { type: string, enum: [email, apple, google] } }
             language: { $ref: "#/components/schemas/Language" }
             theme: { $ref: "#/components/schemas/Theme" }
-            role: { type: string, enum: [member, team, admin] }
+            role: { type: string, enum: [member, team, admin], description: "Stored role: \"team\" gives official answers. It never makes an admin." }
+            community_role: { type: [string, "null"], enum: [admin, moderator, null], description: "Who runs the community, asked again on each request: admin when the linked Yallapp account is an owner or admin of Yallapp's admin; moderator when an admin made them one (area C)." }
             status: { type: string, enum: [active, suspended] }
             unread_notifications: { type: integer }
             pending_friend_requests: { type: integer }
@@ -1591,6 +1595,16 @@ components:
           type: array
           description: "The tab bar: home, qa, create, learn, groups."
           items: { $ref: "#/components/schemas/Section" }
+        levels:
+          type: array
+          description: "The levels by points, lowest first (lib/community/levels.ts)."
+          items:
+            type: object
+            required: [key, name, min_points]
+            properties:
+              key: { type: string }
+              name: { type: string }
+              min_points: { type: integer }
         groups_create_policy: { type: string, enum: [everyone, badge_holders, chosen], description: "Read by phase 2." }
         site_url: { type: string, format: uri }
     Tag:

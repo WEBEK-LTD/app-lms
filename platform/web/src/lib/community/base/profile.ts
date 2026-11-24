@@ -2,9 +2,11 @@ import { hashPassword, verifyPassword } from "../../auth/password";
 import { fail, noContent, ok, type CommunityContext, type CommunityResult, type MemberContext } from "../api/http";
 import { onYallappLinkChanged } from "../api/trust-hooks";
 import { meView } from "../api/views";
+import { isYallappTeam } from "../staff";
+import { limitMember } from "./accounts";
 import type { CommunityMember } from "../types";
 import { isDuplicate } from "../store/db";
-import { Fields, readLanguage, readLinks, readPassword, readSkills, readText, readTheme, readUsername } from "./validate";
+import { Fields, readDisplayName, readLanguage, readLinks, readPassword, readSkills, readText, readTheme, readUsername } from "./validate";
 
 /**
  * 231 The signed-in member's own account: their profile and settings, the
@@ -19,9 +21,10 @@ export async function patchMe(ctx: MemberContext): Promise<CommunityResult> {
   const body = ctx.json();
   const fields = new Fields();
   const patch: Partial<CommunityMember> = {};
-  const displayName = readText(body.display_name, fields, "display_name", 80, { required: body.display_name !== undefined });
+  const team = await isYallappTeam(ctx.req, ctx.deps.platform, ctx.member);
+  const displayName = readDisplayName(body.display_name, fields, { required: body.display_name !== undefined, team });
   if (displayName !== undefined) patch.displayName = displayName;
-  const username = readUsername(body.username, fields);
+  const username = readUsername(body.username, fields, "username", team);
   if (username !== undefined) patch.username = username;
   const headline = readText(body.headline, fields, "headline", 80);
   if (headline !== undefined) patch.headline = headline;
@@ -66,6 +69,7 @@ export function imageTypeOf(bytes: Uint8Array): string | null {
 export async function putAvatar(ctx: MemberContext): Promise<CommunityResult> {
   const upload = ctx.deps.upload;
   if (!upload) fail(503, "uploads_unavailable");
+  await limitMember(ctx, "avatar");
   const file = ctx.req.form?.get("file");
   if (!file || typeof file === "string") fail(400, "invalid_image");
   if (file.size > AVATAR_MAX) fail(400, "too_large");

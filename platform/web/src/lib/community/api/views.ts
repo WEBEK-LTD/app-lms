@@ -1,4 +1,7 @@
 import { t } from "../i18n";
+import { levelOf, type CommunityLevel } from "../levels";
+import { isYallappTeam } from "../staff";
+import { communityRoleOf } from "../trust/roles";
 import type { CommunityMember } from "../types";
 import { linkedApps } from "../yallapp";
 import { heldBadges, topBadge, type HeldBadge } from "./badge-lookup";
@@ -34,12 +37,16 @@ export interface MemberSummaryView {
   /** Their standing by points ("Expert"), and its name in the reader's language. */
   rank: MemberRank;
   rank_label: string;
+  /** Their level by points (lib/community/levels.ts), its name, and how far toward the next (0–1). */
+  level: CommunityLevel;
+  level_label: string;
+  level_progress: number;
   relationship?: RelationshipView;
 }
 
 /** A member who deleted their account, wherever their questions and answers stay. */
 export function deletedMember(ctx: Pick<CommunityContext, "lang">, id: string): MemberSummaryView {
-  return { id, username: "", display_name: t(ctx.lang, "member.deleted"), avatar_url: null, headline: "", top_badge: null, team: false, deleted: true, rank: "newcomer", rank_label: t(ctx.lang, "rank.newcomer") };
+  return { id, username: "", display_name: t(ctx.lang, "member.deleted"), avatar_url: null, headline: "", top_badge: null, team: false, deleted: true, rank: "newcomer", rank_label: t(ctx.lang, "rank.newcomer"), level: "newcomer", level_label: t(ctx.lang, "rank.newcomer"), level_progress: 0 };
 }
 
 /** How the signed-in member stands with `other` (none for oneself or when signed out). */
@@ -57,8 +64,9 @@ export async function relationshipWith(ctx: CommunityContext, otherId: string): 
   return { following, followed_by: followedBy, friend, friend_request_id: friendship?.status === "pending" ? friendship.id : null, blocked };
 }
 
-function summaryOf(ctx: Pick<CommunityContext, "lang">, member: CommunityMember, badges: HeldBadge[] | undefined): MemberSummaryView {
+function summaryOf(ctx: Pick<CommunityContext, "lang">, member: CommunityMember, badges: HeldBadge[] | undefined, team: boolean): MemberSummaryView {
   const rank = memberRank(member.points);
+  const standing = levelOf(member.points);
   return {
     id: member.id,
     username: member.username,
@@ -66,10 +74,13 @@ function summaryOf(ctx: Pick<CommunityContext, "lang">, member: CommunityMember,
     avatar_url: member.avatarUrl,
     headline: member.headline,
     top_badge: topBadge(badges),
-    team: member.role === "team" || member.role === "admin",
+    team,
     deleted: false,
     rank,
     rank_label: t(ctx.lang, `rank.${rank}`),
+    level: standing.level,
+    level_label: t(ctx.lang, `rank.${standing.level}`),
+    level_progress: standing.progress,
   };
 }
 
@@ -86,7 +97,7 @@ export async function memberSummaries(ctx: CommunityContext, ids: readonly strin
     ids.map(async (id) => {
       const member = byId.get(id);
       if (!member) return deletedMember(ctx, id);
-      const view = summaryOf(ctx, member, badges.get(id));
+      const view = summaryOf(ctx, member, badges.get(id), await isYallappTeam(ctx.req, ctx.deps.platform, member));
       if (options.relationships) {
         const relationship = await relationshipWith(ctx, id);
         if (relationship) view.relationship = relationship;
@@ -116,7 +127,7 @@ export async function profileView(ctx: CommunityContext, member: CommunityMember
   const relationship = await relationshipWith(ctx, member.id);
   const own = ctx.member?.id === member.id;
   return {
-    ...summaryOf(ctx, member, held),
+    ...summaryOf(ctx, member, held, await isYallappTeam(ctx.req, ctx.deps.platform, member)),
     ...(relationship ? { relationship } : {}),
     bio: member.bio,
     skills: member.skills,
@@ -157,6 +168,8 @@ export async function meView(ctx: CommunityContext, member: CommunityMember) {
     language: member.language,
     theme: member.theme,
     role: member.role,
+    // Who runs the community: a linked Yallapp owner or admin (lib/community/staff.ts), or a moderator an admin named (area C).
+    community_role: await communityRoleOf(ctx, member),
     status: member.status === "suspended" ? "suspended" : "active",
     unread_notifications: await unreadNotifications(ctx, member.id),
     pending_friend_requests: pendingFriends,

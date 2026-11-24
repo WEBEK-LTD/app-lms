@@ -56,11 +56,36 @@ export function readText(value: unknown, fields: Fields, field: string, max: num
   return text;
 }
 
-export function readUsername(value: unknown, fields: Fields, field = "username"): string | undefined {
+/**
+ * Usernames that would pass for Yallapp's own (or the community's staff):
+ * only Yallapp's team takes them, from the admin.
+ */
+const RESERVED_USERNAME = /^(?:yallapp|yalla\.?app|admin|administrator|moderator|mod|support|help|helpdesk|team|staff|official|security|root|system|community|info|contact|billing|abuse|noreply|no\.reply)(?:[._\d].*)?$|^yallapp/;
+/** A display name that would pass for Yallapp's team ("Yallapp Team", "Yallapp Support"). */
+const IMPERSONATING_NAME = /\byalla?\s*app\b|يلا\s*آب/i;
+
+export function isReservedUsername(username: string): boolean {
+  return RESERVED_USERNAME.test(username.toLowerCase());
+}
+
+export function impersonatesTeam(displayName: string): boolean {
+  return IMPERSONATING_NAME.test(displayName);
+}
+
+/** A member's username: the pattern, and none of the reserved ones unless `team` (Yallapp's team). */
+export function readUsername(value: unknown, fields: Fields, field = "username", team = false): string | undefined {
   if (value === undefined) return undefined;
   const username = typeof value === "string" ? value.trim().toLowerCase().replace(/^@/, "") : "";
   if (!USERNAME.test(username)) fields.add(field, "field.username");
+  else if (!team && isReservedUsername(username)) fields.add(field, "field.username_reserved");
   return username;
+}
+
+/** A member's display name: required, 80 at most, and not Yallapp's own unless `team`. */
+export function readDisplayName(value: unknown, fields: Fields, options: { required: boolean; team?: boolean }): string | undefined {
+  const name = readText(value, fields, "display_name", 80, { required: options.required });
+  if (name && !options.team && impersonatesTeam(name)) fields.add("display_name", "field.name_reserved");
+  return name;
 }
 
 export function readLanguage(value: unknown, fields: Fields, field = "language"): CommunityLanguage | undefined {
@@ -125,5 +150,5 @@ export function usernameBase(displayName: string): string {
     .replace(/[^a-z0-9]+/g, ".")
     .replace(/^\.+|\.+$/g, "")
     .slice(0, 24);
-  return latin.length >= 3 ? latin : "member";
+  return latin.length >= 3 && !isReservedUsername(latin) ? latin : "member";
 }

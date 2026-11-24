@@ -3,7 +3,7 @@ import { newApp } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import { fileLinkValid, type PrivateFiles } from "@/lib/community/trust/context";
 import type { MemoryStore } from "@/lib/data/memory";
-import { api, joinWithEmail, NOW, testCommunity, type TestCommunity } from "./community-support";
+import { api, joinWithEmail, NOW, testCommunity, type TestCommunity, makeYallappStaff } from "./community-support";
 
 /**
  * 231 Yallapp Community, area C, through the API (/api/community/v1, as the
@@ -35,16 +35,8 @@ beforeEach(async () => {
   admin = await joinWithEmail(c, "Community Admin");
   nour = await joinWithEmail(c, "Nour El Hoda");
   ali = await joinWithEmail(c, "Ali Kaya");
-  await makePlatformAdmin(admin.id);
+  await makeYallappStaff(c, admin.id);
 });
-
-/** Links a Yallapp account on Yallapp's admin team (role admin) to the member: a Community admin. */
-async function makePlatformAdmin(memberId: string) {
-  const platform = c.deps.platform as MemoryStore;
-  const user = await platform.createUser({ email: `team-${memberId}@yallapp.test`, name: "Yallapp Team", passwordHash: null, now: NOW });
-  await platform.saveAdminMember({ userId: user.id, role: "admin", addedBy: "owner@yallapp.test", addedAt: NOW, updatedAt: NOW });
-  await c.deps.store.base.updateMember(memberId, { yallappUserId: user.id, linkedAt: NOW });
-}
 
 /** Links a Yallapp account with `apps` apps to the member, as confirming the link on yallapp.com.tr does. */
 async function linkYallapp(memberId: string, apps: number) {
@@ -286,10 +278,15 @@ describe("231 the Community's staff through the API", () => {
     expect(granted.status).toBe(200);
     expect(granted.body.items).toEqual([expect.objectContaining({ member: expect.objectContaining({ id: ali.id }), granted_by: expect.objectContaining({ id: admin.id }), reason: "Knows the Turkish questions" })]);
     for (const path of ["/admin/moderation", "/admin/reports"]) expect((await api(c, "GET", path, { token: ali.token })).status, path).toBe(200);
+    // /me tells the apps which tools to show.
+    expect((await api<{ community_role: string | null }>(c, "GET", "/me", { token: ali.token })).body.community_role).toBe("moderator");
+    expect((await api<{ community_role: string | null }>(c, "GET", "/me", { token: admin.token })).body.community_role).toBe("admin");
+    expect((await api<{ community_role: string | null }>(c, "GET", "/me", { token: nour.token })).body.community_role).toBeNull();
     for (const path of ["/admin/settings", "/admin/verification-requests", "/admin/audit-log", "/admin/members", "/admin/moderators"]) expect((await api(c, "GET", path, { token: ali.token })).status, path).toBe(403);
     expect((await api(c, "POST", `/admin/members/${nour.id}/badges`, { token: ali.token, body: { badge: "blue", reason: "Nice" } })).status).toBe(403);
     expect((await api(c, "DELETE", `/admin/moderators/${ali.id}`, { token: admin.token, body: { reason: "Stepped down" } })).status).toBe(204);
     expect((await api(c, "GET", "/admin/moderation", { token: ali.token })).status).toBe(403);
+    expect((await api<{ community_role: string | null }>(c, "GET", "/me", { token: ali.token })).body.community_role).toBeNull();
     const log = await api<{ items: { action: string; reason: string }[] }>(c, "GET", `/admin/audit-log?member=${ali.id}`, { token: admin.token });
     expect(log.body.items.map((e) => [e.action, e.reason])).toEqual([
       ["moderator.revoke", "Stepped down"],

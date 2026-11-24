@@ -9,7 +9,7 @@ import { t } from "../i18n";
 import type { CommunityBaseStore } from "../store/base";
 import type { CommunityLanguage, CommunityMember } from "../types";
 import { isDuplicate } from "../store/db";
-import { Fields, readEmail, readLanguage, readPassword, readText, readUsername, usernameBase } from "./validate";
+import { Fields, impersonatesTeam, readDisplayName, readEmail, readLanguage, readPassword, readText, readUsername, usernameBase } from "./validate";
 
 /**
  * 231 Joining and signing in: email and password, Sign in with Apple,
@@ -21,7 +21,19 @@ export const COMMUNITY_LIMITS = {
   ip: { name: "community-auth:ip", limit: 30, windowSeconds: 15 * 60 },
   email: { name: "community-auth:email", limit: 8, windowSeconds: 15 * 60 },
   resend: { name: "community-verify:member", limit: 3, windowSeconds: 60 * 60 },
+  // Per member, an hour: enough for anyone, too few to spam with.
+  follow: { name: "community-follow:member", limit: 120, windowSeconds: 60 * 60 },
+  friend: { name: "community-friend:member", limit: 40, windowSeconds: 60 * 60 },
+  report: { name: "community-report:member", limit: 20, windowSeconds: 60 * 60 },
+  avatar: { name: "community-avatar:member", limit: 20, windowSeconds: 60 * 60 },
+  link: { name: "community-link:member", limit: 10, windowSeconds: 60 * 60 },
 } satisfies Record<string, RateLimitRule>;
+
+/** One more of `rule` for the signed-in member; 429 too_many_attempts past its limit. */
+export async function limitMember(ctx: CommunityContext & { member: CommunityMember }, rule: keyof typeof COMMUNITY_LIMITS): Promise<void> {
+  const hit = await hitRateLimit(ctx.deps.platform, COMMUNITY_LIMITS[rule], ctx.member.id, ctx.now);
+  if (!hit.allowed) tooMany(hit.retryAfter);
+}
 
 const VERIFY_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const RESET_TTL_MS = 60 * 60 * 1000;
@@ -108,7 +120,7 @@ export async function signUp(ctx: CommunityContext): Promise<CommunityResult> {
   const fields = new Fields();
   const email = readEmail(body.email, fields);
   const password = readPassword(body.password, fields);
-  const displayName = readText(body.display_name, fields, "display_name", 80, { required: true }) ?? "";
+  const displayName = readDisplayName(body.display_name, fields, { required: true }) ?? "";
   const username = readUsername(body.username, fields);
   const language = readLanguage(body.language, fields) ?? ctx.lang;
   fields.check();
@@ -176,13 +188,19 @@ async function withProvider(ctx: CommunityContext, provider: "apple" | "google")
   const sameEmail = identity.email && identity.emailVerified ? await store.getMemberByEmail(identity.email) : null;
   if (sameEmail && sameEmail.status !== "deleted") {
     await store.addIdentity({ memberId: sameEmail.id, provider, subject: identity.subject, email: identity.email, createdAt: ctx.now });
-    const member = sameEmail.emailVerified ? sameEmail : ((await store.updateMember(sameEmail.id, { emailVerified: true, updatedAt: ctx.now })) ?? sameEmail);
-    return signedIn(ctx, member, false);
+    if (sameEmail.emailVerified) return signedIn(ctx, sameEmail, false);
+    // Whoever joined with this address never proved it was theirs; Apple or Google just did for this person.
+    // The account is theirs now: the password set before goes, and every device signed in with it signs out.
+    const member = await store.updateMember(sameEmail.id, { emailVerified: true, passwordHash: null, sessionVersion: sameEmail.sessionVersion + 1, updatedAt: ctx.now });
+    await store.deleteSessions(sameEmail.id);
+    return signedIn(ctx, member ?? sameEmail, false);
   }
   const fieldsIn = new Fields();
   const sentName = readText(body.display_name, fieldsIn, "display_name", 80);
   const language = readLanguage(body.language, fieldsIn) ?? ctx.lang;
-  const displayName = (sentName || identity.name || identity.email?.split("@")[0] || "Member").slice(0, 80);
+  const named = (sentName || identity.name || identity.email?.split("@")[0] || "Member").slice(0, 80);
+  // A name from Apple or Google that would pass for Yallapp's team isn't taken as it is.
+  const displayName = impersonatesTeam(named) ? "Member" : named;
   const member = newMember({
     email: identity.email,
     emailVerified: identity.email !== null && identity.emailVerified,

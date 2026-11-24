@@ -5,6 +5,8 @@ import { notify, onReported } from "../api/trust-hooks";
 import { linkedAppView, memberSummaries, profileView, relationshipWith } from "../api/views";
 import type { CommunityMember, CommunityReportReason, CommunityTargetType } from "../types";
 import { linkedApps } from "../yallapp";
+import { isCommunityAdmin } from "../staff";
+import { limitMember } from "./accounts";
 import { findMember } from "./profile";
 
 /**
@@ -19,7 +21,7 @@ async function visibleMember(ctx: CommunityContext): Promise<CommunityMember> {
   const member = await findMember(ctx, ctx.params.member ?? "");
   if (!member) fail(404, "not_found");
   // A suspended member's profile is hidden from everyone but the admins.
-  if (member.status === "suspended" && ctx.member?.role !== "admin" && ctx.member?.id !== member.id) fail(404, "not_found");
+  if (member.status === "suspended" && ctx.member?.id !== member.id && !(ctx.member && (await isCommunityAdmin(ctx.req, ctx.deps.platform, ctx.member)))) fail(404, "not_found");
   if (ctx.member && ctx.member.id !== member.id && (await ctx.store.base.hasBlocked(member.id, ctx.member.id))) fail(404, "not_found");
   return member;
 }
@@ -95,6 +97,7 @@ export async function follow(ctx: MemberContext): Promise<CommunityResult> {
   if (await blockedBetween(ctx, member.id)) fail(400, "not_allowed");
   const already = await ctx.store.base.isFollowing(ctx.member.id, member.id);
   if (!already) {
+    await limitMember(ctx, "follow");
     await ctx.store.base.follow(ctx.member.id, member.id, ctx.now);
     await notify(ctx, { memberId: member.id, kind: "follow", actorId: ctx.member.id, targetType: "member", targetId: ctx.member.id });
   }
@@ -115,6 +118,7 @@ export async function befriend(ctx: MemberContext): Promise<CommunityResult> {
   const base = ctx.store.base;
   const existing = await base.getFriendshipBetween(ctx.member.id, member.id);
   if (!existing) {
+    await limitMember(ctx, "friend");
     const id = newId();
     await base.createFriendship({ id, requesterId: ctx.member.id, addresseeId: member.id, status: "pending", createdAt: ctx.now, respondedAt: null });
     await notify(ctx, { memberId: member.id, kind: "friend_request", actorId: ctx.member.id, targetType: "friend_request", targetId: id });
@@ -213,6 +217,7 @@ export async function report(ctx: CommunityContext): Promise<CommunityResult> {
   if (!REASONS.includes(reason)) fields.reason = "field.invalid";
   if (note.length > 1000) fields.note = "field.too_long";
   if (Object.keys(fields).length) fail(400, "invalid_request", fields);
+  await limitMember(signed, "report");
   if (targetType === "member") {
     const member = await findMember(ctx, targetId);
     if (!member || member.id === signed.member.id) fail(404, "not_found");

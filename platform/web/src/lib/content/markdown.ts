@@ -28,7 +28,8 @@ export type Block =
 /** Addresses a link may open; anything else is shown as plain text. */
 export function safeHref(href: string): string | null {
   const value = href.trim();
-  if (/^\/(?!\/)/.test(value) || value.startsWith("#")) return value;
+  // 231 Not "/\host" either: browsers read it as "//host", another site.
+  if ((/^\/(?!\/)/.test(value) && !value.includes("\\")) || value.startsWith("#")) return value;
   if (/^(https?:\/\/|mailto:|tel:)[^\s<>"']+$/i.test(value)) return value;
   return null;
 }
