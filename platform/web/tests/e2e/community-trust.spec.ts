@@ -6,11 +6,13 @@ import { E2E } from "../../playwright.config";
  * (docs/api/community.yaml): a follow reaches the notifications list and is
  * marked read, email choices change; a new member's first question waits
  * for review; the Gold form is refused without 5 apps on a linked Yallapp
- * account; a member is reported once. With a Community admin (the e2e
- * server's COMMUNITY_ADMIN_EMAILS), the admins' tools too: the moderation
- * queue approves the question, a badge granted shows next to the member's
- * name and goes when revoked, every step in the audit log, and the
- * settings' "Who can create groups" reaches /config.
+ * account; a member is reported once; the admins' tools are closed to
+ * members. With a Community admin (a member whose linked Yallapp account is
+ * a platform admin; E2E_COMMUNITY_ADMIN_EMAIL/PASSWORD name one already
+ * linked), the admins' tools too: the moderation queue approves the
+ * question, a badge granted shows next to the member's name and goes when
+ * revoked, every step in the audit log, and the settings' "Who can create
+ * groups" reaches /config.
  */
 test.describe.configure({ mode: "serial" });
 // Its own address, so the sign-up limits per IP don't reach the other specs.
@@ -20,7 +22,7 @@ test.use({ extraHTTPHeaders });
 const suffix = Date.now().toString(36);
 const api = `${E2E.baseURL}/api/community/v1`;
 const password = "community-strong-password-2";
-/** The Community admin the e2e server makes (COMMUNITY_ADMIN_EMAILS). */
+/** A Community admin on the e2e server: a member already linked to a Yallapp platform admin (none by default: that part is skipped). */
 const ADMIN_EMAIL = process.env.E2E_COMMUNITY_ADMIN_EMAIL ?? "community-admin@yallapp.test";
 
 type Member = { token: string; id: string; username: string; role: string };
@@ -97,7 +99,8 @@ test("231 a member is reported once; the admins' tools are closed to members", a
 
 test("231 a Community admin: moderation, a badge granted and revoked, the audit log and the settings", async ({ request }) => {
   admin = await join(request, "Community Admin", ADMIN_EMAIL);
-  test.skip(admin.role !== "admin", `${ADMIN_EMAIL} isn't a Community admin on this server (COMMUNITY_ADMIN_EMAILS)`);
+  const isAdmin = (await request.get(`${api}/admin/settings`, { headers: auth(admin) })).status() === 200;
+  test.skip(!isAdmin, `${ADMIN_EMAIL} isn't linked to a Yallapp platform admin on this server`);
   const a = admin;
 
   // The moderation queue: Reem's first question, approved, appears and she is told.

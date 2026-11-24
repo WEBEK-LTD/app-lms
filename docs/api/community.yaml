@@ -1174,6 +1174,41 @@ paths:
       responses:
         "204": { description: Changed. }
         "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/moderators:
+    get:
+      tags: [Admin]
+      summary: The Community's moderators (admins only)
+      description: "A Community admin is a member whose linked Yallapp account is a Yallapp platform admin (checked on every request). Admins make members moderators: the moderation queue and reports only, no badges or settings."
+      responses:
+        "200": { description: The moderators., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/ModeratorGrant" } } } } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/moderators/{member}:
+    put:
+      tags: [Admin]
+      summary: Make a member a moderator, with a reason (written to the audit log)
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [reason], properties: { reason: { type: string, minLength: 3, maxLength: 1000 } } }
+      responses:
+        "200": { description: The moderators., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/ModeratorGrant" } } } } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Admin]
+      summary: Take a member's moderator role away, with a reason (written to the audit log)
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [reason], properties: { reason: { type: string, minLength: 3, maxLength: 1000 } } }
+      responses:
+        "204": { description: Revoked. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
   /admin/audit-log:
     get:
       tags: [Admin]
@@ -1703,13 +1738,21 @@ components:
       properties:
         id: { type: string, format: uuid }
         actor: { oneOf: [{ $ref: "#/components/schemas/MemberSummary" }, { type: "null" }], description: "Null: the badge rules themselves." }
-        action: { type: string, examples: [badge.grant, badge.revoke, badge.auto_grant, badge.auto_revoke, verification.approve, verification.reject, member.suspend, member.restore, settings.update, moderation.approve, moderation.remove] }
+        action: { type: string, examples: [badge.grant, badge.revoke, badge.auto_grant, badge.auto_revoke, verification.approve, verification.reject, member.suspend, member.restore, moderator.grant, moderator.revoke, settings.update, moderation.approve, moderation.remove, report.action, report.dismiss] }
         member: { oneOf: [{ $ref: "#/components/schemas/MemberSummary" }, { type: "null" }] }
         target_type: { type: [string, "null"] }
         target_id: { type: [string, "null"] }
         reason: { type: [string, "null"] }
         details: { type: [object, "null"] }
         created_at: { type: string, format: date-time }
+    ModeratorGrant:
+      type: object
+      required: [member, granted_by, granted_at, reason]
+      properties:
+        member: { $ref: "#/components/schemas/MemberSummary" }
+        granted_by: { oneOf: [{ $ref: "#/components/schemas/MemberSummary" }, { type: "null" }] }
+        granted_at: { type: string, format: date-time }
+        reason: { type: string, description: "Admins only." }
     AdminSettings:
       type: object
       required: [blue_badge, groups_create_policy, spam_filter]
