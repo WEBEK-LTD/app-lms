@@ -17,8 +17,9 @@ async function setup() {
   const c = await testCommunity({ providers: false });
   const asker = await joinWithEmail(c, "Karim Asker");
   const helper = await joinWithEmail(c, "Nour Helper");
-  const team = await joinWithEmail(c, "Yallapp Team One");
-  await c.deps.store.base.updateMember(team.id, { role: "team" });
+  // 231 Yallapp's names are the team's: a team member gets theirs in the admin, not at sign-up.
+  const team = await joinWithEmail(c, "Team One");
+  await c.deps.store.base.updateMember(team.id, { role: "team", displayName: "Yallapp Team One" });
   // Established members: a new member's first 2 posts wait for review (area C's moderation, tested there).
   for (const m of [asker, helper]) await c.deps.store.base.updateMember(m.id, { approvedPosts: 2 });
   return { c, asker, helper, team };
