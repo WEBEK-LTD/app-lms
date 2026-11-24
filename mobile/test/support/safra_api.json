@@ -14,7 +14,7 @@
   "transfer": {
    "currency": "USD",
    "price": "48.00",
-   "price_formatted": "$48.00",
+   "price_formatted": "$48",
    "note": "Driver waits with your name"
   },
   "display_font": {
@@ -930,7 +930,7 @@
       "unit_amount": "1072.00",
       "unit_formatted": "$1,072",
       "amount": "2144.00",
-      "amount_formatted": "$2,144.00"
+      "amount_formatted": "$2,144"
      },
      {
       "kind": "nights",
@@ -939,7 +939,7 @@
       "unit_amount": "190.00",
       "unit_formatted": "$190",
       "amount": "950.00",
-      "amount_formatted": "$950.00"
+      "amount_formatted": "$950"
      },
      {
       "kind": "taxes",
@@ -957,7 +957,7 @@
       "unit_amount": null,
       "unit_formatted": null,
       "amount": "-95.00",
-      "amount_formatted": "−$95.00"
+      "amount_formatted": "−$95"
      },
      {
       "kind": "bundle",
@@ -966,7 +966,7 @@
       "unit_amount": null,
       "unit_formatted": null,
       "amount": "-76.00",
-      "amount_formatted": "−$76.00"
+      "amount_formatted": "−$76"
      },
      {
       "kind": "transfer",
@@ -975,7 +975,7 @@
       "unit_amount": "48.00",
       "unit_formatted": "$48",
       "amount": "48.00",
-      "amount_formatted": "$48.00"
+      "amount_formatted": "$48"
      }
     ],
     "total": "3170.50",
@@ -1162,7 +1162,7 @@
     "unit_amount": "1072.00",
     "unit_formatted": "$1,072",
     "amount": "2144.00",
-    "amount_formatted": "$2,144.00"
+    "amount_formatted": "$2,144"
    },
    {
     "kind": "nights",
@@ -1171,7 +1171,7 @@
     "unit_amount": "190.00",
     "unit_formatted": "$190",
     "amount": "950.00",
-    "amount_formatted": "$950.00"
+    "amount_formatted": "$950"
    },
    {
     "kind": "taxes",
@@ -1189,7 +1189,7 @@
     "unit_amount": null,
     "unit_formatted": null,
     "amount": "-95.00",
-    "amount_formatted": "−$95.00"
+    "amount_formatted": "−$95"
    },
    {
     "kind": "bundle",
@@ -1198,7 +1198,7 @@
     "unit_amount": null,
     "unit_formatted": null,
     "amount": "-76.00",
-    "amount_formatted": "−$76.00"
+    "amount_formatted": "−$76"
    },
    {
     "kind": "transfer",
@@ -1207,7 +1207,7 @@
     "unit_amount": "48.00",
     "unit_formatted": "$48",
     "amount": "48.00",
-    "amount_formatted": "$48.00"
+    "amount_formatted": "$48"
    }
   ],
   "total": "3170.50",

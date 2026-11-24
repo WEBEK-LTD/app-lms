@@ -67,8 +67,9 @@ describe("135.1 every ISO 4217 currency", () => {
     expect(formatCents(125, "KWD")).toBe("KWD\u00a01.250");
     expect(formatCents(125, "BHD")).toBe("BHD\u00a01.250");
     expect(formatCents(125000, "JPY")).toBe("¥1,250");
-    expect(formatCents(60000, "EGP")).toBe("E£600.00");
-    expect(formatCents(45000, "TRY")).toBe("₺450.00");
+    expect(formatCents(60000, "EGP")).toBe("E£600");
+    expect(formatCents(60000, "EGP", null, { exact: true })).toBe("E£600.00");
+    expect(formatCents(45000, "TRY")).toBe("₺450");
     expect(centsToDecimal(125, "KWD")).toBe("1.250");
     expect(centsToDecimal(125000, "JPY")).toBe("1250");
     expect(centsToDecimal(45050)).toBe("450.50");

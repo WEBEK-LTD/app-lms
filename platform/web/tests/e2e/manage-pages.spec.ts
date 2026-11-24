@@ -129,7 +129,7 @@ test("132.11 the product editor keeps what was typed, puts the photos in order a
   await own.getByRole("button", { name: "Add product" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Tulip Bouquet”.");
   const row = own.locator('[data-product="Tulip Bouquet"]');
-  await expect(row).toContainText("₺350.00");
+  await expect(row).toContainText("₺350");
   // 132.152 Its sale in its inspector, opened from its row; the inspector leads to its page.
   await row.getByRole("button", { name: /^Tulip Bouquet/ }).click();
   await expect(own.locator('[data-inspector-product="Tulip Bouquet"]')).toContainText("13% off");
@@ -210,9 +210,9 @@ test("132.11 the list finds, filters, sorts and changes products in bulk", async
   await bar.getByLabel("Change prices by (%)").fill("10");
   await bar.getByRole("button", { name: "Apply" }).click();
   await expect(own.getByText("Prices changed: 4.")).toBeVisible();
-  await expect(own.locator('[data-product="Linen Tote"]')).toContainText("₺110.00");
-  await expect(own.locator('[data-product="Tulip Bouquet"]')).toContainText("₺385.00");
-  await expect(own.locator('[data-product="Tulip Bouquet"]')).toContainText("₺440.00");
+  await expect(own.locator('[data-product="Linen Tote"]')).toContainText("₺110");
+  await expect(own.locator('[data-product="Tulip Bouquet"]')).toContainText("₺385");
+  await expect(own.locator('[data-product="Tulip Bouquet"]')).toContainText("₺440");
 
   // One put in a category, one deleted.
   await own.getByLabel("Select Linen Tote").check();

@@ -158,7 +158,7 @@ describe("105.3 academies with many teachers on the hosted API", () => {
     const made = await call("POST", "/teacher/courses", { token, body: { title: "Arabic grammar", description: "Nahw from the start.", price: "450", level: "beginner", category_id: 1 } });
     expect(made.status).toBe(201);
     const course = made.body as { id: number; stage: string; sections: unknown[] };
-    expect(course).toMatchObject({ stage: "draft", price: "450.00", price_formatted: "E£450.00", level: "beginner", category_id: 1, lesson_count: 0 });
+    expect(course).toMatchObject({ stage: "draft", price: "450.00", price_formatted: "E£450", level: "beginner", category_id: 1, lesson_count: 0 });
     expect((await call("POST", "/teacher/courses/{course_id}/submit", { params: [String(course.id)], token })).body).toMatchObject({ code: "no_lessons" });
     const sectioned = (await call("POST", "/teacher/courses/{course_id}/sections", { params: [String(course.id)], token, body: { title: "The sentence" } })).body as { sections: { id: number }[] };
     const sectionId = sectioned.sections[0]!.id;
@@ -279,11 +279,11 @@ describe("105.3 academies with many teachers on the hosted API", () => {
       from: "2026-10-01",
       to: NOW.toISOString().slice(0, 10),
       sales: 2,
-      sales_formatted: "E£900.00",
-      refunds_formatted: "E£100.00",
+      sales_formatted: "E£900",
+      refunds_formatted: "E£100",
       share_percent: 70,
-      earned_formatted: "E£560.00",
-      courses: [{ id, title: "Arabic grammar", sales: 2, earned_formatted: "E£560.00" }],
+      earned_formatted: "E£560",
+      courses: [{ id, title: "Arabic grammar", sales: 2, earned_formatted: "E£560" }],
     });
     expect(((await call("GET", "/teacher/earnings", { query: { period: "last_month" }, token: teacher.access_token })).body as { sales: number }).sales).toBe(0);
     expect((await call("GET", "/teacher/earnings", { query: { period: "week" }, token: teacher.access_token })).status).toBe(400);

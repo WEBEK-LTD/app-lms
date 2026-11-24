@@ -175,8 +175,8 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await page.getByRole("button", { name: "Add product" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Tulip Bouquet”.");
   const row = page.locator('[data-product="Tulip Bouquet"]');
-  await expect(row).toContainText("₺350.00");
-  await expect(row).toContainText("₺400.00");
+  await expect(row).toContainText("₺350");
+  await expect(row).toContainText("₺400");
   // 132.152 Its category and stock in its inspector, opened from its row.
   await row.getByRole("button", { name: /^Tulip Bouquet/ }).click();
   const inspector = page.locator('[data-inspector-product="Tulip Bouquet"]');
@@ -195,7 +195,7 @@ test("a client without a website sets up their shop", async ({ page }) => {
   api = `${E2E.baseURL}/api/app/${appId}`;
   await page.goto(share);
   await expect(page.getByRole("heading", { name: "Tulip Bouquet" })).toBeVisible();
-  await expect(page.getByText("₺350.00")).toBeVisible();
+  await expect(page.getByText("₺350")).toBeVisible();
 });
 
 test("a customer pays in the app and the order reaches the dashboard", async ({ page, request }) => {
@@ -211,19 +211,19 @@ test("a customer pays in the app and the order reaches the dashboard", async ({ 
 
   await page.goto(url);
   await expect(page.getByText("Total")).toBeVisible();
-  await expect(page.getByRole("region", { name: /Order \d+/ })).toContainText("₺750.00");
+  await expect(page.getByRole("region", { name: /Order \d+/ })).toContainText("₺750");
   await page.getByLabel("Full name").fill("Sara");
-  await page.getByRole("button", { name: "Pay ₺750.00" }).click();
+  await page.getByRole("button", { name: "Pay ₺750" }).click();
   await expect(page.getByText("Enter your first and last name.")).toBeVisible();
   await page.getByLabel("Full name").fill("Sara Yilmaz");
   await page.getByLabel("Mobile number").fill("0532 123 45 67");
   await page.getByLabel("Email").fill("sara@example.com");
   await page.getByLabel("City").fill("Istanbul");
   await page.getByLabel("Address").fill("Moda Cd. 12, Kadikoy");
-  await page.getByRole("button", { name: "Pay ₺750.00" }).click();
+  await page.getByRole("button", { name: "Pay ₺750" }).click();
   // 153 iyzico's form in this page, under the details: its script filled the div in its responsive look.
   await expect(page.getByRole("heading", { name: "Your card" })).toBeVisible();
-  await expect(page.getByText("Enter your card to pay ₺750.00. It goes straight to iyzico: the shop never sees its number.")).toBeVisible();
+  await expect(page.getByText("Enter your card to pay ₺750. It goes straight to iyzico: the shop never sees its number.")).toBeVisible();
   await expect(page.locator("#iyzipay-checkout-form iframe")).toHaveAttribute("data-fake-iyzico", "responsive");
   await expect(page).toHaveURL(/\/pay\/[\w-]+$/);
   // The card is paid in iyzico's frame; iyzico posts its token to our callback from the whole page.
@@ -243,7 +243,7 @@ test("a customer pays in the app and the order reaches the dashboard", async ({ 
   await signIn(page, client.email, client.password);
   await page.getByRole("link", { name: "Orders", exact: true }).click();
   const order = page.getByRole("listitem").filter({ hasText: "Sara Yilmaz" });
-  await expect(order).toContainText("₺750.00");
+  await expect(order).toContainText("₺750");
   await expect(order).toContainText("Tulip Bouquet × 2");
   await expect(order).toContainText("Moda Cd. 12, Kadikoy, Istanbul");
   // 132.132 An order's details open in a drawer from its row.
@@ -309,9 +309,9 @@ test("91.3 a signed-in customer asks to return a completed order, and the shop a
   // 153 iyzico's script blocked: iyzico's own page, the same payment.
   const bundle = /\/checkoutform\/v2\/bundle\.js/;
   await page.route(bundle, (route) => route.abort());
-  await page.getByRole("button", { name: "Pay ₺400.00" }).click();
+  await page.getByRole("button", { name: "Pay ₺400" }).click();
   await expect(page.getByText("The card form didn't load here. Pay on iyzico's secure page instead.")).toBeVisible();
-  await page.getByRole("link", { name: "Pay ₺400.00 on iyzico" }).click();
+  await page.getByRole("link", { name: "Pay ₺400 on iyzico" }).click();
   await expect(page).toHaveURL(new RegExp(`^http://localhost:${E2E.iyzicoPort}/pay\\?token=`));
   await page.unroute(bundle);
   await page.getByRole("button", { name: "Pay with test card" }).click();
@@ -396,7 +396,7 @@ test("91.4 a customer earns loyalty points on a completed order and uses them on
 
   // A first order: no points yet; completed, it earns 35 (₺350 of products).
   expect((await (await request.post(`${api}/store/cart`, { headers, data: { lines, use_points: true } })).json()).points).toEqual({ balance: 0, usable: 0, usable_value: null, applied: false, discount: null, currency: "TRY", usable_value_amount: null, discount_amount: null });
-  await pay({}, "₺400.00");
+  await pay({}, "₺400");
   await page.goto("/dashboard/orders");
   await page.getByRole("listitem").filter({ hasText: "Deniz Kaya" }).getByRole("button", { name: "Mark completed" }).click();
   await expect(page.getByRole("listitem").filter({ hasText: "Deniz Kaya" })).toContainText("Earned 35 loyalty points");
@@ -464,7 +464,7 @@ test("91.5 a product in two colours, and KDV inside the prices, from the dashboa
   await page.getByLabel("Email").fill(`ayla-${suffix}@example.com`);
   await page.getByLabel("City").fill("Izmir");
   await page.getByLabel("Address").fill("Kordon 3, Alsancak");
-  await page.getByRole("button", { name: "Pay ₺250.00" }).click();
+  await page.getByRole("button", { name: "Pay ₺250" }).click();
   await payInPage(page);
   await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
 

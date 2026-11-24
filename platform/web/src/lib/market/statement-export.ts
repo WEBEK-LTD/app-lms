@@ -152,5 +152,5 @@ export function statementXlsx(statement: Statement, lang: Lang, timezone: string
 
 /** "EGP 1,250.00" for the PDF. */
 export function statementAmount(statement: Statement, minor: number, lang: Lang): string {
-  return formatMinor(minor, statement.currency, lang === "ar" ? "ar-EG-u-nu-latn" : lang);
+  return formatMinor(minor, statement.currency, lang === "ar" ? "ar-EG-u-nu-latn" : lang, { exact: true });
 }

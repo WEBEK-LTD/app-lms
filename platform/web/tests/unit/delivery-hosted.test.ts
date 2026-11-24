@@ -222,8 +222,8 @@ describe("104 delivery apps on the hosted API", () => {
     await store.saveDeliverySettings(app.id, { ...SETTINGS, pricing: "zone" }, NOW);
     const zoned = (await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as { delivery: { zones: unknown[] } };
     expect(zoned.delivery.zones).toEqual([
-      { id: "z1", name: "Maadi", price_formatted: "E£45.00" },
-      { id: "z2", name: "Zamalek", price_formatted: "E£60.00" },
+      { id: "z1", name: "Maadi", price_formatted: "E£45" },
+      { id: "z2", name: "Zamalek", price_formatted: "E£60" },
     ]);
   });
 
@@ -231,7 +231,7 @@ describe("104 delivery apps on the hosted API", () => {
     await store.createDeliveryService({ appId: app.id, name: "Express", description: "Within 2 hours", imageAssetId: "img-1", extraCents: 25_00, eta: "2 hours", position: 1, active: true }, NOW);
     const hidden = await store.createDeliveryService({ appId: app.id, name: "Night", description: null, imageAssetId: null, extraCents: 0, eta: null, position: 2, active: false }, NOW);
     const services = (await call("GET", "/delivery/services")).body as { items: { name: string; extra_formatted: string | null; image_url: string | null }[] };
-    expect(services.items).toEqual([expect.objectContaining({ name: "Express", extra: "25.00", extra_formatted: "+E£25.00", image_url: ASSETS("img-1"), eta: "2 hours" })]);
+    expect(services.items).toEqual([expect.objectContaining({ name: "Express", extra: "25.00", extra_formatted: "+E£25", image_url: ASSETS("img-1"), eta: "2 hours" })]);
     const express = (await store.listDeliveryServices(app.id))[0]!;
     // With services, one is chosen.
     expect((await call("POST", "/delivery/quote", { body: { pickup: TAHRIR, dropoff: TOWER } })).status).toBe(400);
@@ -240,7 +240,7 @@ describe("104 delivery apps on the hosted API", () => {
     expect(quote.body).toEqual({ price: "57.00", price_formatted: "E£57", currency: "EGP", distance_km: 1.2 });
     // A page's list of services.
     const items = await deliveryServicePageItems(app.id, { category_id: null, featured: false, ids: [], sort: "newest", limit: 10 }, { store, assetUrl: ASSETS });
-    expect(items).toEqual([{ source: "delivery_services", id: String(express.id), title: "Express", subtitle: "2 hours", image_url: ASSETS("img-1"), price_label: null, badge: "+E£25.00", action: { type: "item", item: { source: "delivery_services", id: String(express.id) } } }]);
+    expect(items).toEqual([{ source: "delivery_services", id: String(express.id), title: "Express", subtitle: "2 hours", image_url: ASSETS("img-1"), price_label: null, badge: "+E£25", action: { type: "item", item: { source: "delivery_services", id: String(express.id) } } }]);
     expect(itemSourcesFor(app)).toEqual(["delivery_services"]);
     expect(blockTypesFor(app)).toContain("items");
     expect(blockTypesFor(app)).not.toContain("search");
@@ -315,7 +315,7 @@ describe("104 delivery apps on the hosted API", () => {
     for (const token of [omar.access_token, hany.access_token]) await call("PATCH", "/courier/me", { token, body: { on_duty: true } });
     const available = (await call("GET", "/courier/jobs", { token: omar.access_token, query: { scope: "available" } })).body as { items: Record<string, unknown>[] };
     // No numbers before taking it.
-    expect(available.items).toEqual([expect.objectContaining({ id, sender: { name: "Karim Hassan", phone: null }, recipient: { name: "Mona Adel", phone: null }, collect: "32.00", collect_formatted: "E£32.00" })]);
+    expect(available.items).toEqual([expect.objectContaining({ id, sender: { name: "Karim Hassan", phone: null }, recipient: { name: "Mona Adel", phone: null }, collect: "32.00", collect_formatted: "E£32" })]);
     const taken = await call("POST", "/courier/jobs/{shipment_id}/accept", { params: [String(id)], token: omar.access_token });
     expect(taken.body).toMatchObject({ status: "assigned", sender: { phone: "+201001112222" }, recipient: { phone: "+201015550000" } });
     const late = await call("POST", "/courier/jobs/{shipment_id}/accept", { params: [String(id)], token: hany.access_token });

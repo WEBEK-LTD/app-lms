@@ -158,7 +158,7 @@ describe("opening hours and order times", () => {
       ok: false,
       status: 409,
       code: "below_minimum",
-      message: "The minimum order for delivery is ₺150.00.",
+      message: "The minimum order for delivery is ₺150.",
     });
     expect(check({ fulfilment: "delivery", delivery_address: { address: "Moda Cd. 12", district: "moda", notes: "Door code 12" } })).toEqual({
       ok: true,
@@ -431,9 +431,9 @@ describe("a restaurant on the hosted API", () => {
     });
     // The owner's email says how and lists the options.
     const mail = newOrderMail({ ...order, status: "processing" }, "Moda Café", "https://yallapp.test/dashboard/orders");
-    expect(mail.text).toContain("Burger (Large, Extra cheese) × 2: ₺570.00");
+    expect(mail.text).toContain("Burger (Large, Extra cheese) × 2: ₺570");
     expect(mail.text).toContain("Delivery as soon as possible: Moda Cd. 12, flat 3, Moda");
-    expect(mail.text).toContain("Delivery fee: ₺30.00");
+    expect(mail.text).toContain("Delivery fee: ₺30");
 
     // Closed at night: as soon as possible is refused, a time for later is taken.
     now = at("2026-10-12T20:00:00Z");

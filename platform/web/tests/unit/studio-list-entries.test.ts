@@ -35,7 +35,7 @@ describe("the kinds' lists on the canvas", () => {
     expect(food).toMatch(/src="\/design-pictures\/art-dish-[a-z]+\.png"/);
     expect(food).toContain("Egyptian · Desserts");
     const delivery = draw("delivery_services", empty);
-    for (const word of ["Same day", "Express", "+EGP 45.00", 'src="/design-pictures/art-service-express.png"']) expect(delivery).toContain(word);
+    for (const word of ["Same day", "Express", "+EGP 45", 'src="/design-pictures/art-service-express.png"']) expect(delivery).toContain(word);
     const courses = draw("courses", empty);
     expect(courses).toContain("UX Design Fundamentals");
     expect(courses).toMatch(/src="\/design-pictures\/art-course-[a-z]+\.png"/);

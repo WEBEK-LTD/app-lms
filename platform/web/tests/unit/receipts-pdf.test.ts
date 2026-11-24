@@ -276,7 +276,7 @@ describe("71 receipts as PDF", () => {
       expect(text, part).toContain(squash(part));
     }
     // Lira as the shop's prices: "₺250.00" for two dishes, "₺320.00" in all, "₺40.00" refunded.
-    expect(formatCents(25_000, "TRY")).toBe("₺250.00");
+    expect(formatCents(25_000, "TRY", null, { exact: true })).toBe("₺250.00");
     for (const amount of ["₺250.00", "₺40.00", "₺290.00", "₺30.00", "₺320.00", "−₺40.00"]) expect(text, amount).toContain(squash(amount));
     expect(receiptFilename("1042")).toBe("receipt-1042.pdf");
   });

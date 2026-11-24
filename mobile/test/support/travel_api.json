@@ -14,7 +14,7 @@
   "transfer": {
    "currency": "USD",
    "price": "48.00",
-   "price_formatted": "$48.00",
+   "price_formatted": "$48",
    "note": "Driver waits with your name"
   },
   "display_font": {
@@ -491,11 +491,11 @@
       "bag_kg": 23,
       "change": {
        "allowed": true,
-       "fee_formatted": "$40.00"
+       "fee_formatted": "$40"
       },
       "refund": {
        "allowed": true,
-       "fee_formatted": "$50.00"
+       "fee_formatted": "$50"
       },
       "seat": "standard",
       "priority": false
@@ -1087,7 +1087,7 @@
     "unit_amount": "300.00",
     "unit_formatted": "$300",
     "amount": "600.00",
-    "amount_formatted": "$600.00"
+    "amount_formatted": "$600"
    },
    {
     "kind": "bags",
@@ -1096,7 +1096,7 @@
     "unit_amount": "30.00",
     "unit_formatted": "$30",
     "amount": "30.00",
-    "amount_formatted": "$30.00"
+    "amount_formatted": "$30"
    },
    {
     "kind": "nights",
@@ -1105,7 +1105,7 @@
     "unit_amount": "168.00",
     "unit_formatted": "$168",
     "amount": "672.00",
-    "amount_formatted": "$672.00"
+    "amount_formatted": "$672"
    },
    {
     "kind": "taxes",
@@ -1141,7 +1141,7 @@
     "unit_amount": "48.00",
     "unit_formatted": "$48",
     "amount": "48.00",
-    "amount_formatted": "$48.00"
+    "amount_formatted": "$48"
    }
   ],
   "total": "1366.80",
@@ -1165,7 +1165,7 @@
     "unit_amount": "168.00",
     "unit_formatted": "$168",
     "amount": "672.00",
-    "amount_formatted": "$672.00"
+    "amount_formatted": "$672"
    },
    {
     "kind": "taxes",
@@ -1364,7 +1364,7 @@
     "unit_amount": "300.00",
     "unit_formatted": "$300",
     "amount": "600.00",
-    "amount_formatted": "$600.00"
+    "amount_formatted": "$600"
    },
    {
     "kind": "bags",
@@ -1373,7 +1373,7 @@
     "unit_amount": "30.00",
     "unit_formatted": "$30",
     "amount": "30.00",
-    "amount_formatted": "$30.00"
+    "amount_formatted": "$30"
    },
    {
     "kind": "nights",
@@ -1382,7 +1382,7 @@
     "unit_amount": "168.00",
     "unit_formatted": "$168",
     "amount": "672.00",
-    "amount_formatted": "$672.00"
+    "amount_formatted": "$672"
    },
    {
     "kind": "taxes",
@@ -1418,7 +1418,7 @@
     "unit_amount": "48.00",
     "unit_formatted": "$48",
     "amount": "48.00",
-    "amount_formatted": "$48.00"
+    "amount_formatted": "$48"
    }
   ],
   "total": "1366.80",
@@ -1597,7 +1597,7 @@
     "unit_amount": "300.00",
     "unit_formatted": "$300",
     "amount": "600.00",
-    "amount_formatted": "$600.00"
+    "amount_formatted": "$600"
    },
    {
     "kind": "bags",
@@ -1606,7 +1606,7 @@
     "unit_amount": "30.00",
     "unit_formatted": "$30",
     "amount": "30.00",
-    "amount_formatted": "$30.00"
+    "amount_formatted": "$30"
    },
    {
     "kind": "nights",
@@ -1615,7 +1615,7 @@
     "unit_amount": "168.00",
     "unit_formatted": "$168",
     "amount": "672.00",
-    "amount_formatted": "$672.00"
+    "amount_formatted": "$672"
    },
    {
     "kind": "taxes",
@@ -1651,7 +1651,7 @@
     "unit_amount": "48.00",
     "unit_formatted": "$48",
     "amount": "48.00",
-    "amount_formatted": "$48.00"
+    "amount_formatted": "$48"
    }
   ],
   "total": "1366.80",
@@ -1832,7 +1832,7 @@
       "unit_amount": "300.00",
       "unit_formatted": "$300",
       "amount": "600.00",
-      "amount_formatted": "$600.00"
+      "amount_formatted": "$600"
      },
      {
       "kind": "bags",
@@ -1841,7 +1841,7 @@
       "unit_amount": "30.00",
       "unit_formatted": "$30",
       "amount": "30.00",
-      "amount_formatted": "$30.00"
+      "amount_formatted": "$30"
      },
      {
       "kind": "nights",
@@ -1850,7 +1850,7 @@
       "unit_amount": "168.00",
       "unit_formatted": "$168",
       "amount": "672.00",
-      "amount_formatted": "$672.00"
+      "amount_formatted": "$672"
      },
      {
       "kind": "taxes",
@@ -1886,7 +1886,7 @@
       "unit_amount": "48.00",
       "unit_formatted": "$48",
       "amount": "48.00",
-      "amount_formatted": "$48.00"
+      "amount_formatted": "$48"
      }
     ],
     "total": "1366.80",

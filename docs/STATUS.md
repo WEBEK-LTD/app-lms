@@ -8,6 +8,11 @@ Last updated: 24 November 2026.
 
 ## Current release
 
+Roadmap 229.4 (prices that read cleanly everywhere else): the dashboard,
+the emails, the owner's pushes and the web checkout drop ".00" on a whole
+amount as the app does ("₺450", "Pay ₺750"), a fraction kept; receipts,
+payslips and payout and sales statements keep every digit (`exact`).
+
 Roadmap 228.7 and 228.8 (the looks' own product pages): every round-3
 look C and D (Lujain, Toota, Velours, Ghurza, Toot, Nova, Madar, Nawah,
 Rukn, Sakan) draws its own product page, no two with the same skeleton;
@@ -32,7 +37,7 @@ the app shows reads without ".00" ("₺450", "E£600"), a real fraction with
 its digits ("€12.50"). Made once where the hosted API answers
 (`cleanPrices`), so lists, product pages, the cart and its totals, orders
 and every other type's prices change together; the app's own totals
-(`formatMoney`) the same. Emails, invoices and the dashboard unchanged.
+(`formatMoney`) the same; the dashboard and the emails since 229.4.
 
 Roadmap 228 (a look's own product page): `product` is a Studio page
 screen (a shop's); a look's page for it is drawn for every product in place

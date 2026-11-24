@@ -357,8 +357,8 @@ describe("catalog shop on the hosted API", () => {
       expect(await completePayment({ store, app, account: { account: { provider: "iyzico", keys }, marketplace: null }, fetcher: iyzico(paid()), now, order: after, iyzicoToken: "iyzi-token" })).toBe("already_paid");
 
       const mail = newOrderMail(after, "Rose Shop", "https://yallapp.test/dashboard/orders");
-      expect(mail.subject).toBe(`New order ${1000 + order.id} · ₺950.00`);
-      expect(mail.text).toContain("Red Roses × 2: ₺900.00");
+      expect(mail.subject).toBe(`New order ${1000 + order.id} · ₺950`);
+      expect(mail.text).toContain("Red Roses × 2: ₺900");
       expect(mail.text).toContain("Moda Cd. 12, Istanbul");
     });
 
@@ -527,7 +527,7 @@ describe("catalog shop on the hosted API", () => {
       expect(await status("NOPE")).toEqual({ code: "NOPE", status: "invalid", message: "This coupon doesn't exist." });
       expect(await status("PAUSED")).toMatchObject({ message: "This coupon doesn't exist." });
       expect(await status("OLD")).toMatchObject({ message: "This coupon has expired." });
-      expect(await status("BIG")).toMatchObject({ message: "This coupon is for orders of ₺1,000.00 or more." });
+      expect(await status("BIG")).toMatchObject({ message: "This coupon is for orders of ₺1,000 or more." });
       expect(await status("!!")).toMatchObject({ status: "invalid" });
       const once = (await store.getCatalogCouponByCode(app.id, "ONCE"))!;
       expect(await store.useCatalogCoupon(app.id, once.id)).toBe(true);
@@ -562,7 +562,7 @@ describe("catalog shop on the hosted API", () => {
       expect(await completePayment({ store, app, account: { account: { provider: "iyzico", keys }, marketplace: null }, fetcher, now, order: placed, iyzicoToken: "t" })).toBe("paid");
       await deliverPaidOrder(store, app, placed, now);
       expect((await store.getCatalogCouponByCode(app.id, "FIFTY"))!.usedCount).toBe(1);
-      expect(newOrderMail(placed, "Rose Shop", "https://yallapp.test/dashboard/orders").text).toContain("Coupon FIFTY: -₺50.00");
+      expect(newOrderMail(placed, "Rose Shop", "https://yallapp.test/dashboard/orders").text).toContain("Coupon FIFTY: -₺50");
     });
   });
 

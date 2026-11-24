@@ -267,7 +267,7 @@ describe("105.4 schools on the hosted API", () => {
     const dad = await signUp("1001000009", "Hassan");
     const fee = await store.createSchoolFee({ appId: app.id, studentId: omar, title: "First term tuition", amountCents: 450000, dueOn: "2026-10-31", status: "due", paidAt: null, paidBy: null, orderId: null, receiptCode: null, createdAt: NOW, updatedAt: NOW });
     const list = (await call("GET", "/school/students/{student_id}/fees", { params: [String(omar)], token: dad.access_token })).body;
-    expect(list).toMatchObject({ currency: "EGP", due_formatted: "E£4,500.00", can_pay: false, items: [{ id: fee.id, title: "First term tuition", amount: "4500.00", status: "due", receipt_url: null }] });
+    expect(list).toMatchObject({ currency: "EGP", due_formatted: "E£4,500", can_pay: false, items: [{ id: fee.id, title: "First term tuition", amount: "4500.00", status: "due", receipt_url: null }] });
     // The fees are the parents': the student themselves is refused, and isn't pushed of them.
     const student = await signUp("1001000001", "Omar");
     expect((await call("GET", "/school/students/{student_id}/fees", { params: [String(omar)], token: student.access_token })).body).toMatchObject({ code: "not_parent" });
@@ -284,7 +284,7 @@ describe("105.4 schools on the hosted API", () => {
     expect(order).toMatchObject({ totalCents: 450000, currency: "EGP", lines: [{ productId: fee.id, name: "First term tuition: Omar Hassan" }] });
     await deliverPaidOrder(store, (await store.getAppById(app.id))!, { ...order, status: "processing", paidAt: now }, now);
     const paid = (await call("GET", "/school/students/{student_id}/fees", { params: [String(omar)], token: dad.access_token })).body as { due_formatted: string; items: { status: string; paid_by: string; receipt_url: string }[] };
-    expect(paid.due_formatted).toBe("E£0.00");
+    expect(paid.due_formatted).toBe("E£0");
     expect(paid.items[0]).toMatchObject({ status: "paid", paid_by: "card" });
     const told = async (token: string) => ((await call("GET", "/me/notifications", { token })).body as { items: { type: string }[] }).items.filter((n) => n.type === "school_fee").length;
     expect(await told(dad.access_token)).toBe(1);
@@ -295,7 +295,7 @@ describe("105.4 schools on the hosted API", () => {
       ["Date", now.toISOString().slice(0, 10)],
       ["For", "First term tuition"],
       ["Student", "Omar Hassan"],
-      ["Amount", "E£4,500.00"],
+      ["Amount", "E£4,500"],
       ["Paid", "By card"],
       ["Paid to", "Nile School"],
     ]);

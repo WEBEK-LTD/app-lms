@@ -103,7 +103,7 @@ describe("86.4 the weekly summary", () => {
       "Installs: 2 (0 the week before)",
       "Daily active users: 0.4 on average (0)",
       "Sessions: 3 (0)",
-      "Paid orders: 1, ₺100.00 (0)",
+      "Paid orders: 1, ₺100 (0)",
     ]);
     const ar = box.sent.find((m) => m.lang === "ar")!;
     expect(String(ar.values.summary)).toContain("التثبيتات: 1 (0 في الأسبوع اللي قبله)");

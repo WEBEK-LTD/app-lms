@@ -270,8 +270,8 @@ describe("29 charity campaigns and donations on the hosted API", () => {
       expect(detail).toMatchObject({ raised: "525.50", donor_count: 2 });
       expect(detail.recent_donations.map((d) => [d.name, d.amount_formatted, d.message])).toEqual([
         ["Elif Y.", "₺75.50", null],
-        ["Elif Y.", "₺150.00", null],
-        [null, "₺300.00", "Stay warm"],
+        ["Elif Y.", "₺150", null],
+        [null, "₺300", "Stay warm"],
       ]);
     });
 
@@ -283,7 +283,7 @@ describe("29 charity campaigns and donations on the hosted API", () => {
       const list = await call("GET", "/me/donations", { token: access_token });
       const items = (list.body as { items: Record<string, unknown>[] }).items;
       expect(items).toHaveLength(1);
-      expect(items[0]).toMatchObject({ reference: `D-${1000 + mine.id}`, campaign_id: ids.parcels, campaign_title: "Winter food parcels", amount: "300.00", amount_formatted: "₺300.00", recurring: "none", anonymous: false });
+      expect(items[0]).toMatchObject({ reference: `D-${1000 + mine.id}`, campaign_id: ids.parcels, campaign_title: "Winter food parcels", amount: "300.00", amount_formatted: "₺300", recurring: "none", anonymous: false });
       expect(items[0]!.receipt_url).toBe(`https://yallapp.test/receipts/${mine.receiptCode}`);
       // 71 The same receipt as a PDF.
       expect(items[0]!.receipt_pdf_url).toBe(`https://yallapp.test/receipts/${mine.receiptCode}/pdf`);
@@ -298,10 +298,10 @@ describe("29 charity campaigns and donations on the hosted API", () => {
       await completeDonationPayment({ store, account: { provider: "iyzico", keys: IYZICO }, donation, iyzicoToken: "t", now, fetcher: iyzico(paid, () => donation) });
       const paidDonation = (await store.getDonation(app.id, donation.id))!;
       const values = donationReceiptValues(paidDonation, "Bereket Food Bank", "https://yallapp.test/receipts/abc");
-      expect(values).toMatchObject({ org_name: "Bereket Food Bank", amount: "₺300.00", campaign: "Winter food parcels", reference: `D-${1000 + donation.id}`, date: "12 October 2026" });
+      expect(values).toMatchObject({ org_name: "Bereket Food Bank", amount: "₺300", campaign: "Winter food parcels", reference: `D-${1000 + donation.id}`, date: "12 October 2026" });
       const mail = renderTemplate(emailTemplate("donation_receipt")!, values);
       expect(mail.subject).toBe(`Your donation to Bereket Food Bank · D-${1000 + donation.id}`);
-      expect(mail.text).toContain("Amount: ₺300.00");
+      expect(mail.text).toContain("Amount: ₺300");
       expect(mail.text).toContain("https://yallapp.test/receipts/abc");
       expect(mail.text.toLowerCase()).not.toMatch(/tax|deductib/);
     });
@@ -362,8 +362,8 @@ describe("29 charity campaigns and donations on the hosted API", () => {
     await store.setCampaignTotals(app.id, ids.parcels, { raisedCents: 62_500_00, donorCount: 10 });
     const items = await campaignPageItems(app.id, { category_id: null, featured: false, sort: "newest", limit: 10, ids: [] }, { store, assetUrl: ASSETS, now });
     expect(items.map((i) => [i.title, i.subtitle, i.badge])).toEqual([
-      ["Winter food parcels", "₺62,500.00 of ₺100,000.00", "62%"],
-      ["School lunches", "₺0.00 raised", null],
+      ["Winter food parcels", "₺62,500 of ₺100,000", "62%"],
+      ["School lunches", "₺0 raised", null],
     ]);
     expect(items[0]).toMatchObject({ source: "campaigns", action: { type: "item", item: { source: "campaigns", id: String(ids.parcels) } }, image_url: ASSETS("img-parcels") });
     const picked = await campaignPageItems(app.id, { category_id: null, featured: false, sort: "newest", limit: 10, ids: [String(ids.ended), String(ids.draft)] }, { store, now });
@@ -386,7 +386,7 @@ describe("29 donation rules and forms", () => {
     expect(readDonationRequest({ campaign_id: 0, amount: "1" }).ok).toBe(false);
     expect(readDonationRequest({ campaign_id: 3, amount: "10", recurring: "weekly" }).ok).toBe(false);
     expect(readDonationRequest({ campaign_id: 3, amount: "10", recurring: "monthly" }).ok).toBe(false);
-    expect(amountProblem({ minCents: 50_00, presetCents: [], allowCustomAmount: true }, 49_99, "TRY")).toBe("The smallest donation is ₺50.00.");
+    expect(amountProblem({ minCents: 50_00, presetCents: [], allowCustomAmount: true }, 49_99, "TRY")).toBe("The smallest donation is ₺50.");
     expect(amountProblem({ minCents: 50_00, presetCents: [], allowCustomAmount: true }, 2_000_000_00, "TRY")).toMatch(/largest/);
     expect(shortName("Elif Nur Yılmaz")).toBe("Elif Y.");
     expect(shortName("Cher")).toBe("Cher");

@@ -576,7 +576,7 @@ describe("132 Prime as a gift and Prime's second set", () => {
     ).toMatchObject({ pct: 100, reached: true });
     await runPrimeChecks({ store, now: NOW, account: ACCOUNT, send });
     expect(pushes.map((p) => [p.title, p.body, p.data.alert])).toEqual([
-      ["Goal reached!", "E£1,100.00 of your E£1,000.00 goal", "sales_goal"],
+      ["Goal reached!", "E£1,100 of your E£1,000 goal", "sales_goal"],
     ]);
     // Once in its period.
     await runPrimeChecks({

@@ -277,7 +277,7 @@ describe("132 delivery stages", () => {
     expect(done.body.refund_due).toMatchObject({ status: "recorded", done_by: "Leyla Kaya" });
     // 175 A cancelled order stays cancelled once refunded.
     expect(done.body.status).toBe("cancelled");
-    expect((await inbox()).map((n) => n.body)).toContain("We refunded E£1,800.00. It may take a few days to reach you.");
+    expect((await inbox()).map((n) => n.body)).toContain("We refunded E£1,800. It may take a few days to reach you.");
     expect((await call("POST", "/apps/{app_id}/orders/{order_id}/refund-done", route)).status).toBe(409);
   });
 
@@ -304,7 +304,7 @@ describe("132 delivery stages", () => {
     const after = (await store.getCatalogOrder(shop.id, order.id))!;
     expect(after.refundedCents).toBe(1800_00);
     expect(after.stageRefund?.refundId).toEqual(expect.any(Number));
-    expect((await inbox()).map((n) => n.body)).toContain("We refunded E£1,800.00. It may take a few days to reach you.");
+    expect((await inbox()).map((n) => n.body)).toContain("We refunded E£1,800. It may take a few days to reach you.");
     // Owed once: nothing more on a second cancel.
     expect(await refundAfterFailedDelivery({ store, key: KEY, fetcher, now: NOW, ip: "x", actor: { id: null, email: "x" }, mail: async () => undefined, app: shop, account: null }, after)).toBeNull();
   });

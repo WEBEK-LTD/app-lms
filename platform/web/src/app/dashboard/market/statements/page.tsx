@@ -37,7 +37,7 @@ export default async function StatementsPage({ searchParams }: { searchParams: P
   const currency = marketCurrency(deliverySettingsOf(await store.getDeliverySettings(app.id)));
   const rows = await ownerStatements(store, app, currency, from, to);
   const sum = statementsTotal(rows);
-  const money = (minor: number) => formatMinor(minor, currency, lang);
+  const money = (minor: number) => formatMinor(minor, currency, lang, { exact: true });
   const tiles: [string, string][] = [
     [t("market.stOrders"), String(sum.orders)],
     [t("market.stSales"), money(sum.total)],

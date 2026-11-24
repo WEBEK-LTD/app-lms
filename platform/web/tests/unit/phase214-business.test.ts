@@ -256,8 +256,8 @@ describe("214 the end-of-day summary", () => {
     await paid(store, app, days(-7), 100000, "Roses");
     const s = await daySummary(store, app, "Europe/Istanbul", "2026-10-12");
     expect(s).toMatchObject({ salesCents: 105000, orders: 3, averageCents: 35000, best: "Tulips", compare: { date: "2026-10-05", salesCents: 100000, changePct: 5 } });
-    expect(summaryWords(words("en"), s)).toEqual({ title: "Today: ₺1,050.00", body: "3 orders · average ₺350.00 · best seller Tulips · 5% more than last Monday" });
-    expect(summaryWords(words("tr"), s).title).toBe("Bugün: ₺1.050,00");
+    expect(summaryWords(words("en"), s)).toEqual({ title: "Today: ₺1,050", body: "3 orders · average ₺350 · best seller Tulips · 5% more than last Monday" });
+    expect(summaryWords(words("tr"), s).title).toBe("Bugün: ₺1.050");
     expect(summaryWords(words("ar"), s).body).toContain("الاثنين");
   });
 
@@ -301,7 +301,7 @@ describe("214 the end-of-day summary", () => {
     await paid(store, app, at("2026-10-13T08:00:00Z"), 45000, "Roses");
     expect((await run(at("2026-10-13T18:35:00Z"))).sent).toBe(1);
     expect(sent.at(-1)!.targets).toEqual(["token-22222222-2222-4222-8222-222222222222"]);
-    expect(sent.at(-1)!.message).toMatchObject({ title: "Today: ₺450.00", data: { kind: "daily_summary", app_id: app.id, alert: "daily_summary", date: "2026-10-13" } });
+    expect(sent.at(-1)!.message).toMatchObject({ title: "Today: ₺450", data: { kind: "daily_summary", app_id: app.id, alert: "daily_summary", date: "2026-10-13" } });
     expect((await run(at("2026-10-13T18:40:00Z"))).sent).toBe(0);
     // 23:00 (20:00 UTC): the first phone.
     expect((await run(at("2026-10-13T20:05:00Z"))).sent).toBe(1);

@@ -42,21 +42,21 @@ const ORDER_1057 = {
 describe("173 what an order's total is made of", () => {
   it("adds up: the coupon taken off, the delivery and the slot's fee apart", () => {
     expect(orderAmountsJson(ORDER_1057)).toEqual({
-      subtotal: mad("480.00"),
-      discount: { code: "LEQAA10", amount: mad("48.00") },
+      subtotal: mad("480"),
+      discount: { code: "LEQAA10", amount: mad("48") },
       points: null,
-      shipping: { zone: "Marrakech", amount: mad("30.00") },
-      slot_fee: mad("20.00"),
+      shipping: { zone: "Marrakech", amount: mad("30") },
+      slot_fee: mad("20"),
       fees: [],
       tax: null,
-      total: mad("482.00"),
+      total: mad("482"),
     });
   });
 
   it("without a coupon, a slot's fee or a delivery: the subtotal and the total", () => {
     expect(
       orderAmountsJson({ ...ORDER_1057, shippingCents: 0, totalCents: 48000, couponCode: null, discountCents: 0, delivery: { ...ORDER_1057.delivery, feeCents: 0, shipping: null } }),
-    ).toEqual({ subtotal: mad("480.00"), discount: null, points: null, shipping: null, slot_fee: null, fees: [], tax: null, total: mad("480.00") });
+    ).toEqual({ subtotal: mad("480"), discount: null, points: null, shipping: null, slot_fee: null, fees: [], tax: null, total: mad("480") });
   });
 
   it("a restaurant's delivery fee, the points and an added tax, each a line", () => {
@@ -71,10 +71,10 @@ describe("173 what an order's total is made of", () => {
       delivery: null,
     });
     expect(amounts).toEqual({
-      subtotal: "₺400.00",
+      subtotal: "₺400",
       discount: null,
-      points: { used: 250, amount: "₺25.00" },
-      shipping: { zone: null, amount: "₺30.00" },
+      points: { used: 250, amount: "₺25" },
+      shipping: { zone: null, amount: "₺30" },
       slot_fee: null,
       fees: [],
       tax: { label: "KDV 10%", included: false, amount: "₺40.50" },
@@ -119,12 +119,12 @@ describe("173 what an order's total is made of", () => {
     const one = await call(`/me/orders/${order.id}`);
     expectContract("GET", "/me/orders/{order_id}", one);
     expect(one.body).toMatchObject({
-      total: mad("482.00"),
-      amounts: { subtotal: mad("480.00"), discount: { code: "LEQAA10", amount: mad("48.00") }, shipping: { zone: "Marrakech", amount: mad("30.00") }, slot_fee: mad("20.00"), total: mad("482.00") },
+      total: mad("482"),
+      amounts: { subtotal: mad("480"), discount: { code: "LEQAA10", amount: mad("48") }, shipping: { zone: "Marrakech", amount: mad("30") }, slot_fee: mad("20"), total: mad("482") },
       delivery: {
         date: "2026-11-19",
         slot: { label: "10:00–13:00" },
-        fee: mad("20.00"),
+        fee: mad("20"),
         sender: { name: "Salma Idrissi" },
         recipient: { name: "Nadia Benali", address: "12 Rue de la Liberté, Guéliz", city: "Marrakech", country: "MA" },
         gift_message: "Happy birthday, Nadia!",

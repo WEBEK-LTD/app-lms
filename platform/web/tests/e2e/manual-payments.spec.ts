@@ -133,7 +133,7 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   await expect(customer.getByText("Card payments are processed securely")).toHaveCount(0);
   await customer.getByRole("radio", { name: "Bank transfer" }).check();
   await expect(customer.getByRole("note")).toContainText(IBAN);
-  await customer.getByRole("button", { name: "Place order · ₺450.00" }).click();
+  await customer.getByRole("button", { name: "Place order · ₺450" }).click();
   await expect(customer).toHaveURL(/\/pay\/[\w-]+\/order-received$/);
   await expect(customer.getByRole("heading", { name: "Order placed" })).toBeVisible();
   await expect(customer.getByText(IBAN)).toBeVisible();
@@ -169,7 +169,7 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   await checkOut(customer, request);
   await customer.getByRole("radio", { name: "Cash on delivery" }).check();
   await expect(customer.getByRole("note")).toContainText("Pay the courier when your atlas arrives.");
-  await customer.getByRole("button", { name: "Place order · ₺450.00" }).click();
+  await customer.getByRole("button", { name: "Place order · ₺450" }).click();
   await expect(customer.getByRole("heading", { name: "Order placed" })).toBeVisible();
   await customer.close();
   await page.reload();

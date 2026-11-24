@@ -241,11 +241,11 @@ describe("125.2 areas, features and the bug fixes", () => {
     // A marketplace's amounts are in the currency's minor units (fils, yen).
     expect(minorMoney(12_500, "KWD")).toEqual({ amount_cents: 12_500, currency: "KWD", formatted: "KWD 12.500" });
     expect(minorMoney(1500, "JPY").formatted).toBe("JPY 1,500");
-    expect(minorMoney(125_000, "TRY").formatted).toBe("₺1,250.00");
+    expect(minorMoney(125_000, "TRY").formatted).toBe("₺1,250");
     // 135.2 Every other amount is in cents (hundredths), whatever the currency.
     expect(money(1_250, "KWD")).toEqual({ amount_cents: 1_250, currency: "KWD", formatted: "KWD\u00a012.500" });
     expect(money(150_000, "JPY").formatted).toBe("¥1,500");
-    expect(money(125_000, "TRY").formatted).toBe("₺1,250.00");
+    expect(money(125_000, "TRY").formatted).toBe("₺1,250");
   });
 
   it("pushes no catalog order of an engine's payment link, and a school fee as a payment received", async () => {
@@ -266,7 +266,7 @@ describe("125.2 areas, features and the bug fixes", () => {
     const order = { id: 42, totalCents: 1500_00, currency: "EGP", lines: [] } as unknown as CatalogOrder;
     expect(await pushNewOrder(deps, food, order)).toBe(0);
     expect(await pushNewOrder(deps, school, order)).toBe(1);
-    expect(sent[0]).toMatchObject({ title: "School fee paid", body: "Nakhla School: E£1,500.00", data: { kind: "payment_received", app_id: school.id } });
+    expect(sent[0]).toMatchObject({ title: "School fee paid", body: "Nakhla School: E£1,500", data: { kind: "payment_received", app_id: school.id } });
     expect(sent[0]!.data.order_id).toBeUndefined();
 
     // The engines' own pushes carry the IDs Yallapp Business opens.
@@ -287,7 +287,7 @@ describe("125.2 areas, features and the bug fixes", () => {
     await pushLeaveRequested(deps, school, leave, person.person);
     await pushNewComplaint(deps, food, { id: 5, reason: "late", text: "Forty minutes late" }, { id: 42 });
     expect(sent.map((s) => [s.data.kind, s.title, s.body])).toEqual([
-      ["new_food_order", `New food order F-${1000 + placed.id}`, "Koshari Abou Tarek: E£300.00"],
+      ["new_food_order", `New food order F-${1000 + placed.id}`, "Koshari Abou Tarek: E£300"],
       ["shipment_waiting", `S-${1000 + job.id} is waiting for a courier`, "5 Zamalek St, Cairo → 9 Maadi Rd, Cairo"],
       ["new_message", "Heba Nabil asked for leave", "2026-10-13 – 2026-10-14"],
       ["new_complaint", "New complaint on M-1042", "Late: Forty minutes late"],
@@ -401,7 +401,7 @@ describe("125 the Owner API for the Studio apps, Prime and VIP", () => {
     expect(list.body.counts).toEqual({ new: 1, active: 1 });
     const [item] = list.body.items as unknown as Record<string, unknown>[];
     expect(item).toMatchObject({ id: placed.id, reference: `F-${1000 + placed.id}`, status: "placed", status_label: "Waiting for the restaurant", summary: "2 × Smash burger, 1 × Fries", item_count: 3, steps: ["accept", "reject", "cancel"] });
-    expect(item!.total).toEqual({ amount_cents: 300_00, currency: "EGP", formatted: "E£300.00" });
+    expect(item!.total).toEqual({ amount_cents: 300_00, currency: "EGP", formatted: "E£300" });
     expect((await call("GET", "/apps/{app_id}/food-orders", { token, params: { app_id: food.id }, query: { filter: "all", q: "Ali" } })).body.total).toBe(1);
     expect((await call("GET", "/apps/{app_id}/food-orders", { token, params: { app_id: food.id }, query: { filter: "soon" } })).status).toBe(400);
 
@@ -609,7 +609,7 @@ describe("125 the Owner API for the Studio apps, Prime and VIP", () => {
     // Last week, same weekday, before this time: one order of 150.
     await store.createFoodOrder(foodOrder(food, r.id, { status: "delivered", totalCents: 150_00, createdAt: days(-7, early) }));
     const today = await call("GET", "/apps/{app_id}/today", { token, params: { app_id: food.id } });
-    expect(today.body.sales).toEqual([{ amount_cents: 600_00, currency: "EGP", formatted: "E£600.00" }]);
+    expect(today.body.sales).toEqual([{ amount_cents: 600_00, currency: "EGP", formatted: "E£600" }]);
     expect(today.body.counts).toMatchObject({ food_orders: 2, orders: 2 });
     expect(today.body.needs_you).toEqual([{ kind: "food_orders_new", count: 1, title: "1 new food order", notice_id: null }]);
     expect(today.body.compare).toEqual({ sales_change_pct: 300, orders_change_pct: 100, label: "vs last Monday" });

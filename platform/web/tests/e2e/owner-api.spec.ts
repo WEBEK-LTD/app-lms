@@ -279,16 +279,16 @@ test("a customer buys in the shop; the owner's phone hears of it, sees today and
   await page.getByLabel("Email").fill(`mona-${suffix}@example.com`);
   await page.getByLabel("City").fill("Istanbul");
   await page.getByLabel("Address").fill("Moda Cd. 12");
-  await page.getByRole("button", { name: "Pay ₺450.00" }).click();
+  await page.getByRole("button", { name: "Pay ₺450" }).click();
   await page.getByRole("button", { name: "Pay with test card" }).click();
   await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
 
   await expect.poll(async () => (await ownerPushes()).filter((p) => p.to.includes(deviceId) && p.message.data.kind === "new_order").length).toBe(1);
   const push = (await ownerPushes()).find((p) => p.to.includes(deviceId) && p.message.data.kind === "new_order")!;
-  expect(push.message).toMatchObject({ body: "Selin Shop: ₺450.00", data: { type: "owner", app_id: shopId } });
+  expect(push.message).toMatchObject({ body: "Selin Shop: ₺450", data: { type: "owner", app_id: shopId } });
 
   const today = await (await request.get(`${owner}/apps/${shopId}/today`, { headers: bearer() })).json();
-  expect(today).toMatchObject({ sales: [{ amount_cents: 45000, currency: "TRY", formatted: "₺450.00" }], counts: { orders: 1 } });
+  expect(today).toMatchObject({ sales: [{ amount_cents: 45000, currency: "TRY", formatted: "₺450" }], counts: { orders: 1 } });
   expect(today.needs_you).toContainEqual(expect.objectContaining({ kind: "orders_in_progress", count: 1 }));
 
   const orders = await (await request.get(`${owner}/apps/${shopId}/orders`, { headers: bearer() })).json();
@@ -301,7 +301,7 @@ test("a customer buys in the shop; the owner's phone hears of it, sees today and
     customer: { name: "Mona Adel", phone: "+905327650158", email: `mona-${suffix}@example.com`, city: "Istanbul", address: "Moda Cd. 12", source: "checkout" },
     deliver_to: { person: "customer", name: "Mona Adel", address: "Moda Cd. 12", city: "Istanbul" },
     lines: [{ product_id: products.items[0].id, name: "Tea set", quantity: 1, total: { amount_cents: 45000 }, flash_sale: null }],
-    amounts: { subtotal: { amount_cents: 45000 }, discount: null, total: { amount_cents: 45000, formatted: "₺450.00" } },
+    amounts: { subtotal: { amount_cents: 45000 }, discount: null, total: { amount_cents: 45000, formatted: "₺450" } },
   });
   // The order is the shop's only: through another app, or an app that isn't the owner's, it isn't found.
   expect((await request.get(`${owner}/apps/${academyId}/orders/${orderId}`, { headers: bearer() })).status()).toBe(404);

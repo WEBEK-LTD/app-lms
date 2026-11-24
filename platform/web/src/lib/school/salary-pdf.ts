@@ -148,8 +148,8 @@ export function lineName(lang: Lang, line: Pick<SchoolPayslipLine, "source" | "l
 export function payslipDocument(input: { lang: Lang; app: Pick<App, "appName" | "supportEmail" | "hostedSettings" | "primaryColor" | "demo">; payslip: SchoolPayslip }): ReceiptDocument {
   const { lang, payslip: p, app } = input;
   const w = (key: Key, values: Record<string, string | number> = {}) => fill(WORDS[lang][key], values);
-  const fmt = (cents: number) => ltrSpan(formatCents(cents, p.currency));
-  const minus = (cents: number) => ltrSpan(`−${formatCents(cents, p.currency)}`);
+  const fmt = (cents: number) => ltrSpan(formatCents(cents, p.currency, null, { exact: true }));
+  const minus = (cents: number) => ltrSpan(`−${formatCents(cents, p.currency, null, { exact: true })}`);
   const t = payslipTotals(p);
   const accepted = p.lines.filter((l) => l.status === "accepted" && l.cents > 0);
   const items: ReceiptItem[] = [

@@ -173,7 +173,7 @@ test("the owner sets up a shop and a customer pays for an order", async ({ reque
   await page.getByLabel("Email").fill(`mona-${suffix}@example.com`);
   await page.getByLabel("City").fill("Istanbul");
   await page.getByLabel("Address").fill("Moda Cd. 12");
-  await page.getByRole("button", { name: "Pay ₺320.00" }).click();
+  await page.getByRole("button", { name: "Pay ₺320" }).click();
   await page.getByRole("button", { name: "Pay with test card" }).click();
   await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
 });

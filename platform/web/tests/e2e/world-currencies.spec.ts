@@ -247,12 +247,12 @@ test("135.5–135.7 a customer in another currency: shown in it, charged in poun
   expect(dollars.link.charge).toMatchObject({ currency: "EGP", in_customer_currency: false });
   const customer = await browser.newPage({ extraHTTPHeaders });
   await customer.goto(dollars.link.url);
-  await expect(customer.locator("[data-pay-customer-currency]")).toHaveText("≈ $12.37 · you pay E£600.00");
+  await expect(customer.locator("[data-pay-customer-currency]")).toHaveText("≈ $12.37 · you pay E£600");
   // 135.10 The rates' source under it, as its terms ask; its site opens in a new tab.
   const source = customer.locator("[data-pay-rates-source]").getByRole("link", { name: "Rates By Exchange Rate API" });
   await expect(source).toHaveAttribute("href", "https://www.exchangerate-api.com");
   await expect(source).toHaveAttribute("target", "_blank");
-  await pay(customer, dollars.link.url, /^Pay E£600\.00$/);
+  await pay(customer, dollars.link.url, /^Pay E£600$/);
   const egp = [...stripe.sessions!.values()].slice(-1)[0] as unknown as { currency: string; amount_total: number };
   expect(egp).toMatchObject({ currency: "egp", amount_total: 60000 });
 
@@ -279,7 +279,7 @@ test("135.5–135.7 a customer in another currency: shown in it, charged in poun
   const charged = own.locator("[data-order-charged]");
   await expect(charged).toHaveCount(1);
   await expect(charged).toHaveText("Charged KWD 3.790 at 1 EGP = 0.006309 KWD");
-  await expect(own.getByText("E£600.00").first()).toBeVisible();
+  await expect(own.getByText("E£600").first()).toBeVisible();
 });
 
 test("149 per app: only some currencies, then none, set on the shop's settings", async ({ browser, request }) => {
@@ -311,7 +311,7 @@ test("149 per app: only some currencies, then none, set on the shop's settings",
   expect(dinars.link.charge).toMatchObject({ currency: "EGP", total: "E£600", in_customer_currency: false, reason: null });
   const customer = await browser.newPage({ extraHTTPHeaders });
   await customer.goto(dinars.link.url);
-  await expect(customer.getByRole("button", { name: /^Pay E£600\.00$/ })).toBeVisible();
+  await expect(customer.getByRole("button", { name: /^Pay E£600$/ })).toBeVisible();
   await expect(customer.locator("[data-pay-customer-currency]")).toHaveCount(0);
 
   // Off: the shop's currency only, the list kept for later.
@@ -327,7 +327,7 @@ test("149 per app: only some currencies, then none, set on the shop's settings",
   const dollars = await checkout(request, "Basbousa tray", "USD");
   expect(dollars.link.charge).toMatchObject({ currency: "EGP", in_customer_currency: false });
   await customer.goto(dollars.link.url);
-  await expect(customer.getByRole("button", { name: /^Pay E£600\.00$/ })).toBeVisible();
+  await expect(customer.getByRole("button", { name: /^Pay E£600$/ })).toBeVisible();
   await expect(customer.locator("[data-pay-customer-currency]")).toHaveCount(0);
   await customer.close();
   await own.reload();

@@ -279,15 +279,15 @@ describe("161 the parts", () => {
     expect(itemPrice({ amount: "100.00", currency: "MAD", formatted: "MAD 100.00", range: true, max_amount: "200.00", regular_amount: null, on_sale: false })).toEqual({ price: { amount: "100.00", currency: "MAD", formatted: "MAD 100.00", range: true, max_amount: "200.00", on_sale: false } });
     expect(itemPrice({ is_free: true, amount: null, currency: null, formatted: null })).toEqual({});
     // A free course: 0 in its currency (its words "Free"); from a source that names none, nothing.
-    expect(courseItem({ id: 7, title: "Intro", price: { is_free: true, amount: "0.00", currency: "EGP", formatted: null } }, "en")).toMatchObject({ price_label: "Free", price: { amount: "0.00", currency: "EGP", formatted: "E£0.00" } });
+    expect(courseItem({ id: 7, title: "Intro", price: { is_free: true, amount: "0.00", currency: "EGP", formatted: null } }, "en")).toMatchObject({ price_label: "Free", price: { amount: "0.00", currency: "EGP", formatted: "E£0" } });
     expect(courseItem({ id: 7, title: "Intro", price: { is_free: true } }, "en")).not.toHaveProperty("price");
     // A range, both ends converted.
     const range = addDisplayPrices({ amount: "100.00", currency: "MAD", formatted: "MAD 100.00 – MAD 200.00", range: true, max_amount: "200.00" }, display) as unknown as { display: Record<string, unknown> };
-    expect(range.display).toMatchObject({ formatted: "$10.00 – $20.00", max_amount: "20.00" });
+    expect(range.display).toMatchObject({ formatted: "$10 – $20", max_amount: "20.00" });
   });
 
   it("a pricing element's plans in the customer's currency", () => {
-    expect(pricedEntry({ title: "Monthly", price: 10000, price_yearly: 100000 }, "EGP", display)).toMatchObject({ display: { currency: "USD", price: "$2.00", price_yearly: "$20.00", rate: 0.02 } });
+    expect(pricedEntry({ title: "Monthly", price: 10000, price_yearly: 100000 }, "EGP", display)).toMatchObject({ display: { currency: "USD", price: "$2", price_yearly: "$20", rate: 0.02 } });
     expect(pricedEntry({ title: "Monthly", price: 10000 }, "USD", display)).toEqual({ title: "Monthly", price: 10000 });
     expect(pricedEntry({ title: "Monthly", price: 10000 }, "EGP", null)).toEqual({ title: "Monthly", price: 10000 });
   });

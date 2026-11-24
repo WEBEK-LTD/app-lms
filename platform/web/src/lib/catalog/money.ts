@@ -14,29 +14,42 @@ export const BILLING_CURRENCIES: CatalogCurrency[] = ["TRY", "USD", "EUR", "EGP"
 
 const formatters = new Map<string, (amount: number) => string>();
 
+/** 229.4 How an amount is written. */
+export interface MoneyFormat {
+  /**
+   * Every digit of its currency, whole or not ("₺450.00"): the accounting
+   * documents (receipts, payslips, payout and sales statements) say so.
+   * Without it, a whole amount without its zeros after the point ("₺450"),
+   * as the app writes it (229); a real fraction always with its digits.
+   */
+  exact?: boolean;
+}
+
 /**
- * "₺1,234.50", "KWD 1.250", "¥1,250": each currency with its own digits.
+ * "₺1,234.50", "KWD 1.250", "¥1,250": each currency with its own digits;
+ * 229.4 a whole amount without its zeros ("₺450", "KWD 5") unless `exact`.
  * 175 In the viewer's language (`lang`): Arabic writes "1,234.50 د.م." with
  * the dashboard's Latin digits (LANG_INFO's `ar-EG-u-nu-latn`), Turkish
  * "MAD 1.234,50"; English, the default, as before.
  */
-export function formatCents(cents: number, currency: CatalogCurrency, lang?: string | null): string {
+export function formatCents(cents: number, currency: CatalogCurrency, lang?: string | null, format: MoneyFormat = {}): string {
   const locale = lang === "ar" ? "ar-EG-u-nu-latn" : lang === "tr" ? "tr-TR" : "en-US";
-  const key = `${locale}|${currency}`;
-  let format = formatters.get(key);
-  if (!format) {
-    const digits = currencyDigits(currency);
+  // Amounts are hundredths in every currency (a dinar's thousandths aren't kept): whole when a hundred divides it.
+  const digits = !format.exact && cents % 100 === 0 ? 0 : currencyDigits(currency);
+  const key = `${locale}|${currency}|${digits}`;
+  let write = formatters.get(key);
+  if (!write) {
     try {
       const formatter = new Intl.NumberFormat(locale, { style: "currency", currency, currencyDisplay: "narrowSymbol", minimumFractionDigits: digits, maximumFractionDigits: digits });
-      format = (amount) => formatter.format(amount);
+      write = (amount) => formatter.format(amount);
     } catch {
       // A code this server's Intl doesn't know: the code and the number.
       const plain = new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits });
-      format = (amount) => `${currency} ${plain.format(amount)}`;
+      write = (amount) => `${currency} ${plain.format(amount)}`;
     }
-    formatters.set(key, format);
+    formatters.set(key, write);
   }
-  return format(cents / 100);
+  return write(cents / 100);
 }
 
 /** "1234.50", "1.250" (KWD), "1250" (JPY), as the API's amounts; two digits when no currency is given. */

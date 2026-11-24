@@ -93,6 +93,8 @@ function planPaymentRows(w: W, payment: PlanPayment): [string, string][] {
   return payment.amountCents > 0 ? cardRows(w, payment.paymentProvider, payment.paymentId) : [[w("paidWith"), w("couponCovered")]];
 }
 
+/** 229.4 A receipt is an accounting document: every amount with all its digits ("₺450.00"). */
+const EXACT = { exact: true } as const;
 const money = (text: string) => ltrSpan(text);
 const minus = (text: string) => ltrSpan(`−${text}`);
 
@@ -129,7 +131,7 @@ export function planReceipt(input: PlanReceiptInput): ReceiptDocument {
   const { lang, payment } = input;
   const w = wordsFor(lang);
   const number = receiptNumber(payment);
-  const fmt = (cents: number) => money(formatAmount(cents, payment.currency));
+  const fmt = (cents: number) => money(formatAmount(cents, payment.currency, EXACT));
   const packCents = (payment.storagePacks ?? []).reduce((sum, p) => sum + p.cents, 0);
   // A coupon in the charge's currency is taken off the plan's price; one in another currency is only named.
   const discount = input.coupon && input.coupon.currency === payment.currency ? input.coupon.discountCents : 0;
@@ -149,14 +151,14 @@ export function planReceipt(input: PlanReceiptInput): ReceiptDocument {
   const totals: ReceiptTotal[] = [];
   if (discount > 0) {
     totals.push({ label: w("subtotal"), value: fmt(payment.amountCents + discount) });
-    totals.push({ label: w("coupon", { code: ltrSpan(input.coupon!.code) }), value: minus(formatAmount(discount, payment.currency)) });
+    totals.push({ label: w("coupon", { code: ltrSpan(input.coupon!.code) }), value: minus(formatAmount(discount, payment.currency, EXACT)) });
   } else if (input.coupon) {
-    totals.push({ label: w("coupon", { code: ltrSpan(input.coupon.code) }), value: minus(formatAmount(input.coupon.discountCents, input.coupon.currency)) });
+    totals.push({ label: w("coupon", { code: ltrSpan(input.coupon.code) }), value: minus(formatAmount(input.coupon.discountCents, input.coupon.currency, EXACT)) });
   }
   totals.push({ label: w("total"), value: fmt(payment.amountCents), strong: true });
   const notes: string[] = [];
   if (payment.shownCents && payment.shownCurrency && payment.shownCurrency !== payment.currency) {
-    notes.push(w("priceShown", { amount: money(formatAmount(payment.shownCents, payment.shownCurrency)) }));
+    notes.push(w("priceShown", { amount: money(formatAmount(payment.shownCents, payment.shownCurrency, EXACT)) }));
   }
   return {
     lang,
@@ -190,7 +192,7 @@ export function orderReceipt(input: OrderReceiptInput): ReceiptDocument {
   const { lang, order, app } = input;
   const w = wordsFor(lang);
   const number = orderNumber(order);
-  const fmt = (cents: number) => money(formatCents(cents, order.currency));
+  const fmt = (cents: number) => money(formatCents(cents, order.currency, null, EXACT));
   const items: ReceiptItem[] = order.lines.map((line) => ({
     name: line.name,
     detail: line.options?.length ? line.options.map((o) => o.name).join(", ") : null,
@@ -203,8 +205,8 @@ export function orderReceipt(input: OrderReceiptInput): ReceiptDocument {
   const points = order.points?.discountCents ?? 0;
   if (order.shippingCents > 0 || coupon > 0 || points > 0 || (order.tax && !order.tax.included)) {
     totals.push({ label: w("subtotal"), value: fmt(order.subtotalCents) });
-    if (coupon > 0) totals.push({ label: w("coupon", { code: ltrSpan(order.couponCode ?? "") }), value: minus(formatCents(coupon, order.currency)) });
-    if (points > 0) totals.push({ label: w("points", { points: String(order.points!.used) }), value: minus(formatCents(points, order.currency)) });
+    if (coupon > 0) totals.push({ label: w("coupon", { code: ltrSpan(order.couponCode ?? "") }), value: minus(formatCents(coupon, order.currency, null, EXACT)) });
+    if (points > 0) totals.push({ label: w("points", { points: String(order.points!.used) }), value: minus(formatCents(points, order.currency, null, EXACT)) });
     if (order.shippingCents > 0) totals.push({ label: w(order.fulfilment ? "deliveryFee" : "shipping"), value: fmt(order.shippingCents) });
   }
   // 91.5 An added tax is a line; one inside the prices says how much of the total it is.
@@ -212,7 +214,7 @@ export function orderReceipt(input: OrderReceiptInput): ReceiptDocument {
   totals.push({ label: w("total"), value: fmt(order.totalCents), strong: true });
   if (order.tax?.included) totals.push({ label: w("taxIncluded", { tax: taxLabel(order.tax) }), value: fmt(order.tax.cents) });
   const refunded = order.refundedCents ?? 0;
-  if (refunded > 0) totals.push({ label: w("refunded"), value: minus(formatCents(refunded, order.currency)), danger: true });
+  if (refunded > 0) totals.push({ label: w("refunded"), value: minus(formatCents(refunded, order.currency, null, EXACT)), danger: true });
   const facts: [string, string][] = [];
   // 26 A restaurant's order: picked up, or delivered where.
   if (order.fulfilment) {
@@ -221,7 +223,7 @@ export function orderReceipt(input: OrderReceiptInput): ReceiptDocument {
   }
   const customer = order.customer;
   const notes: string[] = [];
-  if (refunded > 0) notes.push(w("refundedNote", { amount: money(formatCents(refunded, order.currency)) }));
+  if (refunded > 0) notes.push(w("refundedNote", { amount: money(formatCents(refunded, order.currency, null, EXACT)) }));
   // 37 Sold through Yallapp's account: the money went there first.
   if (order.commissionCents !== null && !app.demo) notes.push(w("marketplace", { shop: app.appName?.trim() || "—" }));
   return {
@@ -270,11 +272,11 @@ export function donationReceipt(input: DonationReceiptInput): ReceiptDocument {
   const { lang, donation, app } = input;
   const w = wordsFor(lang);
   const reference = donationReference(donation);
-  const fmt = (cents: number) => money(formatCents(cents, donation.currency));
+  const fmt = (cents: number) => money(formatCents(cents, donation.currency, null, EXACT));
   const refunded = donation.refundedCents ?? 0;
   const org = app.appName?.trim() || "—";
   const totals: ReceiptTotal[] = [{ label: w("total"), value: fmt(donation.amountCents), strong: true }];
-  if (refunded > 0) totals.push({ label: w("refunded"), value: minus(formatCents(refunded, donation.currency)), danger: true });
+  if (refunded > 0) totals.push({ label: w("refunded"), value: minus(formatCents(refunded, donation.currency, null, EXACT)), danger: true });
   return {
     lang,
     title: w("donationReceipt"),
@@ -288,7 +290,7 @@ export function donationReceipt(input: DonationReceiptInput): ReceiptDocument {
     items: [{ name: w("donation"), detail: `${donation.campaignTitle} · ${w(donation.recurring === "monthly" ? "monthly" : "oneTime")}`, quantity: 1, amount: fmt(donation.amountCents) }],
     totals,
     payment: { label: w("payment"), rows: app.demo ? [[w("paidWith"), w("demo")]] : cardRows(w, donation.paymentProvider, donation.paymentId) },
-    notes: refunded > 0 ? [w("refundedNote", { amount: money(formatCents(refunded, donation.currency)) })] : [],
+    notes: refunded > 0 ? [w("refundedNote", { amount: money(formatCents(refunded, donation.currency, null, EXACT)) })] : [],
     footer: w("thanksDonation", { org }),
     accent: app.primaryColor,
     meta: { title: `${w("donationReceipt")} ${reference}`, author: org },

@@ -141,8 +141,8 @@ test("a client outside Egypt sees dollars, pays EGP 1,500 on Kashier and gets a 
   await payments.getByRole("link", { name: "Receipt" }).click();
   await expect(own).toHaveURL(/\/dashboard\/license\/receipts\/[\w-]+$/);
   const receipt = own.getByRole("region", { name: "Yallapp plan payment" });
-  await expect(receipt).toContainText(/Amount charged\s*EGP\s1,500/);
-  await expect(receipt).toContainText("About $30. Your bank may have converted the charge at its own rate.");
+  await expect(receipt).toContainText(/Amount charged\s*EGP\s1,500\.00/);
+  await expect(receipt).toContainText("About $30.00. Your bank may have converted the charge at its own rate.");
   await expect(receipt).toContainText("Card, through Kashier");
   await expect(receipt).toContainText("Yallapp, Cairo, Egypt");
   await own.close();

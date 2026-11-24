@@ -76,21 +76,21 @@ describe("175.11 amounts in the dashboard's language", () => {
     // Refunds (Orders, Donations): the amounts the dashboard's, the words translated by `k`.
     const ar = knownTranslator("ar");
     const tr = knownTranslator("tr");
-    expect(strip(refundedLine(150_00, 450_00, "MAD", "ar")!)).toBe("Refunded 150.00 د.م. of 450.00 د.م.");
+    expect(strip(refundedLine(150_00, 450_00, "MAD", "ar")!)).toBe("Refunded 150 د.م. of 450 د.م.");
     expect(strip(ar(refundedLine(150_00, 450_00, "MAD", "ar")!))).not.toMatch(/Refunded|MAD/);
-    expect(strip(tr(refundedLine(150_00, 150_00, "MAD", "tr")!))).toBe("MAD 150,00 iade edildi");
-    expect(strip(refundedLine(150_00, 450_00, "MAD")!)).toBe("Refunded MAD 150.00 of MAD 450.00");
+    expect(strip(tr(refundedLine(150_00, 150_00, "MAD", "tr")!))).toBe("MAD 150 iade edildi");
+    expect(strip(refundedLine(150_00, 450_00, "MAD")!)).toBe("Refunded MAD 150 of MAD 450");
 
     // Campaigns: raised of the goal.
     const campaign = { raisedCents: 12_450_00, goalCents: 50_000_00 };
-    expect(strip(raisedLine(campaign, "MAD", itemWords("tr"), "tr"))).toBe("MAD 12.450,00 toplandı · Hedef MAD 50.000,00");
-    expect(strip(raisedLine(campaign, "MAD", itemWords("ar"), "ar"))).toBe("12,450.00 د.م. من 50,000.00 د.م.");
-    expect(strip(raisedLine(campaign, "MAD"))).toBe("MAD 12,450.00 of MAD 50,000.00");
+    expect(strip(raisedLine(campaign, "MAD", itemWords("tr"), "tr"))).toBe("MAD 12.450 toplandı · Hedef MAD 50.000");
+    expect(strip(raisedLine(campaign, "MAD", itemWords("ar"), "ar"))).toBe("12,450 د.م. من 50,000 د.م.");
+    expect(strip(raisedLine(campaign, "MAD"))).toBe("MAD 12,450 of MAD 50,000");
 
     // Bundles: the courses' prices.
     const setup = { currency: "MAD", courses: [{ id: 1, title: "Darija", priceCents: 300_00, active: true, teacherStage: null }] } as unknown as CourseSetup;
-    expect(strip(bundleChoices(setup, "مجاني", "ar")[0]!.price)).toBe("300.00 د.م.");
-    expect(strip(bundleChoices(setup, "Ücretsiz", "tr")[0]!.price)).toBe("MAD 300,00");
+    expect(strip(bundleChoices(setup, "مجاني", "ar")[0]!.price)).toBe("300 د.م.");
+    expect(strip(bundleChoices(setup, "Ücretsiz", "tr")[0]!.price)).toBe("MAD 300");
   });
 });
 

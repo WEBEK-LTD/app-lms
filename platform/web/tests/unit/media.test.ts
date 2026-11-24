@@ -710,7 +710,7 @@ describe("storage packs, bought by card (51)", () => {
     });
     expect(Object.fromEntries(planReceiptRows({ payment, planName: "Growth", appName: "A", billedTo: { name: "M", email: "m@x.test" }, paidOn: "" }))).toMatchObject({
       Storage: "+25 GB for the Media library, until the plan's period ends",
-      "Amount charged": nbsp("EGP 750"),
+      "Amount charged": nbsp("EGP 750.00"),
     });
     expect(paymentWhat(payment, "Growth")).toBe("Storage +25 GB");
 

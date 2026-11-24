@@ -86,7 +86,7 @@ describe("91.4 loyalty points: a customer's orders", () => {
       connector.handle({ method, path: path.split("/").filter(Boolean), query: new URLSearchParams(method === "POST" && path.includes("checkout") ? "platform=android" : ""), body, user: who, now });
 
     expect((await connector.config()).store).toMatchObject({
-      loyalty: { enabled: true, spend_per_point: "10.00", spend_per_point_formatted: "₺10.00", point_value: "0.10", point_value_formatted: "₺0.10", min_points: 100 },
+      loyalty: { enabled: true, spend_per_point: "10.00", spend_per_point_formatted: "₺10", point_value: "0.10", point_value_formatted: "₺0.10", min_points: 100 },
     });
     // Signed out: no points in the cart.
     expect(await call("POST", "/store/cart", { lines: [{ product_id: product.id, quantity: 1 }] }, null)).toMatchObject({ status: 200, body: { points: null } });
@@ -103,14 +103,14 @@ describe("91.4 loyalty points: a customer's orders", () => {
     expect(await store.getLoyaltyBalance(app.id, user.id)).toBe(60);
     // Below the fewest: nothing to use yet.
     expect(await call("POST", "/store/cart", { lines: [{ product_id: product.id, quantity: 1 }], use_points: true })).toMatchObject({
-      body: { points: { balance: 60, usable: 0, usable_value: null, applied: false, discount: null }, total: "₺350.00" },
+      body: { points: { balance: 60, usable: 0, usable_value: null, applied: false, discount: null }, total: "₺350" },
     });
 
     // More points from the shop's history: 250 in all.
     await store.changeLoyaltyPoints({ appId: app.id, userId: user.id, orderId: null, points: 190, reason: "earned", now: NOW });
     const quote = await call("POST", "/store/cart", { lines: [{ product_id: product.id, quantity: 1 }], use_points: true });
-    expect(quote).toMatchObject({ body: { points: { balance: 250, usable: 250, usable_value: "₺25.00", applied: true, discount: "₺25.00" }, total: "₺325.00" } });
-    expect(await call("POST", "/store/cart", { lines: [{ product_id: product.id, quantity: 1 }] })).toMatchObject({ body: { points: { applied: false, discount: null }, total: "₺350.00" } });
+    expect(quote).toMatchObject({ body: { points: { balance: 250, usable: 250, usable_value: "₺25", applied: true, discount: "₺25" }, total: "₺325" } });
+    expect(await call("POST", "/store/cart", { lines: [{ product_id: product.id, quantity: 1 }] })).toMatchObject({ body: { points: { applied: false, discount: null }, total: "₺350" } });
 
     // Checked out with them: taken off the total, spent when paid.
     expect(await call("POST", "/store/checkout-link", { lines: [{ product_id: product.id, quantity: 1 }], use_points: true })).toMatchObject({ status: 200 });
@@ -122,9 +122,9 @@ describe("91.4 loyalty points: a customer's orders", () => {
     second = (await store.getCatalogOrder(app.id, second.id))!;
 
     // The order shows them; completed, it earns on what was paid for the products (300 - 25).
-    expect(await call("GET", `/me/orders/${second.id}`)).toMatchObject({ body: { points: { used: 250, discount: "₺25.00", earned: 0 } } });
+    expect(await call("GET", `/me/orders/${second.id}`)).toMatchObject({ body: { points: { used: 250, discount: "₺25", earned: 0 } } });
     await changeOrderStatus(deps(store, app, NOW), second, "completed");
-    expect(await call("GET", `/me/orders/${second.id}`)).toMatchObject({ body: { points: { used: 250, discount: "₺25.00", earned: 27 } } });
+    expect(await call("GET", `/me/orders/${second.id}`)).toMatchObject({ body: { points: { used: 250, discount: "₺25", earned: 27 } } });
     // Completed once: earned once.
     await changeOrderStatus(deps(store, app, NOW), (await store.getCatalogOrder(app.id, second.id))!, "completed");
     expect(await store.getLoyaltyBalance(app.id, user.id)).toBe(27);

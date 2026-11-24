@@ -130,7 +130,7 @@ describe("207 pushes with ringtones", () => {
     const of = (id: string) => sent.find((s) => (s.targets as string[]).includes(`token-${id}`))!;
     const old = of("11111111-1111-4111-8111-111111111111");
     expect(old.dataOnly).toBeUndefined();
-    expect(old.data).toEqual({ type: "owner", kind: "new_order", app_id: app.id, order_id: "42", order_value: "1250", order_number: "1042", order_customer: "", order_currency: "TRY", order_placed_at: String(Math.floor(NOW.getTime() / 1000)), order_total: "₺1,250.00", business_id: client.id, business_name: "Moda Café" });
+    expect(old.data).toEqual({ type: "owner", kind: "new_order", app_id: app.id, order_id: "42", order_value: "1250", order_number: "1042", order_customer: "", order_currency: "TRY", order_placed_at: String(Math.floor(NOW.getTime() / 1000)), order_total: "₺1,250", business_id: client.id, business_name: "Moda Café" });
     expect(of("22222222-2222-4222-8222-222222222222")).toMatchObject({ title: "New order 1042", dataOnly: true, data: { kind: "new_order", order_id: "42", yb_group: "orders", yb_sound: "rush_hour", yb_ring: "1", yb_ring_minutes: "5" } });
     expect(of("33333333-3333-4333-8333-333333333333")).toMatchObject({ dataOnly: false, apnsSound: "yb_ring_rush_hour_long.caf", timeSensitive: true });
   });

@@ -190,7 +190,7 @@ describe("126 travel apps on the hosted API", () => {
       payment: { now: true, at_hotel: true },
       member_off_percent: 5,
       bundle_off_percent: 10,
-      transfer: { price: "48.00", price_formatted: "$48.00", note: "Driver waits with your name" },
+      transfer: { price: "48.00", price_formatted: "$48", note: "Driver waits with your name" },
       themes: ["Desert", "Spa"],
       amenities: [
         { id: "pool", icon: "pool" },
@@ -362,7 +362,7 @@ describe("126 travel apps on the hosted API", () => {
     const alert = await call("POST", "/me/travel/alerts", { token, body: { kind: "flight", from: "CAI", to: "LXR", month: "2026-11", nights: 4, travellers: 1 } });
     expect(alert.body).toMatchObject({ kind: "flight", from: { code: "CAI", city: "Cairo" }, to: { code: "LXR" }, price: "240.00", direction: "same" });
     await store.updateTravelFlight(app.id, outId, { fares: flightInput(app.id).fares.map((f) => (f.id === "light" ? { ...f, cents: 100_00 } : f)) }, now);
-    expect((await call("GET", "/me/travel/alerts", { token })).body).toMatchObject({ items: [{ price: "220.00", change_formatted: "−$20.00", direction: "down", advice: "book_now" }] });
+    expect((await call("GET", "/me/travel/alerts", { token })).body).toMatchObject({ items: [{ price: "220.00", change_formatted: "−$20", direction: "down", advice: "book_now" }] });
     expect((await call("GET", "/travel/explore", { token })).body).toMatchObject({ from: { code: "CAI" }, destinations: [{ city: "Luxor", code: "LXR", hotels: 1 }], alert: { direction: "down" } });
     const alertId = (alert.body as { id: number }).id;
     expect((await call("DELETE", "/me/travel/alerts/{alert_id}", { token, params: [String(alertId)] })).status).toBe(204);

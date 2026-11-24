@@ -161,8 +161,8 @@ describe("28 events and tickets on the hosted API", () => {
     const summary = (await call("GET", "/events")).body as { items: { title: string; price_label: string; spots_left: number | null; venue: unknown }[] };
     expect(summary.items.map((e) => [e.title, e.price_label, e.spots_left])).toEqual([
       ["Film Club", "Free", 10],
-      ["Autumn Jazz Night", "From ₺350.00", 3],
-      ["Online masterclass", "Free · from ₺150.00", null],
+      ["Autumn Jazz Night", "From ₺350", 3],
+      ["Online masterclass", "Free · from ₺150", null],
     ]);
     expect(summary.items[2]!.venue).toBeNull();
     // The organiser's clock (Istanbul is UTC+3): NOW is 10:00 UTC.
@@ -175,9 +175,9 @@ describe("28 events and tickets on the hosted API", () => {
       const result = await connector().handle({ method: "GET", path: ["events"], query: new URLSearchParams(), body: undefined, user, now: NOW, lang });
       return (result!.body as { items: { price_label: string }[] }).items.map((e) => e.price_label);
     };
-    expect(await list("tr")).toEqual(["Ücretsiz", "₺350.00 ve üzeri", "Ücretsiz · ₺150.00 ve üzeri"]);
-    expect(await list("ar")).toEqual(["مجاني", "ابتداءً من ⁦₺350.00⁩", "مجاني · ابتداءً من ⁦₺150.00⁩"]);
-    expect(await list("fr")).toEqual(["Free", "From ₺350.00", "Free · from ₺150.00"]);
+    expect(await list("tr")).toEqual(["Ücretsiz", "₺350 ve üzeri", "Ücretsiz · ₺150 ve üzeri"]);
+    expect(await list("ar")).toEqual(["مجاني", "ابتداءً من ⁦₺350⁩", "مجاني · ابتداءً من ⁦₺150⁩"]);
+    expect(await list("fr")).toEqual(["Free", "From ₺350", "Free · from ₺150"]);
   });
 
   it("serves an event with what each ticket's button does on each platform", async () => {
@@ -296,8 +296,8 @@ describe("28 events and tickets on the hosted API", () => {
     expect(await store.getCatalogOrder(app.id, order.id)).toMatchObject({ status: "completed" });
     const tickets = (await call("GET", "/me/tickets")).body as { items: { holder_name: string; status: string; price: { formatted: string }; can_cancel: boolean }[] };
     expect(tickets.items.map((t) => [t.holder_name, t.status, t.price.formatted, t.can_cancel])).toEqual([
-      ["Mona", "valid", "₺350.00", false],
-      ["Ali", "valid", "₺350.00", false],
+      ["Mona", "valid", "₺350", false],
+      ["Ali", "valid", "₺350", false],
     ]);
 
     // An order that's never paid lets its place go once the hold ends.
@@ -422,8 +422,8 @@ describe("28 events and tickets on the hosted API", () => {
     const items = await eventPageItems(app.id, { limit: 10 }, { store, assetUrl: ASSETS, now: NOW });
     expect(items.map((i) => [i.title, i.price_label, i.badge])).toEqual([
       ["Film Club", "Free", "8 left"],
-      ["Autumn Jazz Night", "From ₺350.00", "3 left"],
-      ["Online masterclass", "Free · from ₺150.00", null],
+      ["Autumn Jazz Night", "From ₺350", "3 left"],
+      ["Online masterclass", "Free · from ₺150", null],
     ]);
     expect(items[0]!.subtitle).toMatch(/^\w{3} \d{1,2} \w{3}, \d{2}:\d{2} · Main Hall$/);
     expect(items[0]!.action).toEqual({ type: "item", item: { source: "events", id: String(film.id) } });
