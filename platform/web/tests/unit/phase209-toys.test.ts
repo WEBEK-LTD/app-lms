@@ -11,6 +11,7 @@ import { DEMO_BRANDS, DEMO_GUIDES } from "@/lib/demo/content";
 import { isShopPhoto, TOYS_PHOTO_NAMES } from "@/lib/demo/shop-photos";
 import { setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { ageLabel, TOYS_ADDONS, TOYS_AGES, TOYS_BIRTHDAY, TOYS_BY_AGE, TOYS_CATEGORIES, TOYS_COMMERCE, TOYS_PRODUCTS, toysAgesOf, toysMainOf } from "@/lib/demo/toys";
+import { TOYS_PRODUCT_NAMES } from "@/lib/demo/product-names";
 import { toysPartsForSamples } from "@/lib/demo/toys-entries";
 import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
 import { LogSender } from "@/lib/hosted/otp-sender";
@@ -202,6 +203,14 @@ describe("209 Toot, the toy shop's demo", () => {
       if (contract) expectContract("GET", route, result);
       return result;
     }
+
+    it("226 serves its toys and add-ons with their names in Arabic and Turkish", async () => {
+      expect(TOYS_PRODUCTS.filter((p) => !TOYS_PRODUCT_NAMES[p.sku])).toEqual([]);
+      const ar = (await call("/store/products", { per_page: "50" }, "ar")).body as { items: { name: string }[] };
+      expect(ar.items.map((p) => p.name)).toContain(TOYS_PRODUCT_NAMES["TY-501"]!.ar);
+      const tr = (await call("/store/products", { per_page: "50" }, "tr")).body as { items: { name: string }[] };
+      expect(tr.items.map((p) => p.name)).toContain(TOYS_PRODUCT_NAMES["TY-501"]!.tr);
+    });
 
     it("keeps its categories, its toys with their details, the add-ons, the card at checkout, the sale and the code", async () => {
       expect(app.design).toBe("toys_signature_c");

@@ -404,8 +404,8 @@ const HUB_SCREENS = signatureScreens({
   first: ["orders", "wishlist", "notifications", "settings", "help", "privacy", "terms"],
 });
 
-/** The bar: a segmented track across the bottom, the open tab a hot pink segment. */
-export const HUB_BAR = signatureBar(K, { design: "segment", background: K.page, dark_background: K.darkPage, active: HOT, dark_active: HOT, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always" });
+/** The bar: across the bottom on white, the open tab rising in a hot pink circle. */
+export const HUB_BAR = signatureBar(K, { design: "lift", background: K.page, dark_background: K.darkPage, active: HOT, dark_active: HOT, inactive: K.muted, dark_inactive: K.darkMuted, labels: "always" });
 
 export const HUB_D: SignatureDesign = {
   demo: "mobiles",

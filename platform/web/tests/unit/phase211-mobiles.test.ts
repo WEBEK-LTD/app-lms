@@ -9,6 +9,7 @@ import { demoIdOf, demoKind, DEMO_SLUGS, isStoreTemplateDemo, MOBILES_DEMO, STUD
 import { DEMO_BRANDS, DEMO_GUIDES } from "@/lib/demo/content";
 import { MOBILES_ACCESSORIES, MOBILES_CATEGORIES, MOBILES_COUPON, MOBILES_CURRENCY, MOBILES_FLASH_SALE, MOBILES_PRODUCTS, MOBILES_TRADE_IN, mobilesMainOf, mobilesVariants } from "@/lib/demo/mobiles";
 import { mobilesPartsForSamples } from "@/lib/demo/mobiles-entries";
+import { MOBILES_PRODUCT_NAMES } from "@/lib/demo/product-names";
 import { isShopPhoto, MOBILES_PHOTO_NAMES } from "@/lib/demo/shop-photos";
 import { setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { mediaAddress, parseStudioPage } from "@/lib/pages/validate";
@@ -162,6 +163,9 @@ describe("211 Nova, the mobiles shop's demo", () => {
     const products = await store.listCatalogProducts(app.id);
     expect(products).toHaveLength(MOBILES_PRODUCTS.length);
     expect(products.every((p) => (p.specs ?? []).length > 1)).toBe(true);
+    // 226 Every device named in Arabic and Turkish too.
+    expect(MOBILES_PRODUCTS.filter((p) => !MOBILES_PRODUCT_NAMES[p.sku])).toEqual([]);
+    expect(products.find((p) => p.sku === "MB-201")?.translations).toMatchObject({ ar: { name: MOBILES_PRODUCT_NAMES["MB-201"]!.ar }, tr: { name: MOBILES_PRODUCT_NAMES["MB-201"]!.tr } });
     const categories = await store.listCatalogCategories(app.id);
     expect(categories.filter((c) => !c.parentId).map((c) => c.name)).toEqual(expect.arrayContaining(MOBILES_CATEGORIES.map((c) => c.name)));
     expect(categories).toHaveLength(MOBILES_CATEGORIES.length + MOBILES_CATEGORIES.reduce((n, c) => n + c.subs.length, 0));

@@ -29,7 +29,7 @@ how-to-play cards, a names-only bar), Nova C the keynote (one phone on a
 black stage, its colours, specs one per row, compare, the trade-in on a dark
 card, a small dock) and Nova D the deals hub (category chips, today's deals
 on hot pink, a dense grid of three with "Installments coming soon", the
-compare tray and page, a pink segmented bar). Light and dark, Arabic, English and
+compare tray and page, a bar whose open tab rises in a pink circle). Light and dark, Arabic, English and
 Turkish, built only from Studio's elements; A and B stay as extra templates.
 Not yet: the app draws a node's own font family only when it is the
 project's main or Arabic font (Toot C's Lalezar headings show in Rubik).
@@ -37,6 +37,30 @@ project's main or Arabic font (Toot C's Lalezar headings show in Rubik).
 Distinct templates (226, the owner's standing rule): each of these four was
 compared side by side with every other template's home before it shipped;
 toys D's opening was changed because it was too close to kids' clothes D.
+
+Roadmap 224 (cosmetics and crochet, templates C and D): Velours and Ghurza
+each have two new whole templates that share no skeleton with A and B or
+with any other type's: Velours C, the ritual clinic (its main template:
+clinical white and teal, Zain; the skin test as frosted glass first, the
+morning and night routine as numbered steps, ingredient chips with their
+strength, numbered lab cards, a segmented bar) and D, the shade studio
+(plum and black gloss, Kufam; the shade swatches as the hero, tutorial
+reels, before and after, mood tiles, a glowing bar); Ghurza C, the makers'
+market (its main template: stitched paper, Aref Ruqaa headlines over Noto
+Naskh Arabic text; the yarn-colour picker, "who made it" makers' cards,
+made to order step by step, pieces on hanging tags, a line bar) and
+D, the cozy studio (dusty rose, Mada; ready pieces or kits to make, the
+pattern of the week, dated class cards, a bubble bar). Each has its own
+category menu, shop, cart and orders tops, tabs, sign-in and account menu,
+in light and dark and in Arabic, English and Turkish; their parts are
+ready sections for any store too. A and B stay as extra templates.
+
+Distinct templates (224): before shipping, the four homes were compared
+side by side with all forty A and B homes and the other types' C and D
+previews; crochet D's edge-to-edge photo under a header lying over it was
+too close to clothes C (the runway) and became a soft photo card under a
+large title, and crochet C's yarn swatches are squares, unlike decor D's
+colour circles. The rule stands for every future template.
 
 Roadmap 216 (Yallapp's Firebase rides out a moment when Google can't
 reach the platform's issuer): the token exchange is tried up to 3 times
@@ -49,6 +73,7 @@ OIDC endpoints allow `stale-while-revalidate`. Optional owner step, not
 done: upload the key set to the Google provider (`jwksJson`) so Google
 needs no call to the site, at the cost of uploading it again on every
 key rotation.
+
 
 Roadmap 222 (the plugin's follow-ups): plugin 0.4.54 (after 0.4.53, #496)
 serves WordPress apps' Studio pages without an empty section, as hosted

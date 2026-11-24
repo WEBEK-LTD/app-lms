@@ -133,7 +133,7 @@ describe("130.23 the defaults", () => {
     for (const demo of STUDIO_DEMO_TYPES) {
       const screens = demoStudioScreens(demo, "https://yallapp.test");
       const chrome = demoChrome(demo)!;
-      // 223 226 Its main look's (C where it has one, else A).
+      // 223 Its main look's (C where the shop type has it).
       expect(chrome.pages, demo).toBe(signatureDesign(demo)!.chrome.header);
       expect(screens.system?.look, demo).toBe(chrome.system.look);
       expect(parseStudioScreens(screens).problems, demo).toEqual([]);

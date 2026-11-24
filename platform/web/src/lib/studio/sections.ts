@@ -35,6 +35,8 @@ import { INSTALLMENTS_SECTION } from "./installments";
 import { SHOP_KIT_SECTIONS } from "./demo-designs/shop-kit-parts";
 import { DECOR_SECTIONS } from "./demo-designs/decor-signature";
 import { CROCHET_SECTIONS } from "./demo-designs/crochet-signature";
+import { BEAUTY_CD_SECTIONS } from "./demo-designs/beauty-cd-signature";
+import { CROCHET_CD_SECTIONS } from "./demo-designs/crochet-cd-signature";
 import { FURNITURE_SECTIONS } from "./demo-designs/furniture-signature";
 // 211 Nawah's sections (Build your PC, the spec filters, ready builds, the device of the week).
 import { COMPUTERS_SECTIONS } from "./demo-designs/computers-signature";
@@ -353,7 +355,9 @@ export type SectionWord =
   // 211 Nawah's looks, pages and sections (lib/studio/demo-designs/computers-signature.ts).
   | Extract<AppWord, `pc${string}`>
   // 211 Madar's looks, pages and sections (lib/studio/demo-designs/electronics-signature.ts).
-  | Extract<AppWord, `el${string}`>;
+  | Extract<AppWord, `el${string}`>
+  // 224 Velours's templates C and D, Ghurza's templates C and D (lib/studio/demo-designs/beauty-cd-signature.ts, crochet-cd-signature.ts).
+  | Extract<AppWord, `vc${string}` | `vd${string}` | `gc${string}` | `gd${string}`>;
 
 export interface SectionContext {
   brand: string;
@@ -1160,6 +1164,9 @@ export const SECTIONS: readonly SectionInfo[] = [
   ...SHOP_KIT_SECTIONS,
   ...DECOR_SECTIONS,
   ...CROCHET_SECTIONS,
+  // 224 Velours's and Ghurza's templates C and D: their own parts.
+  ...BEAUTY_CD_SECTIONS,
+  ...CROCHET_CD_SECTIONS,
   ...FURNITURE_SECTIONS,
   // 211 The mobiles type's parts (trade-in, compare, by storage, certified used, accessories, brands, bundle, numbers).
   ...MOBILES_SECTIONS,
