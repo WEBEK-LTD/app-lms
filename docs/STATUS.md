@@ -8,6 +8,13 @@ Last updated: 24 November 2026.
 
 ## Current release
 
+Roadmap 231 area A (Yallapp Community's base, on `wip-community-base`):
+the community's API contract, its 24 tables (migration 0155), joining and
+signing in with email, Apple and Google, profiles, follow, friends, block,
+reports, linking a Yallapp account, its three languages and its own host
+(`community.yallapp.com.tr`). Needs `COMMUNITY_APPLE_AUDIENCES`,
+`COMMUNITY_GOOGLE_CLIENT_IDS` and (optionally) `COMMUNITY_SITE_URL`.
+
 Roadmap 229.4 (prices that read cleanly everywhere else): the dashboard,
 the emails, the owner's pushes and the web checkout drop ".00" on a whole
 amount as the app does ("₺450", "Pay ₺750"), a fraction kept; receipts,

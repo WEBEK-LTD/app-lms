@@ -1,0 +1,1619 @@
+openapi: 3.1.0
+info:
+  title: Yallapp Community API
+  version: 1.0.0
+  summary: What the Yallapp Community app and website (community.yallapp.com.tr) call.
+  description: |
+    Roadmap 231. The server side of Yallapp Community: a public community
+    for app makers, on the website `community.yallapp.com.tr` and in its own
+    app ("Yallapp Community"). Anyone can join; a Yallapp account is not
+    needed, and one can be linked.
+
+    - **Accounts.** Members are the community's own accounts (not Yallapp
+      dashboard users). They join and sign in with email and password, Sign
+      in with Apple or Google. Each sign-in is a device of its own
+      (`GET /me/sessions`).
+    - **Tokens.** Sign-in gives an access token (15 minutes) and a refresh
+      token (60 days, renewed each time it is used: send the newest one).
+      Both are random secrets the server keeps only as hashes. The website
+      keeps them in httpOnly cookies (`yc_access`, `yc_refresh`) and sends
+      the same requests; the app sends `Authorization: Bearer`.
+    - **Reading without an account.** Questions, answers, tutorials and
+      profiles are public: `GET` paths marked `security: []` answer without
+      a token, and with one they add what is the member's own (their vote,
+      whether they follow someone).
+    - **Languages.** English is the default; Arabic (MSA) and Turkish are
+      the member's choice (`Member.language`). Texts the API writes (errors,
+      notifications, emails, section names) follow `Member.language`, else
+      `Accept-Language`, else English. What members wrote comes back as
+      written.
+    - **No payments in the app.** Nothing is sold through this API. Paid
+      things are bought on the website and appear here unlocked (`locked`
+      false) after sign-in; locked things carry no price.
+    - **Blocking.** A member never sees content, profiles or notifications
+      from someone they blocked or who blocked them; follows and friendships
+      between the two end when one blocks the other.
+    - **Moderation.** A new member's first 2 questions or posts are reviewed
+      before they appear (`status: pending`); the spam and bad-link filter
+      can hold any post. Held content is visible to its author and the
+      moderators only.
+    - **Errors** are `{ "error": { "code", "message" } }` with the HTTP status;
+      `message` is in the member's language. Validation errors add `fields`.
+    - **Pages.** Lists take `cursor` and `limit` (default 20, at most 50) and
+      answer `{ items, next_cursor }`; `next_cursor` null is the end.
+
+    Areas: A (base: accounts, profiles, the social graph, linking a Yallapp
+    account, reports), B (Q&A, tutorials, search), C (badges and the
+    verification form, notifications, moderation, the admin). Each area
+    keeps its paths and schemas here.
+  contact:
+    name: Yallapp
+    email: info@yallapp.com.tr
+servers:
+  - url: https://community.yallapp.com.tr/api/community/v1
+  - url: https://yallapp.com.tr/api/community/v1
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+    description: |
+      Join and sign in with email, Apple or Google; renew the tokens; sign
+      out; reset a forgotten password. Limits: 30 attempts per IP and 8 per
+      email in 15 minutes (429 `too_many_attempts`).
+  - name: Me
+    description: The signed-in member's own account, profile, settings, devices, and their link to a Yallapp account.
+  - name: Members
+    description: Profiles, followers, following, friends and their apps.
+  - name: Social
+    description: Follow (one way, no approval), friends (a request, then accept), block.
+  - name: Reports
+    description: Reporting a member or content to the moderators.
+  - name: Config
+    description: The sections of the app and site, what is coming soon, the languages.
+  - name: Q&A
+    description: (Area B) Questions, answers, votes, accepted answers, official answers, tags and sections.
+  - name: Tutorials
+    description: (Area B) Official tutorials, articles and videos, by section, level and language.
+  - name: Search
+    description: (Area B) Search across questions, tutorials, members and tags; similar questions before asking.
+  - name: Badges
+    description: (Area C) Gold (Pro Developer), Green (Verified Business), Blue (Active Member); the Gold verification form.
+  - name: Notifications
+    description: (Area C) The notifications list and the email choices. Push is phase 2.
+  - name: Admin
+    description: "(Area C) Admins only (`Member.role` admin): badges, verification requests, the audit log, settings, moderation, reports."
+
+paths:
+  # ------------------------------------------------------------ Area A: Auth
+  /auth/email/sign-up:
+    post:
+      tags: [Auth]
+      summary: Join with email and password
+      description: |
+        Makes the member and signs them in. A verification email is sent; an
+        unverified member can use everything but the link expires after 7
+        days and can be sent again (`POST /auth/email/verify/resend`).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, display_name]
+              properties:
+                email: { type: string, format: email, maxLength: 191 }
+                password: { type: string, minLength: 8, maxLength: 200 }
+                display_name: { type: string, minLength: 1, maxLength: 80 }
+                username: { type: string, pattern: "^[a-z0-9_.]{3,30}$", description: "Made from the name when not sent." }
+                language: { $ref: "#/components/schemas/Language" }
+                device: { $ref: "#/components/schemas/DeviceInput" }
+      responses:
+        "201": { $ref: "#/components/responses/Session" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "409": { description: "`email_taken` or `username_taken`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /auth/email/log-in:
+    post:
+      tags: [Auth]
+      summary: Log in with email and password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+                device: { $ref: "#/components/schemas/DeviceInput" }
+      responses:
+        "200": { $ref: "#/components/responses/Session" }
+        "401": { description: "`invalid_credentials`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+        "403": { description: "`account_suspended`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /auth/apple:
+    post:
+      tags: [Auth]
+      summary: Continue with Apple
+      description: |
+        Sends the identity token from Sign in with Apple. It is checked
+        against Apple's keys, the audience (the app's bundle id or the
+        website's service id, from the environment) and the nonce. The first
+        time, a member is made (`created` true): Apple gives the name only
+        then, so the app sends it. An email that is already a member's is
+        linked to that member when Apple says it is verified.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id_token]
+              properties:
+                id_token: { type: string }
+                nonce: { type: string, description: "The raw nonce whose SHA-256 the app gave Apple." }
+                display_name: { type: string, maxLength: 80 }
+                language: { $ref: "#/components/schemas/Language" }
+                device: { $ref: "#/components/schemas/DeviceInput" }
+      responses:
+        "200": { $ref: "#/components/responses/Session" }
+        "201": { $ref: "#/components/responses/Session" }
+        "401": { description: "`invalid_token`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+        "403": { description: "`account_suspended`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+        "503": { description: "`provider_not_configured`: this environment has no Apple keys.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+  /auth/google:
+    post:
+      tags: [Auth]
+      summary: Continue with Google
+      description: The ID token from Google Sign-In, checked against Google's keys and the client ids from the environment. As for Apple, the first time makes the member.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id_token]
+              properties:
+                id_token: { type: string }
+                language: { $ref: "#/components/schemas/Language" }
+                device: { $ref: "#/components/schemas/DeviceInput" }
+      responses:
+        "200": { $ref: "#/components/responses/Session" }
+        "201": { $ref: "#/components/responses/Session" }
+        "401": { description: "`invalid_token`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+        "403": { description: "`account_suspended`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+        "503": { description: "`provider_not_configured`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Renew the tokens
+      description: Gives a new access token and a new refresh token; the old refresh token stops working.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [refresh_token], properties: { refresh_token: { type: string } } }
+      responses:
+        "200": { $ref: "#/components/responses/Session" }
+        "401": { description: "`invalid_token`: expired, used, or signed out.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+  /auth/log-out:
+    post:
+      tags: [Auth]
+      summary: Log out this device
+      responses:
+        "204": { description: Signed out. }
+  /auth/email/verify:
+    post:
+      tags: [Auth]
+      summary: Confirm the email address
+      description: The token from the verification email's link (`https://community.yallapp.com.tr/verify-email?token=…`).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [token], properties: { token: { type: string } } }
+      responses:
+        "204": { description: Verified. }
+        "400": { description: "`invalid_token` (unknown, used or expired).", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+  /auth/email/verify/resend:
+    post:
+      tags: [Auth]
+      summary: Send the verification email again
+      responses:
+        "204": { description: Sent (or already verified). }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /auth/password-reset:
+    post:
+      tags: [Auth]
+      summary: Ask for a password reset email
+      description: Always 204, whether or not the email is a member's. The link is valid for 1 hour.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [email], properties: { email: { type: string, format: email } } }
+      responses:
+        "204": { description: Sent when the email is a member's. }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /auth/password-reset/confirm:
+    post:
+      tags: [Auth]
+      summary: Set a new password from the reset link
+      description: Signs every device out.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token: { type: string }
+                password: { type: string, minLength: 8, maxLength: 200 }
+      responses:
+        "204": { description: Changed. }
+        "400": { description: "`invalid_token` or `invalid_request`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+
+  # ------------------------------------------------------------ Area A: Me
+  /me:
+    get:
+      tags: [Me]
+      summary: The signed-in member
+      responses:
+        "200": { description: The member., content: { application/json: { schema: { $ref: "#/components/schemas/Me" } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    patch:
+      tags: [Me]
+      summary: Edit the profile and settings
+      description: Only the fields sent change.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MePatch" }
+      responses:
+        "200": { description: The member as it is now., content: { application/json: { schema: { $ref: "#/components/schemas/Me" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "409": { description: "`username_taken`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+    delete:
+      tags: [Me]
+      summary: Delete the account
+      description: |
+        Deletes the member at once: their profile, follows, friendships,
+        blocks and sessions. Their questions and answers stay, shown as from
+        "Deleted member". Members who joined with email send their password;
+        Apple and Google members send `confirm: "DELETE"`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password: { type: string }
+                confirm: { type: string, enum: [DELETE] }
+      responses:
+        "204": { description: Deleted. }
+        "401": { description: "`invalid_credentials`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+  /me/avatar:
+    put:
+      tags: [Me]
+      summary: Upload the profile picture
+      description: A JPEG, PNG or WebP of at most 5 MB; kept square-cropped at 512 × 512.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { type: object, required: [file], properties: { file: { type: string, format: binary } } }
+      responses:
+        "200": { description: The member as it is now., content: { application/json: { schema: { $ref: "#/components/schemas/Me" } } } }
+        "400": { description: "`invalid_image` or `too_large`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+    delete:
+      tags: [Me]
+      summary: Remove the profile picture
+      responses:
+        "200": { description: The member as it is now., content: { application/json: { schema: { $ref: "#/components/schemas/Me" } } } }
+  /me/password:
+    put:
+      tags: [Me]
+      summary: Change (or, for an Apple or Google member, set) the password
+      description: Signs the other devices out.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [new_password]
+              properties:
+                current_password: { type: string, description: "Needed when the member has one." }
+                new_password: { type: string, minLength: 8, maxLength: 200 }
+      responses:
+        "204": { description: Changed. }
+        "401": { description: "`invalid_credentials`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+  /me/sessions:
+    get:
+      tags: [Me]
+      summary: The member's signed-in devices
+      responses:
+        "200":
+          description: Newest first.
+          content:
+            application/json:
+              schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/Device" } } } }
+  /me/sessions/{session_id}:
+    delete:
+      tags: [Me]
+      summary: Sign a device out
+      parameters: [{ name: session_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Signed out. }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /me/blocks:
+    get:
+      tags: [Social]
+      summary: The members this member blocked
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { $ref: "#/components/responses/MemberPage" }
+  /me/friend-requests:
+    get:
+      tags: [Social]
+      summary: Friend requests sent to the member, or sent by them
+      parameters:
+        - { name: direction, in: query, schema: { type: string, enum: [incoming, outgoing], default: incoming } }
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/Limit" }
+      responses:
+        "200":
+          description: Newest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/FriendRequest" } }
+                  next_cursor: { type: [string, "null"] }
+  /me/friend-requests/{request_id}/accept:
+    post:
+      tags: [Social]
+      summary: Accept a friend request sent to the member
+      parameters: [{ $ref: "#/components/parameters/RequestId" }]
+      responses:
+        "200": { description: Now friends., content: { application/json: { schema: { $ref: "#/components/schemas/Relationship" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /me/friend-requests/{request_id}/decline:
+    post:
+      tags: [Social]
+      summary: Decline a friend request sent to the member
+      description: The sender is not told.
+      parameters: [{ $ref: "#/components/parameters/RequestId" }]
+      responses:
+        "204": { description: Declined. }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /me/yallapp-link:
+    get:
+      tags: [Me]
+      summary: The member's link to a Yallapp account
+      responses:
+        "200": { description: The link., content: { application/json: { schema: { $ref: "#/components/schemas/YallappLink" } } } }
+    delete:
+      tags: [Me]
+      summary: Unlink the Yallapp account
+      description: Badges that need it (Gold's apps, Green) are checked again.
+      responses:
+        "204": { description: Unlinked. }
+  /me/yallapp-link/start:
+    post:
+      tags: [Me]
+      summary: Start linking a Yallapp account
+      description: |
+        Gives `confirm_url` on yallapp.com.tr. The app opens it in the
+        browser; the person signs in to Yallapp there (if not already) and
+        confirms "Link to Yallapp Community as {display_name}". Then the
+        browser goes to `return_url` (the website's profile, or the app's
+        `yallappcommunity://linked`) and `GET /me/yallapp-link` shows the
+        account. A Yallapp account links to one member only (409
+        `already_linked`, shown on the confirm page). The link expires in
+        15 minutes.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                return_to: { type: string, enum: [web, app], default: web }
+      responses:
+        "200":
+          description: Where to confirm.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [confirm_url, expires_at]
+                properties:
+                  confirm_url: { type: string, format: uri, examples: ["https://yallapp.com.tr/community/link?state=…"] }
+                  expires_at: { type: string, format: date-time }
+
+  # ------------------------------------------------------------ Area A: Members
+  /members/{member}:
+    get:
+      tags: [Members]
+      summary: A member's profile
+      description: "`member` is the member's id or `@username`. A member who blocked the viewer, or whom the viewer blocked, is 404 (blocked) only for the blocked side; the blocker sees `relationship.blocked` true."
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      responses:
+        "200": { description: The profile., content: { application/json: { schema: { $ref: "#/components/schemas/Profile" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /members/{member}/followers:
+    get:
+      tags: [Members]
+      summary: Who follows the member
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/Member" }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { $ref: "#/components/responses/MemberPage" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /members/{member}/following:
+    get:
+      tags: [Members]
+      summary: Whom the member follows
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/Member" }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { $ref: "#/components/responses/MemberPage" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /members/{member}/friends:
+    get:
+      tags: [Members]
+      summary: The member's friends
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/Member" }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { $ref: "#/components/responses/MemberPage" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /members/{member}/apps:
+    get:
+      tags: [Members]
+      summary: The member's apps made with Yallapp
+      description: Read from the linked Yallapp account (never entered by hand); empty without a link. Only apps published on a store are listed publicly; the member sees all of theirs.
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      responses:
+        "200":
+          description: The apps.
+          content:
+            application/json:
+              schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/LinkedApp" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /members/{member}/follow:
+    put:
+      tags: [Social]
+      summary: Follow the member
+      description: One way, no approval. Following oneself or a blocked member is 400 `not_allowed`.
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      responses:
+        "200": { description: Following., content: { application/json: { schema: { $ref: "#/components/schemas/Relationship" } } } }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Social]
+      summary: Stop following the member
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      responses:
+        "200": { description: Not following., content: { application/json: { schema: { $ref: "#/components/schemas/Relationship" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /members/{member}/friend:
+    put:
+      tags: [Social]
+      summary: Send a friend request (or accept theirs)
+      description: When the other member already asked, this accepts. The other member gets a notification (area C).
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      responses:
+        "200": { description: Requested or friends., content: { application/json: { schema: { $ref: "#/components/schemas/Relationship" } } } }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Social]
+      summary: Unfriend, or cancel the request sent
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      responses:
+        "200": { description: Not friends., content: { application/json: { schema: { $ref: "#/components/schemas/Relationship" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /members/{member}/block:
+    put:
+      tags: [Social]
+      summary: Block the member
+      description: Ends follows both ways, the friendship and any request between the two.
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      responses:
+        "200": { description: Blocked., content: { application/json: { schema: { $ref: "#/components/schemas/Relationship" } } } }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Social]
+      summary: Unblock the member
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      responses:
+        "200": { description: Unblocked., content: { application/json: { schema: { $ref: "#/components/schemas/Relationship" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ------------------------------------------------------------ Area A: Reports, config
+  /reports:
+    post:
+      tags: [Reports]
+      summary: Report a member or content
+      description: Once per member and target (409 `already_reported`). Goes to the moderators' queue (area C); content reported by several members is held until a moderator decides.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [target_type, target_id, reason]
+              properties:
+                target_type: { $ref: "#/components/schemas/TargetType" }
+                target_id: { type: string }
+                reason: { type: string, enum: [spam, harassment, hate, inappropriate, misinformation, impersonation, other] }
+                note: { type: string, maxLength: 1000 }
+      responses:
+        "201": { description: Reported., content: { application/json: { schema: { type: object, required: [id], properties: { id: { type: string } } } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { description: "`already_reported`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+  /config:
+    get:
+      tags: [Config]
+      summary: The sections, what is coming soon, the languages
+      description: The side menu and the tab bar draw from this; a section `coming_soon` shows as "Coming soon" and opens nothing.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        "200": { description: The configuration., content: { application/json: { schema: { $ref: "#/components/schemas/Config" } } } }
+
+  # ------------------------------------------------------------ Area B: Q&A
+  /qa/sections:
+    get:
+      tags: [Q&A]
+      summary: The Q&A sections
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        "200": { description: In order., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/Section" } } } } } } }
+  /qa/tags:
+    get:
+      tags: [Q&A]
+      summary: Tags, most used first, or matching `q`
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: q, in: query, schema: { type: string } }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: Tags., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/Tag" } } } } } } }
+  /qa/questions:
+    get:
+      tags: [Q&A]
+      summary: Questions
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: section, in: query, schema: { type: string }, description: "A section's slug." }
+        - { name: tag, in: query, schema: { type: string } }
+        - { name: author, in: query, schema: { type: string }, description: "A member's id." }
+        - { name: filter, in: query, schema: { type: string, enum: [all, unanswered, answered, official, following] , default: all } }
+        - { name: sort, in: query, schema: { type: string, enum: [active, newest, votes], default: active } }
+        - { name: language, in: query, schema: { $ref: "#/components/schemas/Language" } }
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/Limit" }
+      responses:
+        "200":
+          description: A page of questions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/QuestionSummary" } }
+                  next_cursor: { type: [string, "null"] }
+    post:
+      tags: [Q&A]
+      summary: Ask a question
+      description: "`status` is `pending` for a new member's first 2 posts or when the filter holds it."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, body, section]
+              properties:
+                title: { type: string, minLength: 10, maxLength: 200 }
+                body: { type: string, minLength: 20, maxLength: 20000, description: "Markdown." }
+                section: { type: string, description: "A section's slug." }
+                tags: { type: array, maxItems: 5, items: { type: string } }
+                language: { $ref: "#/components/schemas/Language" }
+      responses:
+        "201": { description: Asked., content: { application/json: { schema: { $ref: "#/components/schemas/Question" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+  /qa/questions/similar:
+    get:
+      tags: [Q&A, Search]
+      summary: Questions like the one being typed, before asking
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: title, in: query, required: true, schema: { type: string, minLength: 3 } }, { name: limit, in: query, schema: { type: integer, default: 5, maximum: 10 } }]
+      responses:
+        "200": { description: Most similar first., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/QuestionSummary" } } } } } } }
+  /qa/questions/{question_id}:
+    get:
+      tags: [Q&A]
+      summary: A question with its answers
+      description: The accepted answer first, then official answers, then by score.
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/QuestionId" }]
+      responses:
+        "200": { description: The question., content: { application/json: { schema: { $ref: "#/components/schemas/Question" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Q&A]
+      summary: Edit one's own question
+      parameters: [{ $ref: "#/components/parameters/QuestionId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string, minLength: 10, maxLength: 200 }
+                body: { type: string, minLength: 20, maxLength: 20000 }
+                section: { type: string }
+                tags: { type: array, maxItems: 5, items: { type: string } }
+      responses:
+        "200": { description: The question., content: { application/json: { schema: { $ref: "#/components/schemas/Question" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Q&A]
+      summary: Delete one's own question (or, for a moderator, remove it)
+      parameters: [{ $ref: "#/components/parameters/QuestionId" }]
+      responses:
+        "204": { description: Deleted. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /qa/questions/{question_id}/vote:
+    put:
+      tags: [Q&A]
+      summary: Vote on a question
+      parameters: [{ $ref: "#/components/parameters/QuestionId" }]
+      requestBody: { $ref: "#/components/requestBodies/Vote" }
+      responses:
+        "200": { $ref: "#/components/responses/Voted" }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+  /qa/questions/{question_id}/answers:
+    post:
+      tags: [Q&A]
+      summary: Answer a question
+      description: Yallapp's team may send `official` true ("Yallapp Team" badge); others get 403.
+      parameters: [{ $ref: "#/components/parameters/QuestionId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string, minLength: 10, maxLength: 20000 }
+                official: { type: boolean, default: false }
+      responses:
+        "201": { description: Answered., content: { application/json: { schema: { $ref: "#/components/schemas/Answer" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /qa/answers/{answer_id}:
+    patch:
+      tags: [Q&A]
+      summary: Edit one's own answer
+      parameters: [{ $ref: "#/components/parameters/AnswerId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [body], properties: { body: { type: string, minLength: 10, maxLength: 20000 } } }
+      responses:
+        "200": { description: The answer., content: { application/json: { schema: { $ref: "#/components/schemas/Answer" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    delete:
+      tags: [Q&A]
+      summary: Delete one's own answer
+      parameters: [{ $ref: "#/components/parameters/AnswerId" }]
+      responses:
+        "204": { description: Deleted. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /qa/answers/{answer_id}/vote:
+    put:
+      tags: [Q&A]
+      summary: Vote on an answer
+      parameters: [{ $ref: "#/components/parameters/AnswerId" }]
+      requestBody: { $ref: "#/components/requestBodies/Vote" }
+      responses:
+        "200": { $ref: "#/components/responses/Voted" }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+  /qa/answers/{answer_id}/accept:
+    put:
+      tags: [Q&A]
+      summary: Accept the answer (the question's author)
+      description: One accepted answer per question; accepting another moves it. The answer's author gets points (area C counts them).
+      parameters: [{ $ref: "#/components/parameters/AnswerId" }]
+      responses:
+        "200": { description: The question., content: { application/json: { schema: { $ref: "#/components/schemas/Question" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    delete:
+      tags: [Q&A]
+      summary: Un-accept the answer
+      parameters: [{ $ref: "#/components/parameters/AnswerId" }]
+      responses:
+        "200": { description: The question., content: { application/json: { schema: { $ref: "#/components/schemas/Question" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  # ------------------------------------------------------------ Area B: Tutorials, search
+  /tutorials/sections:
+    get:
+      tags: [Tutorials]
+      summary: The tutorial sections
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        "200": { description: In order., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/Section" } } } } } } }
+  /tutorials:
+    get:
+      tags: [Tutorials]
+      summary: Official tutorials
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: section, in: query, schema: { type: string } }
+        - { name: kind, in: query, schema: { type: string, enum: [article, video] } }
+        - { name: level, in: query, schema: { type: string, enum: [beginner, intermediate, advanced] } }
+        - { name: language, in: query, schema: { $ref: "#/components/schemas/Language" } }
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/Limit" }
+      responses:
+        "200":
+          description: Newest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/TutorialSummary" } }
+                  next_cursor: { type: [string, "null"] }
+  /tutorials/{tutorial}:
+    get:
+      tags: [Tutorials]
+      summary: A tutorial (by id or slug)
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: tutorial, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: The tutorial., content: { application/json: { schema: { $ref: "#/components/schemas/Tutorial" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /search:
+    get:
+      tags: [Search]
+      summary: Search the community
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string, minLength: 2 } }
+        - { name: type, in: query, schema: { type: string, enum: [all, questions, tutorials, members, tags], default: all } }
+        - { $ref: "#/components/parameters/Limit" }
+      responses:
+        "200":
+          description: Results by kind.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [questions, tutorials, members, tags]
+                properties:
+                  questions: { type: array, items: { $ref: "#/components/schemas/QuestionSummary" } }
+                  tutorials: { type: array, items: { $ref: "#/components/schemas/TutorialSummary" } }
+                  members: { type: array, items: { $ref: "#/components/schemas/MemberSummary" } }
+                  tags: { type: array, items: { $ref: "#/components/schemas/Tag" } }
+
+  # ------------------------------------------------------------ Area C: Badges
+  /badges/verification:
+    get:
+      tags: [Badges]
+      summary: The member's Gold verification state
+      description: "`can_apply` is true with 5 or more apps on the linked Yallapp account (Studio Market templates count) and no pending request; the Apply button shows only then."
+      responses:
+        "200": { description: The state., content: { application/json: { schema: { $ref: "#/components/schemas/VerificationState" } } } }
+    post:
+      tags: [Badges]
+      summary: Apply for Gold (Pro Developer)
+      description: The apps come from the linked Yallapp account, not from the form. 403 `not_eligible` under 5 apps; 409 `already_pending`.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [full_name, id_proof]
+              properties:
+                full_name: { type: string, maxLength: 120 }
+                id_proof: { type: string, format: binary, description: "JPEG, PNG or PDF, at most 10 MB; private." }
+                portfolio_links: { type: array, maxItems: 5, items: { type: string, format: uri } }
+      responses:
+        "201": { description: Sent., content: { application/json: { schema: { $ref: "#/components/schemas/VerificationState" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { description: "`already_pending`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+
+  # ------------------------------------------------------------ Area C: Notifications
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: The member's notifications
+      parameters: [{ name: unread, in: query, schema: { type: boolean } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200":
+          description: Newest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor, unread_count]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Notification" } }
+                  next_cursor: { type: [string, "null"] }
+                  unread_count: { type: integer }
+  /notifications/read:
+    post:
+      tags: [Notifications]
+      summary: Mark notifications read (the ones listed, or all)
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { ids: { type: array, items: { type: string } } } }
+      responses:
+        "204": { description: Marked. }
+  /notifications/settings:
+    get:
+      tags: [Notifications]
+      summary: Which notifications also come by email
+      responses:
+        "200": { description: The choices., content: { application/json: { schema: { $ref: "#/components/schemas/NotificationSettings" } } } }
+    put:
+      tags: [Notifications]
+      summary: Change which notifications also come by email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NotificationSettings" }
+      responses:
+        "200": { description: The choices., content: { application/json: { schema: { $ref: "#/components/schemas/NotificationSettings" } } } }
+
+  # ------------------------------------------------------------ Area C: Admin
+  /admin/verification-requests:
+    get:
+      tags: [Admin]
+      summary: Gold verification requests
+      parameters: [{ name: status, in: query, schema: { type: string, enum: [pending, approved, rejected], default: pending } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200":
+          description: Oldest pending first.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/VerificationRequest" } }
+                  next_cursor: { type: [string, "null"] }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/verification-requests/{request_id}:
+    post:
+      tags: [Admin]
+      summary: Approve or reject a request (with a reason); the member is notified either way
+      parameters: [{ $ref: "#/components/parameters/RequestId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision, reason]
+              properties:
+                decision: { type: string, enum: [approve, reject] }
+                reason: { type: string, minLength: 3, maxLength: 1000 }
+      responses:
+        "200": { description: Decided., content: { application/json: { schema: { $ref: "#/components/schemas/VerificationRequest" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/verification-requests/{request_id}/id-proof:
+    get:
+      tags: [Admin]
+      summary: The request's ID proof (a short-lived private link)
+      parameters: [{ $ref: "#/components/parameters/RequestId" }]
+      responses:
+        "200": { description: The link., content: { application/json: { schema: { type: object, required: [url, expires_at], properties: { url: { type: string, format: uri }, expires_at: { type: string, format: date-time } } } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/members:
+    get:
+      tags: [Admin]
+      summary: Find members
+      parameters: [{ name: q, in: query, schema: { type: string } }, { name: badge, in: query, schema: { $ref: "#/components/schemas/BadgeKind" } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { $ref: "#/components/responses/MemberPage" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/members/{member}/badges:
+    get:
+      tags: [Admin]
+      summary: A member's badges, held and past, with their reasons
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      responses:
+        "200": { description: The badges., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/BadgeGrant" } } } } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [Admin]
+      summary: Grant a badge by hand
+      description: Allowed even when the rules aren't met. The reason is private; the expiry optional. Written to the audit log.
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [badge, reason]
+              properties:
+                badge: { $ref: "#/components/schemas/BadgeKind" }
+                reason: { type: string, minLength: 3, maxLength: 1000 }
+                expires_at: { type: [string, "null"], format: date-time }
+                company_name: { type: string, description: "Green only." }
+                app_url: { type: string, format: uri, description: "Green only." }
+      responses:
+        "201": { description: Granted., content: { application/json: { schema: { $ref: "#/components/schemas/BadgeGrant" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/members/{member}/badges/{badge}:
+    delete:
+      tags: [Admin]
+      summary: Revoke a badge, with a reason (written to the audit log)
+      parameters: [{ $ref: "#/components/parameters/Member" }, { name: badge, in: path, required: true, schema: { $ref: "#/components/schemas/BadgeKind" } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [reason], properties: { reason: { type: string, minLength: 3, maxLength: 1000 } } }
+      responses:
+        "204": { description: Revoked. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/members/{member}/status:
+    put:
+      tags: [Admin]
+      summary: Suspend or restore a member (a suspension is a violation and signs them out)
+      parameters: [{ $ref: "#/components/parameters/Member" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status, reason]
+              properties:
+                status: { type: string, enum: [active, suspended] }
+                reason: { type: string, minLength: 3, maxLength: 1000 }
+      responses:
+        "204": { description: Changed. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/audit-log:
+    get:
+      tags: [Admin]
+      summary: The audit log (who, when, why)
+      parameters: [{ name: member, in: query, schema: { type: string } }, { name: action, in: query, schema: { type: string } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200":
+          description: Newest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/AuditEntry" } }
+                  next_cursor: { type: [string, "null"] }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/settings:
+    get:
+      tags: [Admin]
+      summary: The community's settings
+      responses:
+        "200": { description: The settings., content: { application/json: { schema: { $ref: "#/components/schemas/AdminSettings" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      tags: [Admin]
+      summary: Change the community's settings (written to the audit log)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminSettings" }
+      responses:
+        "200": { description: The settings., content: { application/json: { schema: { $ref: "#/components/schemas/AdminSettings" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/moderation:
+    get:
+      tags: [Admin]
+      summary: The moderation queue
+      parameters: [{ name: status, in: query, schema: { type: string, enum: [open, approved, removed], default: open } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200":
+          description: Oldest open first.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/ModerationItem" } }
+                  next_cursor: { type: [string, "null"] }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/moderation/{item_id}:
+    post:
+      tags: [Admin]
+      summary: Approve or remove the content (removing records a violation)
+      parameters: [{ name: item_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision: { type: string, enum: [approve, remove] }
+                note: { type: string, maxLength: 1000 }
+      responses:
+        "200": { description: Decided., content: { application/json: { schema: { $ref: "#/components/schemas/ModerationItem" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/reports:
+    get:
+      tags: [Admin]
+      summary: Reports
+      parameters: [{ name: status, in: query, schema: { type: string, enum: [open, actioned, dismissed], default: open } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200":
+          description: Oldest open first.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Report" } }
+                  next_cursor: { type: [string, "null"] }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/reports/{report_id}:
+    post:
+      tags: [Admin]
+      summary: Close a report (actioned or dismissed)
+      parameters: [{ name: report_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [status], properties: { status: { type: string, enum: [actioned, dismissed] }, note: { type: string } } }
+      responses:
+        "200": { description: Closed., content: { application/json: { schema: { $ref: "#/components/schemas/Report" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: The access token from sign-in or refresh (15 minutes). The website sends it in the `yc_access` cookie instead.
+
+  parameters:
+    Member:
+      name: member
+      in: path
+      required: true
+      description: The member's id, or `@` and their username.
+      schema: { type: string, examples: ["@mohamed", "7f1c…"] }
+    RequestId:
+      name: request_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    QuestionId:
+      name: question_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    AnswerId:
+      name: answer_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+
+  requestBodies:
+    Vote:
+      required: true
+      content:
+        application/json:
+          schema: { type: object, required: [value], properties: { value: { type: integer, enum: [1, 0, -1], description: "0 takes the vote back." } } }
+
+  responses:
+    Session:
+      description: Signed in.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Session" }
+    Unauthorized:
+      description: "`invalid_token` (none, expired, or signed out)."
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } }
+    Forbidden:
+      description: "`not_allowed`, `not_admin` or `account_suspended`."
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } }
+    NotAllowed:
+      description: "`not_allowed` (oneself, or a blocked member)."
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } }
+    NotFound:
+      description: "`not_found`."
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } }
+    Invalid:
+      description: "`invalid_request`, with the fields at fault."
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } }
+    TooMany:
+      description: "`too_many_attempts`; `Retry-After` says when to try again."
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } }
+    MemberPage:
+      description: A page of members.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [items, next_cursor]
+            properties:
+              items: { type: array, items: { $ref: "#/components/schemas/MemberSummary" } }
+              next_cursor: { type: [string, "null"] }
+    Voted:
+      description: The score now and the member's vote.
+      content:
+        application/json:
+          schema: { type: object, required: [score, my_vote], properties: { score: { type: integer }, my_vote: { type: integer, enum: [1, 0, -1] } } }
+
+  schemas:
+    ErrorBody:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              examples: [invalid_request, invalid_credentials, invalid_token, email_taken, username_taken, account_suspended, provider_not_configured, not_found, not_allowed, not_admin, not_eligible, already_pending, already_reported, already_linked, too_many_attempts]
+            message: { type: string }
+            fields: { type: object, additionalProperties: { type: string } }
+    Language:
+      type: string
+      enum: [en, ar, tr]
+      default: en
+    Theme:
+      type: string
+      enum: [system, light, dark]
+    TargetType:
+      type: string
+      enum: [member, question, answer, reply, tutorial, comment]
+    DeviceInput:
+      type: object
+      properties:
+        name: { type: string, maxLength: 100, examples: [iPhone 16] }
+        platform: { type: string, enum: [ios, android, web], default: web }
+    Session:
+      type: object
+      required: [access_token, access_expires_at, refresh_token, refresh_expires_at, created, member]
+      properties:
+        access_token: { type: string }
+        access_expires_at: { type: string, format: date-time }
+        refresh_token: { type: string }
+        refresh_expires_at: { type: string, format: date-time }
+        created: { type: boolean, description: "True when this sign-in made the member (Apple, Google, sign-up)." }
+        member: { $ref: "#/components/schemas/Me" }
+    Device:
+      type: object
+      required: [id, name, platform, created_at, last_seen_at, current]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        platform: { type: string, enum: [ios, android, web] }
+        created_at: { type: string, format: date-time }
+        last_seen_at: { type: string, format: date-time }
+        current: { type: boolean }
+    BadgeKind:
+      type: string
+      enum: [gold, green, blue]
+      description: "gold: Pro Developer; green: Verified Business; blue: Active Member. Only the highest shows next to a name (gold, then green, then blue)."
+    Badge:
+      type: object
+      required: [kind, label, since]
+      properties:
+        kind: { $ref: "#/components/schemas/BadgeKind" }
+        label: { type: string, description: "In the reader's language: Pro Developer, Verified Business, Active Member." }
+        since: { type: string, format: date-time }
+        company_name: { type: [string, "null"], description: "Green only." }
+        app_url: { type: [string, "null"], description: "Green only." }
+    MemberSummary:
+      type: object
+      description: "A member wherever they appear (an author, a follower). A deleted member is `{ id, display_name: \"Deleted member\", deleted: true }`."
+      required: [id, username, display_name, avatar_url, top_badge, team, deleted, rank, rank_label, level, level_label, level_progress]
+      properties:
+        id: { type: string, format: uuid }
+        username: { type: string }
+        display_name: { type: string }
+        avatar_url: { type: [string, "null"] }
+        headline: { type: string }
+        top_badge: { oneOf: [{ $ref: "#/components/schemas/BadgeKind" }, { type: "null" }], description: "The one badge shown next to the name." }
+        team: { type: boolean, description: "Yallapp's team (\"Yallapp Team\")." }
+        deleted: { type: boolean }
+        rank: { type: string, enum: [newcomer, member, contributor, pro, expert, master], description: "Their standing by points: the same as level (newcomer, member from 25, contributor from 250, pro from 1,000, expert from 1,375, master from 5,000)." }
+        rank_label: { type: string, description: "The rank's name in the reader's language (\"Expert\")." }
+        level: { type: string, enum: [newcomer, member, contributor, pro, expert, master], description: "The level by points, from one table (`/config` levels); the same as rank." }
+        level_label: { type: string, description: "The level's name in the reader's language." }
+        level_progress: { type: number, minimum: 0, maximum: 1, description: "How far toward the next level (1 at the top): the side menu's bar." }
+        relationship: { $ref: "#/components/schemas/Relationship" }
+    Relationship:
+      type: object
+      description: How the signed-in member stands with this member (absent when signed out).
+      required: [following, followed_by, friend, blocked]
+      properties:
+        following: { type: boolean }
+        followed_by: { type: boolean }
+        friend: { type: string, enum: [none, requested, incoming, friends], description: "requested: the viewer asked; incoming: they asked the viewer." }
+        friend_request_id: { type: [string, "null"] }
+        blocked: { type: boolean, description: "The viewer blocked them." }
+    Profile:
+      allOf:
+        - $ref: "#/components/schemas/MemberSummary"
+        - type: object
+          required: [bio, skills, links, badges, points, counts, joined_at, yallapp_linked]
+          properties:
+            bio: { type: string }
+            skills: { type: array, items: { type: string } }
+            links: { type: array, items: { $ref: "#/components/schemas/ProfileLink" } }
+            badges: { type: array, items: { $ref: "#/components/schemas/Badge" }, description: "Every badge held, highest first." }
+            points: { type: integer }
+            counts:
+              type: object
+              required: [followers, following, friends, questions, answers, accepted_answers, apps]
+              properties:
+                followers: { type: integer }
+                following: { type: integer }
+                friends: { type: integer }
+                questions: { type: integer }
+                answers: { type: integer }
+                accepted_answers: { type: integer }
+                apps: { type: integer }
+            joined_at: { type: string, format: date-time }
+            yallapp_linked: { type: boolean }
+    ProfileLink:
+      type: object
+      required: [label, url]
+      properties:
+        label: { type: string, maxLength: 40 }
+        url: { type: string, format: uri, maxLength: 300 }
+    Me:
+      allOf:
+        - $ref: "#/components/schemas/Profile"
+        - type: object
+          required: [email, email_verified, has_password, providers, language, theme, role, status, unread_notifications, pending_friend_requests]
+          properties:
+            email: { type: [string, "null"] }
+            email_verified: { type: boolean }
+            has_password: { type: boolean }
+            providers: { type: array, items: { type: string, enum: [email, apple, google] } }
+            language: { $ref: "#/components/schemas/Language" }
+            theme: { $ref: "#/components/schemas/Theme" }
+            role: { type: string, enum: [member, team, admin], description: "Stored role: \"team\" gives official answers. It never makes an admin." }
+            community_role: { type: [string, "null"], enum: [admin, moderator, null], description: "Who runs the community, asked again on each request: admin when the linked Yallapp account is an owner or admin of Yallapp's admin; moderator when an admin made them one (area C)." }
+            status: { type: string, enum: [active, suspended] }
+            unread_notifications: { type: integer }
+            pending_friend_requests: { type: integer }
+    MePatch:
+      type: object
+      properties:
+        display_name: { type: string, minLength: 1, maxLength: 80 }
+        username: { type: string, pattern: "^[a-z0-9_.]{3,30}$" }
+        headline: { type: string, maxLength: 80 }
+        bio: { type: string, maxLength: 1000 }
+        skills: { type: array, maxItems: 15, items: { type: string, minLength: 1, maxLength: 30 } }
+        links: { type: array, maxItems: 5, items: { $ref: "#/components/schemas/ProfileLink" } }
+        language: { $ref: "#/components/schemas/Language" }
+        theme: { $ref: "#/components/schemas/Theme" }
+    FriendRequest:
+      type: object
+      required: [id, member, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        member: { $ref: "#/components/schemas/MemberSummary" }
+        created_at: { type: string, format: date-time }
+    YallappLink:
+      type: object
+      required: [linked]
+      properties:
+        linked: { type: boolean }
+        linked_at: { type: [string, "null"], format: date-time }
+        account_name: { type: [string, "null"], description: "The Yallapp account's name." }
+        apps: { type: array, items: { $ref: "#/components/schemas/LinkedApp" } }
+    LinkedApp:
+      type: object
+      required: [id, name, icon_url, app_store_url, play_store_url, from_template, paid_plan]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        icon_url: { type: [string, "null"] }
+        app_store_url: { type: [string, "null"] }
+        play_store_url: { type: [string, "null"] }
+        from_template: { type: boolean }
+        paid_plan: { type: boolean }
+    Section:
+      type: object
+      required: [slug, name, icon, coming_soon]
+      properties:
+        slug: { type: string }
+        name: { type: string, description: "In the reader's language." }
+        icon: { type: string, description: "A Material Symbols Rounded name." }
+        count: { type: integer }
+        coming_soon: { type: boolean }
+    Config:
+      type: object
+      required: [languages, default_language, sections, tabs]
+      properties:
+        languages: { type: array, items: { $ref: "#/components/schemas/Language" } }
+        default_language: { $ref: "#/components/schemas/Language" }
+        sections:
+          type: array
+          description: "The side menu's sections in order: home, qa, tutorials, academy, showcase, challenges, groups, friends, pros, events. Phase 1 has home, qa, tutorials and friends; the rest are coming_soon."
+          items: { $ref: "#/components/schemas/Section" }
+        tabs:
+          type: array
+          description: "The tab bar: home, qa, create, learn, groups."
+          items: { $ref: "#/components/schemas/Section" }
+        levels:
+          type: array
+          description: "The levels by points, lowest first (lib/community/levels.ts)."
+          items:
+            type: object
+            required: [key, name, min_points]
+            properties:
+              key: { type: string }
+              name: { type: string }
+              min_points: { type: integer }
+        groups_create_policy: { type: string, enum: [everyone, badge_holders, chosen], description: "Read by phase 2." }
+        site_url: { type: string, format: uri }
+    Tag:
+      type: object
+      required: [slug, name, count]
+      properties:
+        slug: { type: string }
+        name: { type: string }
+        count: { type: integer }
+    QuestionSummary:
+      type: object
+      required: [id, title, excerpt, author, section, tags, language, score, answer_count, view_count, accepted, has_official_answer, status, created_at, last_activity_at]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        excerpt: { type: string }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        section: { $ref: "#/components/schemas/Section" }
+        tags: { type: array, items: { type: string } }
+        language: { $ref: "#/components/schemas/Language" }
+        score: { type: integer }
+        answer_count: { type: integer }
+        view_count: { type: integer }
+        accepted: { type: boolean }
+        has_official_answer: { type: boolean }
+        status: { type: string, enum: [pending, published, removed] }
+        created_at: { type: string, format: date-time }
+        last_activity_at: { type: string, format: date-time }
+    Question:
+      allOf:
+        - $ref: "#/components/schemas/QuestionSummary"
+        - type: object
+          required: [body, my_vote, can_edit, can_accept, answers, accepted_answer_id]
+          properties:
+            body: { type: string, description: "Markdown." }
+            my_vote: { type: integer, enum: [1, 0, -1] }
+            can_edit: { type: boolean }
+            can_accept: { type: boolean }
+            accepted_answer_id: { type: [string, "null"] }
+            answers: { type: array, items: { $ref: "#/components/schemas/Answer" } }
+    Answer:
+      type: object
+      required: [id, question_id, body, author, official, accepted, score, my_vote, status, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        question_id: { type: string, format: uuid }
+        body: { type: string }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        official: { type: boolean, description: "From Yallapp's team: shows the \"Yallapp Team\" badge." }
+        accepted: { type: boolean }
+        score: { type: integer }
+        my_vote: { type: integer, enum: [1, 0, -1] }
+        status: { type: string, enum: [pending, published, removed] }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    TutorialSummary:
+      type: object
+      required: [id, slug, title, summary, kind, level, language, section, cover_url, duration_minutes, official, locked, published_at]
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string }
+        title: { type: string }
+        summary: { type: string }
+        kind: { type: string, enum: [article, video] }
+        level: { type: string, enum: [beginner, intermediate, advanced] }
+        language: { $ref: "#/components/schemas/Language" }
+        section: { $ref: "#/components/schemas/Section" }
+        cover_url: { type: [string, "null"] }
+        duration_minutes: { type: [integer, "null"] }
+        official: { type: boolean }
+        locked: { type: boolean, description: "Paid on the website and not unlocked for this member. Never a price." }
+        tags: { type: array, items: { type: string } }
+        published_at: { type: string, format: date-time }
+    Tutorial:
+      allOf:
+        - $ref: "#/components/schemas/TutorialSummary"
+        - type: object
+          required: [body, video_url, author]
+          properties:
+            body: { type: string, description: "Markdown; empty when locked." }
+            video_url: { type: [string, "null"], description: "Null when locked." }
+            author: { $ref: "#/components/schemas/MemberSummary" }
+    VerificationState:
+      type: object
+      required: [has_gold, app_count, required_apps, yallapp_linked, can_apply, request]
+      properties:
+        has_gold: { type: boolean }
+        app_count: { type: integer, description: "Apps on the linked Yallapp account (templates count)." }
+        required_apps: { type: integer, const: 5 }
+        yallapp_linked: { type: boolean }
+        can_apply: { type: boolean }
+        apps: { type: array, items: { $ref: "#/components/schemas/LinkedApp" } }
+        request: { oneOf: [{ $ref: "#/components/schemas/VerificationRequest" }, { type: "null" }] }
+    VerificationRequest:
+      type: object
+      required: [id, member, full_name, portfolio_links, apps, status, reason, created_at, reviewed_at]
+      properties:
+        id: { type: string, format: uuid }
+        member: { $ref: "#/components/schemas/MemberSummary" }
+        full_name: { type: string }
+        portfolio_links: { type: array, items: { type: string } }
+        apps: { type: array, items: { type: object, required: [id, name], properties: { id: { type: string }, name: { type: string } } } }
+        status: { type: string, enum: [pending, approved, rejected] }
+        reason: { type: [string, "null"], description: "The admin's reason, shown to the member." }
+        created_at: { type: string, format: date-time }
+        reviewed_at: { type: [string, "null"], format: date-time }
+    BadgeGrant:
+      type: object
+      required: [id, badge, source, reason, granted_by, granted_at, expires_at, revoked_at]
+      properties:
+        id: { type: string, format: uuid }
+        badge: { $ref: "#/components/schemas/BadgeKind" }
+        source: { type: string, enum: [auto, manual, request] }
+        reason: { type: [string, "null"], description: "Private: admins only." }
+        granted_by: { oneOf: [{ $ref: "#/components/schemas/MemberSummary" }, { type: "null" }] }
+        granted_at: { type: string, format: date-time }
+        expires_at: { type: [string, "null"], format: date-time }
+        revoked_at: { type: [string, "null"], format: date-time }
+        revoke_reason: { type: [string, "null"] }
+        company_name: { type: [string, "null"] }
+        app_url: { type: [string, "null"] }
+    AuditEntry:
+      type: object
+      required: [id, actor, action, member, reason, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        actor: { oneOf: [{ $ref: "#/components/schemas/MemberSummary" }, { type: "null" }], description: "Null: the badge rules themselves." }
+        action: { type: string, examples: [badge.grant, badge.revoke, badge.auto_grant, badge.auto_revoke, verification.approve, verification.reject, member.suspend, member.restore, settings.update, moderation.approve, moderation.remove] }
+        member: { oneOf: [{ $ref: "#/components/schemas/MemberSummary" }, { type: "null" }] }
+        target_type: { type: [string, "null"] }
+        target_id: { type: [string, "null"] }
+        reason: { type: [string, "null"] }
+        details: { type: [object, "null"] }
+        created_at: { type: string, format: date-time }
+    AdminSettings:
+      type: object
+      required: [blue_badge, groups_create_policy, spam_filter]
+      properties:
+        blue_badge:
+          type: object
+          description: "The Blue (Active Member) rules: all must hold. Removed after `inactive_days` without activity; back when active again."
+          required: [min_account_days, min_points, min_accepted_answers, min_approved_tutorials, violation_free_days, inactive_days]
+          properties:
+            min_account_days: { type: integer, default: 60 }
+            min_points: { type: integer, default: 1000 }
+            min_accepted_answers: { type: integer, default: 20, description: "Or the tutorials below." }
+            min_approved_tutorials: { type: integer, default: 10 }
+            violation_free_days: { type: integer, default: 90 }
+            inactive_days: { type: integer, default: 90 }
+        groups_create_policy: { type: string, enum: [everyone, badge_holders, chosen], default: everyone }
+        groups_create_members: { type: array, items: { type: string }, description: "The chosen members' ids (policy `chosen`)." }
+        spam_filter:
+          type: object
+          required: [enabled, blocked_domains, blocked_words, max_links, hide_after_reports]
+          properties:
+            enabled: { type: boolean, default: true }
+            blocked_domains: { type: array, items: { type: string } }
+            blocked_words: { type: array, items: { type: string } }
+            max_links: { type: integer, default: 3 }
+            hide_after_reports: { type: integer, default: 3, description: "Content reported by this many members is held until a moderator decides." }
+        first_posts_reviewed: { type: integer, default: 2 }
+    ModerationItem:
+      type: object
+      required: [id, target_type, target_id, cause, status, preview, author, report_count, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        target_type: { $ref: "#/components/schemas/TargetType" }
+        target_id: { type: string }
+        cause: { type: string, enum: [first_posts, spam_filter, reports] }
+        status: { type: string, enum: [open, approved, removed] }
+        preview: { type: string, description: "The content's title or first lines." }
+        author: { oneOf: [{ $ref: "#/components/schemas/MemberSummary" }, { type: "null" }] }
+        report_count: { type: integer }
+        note: { type: [string, "null"] }
+        created_at: { type: string, format: date-time }
+        handled_at: { type: [string, "null"], format: date-time }
+    Report:
+      type: object
+      required: [id, reporter, target_type, target_id, reason, note, status, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        reporter: { $ref: "#/components/schemas/MemberSummary" }
+        target_type: { $ref: "#/components/schemas/TargetType" }
+        target_id: { type: string }
+        reason: { type: string, enum: [spam, harassment, hate, inappropriate, misinformation, impersonation, other] }
+        note: { type: string }
+        status: { type: string, enum: [open, actioned, dismissed] }
+        created_at: { type: string, format: date-time }
+        handled_at: { type: [string, "null"], format: date-time }
+    Notification:
+      type: object
+      required: [id, kind, text, actor, target_type, target_id, read, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        kind:
+          type: string
+          examples: [follow, friend_request, friend_accepted, answer, answer_accepted, official_answer, mention, vote_milestone, badge_granted, badge_revoked, verification_approved, verification_rejected, post_approved, post_removed, yallapp_linked]
+        text: { type: string, description: "In the member's language." }
+        actor: { oneOf: [{ $ref: "#/components/schemas/MemberSummary" }, { type: "null" }] }
+        target_type: { type: [string, "null"] }
+        target_id: { type: [string, "null"] }
+        read: { type: boolean }
+        created_at: { type: string, format: date-time }
+    NotificationSettings:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: object
+          description: Which kinds also come by email (the list always has them all).
+          additionalProperties: { type: boolean }
+          examples: [{ answer: true, answer_accepted: true, friend_request: true, follow: false, badge_granted: true, verification_approved: true, verification_rejected: true, official_answer: true }]
