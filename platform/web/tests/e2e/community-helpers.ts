@@ -1,13 +1,14 @@
-import { expect, type APIRequestContext } from "@playwright/test";
-import mysql from "mysql2/promise";
+import { expect, type APIRequestContext, type Browser } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 
 /**
  * 231 What the community's e2e specs share: the API's address, joining by
  * email, a member's bearer header, reading a whole list, and an admin to
- * approve a new member's posts (area C holds their first ones). No API makes
- * a member an admin, so the admin is made in the database
- * (E2E_DATABASE_URL); without one, `admin` is null.
+ * approve a new member's posts (area C holds their first ones). Who runs
+ * the community is a member whose linked Yallapp account is a Yallapp
+ * owner or admin (lib/community/staff.ts): the admin links one of the
+ * e2e's super admins the way any member does, through
+ * yallapp.com.tr/link-community.
  */
 export const API = `${E2E.baseURL}/api/community/v1`;
 export type Json = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -46,16 +47,31 @@ export async function all(request: APIRequestContext, url: string, who: Member):
   return items;
 }
 
-/** A new member made an admin in the database; null without E2E_DATABASE_URL. */
-export async function joinAsAdmin(request: APIRequestContext, suffix: string): Promise<Member | null> {
-  if (!process.env.E2E_DATABASE_URL) return null;
+/**
+ * A new member who runs the community: they link `yallappEmail`, one of the
+ * e2e's super admins (signed in to Yallapp on the way, then "Link my
+ * account"). Each such account links to one member, so each spec has its
+ * own (playwright.config.ts), on a fresh database.
+ */
+export async function joinAsAdmin(browser: Browser, request: APIRequestContext, suffix: string, yallappEmail: string): Promise<Member> {
   const admin = await join(request, "Admin", suffix);
-  const db = await mysql.createConnection({ uri: process.env.E2E_DATABASE_URL });
+  const start = await json(request.post(`${API}/me/yallapp-link/start`, { ...as(admin), data: { return_to: "web" } }));
+  const url = new URL(start.confirm_url as string);
+  const context = await browser.newContext();
   try {
-    await db.query("UPDATE community_members SET role = 'admin' WHERE id = ?", [admin.id]);
+    const page = await context.newPage();
+    await page.goto(`${url.pathname}${url.search}`);
+    await expect(page).toHaveURL(/\/sign-in$/);
+    await page.getByLabel("Email").fill(yallappEmail);
+    await page.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL(/\/link-community\?state=/);
+    await page.getByRole("button", { name: "Link my account" }).click();
+    await expect(page.getByRole("main").getByRole("status")).toContainText("linked");
   } finally {
-    await db.end();
+    await context.close();
   }
+  expect((await json(request.get(`${API}/me`, as(admin)))).community_role).toBe("admin");
   return admin;
 }
 
@@ -65,10 +81,9 @@ export async function heldItem(request: APIRequestContext, admin: Member, target
 }
 
 /** Approves the post if moderation holds it: the admin decides in the queue. */
-export async function approveIfHeld(request: APIRequestContext, admin: Member | null, post: Json): Promise<void> {
+export async function approveIfHeld(request: APIRequestContext, admin: Member, post: Json): Promise<void> {
   if (post.status !== "pending") return;
-  expect(admin, "a new member's post is held for moderation, and approving it needs an admin (E2E_DATABASE_URL)").not.toBeNull();
-  const item = await heldItem(request, admin!, post.id as string);
+  const item = await heldItem(request, admin, post.id as string);
   expect(item, `the moderation queue has ${String(post.id)}`).toBeTruthy();
-  await json(request.post(`${API}/admin/moderation/${item!.id}`, { ...as(admin!), data: { decision: "approve" } }));
+  await json(request.post(`${API}/admin/moderation/${item!.id}`, { ...as(admin), data: { decision: "approve" } }));
 }

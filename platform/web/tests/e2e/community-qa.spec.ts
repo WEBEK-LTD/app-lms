@@ -9,9 +9,8 @@ import { approveIfHeld, joinAsAdmin, type Member as HelperMember } from "./commu
  * accepts and the helper's profile shows the points; saving, search, the
  * home's panels, the tutorials' lists and a refused field in Arabic. Where
  * area C's moderation holds a new member's first posts, an admin approves
- * them (made in the database: tests/e2e/community-helpers.ts). The
- * team's official answers and tutorials are held by the unit tests
- * (tests/unit/community-qa-api.test.ts): no API makes a member the team's.
+ * them: a member linked to a Yallapp super admin (tests/e2e/community-helpers.ts),
+ * who is Yallapp's team too, so their answer is official.
  */
 test.describe.configure({ mode: "serial" });
 // Its own address, so the sign-up limits per IP don't reach the other specs.
@@ -35,20 +34,17 @@ async function join(request: APIRequestContext, name: string): Promise<Member> {
 
 const as = (m: Member, extra: Record<string, string> = {}) => ({ headers: { authorization: `Bearer ${m.token}`, ...extra } });
 
-let admin: HelperMember | null;
-/** Moderation holds the new members' posts and there's no admin to approve them (no E2E_DATABASE_URL): the rest can't run. */
-let held = false;
-const HELD = "area C holds a new member's posts and no admin can approve them without E2E_DATABASE_URL";
+let admin: HelperMember;
 let asker: Member;
 let helper: Member;
 let question: Json;
 let answer: Json;
 const title = `How do I connect a payment gateway to my store ${suffix}?`;
 
-test("a member asks a question after the similar ones", async ({ request }) => {
+test("a member asks a question after the similar ones", async ({ browser, request }) => {
   asker = await join(request, "Karim");
   helper = await join(request, "Nour");
-  admin = await joinAsAdmin(request, suffix);
+  admin = await joinAsAdmin(browser, request, suffix, E2E.communityQaAdminEmail);
 
   const sections = (await (await request.get(`${API}/qa/sections`)).json()) as Json;
   expect(sections.items.map((s: Json) => s.slug)).toEqual(expect.arrayContaining(["stores", "payments", "general"]));
@@ -61,8 +57,6 @@ test("a member asks a question after the similar ones", async ({ request }) => {
   expect(asked.status(), await asked.text()).toBe(201);
   question = (await asked.json()) as Json;
   expect(question).toMatchObject({ section: { slug: "payments" }, answers: [], can_edit: true });
-  held = question.status === "pending" && !admin;
-  test.skip(held, HELD);
   await approveIfHeld(request, admin, question);
 
   const similar = (await (await request.get(`${API}/qa/questions/similar?title=${encodeURIComponent(`payment gateway store ${suffix}`)}`)).json()) as Json;
@@ -73,15 +67,17 @@ test("a member asks a question after the similar ones", async ({ request }) => {
 });
 
 test("another member answers; the asker votes, replies and accepts", async ({ request }) => {
-  test.skip(held, HELD);
   const answered = await request.post(`${API}/qa/questions/${question.id}/answers`, { ...as(helper), data: { body: "Open Payments in the dashboard and add your gateway's keys." } });
   expect(answered.status(), await answered.text()).toBe(201);
   answer = (await answered.json()) as Json;
   expect(answer).toMatchObject({ official: false, accepted: false, score: 0 });
   await approveIfHeld(request, admin, answer);
 
-  // Only the team answers officially; nobody votes on their own post.
+  // Only the team answers officially ("Yallapp Team"); nobody votes on their own post.
   expect((await request.post(`${API}/qa/questions/${question.id}/answers`, { ...as(helper), data: { body: "An official answer from me.", official: true } })).status()).toBe(403);
+  const official = await request.post(`${API}/qa/questions/${question.id}/answers`, { ...as(admin), data: { body: "From the team: Payments, then Add a gateway." } });
+  expect(official.status(), await official.text()).toBe(201);
+  expect((await official.json()) as Json).toMatchObject({ official: true, status: "published", author: { id: admin.id, team: true } });
   expect((await request.put(`${API}/qa/answers/${answer.id}/vote`, { ...as(helper), data: { value: 1 } })).status()).toBe(400);
 
   const voted = (await (await request.put(`${API}/qa/answers/${answer.id}/vote`, { ...as(asker), data: { value: 1 } })).json()) as Json;
@@ -104,7 +100,6 @@ test("another member answers; the asker votes, replies and accepts", async ({ re
 });
 
 test("saving, search and the home's panels", async ({ request }) => {
-  test.skip(held, HELD);
   expect((await request.put(`${API}/qa/questions/${question.id}/bookmark`, as(helper))).status()).toBe(204);
   const saved = (await (await request.get(`${API}/qa/saved`, as(helper))).json()) as Json;
   expect(saved.questions.map((q: Json) => q.id)).toEqual([question.id]);
@@ -127,7 +122,6 @@ test("saving, search and the home's panels", async ({ request }) => {
 });
 
 test("a refused field is explained in the reader's language, and the asker deletes their question", async ({ request }) => {
-  test.skip(held, HELD);
   const refused = await request.post(`${API}/qa/questions`, { ...as(helper), data: { title: "Short", body: "Too short", section: "payments" } });
   expect(refused.status()).toBe(400);
   const error = ((await refused.json()) as Json).error;
