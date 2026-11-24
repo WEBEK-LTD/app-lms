@@ -59,10 +59,12 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   // 209 Toot, the toy shop, is its Signature look A, playful and colourful (lib/studio/demo-designs/toys-signature.ts).
   toys: "toys_signature_a",
   // 210 Sakan, Ghurza and Rukn are their Signature looks A (lib/studio/demo-designs/decor-, crochet-, furniture-signature.ts).
-  decor: "decor_signature_a",
+  // 225 Sakan is now its template C, ATHAR the gallery (lib/studio/demo-designs/decor-c-signature.ts).
+  decor: "decor_signature_c",
   // 224 Ghurza is now its template C, the makers' market (lib/studio/demo-designs/crochet-cd-signature.ts).
   crochet: "crochet_signature_c",
-  furniture: "furniture_signature_a",
+  // 225 Rukn is now its template C, MIZAN the architect (lib/studio/demo-designs/furniture-c-signature.ts).
+  furniture: "furniture_signature_c",
   // 211 Madar, the electronics shop, is its Signature look A, MADAR (lib/studio/demo-designs/electronics-signature.ts).
   electronics: "electronics_signature_a",
   // 211 Nova, the mobiles shop, is its Signature look A, NOVA (lib/studio/demo-designs/mobiles-signature.ts).
@@ -423,6 +425,16 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     fuShowroom: { en: "Rukn showroom, Al Yasmin, Riyadh", ar: "معرض ركن، حي الياسمين، الرياض", tr: "Rukn showroomu, Al Yasmin, Riyad" },
     fuShowroomLine: { en: "Open today until 11 pm", ar: "مفتوح اليوم حتى 11 مساءً", tr: "Bugün 23.00'e kadar açık" },
     fuContactLine: { en: "Customer care every day, 9 am to 11 pm", ar: "خدمة العملاء يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Müşteri hizmetleri her gün 09.00–23.00" },
+    // 225 The shop's name in each language (ركن in Arabic), wherever a look writes it.
+    fuWordmark: { en: "Rukn", ar: "ركن", tr: "Rukn" },
+    // 225 Looks C and D's.
+    mzPlanStep2Text: { en: "Within 2 working days, with each piece to scale.", ar: "خلال يومَي عمل، وكل قطعة بمقياسها.", tr: "2 iş günü içinde, her parça ölçeğinde." },
+    mzNoteDeliveryValue: { en: "Free, with assembly, in 5–7 days", ar: "مجاني مع التركيب، خلال 5–7 أيام", tr: "Kurulumla ücretsiz, 5–7 gün" },
+    mzNoteWarrantyValue: { en: "2 years on the frame", ar: "سنتان على الهيكل", tr: "İskelete 2 yıl" },
+    mzNoteSamplesValue: { en: "Sent free on request", ar: "تُرسل مجانًا عند الطلب", tr: "İstek üzerine ücretsiz" },
+    mnMaterialsLine: { en: "Free samples before you decide", ar: "عيّنات مجانية قبل أن تقرّر", tr: "Karar vermeden önce ücretsiz örnekler" },
+    mnStep2Text: { en: "2–4 days", ar: "2–4 أيام", tr: "2–4 gün" },
+    mnStep4Text: { en: "Free", ar: "مجانًا", tr: "Ücretsiz" },
   },
   // 210 Sakan's own words where its looks leave the owner brackets: its styled corner, its story and numbers, its promises (lib/demo/kits/decor.ts).
   decor: {
@@ -434,6 +446,14 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     dcStatStudios: { en: "30", ar: "30", tr: "30" },
     dcStatRating: { en: "4.8", ar: "4.8", tr: "4.8" },
     dcContactLine: { en: "Customer care every day, 9 am to 11 pm", ar: "خدمة العملاء يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Müşteri hizmetleri her gün 09.00–23.00" },
+    // 225 The shop's name in each language (سكن in Arabic), wherever a look writes it.
+    dcWordmark: { en: "Sakan", ar: "سكن", tr: "Sakan" },
+    // 225 Looks C and D's.
+    atDates: { en: "The autumn exhibition · until 30 December", ar: "معرض الخريف · حتى 30 ديسمبر", tr: "Sonbahar sergisi · 30 Aralık'a kadar" },
+    atPieceMaker: { en: "Maker: Sakan's ceramics studio", ar: "الصانع: مشغل سكن للخزف", tr: "Yapan: Sakan seramik atölyesi" },
+    atNoteBy: { en: "— Noura, Sakan's curator", ar: "— نورة، القيّمة على مجموعة سكن", tr: "— Noura, Sakan'ın küratörü" },
+    atVisitText: { en: "Sakan showroom, Riyadh: open every day from 10 am to 10 pm, closed on Fridays. Delivery across the city in 3 days.", ar: "صالة سكن، الرياض: مفتوحة يوميًا من 10 صباحًا إلى 10 مساءً، مغلقة يوم الجمعة. التوصيل داخل المدينة خلال 3 أيام.", tr: "Sakan showroomu, Riyad: her gün 10:00–22:00 açık, cuma kapalı. Şehir içine 3 günde teslimat." },
+    atCartNoteLine: { en: "Each piece wrapped by hand, a card with your words on request", ar: "كل قطعة تُغلَّف باليد، وبطاقة بكلماتك عند الطلب", tr: "Her parça elle paketlenir, istenirse sizin sözlerinizle bir kart" },
   },
   // 210 Ghurza's own words where its looks leave the owner brackets: its name and city, its maker and numbers, its workshop, its delivery (lib/demo/kits/crochet.ts).
   crochet: {

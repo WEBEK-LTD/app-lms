@@ -8,6 +8,26 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 225 (Studio shop types, round 3: furniture and home decor): Rukn
+and Sakan each have two new whole templates, first in Studio's order, each
+from its own parts file and in light and dark, English, Arabic and Turkish:
+furniture C MIZAN the architect (monochrome hairlines, a room scene with
+numbered hotspots, the rooms as an index, W × D × H first, a floor plan
+that sends the room's size as a custom-order request, the line bar) and D
+MANZIL room by room (its own top and a room switcher pinned under it, the
+rooms as swipeable cards, the materials, large horizontal cards, the
+order-to-assembly steps, the navy island bar); decor C ATHAR the gallery (a framed piece with its museum
+label, a framed asymmetric masonry, the halls, the curator's note, the
+words-only bar) and D MAZAJ the moodboard (a collage of taped polaroids,
+shop by colour, the season's palettes, polaroid cards, the drop bar). A and
+B are kept after them. No migration, no app release: they are built only
+from Studio's elements the app already draws.
+
+Distinct templates (225): the owner's standing rule holds for these four
+and every template after them. Each new home was put beside every other
+template's home before it shipped; none shares another's header, hero,
+navigation, card shape, section order, bar or type scale.
+
 Roadmap 223 (Studio shop types, round 3, the shared base): Studio offers
 every demo's looks in one order, C, D, A, B, its main look first (C for a
 shop type that has one, else A), on /start, Studio's new project, the

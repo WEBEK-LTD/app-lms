@@ -351,6 +351,8 @@ export type SectionWord =
   | Extract<AppWord, `pc${string}`>
   // 211 Madar's looks, pages and sections (lib/studio/demo-designs/electronics-signature.ts).
   | Extract<AppWord, `el${string}`>
+  // 225 Furniture's looks C and D (MIZAN, MANZIL) and home decor's (ATHAR, MAZAJ): lib/studio/demo-designs/*-c-signature.ts, *-d-signature.ts.
+  | Extract<AppWord, `mz${string}` | `mn${string}` | `at${string}` | `mj${string}`>
   // 224 Velours's templates C and D, Ghurza's templates C and D (lib/studio/demo-designs/beauty-cd-signature.ts, crochet-cd-signature.ts).
   | Extract<AppWord, `vc${string}` | `vd${string}` | `gc${string}` | `gd${string}`>;
 
