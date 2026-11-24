@@ -1,6 +1,7 @@
-import type { Action, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
+import { STUDIO_PRODUCT_SCREEN, type Action, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
 import type { SectionContext, SectionWord } from "../sections";
 import { installmentsTag } from "../installments";
+import { PRODUCT_PAGE_SLUG, productPart, type ProductPagePart } from "../product-page";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigPhoto, sigTexts, signatureBar, signatureHeader, type SignatureInk } from "./food-signature-parts";
@@ -427,6 +428,55 @@ function stageOver(screenName: string, ctx: SectionContext): StudioNode[] | null
   }
 }
 
+function stageProductPage(ctx: SectionContext): { slug: string; title: SectionWord; studio: StudioPage } {
+  const id = idOf(ctx);
+  const part = (p: ProductPagePart): StudioNode => productPart(ctx, p);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const coral = { accent: STAGE.coral.day, dark_accent: STAGE.coral.day } as const;
+  return {
+    slug: PRODUCT_PAGE_SLUG,
+    title: "pProductPage" as SectionWord,
+    studio: {
+      background: K.page,
+      dark_background: K.darkPage,
+      show_tabs: false,
+      screen: STUDIO_PRODUCT_SCREEN,
+      body: {
+        id: id(),
+        type: "column",
+        gap: 0,
+        padding: sides(0, 0, 24, 0),
+        children: [
+          // 227 The product on its stage: a saturated blue field, its photos as a big snapping card on it, the field's foot rounded.
+          {
+            id: id(),
+            type: "column",
+            gap: 10,
+            padding: sides(64, 20, 26, 20),
+            corners: { top_start: 0, top_end: 0, bottom_start: 40, bottom_end: 40 },
+            ...colourBg("blue"),
+            children: [
+              say(ctx, "esPpKicker", { family: MESSIRI, size: 13.5, weight: 600 }, { ...onColour("blue"), opacity: 0.86, max_lines: 1 }),
+              part({ type: "product_gallery", look: "card", radius: 28, node: { aspect_ratio: 1, shadow: "strong" } }),
+            ],
+          },
+          part({ type: "product_variants", look: "swatches", ...coral, node: { ...ink, margin: sides(18, 20, 0, 20) } }),
+          part({ type: "product_title", look: "rating", ...coral, node: { ...ink, font: face(30, { line_height: 1.15 }), margin: sides(14, 20, 0, 20) } }),
+          part({ type: "product_price", look: "sale", node: { ...ink, font: face(24), margin: sides(6, 20, 0, 20) } }),
+          part({ type: "product_quantity", look: "stepper", node: { ...ink, margin: sides(16, 20, 0, 20) } }),
+          // Delivery on gold, the story open on the page, the specs as lines.
+          part({ type: "product_delivery", look: "card", accent: "#141218", dark_accent: "#141218", node: { ...onColour("gold"), ...colourBg("gold"), radius: 28, padding: sides(16, 18, 16, 18), margin: sides(20, 20, 0, 20) } }),
+          part({ type: "product_description", look: "plain", node: { ...ink, margin: sides(20, 20, 0, 20) } }),
+          part({ type: "product_specs", look: "list", rows: 8, node: { ...ink, margin: sides(18, 20, 0, 20) } }),
+          part({ type: "product_reviews", look: "bars", ...coral, node: { ...ink, margin: sides(22, 20, 0, 20) } }),
+          part({ type: "product_related", look: "grid", rows: 4, node: { ...ink, margin: sides(22, 12, 90, 12) } }),
+          part({ type: "product_buy", look: "cart", ...coral, node: { pin: "bottom", radius: 30, padding: sides(10, 16, 14, 16), background: K.page, dark_background: K.darkPage, ...ink } }),
+        ],
+      },
+    },
+  };
+}
+
 const STAGE_SCREENS = signatureScreens({
   style: "card",
   photo: P("w-phone-camera"),
@@ -447,6 +497,8 @@ export const STAGE_D: SignatureDesign = {
   over: stageOver,
   tabs: electronicsTabs,
   pages: (ctx) => [
+    // 227 Its own product page (228.7): the product on its colour stage.
+    stageProductPage(ctx),
     { slug: STAGE_MENU_PAGE, title: "esMenu", studio: stageMenuPage(ctx) },
     { slug: STAGE_COMPARE_PAGE, title: "esComparePage", studio: stageComparePage(ctx) },
   ],

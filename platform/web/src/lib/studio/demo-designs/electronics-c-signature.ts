@@ -1,6 +1,7 @@
-import type { Action, LayoutTab, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
+import { STUDIO_PRODUCT_SCREEN, type Action, LayoutTab, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
 import type { SectionContext, SectionWord } from "../sections";
 import { installmentsTag } from "../installments";
+import { PRODUCT_PAGE_SLUG, productPart, type ProductPagePart } from "../product-page";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigPhoto, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
@@ -504,6 +505,57 @@ function gridOver(screenName: string, ctx: SectionContext): StudioNode[] | null 
   }
 }
 
+function gridProductPage(ctx: SectionContext): { slug: string; title: SectionWord; studio: StudioPage } {
+  const id = idOf(ctx);
+  const part = (p: ProductPagePart): StudioNode => productPart(ctx, p);
+  // Words in the tiles white on dark glass, by day and by night.
+  const glassInk = { color: K.ink, dark_color: K.darkInk } as const;
+  const blue = { accent: "#5CB8FF", dark_accent: "#5CB8FF" } as const;
+  const glassTile = (children: StudioNode[], extra: Partial<StudioNode> = {}): StudioNode => ({ id: id(), type: "column", gap: 8, padding: sides(14, 14, 14, 14), ...tile(), ...extra, children });
+  return {
+    slug: PRODUCT_PAGE_SLUG,
+    title: "pProductPage" as SectionWord,
+    studio: {
+      background: K.page,
+      dark_background: K.darkPage,
+      show_tabs: false,
+      screen: STUDIO_PRODUCT_SCREEN,
+      body: {
+        id: id(),
+        type: "column",
+        gap: 10,
+        padding: sides(56, 16, 24, 16),
+        children: [
+          // 227 The bento of the product: its photos as the big tile, its name and price beside its rating, the choices, the specs, delivery and the story, each a dark glass tile.
+          glassTile([part({ type: "product_gallery", look: "card", radius: 18, node: { aspect_ratio: 1 } })], { padding: sides(8, 8, 8, 8) }),
+          {
+            id: id(),
+            type: "row",
+            gap: 10,
+            children: [
+              glassTile(
+                [
+                  say(ctx, "ebPpKicker", { family: PLEX, size: 11, weight: 600, letter_spacing: 0.4 }, { accent: true, max_lines: 1 }),
+                  part({ type: "product_title", look: "plain", node: { ...glassInk, font: face(19, { weight: 700 }) } }),
+                  part({ type: "product_price", look: "from", node: { ...glassInk, font: face(20, { weight: 700 }) } }),
+                ],
+                { width: "fill" },
+              ),
+            ],
+          },
+          glassTile([part({ type: "product_variants", look: "chips", ...blue, node: { ...glassInk } }), part({ type: "product_quantity", look: "pill", node: { ...glassInk, margin: sides(6, 0, 0, 0) } })]),
+          glassTile([say(ctx, "ebSpecs", face(15), { max_lines: 1 }), part({ type: "product_specs", look: "table", rows: 10, node: { ...glassInk } })]),
+          glassTile([part({ type: "product_delivery", look: "rows", ...blue, node: { ...glassInk } })]),
+          glassTile([part({ type: "product_reviews", look: "summary", ...blue, node: { ...glassInk } })]),
+          glassTile([part({ type: "product_description", look: "accordion", node: { ...glassInk } })]),
+          part({ type: "product_related", look: "carousel", rows: 8, node: { color: PAGE_INK.color, dark_color: PAGE_INK.dark_color, margin: sides(10, 0, 80, 0) } }),
+          part({ type: "product_buy", look: "price", ...blue, node: { pin: "bottom", ...glassInk, radius: 20, padding: sides(10, 14, 10, 14), background: "#121823", dark_background: "#121823", border_color: K.darkLine, dark_border_color: K.darkLine, border_width: 1 } }),
+        ],
+      },
+    },
+  };
+}
+
 const GRID_SCREENS = signatureScreens({
   style: "premium",
   photo: P("w-tv-room"),
@@ -524,6 +576,8 @@ export const MADAR_GRID_C: SignatureDesign = {
   over: gridOver,
   tabs: gridTabs,
   pages: (ctx) => [
+    // 227 Its own product page (228.7): the product as a bento of dark glass tiles.
+    gridProductPage(ctx),
     { slug: GRID_MENU_PAGE, title: "ebMenu", studio: gridMenuPage(ctx) },
     { slug: GRID_COMPARE_PAGE, title: "ebComparePage", studio: gridComparePage(ctx) },
   ],

@@ -25,6 +25,9 @@ specs, reviews, related, delivery and returns) bound to the product open,
 each with its looks, in the contract, the editor (library, canvas,
 inspector) and the app. A shop without one keeps the app's product screen.
 Lujain's look A is the first look with its own (`lib/studio/product-page.ts`).
+Madar's (electronics) looks C and D and Nawah's (computers) have theirs
+(228.7): a bento of dark glass tiles, a colour stage, neon cut-corner
+frames, and a dense spec sheet with the business quote.
 The app part ships with the next app release (no `CLIENT_APP_RELEASE`
 change). Without a header, the status bar and the back button stay over
 the page as it scrolls, as on any pushed Studio page without one.
