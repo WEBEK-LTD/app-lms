@@ -1,0 +1,504 @@
+import { boolean, customType, datetime, index, int, mysqlTable, primaryKey, text, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import type {
+  CommunityEmailTokenPurpose,
+  CommunityFriendshipStatus,
+  CommunityLanguage,
+  CommunityMemberStatus,
+  CommunityProfileLink,
+  CommunityReportReason,
+  CommunityReportStatus,
+  CommunityRole,
+  CommunityTargetType,
+  CommunityTheme,
+} from "../community/types";
+
+/**
+ * 231 Yallapp Community's tables (migration 0155), in the same database as
+ * the rest of Yallapp. Community members are their own table: a Yallapp
+ * account is not needed, and one can be linked (`yallapp_user_id`).
+ *
+ * Area A (base): members, identities, sessions, email tokens, follows,
+ * friendships, blocks, link requests, reports.
+ * Area B (Q&A and tutorials): sections, tags, questions, answers, votes,
+ * tutorials.
+ * Area C (trust): badges, verification requests, the audit log, settings,
+ * the moderation queue, violations, notifications.
+ *
+ * Times are UTC with milliseconds; ids are UUIDs.
+ */
+
+const jsonText = <T>(name: string) =>
+  customType<{ data: T; driverData: string }>({
+    dataType: () => "longtext",
+    toDriver: (value) => JSON.stringify(value),
+    fromDriver: (value) => JSON.parse(value) as T,
+  })(name);
+
+const id = (name: string) => varchar(name, { length: 36 });
+const time = (name: string) => datetime(name, { mode: "date", fsp: 3 });
+
+// ---------------------------------------------------------------- Area A
+
+export const communityMembers = mysqlTable(
+  "community_members",
+  {
+    id: id("id").primaryKey(),
+    email: varchar("email", { length: 191 }),
+    emailVerified: boolean("email_verified").notNull().default(false),
+    passwordHash: varchar("password_hash", { length: 255 }),
+    displayName: varchar("display_name", { length: 80 }).notNull(),
+    username: varchar("username", { length: 30 }).notNull(),
+    bio: text("bio").notNull(),
+    skills: jsonText<string[]>("skills").notNull(),
+    avatarUrl: varchar("avatar_url", { length: 512 }),
+    headline: varchar("headline", { length: 80 }).notNull().default(""),
+    links: jsonText<CommunityProfileLink[]>("links").notNull(),
+    language: varchar("language", { length: 8 }).notNull().$type<CommunityLanguage>(),
+    theme: varchar("theme", { length: 8 }).notNull().default("system").$type<CommunityTheme>(),
+    role: varchar("role", { length: 8 }).notNull().default("member").$type<CommunityRole>(),
+    status: varchar("status", { length: 12 }).notNull().default("active").$type<CommunityMemberStatus>(),
+    points: int("points").notNull().default(0),
+    approvedPosts: int("approved_posts").notNull().default(0),
+    yallappUserId: id("yallapp_user_id"),
+    linkedAt: time("linked_at"),
+    sessionVersion: int("session_version").notNull().default(1),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    lastActiveAt: time("last_active_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("community_members_email_unique").on(t.email),
+    uniqueIndex("community_members_username_unique").on(t.username),
+    uniqueIndex("community_members_yallapp_unique").on(t.yallappUserId),
+    index("community_members_points").on(t.points),
+  ],
+);
+
+export const communityIdentities = mysqlTable(
+  "community_identities",
+  {
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    provider: varchar("provider", { length: 8 }).notNull().$type<"apple" | "google">(),
+    subject: varchar("subject", { length: 191 }).notNull(),
+    email: varchar("email", { length: 191 }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.provider, t.subject] }), index("community_identities_member").on(t.memberId)],
+);
+
+export const communitySessions = mysqlTable(
+  "community_sessions",
+  {
+    id: id("id").primaryKey(),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 100 }).notNull(),
+    platform: varchar("platform", { length: 8 }).notNull().$type<"ios" | "android" | "web">(),
+    refreshHash: varchar("refresh_hash", { length: 64 }).notNull(),
+    refreshExpiresAt: time("refresh_expires_at").notNull(),
+    accessHash: varchar("access_hash", { length: 64 }).notNull(),
+    accessExpiresAt: time("access_expires_at").notNull(),
+    sessionVersion: int("session_version").notNull(),
+    createdAt: time("created_at").notNull(),
+    lastSeenAt: time("last_seen_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("community_sessions_refresh_unique").on(t.refreshHash),
+    uniqueIndex("community_sessions_access_unique").on(t.accessHash),
+    index("community_sessions_member").on(t.memberId),
+  ],
+);
+
+export const communityEmailTokens = mysqlTable(
+  "community_email_tokens",
+  {
+    tokenHash: varchar("token_hash", { length: 64 }).primaryKey(),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    purpose: varchar("purpose", { length: 16 }).notNull().$type<CommunityEmailTokenPurpose>(),
+    expiresAt: time("expires_at").notNull(),
+    usedAt: time("used_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("community_email_tokens_member").on(t.memberId)],
+);
+
+export const communityFollows = mysqlTable(
+  "community_follows",
+  {
+    followerId: id("follower_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    followeeId: id("followee_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.followerId, t.followeeId] }), index("community_follows_followee").on(t.followeeId)],
+);
+
+export const communityFriendships = mysqlTable(
+  "community_friendships",
+  {
+    id: id("id").primaryKey(),
+    requesterId: id("requester_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    addresseeId: id("addressee_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    // The pair in a fixed order ("{smaller id}:{larger id}"): one row per two members.
+    pairKey: varchar("pair_key", { length: 80 }).notNull(),
+    status: varchar("status", { length: 10 }).notNull().$type<CommunityFriendshipStatus>(),
+    createdAt: time("created_at").notNull(),
+    respondedAt: time("responded_at"),
+  },
+  (t) => [
+    uniqueIndex("community_friendships_pair_unique").on(t.pairKey),
+    index("community_friendships_requester").on(t.requesterId),
+    index("community_friendships_addressee").on(t.addresseeId),
+  ],
+);
+
+export const communityBlocks = mysqlTable(
+  "community_blocks",
+  {
+    blockerId: id("blocker_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    blockedId: id("blocked_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.blockerId, t.blockedId] }), index("community_blocks_blocked").on(t.blockedId)],
+);
+
+export const communityLinkRequests = mysqlTable(
+  "community_link_requests",
+  {
+    stateHash: varchar("state_hash", { length: 64 }).primaryKey(),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    expiresAt: time("expires_at").notNull(),
+    confirmedAt: time("confirmed_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("community_link_requests_member").on(t.memberId)],
+);
+
+export const communityReports = mysqlTable(
+  "community_reports",
+  {
+    id: id("id").primaryKey(),
+    reporterId: id("reporter_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    targetType: varchar("target_type", { length: 12 }).notNull().$type<CommunityTargetType>(),
+    targetId: id("target_id").notNull(),
+    reason: varchar("reason", { length: 16 }).notNull().$type<CommunityReportReason>(),
+    note: text("note").notNull(),
+    status: varchar("status", { length: 10 }).notNull().default("open").$type<CommunityReportStatus>(),
+    handledBy: id("handled_by"),
+    handledAt: time("handled_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("community_reports_once").on(t.reporterId, t.targetType, t.targetId),
+    index("community_reports_status").on(t.status, t.createdAt),
+    index("community_reports_target").on(t.targetType, t.targetId),
+  ],
+);
+
+// ---------------------------------------------------------------- Area B
+
+/** Q&A and tutorial sections ("Studio", "Store apps", "Publishing"), with their names in en/ar/tr. */
+export const communitySections = mysqlTable(
+  "community_sections",
+  {
+    id: id("id").primaryKey(),
+    slug: varchar("slug", { length: 60 }).notNull(),
+    kind: varchar("kind", { length: 10 }).notNull().$type<"qa" | "tutorial">(),
+    names: jsonText<Partial<Record<CommunityLanguage, string>>>("names").notNull(),
+    icon: varchar("icon", { length: 60 }).notNull(),
+    position: int("position").notNull().default(0),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [uniqueIndex("community_sections_slug_unique").on(t.kind, t.slug)],
+);
+
+export const communityTags = mysqlTable(
+  "community_tags",
+  {
+    id: id("id").primaryKey(),
+    slug: varchar("slug", { length: 40 }).notNull(),
+    name: varchar("name", { length: 40 }).notNull(),
+    useCount: int("use_count").notNull().default(0),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [uniqueIndex("community_tags_slug_unique").on(t.slug)],
+);
+
+/** Content's moderation state: pending (a new member's first posts, or the spam filter), published, removed. */
+type ContentStatus = "pending" | "published" | "removed";
+
+export const communityQuestions = mysqlTable(
+  "community_questions",
+  {
+    id: id("id").primaryKey(),
+    authorId: id("author_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    sectionId: id("section_id")
+      .notNull()
+      .references(() => communitySections.id),
+    title: varchar("title", { length: 200 }).notNull(),
+    body: text("body").notNull(),
+    language: varchar("language", { length: 8 }).notNull().$type<CommunityLanguage>(),
+    tags: jsonText<string[]>("tags").notNull(),
+    status: varchar("status", { length: 10 }).notNull().$type<ContentStatus>(),
+    acceptedAnswerId: id("accepted_answer_id"),
+    score: int("score").notNull().default(0),
+    answerCount: int("answer_count").notNull().default(0),
+    viewCount: int("view_count").notNull().default(0),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    lastActivityAt: time("last_activity_at").notNull(),
+  },
+  (t) => [
+    index("community_questions_section").on(t.sectionId, t.status, t.lastActivityAt),
+    index("community_questions_author").on(t.authorId),
+    index("community_questions_status").on(t.status, t.createdAt),
+  ],
+);
+
+export const communityQuestionTags = mysqlTable(
+  "community_question_tags",
+  {
+    questionId: id("question_id")
+      .notNull()
+      .references(() => communityQuestions.id, { onDelete: "cascade" }),
+    tagId: id("tag_id")
+      .notNull()
+      .references(() => communityTags.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.questionId, t.tagId] }), index("community_question_tags_tag").on(t.tagId)],
+);
+
+export const communityAnswers = mysqlTable(
+  "community_answers",
+  {
+    id: id("id").primaryKey(),
+    questionId: id("question_id")
+      .notNull()
+      .references(() => communityQuestions.id, { onDelete: "cascade" }),
+    authorId: id("author_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    body: text("body").notNull(),
+    // An answer from Yallapp's team ("Yallapp Team" badge).
+    official: boolean("official").notNull().default(false),
+    status: varchar("status", { length: 10 }).notNull().$type<ContentStatus>(),
+    score: int("score").notNull().default(0),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("community_answers_question").on(t.questionId, t.status), index("community_answers_author").on(t.authorId)],
+);
+
+export const communityVotes = mysqlTable(
+  "community_votes",
+  {
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    targetType: varchar("target_type", { length: 12 }).notNull().$type<"question" | "answer">(),
+    targetId: id("target_id").notNull(),
+    value: int("value").notNull().$type<1 | -1>(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.memberId, t.targetType, t.targetId] }), index("community_votes_target").on(t.targetType, t.targetId)],
+);
+
+export const communityTutorials = mysqlTable(
+  "community_tutorials",
+  {
+    id: id("id").primaryKey(),
+    authorId: id("author_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    sectionId: id("section_id")
+      .notNull()
+      .references(() => communitySections.id),
+    kind: varchar("kind", { length: 8 }).notNull().$type<"article" | "video">(),
+    level: varchar("level", { length: 12 }).notNull().$type<"beginner" | "intermediate" | "advanced">(),
+    language: varchar("language", { length: 8 }).notNull().$type<CommunityLanguage>(),
+    slug: varchar("slug", { length: 120 }).notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    summary: varchar("summary", { length: 400 }).notNull(),
+    body: text("body").notNull(),
+    videoUrl: varchar("video_url", { length: 512 }),
+    coverUrl: varchar("cover_url", { length: 512 }),
+    durationMinutes: int("duration_minutes"),
+    tags: jsonText<string[]>("tags").notNull(),
+    // Official tutorials are Yallapp's (phase 1 publishes only these); a member's goes through review.
+    official: boolean("official").notNull().default(true),
+    status: varchar("status", { length: 10 }).notNull().$type<"draft" | ContentStatus>(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    publishedAt: time("published_at"),
+  },
+  (t) => [
+    uniqueIndex("community_tutorials_slug_unique").on(t.slug),
+    index("community_tutorials_section").on(t.sectionId, t.status, t.publishedAt),
+    index("community_tutorials_author").on(t.authorId),
+  ],
+);
+
+// ---------------------------------------------------------------- Area C
+
+/** gold: Pro Developer; green: Verified Business; blue: Active Member. */
+type BadgeKind = "gold" | "green" | "blue";
+
+/** A badge a member holds or held: granted by its rules (auto) or by an admin (manual). */
+export const communityBadges = mysqlTable(
+  "community_badges",
+  {
+    id: id("id").primaryKey(),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    badge: varchar("badge", { length: 8 }).notNull().$type<BadgeKind>(),
+    source: varchar("source", { length: 8 }).notNull().$type<"auto" | "manual" | "request">(),
+    // Green: the company's name and its app's link.
+    details: jsonText<{ companyName?: string; appUrl?: string; appId?: string } | null>("details"),
+    grantedBy: id("granted_by"),
+    // Private: seen by admins only.
+    reason: text("reason"),
+    // Manual badges only, and optional: they never expire by their rules.
+    expiresAt: time("expires_at"),
+    grantedAt: time("granted_at").notNull(),
+    revokedAt: time("revoked_at"),
+    revokedBy: id("revoked_by"),
+    revokeReason: text("revoke_reason"),
+  },
+  (t) => [index("community_badges_member").on(t.memberId, t.revokedAt), index("community_badges_badge").on(t.badge, t.revokedAt)],
+);
+
+/** The Gold ("Pro Developer") verification form. */
+export const communityVerificationRequests = mysqlTable(
+  "community_verification_requests",
+  {
+    id: id("id").primaryKey(),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    fullName: varchar("full_name", { length: 120 }).notNull(),
+    // The ID proof's file in private storage: never public.
+    idProofKey: varchar("id_proof_key", { length: 255 }).notNull(),
+    portfolioLinks: jsonText<string[]>("portfolio_links").notNull(),
+    // The apps from the linked Yallapp account when the form was sent (app ids and names).
+    apps: jsonText<{ appId: string; name: string }[]>("apps").notNull(),
+    status: varchar("status", { length: 10 }).notNull().$type<"pending" | "approved" | "rejected">(),
+    reason: text("reason"),
+    reviewedBy: id("reviewed_by"),
+    reviewedAt: time("reviewed_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("community_verification_member").on(t.memberId), index("community_verification_status").on(t.status, t.createdAt)],
+);
+
+/** Every grant and revoke of a badge, and the admins' other decisions: who, when, why. */
+export const communityAuditLog = mysqlTable(
+  "community_audit_log",
+  {
+    id: id("id").primaryKey(),
+    // An admin (a community member with role admin), or null for the rules themselves.
+    actorId: id("actor_id"),
+    action: varchar("action", { length: 40 }).notNull(),
+    memberId: id("member_id"),
+    targetType: varchar("target_type", { length: 24 }),
+    targetId: id("target_id"),
+    reason: text("reason"),
+    details: jsonText<Record<string, unknown> | null>("details"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("community_audit_created").on(t.createdAt), index("community_audit_member").on(t.memberId, t.createdAt)],
+);
+
+/** The community's settings an admin edits (the Blue badge's rules, who can create groups, the spam filter). */
+export const communitySettings = mysqlTable("community_settings", {
+  key: varchar("key", { length: 60 }).primaryKey(),
+  value: jsonText<unknown>("value").notNull(),
+  updatedBy: id("updated_by"),
+  updatedAt: time("updated_at").notNull(),
+});
+
+/** Content waiting for a moderator: a new member's first posts, the spam filter's catches, reported content. */
+export const communityModerationItems = mysqlTable(
+  "community_moderation_items",
+  {
+    id: id("id").primaryKey(),
+    targetType: varchar("target_type", { length: 12 }).notNull().$type<CommunityTargetType>(),
+    targetId: id("target_id").notNull(),
+    authorId: id("author_id"),
+    cause: varchar("cause", { length: 16 }).notNull().$type<"first_posts" | "spam_filter" | "reports">(),
+    status: varchar("status", { length: 10 }).notNull().$type<"open" | "approved" | "removed">(),
+    note: text("note"),
+    handledBy: id("handled_by"),
+    handledAt: time("handled_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("community_moderation_status").on(t.status, t.createdAt), uniqueIndex("community_moderation_target").on(t.targetType, t.targetId, t.cause)],
+);
+
+/** A member's violations (content removed, a suspension): the Blue badge needs none in 90 days. */
+export const communityViolations = mysqlTable(
+  "community_violations",
+  {
+    id: id("id").primaryKey(),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 24 }).notNull(),
+    targetType: varchar("target_type", { length: 12 }),
+    targetId: id("target_id"),
+    createdBy: id("created_by"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("community_violations_member").on(t.memberId, t.createdAt)],
+);
+
+/** The in-app notifications list (email too, per the member's settings; push is phase 2). */
+export const communityNotifications = mysqlTable(
+  "community_notifications",
+  {
+    id: id("id").primaryKey(),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 40 }).notNull(),
+    actorId: id("actor_id"),
+    targetType: varchar("target_type", { length: 24 }),
+    targetId: id("target_id"),
+    data: jsonText<Record<string, unknown> | null>("data"),
+    readAt: time("read_at"),
+    emailedAt: time("emailed_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("community_notifications_member").on(t.memberId, t.createdAt), index("community_notifications_unread").on(t.memberId, t.readAt)],
+);
+
+/** Each member's email choices: which kinds of notification also come by email. */
+export const communityNotificationPrefs = mysqlTable("community_notification_prefs", {
+  memberId: id("member_id")
+    .primaryKey()
+    .references(() => communityMembers.id, { onDelete: "cascade" }),
+  email: jsonText<Record<string, boolean>>("email").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
