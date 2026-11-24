@@ -22,7 +22,6 @@ const readexExt = localFont({ src: "../../fonts/readex-pro/readex-pro-latin-ext.
 export const metadata: Metadata = {
   title: { default: "Yallapp Community", template: "%s · Yallapp Community" },
   description: "Learn, ask and show the apps you build with Yallapp.",
-  icons: { icon: "/community/logo.svg" },
 };
 
 export default async function CommunityLayout({ children }: { children: React.ReactNode }) {

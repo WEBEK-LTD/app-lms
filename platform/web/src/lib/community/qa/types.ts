@@ -6,6 +6,8 @@
  * community's own accounts (area A): `MemberSummary`, with their Q&A rank.
  */
 
+import type { CommunityLevel } from "../levels";
+
 export type CommunityLang = "en" | "ar" | "tr";
 export const COMMUNITY_LANGS: readonly CommunityLang[] = ["en", "ar", "tr"];
 
@@ -28,7 +30,8 @@ export interface MemberSummary {
   rankLabel?: string;
 }
 
-export type MemberRank = "newcomer" | "member" | "contributor" | "expert" | "pro";
+/** A member's standing by their points: the community's levels (lib/community/levels.ts), one table for every area. */
+export type MemberRank = CommunityLevel;
 
 /**
  * Where a post is: shown; waiting for a moderator (a new member's first

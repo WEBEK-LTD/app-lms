@@ -4,6 +4,9 @@ import { describe, expect, it } from "vitest";
 import { CM_LANGS, CM_WORDS, ago, compact, fill } from "../../src/components/community/site/words";
 import { cmHref, cmLinks } from "../../src/components/community/site/links";
 import { BADGE_ORDER, highestBadge } from "../../src/components/community/site/badge";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { MemberMarkdown } from "../../src/components/community/site/markdown";
 
 /**
  * 231 The Community website (area F): its words in the three languages,
@@ -108,5 +111,20 @@ describe("no payments in the community, ever", () => {
         for (const re of FORBIDDEN) expect(re.test(value), `${lang}.${key} matches ${re}`).toBe(false);
       }
     }
+  });
+});
+
+describe("what members write", () => {
+  it("marks every link as the member's (nofollow ugc noopener) and keeps unsafe ones as text", () => {
+    const html = renderToStaticMarkup(createElement(MemberMarkdown, { source: "See [the docs](https://example.com/a) or [this](javascript:alert(1)) and **bold** `code`" }));
+    expect(html).toContain('<a href="https://example.com/a" rel="nofollow ugc noopener">the docs</a>');
+    expect(html).not.toContain("javascript:");
+    expect(html).toContain("<b>bold</b>");
+    expect(html).toContain("<code>code</code>");
+  });
+
+  it("never reads text as HTML", () => {
+    const html = renderToStaticMarkup(createElement(MemberMarkdown, { source: "<script>alert(1)</script>" }));
+    expect(html).not.toContain("<script>");
   });
 });

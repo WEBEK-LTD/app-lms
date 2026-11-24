@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element -- the logo, avatars and app icons: small files the site and the platform serve already sized. */
+/* eslint-disable @next/next/no-img-element -- the logo, avatars and app icons, small files the site and the platform serve already sized. */
 import type { MemberRef } from "./data";
 
 /** A member's picture, else their initial on one of six gradients (the design's a1–a6). */

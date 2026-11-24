@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Community settings", robots: { index
 
 /** 231 The Blue badge's rules, who may create groups (phase 2's groups read it), and moderation. */
 export default async function AdminSettingsPage() {
-  const { w } = await adminContext();
+  const { w } = await adminContext("settings");
   const s = await adminSettings();
   if (!s) return <AdminPage w={w} tab="settings"><div className="cm-empty">{w.errorGeneric}</div></AdminPage>;
   const n = (name: string, label: string, value: number, min = 0, max = 100000) => (

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Markdown } from "@/components/markdown";
+import { MemberMarkdown } from "@/components/community/site/markdown";
 import { Avatar } from "@/components/community/site/avatar";
 import { MemberName, TutorialCard } from "@/components/community/site/cards";
 import { siteContext } from "@/components/community/site/context";
@@ -84,7 +84,7 @@ export default async function TutorialPage({ params }: Props) {
         ) : t.coverUrl ? (
           <div className="cm-vid" style={{ height: 260, marginTop: 16, backgroundImage: `url(${t.coverUrl})` }} />
         ) : null}
-        {t.body ? <div className="cm-md"><Markdown source={t.body} /></div> : null}
+        {t.body ? <div className="cm-md"><MemberMarkdown source={t.body} /></div> : null}
       </article>
       {more.length ? (
         <>

@@ -14,7 +14,7 @@ const STATUSES = ["open", "approved", "removed"] as const;
 /** 231 Posts held for review (a new member's first posts, the spam filter, reports): approve or remove. */
 export default async function ModerationPage({ searchParams }: { searchParams: Promise<{ status?: string; cursor?: string }> }) {
   const sp = await searchParams;
-  const { lang, w } = await adminContext();
+  const { lang, w } = await adminContext("moderation");
   const status = STATUSES.find((s) => s === sp.status) ?? "open";
   const list = await adminModeration({ status, cursor: sp.cursor });
   const base = cmLinks.admin("moderation");

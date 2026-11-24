@@ -16,7 +16,7 @@ export const metadata: Metadata = { title: "Badges", robots: { index: false } };
  */
 export default async function BadgesPage({ searchParams }: { searchParams: Promise<{ member?: string }> }) {
   const sp = await searchParams;
-  const { lang, w } = await adminContext();
+  const { lang, w } = await adminContext("badges");
   const handle = (sp.member ?? "").trim().replace(/^@/, "").toLowerCase();
   const found = handle ? await adminFindMember(handle) : null;
   const held = found ? found.badges.filter((b) => !b.revokedAt) : [];

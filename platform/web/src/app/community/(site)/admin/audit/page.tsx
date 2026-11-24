@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Audit log", robots: { index: false }
 /** 231 Every badge granted or taken away, every decision and settings change: who, what, about whom, why and when. */
 export default async function AuditPage({ searchParams }: { searchParams: Promise<{ cursor?: string }> }) {
   const sp = await searchParams;
-  const { lang, w } = await adminContext();
+  const { lang, w } = await adminContext("audit");
   const list = await adminAudit({ cursor: sp.cursor });
   return (
     <AdminPage w={w} tab="audit">

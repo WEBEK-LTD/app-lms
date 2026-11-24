@@ -11,25 +11,34 @@ import type { CmWords } from "./words";
 export const ADMIN_TABS = ["verifications", "badges", "moderation", "reports", "audit", "settings"] as const;
 export type AdminTab = (typeof ADMIN_TABS)[number];
 
-/** The admin's pages: only for the community's admins (the trust module checks every call again). */
-export async function adminContext() {
+/** The tabs a moderator may open; an admin opens them all. */
+const MODERATOR_TABS: AdminTab[] = ["moderation", "reports"];
+
+/** The admin's pages: the community's admins, and moderators for the moderation queue and reports (the API checks every call again). */
+export async function adminContext(tab: AdminTab) {
   const ctx = await siteContext();
-  if (!ctx.viewer) redirect(cmLinks.signIn(cmLinks.admin()));
-  if (!ctx.viewer.admin) notFound();
+  if (!ctx.viewer) redirect(cmLinks.signIn(cmLinks.admin(tab)));
+  const role = ctx.viewer.role;
+  if (role !== "admin" && !(role === "moderator" && MODERATOR_TABS.includes(tab))) notFound();
   return { ...ctx, viewer: ctx.viewer };
+}
+
+export function adminTabs(role: "admin" | "moderator" | null): readonly AdminTab[] {
+  return role === "admin" ? ADMIN_TABS : role === "moderator" ? MODERATOR_TABS : [];
 }
 
 function tabName(w: CmWords, t: AdminTab): string {
   return { verifications: w.adminVerifications, badges: w.badges, moderation: w.adminModeration, reports: w.adminReports, audit: w.adminAudit, settings: w.settings }[t];
 }
 
-export function AdminPage({ w, tab, children }: { w: CmWords; tab: AdminTab; children: ReactNode }) {
+export async function AdminPage({ w, tab, children }: { w: CmWords; tab: AdminTab; children: ReactNode }) {
+  const { viewer } = await siteContext();
   return (
-    <SitePage active="none">
+    <SitePage active="admin">
       <div className="cm-card">
         <h1><span className="ms f" style={{ fontSize: 26, color: "var(--cm-orange)", verticalAlign: "-4px" }}>admin_panel_settings</span> {w.admin}</h1>
         <nav className="cm-tabs" style={{ marginBottom: 0 }} aria-label={w.admin}>
-          {ADMIN_TABS.map((t) => (
+          {adminTabs(viewer?.role ?? null).map((t) => (
             <Link key={t} href={cmLinks.admin(t)} className={t === tab ? "on" : ""} aria-current={t === tab ? "page" : undefined}>{tabName(w, t)}</Link>
           ))}
         </nav>

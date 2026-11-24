@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element -- the logo, avatars and app icons: small files the site and the platform serve already sized. */
+/* eslint-disable @next/next/no-img-element -- the logo, avatars and app icons, small files the site and the platform serve already sized. */
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Avatar } from "./avatar";
@@ -9,7 +9,7 @@ import { sectionColor } from "./source";
 import { signOutAction } from "@/app/community/(site)/auth-actions";
 import { fill, type CmLang, type CmWords } from "./words";
 
-export type NavKey = "home" | "questions" | "tutorials" | "none";
+export type NavKey = "home" | "questions" | "tutorials" | "admin" | "none";
 
 type Item = { key: NavKey | "soon"; icon: string; label: string; href?: string; count?: string };
 
@@ -30,6 +30,7 @@ function items(w: CmWords, newCount: number, withSocial: boolean): Item[] {
 
 function NavItems({ w, active, newCount, withSocial, viewer }: { w: CmWords; active: NavKey; newCount: number; withSocial: boolean; viewer: Viewer | null }) {
   const list = items(w, newCount, withSocial);
+  if (viewer?.role) list.push({ key: "admin", icon: "admin_panel_settings", label: w.admin, href: cmLinks.admin() });
   if (withSocial && viewer) list.splice(7, 0, { key: "none", icon: "diversity_3", label: w.navFriends, href: cmLinks.memberList(viewer.handle, "friends") });
   return (
     <>

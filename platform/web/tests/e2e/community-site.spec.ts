@@ -47,24 +47,24 @@ test("a member asks, with similar questions shown as they type", async () => {
   const page = askerPage;
   await page.getByRole("link", { name: "Ask the community" }).first().click();
   await page.waitForURL(/\/community\/ask$/);
-  await page.getByLabel("Section").selectOption({ label: "Stores" });
-  await page.getByLabel("Title").fill(title);
-  await page.getByLabel("Details").fill("I built my store with a template and want to accept cards. What are the steps, and what do I need first?");
-  await page.getByLabel("Tags").fill("payments, store");
+  await page.locator("select[name=section]").selectOption({ label: "Stores" });
+  await page.locator("input[name=title]").fill(title);
+  await page.locator("textarea[name=body]").fill("I built my store with a template and want to accept cards. What are the steps, and what do I need first?");
+  await page.locator("input[name=tags]").fill("payments, store");
   await page.getByRole("button", { name: "Post your question" }).click();
   await page.waitForURL(/\/community\/questions\//);
   questionUrl = page.url();
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
   // A second question with a close title lists the first as similar.
   await page.goto("/community/ask");
-  await page.getByLabel("Section").selectOption({ label: "Stores" });
-  await page.getByLabel("Title").fill("How do I connect a payment gateway?");
+  await page.locator("select[name=section]").selectOption({ label: "Stores" });
+  await page.locator("input[name=title]").fill("How do I connect a payment gateway?");
   await expect(page.getByRole("link", { name: title })).toBeVisible({ timeout: 15_000 });
 });
 
 test("another member answers; the asker votes and accepts", async () => {
   await helperPage.goto(questionUrl);
-  await helperPage.getByLabel("Your answer").fill("Open Dashboard › Payments, choose your gateway, paste its keys and turn on card payments. Then place a test order.");
+  await helperPage.locator("#answer textarea[name=body]").fill("Open Dashboard › Payments, choose your gateway, paste its keys and turn on card payments. Then place a test order.");
   await helperPage.getByRole("button", { name: "Post your answer" }).click();
   await expect(helperPage.getByRole("status")).toContainText(/posted|review/);
 

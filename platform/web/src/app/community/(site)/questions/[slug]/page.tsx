@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Markdown } from "@/components/markdown";
+import { MemberMarkdown } from "@/components/community/site/markdown";
 import { Avatar } from "@/components/community/site/avatar";
 import { answersLabel, MemberName } from "@/components/community/site/cards";
 import { siteContext } from "@/components/community/site/context";
@@ -57,7 +57,7 @@ function AnswerItem({ a, q, w, viewerId }: { a: Answer; q: QuestionDetail; w: Cm
           {a.accepted ? <span className="pill p-gr"><span className="ms f" style={{ fontSize: 15 }}>check_circle</span>{w.acceptedAnswer}</span> : null}
           {a.official ? <span className="pill cm-official"><span className="ms f" style={{ fontSize: 15 }}>verified_user</span>{w.officialAnswer}</span> : null}
         </div>
-        <div className="cm-md"><Markdown source={a.body} /></div>
+        <div className="cm-md"><MemberMarkdown source={a.body} /></div>
         <div className="cm-who" style={{ marginTop: 12 }}>
           <Avatar member={a.author} size={34} />
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -83,7 +83,7 @@ function AnswerItem({ a, q, w, viewerId }: { a: Answer; q: QuestionDetail; w: Cm
                 <Avatar member={r.author} size={26} />
                 <div>
                   <MemberName member={r.author} w={w} /> <span className="cm-muted" style={{ fontSize: 12 }}>{ago(w, r.createdAt)}</span>
-                  <div className="cm-md small"><Markdown source={r.body} /></div>
+                  <div className="cm-md small"><MemberMarkdown source={r.body} /></div>
                   {viewerId && r.author.id !== viewerId ? <ReportButton w={w} kind="reply" id={r.id} back={back} /> : null}
                 </div>
               </li>
@@ -149,7 +149,7 @@ export default async function QuestionPage({ params, searchParams }: Props) {
               <div className="m">{ago(w, q.createdAt)} · {(q.views === 1 ? w.oneView : fill(w.views, { n: q.views }))}</div>
             </div>
           </div>
-          <div className="cm-md"><Markdown source={q.body} /></div>
+          <div className="cm-md"><MemberMarkdown source={q.body} /></div>
           <div className="cm-row cm-answer-acts">
             {viewer ? (
               <form action={bookmarkAction}>

@@ -18,7 +18,7 @@ export type MemberRef = {
   avatarUrl: string | null;
   badge: BadgeKind | null;
   staff: boolean;
-  rank: "newcomer" | "member" | "contributor" | "expert" | "pro" | null;
+  rank: string | null;
 };
 
 export type Section = { slug: string; name: string; icon: string; sort: number; questionCount: number; followed: boolean };
@@ -84,7 +84,9 @@ export type Viewer = MemberRef & {
   handle: string;
   points: number;
   email: string | null;
+  /** Runs the community: an admin (all the admin's pages) or a moderator (the moderation queue and reports). */
   admin: boolean;
+  role: "admin" | "moderator" | null;
   lang: CmLang;
   unread: number;
 };

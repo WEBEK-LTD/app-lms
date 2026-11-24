@@ -13,7 +13,7 @@ const STATUSES = ["open", "actioned", "dismissed"] as const;
 /** 231 What members reported: take action or dismiss, with a note for the record. */
 export default async function ReportsPage({ searchParams }: { searchParams: Promise<{ status?: string; cursor?: string }> }) {
   const sp = await searchParams;
-  const { lang, w } = await adminContext();
+  const { lang, w } = await adminContext("reports");
   const status = STATUSES.find((s) => s === sp.status) ?? "open";
   const list = await adminReports({ status, cursor: sp.cursor });
   const base = cmLinks.admin("reports");

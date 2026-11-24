@@ -12,7 +12,7 @@ const STATUSES = ["pending", "approved", "rejected"] as const;
 /** 231 Pro Developer requests: the ID (a link that lasts minutes), the portfolio and the apps; approve or reject with a reason the member is told. */
 export default async function VerificationsPage({ searchParams }: { searchParams: Promise<{ status?: string; cursor?: string }> }) {
   const sp = await searchParams;
-  const { lang, w } = await adminContext();
+  const { lang, w } = await adminContext("verifications");
   const status = STATUSES.find((s) => s === sp.status) ?? "pending";
   const list = await adminVerifications({ status, cursor: sp.cursor });
   const base = cmLinks.admin("verifications");
