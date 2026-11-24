@@ -609,6 +609,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDeleteConfirm => 'Delete my account';
 
   @override
+  String get openingTag => 'Build apps. Build together.';
+
+  @override
   String get socialReasonMisleading => 'Misleading or a scam';
 
   @override

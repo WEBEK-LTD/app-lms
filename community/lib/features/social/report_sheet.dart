@@ -135,8 +135,8 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
                     ),
                     trailing: Sym(
                       _reason == reason
-                          ? Symbols.radio_button_checked
-                          : Symbols.radio_button_unchecked,
+                          ? Symbols.radio_button_checked_rounded
+                          : Symbols.radio_button_unchecked_rounded,
                       size: 22,
                       fill: _reason == reason,
                       color: _reason == reason ? Brand.orange : p.muted,

@@ -39,14 +39,20 @@ class FloatingTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final l = context.l10n;
-    Widget tab(ShellTab t, IconData icon, String label) => _Tab(
-      key: ValueKey('tab-${t.name}'),
-      icon: icon,
-      label: label,
-      on: current == t,
-      dot: dots.contains(t),
-      onTap: () => onTab(t),
-    );
+    // A long label (Turkish, Arabic) may shrink the open tab, never
+    // push the bar past the screen.
+    Widget tab(ShellTab t, IconData icon, String label) {
+      final item = _Tab(
+        key: ValueKey('tab-${t.name}'),
+        icon: icon,
+        label: label,
+        on: current == t,
+        dot: dots.contains(t),
+        onTap: () => onTab(t),
+      );
+      return current == t ? Flexible(child: item) : item;
+    }
+
     return Container(
       height: height,
       decoration: BoxDecoration(
@@ -70,15 +76,20 @@ class FloatingTabBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(28),
               border: Border.all(color: p.tabRim),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                tab(ShellTab.home, Symbols.home, l.tabHome),
-                tab(ShellTab.qa, Symbols.forum, l.tabQa),
-                _Create(label: l.tabCreate, onTap: onCreate),
-                tab(ShellTab.learn, Symbols.school, l.tabLearn),
-                tab(ShellTab.groups, Symbols.groups, l.tabGroups),
-              ],
+            // The bar floats over the page, outside its Material: its own
+            // gives the labels the app's type.
+            child: Material(
+              type: MaterialType.transparency,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  tab(ShellTab.home, Symbols.home_rounded, l.tabHome),
+                  tab(ShellTab.qa, Symbols.forum_rounded, l.tabQa),
+                  _Create(label: l.tabCreate, onTap: onCreate),
+                  tab(ShellTab.learn, Symbols.school_rounded, l.tabLearn),
+                  tab(ShellTab.groups, Symbols.groups_rounded, l.tabGroups),
+                ],
+              ),
             ),
           ),
         ),
@@ -153,12 +164,16 @@ class _Tab extends StatelessWidget {
                   ),
                   if (on) ...[
                     const SizedBox(width: 7),
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13.5,
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.5,
+                        ),
                       ),
                     ),
                   ],
@@ -229,7 +244,11 @@ class _Create extends StatelessWidget {
               ],
             ),
             alignment: Alignment.center,
-            child: const Sym(Symbols.add, size: 30, color: Colors.white),
+            child: const Sym(
+              Symbols.add_rounded,
+              size: 30,
+              color: Colors.white,
+            ),
           ),
         ),
       ),

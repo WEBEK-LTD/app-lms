@@ -604,6 +604,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsDeleteConfirm => 'احذف حسابي';
 
   @override
+  String get openingTag => 'ابنِ تطبيقات. ابنِ معًا.';
+
+  @override
   String get socialReasonMisleading => 'مضلّل أو احتيال';
 
   @override

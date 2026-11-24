@@ -65,6 +65,7 @@ class FakeCommunityApi implements CommunityApi {
       hasPassword: true,
       providers: ['email'],
       pendingFriendRequests: 1,
+      unreadNotifications: 9,
     ),
   );
 

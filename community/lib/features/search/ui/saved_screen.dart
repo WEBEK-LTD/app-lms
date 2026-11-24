@@ -34,8 +34,8 @@ class SavedScreen extends ConsumerWidget {
                 children: [
                   IconBtn(
                     icon: Directionality.of(context) == TextDirection.rtl
-                        ? Symbols.arrow_forward
-                        : Symbols.arrow_back,
+                        ? Symbols.arrow_forward_rounded
+                        : Symbols.arrow_back_rounded,
                     label: l.commonBack,
                     onTap: () =>
                         context.canPop() ? context.pop() : context.go('/'),

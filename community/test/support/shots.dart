@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Area E's real screenshots: with `YC_SHOTS_DIR=<dir>`, a test writes the
@@ -11,23 +9,9 @@ import 'package:flutter_test/flutter_test.dart';
 /// own fonts (Inter, IBM Plex Sans Arabic, Material Symbols Rounded).
 final shotsDir = Platform.environment['YC_SHOTS_DIR'] ?? '';
 
-var _fontsLoaded = false;
-
-/// Loads the bundled fonts once, so text is drawn as on a phone (tests
-/// otherwise draw boxes). Only when shots are asked for.
-Future<void> loadShotFonts() async {
-  if (shotsDir.isEmpty || _fontsLoaded) return;
-  _fontsLoaded = true;
-  final manifest =
-      json.decode(await rootBundle.loadString('FontManifest.json')) as List;
-  for (final entry in manifest.cast<Map<String, dynamic>>()) {
-    final loader = FontLoader(entry['family'] as String);
-    for (final font in (entry['fonts'] as List).cast<Map<String, dynamic>>()) {
-      loader.addFont(rootBundle.load(font['asset'] as String));
-    }
-    await loader.load();
-  }
-}
+/// The app's fonts (Inter, IBM Plex Sans Arabic, Readex Pro, Material
+/// Symbols Rounded) are loaded for every test by test/flutter_test_config.dart.
+Future<void> loadShotFonts() async {}
 
 /// The phone's status bar (the design's 50 points over the header).
 void phoneInsets(WidgetTester tester) {

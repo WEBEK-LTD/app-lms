@@ -278,7 +278,7 @@ class _AskButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Sym(Symbols.add, size: 20, color: Colors.white),
+              const Sym(Symbols.add_rounded, size: 20, color: Colors.white),
               const SizedBox(width: 4),
               Text(
                 context.l10n.qaAskQuestion,
@@ -396,7 +396,7 @@ class _SortMenu extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Sym(Symbols.sort, size: 18, color: context.palette.muted),
+            Sym(Symbols.sort_rounded, size: 18, color: context.palette.muted),
             const SizedBox(width: 4),
             Text(
               label(sort),
@@ -517,7 +517,7 @@ class QuestionCard extends StatelessWidget {
                     ),
                     const Spacer(),
                     const SizedBox(width: 10),
-                    Sym(Symbols.arrow_upward, size: 17, color: quiet),
+                    Sym(Symbols.arrow_upward_rounded, size: 17, color: quiet),
                     Text(
                       '${q.score}',
                       style: TextStyle(
@@ -528,7 +528,9 @@ class QuestionCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Sym(
-                      q.accepted ? Symbols.check_circle : Symbols.chat_bubble,
+                      q.accepted
+                          ? Symbols.check_circle_rounded
+                          : Symbols.chat_bubble_rounded,
                       size: 17,
                       fill: q.accepted,
                       color: q.accepted ? const Color(0xFF22C483) : quiet,
@@ -546,7 +548,7 @@ class QuestionCard extends StatelessWidget {
                     if (q.hasOfficialAnswer) ...[
                       const SizedBox(width: 10),
                       const Sym(
-                        Symbols.verified,
+                        Symbols.verified_rounded,
                         size: 17,
                         fill: true,
                         color: Brand.mint,

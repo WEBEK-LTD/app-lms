@@ -157,7 +157,7 @@ class _RepliesSheetState extends ConsumerState<RepliesSheet> {
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
                     onPressed: _write,
-                    icon: const Sym(Symbols.reply, size: 20),
+                    icon: const Sym(Symbols.reply_rounded, size: 20),
                     label: Text(l.qaReplyHint),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: p.ink,

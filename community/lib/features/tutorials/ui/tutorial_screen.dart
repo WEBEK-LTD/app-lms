@@ -112,7 +112,7 @@ class TutorialScreen extends ConsumerWidget {
                     Row(
                       children: [
                         const Sym(
-                          Symbols.verified,
+                          Symbols.verified_rounded,
                           size: 16,
                           fill: true,
                           color: Brand.mint,
@@ -213,8 +213,8 @@ class _Cover extends ConsumerWidget {
               children: [
                 IconBtn(
                   icon: Directionality.of(context) == TextDirection.rtl
-                      ? Symbols.arrow_forward
-                      : Symbols.arrow_back,
+                      ? Symbols.arrow_forward_rounded
+                      : Symbols.arrow_back_rounded,
                   label: l.commonBack,
                   onTap: () => context.canPop()
                       ? context.pop()
@@ -223,7 +223,7 @@ class _Cover extends ConsumerWidget {
                 const Spacer(),
                 if (signedIn)
                   IconBtn(
-                    icon: Symbols.bookmark,
+                    icon: Symbols.bookmark_rounded,
                     fill: t.bookmarked,
                     label: t.bookmarked ? l.qaSaved : l.qaSave,
                     onTap: () => ref
@@ -246,7 +246,7 @@ class _Cover extends ConsumerWidget {
                       width: 72,
                       height: 72,
                       child: Sym(
-                        Symbols.play_arrow,
+                        Symbols.play_arrow_rounded,
                         size: 40,
                         fill: true,
                         color: Colors.white,
@@ -289,7 +289,7 @@ class _WatchButton extends ConsumerWidget {
       ),
       child: TextButton.icon(
         onPressed: () => _watch(context, ref, url),
-        icon: const Sym(Symbols.play_circle, size: 22, fill: true),
+        icon: const Sym(Symbols.play_circle_rounded, size: 22, fill: true),
         label: Text(
           context.l10n.tutWatch,
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
@@ -320,7 +320,7 @@ class _Locked extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Sym(Symbols.lock, size: 26, fill: true, color: p.ink),
+          Sym(Symbols.lock_rounded, size: 26, fill: true, color: p.ink),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

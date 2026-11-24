@@ -63,7 +63,10 @@ void main() {
       matching: find.byType(VotePill),
     );
     await tester.tap(
-      find.descendant(of: pill, matching: find.byIcon(Symbols.arrow_upward)),
+      find.descendant(
+        of: pill,
+        matching: find.byIcon(Symbols.arrow_upward_rounded),
+      ),
     );
     await TestApp.settle(tester);
     expect(find.text('18'), findsOneWidget);
@@ -114,6 +117,9 @@ void main() {
     expect(find.text('Report'), findsOneWidget);
     // Nour's answer has no replies yet: the menu offers the first.
     expect(find.text('Reply'), findsOneWidget);
+    await tester.tap(find.text('Report'));
+    await TestApp.settle(tester);
+    expect(find.text('Why are you reporting this?'), findsOneWidget);
   });
 
   testWidgets('no Accept for a viewer who did not ask', (tester) async {

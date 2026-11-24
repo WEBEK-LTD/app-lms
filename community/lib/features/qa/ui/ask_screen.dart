@@ -172,7 +172,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
               child: Row(
                 children: [
                   IconBtn(
-                    icon: Symbols.close,
+                    icon: Symbols.close_rounded,
                     label: l.commonClose,
                     onTap: () => context.pop(),
                   ),
@@ -271,7 +271,7 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                               start: 12,
                               end: 4,
                             ),
-                            child: Sym(Symbols.sell, size: 20),
+                            child: Sym(Symbols.sell_rounded, size: 20),
                           ),
                           prefixIconConstraints: BoxConstraints(minWidth: 36),
                         ),
@@ -375,7 +375,11 @@ class _Similar extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Sym(Symbols.lightbulb, size: 18, color: Brand.orange),
+              const Sym(
+                Symbols.lightbulb_rounded,
+                size: 18,
+                color: Brand.orange,
+              ),
               const SizedBox(width: 6),
               Text(
                 l.qaSimilarTitle,

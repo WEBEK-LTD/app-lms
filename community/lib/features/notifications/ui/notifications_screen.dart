@@ -74,15 +74,15 @@ String? notificationLink(CommunityNotification n) {
 /// What a notification shows when no member did it: its kind's icon.
 (IconData, Color) _kindMark(String kind) => switch (kind) {
   'badge_granted' || 'verification_approved' => (
-    Symbols.verified,
+    Symbols.verified_rounded,
     BadgeMark.colorOf(BadgeKind.gold),
   ),
   'badge_revoked' ||
   'verification_rejected' ||
-  'post_removed' => (Symbols.info, const Color(0xFFE23F72)),
-  'post_approved' => (Symbols.check_circle, const Color(0xFF22C483)),
-  'yallapp_linked' => (Symbols.link, Brand.violet),
-  _ => (Symbols.notifications, Brand.orange),
+  'post_removed' => (Symbols.info_rounded, const Color(0xFFE23F72)),
+  'post_approved' => (Symbols.check_circle_rounded, const Color(0xFF22C483)),
+  'yallapp_linked' => (Symbols.link_rounded, Brand.violet),
+  _ => (Symbols.notifications_rounded, Brand.orange),
 };
 
 class NotificationsScreen extends ConsumerWidget {
@@ -106,8 +106,8 @@ class NotificationsScreen extends ConsumerWidget {
                 children: [
                   IconBtn(
                     icon: Directionality.of(context) == TextDirection.rtl
-                        ? Symbols.arrow_forward
-                        : Symbols.arrow_back,
+                        ? Symbols.arrow_forward_rounded
+                        : Symbols.arrow_back_rounded,
                     label: l.commonBack,
                     onTap: () =>
                         context.canPop() ? context.pop() : context.go('/'),
@@ -127,7 +127,7 @@ class NotificationsScreen extends ConsumerWidget {
                   IconButton(
                     tooltip: l.notifEmail,
                     onPressed: () => _emailSheet(context, ref),
-                    icon: Sym(Symbols.mail, size: 22, color: p.ink),
+                    icon: Sym(Symbols.mail_rounded, size: 22, color: p.ink),
                   ),
                 ],
               ),
@@ -140,7 +140,7 @@ class NotificationsScreen extends ConsumerWidget {
                   child: TextButton.icon(
                     onPressed: () =>
                         ref.read(notificationsProvider.notifier).markAllRead(),
-                    icon: const Sym(Symbols.done_all, size: 18),
+                    icon: const Sym(Symbols.done_all_rounded, size: 18),
                     label: Text(l.notifMarkAll),
                   ),
                 ),

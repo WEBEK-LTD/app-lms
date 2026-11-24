@@ -112,6 +112,8 @@ class MeAvatar extends StatelessWidget {
       name: name,
       url: url,
       size: size,
+      // The design draws the member's own initial green (`.av.a3`).
+      colors: Brand.avatars[2],
       border: edge ?? context.palette.screen,
     ),
   );

@@ -114,7 +114,12 @@ class OfficialBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Sym(Symbols.verified, size: 12, fill: true, color: Brand.mint),
+          const Sym(
+            Symbols.verified_rounded,
+            size: 12,
+            fill: true,
+            color: Brand.mint,
+          ),
           const SizedBox(width: 3),
           Text(
             context.l10n.qaOfficial,
@@ -150,7 +155,7 @@ class AcceptedPill extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const Sym(
-          Symbols.check_circle,
+          Symbols.check_circle_rounded,
           size: 14,
           fill: true,
           color: Color(0xFF05301F),
@@ -214,7 +219,7 @@ class VotePill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          arrow(1, Symbols.arrow_upward, context.l10n.qaVoteUp),
+          arrow(1, Symbols.arrow_upward_rounded, context.l10n.qaVoteUp),
           const SizedBox(width: 2),
           Text(
             '$score',
@@ -226,7 +231,7 @@ class VotePill extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 2),
-          arrow(-1, Symbols.arrow_downward, context.l10n.qaVoteDown),
+          arrow(-1, Symbols.arrow_downward_rounded, context.l10n.qaVoteDown),
         ],
       ),
     );
@@ -405,7 +410,11 @@ class AnswerCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Sym(Symbols.chat_bubble, size: 17, color: quiet),
+                        Sym(
+                          Symbols.chat_bubble_rounded,
+                          size: 17,
+                          color: quiet,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           context.l10n.qaReplyCount(answer.replyCount),
@@ -442,7 +451,7 @@ class _PendingNote extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      const Sym(Symbols.schedule, size: 15, color: Brand.amber),
+      const Sym(Symbols.schedule_rounded, size: 15, color: Brand.amber),
       const SizedBox(width: 5),
       Expanded(
         child: Text(
@@ -481,7 +490,7 @@ class AcceptPill extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Sym(Symbols.check_circle, size: 14, color: ink),
+              Sym(Symbols.check_circle_rounded, size: 14, color: ink),
               const SizedBox(width: 4),
               Text(
                 context.l10n.qaAcceptShort,

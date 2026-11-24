@@ -180,14 +180,14 @@ class _Header extends ConsumerWidget {
         children: [
           IconBtn(
             icon: Directionality.of(context) == TextDirection.rtl
-                ? Symbols.arrow_forward
-                : Symbols.arrow_back,
+                ? Symbols.arrow_forward_rounded
+                : Symbols.arrow_back_rounded,
             label: l.commonBack,
             onTap: () => context.canPop() ? context.pop() : context.go('/qa'),
           ),
           const Spacer(),
           IconBtn(
-            icon: Symbols.bookmark,
+            icon: Symbols.bookmark_rounded,
             fill: saved,
             label: saved ? l.qaSaved : l.qaSave,
             onTap: question == null ? null : () => onSave(!saved),
@@ -366,7 +366,7 @@ Future<void> _questionMenu(BuildContext context, String id) =>
           children: [
             const SizedBox(height: 8),
             ListTile(
-              leading: const Sym(Symbols.flag, size: 22),
+              leading: const Sym(Symbols.flag_rounded, size: 22),
               title: Text(context.l10n.qaReport),
               onTap: () {
                 Navigator.of(sheet).pop();
@@ -411,19 +411,19 @@ Future<void> _answerMenu(
           children: [
             const SizedBox(height: 8),
             line(
-              Symbols.chat_bubble,
+              Symbols.chat_bubble_rounded,
               l.qaReplyCount(answer.replyCount),
               onReplies,
             ),
             if (canAccept)
               line(
-                Symbols.check_circle,
+                Symbols.check_circle_rounded,
                 answer.accepted ? l.qaUnaccept : l.qaAccept,
                 onAccept,
               ),
             if (signedIn)
               line(
-                Symbols.flag,
+                Symbols.flag_rounded,
                 l.qaReport,
                 () => showReportSheet(
                   context,
@@ -498,7 +498,7 @@ class _AnswerBar extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Sym(
-                        Symbols.send,
+                        Symbols.send_rounded,
                         size: 20,
                         fill: true,
                         color: Colors.white,

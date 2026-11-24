@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/email_pages.dart';
 import '../../features/home/home_page.dart';
+import '../../features/opening/opening_page.dart';
 import '../../features/profile/edit_profile_page.dart';
 import '../../features/profile/profile_page.dart';
 import '../../features/settings/settings_page.dart';
@@ -20,19 +21,11 @@ import 'paths.dart';
 class _SessionListenable extends ChangeNotifier {
   _SessionListenable(Ref ref) {
     ref.listen(sessionProvider, (_, _) => notifyListeners());
+    ref.listen(openingDoneProvider, (_, _) => notifyListeners());
   }
 }
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
-
-/// While the session is restored: the night sky, nothing else.
-class _Restoring extends StatelessWidget {
-  const _Restoring();
-
-  @override
-  Widget build(BuildContext context) =>
-      const ColoredBox(color: Color(0xFF0B0A1F));
-}
 
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = _SessionListenable(ref);
@@ -44,7 +37,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final session = ref.read(sessionProvider);
       final here = state.matchedLocation;
-      if (session is AuthRestoring) {
+      // The opening plays while the session is restored, and to its end.
+      if (session is AuthRestoring || !ref.read(openingDoneProvider)) {
         return here == '/restoring'
             ? null
             : '/restoring?from=${Uri.encodeComponent(state.uri.toString())}';
@@ -64,7 +58,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/restoring',
-        builder: (context, state) => const _Restoring(),
+        builder: (context, state) => const OpeningPage(),
       ),
       GoRoute(
         path: Paths.welcome,

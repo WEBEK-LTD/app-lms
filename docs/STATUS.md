@@ -8,6 +8,10 @@ Last updated: 24 November 2026.
 
 ## Current release
 
+Roadmap 231, area D (the Yallapp Community app, `community/`): the opening,
+welcome and signing in (Apple, Google, email), the shell, Home, the side
+menu, profiles with follow, friends, block and report, and settings, on area
+A's contract; no payments in the app (a test guards it); not yet released.
 Roadmap 231 (area E, the Community app's features): the question screen
 as the approved dark question phone, the Q&A tab, asking with similar
 questions, official tutorials (a locked one shows a lock, never a price),

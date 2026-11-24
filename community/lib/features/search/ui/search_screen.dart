@@ -88,8 +88,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 children: [
                   IconBtn(
                     icon: Directionality.of(context) == TextDirection.rtl
-                        ? Symbols.arrow_forward
-                        : Symbols.arrow_back,
+                        ? Symbols.arrow_forward_rounded
+                        : Symbols.arrow_back_rounded,
                     label: l.commonBack,
                     onTap: () =>
                         context.canPop() ? context.pop() : context.go('/'),
@@ -108,7 +108,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             start: 12,
                             end: 6,
                           ),
-                          child: Sym(Symbols.search, size: 22),
+                          child: Sym(Symbols.search_rounded, size: 22),
                         ),
                         prefixIconConstraints: const BoxConstraints(
                           minWidth: 40,
@@ -244,8 +244,8 @@ class _TutorialRow extends StatelessWidget {
               ),
               child: Sym(
                 t.kind == TutorialKind.video
-                    ? Symbols.play_circle
-                    : Symbols.menu_book,
+                    ? Symbols.play_circle_rounded
+                    : Symbols.menu_book_rounded,
                 size: 24,
                 fill: true,
                 color: Colors.white,
@@ -275,7 +275,7 @@ class _TutorialRow extends StatelessWidget {
               ),
             ),
             if (t.locked)
-              Sym(Symbols.lock, size: 18, fill: true, color: p.muted),
+              Sym(Symbols.lock_rounded, size: 18, fill: true, color: p.muted),
           ],
         ),
       ),

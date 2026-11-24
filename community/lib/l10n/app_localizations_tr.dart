@@ -608,6 +608,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsDeleteConfirm => 'Hesabımı sil';
 
   @override
+  String get openingTag => 'Uygulama yap. Birlikte yap.';
+
+  @override
   String get socialReasonMisleading => 'Yanıltıcı veya dolandırıcılık';
 
   @override

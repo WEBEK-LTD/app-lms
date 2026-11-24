@@ -54,8 +54,8 @@ class VerificationScreen extends ConsumerWidget {
                 children: [
                   IconBtn(
                     icon: Directionality.of(context) == TextDirection.rtl
-                        ? Symbols.arrow_forward
-                        : Symbols.arrow_back,
+                        ? Symbols.arrow_forward_rounded
+                        : Symbols.arrow_back_rounded,
                     label: l.commonBack,
                     onTap: () => context.pop(),
                   ),
@@ -106,14 +106,14 @@ class _Body extends ConsumerWidget {
         if (state.hasGold)
           _Note(
             key: const ValueKey('verify-has-gold'),
-            icon: Symbols.verified,
+            icon: Symbols.verified_rounded,
             color: BadgeMark.colorOf(BadgeKind.gold),
             text: l.verifyHasGold,
           )
         else if (!state.yallappLinked) ...[
           _Note(
             key: const ValueKey('verify-not-linked'),
-            icon: Symbols.link,
+            icon: Symbols.link_rounded,
             color: Brand.violet,
             text: l.verifyNotLinked,
           ),
@@ -128,7 +128,7 @@ class _Body extends ConsumerWidget {
         ] else if (pending)
           _Note(
             key: const ValueKey('verify-pending'),
-            icon: Symbols.hourglass_top,
+            icon: Symbols.hourglass_top_rounded,
             color: Brand.amber,
             text: l.verifyPending,
             line: l.verifySentOn(
@@ -140,7 +140,7 @@ class _Body extends ConsumerWidget {
           if (rejected) ...[
             _Note(
               key: const ValueKey('verify-rejected'),
-              icon: Symbols.info,
+              icon: Symbols.info_rounded,
               color: const Color(0xFFE23F72),
               text: l.verifyRejected,
               line: request!.reason == null
@@ -191,7 +191,7 @@ class _GoldHero extends StatelessWidget {
           ),
           child: const Center(
             child: Sym(
-              Symbols.verified,
+              Symbols.verified_rounded,
               size: 36,
               fill: true,
               color: Colors.white,
@@ -570,7 +570,7 @@ class _FormState extends ConsumerState<_Form> {
           key: const ValueKey('verify-id'),
           onPressed: _pick,
           icon: Sym(
-            file == null ? Symbols.badge : Symbols.check_circle,
+            file == null ? Symbols.badge_rounded : Symbols.check_circle_rounded,
             size: 20,
             fill: file != null,
             color: file == null ? p.ink : const Color(0xFF22C483),
@@ -614,7 +614,7 @@ class _FormState extends ConsumerState<_Form> {
                         onPressed: () => setState(() {
                           _links.removeAt(i).dispose();
                         }),
-                        icon: const Sym(Symbols.close, size: 20),
+                        icon: const Sym(Symbols.close_rounded, size: 20),
                       )
                     : null,
               ),
@@ -626,7 +626,7 @@ class _FormState extends ConsumerState<_Form> {
             child: TextButton.icon(
               onPressed: () =>
                   setState(() => _links.add(TextEditingController())),
-              icon: const Sym(Symbols.add, size: 20),
+              icon: const Sym(Symbols.add_rounded, size: 20),
               label: Text(l.verifyAddLink),
             ),
           ),

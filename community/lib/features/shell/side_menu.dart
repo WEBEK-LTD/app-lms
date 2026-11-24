@@ -96,21 +96,21 @@ class SideMenu extends ConsumerWidget {
     final items = <(MenuSection, IconData, String, VoidCallback, int)>[
       (
         MenuSection.home,
-        Symbols.home,
+        Symbols.home_rounded,
         l.menuHome,
         open(MenuSection.home, l.menuHome, () => go(Paths.home)),
         0,
       ),
       (
         MenuSection.qa,
-        Symbols.forum,
+        Symbols.forum_rounded,
         l.menuQa,
         open(MenuSection.qa, l.menuQa, () => go(FeatureLinks.qa)),
         countOf(MenuSection.qa, questions),
       ),
       (
         MenuSection.tutorials,
-        Symbols.menu_book,
+        Symbols.menu_book_rounded,
         l.menuTutorials,
         open(
           MenuSection.tutorials,
@@ -121,35 +121,35 @@ class SideMenu extends ConsumerWidget {
       ),
       (
         MenuSection.academy,
-        Symbols.school,
+        Symbols.school_rounded,
         l.menuAcademy,
         open(MenuSection.academy, l.menuAcademy, null),
         0,
       ),
       (
         MenuSection.showcase,
-        Symbols.apps,
+        Symbols.apps_rounded,
         l.menuShowcase,
         open(MenuSection.showcase, l.menuShowcase, null),
         0,
       ),
       (
         MenuSection.challenges,
-        Symbols.emoji_events,
+        Symbols.emoji_events_rounded,
         l.menuChallenges,
         open(MenuSection.challenges, l.menuChallenges, null),
         0,
       ),
       (
         MenuSection.groups,
-        Symbols.groups,
+        Symbols.groups_rounded,
         l.menuGroups,
         open(MenuSection.groups, l.menuGroups, null),
         0,
       ),
       (
         MenuSection.friends,
-        Symbols.diversity_3,
+        Symbols.diversity_3_rounded,
         l.menuFriends,
         open(
           MenuSection.friends,
@@ -160,14 +160,14 @@ class SideMenu extends ConsumerWidget {
       ),
       (
         MenuSection.pros,
-        Symbols.work,
+        Symbols.work_rounded,
         l.menuPros,
         open(MenuSection.pros, l.menuPros, null),
         0,
       ),
       (
         MenuSection.events,
-        Symbols.event,
+        Symbols.event_rounded,
         l.menuEvents,
         open(MenuSection.events, l.menuEvents, null),
         0,
@@ -274,7 +274,7 @@ class SideMenu extends ConsumerWidget {
                                 const Spacer(),
                                 _Square(
                                   key: const ValueKey('menu-close'),
-                                  icon: Symbols.close,
+                                  icon: Symbols.close_rounded,
                                   size: 36,
                                   radius: 12,
                                   iconSize: 20,
@@ -316,21 +316,21 @@ class SideMenu extends ConsumerWidget {
                                 const Spacer(),
                                 _Square(
                                   key: const ValueKey('menu-saved'),
-                                  icon: Symbols.bookmark,
+                                  icon: Symbols.bookmark_rounded,
                                   label: l.menuSaved,
                                   onTap: () => push(FeatureLinks.saved),
                                 ),
                                 const SizedBox(width: 8),
                                 _Square(
                                   key: const ValueKey('menu-settings'),
-                                  icon: Symbols.settings,
+                                  icon: Symbols.settings_rounded,
                                   label: l.menuSettings,
                                   onTap: () => push(Paths.settings),
                                 ),
                                 const SizedBox(width: 8),
                                 _Square(
                                   key: const ValueKey('menu-logout'),
-                                  icon: Symbols.logout,
+                                  icon: Symbols.logout_rounded,
                                   label: l.menuLogOut,
                                   onTap: () async {
                                     close();
@@ -416,14 +416,18 @@ class _ProfileCard extends ConsumerWidget {
                   const SizedBox(height: 7),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(5),
+                    // The whole track (`.pb`), the progress from its start.
                     child: SizedBox(
                       height: 5,
+                      width: double.infinity,
                       child: Stack(
                         children: [
                           const Positioned.fill(
                             child: ColoredBox(color: Color(0x1FFFFFFF)),
                           ),
                           FractionallySizedBox(
+                            alignment: AlignmentDirectional.centerStart,
+                            heightFactor: 1,
                             widthFactor: me.progress,
                             child: Container(
                               decoration: const BoxDecoration(
@@ -443,8 +447,8 @@ class _ProfileCard extends ConsumerWidget {
             const SizedBox(width: 8),
             Sym(
               Directionality.of(context) == TextDirection.rtl
-                  ? Symbols.chevron_left
-                  : Symbols.chevron_right,
+                  ? Symbols.chevron_left_rounded
+                  : Symbols.chevron_right_rounded,
               size: 24,
               color: const Color(0xFFA9A5C2),
             ),
@@ -608,7 +612,7 @@ class _ThemeToggle extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: Sym(
-              forDark ? Symbols.dark_mode : Symbols.light_mode,
+              forDark ? Symbols.dark_mode_rounded : Symbols.light_mode_rounded,
               size: 19,
               fill: on,
               color: on ? Brand.navy : const Color(0xFFEDEAF5),

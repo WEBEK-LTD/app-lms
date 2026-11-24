@@ -146,7 +146,7 @@ class TutorialCard extends StatelessWidget {
                       width: 44,
                       height: 44,
                       child: Sym(
-                        Symbols.play_arrow,
+                        Symbols.play_arrow_rounded,
                         size: 28,
                         fill: true,
                         color: Colors.white,
@@ -177,8 +177,8 @@ class TutorialCard extends StatelessWidget {
                               children: [
                                 Sym(
                                   t.kind == TutorialKind.video
-                                      ? Symbols.play_circle
-                                      : Symbols.menu_book,
+                                      ? Symbols.play_circle_rounded
+                                      : Symbols.menu_book_rounded,
                                   size: 14,
                                   fill: true,
                                   color: Brand.gold,

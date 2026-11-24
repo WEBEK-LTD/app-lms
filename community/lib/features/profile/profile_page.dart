@@ -106,7 +106,9 @@ class _ProfileView extends ConsumerWidget {
                     children: [
                       IconBtn(
                         key: const ValueKey('profile-back'),
-                        icon: rtl ? Symbols.arrow_forward : Symbols.arrow_back,
+                        icon: rtl
+                            ? Symbols.arrow_forward_rounded
+                            : Symbols.arrow_back_rounded,
                         label: l.commonBack,
                         onTap: () => context.canPop()
                             ? context.pop()
@@ -116,14 +118,14 @@ class _ProfileView extends ConsumerWidget {
                       if (own)
                         IconBtn(
                           key: const ValueKey('profile-settings'),
-                          icon: Symbols.settings,
+                          icon: Symbols.settings_rounded,
                           label: l.menuSettings,
                           onTap: () => context.push(Paths.settings),
                         )
                       else
                         IconBtn(
                           key: const ValueKey('profile-more'),
-                          icon: Symbols.more_horiz,
+                          icon: Symbols.more_horiz_rounded,
                           label: l.socialMore,
                           onTap: () => _more(context, ref),
                         ),
@@ -232,7 +234,7 @@ class _ProfileView extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
                     child: _Cta(
                       key: const ValueKey('profile-apply-gold'),
-                      icon: Symbols.verified,
+                      icon: Symbols.verified_rounded,
                       title: l.profileBadgeGold,
                       line: l.profileApplyLine,
                       action: l.profileApply,
@@ -261,7 +263,7 @@ class _ProfileView extends ConsumerWidget {
                         const SizedBox(height: 10),
                         _Cta(
                           key: const ValueKey('profile-link'),
-                          icon: Symbols.link,
+                          icon: Symbols.link_rounded,
                           title: l.profileLinkYallapp,
                           line: l.profileLinkLine,
                           action: l.settingsLink,
@@ -316,7 +318,7 @@ class _ProfileView extends ConsumerWidget {
                   if (profile.relationship.friend == FriendState.friends)
                     ListTile(
                       key: const ValueKey('profile-unfriend'),
-                      leading: Sym(Symbols.person_remove, color: p.ink),
+                      leading: Sym(Symbols.person_remove_rounded, color: p.ink),
                       title: Text(
                         l.socialRemoveFriend,
                         style: TextStyle(color: p.ink),
@@ -325,13 +327,16 @@ class _ProfileView extends ConsumerWidget {
                     ),
                   ListTile(
                     key: const ValueKey('profile-report'),
-                    leading: Sym(Symbols.flag, color: p.ink),
+                    leading: Sym(Symbols.flag_rounded, color: p.ink),
                     title: Text(l.socialReport, style: TextStyle(color: p.ink)),
                     onTap: () => Navigator.pop(sheet, 'report'),
                   ),
                   ListTile(
                     key: const ValueKey('profile-block'),
-                    leading: const Sym(Symbols.block, color: Color(0xFFE5484D)),
+                    leading: const Sym(
+                      Symbols.block_rounded,
+                      color: Color(0xFFE5484D),
+                    ),
                     title: Text(
                       l.socialBlock,
                       style: const TextStyle(
@@ -570,7 +575,7 @@ class _OwnActions extends ConsumerWidget {
           child: _Button(
             key: const ValueKey('profile-edit'),
             label: l.profileEdit,
-            icon: Symbols.edit,
+            icon: Symbols.edit_rounded,
             filled: true,
             onTap: () => context.push(Paths.editProfile),
           ),
@@ -582,7 +587,7 @@ class _OwnActions extends ConsumerWidget {
             label: requests > 0
                 ? '${l.socialFriendRequests} · $requests'
                 : l.socialFriendRequests,
-            icon: Symbols.group_add,
+            icon: Symbols.group_add_rounded,
             onTap: () => context.push(Paths.friendRequests),
           ),
         ),
@@ -615,7 +620,9 @@ class _Actions extends ConsumerWidget {
           child: _Button(
             key: const ValueKey('profile-follow'),
             label: following ? l.socialFollowingState : l.socialFollow,
-            icon: following ? Symbols.check : Symbols.person_add,
+            icon: following
+                ? Symbols.check_rounded
+                : Symbols.person_add_rounded,
             filled: !following,
             onTap: () => _run(
               context,
@@ -629,27 +636,27 @@ class _Actions extends ConsumerWidget {
             FriendState.none => _Button(
               key: const ValueKey('profile-friend'),
               label: l.socialAddFriend,
-              icon: Symbols.group_add,
+              icon: Symbols.group_add_rounded,
               onTap: () => after(() => api.requestFriend(m.id)),
             ),
             FriendState.requested => _Button(
               key: const ValueKey('profile-friend'),
               label: l.socialRequested,
-              icon: Symbols.schedule,
+              icon: Symbols.schedule_rounded,
               onTap: () => after(() => api.removeFriend(m.id)),
             ),
             // Asking back accepts their request.
             FriendState.incoming => _Button(
               key: const ValueKey('profile-friend'),
               label: l.socialAccept,
-              icon: Symbols.how_to_reg,
+              icon: Symbols.how_to_reg_rounded,
               filled: true,
               onTap: () => after(() => api.requestFriend(m.id)),
             ),
             FriendState.friends => _Button(
               key: const ValueKey('profile-friend'),
               label: l.socialFriendsState,
-              icon: Symbols.diversity_3,
+              icon: Symbols.diversity_3_rounded,
               onTap: () {},
             ),
           },
@@ -677,7 +684,7 @@ class _BlockedNote extends ConsumerWidget {
           _Button(
             key: const ValueKey('profile-unblock'),
             label: l.socialUnblock,
-            icon: Symbols.lock_open,
+            icon: Symbols.lock_open_rounded,
             onTap: () async {
               await _run(
                 context,
@@ -935,7 +942,11 @@ class _AppRow extends ConsumerWidget {
                       ),
               ),
               child: app.iconUrl == null
-                  ? const Sym(Symbols.storefront, size: 21, color: Colors.white)
+                  ? const Sym(
+                      Symbols.storefront_rounded,
+                      size: 21,
+                      color: Colors.white,
+                    )
                   : null,
             ),
             const SizedBox(width: 12),
@@ -961,7 +972,8 @@ class _AppRow extends ConsumerWidget {
                 ],
               ),
             ),
-            if (url != null) Sym(Symbols.open_in_new, size: 19, color: p.muted),
+            if (url != null)
+              Sym(Symbols.open_in_new_rounded, size: 19, color: p.muted),
           ],
         ),
       ),

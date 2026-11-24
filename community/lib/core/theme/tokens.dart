@@ -44,11 +44,11 @@ abstract final class Brand {
   );
 
   /// The create button's ring of oranges.
+  // CSS `conic-gradient(from 210deg, …)`: CSS starts at 12 o'clock,
+  // Flutter at 3 o'clock, so a full turn rotated by 210° − 90°.
   static const createRing = SweepGradient(
-    startAngle: 210 * 3.14159265 / 180,
-    endAngle: 210 * 3.14159265 / 180 + 2 * 3.14159265,
     colors: [amber, orange, ember, Color(0xFFFF7A3D), amber],
-    transform: GradientRotation(-3.14159265 / 2),
+    transform: GradientRotation((210 - 90) * 3.14159265 / 180),
   );
 
   /// The member's own avatar ring and a story's ring.
