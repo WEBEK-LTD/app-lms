@@ -8,6 +8,28 @@ Last updated: 23 November 2026.
 
 ## Current release
 
+Roadmap 227 (Studio's shop types, round 3: electronics and computers &
+gaming; in the code, not released): each type gets two new looks, C its
+main and D its second, listed before A and B, which stay as they are. Madar
+C MADAR GRID is a bento of frosted and dark-glass tiles (IBM Plex Sans
+Arabic, a glass bar); Madar D the colour stage puts every device on its own
+saturated colour (story circles, big snapping cards, El Messiri, a colour
+per tab); Nawah C the battle station is neon on black with cut-corner cards
+and the Build your PC configurator first (Changa, a glowing bar); Nawah D
+the workstation is a dense blue-grey spec sheet with a compare table and
+the business quote form (Alexandria, a line bar). Each is a whole project
+(home, category menu, its own pages, shop, cart, orders, sign-in and
+account, tabs and bar, light and dark, English, Arabic and Turkish), built
+only from Studio's existing elements. One app fix for every look: a
+spec filter's chip reads right in Arabic (the value whole, its count in a
+badge), the app's preview rebuilt; no `CLIENT_APP_RELEASE` change, no
+migration.
+
+**Distinct templates.** The owner's standing rule (23 November): no
+resemblance at all between one app and another. A new template's header,
+hero, navigation, card shape, section order, bar and type scale must differ
+from every other template's, it draws nothing with the kit's visual parts,
+and its home is compared beside every other template's before it ships.
 Roadmap 225 (Studio shop types, round 3: furniture and home decor): Rukn
 and Sakan each have two new whole templates, first in Studio's order, each
 from its own parts file and in light and dark, English, Arabic and Turkish:

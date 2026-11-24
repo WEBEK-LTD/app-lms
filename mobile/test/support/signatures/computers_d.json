@@ -1,0 +1,3139 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "minimal",
+   "image_url": "http://localhost:3000/computers-photos/desk-coder.jpg",
+   "title": {
+    "en": "{app} for business",
+    "ar": "{app} للأعمال",
+    "tr": "{app} kurumsal"
+   },
+   "subtitle": {
+    "en": "Sign in for your orders, invoices and quotes.",
+    "ar": "سجّل الدخول لطلباتك وفواتيرك وعروض الأسعار.",
+    "tr": "Siparişleriniz, faturalarınız ve teklifleriniz için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "plain",
+   "items": [
+    {
+     "key": "orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "large"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "minimal",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Plus Jakarta Sans",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#0F1E33",
+   "font_family": "Alexandria",
+   "dark_background": "#0B1119",
+   "dark_surface": "#131B26",
+   "font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/alexandria/Alexandria%5Bwght%5D.ttf",
+     "weight": null
+    }
+   ]
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "dashboard",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shop",
+    "label": "Shop",
+    "icon": "list_alt",
+    "target": {
+     "type": "page",
+     "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المتجر"
+     },
+     "tr": {
+      "label": "Mağaza"
+     }
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Cart",
+    "icon": "shopping_cart",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "السلة"
+     },
+     "tr": {
+      "label": "Sepet"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "receipt_long",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطلبات"
+     },
+     "tr": {
+      "label": "Siparişler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 96,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "column",
+        "name": "Nawah",
+        "gap": 0,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "padding": {
+           "top": 8,
+           "end": 14,
+           "bottom": 8,
+           "start": 14
+          },
+          "children": [
+           {
+            "id": "sig-4",
+            "type": "text",
+            "text": "Nawah",
+            "font": {
+             "family": "Alexandria",
+             "size": 16,
+             "weight": 700,
+             "line_height": 1.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "Nawah"
+             },
+             "tr": {
+              "text": "Nawah"
+             }
+            }
+           },
+           {
+            "id": "sig-5",
+            "type": "search",
+            "name": "Search the catalogue",
+            "text": "Search the catalogue",
+            "source": "products",
+            "width": "fill",
+            "height": 38,
+            "radius": 7,
+            "background": "#F2F5F9",
+            "dark_background": "#172130",
+            "color": "#52627A",
+            "dark_color": "#97A6BA",
+            "border_color": "#D3DBE6",
+            "dark_border_color": "#243244",
+            "border_width": 1,
+            "translations": {
+             "ar": {
+              "text": "ابحث في الكتالوج"
+             },
+             "tr": {
+              "text": "Katalogda ara"
+             }
+            }
+           },
+           {
+            "id": "sig-6",
+            "type": "icon",
+            "name": "Catalogue",
+            "icon": "category",
+            "icon_size": 21,
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "padding": {
+             "top": 6,
+             "end": 4,
+             "bottom": 6,
+             "start": 4
+            },
+            "action": {
+             "type": "page",
+             "page_slug": "menu"
+            }
+           },
+           {
+            "id": "sig-7",
+            "type": "icon",
+            "name": "Cart",
+            "icon": "shopping_cart",
+            "icon_size": 21,
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "padding": {
+             "top": 6,
+             "end": 4,
+             "bottom": 6,
+             "start": 4
+            },
+            "action": {
+             "type": "screen",
+             "screen": "cart"
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-8",
+          "type": "divider",
+          "height": 1,
+          "background": "#D3DBE6",
+          "dark_background": "#243244"
+         }
+        ]
+       },
+       {
+        "id": "sig-9",
+        "type": "row",
+        "name": "Delivery for companies",
+        "gap": 1,
+        "radius": 10,
+        "padding": {
+         "top": 1,
+         "end": 1,
+         "bottom": 1,
+         "start": 1
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#D3DBE6",
+        "dark_background": "#243244",
+        "children": [
+         {
+          "id": "sig-10",
+          "type": "column",
+          "name": "Delivery for companies",
+          "width": "fill",
+          "gap": 4,
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "children": [
+           {
+            "id": "sig-11",
+            "type": "icon",
+            "icon": "local_shipping",
+            "icon_size": 20,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-12",
+            "type": "text",
+            "text": "Delivery for companies",
+            "font": {
+             "family": "Alexandria",
+             "size": 11.5,
+             "weight": 500,
+             "line_height": 1.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "توصيل للشركات"
+             },
+             "tr": {
+              "text": "Şirketlere teslimat"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-13",
+          "type": "column",
+          "name": "On-site warranty",
+          "width": "fill",
+          "gap": 4,
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "children": [
+           {
+            "id": "sig-14",
+            "type": "icon",
+            "icon": "build",
+            "icon_size": 20,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-15",
+            "type": "text",
+            "text": "On-site warranty",
+            "font": {
+             "family": "Alexandria",
+             "size": 11.5,
+             "weight": 500,
+             "line_height": 1.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "ضمان في الموقع"
+             },
+             "tr": {
+              "text": "Yerinde garanti"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-16",
+          "type": "column",
+          "name": "Prices for quantities",
+          "width": "fill",
+          "gap": 4,
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "children": [
+           {
+            "id": "sig-17",
+            "type": "icon",
+            "icon": "inventory_2",
+            "icon_size": 20,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-18",
+            "type": "text",
+            "text": "Prices for quantities",
+            "font": {
+             "family": "Alexandria",
+             "size": 11.5,
+             "weight": 500,
+             "line_height": 1.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "أسعار للكميات"
+             },
+             "tr": {
+              "text": "Adetli fiyatlar"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-19",
+        "type": "row",
+        "name": "Workstations",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-20",
+          "type": "column",
+          "width": "fill",
+          "gap": 1,
+          "children": [
+           {
+            "id": "sig-21",
+            "type": "text",
+            "text": "Workstations",
+            "font": {
+             "family": "Alexandria",
+             "size": 14.5,
+             "weight": 600,
+             "line_height": 1.3,
+             "letter_spacing": 0.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "محطات العمل"
+             },
+             "tr": {
+              "text": "İş istasyonları"
+             }
+            }
+           },
+           {
+            "id": "sig-22",
+            "type": "text",
+            "text": "Full specifications in each row",
+            "font": {
+             "family": "Alexandria",
+             "size": 11.5,
+             "weight": 400
+            },
+            "color": "#52627A",
+            "dark_color": "#97A6BA",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "المواصفات كاملة في كل سطر"
+             },
+             "tr": {
+              "text": "Her satırda tüm özellikler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-23",
+          "type": "text",
+          "text": "Full specs",
+          "font": {
+           "family": "Alexandria",
+           "size": 12,
+           "weight": 500
+          },
+          "color": "#2A5885",
+          "dark_color": "#8CBBEA",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "المواصفات كاملة"
+           },
+           "tr": {
+            "text": "Tüm özellikler"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-24",
+        "type": "items",
+        "name": "Workstations",
+        "source": "products",
+        "layout": "list",
+        "gap": 1,
+        "radius": 10,
+        "padding": {
+         "top": 1,
+         "end": 1,
+         "bottom": 1,
+         "start": 1
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#D3DBE6",
+        "dark_background": "#243244",
+        "query": {
+         "limit": 5,
+         "category_id": null,
+         "featured": false,
+         "sort": "price_desc",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-25",
+         "type": "row",
+         "gap": 12,
+         "cross": "center",
+         "padding": {
+          "top": 10,
+          "end": 12,
+          "bottom": 10,
+          "start": 12
+         },
+         "background": "#FFFFFF",
+         "dark_background": "#131B26",
+         "children": [
+          {
+           "id": "sig-26",
+           "type": "image",
+           "bind": "image",
+           "width": 64,
+           "height": 48,
+           "radius": 6,
+           "fit": "cover",
+           "background": "#F2F5F9",
+           "dark_background": "#172130"
+          },
+          {
+           "id": "sig-27",
+           "type": "column",
+           "width": "fill",
+           "gap": 2,
+           "children": [
+            {
+             "id": "sig-28",
+             "type": "text",
+             "bind": "title",
+             "max_lines": 1,
+             "color": "#0F1E33",
+             "dark_color": "#E6ECF4",
+             "font": {
+              "family": "Alexandria",
+              "size": 13,
+              "weight": 600
+             }
+            },
+            {
+             "id": "sig-29",
+             "type": "text",
+             "bind": "subtitle",
+             "max_lines": 1,
+             "color": "#52627A",
+             "dark_color": "#97A6BA",
+             "font": {
+              "family": "Alexandria",
+              "size": 11,
+              "weight": 400
+             }
+            },
+            {
+             "id": "sig-30",
+             "type": "row",
+             "gap": 6,
+             "cross": "center",
+             "children": [
+              {
+               "id": "sig-31",
+               "type": "text",
+               "bind": "price",
+               "max_lines": 2,
+               "color": "#2A5885",
+               "dark_color": "#8CBBEA",
+               "font": {
+                "family": "Alexandria",
+                "size": 12.5,
+                "weight": 600
+               }
+              },
+              {
+               "id": "sig-32",
+               "type": "text",
+               "bind": "was_price",
+               "max_lines": 1,
+               "color": "#52627A",
+               "dark_color": "#97A6BA",
+               "font": {
+                "family": "Alexandria",
+                "size": 10.5
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "sig-33",
+           "type": "icon",
+           "icon": "chevron_right",
+           "icon_size": 18,
+           "color": "#52627A",
+           "dark_color": "#97A6BA"
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-34",
+        "type": "spec_filter",
+        "name": "By processor",
+        "text": "By processor",
+        "translations": {
+         "ar": {
+          "text": "حسب المعالج"
+         },
+         "tr": {
+          "text": "İşlemciye göre"
+         }
+        },
+        "tech": {
+         "spec": "cpu",
+         "accent": "#2A5885",
+         "rows": 6
+        },
+        "color": "#0F1E33",
+        "dark_color": "#E6ECF4",
+        "radius": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "border_color": "#D3DBE6",
+        "dark_border_color": "#243244",
+        "border_width": 1,
+        "padding": {
+         "top": 10,
+         "end": 12,
+         "bottom": 10,
+         "start": 12
+        },
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-35",
+        "type": "spec_filter",
+        "name": "By memory",
+        "text": "By memory",
+        "translations": {
+         "ar": {
+          "text": "حسب الذاكرة"
+         },
+         "tr": {
+          "text": "Belleğe göre"
+         }
+        },
+        "tech": {
+         "spec": "ram",
+         "accent": "#2A5885",
+         "rows": 6
+        },
+        "color": "#0F1E33",
+        "dark_color": "#E6ECF4",
+        "radius": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "border_color": "#D3DBE6",
+        "dark_border_color": "#243244",
+        "border_width": 1,
+        "padding": {
+         "top": 10,
+         "end": 12,
+         "bottom": 10,
+         "start": 12
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-36",
+        "type": "spec_filter",
+        "name": "By storage",
+        "text": "By storage",
+        "translations": {
+         "ar": {
+          "text": "حسب التخزين"
+         },
+         "tr": {
+          "text": "Depolamaya göre"
+         }
+        },
+        "tech": {
+         "spec": "storage",
+         "accent": "#2A5885",
+         "rows": 6
+        },
+        "color": "#0F1E33",
+        "dark_color": "#E6ECF4",
+        "radius": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "border_color": "#D3DBE6",
+        "dark_border_color": "#243244",
+        "border_width": 1,
+        "padding": {
+         "top": 10,
+         "end": 12,
+         "bottom": 10,
+         "start": 12
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-37",
+        "type": "row",
+        "name": "Compare",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-38",
+          "type": "column",
+          "width": "fill",
+          "gap": 1,
+          "children": [
+           {
+            "id": "sig-39",
+            "type": "text",
+            "text": "Compare",
+            "font": {
+             "family": "Alexandria",
+             "size": 14.5,
+             "weight": 600,
+             "line_height": 1.3,
+             "letter_spacing": 0.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مقارنة"
+             },
+             "tr": {
+              "text": "Karşılaştırma"
+             }
+            }
+           },
+           {
+            "id": "sig-40",
+            "type": "text",
+            "text": "Two machines, spec by spec",
+            "font": {
+             "family": "Alexandria",
+             "size": 11.5,
+             "weight": 400
+            },
+            "color": "#52627A",
+            "dark_color": "#97A6BA",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "جهازان، مواصفة بمواصفة"
+             },
+             "tr": {
+              "text": "İki makine, özellik özellik"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-41",
+          "type": "text",
+          "text": "Change",
+          "font": {
+           "family": "Alexandria",
+           "size": 12,
+           "weight": 500
+          },
+          "color": "#2A5885",
+          "dark_color": "#8CBBEA",
+          "max_lines": 1,
+          "action": {
+           "type": "page",
+           "page_slug": "compare"
+          },
+          "translations": {
+           "ar": {
+            "text": "تغيير"
+           },
+           "tr": {
+            "text": "Değiştir"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-42",
+        "type": "compare",
+        "name": "Compare",
+        "tech": {
+         "accent": "#2A5885",
+         "rows": 6
+        },
+        "color": "#0F1E33",
+        "dark_color": "#E6ECF4",
+        "radius": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "border_color": "#D3DBE6",
+        "dark_border_color": "#243244",
+        "border_width": 1,
+        "padding": {
+         "top": 12,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-43",
+        "type": "column",
+        "name": "Request a business quote",
+        "gap": 4,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "radius": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "border_color": "#D3DBE6",
+        "dark_border_color": "#243244",
+        "border_width": 1,
+        "corners": {
+         "top_start": 4,
+         "bottom_start": 4,
+         "top_end": 10,
+         "bottom_end": 10
+        },
+        "children": [
+         {
+          "id": "sig-44",
+          "type": "row",
+          "gap": 8,
+          "cross": "center",
+          "children": [
+           {
+            "id": "sig-45",
+            "type": "icon",
+            "icon": "description",
+            "icon_size": 22,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-46",
+            "type": "text",
+            "text": "Request a business quote",
+            "font": {
+             "family": "Alexandria",
+             "size": 15,
+             "weight": 600,
+             "line_height": 1.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "width": "fill",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "اطلب عرض سعر للشركات"
+             },
+             "tr": {
+              "text": "Kurumsal teklif isteyin"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-47",
+          "type": "text",
+          "text": "Ten devices or more? Tell us what you need and we answer with a quote within one working day.",
+          "font": {
+           "family": "Alexandria",
+           "size": 12,
+           "weight": 400,
+           "line_height": 1.55
+          },
+          "color": "#52627A",
+          "dark_color": "#97A6BA",
+          "max_lines": 4,
+          "translations": {
+           "ar": {
+            "text": "عشرة أجهزة أو أكثر؟ أخبرنا بما تحتاج ونرد بعرض سعر خلال يوم عمل واحد."
+           },
+           "tr": {
+            "text": "On cihaz ya da daha fazlası mı? İhtiyacınızı yazın, bir iş günü içinde teklifle dönelim."
+           }
+          }
+         },
+         {
+          "id": "sig-48",
+          "type": "form",
+          "name": "Request a business quote",
+          "form": {
+           "fields": [
+            {
+             "id": "q1",
+             "kind": "text",
+             "label": "Company name",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "q2",
+             "kind": "text",
+             "label": "Your name",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "q3",
+             "kind": "email",
+             "label": "Work email",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "q4",
+             "kind": "phone",
+             "label": "Phone",
+             "required": false,
+             "options": null
+            },
+            {
+             "id": "q5",
+             "kind": "number",
+             "label": "Quantity",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "q6",
+             "kind": "long_text",
+             "label": "Models and what they are for",
+             "required": false,
+             "options": null
+            }
+           ],
+           "submit_label": "Request the quote",
+           "success_text": "Thank you. Your quote will reach you within one working day.",
+           "send_to": "email"
+          },
+          "color": "#0F1E33",
+          "dark_color": "#E6ECF4",
+          "margin": {
+           "top": 10,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-49",
+        "type": "row",
+        "name": "New in the catalogue",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-50",
+          "type": "column",
+          "width": "fill",
+          "gap": 1,
+          "children": [
+           {
+            "id": "sig-51",
+            "type": "text",
+            "text": "New in the catalogue",
+            "font": {
+             "family": "Alexandria",
+             "size": 14.5,
+             "weight": 600,
+             "line_height": 1.3,
+             "letter_spacing": 0.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "جديد في الكتالوج"
+             },
+             "tr": {
+              "text": "Katalogda yeni"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-52",
+          "type": "text",
+          "text": "Full specs",
+          "font": {
+           "family": "Alexandria",
+           "size": 12,
+           "weight": 500
+          },
+          "color": "#2A5885",
+          "dark_color": "#8CBBEA",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "المواصفات كاملة"
+           },
+           "tr": {
+            "text": "Tüm özellikler"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-53",
+        "type": "items",
+        "name": "New in the catalogue",
+        "source": "products",
+        "layout": "list",
+        "gap": 1,
+        "radius": 10,
+        "padding": {
+         "top": 1,
+         "end": 1,
+         "bottom": 1,
+         "start": 1
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#D3DBE6",
+        "dark_background": "#243244",
+        "query": {
+         "limit": 4,
+         "category_id": null,
+         "featured": false,
+         "sort": "newest",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-54",
+         "type": "row",
+         "gap": 12,
+         "cross": "center",
+         "padding": {
+          "top": 10,
+          "end": 12,
+          "bottom": 10,
+          "start": 12
+         },
+         "background": "#FFFFFF",
+         "dark_background": "#131B26",
+         "children": [
+          {
+           "id": "sig-55",
+           "type": "image",
+           "bind": "image",
+           "width": 64,
+           "height": 48,
+           "radius": 6,
+           "fit": "cover",
+           "background": "#F2F5F9",
+           "dark_background": "#172130"
+          },
+          {
+           "id": "sig-56",
+           "type": "column",
+           "width": "fill",
+           "gap": 2,
+           "children": [
+            {
+             "id": "sig-57",
+             "type": "text",
+             "bind": "title",
+             "max_lines": 1,
+             "color": "#0F1E33",
+             "dark_color": "#E6ECF4",
+             "font": {
+              "family": "Alexandria",
+              "size": 13,
+              "weight": 600
+             }
+            },
+            {
+             "id": "sig-58",
+             "type": "text",
+             "bind": "subtitle",
+             "max_lines": 1,
+             "color": "#52627A",
+             "dark_color": "#97A6BA",
+             "font": {
+              "family": "Alexandria",
+              "size": 11,
+              "weight": 400
+             }
+            },
+            {
+             "id": "sig-59",
+             "type": "row",
+             "gap": 6,
+             "cross": "center",
+             "children": [
+              {
+               "id": "sig-60",
+               "type": "text",
+               "bind": "price",
+               "max_lines": 2,
+               "color": "#2A5885",
+               "dark_color": "#8CBBEA",
+               "font": {
+                "family": "Alexandria",
+                "size": 12.5,
+                "weight": 600
+               }
+              },
+              {
+               "id": "sig-61",
+               "type": "text",
+               "bind": "was_price",
+               "max_lines": 1,
+               "color": "#52627A",
+               "dark_color": "#97A6BA",
+               "font": {
+                "family": "Alexandria",
+                "size": 10.5
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "sig-62",
+           "type": "icon",
+           "icon": "chevron_right",
+           "icon_size": 18,
+           "color": "#52627A",
+           "dark_color": "#97A6BA"
+          }
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "shop",
+    "title": "Shop",
+    "translations": {
+     "ar": {
+      "title": "المتجر"
+     },
+     "tr": {
+      "title": "Mağaza"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-111",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-112",
+        "type": "column",
+        "gap": 1,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-113",
+          "type": "text",
+          "text": "Catalogue",
+          "font": {
+           "family": "Alexandria",
+           "size": 11,
+           "weight": 500,
+           "letter_spacing": 0.6
+          },
+          "color": "#2A5885",
+          "dark_color": "#8CBBEA",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "الكتالوج"
+           },
+           "tr": {
+            "text": "Katalog"
+           }
+          }
+         },
+         {
+          "id": "sig-114",
+          "type": "text",
+          "text": "Filter by what the work needs",
+          "font": {
+           "family": "Alexandria",
+           "size": 16,
+           "weight": 600,
+           "line_height": 1.3
+          },
+          "color": "#0F1E33",
+          "dark_color": "#E6ECF4",
+          "max_lines": 2,
+          "translations": {
+           "ar": {
+            "text": "صفِّ حسب ما يحتاجه العمل"
+           },
+           "tr": {
+            "text": "İşin gerektirdiğine göre filtreleyin"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-115",
+        "type": "categories",
+        "name": "Catalogue",
+        "source": "products",
+        "style": "chips",
+        "color": "#0F1E33",
+        "dark_color": "#E6ECF4",
+        "padding": {
+         "top": 4,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-116",
+        "type": "listing_filters",
+        "name": "Filter by what the work needs",
+        "color": "#0F1E33",
+        "dark_color": "#E6ECF4",
+        "padding": {
+         "top": 2,
+         "end": 16,
+         "bottom": 2,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-117",
+        "type": "spec_filter",
+        "name": "By processor",
+        "text": "By processor",
+        "translations": {
+         "ar": {
+          "text": "حسب المعالج"
+         },
+         "tr": {
+          "text": "İşlemciye göre"
+         }
+        },
+        "tech": {
+         "spec": "cpu",
+         "accent": "#2A5885",
+         "rows": 6
+        },
+        "color": "#0F1E33",
+        "dark_color": "#E6ECF4",
+        "radius": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "border_color": "#D3DBE6",
+        "dark_border_color": "#243244",
+        "border_width": 1,
+        "padding": {
+         "top": 10,
+         "end": 12,
+         "bottom": 10,
+         "start": 12
+        },
+        "margin": {
+         "top": 4,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "Shop",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المتجر"
+       },
+       "tr": {
+        "title": "Mağaza"
+       }
+      },
+      "background": "#E8EDF3",
+      "color": "#0F1E33",
+      "dark_background": "#0B1119",
+      "dark_color": "#E6ECF4",
+      "style": "search"
+     },
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "cart",
+    "title": "Cart",
+    "translations": {
+     "ar": {
+      "title": "السلة"
+     },
+     "tr": {
+      "title": "Sepet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-118",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-119",
+        "type": "coupon",
+        "name": "Your first order's code",
+        "code": "NAWAH10",
+        "coupon": {
+         "look": "classic",
+         "bind": "public"
+        },
+        "radius": 10,
+        "color": "#2A5885",
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-120",
+        "type": "row",
+        "name": "Business quote",
+        "gap": 10,
+        "cross": "center",
+        "padding": {
+         "top": 12,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "action": {
+         "type": "page",
+         "page_slug": "business-quote"
+        },
+        "radius": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "border_color": "#D3DBE6",
+        "dark_border_color": "#243244",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-121",
+          "type": "icon",
+          "icon": "description",
+          "icon_size": 20,
+          "color": "#2A5885",
+          "dark_color": "#8CBBEA"
+         },
+         {
+          "id": "sig-122",
+          "type": "text",
+          "text": "Request a business quote",
+          "font": {
+           "family": "Alexandria",
+           "size": 12.5,
+           "weight": 600
+          },
+          "color": "#0F1E33",
+          "dark_color": "#E6ECF4",
+          "width": "fill",
+          "max_lines": 2,
+          "translations": {
+           "ar": {
+            "text": "اطلب عرض سعر للشركات"
+           },
+           "tr": {
+            "text": "Kurumsal teklif isteyin"
+           }
+          }
+         },
+         {
+          "id": "sig-123",
+          "type": "icon",
+          "icon": "chevron_right",
+          "icon_size": 18,
+          "color": "#52627A",
+          "dark_color": "#97A6BA"
+         }
+        ]
+       },
+       {
+        "id": "sig-124",
+        "type": "column",
+        "padding": {
+         "top": 4,
+         "end": 16,
+         "bottom": 4,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-125",
+          "type": "row",
+          "name": "Installments coming soon",
+          "width": "hug",
+          "radius": 15,
+          "gap": 6,
+          "cross": "center",
+          "self_align": "start",
+          "padding": {
+           "top": 7,
+           "end": 12,
+           "bottom": 7,
+           "start": 10
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "children": [
+           {
+            "id": "sig-126",
+            "type": "icon",
+            "icon": "schedule",
+            "icon_size": 16,
+            "color": "#52627A",
+            "dark_color": "#97A6BA"
+           },
+           {
+            "id": "sig-127",
+            "type": "text",
+            "text": "Installments coming soon",
+            "max_lines": 2,
+            "font": {
+             "size": 12.5,
+             "weight": 700,
+             "line_height": 1.2
+            },
+            "color": "#52627A",
+            "dark_color": "#97A6BA",
+            "translations": {
+             "ar": {
+              "text": "التقسيط قريبًا"
+             },
+             "tr": {
+              "text": "Taksit yakında"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "السلة"
+       },
+       "tr": {
+        "title": "Sepet"
+       }
+      },
+      "background": "#E8EDF3",
+      "color": "#0F1E33",
+      "dark_background": "#0B1119",
+      "dark_color": "#E6ECF4",
+      "style": "search"
+     },
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "Orders",
+    "translations": {
+     "ar": {
+      "title": "الطلبات"
+     },
+     "tr": {
+      "title": "Siparişler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-128",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-129",
+        "type": "row",
+        "name": "Your order's journey",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-130",
+          "type": "column",
+          "width": "fill",
+          "gap": 1,
+          "children": [
+           {
+            "id": "sig-131",
+            "type": "text",
+            "text": "Your order's journey",
+            "font": {
+             "family": "Alexandria",
+             "size": 14.5,
+             "weight": 600,
+             "line_height": 1.3,
+             "letter_spacing": 0.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "رحلة طلبك"
+             },
+             "tr": {
+              "text": "Siparişinin yolculuğu"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-132",
+        "type": "timeline",
+        "name": "Your order's journey",
+        "timeline": {
+         "style": "horizontal",
+         "source": "latest_order"
+        },
+        "color": "#0F1E33",
+        "dark_color": "#E6ECF4",
+        "radius": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "border_color": "#D3DBE6",
+        "dark_border_color": "#243244",
+        "border_width": 1,
+        "padding": {
+         "top": 14,
+         "end": 12,
+         "bottom": 14,
+         "start": 12
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 6,
+         "start": 16
+        },
+        "entries": [
+         {
+          "title": "Order received",
+          "text": "We're checking every part of it.",
+          "highlight": true,
+          "translations": {
+           "ar": {
+            "title": "تم استلام الطلب",
+            "text": "نتحقق من كل قطعة فيه."
+           },
+           "tr": {
+            "title": "Sipariş alındı",
+            "text": "Her parçasını kontrol ediyoruz."
+           }
+          }
+         },
+         {
+          "title": "Built and tested",
+          "text": "Assembled, stress-tested and packed with care.",
+          "translations": {
+           "ar": {
+            "title": "تم التجميع والفحص",
+            "text": "جُمّع واختُبر وغُلّف بعناية."
+           },
+           "tr": {
+            "title": "Toplandı ve test edildi",
+            "text": "Toplandı, test edildi ve özenle paketlendi."
+           }
+          }
+         },
+         {
+          "title": "On its way",
+          "text": "With the courier, on its way to you.",
+          "translations": {
+           "ar": {
+            "title": "في الطريق",
+            "text": "مع المندوب في طريقه إليك."
+           },
+           "tr": {
+            "title": "Yolda",
+            "text": "Kuryede, size geliyor."
+           }
+          }
+         },
+         {
+          "title": "Delivered",
+          "text": "Enjoy it. Your warranty starts today.",
+          "translations": {
+           "ar": {
+            "title": "تم التوصيل",
+            "text": "استمتع به. يبدأ ضمانك من اليوم."
+           },
+           "tr": {
+            "title": "Teslim edildi",
+            "text": "Keyfini çıkarın. Garantiniz bugün başlıyor."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      },
+      "background": "#E8EDF3",
+      "color": "#0F1E33",
+      "dark_background": "#0B1119",
+      "dark_color": "#E6ECF4",
+      "style": "search"
+     },
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-134",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-133",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "account",
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "menu",
+    "title": "Catalogue",
+    "translations": {
+     "ar": {
+      "title": "الكتالوج"
+     },
+     "tr": {
+      "title": "Katalog"
+     }
+    },
+    "studio": {
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119",
+     "body": {
+      "id": "sig-63",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-64",
+        "type": "categories",
+        "name": "Catalogue",
+        "source": "products",
+        "style": "rows",
+        "category_menu": {
+         "look": "lead",
+         "radius": 8,
+         "numbers": true
+        },
+        "color": "#0F1E33",
+        "dark_color": "#E6ECF4",
+        "padding": {
+         "top": 6,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-65",
+        "type": "column",
+        "gap": 1,
+        "radius": 10,
+        "padding": {
+         "top": 1,
+         "end": 1,
+         "bottom": 1,
+         "start": 1
+        },
+        "margin": {
+         "top": 14,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#D3DBE6",
+        "dark_background": "#243244",
+        "children": [
+         {
+          "id": "sig-66",
+          "type": "row",
+          "name": "Account",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-67",
+            "type": "icon",
+            "icon": "person",
+            "icon_size": 20,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-68",
+            "type": "text",
+            "text": "Account",
+            "font": {
+             "family": "Alexandria",
+             "size": 13,
+             "weight": 500
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "الحساب"
+             },
+             "tr": {
+              "text": "Hesap"
+             }
+            }
+           },
+           {
+            "id": "sig-69",
+            "type": "icon",
+            "icon": "chevron_right",
+            "icon_size": 18,
+            "color": "#52627A",
+            "dark_color": "#97A6BA"
+           }
+          ]
+         },
+         {
+          "id": "sig-70",
+          "type": "row",
+          "name": "Orders and invoices",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "action": {
+           "type": "screen",
+           "screen": "orders"
+          },
+          "children": [
+           {
+            "id": "sig-71",
+            "type": "icon",
+            "icon": "receipt_long",
+            "icon_size": 20,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-72",
+            "type": "text",
+            "text": "Orders and invoices",
+            "font": {
+             "family": "Alexandria",
+             "size": 13,
+             "weight": 500
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "الطلبات والفواتير"
+             },
+             "tr": {
+              "text": "Siparişler ve faturalar"
+             }
+            }
+           },
+           {
+            "id": "sig-73",
+            "type": "icon",
+            "icon": "chevron_right",
+            "icon_size": 18,
+            "color": "#52627A",
+            "dark_color": "#97A6BA"
+           }
+          ]
+         },
+         {
+          "id": "sig-74",
+          "type": "row",
+          "name": "Saved items",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "action": {
+           "type": "screen",
+           "screen": "favorites"
+          },
+          "children": [
+           {
+            "id": "sig-75",
+            "type": "icon",
+            "icon": "bookmark",
+            "icon_size": 20,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-76",
+            "type": "text",
+            "text": "Saved items",
+            "font": {
+             "family": "Alexandria",
+             "size": 13,
+             "weight": 500
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "المحفوظات"
+             },
+             "tr": {
+              "text": "Kaydedilenler"
+             }
+            }
+           },
+           {
+            "id": "sig-77",
+            "type": "icon",
+            "icon": "chevron_right",
+            "icon_size": 18,
+            "color": "#52627A",
+            "dark_color": "#97A6BA"
+           }
+          ]
+         },
+         {
+          "id": "sig-78",
+          "type": "row",
+          "name": "Language",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "action": {
+           "type": "screen",
+           "screen": "settings"
+          },
+          "children": [
+           {
+            "id": "sig-79",
+            "type": "icon",
+            "icon": "language",
+            "icon_size": 20,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-80",
+            "type": "text",
+            "text": "Language",
+            "font": {
+             "family": "Alexandria",
+             "size": 13,
+             "weight": 500
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "اللغة"
+             },
+             "tr": {
+              "text": "Dil"
+             }
+            }
+           },
+           {
+            "id": "sig-81",
+            "type": "icon",
+            "icon": "chevron_right",
+            "icon_size": 18,
+            "color": "#52627A",
+            "dark_color": "#97A6BA"
+           }
+          ]
+         },
+         {
+          "id": "sig-82",
+          "type": "row",
+          "name": "Account manager",
+          "gap": 12,
+          "cross": "center",
+          "padding": {
+           "top": 12,
+           "end": 12,
+           "bottom": 12,
+           "start": 12
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-83",
+            "type": "icon",
+            "icon": "support_agent",
+            "icon_size": 20,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-84",
+            "type": "text",
+            "text": "Account manager",
+            "font": {
+             "family": "Alexandria",
+             "size": 13,
+             "weight": 500
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "مدير الحساب"
+             },
+             "tr": {
+              "text": "Müşteri temsilcisi"
+             }
+            }
+           },
+           {
+            "id": "sig-85",
+            "type": "icon",
+            "icon": "chevron_right",
+            "icon_size": 18,
+            "color": "#52627A",
+            "dark_color": "#97A6BA"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-86",
+        "type": "text",
+        "text": "Business desk every day, 10 am to midnight",
+        "font": {
+         "family": "Alexandria",
+         "size": 11.5,
+         "weight": 400
+        },
+        "color": "#52627A",
+        "dark_color": "#97A6BA",
+        "max_lines": 2,
+        "padding": {
+         "top": 8,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "translations": {
+         "ar": {
+          "text": "مكتب الشركات يوميًا من 10 صباحًا حتى منتصف الليل"
+         },
+         "tr": {
+          "text": "Kurumsal masa her gün 10.00–24.00"
+         }
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Catalogue",
+      "translations": {
+       "ar": {
+        "title": "الكتالوج"
+       },
+       "tr": {
+        "title": "Katalog"
+       }
+      },
+      "buttons": [
+       "search",
+       "cart"
+      ],
+      "background": "#E8EDF3",
+      "color": "#0F1E33",
+      "dark_background": "#0B1119",
+      "dark_color": "#E6ECF4",
+      "style": "search"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "business-quote",
+    "title": "Business quote",
+    "translations": {
+     "ar": {
+      "title": "عرض سعر للشركات"
+     },
+     "tr": {
+      "title": "Kurumsal teklif"
+     }
+    },
+    "studio": {
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119",
+     "body": {
+      "id": "sig-87",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-88",
+        "type": "row",
+        "name": "Delivery for companies",
+        "gap": 1,
+        "radius": 10,
+        "padding": {
+         "top": 1,
+         "end": 1,
+         "bottom": 1,
+         "start": 1
+        },
+        "margin": {
+         "top": 12,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#D3DBE6",
+        "dark_background": "#243244",
+        "children": [
+         {
+          "id": "sig-89",
+          "type": "column",
+          "name": "Delivery for companies",
+          "width": "fill",
+          "gap": 4,
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "children": [
+           {
+            "id": "sig-90",
+            "type": "icon",
+            "icon": "local_shipping",
+            "icon_size": 20,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-91",
+            "type": "text",
+            "text": "Delivery for companies",
+            "font": {
+             "family": "Alexandria",
+             "size": 11.5,
+             "weight": 500,
+             "line_height": 1.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "توصيل للشركات"
+             },
+             "tr": {
+              "text": "Şirketlere teslimat"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-92",
+          "type": "column",
+          "name": "On-site warranty",
+          "width": "fill",
+          "gap": 4,
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "children": [
+           {
+            "id": "sig-93",
+            "type": "icon",
+            "icon": "build",
+            "icon_size": 20,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-94",
+            "type": "text",
+            "text": "On-site warranty",
+            "font": {
+             "family": "Alexandria",
+             "size": 11.5,
+             "weight": 500,
+             "line_height": 1.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "ضمان في الموقع"
+             },
+             "tr": {
+              "text": "Yerinde garanti"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-95",
+          "type": "column",
+          "name": "Prices for quantities",
+          "width": "fill",
+          "gap": 4,
+          "padding": {
+           "top": 10,
+           "end": 10,
+           "bottom": 10,
+           "start": 10
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#131B26",
+          "children": [
+           {
+            "id": "sig-96",
+            "type": "icon",
+            "icon": "inventory_2",
+            "icon_size": 20,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-97",
+            "type": "text",
+            "text": "Prices for quantities",
+            "font": {
+             "family": "Alexandria",
+             "size": 11.5,
+             "weight": 500,
+             "line_height": 1.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "أسعار للكميات"
+             },
+             "tr": {
+              "text": "Adetli fiyatlar"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-98",
+        "type": "column",
+        "name": "Request a business quote",
+        "gap": 4,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "radius": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "border_color": "#D3DBE6",
+        "dark_border_color": "#243244",
+        "border_width": 1,
+        "corners": {
+         "top_start": 4,
+         "bottom_start": 4,
+         "top_end": 10,
+         "bottom_end": 10
+        },
+        "children": [
+         {
+          "id": "sig-99",
+          "type": "row",
+          "gap": 8,
+          "cross": "center",
+          "children": [
+           {
+            "id": "sig-100",
+            "type": "icon",
+            "icon": "description",
+            "icon_size": 22,
+            "color": "#2A5885",
+            "dark_color": "#8CBBEA"
+           },
+           {
+            "id": "sig-101",
+            "type": "text",
+            "text": "Request a business quote",
+            "font": {
+             "family": "Alexandria",
+             "size": 15,
+             "weight": 600,
+             "line_height": 1.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "width": "fill",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "اطلب عرض سعر للشركات"
+             },
+             "tr": {
+              "text": "Kurumsal teklif isteyin"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-102",
+          "type": "text",
+          "text": "Ten devices or more? Tell us what you need and we answer with a quote within one working day.",
+          "font": {
+           "family": "Alexandria",
+           "size": 12,
+           "weight": 400,
+           "line_height": 1.55
+          },
+          "color": "#52627A",
+          "dark_color": "#97A6BA",
+          "max_lines": 4,
+          "translations": {
+           "ar": {
+            "text": "عشرة أجهزة أو أكثر؟ أخبرنا بما تحتاج ونرد بعرض سعر خلال يوم عمل واحد."
+           },
+           "tr": {
+            "text": "On cihaz ya da daha fazlası mı? İhtiyacınızı yazın, bir iş günü içinde teklifle dönelim."
+           }
+          }
+         },
+         {
+          "id": "sig-103",
+          "type": "form",
+          "name": "Request a business quote",
+          "form": {
+           "fields": [
+            {
+             "id": "q1",
+             "kind": "text",
+             "label": "Company name",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "q2",
+             "kind": "text",
+             "label": "Your name",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "q3",
+             "kind": "email",
+             "label": "Work email",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "q4",
+             "kind": "phone",
+             "label": "Phone",
+             "required": false,
+             "options": null
+            },
+            {
+             "id": "q5",
+             "kind": "number",
+             "label": "Quantity",
+             "required": true,
+             "options": null
+            },
+            {
+             "id": "q6",
+             "kind": "long_text",
+             "label": "Models and what they are for",
+             "required": false,
+             "options": null
+            }
+           ],
+           "submit_label": "Request the quote",
+           "success_text": "Thank you. Your quote will reach you within one working day.",
+           "send_to": "email"
+          },
+          "color": "#0F1E33",
+          "dark_color": "#E6ECF4",
+          "margin": {
+           "top": 10,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Business quote",
+      "translations": {
+       "ar": {
+        "title": "عرض سعر للشركات"
+       },
+       "tr": {
+        "title": "Kurumsal teklif"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#E8EDF3",
+      "color": "#0F1E33",
+      "dark_background": "#0B1119",
+      "dark_color": "#E6ECF4",
+      "style": "search"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "compare",
+    "title": "Compare",
+    "translations": {
+     "ar": {
+      "title": "المقارنة"
+     },
+     "tr": {
+      "title": "Karşılaştır"
+     }
+    },
+    "studio": {
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119",
+     "body": {
+      "id": "sig-104",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 32,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-105",
+        "type": "text",
+        "text": "Two machines, spec by spec",
+        "font": {
+         "family": "Alexandria",
+         "size": 13,
+         "weight": 400
+        },
+        "color": "#52627A",
+        "dark_color": "#97A6BA",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "translations": {
+         "ar": {
+          "text": "جهازان، مواصفة بمواصفة"
+         },
+         "tr": {
+          "text": "İki makine, özellik özellik"
+         }
+        }
+       },
+       {
+        "id": "sig-106",
+        "type": "compare",
+        "name": "Compare",
+        "tech": {
+         "accent": "#2A5885",
+         "rows": 6
+        },
+        "color": "#0F1E33",
+        "dark_color": "#E6ECF4",
+        "radius": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "border_color": "#D3DBE6",
+        "dark_border_color": "#243244",
+        "border_width": 1,
+        "padding": {
+         "top": 12,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-107",
+        "type": "row",
+        "name": "Full specs",
+        "cross": "end",
+        "gap": 12,
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-108",
+          "type": "column",
+          "width": "fill",
+          "gap": 1,
+          "children": [
+           {
+            "id": "sig-109",
+            "type": "text",
+            "text": "Full specs",
+            "font": {
+             "family": "Alexandria",
+             "size": 14.5,
+             "weight": 600,
+             "line_height": 1.3,
+             "letter_spacing": 0.3
+            },
+            "color": "#0F1E33",
+            "dark_color": "#E6ECF4",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "المواصفات كاملة"
+             },
+             "tr": {
+              "text": "Tüm özellikler"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-110",
+        "type": "spec_table",
+        "name": "Full specs",
+        "text": "Full specs",
+        "translations": {
+         "ar": {
+          "text": "المواصفات كاملة"
+         },
+         "tr": {
+          "text": "Tüm özellikler"
+         }
+        },
+        "tech": {
+         "rows": 14
+        },
+        "color": "#0F1E33",
+        "dark_color": "#E6ECF4",
+        "radius": 10,
+        "background": "#FFFFFF",
+        "dark_background": "#131B26",
+        "border_color": "#D3DBE6",
+        "dark_border_color": "#243244",
+        "border_width": 1,
+        "padding": {
+         "top": 10,
+         "end": 12,
+         "bottom": 10,
+         "start": 12
+        },
+        "margin": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Compare",
+      "translations": {
+       "ar": {
+        "title": "المقارنة"
+       },
+       "tr": {
+        "title": "Karşılaştır"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#E8EDF3",
+      "color": "#0F1E33",
+      "dark_background": "#0B1119",
+      "dark_color": "#E6ECF4",
+      "style": "search"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-135",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#E8EDF3",
+      "color": "#0F1E33",
+      "dark_background": "#0B1119",
+      "dark_color": "#E6ECF4",
+      "style": "search"
+     },
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-136",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#E8EDF3",
+      "color": "#0F1E33",
+      "dark_background": "#0B1119",
+      "dark_color": "#E6ECF4",
+      "style": "search"
+     },
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "favorites",
+    "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-137",
+      "type": "column",
+      "children": []
+     },
+     "screen": "favorites",
+     "header": {
+      "type": "title",
+      "title": "Wishlist",
+      "translations": {
+       "ar": {
+        "title": "المفضلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      },
+      "background": "#E8EDF3",
+      "color": "#0F1E33",
+      "dark_background": "#0B1119",
+      "dark_color": "#E6ECF4",
+      "style": "search"
+     },
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-138",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#E8EDF3",
+      "color": "#0F1E33",
+      "dark_background": "#0B1119",
+      "dark_color": "#E6ECF4",
+      "style": "search"
+     },
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-139",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#E8EDF3",
+      "color": "#0F1E33",
+      "dark_background": "#0B1119",
+      "dark_color": "#E6ECF4",
+      "style": "search"
+     },
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-140",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-141",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#E8EDF3",
+     "dark_background": "#0B1119"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#FFFFFF",
+   "dark_background": "#131B26",
+   "active": "#2A5885",
+   "dark_active": "#8CBBEA",
+   "inactive": "#52627A",
+   "dark_inactive": "#97A6BA",
+   "design": "line",
+   "labels": "always",
+   "radius": 0,
+   "margin": 0
+  }
+ }
+}

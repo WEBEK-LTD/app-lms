@@ -324,6 +324,8 @@ export const ICON_NAMES = [
   "table_chart",
   "toys",
   "view_list",
+  // 227 Nawah C's Home tab.
+  "sports_esports",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

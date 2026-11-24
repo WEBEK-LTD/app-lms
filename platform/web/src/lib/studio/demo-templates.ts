@@ -65,12 +65,12 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   crochet: "crochet_signature_c",
   // 225 Rukn is now its template C, MIZAN the architect (lib/studio/demo-designs/furniture-c-signature.ts).
   furniture: "furniture_signature_c",
-  // 211 Madar, the electronics shop, is its Signature look A, MADAR (lib/studio/demo-designs/electronics-signature.ts).
-  electronics: "electronics_signature_a",
+  // 211 Madar, the electronics shop; 227 its main look C, MADAR GRID (lib/studio/demo-designs/electronics-c-signature.ts).
+  electronics: "electronics_signature_c",
   // 211 Nova, the mobiles shop, is its Signature look A, NOVA (lib/studio/demo-designs/mobiles-signature.ts).
   mobiles: "mobiles_signature_a",
   // 211 Nawah, computers and gaming, is its Signature look A, NAWAH (lib/studio/demo-designs/computers-signature.ts).
-  computers: "computers_signature_a",
+  computers: "computers_signature_c",
 };
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -144,12 +144,12 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   decor: { surface: "#FBFAF6", nightSurface: "#1B1C18", line: "#E1DBCF", nightLine: "#2C2E26", muted: "#62635A", nightMuted: "#B4B3A7" },
   crochet: { surface: "#FFFCF7", nightSurface: "#221A16", line: "#EADFD1", nightLine: "#3A2E26", muted: "#6B5D52", nightMuted: "#C4B5A8" },
   furniture: { surface: "#FFFFFF", nightSurface: "#211C18", line: "#E8E1D8", nightLine: "#36302A", muted: "#6B625A", nightMuted: "#B8AEA4" },
-  // 211 Madar's, its look A's (lib/studio/demo-designs/electronics-signature.ts MADAR_INK).
-  electronics: { surface: "#FFFFFF", nightSurface: "#15171B", line: "#E2E5EA", nightLine: "#25282E", muted: "#4E5561", nightMuted: "#B4BAC4" },
+  // 227 Madar's, its main look C's (lib/studio/demo-designs/electronics-c-signature.ts MADAR_GRID_INK).
+  electronics: { surface: "#FFFFFF", nightSurface: "#10141C", line: "#DBE0E8", nightLine: "#232A37", muted: "#535C6E", nightMuted: "#A0AABB" },
   // 211 Nova's, its look A's (lib/studio/demo-designs/mobiles-signature.ts NOVA_INK).
   mobiles: { surface: "#FFFFFF", nightSurface: "#15171C", line: "#E2E5EA", nightLine: "#262A31", muted: "#525864", nightMuted: "#AEB3BD" },
-  // 211 Nawah's, its look A's (lib/studio/demo-designs/computers-signature.ts NAWAH_INK).
-  computers: { surface: "#FFFFFF", nightSurface: "#14171D", line: "#E1E4E9", nightLine: "#242931", muted: "#4A5161", nightMuted: "#B4BAC6" },
+  // 227 Nawah's, its main look C's (lib/studio/demo-designs/computers-c-signature.ts BATTLE_INK).
+  computers: { surface: "#FFFFFF", nightSurface: "#0E1017", line: "#D0D3DC", nightLine: "#1F2331", muted: "#545868", nightMuted: "#A0A6B8" },
 };
 
 /**
@@ -371,6 +371,9 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     pcServiceWarrantyText: { en: "Up to 3 years, serviced in Jeddah", ar: "حتى 3 سنوات، والصيانة في جدة", tr: "3 yıla kadar, servis Cidde'de" },
     pcServiceDeliveryText: { en: "Within a day in Jeddah, 2 to 3 days elsewhere", ar: "خلال يوم في جدة، ومن يومين إلى 3 أيام لغيرها", tr: "Cidde'de bir gün içinde, diğer şehirlere 2–3 gün" },
     pcContactLine: { en: "Tech support every day, 10 am to midnight", ar: "دعم فني يوميًا من 10 صباحًا حتى منتصف الليل", tr: "Teknik destek her gün 10.00–24.00" },
+    // 227 Looks C and D's.
+    pbContactLine: { en: "Tech support every day, 10 am to midnight", ar: "دعم فني يوميًا من 10 صباحًا حتى منتصف الليل", tr: "Teknik destek her gün 10.00–24.00" },
+    pwContactLine: { en: "Business desk every day, 10 am to midnight", ar: "مكتب الشركات يوميًا من 10 صباحًا حتى منتصف الليل", tr: "Kurumsal masa her gün 10.00–24.00" },
     pcWarrantyNote: { en: "Returns within 14 days, and up to 3 years of warranty on every device.", ar: "إرجاع خلال 14 يومًا، وضمان حتى 3 سنوات على كل جهاز.", tr: "14 gün içinde iade ve her cihazda 3 yıla kadar garanti." },
   },
   // 208 Lujain's own words where its looks leave the owner brackets: its look, its drop, its promises and its exchanges (lib/demo/clothes.ts).
@@ -478,6 +481,9 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     elStarTitle: { en: "True black and colours that never fade, 65 inches", ar: "سواد حقيقي وألوان لا تنطفئ بشاشة 65 بوصة", tr: "Gerçek siyah ve solmayan renkler, 65 inç" },
     elDeliverTo: { en: "Delivering to Riyadh, Al Malqa", ar: "التوصيل إلى الرياض، حي الملقا", tr: "Teslimat: Riyad, Al Malqa" },
     elContactLine: { en: "Every day, 9 am to 11 pm", ar: "يوميًا من 9 صباحًا حتى 11 مساءً", tr: "Her gün 09.00–23.00" },
+    // 227 Looks C and D's.
+    ebContactLine: { en: "Every day, 9 am to 11 pm", ar: "يوميًا من 9 صباحًا حتى 11 مساءً", tr: "Her gün 09.00–23.00" },
+    esContactLine: { en: "Every day, 9 am to 11 pm", ar: "يوميًا من 9 صباحًا حتى 11 مساءً", tr: "Her gün 09.00–23.00" },
     elEditTitle: { en: "Laptops for work and study, up to 15% off", ar: "لابتوبات للعمل والدراسة بخصم حتى 15%", tr: "İş ve okul için dizüstüler, %15'e varan indirim" },
     elReturnsNote: { en: "Returns within 14 days in the original box; the maker's warranty through us.", ar: "إرجاع خلال 14 يومًا في العلبة الأصلية، وضمان الوكيل عن طريقنا.", tr: "Orijinal kutusunda 14 gün içinde iade; üretici garantisi bizim üzerimizden." },
   },

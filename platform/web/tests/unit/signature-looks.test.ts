@@ -96,7 +96,7 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
     }
   });
 
-  it("makes every demo's look A the demo: its home, bar, screens and chrome", () => {
+  it("makes every demo's main look the demo (223: C where it has one, else A): its home, bar, screens and chrome", () => {
     for (const demo of STUDIO_DEMO_TYPES) {
       // 223 The demo is its main look: C where the shop type has it, else A.
       const main = mainLookOf(demo);

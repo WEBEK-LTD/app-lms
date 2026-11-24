@@ -1,5 +1,4 @@
 import { createHash } from "node:crypto";
-import { mainTemplateOf } from "@/lib/studio/demo-designs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withoutDemo } from "@/lib/admin/overview";
 import { isSetupComplete, newApp, queueBuild } from "@/lib/app/setup";
@@ -20,6 +19,7 @@ import { ACADEMY_COURSES, ACADEMY_TEACHERS } from "@/lib/demo/teachers";
 import { DemoSetupError, setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { DEMO_SCREENS, DEMO_TAB_BARS } from "@/lib/demo/screens";
 import type { StudioScreens } from "@/lib/studio/screens";
+import { mainTemplateOf } from "@/lib/studio/demo-designs";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { connectorFor } from "@/lib/hosted/connectors";

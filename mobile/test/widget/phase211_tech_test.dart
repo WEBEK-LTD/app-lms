@@ -430,6 +430,26 @@ void main() {
     app.container.dispose();
   });
 
+  testWidgets('227 a spec value reads whole in Arabic, its count in a badge '
+      'after it', (tester) async {
+    final (app, _) = await open(tester, language: 'ar');
+    final value = find.byKey(const ValueKey('spec-filter-value-16 GB'));
+    final count = find.byKey(const ValueKey('spec-filter-count-16 GB'));
+    expect(value, findsOneWidget);
+    expect(count, findsOneWidget);
+    // The value is its own directional run (a first strong isolate), never
+    // mixed with the count.
+    expect(tester.widget<Text>(value).data, '\u206816 GB\u2069');
+    expect(
+      find.descendant(of: count, matching: find.text('4')),
+      findsOneWidget,
+    );
+    // Right to left: the value first, at the chip's right, its count after
+    // it at its left.
+    expect(tester.getCenter(count).dx, lessThan(tester.getCenter(value).dx));
+    app.container.dispose();
+  });
+
   testWidgets('a spec value opens the shop filtered by it', (tester) async {
     final (app, api) = await open(tester);
     await tester.tap(find.byKey(const ValueKey('spec-filter-16 GB')));
