@@ -95,11 +95,18 @@ Security practices to declare:
 - Not independently validated.
 - Committed to Play's Families policy: no. The app is not for children.
 
-## To confirm before submitting
+## Needed before any store submission
 
-1. The privacy policy at `https://community.yallapp.com.tr/privacy` exists
-   (area F) and lists the same data.
-2. The website offers account deletion too, or the deletion URL that Google
-   asks for points to a page that explains how.
-3. How long the proof of identity is kept after the decision (area C): the
-   policy should say.
+F's answer, 24 November 2026: neither of the first two exists in phase 1.
+Both are outside the approved phase 1 scope, and F has flagged them to the
+coordinator.
+
+1. **A Community privacy policy.** community.yallapp.com.tr has no
+   `/privacy`. Yallapp's own policy (yallapp.com.tr/privacy) doesn't list
+   the community's data. Both stores require a policy URL.
+2. **Account deletion on the website.** The API has `DELETE /me` and the app
+   has Settings → Delete account, but the site has no page for it. Google's
+   Data safety form asks for a deletion URL.
+3. **How long the proof of identity is kept after the decision** (area C).
+   C hasn't answered; the coordinator suggests 30 days. The policy should
+   say.
