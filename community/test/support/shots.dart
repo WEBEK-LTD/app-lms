@@ -46,6 +46,13 @@ Future<void> shot(WidgetTester tester, String name) async {
 
 Future<void> _write(WidgetTester tester, String name) async {
   if (shotsDir.isEmpty) return;
+  // Shadows as a phone draws them, blurred, for this frame only (tests draw
+  // them solid, and the flag must be back before the test ends).
+  debugDisableShadows = false;
+  tester.binding.renderViews.first.markNeedsPaint();
+  for (final e in tester.allElements) {
+    e.renderObject?.markNeedsPaint();
+  }
   // Let pictures (covers, photos) decode, then draw them.
   await tester.runAsync(
     () => Future<void>.delayed(const Duration(milliseconds: 400)),
@@ -65,4 +72,9 @@ Future<void> _write(WidgetTester tester, String name) async {
     await file.parent.create(recursive: true);
     await file.writeAsBytes(bytes!.buffer.asUint8List());
   });
+  debugDisableShadows = true;
+  for (final e in tester.allElements) {
+    e.renderObject?.markNeedsPaint();
+  }
+  await tester.pump();
 }
