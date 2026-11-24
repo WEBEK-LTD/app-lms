@@ -26,9 +26,14 @@ export interface MemberSummary {
   rank: MemberRank;
   /** The rank in the reader's language ("Expert"), from area A's views. */
   rankLabel?: string;
+  /** Area A's level, its name and how far toward the next (0-1), where A gives them. */
+  level?: MemberRank;
+  levelLabel?: string;
+  levelProgress?: number;
 }
 
-export type MemberRank = "newcomer" | "member" | "contributor" | "expert" | "pro";
+/** The community's levels (lib/community/levels.ts). */
+export type MemberRank = import("../levels").CommunityLevel;
 
 /**
  * Where a post is: shown; waiting for a moderator (a new member's first

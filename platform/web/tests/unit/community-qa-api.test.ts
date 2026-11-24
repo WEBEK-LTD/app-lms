@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 import { QA_ROUTES } from "@/lib/community/api/qa-routes";
-import { api, joinWithEmail, NOW, testCommunity, type TestCommunity } from "./community-support";
+import { api, joinWithEmail, makeYallappStaff, NOW, testCommunity, type TestCommunity } from "./community-support";
 
 /**
  * 231 Area B through the Community API (/api/community/v1): asking with the
@@ -17,8 +17,9 @@ async function setup() {
   const c = await testCommunity({ providers: false });
   const asker = await joinWithEmail(c, "Karim Asker");
   const helper = await joinWithEmail(c, "Nour Helper");
-  const team = await joinWithEmail(c, "Yallapp Team One");
-  await c.deps.store.base.updateMember(team.id, { role: "team" });
+  const team = await joinWithEmail(c, "Tariq Staff");
+  // "Yallapp Team": their linked Yallapp account is on Yallapp's support team.
+  await makeYallappStaff(c, team.id, "support");
   return { c, asker, helper, team };
 }
 
@@ -52,7 +53,8 @@ describe("231 Community Q&A API", () => {
     const q = await ask(c, asker.token);
     expect(q).toMatchObject({ title: QUESTION.title, status: "published", section: { slug: "payments" }, answer_count: 0, my_vote: 0, can_edit: true, answers: [] });
     expect(q.tags.map((t: Json) => t.slug)).toEqual(["payments", "checkout"]);
-    expect(q.author).toMatchObject({ id: asker.id, display_name: "Karim Asker", team: false, rank: "newcomer" });
+    // A's one MemberSummary: the level, its name and its progress too.
+    expect(q.author).toMatchObject({ id: asker.id, display_name: "Karim Asker", team: false, rank: "newcomer", rank_label: expect.any(String), level: "newcomer", level_label: expect.any(String), level_progress: 0 });
 
     const similar = await api<Json>(c, "GET", `/qa/questions/similar?title=${encodeURIComponent("connect payment gateway store")}`, { token: helper.token });
     expect(similar.body.items.map((s: Json) => s.id)).toEqual([q.id]);

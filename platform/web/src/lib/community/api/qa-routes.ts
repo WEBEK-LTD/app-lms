@@ -3,6 +3,7 @@ import * as qa from "../qa/service";
 import { QaError, type CommunityLang, type QuestionFilterName, type QuestionSort, type TutorialKind, type TutorialLevel, type VoteValue } from "../qa/types";
 import { CommunityError, noContent, ok, requireMember, str, type CommunityContext, type CommunityResult, type CommunityRoute } from "./http";
 import { hasWord } from "../i18n";
+import { isYallappTeam } from "../staff";
 import { qaHooksFor } from "./qa-hooks";
 
 /**
@@ -115,13 +116,13 @@ const editQuestion: Handler = async (ctx) => {
   return ok(wire(question));
 };
 
-/** One's own question is deleted; Yallapp's team and admins remove anyone's. */
+/** One's own question is deleted; Yallapp's team (lib/community/staff.ts) removes anyone's. */
 const deleteQuestion: Handler = async (ctx) => {
   const member = requireMember(ctx).member;
   try {
     await qa.deleteQuestion(member.id, ctx.params.question_id!, ctx.now);
   } catch (error) {
-    if (!(error instanceof QaError && error.code === "not_allowed" && member.role !== "member")) throw error;
+    if (!(error instanceof QaError && error.code === "not_allowed" && (await isYallappTeam(ctx, ctx.deps.platform, member)))) throw error;
     const q = (await ctx.store.qa.getQuestion(ctx.params.question_id!)) ?? (await ctx.store.qa.getQuestionBySlug(ctx.params.question_id!));
     if (!q) throw error;
     await qa.setContentStatus("question", q.id, "removed", ctx.now);

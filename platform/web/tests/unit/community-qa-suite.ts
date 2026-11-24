@@ -106,7 +106,7 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       // Arabic's joined "the" and "and" don't keep a word from being found.
       expect(words("المتجر والدفع")).toEqual(["متجر", "دفع"]);
       expect(links("see https://a.test/x and http://b.test")).toEqual(["https://a.test/x", "http://b.test"]);
-      expect([rankOf(0), rankOf(25), rankOf(250), rankOf(1240), rankOf(5000)]).toEqual(["newcomer", "member", "contributor", "expert", "pro"]);
+      expect([rankOf(0), rankOf(25), rankOf(250), rankOf(1240), rankOf(1375), rankOf(5000)]).toEqual(["newcomer", "member", "contributor", "pro", "expert", "master"]);
       expect(similarity({ title: "Connect payment gateway store" }, { title: "How to connect a payment gateway to a store" })).toBeGreaterThan(0.5);
       expect(similarity({ title: "Connect payment gateway" }, { title: "Restaurant menu sections" })).toBe(0);
     });

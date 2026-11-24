@@ -6,7 +6,10 @@ import { linkedAppView } from "../api/views";
 import type { CommunityStore } from "../store";
 import { isDuplicate } from "../store/db";
 import type { CommunityMember } from "../types";
+import { isCommunityLanguage, t } from "../i18n";
+import type { CommunityMail } from "../mail";
 import { linkedApps, yallappAccountName } from "../yallapp";
+import { limitMember } from "./accounts";
 
 /**
  * 231 Linking a Yallapp account to a community member, OAuth-style: the
@@ -21,6 +24,7 @@ export const LINK_PAGE = "/link-community";
 export const APP_RETURN_URL = "yallappcommunity://linked";
 
 export async function startLink(ctx: MemberContext): Promise<CommunityResult> {
+  await limitMember(ctx, "link");
   const returnTo = ctx.json().return_to === "app" ? "app" : "web";
   const state = randomToken(32);
   const expiresAt = new Date(ctx.now.getTime() + LINK_TTL_MS);
@@ -79,4 +83,14 @@ export async function confirmLink(
   }
   await deps.store.base.confirmLinkRequest(sha256Hex(state), deps.now);
   return { ok: true, member: member ?? pending.member };
+}
+
+/** 231 The email to the Yallapp account's owner once it is linked (in their dashboard language, else English). */
+export function linkedMail(user: { name: string; email: string; language?: string | null }, member: CommunityMember): CommunityMail {
+  const lang = isCommunityLanguage(user.language) ? user.language : "en";
+  return {
+    to: user.email,
+    subject: t(lang, "mail.linked.subject"),
+    text: t(lang, "mail.linked.body", { name: user.name, member: member.displayName, username: member.username, contact: "info@yallapp.com.tr" }),
+  };
 }
