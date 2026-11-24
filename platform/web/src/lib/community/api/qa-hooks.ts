@@ -1,4 +1,4 @@
-import type { QaHooks } from "../qa/hooks";
+import { withQa, type QaHooks } from "../qa/hooks";
 import { trustDepsOf } from "../trust/context";
 import { moderateNew, notify } from "../trust/service";
 import type { MemberSummary } from "../qa/types";
@@ -11,6 +11,18 @@ import { memberSummaries, type MemberSummaryView } from "./views";
  * points a member's profile shows (A), and moderation and notifications
  * (C: `trustForQa` below, which area C fills from its moderateNew and notify).
  */
+/**
+ * The Q&A run with the call's full hooks from outside a Q&A route (area
+ * C's moderation and reports, from wip-community-qa): an approved held
+ * answer still tells the asker and a removed accepted one takes its points
+ * back from the profile.
+ */
+export function withQaFor<T>(ctx: Pick<CommunityContext, "deps" | "store" | "now"> & Partial<CommunityContext>, fn: () => Promise<T>): Promise<T> {
+  // Without a reader (area C's own work): members as a signed-out reader sees them; each notice is written in its recipient's language by area C.
+  const full = { member: null, session: null, lang: "en", params: {}, query: new URLSearchParams(), json: () => ({}), ...ctx } as CommunityContext;
+  return withQa(ctx.store.qa, qaHooksFor(full), fn);
+}
+
 export function qaHooksFor(ctx: CommunityContext): Partial<QaHooks> {
   const base = ctx.store.base;
   return {

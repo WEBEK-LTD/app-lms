@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { isCommunityAdmin } from "../staff";
 import type { CommunityContext } from "../api/http";
-import { withQa } from "../qa/hooks";
+import { withQaFor } from "../api/qa-hooks";
 import { contentInfo, memberStats, recentTexts, setContentStatus, type QaContentKind } from "../qa/service";
 import type { CommunityMember } from "../types";
 import { linkedApps, yallappAccountName } from "../yallapp";
@@ -23,6 +23,7 @@ const qaKind = (kind: ContentKind): QaContentKind | null => (kind === "comment" 
 export interface PrivateFiles {
   put: (key: string, bytes: Uint8Array, contentType: string) => Promise<void>;
   get: (key: string) => Promise<{ bytes: Uint8Array; contentType: string } | null>;
+  delete?: (key: string) => Promise<void>;
 }
 
 /** Yallapp's blob store, loaded when first needed (server only). */
@@ -31,6 +32,7 @@ async function blobFiles(): Promise<PrivateFiles> {
   const blobs = getBlobStore();
   return {
     put: (key, bytes, type) => blobs.put(key, Buffer.from(bytes), type),
+    delete: (key) => blobs.delete(key),
     get: async (key) => {
       const got = await blobs.get(key);
       return got ? { bytes: new Uint8Array(got.data), contentType: got.contentType } : null;
@@ -69,11 +71,11 @@ export function trustMemberOf(m: CommunityMember): TrustMember {
 }
 
 /** Area C's deps for this request. `files` and `secret` are given in tests; Yallapp's blob store and signing secret otherwise. */
-export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"> & { req?: object }, options: { files?: PrivateFiles; secret?: string } = {}): TrustDeps {
+export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"> & Partial<CommunityContext>, options: { files?: PrivateFiles; secret?: string } = {}): TrustDeps {
   const base = ctx.store.base;
   const store = ctx.store.trust as TrustStore;
   // Area B's functions read its store from the call's scope.
-  const inQa = <T,>(fn: () => Promise<T>) => withQa(ctx.store.qa, {}, fn);
+  const inQa = <T,>(fn: () => Promise<T>) => withQaFor(ctx, fn);
   // Given in tests (options, or the deps' `privateFiles`); Yallapp's blob store otherwise.
   const given = options.files ?? ctx.deps.privateFiles;
   const files = given ? Promise.resolve(given) : null;
@@ -86,7 +88,10 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
   const info = async (kind: ContentKind, id: string): Promise<ContentInfo | null> => {
     const k = qaKind(kind);
     const got = k ? await inQa(() => contentInfo(k, id)) : null;
-    return got ? { authorId: got.memberId, title: got.title || got.text.slice(0, 140), link: got.link } : null;
+    if (!got) return null;
+    // A moderator judges an answer or a reply by its own words, not by its question's title.
+    const own = kind === "question" || kind === "tutorial" ? got.title || got.text : got.text || got.title;
+    return { authorId: got.memberId, title: own.slice(0, 140), link: got.link };
   };
   return {
     store,
@@ -140,6 +145,11 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
         url.searchParams.set("e", String(expires));
         url.searchParams.set("s", signFileLink(await secret(), key, expires));
         return url.toString();
+      },
+      delete: async (key) => {
+        const f = await filesOf();
+        if (!f.delete) throw new Error("These private files can't be deleted.");
+        await f.delete(key);
       },
     },
     sendMail: (mail) => ctx.deps.mail(mail),

@@ -83,6 +83,10 @@ export interface TrustStore {
   latestVerification(memberId: string): Promise<VerificationRequest | null>;
   listVerifications(input: { status: VerificationStatus; offset: number; limit: number }): Promise<Page<VerificationRequest>>;
   decideVerification(id: string, input: { status: "approved" | "rejected"; at: Date; by: string; reason: string | null }): Promise<VerificationRequest | null>;
+  /** Decided requests (reviewed before `before`) whose ID proof file is still kept, oldest first. */
+  idProofsDecidedBefore(before: Date, limit: number): Promise<VerificationRequest[]>;
+  /** The ID proof file is gone: its key is emptied (""), the rest of the request stays. */
+  clearIdProof(id: string): Promise<void>;
 
   // The audit log (only added to, never changed)
   addAudit(input: Omit<AuditEntry, "id">): Promise<AuditEntry>;
@@ -169,6 +173,17 @@ export class MemoryTrustStore implements TrustStore {
     return [...new Set([...this.badges.values()].filter((b) => b.source === "auto" && !b.revokedAt).map((b) => b.memberId))];
   }
 
+  async idProofsDecidedBefore(before: Date, limit: number) {
+    return [...this.verifications.values()]
+      .filter((r) => r.status !== "pending" && r.idProofKey !== "" && r.reviewedAt !== null && r.reviewedAt.getTime() < before.getTime())
+      .sort((a, b) => a.reviewedAt!.getTime() - b.reviewedAt!.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+  async clearIdProof(id: string) {
+    const r = this.verifications.get(id);
+    if (r) r.idProofKey = "";
+  }
   async addVerification(input: Omit<VerificationRequest, "id" | "status" | "reason" | "reviewedBy" | "reviewedAt">) {
     if ([...this.verifications.values()].some((x) => x.memberId === input.memberId && x.status === "pending")) return null;
     const r: VerificationRequest = this.made({ ...clone(input), id: randomUUID(), status: "pending", reason: null, reviewedBy: null, reviewedAt: null });

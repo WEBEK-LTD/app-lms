@@ -63,6 +63,24 @@ function suite(name: string, make: () => Promise<{ store: TrustStore; member: ()
       expect(await store.addVerification(form(5))).not.toBeNull();
     });
 
+    it("ID proofs decided long ago are listed for deletion, and cleared", async () => {
+      const { store, member } = await make();
+      const [m1, m2, m3] = [await member(), await member(), await member()];
+      const form = (m: string, n: number) => ({ memberId: m, fullName: "Sami Aydın", idProofKey: `community/id-proof/${m}/${n}.pdf`, portfolioLinks: [], apps: [], createdAt: at(n) });
+      const r1 = (await store.addVerification(form(m1, 1)))!;
+      const r2 = (await store.addVerification(form(m2, 2)))!;
+      await store.addVerification(form(m3, 3));
+      await store.decideVerification(r1.id, { status: "approved", at: at(10), by: m3, reason: "Fine" });
+      await store.decideVerification(r2.id, { status: "rejected", at: at(20), by: m3, reason: "Blurry" });
+      // The suite's database is shared by the other tests: only this test's requests are looked at.
+      const ours = async (before: Date) => (await store.idProofsDecidedBefore(before, 1000)).map((r) => r.id).filter((id) => id === r1.id || id === r2.id);
+      expect(await ours(at(15))).toEqual([r1.id]);
+      expect(await ours(at(30))).toEqual([r1.id, r2.id]);
+      await store.clearIdProof(r1.id);
+      expect(await ours(at(30))).toEqual([r2.id]);
+      expect(await store.getVerification(r1.id)).toMatchObject({ idProofKey: "", status: "approved" });
+    });
+
     it("the audit log: newest first, by member and action, paged", async () => {
       const { store, member } = await make();
       const m = await member();

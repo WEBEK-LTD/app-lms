@@ -2,7 +2,7 @@ import type { CommunityRole, CommunityTargetType } from "../types";
 import { GOLD_MIN_APPS, heldBadges, isActive, reconcileAutoBadges, shownBadge, type BadgeDetails, type CommunityBadge, type MemberBadge, type MemberFacts } from "./badges";
 import { holdCause, moderationGate, type HoldReason } from "./moderation";
 import { BADGE_NAMES, communityLang, DEFAULT_NOTIFICATION_PREFS, emails, notificationEmail, notificationText, parsePrefs, prefsView, type NotificationData, type NotificationKind } from "./notifications";
-import { fileTypeOf, ID_PROOF_TYPES, idProofProblem, parseDecision, parseGrant, parseReason, parseReport, parseVerificationForm, verificationBlocked, type AuditAction, type AuditEntry, type LinkedApp, type Report, type ReportStatus, type VerificationRequest, type VerificationStatus } from "./requests";
+import { fileTypeOf, ID_PROOF_KEEP_DAYS, ID_PROOF_TYPES, idProofProblem, parseDecision, parseGrant, parseReason, parseReport, parseVerificationForm, verificationBlocked, type AuditAction, type AuditEntry, type LinkedApp, type Report, type ReportStatus, type VerificationRequest, type VerificationStatus } from "./requests";
 import { blueRulesOf, mayCreateGroups, parseSettings, settingsOf, type CommunitySettings } from "./settings";
 import type { ContentKind, ModerationItem, ModerationStatus, Page, TrustStore } from "./store";
 
@@ -74,6 +74,8 @@ export interface TrustDeps {
   files: {
     put: (key: string, bytes: Uint8Array, contentType: string) => Promise<void>;
     link: (key: string, seconds: number) => Promise<string>;
+    /** Deletes a private file (gone from storage for good). */
+    delete: (key: string) => Promise<void>;
   };
   /** Sends one email (lib/mail.ts in the platform, a fake in tests). */
   sendMail: (mail: { to: string; subject: string; text: string; html: string }) => Promise<void>;
@@ -426,8 +428,30 @@ export async function idProofLink(deps: TrustDeps, adminId: string, requestId: s
   if (denied) return denied;
   const r = await deps.store.getVerification(requestId);
   if (!r) return fail(404, "not_found", "There's no such request.");
+  if (!r.idProofKey) return fail(404, "not_found", `The ID proof was deleted ${ID_PROOF_KEEP_DAYS} days after the decision.`);
   const seconds = 300;
   return { ok: true, url: await deps.files.link(r.idProofKey, seconds), expiresAt: new Date(deps.now().getTime() + seconds * 1000) };
+}
+
+/**
+ * The daily job: the ID proof file of every request decided more than 30
+ * days ago is deleted from private storage, and the deletion is in the
+ * audit log (no actor: the rule itself). The request's name, links and
+ * decision stay as the record of the decision.
+ */
+export async function purgeIdProofs(deps: TrustDeps): Promise<number> {
+  const before = new Date(deps.now().getTime() - ID_PROOF_KEEP_DAYS * 86_400_000);
+  let deleted = 0;
+  for (;;) {
+    const due = await deps.store.idProofsDecidedBefore(before, 100);
+    for (const r of due) {
+      await deps.files.delete(r.idProofKey);
+      await deps.store.clearIdProof(r.id);
+      await audit(deps, { actorId: null, action: "verification.id_proof_deleted", memberId: r.memberId, targetType: "verification", targetId: r.id, reason: null, details: { decided_at: r.reviewedAt!.toISOString(), status: r.status } });
+      deleted++;
+    }
+    if (due.length < 100) return deleted;
+  }
 }
 
 /** An admin approves (the member gets Gold) or rejects, with a reason; either way the member is told and it is logged. */
