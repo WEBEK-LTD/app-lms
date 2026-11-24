@@ -3,6 +3,7 @@ import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { sides, sigEntry, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
+import { productPageOf, productPart } from "../product-page";
 import { KIT_CUSTOM_PAGE, kitPhoto, ownPage, say, shop, type KitLook } from "./shop-kit-parts";
 
 /**
@@ -670,6 +671,85 @@ const MIZAN_SCREENS = signatureScreens({
 /** The line bar: across the foot on the paper, a line over the open tab, every name shown. */
 const MIZAN_BAR = signatureBar(K, { design: "line", background: K.page, dark_background: K.darkPage, active: K.ink, dark_active: K.darkInk, inactive: "#77776F", dark_inactive: "#8E8E88", labels: "always" });
 
+/**
+ * 228.7 MIZAN's own product page, the piece as a drawing's sheet: the
+ * sheet's top (room for the back button, the sheet's name, the bag in a
+ * square), its title block, the photos in a hairline frame with their
+ * detail views as square thumbnails, the name large in Cairo, then W × D × H
+ * over a dimension rule and the drawing's notes (the piece's size, the
+ * shop's exchanges, the days it takes to make; `product_delivery`), the
+ * price, the finishes as square chips, "Try it in your room" on its plan
+ * grid, the description between hairlines, the pieces of the same room on
+ * the hairline grid, and the price beside Add to cart, square, fixed at the
+ * foot. No shadow, no curve.
+ */
+function productSheet(ctx: SectionContext) {
+  const id = idOf(ctx);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const accent = { accent: K.fill, dark_accent: K.darkFill } as const;
+  const tick = (): StudioNode => ({ id: id(), type: "row", width: 1, height: 9, background: K.ink, dark_background: K.darkInk, children: [] });
+  return productPageOf(ctx, {
+    background: K.page,
+    dark_background: K.darkPage,
+    parts: [
+      {
+        // The sheet's top: the back button sits at its start.
+        element: {
+          id: id(),
+          type: "row",
+          name: ctx.w("mzpSheet"),
+          gap: 8,
+          cross: "center",
+          padding: sides(10, 16, 10, 72),
+          children: [say(ctx, L, "mzpSheet", font(12, 700, { letter_spacing: 2, uppercase: true }), { width: "fill", max_lines: 1 }), squareButton(ctx, "shopping_bag", "tabCart", screen("cart"))],
+        },
+      },
+      { element: titleBlock(ctx, [["mzSheet", "mzpSheet"], ["mzScale", "mzScaleLabel"]]) },
+      {
+        element: {
+          id: id(),
+          type: "column",
+          gap: 0,
+          padding: sides(12, 12, 12, 12),
+          margin: sides(16, 16, 0, 16),
+          background: K.surface,
+          dark_background: K.darkSurface,
+          border_color: K.ink,
+          dark_border_color: K.darkInk,
+          border_width: 1,
+          children: [productPart(ctx, { type: "product_gallery", look: "thumbs", radius: 0, accent: K.fill, dark_accent: K.darkFill, node: { aspect_ratio: 4 / 3 } })],
+        },
+      },
+      { type: "product_title", node: { ...ink, font: font(26, 800, { line_height: 1.2 }), margin: sides(22, 16, 0, 16) } },
+      {
+        element: {
+          id: id(),
+          type: "column",
+          gap: 4,
+          margin: sides(16, 16, 0, 16),
+          children: [
+            say(ctx, L, "mzpDims", font(11, 700, { letter_spacing: 1.5, uppercase: true }), { muted: true, max_lines: 1 }),
+            { id: id(), type: "row", gap: 0, cross: "center", children: [tick(), { id: id(), type: "row", width: "fill", height: 1, background: K.ink, dark_background: K.darkInk, children: [] }, tick()] },
+          ],
+        },
+      },
+      { type: "product_delivery", text: "mzpNotes", ...accent, node: { ...ink, margin: sides(12, 16, 0, 16), padding: sides(12, 0, 12, 0), border_color: K.line, dark_border_color: K.darkLine, border_width: 1 } },
+      { type: "product_price", look: "sale", node: { ...ink, font: font(22, 800), margin: sides(18, 16, 0, 16) } },
+      { type: "product_variants", look: "chips", ...accent, node: { ...ink, margin: sides(18, 16, 0, 16) } },
+      { element: { ...planCard(ctx), margin: sides(26, 16, 0, 16) } },
+      { type: "product_description", node: { ...ink, margin: sides(26, 16, 0, 16), padding: sides(14, 0, 14, 0), border_color: K.line, dark_border_color: K.darkLine, border_width: 1 } },
+      { type: "product_reviews", ...accent, node: { ...ink, margin: sides(22, 16, 0, 16) } },
+      { type: "product_related", look: "grid", rows: 4, text: "mzpRelated", node: { ...ink, margin: sides(26, 0, 20, 0) } },
+      {
+        type: "product_buy",
+        look: "price",
+        ...accent,
+        node: { pin: "bottom", radius: 0, padding: sides(10, 16, 10, 16), background: K.surface, dark_background: K.darkSurface, border_color: K.ink, dark_border_color: K.darkInk, border_width: 1, ...ink },
+      },
+    ],
+  });
+}
+
 export const FURNITURE_C: SignatureDesign = {
   demo: "furniture",
   variant: "c",
@@ -680,6 +760,8 @@ export const FURNITURE_C: SignatureDesign = {
   pages: (ctx) => [
     { slug: MENU_PAGE, title: "skCategoryMenu", studio: menuPage(ctx) },
     { slug: MIZAN_PLAN_PAGE, title: "mzPlan", studio: planPage(ctx) },
+    // 228.7 Its own product page.
+    productSheet(ctx),
   ],
   bar: MIZAN_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },

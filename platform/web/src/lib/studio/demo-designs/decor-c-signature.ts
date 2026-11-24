@@ -2,6 +2,7 @@ import type { Action, LayoutTab, StudioEntry, StudioFont, StudioNode, StudioPage
 import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { sides, sigEntry, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
+import { productPageOf, productPart } from "../product-page";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { kitPhoto, ownPage, say, shop, type KitLook } from "./shop-kit-parts";
 
@@ -445,6 +446,60 @@ const ATHAR_SCREENS = signatureScreens({
 /** The text bar: names only on the white wall, the open one in black. */
 const ATHAR_BAR = signatureBar(K, { design: "text", background: K.page, dark_background: K.darkPage, active: K.ink, dark_active: K.darkInk, inactive: "#8A8A83", dark_inactive: "#7E7E78", labels: "always" });
 
+/**
+ * 228.7 ATHAR's own product page, the piece hung in the gallery: a wide
+ * quiet wall at the top, the piece's photos framed (a white mat in a thin
+ * black frame by day, bone by night) with generous space around it, then
+ * its museum label at the frame's foot (a rule at its start, the name in
+ * Amiri, its size and the house's lines in small text, the price), the
+ * choices and Add to cart as a plain outlined bar in the flow, then "About
+ * the piece" under the gallery's kicker, the reviews and the pieces of the
+ * same hall in a grid of two. Nothing fixed at the foot.
+ */
+function galleryPiece(ctx: SectionContext) {
+  const id = idOf(ctx);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const accent = { accent: K.fill, dark_accent: K.darkFill } as const;
+  return productPageOf(ctx, {
+    background: WALL.day,
+    dark_background: WALL.night,
+    parts: [
+      { element: { id: id(), type: "spacer", height: 76 } },
+      { element: { ...framed(ctx, productPart(ctx, { type: "product_gallery", radius: 0, node: { aspect_ratio: 4 / 5 } }), 22, 2), margin: sides(0, 40, 0, 40) } },
+      {
+        // The museum label: a rule at its start, the name, its size and lines, the price.
+        element: {
+          id: id(),
+          type: "row",
+          name: ctx.w("atpKicker"),
+          gap: 12,
+          margin: sides(30, 40, 0, 40),
+          children: [
+            { id: id(), type: "row", width: 2, background: K.ink, dark_background: K.darkInk, children: [] },
+            {
+              id: id(),
+              type: "column",
+              width: "fill",
+              gap: 2,
+              children: [
+                productPart(ctx, { type: "product_title", node: { ...ink, font: display(20, 700), margin: undefined } }),
+                productPart(ctx, { type: "product_delivery", title: "atpLabel", accent: K.muted, dark_accent: K.darkMuted, node: { color: K.muted, dark_color: K.darkMuted, margin: sides(6, 0, 0, 0) } }),
+                productPart(ctx, { type: "product_price", node: { ...ink, font: text(14, 600), margin: sides(10, 0, 0, 0) } }),
+              ],
+            },
+          ],
+        },
+      },
+      { type: "product_variants", ...accent, node: { ...ink, margin: sides(34, 40, 0, 40) } },
+      { type: "product_buy", ...accent, node: { radius: 0, margin: sides(18, 40, 0, 40), ...ink } },
+      { element: head(ctx, "atpKicker", "atpAbout") },
+      { type: "product_description", node: { ...ink, margin: sides(0, 28, 0, 28) } },
+      { type: "product_reviews", ...accent, node: { ...ink, margin: sides(30, 28, 0, 28) } },
+      { type: "product_related", look: "grid", rows: 4, text: "atpRelated", node: { ...ink, margin: sides(40, 12, 28, 12) } },
+    ],
+  });
+}
+
 export const DECOR_C: SignatureDesign = {
   demo: "decor",
   variant: "c",
@@ -452,7 +507,8 @@ export const DECOR_C: SignatureDesign = {
   home,
   over,
   tabs: atharTabs,
-  pages: (ctx) => [{ slug: MENU_PAGE, title: "skCategoryMenu", studio: menuPage(ctx) }],
+  // 228.7 And its own product page.
+  pages: (ctx) => [{ slug: MENU_PAGE, title: "skCategoryMenu", studio: menuPage(ctx) }, galleryPiece(ctx)],
   bar: ATHAR_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },
   chrome: { header: "brand", system: "brand" },

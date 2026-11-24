@@ -11,6 +11,9 @@ import type { SectionContext, SectionWord } from "./sections";
  * that declares none keeps the app's own product screen.
  *
  *   pages: (ctx) => [productPageOf(ctx, { parts: [{ type: "product_gallery", look: "pager" }, …] })]
+ *
+ * 228.7 The look's own elements go between them as `{ element }` (a plan
+ * card, a material strip, a frame holding `productPart(…)`s).
  */
 
 /** The product page's address in a project (one per project). */
@@ -33,8 +36,13 @@ export interface ProductPagePart {
   node?: Partial<StudioNode>;
 }
 
+/** 228.7 One of the look's own elements between the product's (its plan card, its material strip, a frame around the photos). */
+export interface ProductPageElement {
+  element: StudioNode;
+}
+
 export interface ProductPageSpec {
-  parts: readonly ProductPagePart[];
+  parts: readonly (ProductPagePart | ProductPageElement)[];
   /** Its header; missing, none (the photos reach under the status bar, the back button over them). */
   header?: StudioHeader | null;
   background?: string;
@@ -71,7 +79,7 @@ export function productPage(ctx: Pick<SectionContext, "w" | "newId">, spec: Prod
     ...(spec.dark_background ? { dark_background: spec.dark_background } : {}),
     show_tabs: false,
     screen: STUDIO_PRODUCT_SCREEN,
-    body: { id: newId(), type: "column", gap: 0, children: spec.parts.map((p) => productPart(ctx, p)) },
+    body: { id: newId(), type: "column", gap: 0, children: spec.parts.map((p) => ("element" in p ? p.element : productPart(ctx, p))) },
   };
 }
 
