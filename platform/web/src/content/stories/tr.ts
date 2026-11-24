@@ -1139,13 +1139,13 @@ export const STORIES_TR: StoryCopy = {
           time: "21:10",
           kicker: "Riyad, akşam yemeğinden sonra",
           title: "Perşembe bir düğün",
-          text: "Noura kanepede Lujain'i açıyor. Ana sayfa küçük ve hızlı: arama, yuvarlaklar içinde kategoriler ve kayan kartlarda sezonun koleksiyonları, bir sonrakinin kenarı görünüyor. Altında bu hafta gelenler."
+          text: "Noura kanepede Lujain'i açıyor. Ana sayfa bir lookbook: küçük bir yazı markasının altında sezonun görünümleri ekranı kenardan kenara dolduruyor, birinden ötekine kaydırıyor. Altında ince bir çizgi üstünde yazı olarak kategoriler ve bu hafta gelenler, uzun ve kutusuz."
         },
         {
           time: "21:13",
           kicker: "Menü",
           title: "Her kategori bir sıra",
-          text: "Zilin yanındaki menüye dokunuyor. Mağazanın her kategorisi fotoğraflı kartlardan bir sıra: önce Elbiseler, ardından kayan Midi, Maksi ve Mini; sonra Abayalar, Mont ve ceketler, Ayakkabılar, Çantalar. Elbiseler sırasını kaydırıp Midi'ye dokunuyor."
+          text: "Başlığın köşesindeki menüye dokunuyor. Mağazanın her kategorisi fotoğraflı kartlardan bir sıra: önce Elbiseler, ardından kayan Midi, Maksi ve Mini; sonra Abayalar, Mont ve ceketler, Ayakkabılar, Çantalar. Elbiseler sırasını kaydırıp Midi'ye dokunuyor."
         },
         {
           time: "21:17",
@@ -1387,13 +1387,13 @@ export const STORIES_TR: StoryCopy = {
           time: "22:05",
           kicker: "Dubai, akşamın sonu",
           title: "Boş bir kutu",
-          text: "Leyla yatağında Velours'u açıyor. Ana sayfa küçük ve hızlı: arama, çipler halinde kategoriler, kayan kartlarda haftanın seçkileri, kenardan bir sonrakinin ucu görünüyor, bir de sayacıyla saatin fırsatları."
+          text: "Leyla yatağında Velours'u açıyor. Ana sayfa bir klinik gibi sakin ve beyaz: ortada kliniğin adı, sonra bir yüzün üstünde buzlu camda cilt testi, altında sabah ve akşam, numaralı adımlarla günlük rutin."
         },
         {
           time: "22:08",
           kicker: "Ton bulucu",
           title: "On iki ton, tek dokunuş",
-          text: "Aşağıda ton bulucu, kuşon fondötenin tonlarını kendi renklerinde yuvarlaklar olarak gösteriyor. Sıcak bej, 3W, zaten seçili: sıcak alt tonlu açık ve orta ten, kadınların en çok seçtiği ton. Fondöteni incele'ye dokunuyor."
+          text: "Aşağıda laboratuvarın kartları formüller gibi numaralı. Biri kuşon fondöten, sıcak bej, 3W: sıcak alt tonlu açık ve orta ten, kadınların en çok seçtiği ton. Ona dokunuyor."
         },
         {
           time: "22:11",
@@ -1405,7 +1405,7 @@ export const STORIES_TR: StoryCopy = {
           time: "22:15",
           kicker: "Cilt tipinizi öğrenin",
           title: "Karma, diyor",
-          text: "Cildinden hiç emin olmamıştı. Test dört soruyu tek tek soruyor: yıkadıktan sonra his, gözenekler, yeni bir krem, günün sonu. Karma. Tek dokunuş, mağazanın karma cilde uygun tüm ürünlerini açıyor."
+          text: "Cildinden hiç emin olmamıştı. Ana sayfanın en üstündeki cilt testi dört soruyu tek tek soruyor: yıkadıktan sonra his, gözenekler, yeni bir krem, günün sonu. Karma. Tek dokunuş, mağazanın karma cilde uygun tüm ürünlerini açıyor."
         },
         {
           time: "22:19",
@@ -1556,13 +1556,13 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Kahire, banyodan sonra",
           title: "Bu akşam alınacak iki şey",
-          text: "Youssef uyurken Salma koltukta Toota'yı açıyor. Ana sayfa yumuşak ve hızlı: arama, yuvarlak kategoriler, kayan kartlarda sezonun koleksiyonu ve altında 0–6 aydan 8–12 yaşa kadar yaşlar, her biri pastel bir kutuda."
+          text: "Youssef uyurken Salma koltukta Toota'yı açıyor. Örgü kazağıyla tavşan Tooti en üstte bir kartta merhaba diyor. Altında yaşlar büyük yuvarlak baloncuklar, 0–2, 3–5, 6–9 ve 10+; yeni parçalar nane yeşili bir şeritte, her biri kendi baloncuğunda."
         },
         {
           time: "20:43",
           kicker: "Menü",
           title: "Kızlar, erkekler ve bebekler",
-          text: "Zilin yanındaki menüye dokunuyor. Mağazanın her kategorisi fotoğraflı bir kart sırası: önce Bebek ve yenidoğan, ardından kayan Yenidoğan setleri, Body ve Uyku giyimi; sonra Kız, Erkek, Ayakkabı, Yenidoğan hediyeleri ve Hazır takımlar."
+          text: "Üstteki menüye dokunuyor. Mağazanın her kategorisi fotoğraflı yuvarlak kartlardan bir sıra: önce Bebek ve yenidoğan, ardından kayan Yenidoğan setleri, Body ve Uyku giyimi; sonra Kız, Erkek, Ayakkabı, Yenidoğan hediyeleri ve Hazır takımlar."
         },
         {
           time: "20:46",
@@ -1804,13 +1804,13 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Dubai, akşam yemeğinden sonra",
           title: "Cumartesi bir yaş günü",
-          text: "Hüda balkonda Toot'u açıyor. Ana sayfa küçük ve hızlı: arama, yuvarlak kategoriler, kayan kartlarda koleksiyonlar ve kenardan görünen bir sonraki. Altında, uzun fotoğraflarda yaşlar: 0–12 ay, 1–2 yaş, 3–5 yaş."
+          text: "Hüda balkonda Toot'u açıyor. Ana sayfa bir deniz haritası: mağazanın köşeleri haritada adalar, Ahşap, Yapı, Bilim, Pelüş ve Sanat; birine dokununca oraya yola çıkıyor. Haritanın altında bir çıkartma şeridi ve tıknaz renkli bloklar hâlinde yaşlar."
         },
         {
           time: "20:42",
           kicker: "Yaşa göre",
           title: "3–5 yaş",
-          text: "3–5 yaşa dokunuyor ve mağaza yalnızca o yaşın oyuncaklarıyla açılıyor. Zilin yanındaki menüde her kategori bir kart sırası: Ahşap oyuncaklar, Yapı oyuncakları, Pelüşler, Bulmaca ve oyunlar, sonra Yaşa göre ve Doğum günü hediyeleri; her birinin alt kategorileri ardından kayıyor."
+          text: "3–5 yaş bloğuna dokunuyor ve mağaza yalnızca o yaşın oyuncaklarıyla açılıyor. Üstteki menüde her kategori bir kart sırası: Ahşap oyuncaklar, Yapı oyuncakları, Pelüşler, Bulmaca ve oyunlar, sonra Yaşa göre ve Doğum günü hediyeleri; her birinin alt kategorileri ardından kayıyor."
         },
         {
           time: "20:46",
@@ -1822,7 +1822,7 @@ export const STORIES_TR: StoryCopy = {
           time: "20:50",
           kicker: "Hediye bulucu",
           title: "Üç soru",
-          text: "Emin olamayınca ana sayfaya dönüp 3 adımda mükemmel hediyeyi yanıtlıyor: dört yaşında, inşa etmeyi seviyor, 300'e kadar. Bulucu 3–5 yaş diyor ve açıyor. Ayıcığın yanına küçük mimar kulesini ekliyor."
+          text: "Emin olamayınca haritaya dönüp hediye avını oynuyor: dört yaşında, inşa etmeyi seviyor, 300'e kadar. Av 3–5 yaş diyor ve açıyor. Ayıcığın yanına küçük mimar kulesini ekliyor."
         },
         {
           time: "20:54",
@@ -2043,13 +2043,13 @@ export const STORIES_TR: StoryCopy = {
           time: "21:30",
           kicker: "Maadi, akşamın geç saati",
           title: "Kimsenin veremeyeceği bir şey",
-          text: "Leyla Ghurza'yı balkonda açıyor. Ana sayfa sıcak ve hızlı: arama, yuvarlak kategoriler ve kayan kartlarda kış koleksiyonu, sonraki kart kenardan görünüyor. Altında bir kart, zevkinize göre bir parçanın size özel örüldüğünü, 7 ila 14 günde hazır olduğunu söylüyor."
+          text: "Leyla Ghurza'yı balkonda açıyor. Ana sayfa dikişli kâğıt üstünde bir zanaatkâr pazarı: büyük hat yazısıyla çerçeveli bir hikâye, her parçanın bir iple ve adınızı bilen bir elle başladığını söylüyor. Altında rafta çileler gibi seçilecek ip renkleri."
         },
         {
           time: "21:34",
           kicker: "Özel sipariş",
           title: "Annesinin renklerinde bir battaniye",
-          text: "Siparişe başla'ya dokunuyor. Sayfa nasıl çalıştığını dört adımda anlatıyor, sonra soruyor: parça, beden, ipin rengi ve ayrıntılar. Battaniye'yi seçiyor, 120'ye 150 cm yazıyor, annesinin kanepesi gibi zeytin yeşili ve krem, bir köşeye de annesinin adının işlenmesini istiyor. Adı, telefonu ve gönderiyor."
+          text: "Aşağıda dikişli üç daire bir parçanın nasıl yapıldığını anlatıyor: siz sipariş verin, biz yapalım, biz gönderelim. Parçanı kendi zevkine göre sipariş et'e dokunuyor. Sayfa soruyor: parça, beden, ipin rengi ve ayrıntılar. Battaniye'yi seçiyor, 120'ye 150 cm yazıyor, annesinin kanepesi gibi zeytin yeşili ve krem, bir köşeye de annesinin adının işlenmesini istiyor. Adı, telefonu ve gönderiyor."
         },
         {
           time: "21:41",
@@ -2061,7 +2061,7 @@ export const STORIES_TR: StoryCopy = {
           time: "22:05",
           kicker: "Usta",
           title: "Yirmi iki yıllık ilmekler",
-          text: "Telefon gece için karardı, Ghurza da kahve rengiyle. Ana sayfanın aşağısında atölyeyi yöneten Ümmü Yusuf, her parçanın günlerini, kalbinden de fazlasını aldığını söylüyor. On iki usta, 4.800 parça, hepsi elde."
+          text: "Telefon gece için karardı, Ghurza'nın kâğıdı da. Ana sayfanın aşağısında, dikişli iki çizginin arasında atölyeyi yöneten Ümmü Yusuf, her parçanın günlerini, kalbinden de fazlasını aldığını söylüyor. On iki usta, 4.800 parça, hepsi elde."
         },
         {
           time: "22:10",
@@ -2197,13 +2197,13 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Riyad, akşam yemeğinden sonra",
           title: "İki koli ve ödünç bir masa",
-          text: "Hessa koltukta Sakan'ı açıyor. Ana sayfa küçük ve hızlı: arama, kategoriler ve kayan geniş fotoğraf kartlarında mevsimin koleksiyonları, bir sonraki kenardan görünüyor. Altında dört oda: yatak odası, oturma odası, yemek odası ve okuma köşesi."
+          text: "Hessa koltukta Sakan'ı açıyor. Ana sayfa bir galeri duvarı: büyük harflerle \"Şimdi sergide\", sonbahar sergisi ve tarihleri, sonra beyaz duvarda kalın bir çerçevede asılı tek bir parça ve müze etiketi: adı, yapanı, malzemesi, ölçüsü."
         },
         {
           time: "20:44",
           kicker: "Odayı tamamla",
           title: "Orkideye bir dokunuş",
-          text: "Aşağıda düzenlenmiş bir yemek köşesi ekranı dolduruyor: beyaz bir masa, iki beyaz sandalye, beyaz saksıda bir orkide. Fotoğraftaki her parçanın numaralı bir etiketi var. Orkideye dokunuyor ve sayfası açılıyor. Fotoğrafın altında üç parça fiyatlarıyla yan yana."
+          text: "Aşağıda koleksiyon iki sütun çerçevede asılı, ikincisi biraz daha aşağıda, her birinin etiketiyle. Birinde beyaz bir masa, iki beyaz sandalye ve beyaz saksıda bir orkide. Orkidenin çerçevesine dokunuyor ve sayfası açılıyor, fiyatı fotoğrafın altında."
         },
         {
           time: "20:47",
@@ -2215,7 +2215,7 @@ export const STORIES_TR: StoryCopy = {
           time: "20:52",
           kicker: "Menü",
           title: "Her oda bir sıra",
-          text: "Zilin yanındaki menüye dokunuyor. Mağazanın her odası fotoğraflı kartlardan bir sıra: vazoları, yastıkları ve koltuklarıyla oturma odası, nevresim ve lambalarıyla yatak odası, sonra bitkiler, mevsimler ve hediyeler. Oturma odası sırasını kaydırıp Vazolar ve kâseler'e dokunuyor."
+          text: "Üstteki menüye dokunuyor. Galerinin planı açılıyor: mağazanın her salonu fotoğraflı kartlardan bir sıra; vazoları, yastıkları ve koltuklarıyla oturma odası, nevresim ve lambalarıyla yatak odası, sonra bitkiler, mevsimler ve hediyeler. Oturma odası sırasını kaydırıp Vazolar ve kâseler'e dokunuyor."
         },
         {
           time: "20:58",
@@ -2227,7 +2227,7 @@ export const STORIES_TR: StoryCopy = {
           time: "09:15",
           kicker: "Çarşamba, mağazada",
           title: "Zeytin yeşili kâğıda sarılı",
-          text: "Sakan'da sabahın siparişleri açılıyor. Hessa'nınkinde bir masa, iki sandalye, bir orkide ve hediye olarak kartıyla paketlenmiş ikiz vazolar var. Kartın sözleri paket fişine basılıyor. Uygulamanın ana sayfasında Ramazan afişi pirinç fenerlerle çoktan yerinde.",
+          text: "Sakan'da sabahın siparişleri açılıyor. Hessa'nınkinde bir masa, iki sandalye, bir orkide ve hediye olarak kartıyla paketlenmiş ikiz vazolar var. Kartın sözleri paket fişine basılıyor. Uygulamanın ana sayfasında bir sonraki sergi çoktan asılmış: pirinç fenerleriyle Ramazan geceleri.",
           push: {
             app: "Sakan",
             title: "Sipariş 3124",
@@ -2415,25 +2415,25 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Riyad, boş bir oda",
           title: "İçi bomboş bir oturma odası",
-          text: "Sara, Rukn'u yerde otururken açıyor. Ana sayfa sakin ve hızlı: arama, yuvarlak odalar, kayan kartlarda sezonun koleksiyonu. Altında yan yana dört vaat: ücretsiz teslimat ve kurulum, garanti, seçtiği teslimat günü ve taksitin yakında geleceğini söyleyen küçük bir etiket."
+          text: "Sara, Rukn'u yerde otururken açıyor. Ana sayfa bir çizim: pafta, oda ve ölçeğiyle bir antet, sonra ekran genişliğinde çizilmiş bir oturma odası, her parça ölçüsüyle numaralı, Najd kanepe 220 cm. Altında paftanın oda dizini, A'dan E'ye."
         },
         {
           time: "20:44",
           kicker: "Menü",
           title: "Her oda bir satır",
-          text: "Zilin yanındaki menü bütün evi açıyor: önce Oturma odası, ardından kayan Kanepeler, Berjerler, Sehpalar ve TV üniteleri; sonra Yatak odası, Yemek odası, Çalışma odası ve Bahçe. Kanepeler'e dokunuyor."
+          text: "Üstteki menü bütün evi açıyor, odaları bir paftanın dizini gibi numaralı: önce Oturma odası, ardından kayan Kanepeler, Berjerler, Sehpalar ve TV üniteleri; sonra Yatak odası, Yemek odası, Çalışma odası ve Bahçe. Kanepeler'e dokunuyor."
         },
         {
           time: "20:52",
           kicker: "Kanepenin sayfası",
           title: "Bukle mi, kadife mi",
-          text: "Sadeer kanepe bukle, kadife ya da keten; fildişi, zeytin ya da kum renginde. Zeytin kadifeden son iki tane kalmış. Ekrandan karar veremiyor; ana sayfadan ücretsiz kumaş örneklerini istiyor: beş örnek, üç günde kapısında."
+          text: "Sadeer kanepe bukle, kadife ya da keten; fildişi, zeytin ya da kum renginde. Zeytin kadifeden son iki tane kalmış. Ekrandan karar veremiyor; mağazadan ücretsiz kumaş örneklerini istiyor: beş örnek, üç günde kapısında."
         },
         {
           time: "21:05",
           kicker: "Elde şerit metre",
           title: "240 cm'lik duvara 220 cm",
-          text: "Her kart adının altında ölçüsünü yazıyor: W 220 × D 95 × H 82 cm. Pencereyle kapı arasındaki duvarı ölçüyor: 240. Her yanda on santim. Najd orta sehpa da komple takımın fotoğrafında, noktası bir dokunuş uzakta."
+          text: "Her kartta, bir çizimdeki gibi önce ölçü geliyor: ölçü çizgisi üstünde W 220 × D 95 × H 82 cm, altında adı. Pencereyle kapı arasındaki duvarı ölçüyor: 240. Her yanda on santim. Najd orta sehpa ana sayfanın çiziminde 3 numara, bir dokunuş uzakta."
         },
         {
           time: "Cumartesi",
@@ -2569,13 +2569,13 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Riyad, işten sonra",
           title: "Pazara kadar bir dizüstü",
-          text: "Faisal kanepede Madar'ı açıyor. Ana sayfa küçük ve hızlı: arama, kategoriler, kayan kartlarda haftanın lansmanları, bir sonraki kenardan görünüyor. Altında tek satırda sözler: 24 saatte teslimat, ücretsiz kurulum, yetkili garanti ve taksit, yakında."
+          text: "Faisal kanepede Madar'ı açıyor. Ana sayfa cam karolardan bir ızgara: en üstte özellik çipleriyle akıllı ev, çok satanın yanında günün fırsatı, dört küçük karoda kategoriler, sonra takas ve karşılaştırma. En altta buzlu camdan bir çubuk."
         },
         {
           time: "20:44",
           kicker: "Menü",
           title: "Her kategori bir satır",
-          text: "Zilin yanındaki menüye dokunuyor. Telefonlar, Dizüstüler, Tablet ve saatler, TV'ler: her kategori bir kart satırı, alt kategorileri ardından kayıyor. Dizüstüler satırını kaydırıp İnce ve hafif'e dokunuyor."
+          text: "Izgaranın menü karosuna dokunuyor. Telefonlar, Dizüstüler, Tablet ve saatler, TV'ler: her kategori bir kart satırı, alt kategorileri ardından kayıyor. Dizüstüler satırını kaydırıp İnce ve hafif'e dokunuyor."
         },
         {
           time: "20:51",
@@ -2723,13 +2723,13 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Nasr City, işten sonra",
           title: "Geceleri bulanık çeken bir kamera",
-          text: "Kerim Nova'yı balkonda açıyor. Ana sayfa küçük ve hızlı: arama, dairelerde kategoriler ve kayan kartlarda sezonun telefonları, sıradaki kart kenardan görünüyor. Altında üç söz: takas, yetkili servis ve her cihazda garanti."
+          text: "Kerim Nova'yı balkonda açıyor. Ana sayfa siyah bir sahnede bir lansman: küçük bir yazı markası, \"Yeni\", büyük ve sakin harflerle mağazanın amiral gemisi, sıcak bir ışıkta tek başına telefon, seçilecek renkleri ve fiyatı, taksit yakında."
         },
         {
           time: "20:43",
           kicker: "Ne eder?",
           title: "Eski telefonu, bir dakikadan kısa sürede",
-          text: "Ana sayfanın ortasında bir kart eski telefonunun ne ettiğini soruyor. Modelini, 256 GB'ını ve çatlak arkası yüzünden Yeni gibi değil İyi'yi seçiyor. Tahmin hemen, mağazanın kendi fiyatlarıyla çıkıyor. Takası başlat'a dokunup adını ve numarasını bırakıyor."
+          text: "Aşağıda, her satırda bir özelliğin ardından, koyu bir kart eski telefonunun ne ettiğini soruyor. Modelini, 256 GB'ını ve çatlak arkası yüzünden Yeni gibi değil İyi'yi seçiyor. Tahmin hemen, mağazanın kendi fiyatlarıyla çıkıyor. Takası başlat'a dokunup adını ve numarasını bırakıyor."
         },
         {
           time: "20:47",
@@ -2747,7 +2747,7 @@ export const STORIES_TR: StoryCopy = {
           time: "21:05",
           kicker: "Kız kardeşi için",
           title: "Garantili ikinci el, A sınıfı",
-          text: "Ana sayfaya dönüyor; gece olmuş, uygulama koyulaşmış. Kız kardeşinin üniversite için telefona ihtiyacı var: garantili ikinci el telefonlar sınıflarını, depolamalarını ve pil sağlıklarını gösteriyor. A sınıfı, %91 pilli ve 12 ay garantili bir Lumen 11. Bağlantıyı ona gönderiyor."
+          text: "Gece uygulamaya dönüyor; sahne hâlâ siyah. Kız kardeşinin üniversite için telefona ihtiyacı var: menüden garantili ikinci el telefonlar sınıflarını, depolamalarını ve pil sağlıklarını gösteriyor. A sınıfı, %91 pilli ve 12 ay garantili bir Lumen 11. Bağlantıyı ona gönderiyor."
         },
         {
           time: "10:15",
@@ -2881,7 +2881,7 @@ export const STORIES_TR: StoryCopy = {
           time: "22:05",
           kicker: "Cidde, perşembe gecesi",
           title: "Parça parça bir PC",
-          text: "Faysal Nawah'ı açıyor. Ana sayfa küçük ve hızlı: arama, kategoriler, sonrakinin kenardan göründüğü bir vitrin kartı ve altında parçaları sıralanmış PC topla kartı: işlemci, anakart, bellek, ekran kartı, depolama, güç, kasa.",
+          text: "Faysal Nawah'ı açıyor. Ana sayfa siyah üzerinde neon bir savaş istasyonu: ne oynadığınız için sekmeler, Oyun, Yayın, Parçalar ve Ekipman, ve her şeyden önce Hayalindeki PC'yi topla, adımları bir sütunda: işlemci, ekran kartı, bellek.",
         },
         {
           time: "22:09",
