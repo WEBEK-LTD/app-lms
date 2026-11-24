@@ -235,8 +235,8 @@ export class MysqlTrustStore implements TrustStore {
     return row?.at ?? null;
   }
 
-  async addReport(input: { reporterId: string; targetType: CommunityTargetType; targetId: string; reason: ReportReason; note: string; createdAt: Date }) {
-    const row = { id: randomUUID(), ...input, status: "open" as const, handledBy: null, handledAt: null };
+  async addReport(input: { id?: string; reporterId: string; targetType: CommunityTargetType; targetId: string; reason: ReportReason; note: string; createdAt: Date }) {
+    const row = { ...input, id: input.id ?? randomUUID(), status: "open" as const, handledBy: null, handledAt: null };
     try {
       await this.db.insert(communityReports).values(row);
     } catch (error) {

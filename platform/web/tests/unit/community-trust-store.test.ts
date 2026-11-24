@@ -99,7 +99,7 @@ function suite(name: string, make: () => Promise<{ store: TrustStore; member: ()
       const target = randomUUID();
       const r1 = await store.addReport({ reporterId: a, targetType: "answer", targetId: target, reason: "spam", note: "", createdAt: at(0) });
       expect(r1).not.toBeNull();
-      expect(await store.addReport({ reporterId: a, targetType: "answer", targetId: target, reason: "abuse", note: "", createdAt: at(1) })).toBeNull();
+      expect(await store.addReport({ reporterId: a, targetType: "answer", targetId: target, reason: "hate", note: "", createdAt: at(1) })).toBeNull();
       await store.addReport({ reporterId: b, targetType: "answer", targetId: target, reason: "harassment", note: "Rude", createdAt: at(2) });
       expect(await store.countOpenReports("answer", target)).toBe(2);
       expect((await store.openReportsOn("answer", target)).map((r) => r.reporterId)).toEqual([a, b]);

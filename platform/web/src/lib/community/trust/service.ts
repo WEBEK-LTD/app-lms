@@ -495,15 +495,26 @@ export async function report(deps: TrustDeps, memberId: string, input: unknown):
   if (authorId === memberId) return fail(400, "invalid_request", "You can't report yourself.");
   const made = await deps.store.addReport({ reporterId: memberId, targetType, targetId, reason, note, createdAt: deps.now() });
   if (!made) return fail(409, "already_reported", "You already reported this.");
-  if (targetType !== "member") {
-    const settings = await getSettings(deps);
-    const open = await deps.store.countOpenReports(targetType, targetId);
-    if (open >= settings.spam_filter.hide_after_reports && !(await deps.store.openModeration(targetType, targetId))) {
-      await deps.content.setStatus(targetType, targetId, "hidden");
-      await deps.store.addModeration({ targetType, targetId, authorId, cause: "reports", note: `${open} reports`, createdAt: deps.now() });
-    }
-  }
+  await afterReported(deps, made);
   return { ok: true, id: made.id };
+}
+
+/**
+ * A report was made (area A's POST /reports, or `report` above): it is in
+ * the moderators' list, and a post with enough open reports is hidden and
+ * queued until a moderator decides.
+ */
+export async function afterReported(deps: TrustDeps, made: Report): Promise<void> {
+  // The same row on MySQL; in memory, area C's copy of area A's report.
+  await deps.store.addReport({ id: made.id, reporterId: made.reporterId, targetType: made.targetType, targetId: made.targetId, reason: made.reason, note: made.note, createdAt: made.createdAt });
+  if (made.targetType === "member") return;
+  const targetType = made.targetType;
+  const settings = await getSettings(deps);
+  const open = await deps.store.countOpenReports(targetType, made.targetId);
+  if (open < settings.spam_filter.hide_after_reports || (await deps.store.openModeration(targetType, made.targetId))) return;
+  const info = await deps.content.info(targetType, made.targetId);
+  await deps.content.setStatus(targetType, made.targetId, "hidden");
+  await deps.store.addModeration({ targetType, targetId: made.targetId, authorId: info?.authorId ?? null, cause: "reports", note: `${open} reports`, createdAt: deps.now() });
 }
 
 export async function listReports(deps: TrustDeps, adminId: string, input: { status?: ReportStatus; offset?: number; limit?: number }): Promise<{ ok: true; page: Page<Report> } | Fail> {

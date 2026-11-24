@@ -104,7 +104,8 @@ export interface TrustStore {
   lastViolationAt(memberId: string): Promise<Date | null>;
 
   // Reports (the base's table)
-  addReport(input: { reporterId: string; targetType: CommunityTargetType; targetId: string; reason: ReportReason; note: string; createdAt: Date }): Promise<Report | null>;
+  /** Null when the member already reported this target. `id`: the report area A already took (the same row on MySQL). */
+  addReport(input: { id?: string; reporterId: string; targetType: CommunityTargetType; targetId: string; reason: ReportReason; note: string; createdAt: Date }): Promise<Report | null>;
   getReport(id: string): Promise<Report | null>;
   countOpenReports(targetType: CommunityTargetType, targetId: string): Promise<number>;
   openReportsOn(targetType: CommunityTargetType, targetId: string): Promise<Report[]>;
@@ -243,10 +244,10 @@ export class MemoryTrustStore implements TrustStore {
     return times.length ? new Date(Math.max(...times)) : null;
   }
 
-  async addReport(input: { reporterId: string; targetType: CommunityTargetType; targetId: string; reason: ReportReason; note: string; createdAt: Date }) {
+  async addReport(input: { id?: string; reporterId: string; targetType: CommunityTargetType; targetId: string; reason: ReportReason; note: string; createdAt: Date }) {
     // One per member and target, ever (the base's unique index).
     if ([...this.reports.values()].some((r) => r.reporterId === input.reporterId && r.targetType === input.targetType && r.targetId === input.targetId)) return null;
-    const r: Report = this.made({ ...clone(input), id: randomUUID(), status: "open", handledBy: null, handledAt: null });
+    const r: Report = this.made({ ...clone(input), id: input.id ?? randomUUID(), status: "open", handledBy: null, handledAt: null });
     this.reports.set(r.id, r);
     return clone(r);
   }
