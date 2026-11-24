@@ -197,8 +197,8 @@ export async function listBlocks(ctx: MemberContext): Promise<CommunityResult> {
 
 // ------------------------------------------------------------ reports
 
-const REASONS: readonly CommunityReportReason[] = ["spam", "abuse", "harassment", "off_topic", "inappropriate", "copyright", "other"];
-const TARGETS: readonly CommunityTargetType[] = ["member", "question", "answer", "tutorial", "comment"];
+const REASONS: readonly CommunityReportReason[] = ["spam", "harassment", "hate", "inappropriate", "misinformation", "impersonation", "other"];
+const TARGETS: readonly CommunityTargetType[] = ["member", "question", "answer", "reply", "tutorial", "comment"];
 
 export async function report(ctx: CommunityContext): Promise<CommunityResult> {
   const signed = requireMember(ctx);
