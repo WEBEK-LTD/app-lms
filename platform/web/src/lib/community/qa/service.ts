@@ -161,7 +161,8 @@ async function membersOf(ids: readonly string[]): Promise<Record<string, MemberS
   const unique = [...new Set(ids)];
   if (!unique.length) return {};
   const [people, points] = await Promise.all([qaHooks().members(unique), qaStore().pointsOf(unique)]);
-  return Object.fromEntries(unique.map((id) => [id, { ...(people[id] ?? DELETED(id)), rank: rankOf(points[id] ?? 0) }]));
+  // Area A's rank (from the member's points, which the ledger keeps in step) when it gives one, else the ledger's.
+  return Object.fromEntries(unique.map((id) => [id, { ...(people[id] ?? DELETED(id)), rank: people[id]?.rank ?? rankOf(points[id] ?? 0) }]));
 }
 
 async function isTeam(memberId: string): Promise<boolean> {
@@ -742,7 +743,7 @@ export async function search(input: { q: string; type?: SearchType; viewerId: st
   return {
     questions: await summaries(questions, input.viewerId, input.lang),
     tutorials: await tutorialSummaries(tutorials, input.viewerId, input.lang),
-    members: members.map((m) => ({ ...m, rank: ranked[m.id]?.rank ?? "newcomer" })),
+    members: members.map((m) => ({ ...m, rank: m.rank ?? ranked[m.id]?.rank ?? "newcomer" })),
     tags: want("tags") ? await listTags({ q: text, limit }) : [],
   };
 }

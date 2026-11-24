@@ -565,7 +565,7 @@ paths:
               properties:
                 target_type: { $ref: "#/components/schemas/TargetType" }
                 target_id: { type: string }
-                reason: { type: string, enum: [spam, abuse, harassment, off_topic, inappropriate, copyright, other] }
+                reason: { type: string, enum: [spam, harassment, hate, inappropriate, misinformation, impersonation, other] }
                 note: { type: string, maxLength: 1000 }
       responses:
         "201": { description: Reported., content: { application/json: { schema: { type: object, required: [id], properties: { id: { type: string } } } } } }
@@ -1384,7 +1384,7 @@ components:
       enum: [system, light, dark]
     TargetType:
       type: string
-      enum: [member, question, answer, tutorial, comment]
+      enum: [member, question, answer, reply, tutorial, comment]
     DeviceInput:
       type: object
       properties:
@@ -1426,7 +1426,7 @@ components:
     MemberSummary:
       type: object
       description: "A member wherever they appear (an author, a follower). A deleted member is `{ id, display_name: \"Deleted member\", deleted: true }`."
-      required: [id, username, display_name, avatar_url, top_badge, team, deleted]
+      required: [id, username, display_name, avatar_url, top_badge, team, deleted, rank, rank_label]
       properties:
         id: { type: string, format: uuid }
         username: { type: string }
@@ -1436,8 +1436,9 @@ components:
         top_badge: { oneOf: [{ $ref: "#/components/schemas/BadgeKind" }, { type: "null" }], description: "The one badge shown next to the name." }
         team: { type: boolean, description: "Yallapp's team (\"Yallapp Team\")." }
         deleted: { type: boolean }
+        rank: { type: string, enum: [newcomer, member, contributor, expert, pro], description: "Their standing by points (newcomer, member from 25, contributor from 250, expert from 1,000, pro from 5,000)." }
+        rank_label: { type: string, description: "The rank's name in the reader's language (\"Expert\")." }
         relationship: { $ref: "#/components/schemas/Relationship" }
-        rank: { type: string, enum: [newcomer, member, contributor, expert, pro], description: "In the Q&A and tutorials: the member's standing by their points (25, 250, 1000 and 5000 points)." }
     Relationship:
       type: object
       description: How the signed-in member stands with this member (absent when signed out).
@@ -1728,11 +1729,13 @@ components:
         groups_create_members: { type: array, items: { type: string }, description: "The chosen members' ids (policy `chosen`)." }
         spam_filter:
           type: object
-          required: [enabled, blocked_domains, max_links]
+          required: [enabled, blocked_domains, blocked_words, max_links, hide_after_reports]
           properties:
             enabled: { type: boolean, default: true }
             blocked_domains: { type: array, items: { type: string } }
+            blocked_words: { type: array, items: { type: string } }
             max_links: { type: integer, default: 3 }
+            hide_after_reports: { type: integer, default: 3, description: "Content reported by this many members is held until a moderator decides." }
         first_posts_reviewed: { type: integer, default: 2 }
     ModerationItem:
       type: object
@@ -1757,7 +1760,7 @@ components:
         reporter: { $ref: "#/components/schemas/MemberSummary" }
         target_type: { $ref: "#/components/schemas/TargetType" }
         target_id: { type: string }
-        reason: { type: string, enum: [spam, abuse, harassment, off_topic, inappropriate, copyright, other] }
+        reason: { type: string, enum: [spam, harassment, hate, inappropriate, misinformation, impersonation, other] }
         note: { type: string }
         status: { type: string, enum: [open, actioned, dismissed] }
         created_at: { type: string, format: date-time }

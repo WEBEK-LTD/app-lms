@@ -29,6 +29,10 @@ export interface CommunityDeps {
   mail: CommunityMailer;
   /** Stores a file and gives its public URL (profile pictures); null when uploads aren't set up. */
   upload: ((key: string, bytes: Uint8Array, contentType: string) => Promise<string>) | null;
+  /** Private files (area C's ID proofs); none: the blob store. Never served publicly. */
+  privateFiles?: { put(key: string, bytes: Uint8Array, contentType: string): Promise<void>; get(key: string): Promise<{ bytes: Uint8Array; contentType: string } | null> };
+  /** Signs short-lived links to private files; none: SIGNING_SECRET. */
+  fileSecret?: string;
 }
 
 export type CommunityMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";

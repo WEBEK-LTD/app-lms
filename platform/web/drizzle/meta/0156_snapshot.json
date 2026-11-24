@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "81adef45-4e68-4acc-b79d-b052023382c0",
-  "prevId": "8dafa43c-473e-450e-a9ad-bd7a92915fc1",
+  "id": "7993b29b-0fb3-4087-b9b1-2f8f6dc10c98",
+  "prevId": "8decccf1-a016-43ee-a949-ea609654a82c",
   "tables": {
     "account_deletion_requests": {
       "name": "account_deletion_requests",
@@ -36573,8 +36573,8 @@
         }
       },
       "foreignKeys": {
-        "community_verification_requests_member_id_community_members_id_fk": {
-          "name": "community_verification_requests_member_id_community_members_id_fk",
+        "community_verification_member_fk": {
+          "name": "community_verification_member_fk",
           "tableFrom": "community_verification_requests",
           "tableTo": "community_members",
           "columnsFrom": [

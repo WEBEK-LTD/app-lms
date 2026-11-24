@@ -17,15 +17,18 @@ export type ModeratedTarget = "question" | "answer" | "comment" | "tutorial";
 /** Area C's notice kinds the Q&A sends: an answer (to the asker), an official one, an accepted one, a reply (to the answer's author), a vote milestone (1, 10, 50, 100 upvotes). */
 export type QaNoticeKind = "answer" | "answer_accepted" | "official_answer" | "reply" | "vote_milestone";
 
+/** A member as area A gives them: their rank too when A has it (else the Q&A works it out from its points). */
+export type MemberPerson = Omit<MemberSummary, "rank"> & { rank?: MemberSummary["rank"] };
+
 export interface QaHooks {
   /** The members with these ids as shown beside a post; missing ids are shown as deleted. */
-  members(ids: readonly string[]): Promise<Record<string, Omit<MemberSummary, "rank">>>;
+  members(ids: readonly string[]): Promise<Record<string, MemberPerson>>;
   /** The members the viewer blocked or who blocked them: neither sees the other's posts. */
   hiddenFor(viewerId: string): Promise<string[]>;
   /** The members the viewer follows (the "following" filter). */
   followingIds(viewerId: string): Promise<string[]>;
   /** Members whose name or username has the text (search's members). */
-  searchMembers(q: string, limit: number): Promise<Omit<MemberSummary, "rank">[]>;
+  searchMembers(q: string, limit: number): Promise<MemberPerson[]>;
   /**
    * A new post's status, called once it is stored as pending (area C's
    * moderateNew: a new member's first posts and the spam filter hold it,

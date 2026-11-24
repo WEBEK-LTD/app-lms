@@ -1,5 +1,4 @@
-import type { QaHooks } from "../qa/hooks";
-import type { MemberSummary } from "../qa/types";
+import type { MemberPerson, QaHooks } from "../qa/hooks";
 import type { CommunityContext } from "./http";
 import { memberSummaries, type MemberSummaryView } from "./views";
 
@@ -43,6 +42,7 @@ export function trustForQa(_ctx: CommunityContext): Partial<Pick<QaHooks, "moder
   return {};
 }
 
-function fromView(v: MemberSummaryView): Omit<MemberSummary, "rank"> {
-  return { id: v.id, username: v.username, displayName: v.display_name, avatarUrl: v.avatar_url, headline: v.headline, topBadge: v.top_badge, team: v.team, deleted: v.deleted };
+/** Area A's MemberSummary, kept whole (its rank and rank_label too) so the app and site see one shape everywhere. */
+function fromView(v: MemberSummaryView): MemberPerson {
+  return { id: v.id, username: v.username, displayName: v.display_name, avatarUrl: v.avatar_url, headline: v.headline, topBadge: v.top_badge, team: v.team, deleted: v.deleted, rank: v.rank, rankLabel: v.rank_label };
 }

@@ -8,7 +8,14 @@ Last updated: 24 November 2026.
 
 ## Current release
 
-Roadmap 231.2 (Yallapp Community, area B, on `wip-community-qa`, to be integrated): questions and answers with the similar questions before asking, official answers from Yallapp's team, replies, votes and points, accepting, sections and tags, saving, search and the team's tutorials (articles and videos by section, level and language) through `/api/community/v1`; moderation and notices wait for area C.
+Roadmap 231 area A (Yallapp Community's base, on `wip-community-base`):
+the community's API contract, its 24 tables (migration 0155), joining and
+signing in with email, Apple and Google, profiles, follow, friends, block,
+reports, linking a Yallapp account, its three languages and its own host
+(`community.yallapp.com.tr`). Needs `COMMUNITY_APPLE_AUDIENCES`,
+`COMMUNITY_GOOGLE_CLIENT_IDS` and (optionally) `COMMUNITY_SITE_URL`.
+
+Roadmap 231 area B (Yallapp Community, area B, on `wip-community-qa`, to be integrated): questions and answers with the similar questions before asking, official answers from Yallapp's team, replies, votes and points, accepting, sections and tags, saving, search and the team's tutorials (articles and videos by section, level and language) through `/api/community/v1`; moderation and notices wait for area C.
 
 Roadmap 229.4 (prices that read cleanly everywhere else): the dashboard,
 the emails, the owner's pushes and the web checkout drop ".00" on a whole
