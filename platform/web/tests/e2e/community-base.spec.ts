@@ -103,12 +103,12 @@ test("231 a member links their Yallapp account: sign in to Yallapp on the way, c
   await expect(page.getByRole("heading", { name: "Link to Yallapp Community" })).toBeVisible();
   await expect(page.getByText(`community member Mohamed Ali (@${mo.username})`)).toBeVisible();
   await page.getByRole("button", { name: "Link my account" }).click();
-  await expect(page.getByRole("status")).toHaveText("Your Yallapp account is linked. You can go back to Yallapp Community.");
+  await expect(page.getByRole("main").getByRole("status")).toHaveText("Your Yallapp account is linked. You can go back to Yallapp Community.");
   await expect(page.getByRole("link", { name: "Back to Yallapp Community" })).toHaveAttribute("href", new RegExp(`/u/${mo.username.replace(".", "\\.")}$`));
 
   const link = await request.get(`${api}/me/yallapp-link`, { headers: { authorization: `Bearer ${mo.token}` } });
   expect(await link.json()).toMatchObject({ linked: true, account_name: owner.name, apps: [] });
   // The link works once.
   await page.goto(`${url.pathname}${url.search}`);
-  await expect(page.getByRole("alert")).toHaveText("This link has expired. Start again from the community.");
+  await expect(page.getByRole("main").getByRole("alert")).toHaveText("This link has expired. Start again from the community.");
 });
