@@ -87,9 +87,9 @@ export interface TrustStore {
   addAudit(input: Omit<AuditEntry, "id">): Promise<AuditEntry>;
   listAudit(input: { memberId?: string; action?: string; offset: number; limit: number }): Promise<Page<AuditEntry>>;
 
-  // Settings (one document, key "trust")
-  getSettingsDoc(): Promise<unknown>;
-  saveSettingsDoc(doc: unknown, input: { at: Date; by: string | null }): Promise<void>;
+  // Settings: one document per key ("trust" the admin's settings, "moderators" the Community's moderators)
+  getSettingsDoc(key?: string): Promise<unknown>;
+  saveSettingsDoc(doc: unknown, input: { at: Date; by: string | null }, key?: string): Promise<void>;
 
   // Moderation
   addModeration(input: Omit<ModerationItem, "id" | "status" | "handledBy" | "handledAt">): Promise<ModerationItem>;
@@ -133,7 +133,7 @@ export class MemoryTrustStore implements TrustStore {
   private badges = new Map<string, MemberBadge>();
   private verifications = new Map<string, VerificationRequest>();
   private audit: AuditEntry[] = [];
-  private settings: unknown = null;
+  private settings = new Map<string, unknown>();
   private moderation = new Map<string, ModerationItem>();
   private violations: Violation[] = [];
   private reports = new Map<string, Report>();
@@ -204,11 +204,11 @@ export class MemoryTrustStore implements TrustStore {
     return pageOf(all.map(clone), input.offset, input.limit);
   }
 
-  async getSettingsDoc() {
-    return clone(this.settings);
+  async getSettingsDoc(key = "trust") {
+    return clone(this.settings.get(key) ?? null);
   }
-  async saveSettingsDoc(doc: unknown) {
-    this.settings = clone(doc);
+  async saveSettingsDoc(doc: unknown, _input: { at: Date; by: string | null }, key = "trust") {
+    this.settings.set(key, clone(doc));
   }
 
   async addModeration(input: Omit<ModerationItem, "id" | "status" | "handledBy" | "handledAt">) {

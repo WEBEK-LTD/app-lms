@@ -29,8 +29,16 @@ beforeEach(async () => {
   admin = await joinWithEmail(c, "Community Admin");
   nour = await joinWithEmail(c, "Nour El Hoda");
   ali = await joinWithEmail(c, "Ali Kaya");
-  await c.deps.store.base.updateMember(admin.id, { role: "admin" });
+  await makePlatformAdmin(admin.id);
 });
+
+/** Links a Yallapp account on Yallapp's admin team (role admin) to the member: a Community admin. */
+async function makePlatformAdmin(memberId: string) {
+  const platform = c.deps.platform as MemoryStore;
+  const user = await platform.createUser({ email: `team-${memberId}@yallapp.test`, name: "Yallapp Team", passwordHash: null, now: NOW });
+  await platform.saveAdminMember({ userId: user.id, role: "admin", addedBy: "owner@yallapp.test", addedAt: NOW, updatedAt: NOW });
+  await c.deps.store.base.updateMember(memberId, { yallappUserId: user.id, linkedAt: NOW });
+}
 
 /** Links a Yallapp account with `apps` apps to the member, as confirming the link on yallapp.com.tr does. */
 async function linkYallapp(memberId: string, apps: number) {
@@ -248,5 +256,35 @@ describe("231 moderation and notifications with the Q&A (area B)", () => {
     expect((await api(c, "POST", `/admin/moderation/${queue.body.items[0]!.id}`, { token: admin.token, body: { decision: "remove", note: "Spam" } })).status).toBe(200);
     expect((await api<{ items: unknown[] }>(c, "GET", "/admin/reports", { token: admin.token })).body.items).toEqual([]);
     expect((await api<{ items: { kind: string; text: string }[] }>(c, "GET", "/notifications", { token: ali.token })).body.items[0]).toMatchObject({ kind: "post_removed" });
+  });
+});
+
+describe("231 the Community's staff through the API", () => {
+  it("admins are their Yallapp account's platform admins, checked on every request; a stored role grants nothing", async () => {
+    await c.deps.store.base.updateMember(nour.id, { role: "admin" });
+    expect((await api(c, "GET", "/admin/settings", { token: nour.token })).status).toBe(403);
+    expect((await api(c, "GET", "/admin/settings", { token: admin.token })).status).toBe(200);
+    // Off Yallapp's team: no longer a Community admin, at once.
+    const platform = c.deps.platform as MemoryStore;
+    const userId = (await c.deps.store.base.getMember(admin.id))!.yallappUserId!;
+    await platform.deleteAdminMember(userId);
+    expect((await api(c, "GET", "/admin/settings", { token: admin.token })).status).toBe(403);
+  });
+
+  it("a moderator works the moderation queue and reports, but not badges, members or settings", async () => {
+    expect((await api(c, "PUT", `/admin/moderators/${ali.id}`, { token: nour.token, body: { reason: "Friend" } })).status).toBe(403);
+    const granted = await api<{ items: { member: { id: string }; granted_by: { id: string }; reason: string }[] }>(c, "PUT", `/admin/moderators/@${ali.username}`, { token: admin.token, body: { reason: "Knows the Turkish questions" } });
+    expect(granted.status).toBe(200);
+    expect(granted.body.items).toEqual([expect.objectContaining({ member: expect.objectContaining({ id: ali.id }), granted_by: expect.objectContaining({ id: admin.id }), reason: "Knows the Turkish questions" })]);
+    for (const path of ["/admin/moderation", "/admin/reports"]) expect((await api(c, "GET", path, { token: ali.token })).status, path).toBe(200);
+    for (const path of ["/admin/settings", "/admin/verification-requests", "/admin/audit-log", "/admin/members", "/admin/moderators"]) expect((await api(c, "GET", path, { token: ali.token })).status, path).toBe(403);
+    expect((await api(c, "POST", `/admin/members/${nour.id}/badges`, { token: ali.token, body: { badge: "blue", reason: "Nice" } })).status).toBe(403);
+    expect((await api(c, "DELETE", `/admin/moderators/${ali.id}`, { token: admin.token, body: { reason: "Stepped down" } })).status).toBe(204);
+    expect((await api(c, "GET", "/admin/moderation", { token: ali.token })).status).toBe(403);
+    const log = await api<{ items: { action: string; reason: string }[] }>(c, "GET", `/admin/audit-log?member=${ali.id}`, { token: admin.token });
+    expect(log.body.items.map((e) => [e.action, e.reason])).toEqual([
+      ["moderator.revoke", "Stepped down"],
+      ["moderator.grant", "Knows the Turkish questions"],
+    ]);
   });
 });

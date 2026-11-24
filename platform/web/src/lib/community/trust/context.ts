@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { adminRoleOf } from "../../admin/team";
 import type { CommunityContext } from "../api/http";
 import { withQaFor } from "../api/qa-hooks";
 import { contentInfo, memberStats, recentTexts, setContentStatus, type QaContentKind } from "../qa/service";
@@ -91,6 +92,15 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
     store,
     now: () => ctx.now,
     member,
+    platformAdmin: async (id) => {
+      const m = await base.getMember(id);
+      if (!m?.yallappUserId) return false;
+      const user = await ctx.deps.platform.getUserById(m.yallappUserId);
+      if (!user) return false;
+      // The same check as Yallapp's own admin (src/app/admin): SUPER_ADMIN_EMAILS, else the team's role; owners and admins only.
+      const role = await adminRoleOf(ctx.deps.platform, user);
+      return role === "owner" || role === "admin";
+    },
     countApprovedPost: async (id) => {
       const m = await base.getMember(id);
       if (m) await base.updateMember(id, { approvedPosts: m.approvedPosts + 1 });

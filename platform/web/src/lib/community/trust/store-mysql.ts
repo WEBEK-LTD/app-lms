@@ -27,7 +27,7 @@ import type { CommunityNotification, ContentKind, ModerationItem, ModerationStat
 // The base's tables and their types; drizzle reads the schema from them.
 type Db = MySql2Database<Record<string, unknown>>;
 
-/** The settings' row in community_settings. */
+/** The admin's settings' row in community_settings (the moderators have their own). */
 const SETTINGS_KEY = "trust";
 
 /** One page from `rows` fetched one past the limit: the extra row says there is a next page. */
@@ -183,12 +183,12 @@ export class MysqlTrustStore implements TrustStore {
     return paged(rows.map(auditOf), input.offset, input.limit);
   }
 
-  async getSettingsDoc() {
-    const [row] = await this.db.select().from(communitySettings).where(eq(communitySettings.key, SETTINGS_KEY));
+  async getSettingsDoc(key = SETTINGS_KEY) {
+    const [row] = await this.db.select().from(communitySettings).where(eq(communitySettings.key, key));
     return row?.value ?? null;
   }
-  async saveSettingsDoc(doc: unknown, input: { at: Date; by: string | null }) {
-    await this.db.insert(communitySettings).values({ key: SETTINGS_KEY, value: doc, updatedBy: input.by, updatedAt: input.at }).onDuplicateKeyUpdate({ set: { value: doc, updatedBy: input.by, updatedAt: input.at } });
+  async saveSettingsDoc(doc: unknown, input: { at: Date; by: string | null }, key = SETTINGS_KEY) {
+    await this.db.insert(communitySettings).values({ key, value: doc, updatedBy: input.by, updatedAt: input.at }).onDuplicateKeyUpdate({ set: { value: doc, updatedBy: input.by, updatedAt: input.at } });
   }
 
   async addModeration(input: Omit<ModerationItem, "id" | "status" | "handledBy" | "handledAt">) {

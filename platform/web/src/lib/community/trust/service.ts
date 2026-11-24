@@ -52,6 +52,8 @@ export interface TrustDeps {
   store: TrustStore;
   now: () => Date;
   member: (id: string) => Promise<TrustMember | null>;
+  /** Whether the member's linked Yallapp account is a platform admin (owner or admin of Yallapp's team), checked now: a Community admin. */
+  platformAdmin: (id: string) => Promise<boolean>;
   /** One more of their posts appeared (A's `approved_posts`). */
   countApprovedPost: (id: string) => Promise<void>;
   /** Suspends or restores a member (a suspension signs every device out). */
@@ -88,16 +90,75 @@ export const isFail = (x: unknown): x is Fail => typeof x === "object" && x !== 
 export const PAGE_MAX = 50;
 export const pageInput = (input: { offset?: number; limit?: number }) => ({ offset: Math.max(0, Math.floor(input.offset ?? 0)), limit: Math.min(PAGE_MAX, Math.max(1, Math.floor(input.limit ?? 20))) });
 
-export function isCommunityAdmin(member: Pick<TrustMember, "role" | "status"> | null | undefined): boolean {
-  return member?.role === "admin" && member.status === "active";
+/** A Community member's role among its staff: an admin (their linked Yallapp account is a platform admin) or a moderator (an admin made them one); null for everyone else. Checked on every call. */
+export type StaffRole = "admin" | "moderator";
+
+/** The moderators' list (community_settings, key "moderators"). */
+export interface ModeratorGrant {
+  memberId: string;
+  grantedBy: string;
+  grantedAt: string;
+  reason: string;
 }
+const MODERATORS_KEY = "moderators";
+
+async function moderatorGrants(deps: TrustDeps): Promise<ModeratorGrant[]> {
+  const doc = (await deps.store.getSettingsDoc(MODERATORS_KEY)) as { members?: ModeratorGrant[] } | null;
+  return Array.isArray(doc?.members) ? doc.members.filter((m) => typeof m?.memberId === "string") : [];
+}
+
+export async function staffRole(deps: TrustDeps, memberId: string): Promise<StaffRole | null> {
+  const member = await deps.member(memberId);
+  if (!member || member.status !== "active") return null;
+  if (await deps.platformAdmin(memberId)) return "admin";
+  return (await moderatorGrants(deps)).some((m) => m.memberId === memberId) ? "moderator" : null;
+}
+
+/** Whether a role is enough: an admin may do anything a moderator may. */
+export const roleAllows = (role: StaffRole | null, need: StaffRole): boolean => role === "admin" || (need === "moderator" && role === "moderator");
 
 async function audit(deps: TrustDeps, entry: { actorId: string | null; action: AuditAction; memberId?: string | null; targetType?: string | null; targetId?: string | null; reason?: string | null; details?: Record<string, unknown> | null }) {
   await deps.store.addAudit({ actorId: entry.actorId, action: entry.action, memberId: entry.memberId ?? null, targetType: entry.targetType ?? null, targetId: entry.targetId ?? null, reason: entry.reason ?? null, details: entry.details ?? null, createdAt: deps.now() });
 }
 
-async function requireAdmin(deps: TrustDeps, adminId: string): Promise<Fail | null> {
-  return isCommunityAdmin(await deps.member(adminId)) ? null : fail(403, "forbidden", "Only Community admins can do this.");
+async function requireAdmin(deps: TrustDeps, memberId: string, need: StaffRole = "admin"): Promise<Fail | null> {
+  return roleAllows(await staffRole(deps, memberId), need) ? null : fail(403, "forbidden", need === "admin" ? "Only Community admins can do this." : "Only Community moderators can do this.");
+}
+
+/** The Community's moderators (admins only). */
+export async function listModerators(deps: TrustDeps, adminId: string): Promise<{ ok: true; moderators: ModeratorGrant[] } | Fail> {
+  return (await requireAdmin(deps, adminId)) ?? { ok: true, moderators: await moderatorGrants(deps) };
+}
+
+/** An admin makes a member a moderator (the moderation queue and reports only), with a reason; logged. */
+export async function grantModerator(deps: TrustDeps, adminId: string, memberId: string, input: unknown): Promise<{ ok: true; moderators: ModeratorGrant[] } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  const reason = parseReason(input);
+  if (!reason.ok) return fail(400, "invalid_request", reason.error, { reason: reason.error });
+  const member = await deps.member(memberId);
+  if (!member || member.status === "deleted") return fail(404, "not_found", "There's no such member.");
+  const list = await moderatorGrants(deps);
+  if (!list.some((m) => m.memberId === memberId)) {
+    list.push({ memberId, grantedBy: adminId, grantedAt: deps.now().toISOString(), reason: reason.value });
+    await deps.store.saveSettingsDoc({ members: list }, { at: deps.now(), by: adminId }, MODERATORS_KEY);
+    await audit(deps, { actorId: adminId, action: "moderator.grant", memberId, targetType: "member", targetId: memberId, reason: reason.value });
+  }
+  return { ok: true, moderators: list };
+}
+
+/** An admin takes a member's moderator role away, with a reason; logged. */
+export async function revokeModerator(deps: TrustDeps, adminId: string, memberId: string, input: unknown): Promise<{ ok: true; moderators: ModeratorGrant[] } | Fail> {
+  const denied = await requireAdmin(deps, adminId);
+  if (denied) return denied;
+  const reason = parseReason(input);
+  if (!reason.ok) return fail(400, "invalid_request", reason.error, { reason: reason.error });
+  const list = await moderatorGrants(deps);
+  if (!list.some((m) => m.memberId === memberId)) return fail(404, "not_found", "That member isn't a moderator.");
+  const kept = list.filter((m) => m.memberId !== memberId);
+  await deps.store.saveSettingsDoc({ members: kept }, { at: deps.now(), by: adminId }, MODERATORS_KEY);
+  await audit(deps, { actorId: adminId, action: "moderator.revoke", memberId, targetType: "member", targetId: memberId, reason: reason.value });
+  return { ok: true, moderators: kept };
 }
 
 // ——— Settings ———
@@ -126,7 +187,7 @@ export async function canCreateGroups(deps: TrustDeps, memberId: string): Promis
   const member = await deps.member(memberId);
   if (!member || member.status !== "active") return false;
   const held = heldBadges(await deps.store.listMemberBadges(memberId), deps.now());
-  return mayCreateGroups(await getSettings(deps), { id: memberId, hasBadge: held.length > 0, admin: isCommunityAdmin(member) });
+  return mayCreateGroups(await getSettings(deps), { id: memberId, hasBadge: held.length > 0, admin: (await staffRole(deps, memberId)) === "admin" });
 }
 
 // ——— Notifications ———
@@ -421,7 +482,9 @@ export async function moderateNew(deps: TrustDeps, input: { memberId: string; ta
   const norm = (t: string) => t.toLowerCase().replace(/\s+/g, " ").trim();
   const self = recent.findIndex((t) => norm(t) === norm(input.text));
   if (self >= 0) recent.splice(self, 1);
-  const result = moderationGate({ role: member?.role ?? "member", publishedPosts: member?.approvedPosts ?? 0 }, input.text, settings, recent);
+  // The team and the Community's staff are never held.
+  const staff = member?.role === "team" ? "team" : (await staffRole(deps, input.memberId)) ? "admin" : "member";
+  const result = moderationGate({ role: staff, publishedPosts: member?.approvedPosts ?? 0 }, input.text, settings, recent);
   if (result.status === "published") {
     await deps.countApprovedPost(input.memberId);
     return result;
@@ -434,7 +497,7 @@ export async function moderateNew(deps: TrustDeps, input: { memberId: string; ta
 export type QueuedItem = ModerationItem & { preview: string; link: string | null; reportCount: number };
 
 export async function moderationQueue(deps: TrustDeps, adminId: string, input: { status?: ModerationStatus; offset?: number; limit?: number }): Promise<{ ok: true; page: Page<QueuedItem> } | Fail> {
-  const denied = await requireAdmin(deps, adminId);
+  const denied = await requireAdmin(deps, adminId, "moderator");
   if (denied) return denied;
   const list = await deps.store.listModeration({ status: input.status ?? "open", ...pageInput(input) });
   const items = await Promise.all(
@@ -448,7 +511,7 @@ export async function moderationQueue(deps: TrustDeps, adminId: string, input: {
 
 /** A moderator approves a held post (it appears) or removes it (hidden, a violation, the member told), with an optional note. */
 export async function decideModeration(deps: TrustDeps, adminId: string, itemId: string, input: unknown): Promise<{ ok: true; item: ModerationItem } | Fail> {
-  const denied = await requireAdmin(deps, adminId);
+  const denied = await requireAdmin(deps, adminId, "moderator");
   if (denied) return denied;
   const v = (input ?? {}) as Record<string, unknown>;
   if (v.decision !== "approve" && v.decision !== "remove") return fail(400, "invalid_request", "decision must be approve or remove.");
@@ -522,7 +585,7 @@ export async function afterReported(deps: TrustDeps, made: Report): Promise<void
 }
 
 export async function listReports(deps: TrustDeps, adminId: string, input: { status?: ReportStatus; offset?: number; limit?: number }): Promise<{ ok: true; page: Page<Report> } | Fail> {
-  const denied = await requireAdmin(deps, adminId);
+  const denied = await requireAdmin(deps, adminId, "moderator");
   if (denied) return denied;
   return { ok: true, page: await deps.store.listReports({ status: input.status ?? "open", ...pageInput(input) }) };
 }
@@ -534,7 +597,7 @@ export async function listReports(deps: TrustDeps, adminId: string, input: { sta
  * reporter is thanked.
  */
 export async function resolveReport(deps: TrustDeps, adminId: string, reportId: string, input: unknown): Promise<{ ok: true; report: Report } | Fail> {
-  const denied = await requireAdmin(deps, adminId);
+  const denied = await requireAdmin(deps, adminId, "moderator");
   if (denied) return denied;
   const v = (input ?? {}) as Record<string, unknown>;
   if (v.status !== "actioned" && v.status !== "dismissed") return fail(400, "invalid_request", "status must be actioned or dismissed.");
