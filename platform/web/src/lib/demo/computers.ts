@@ -350,8 +350,8 @@ export function computersMainOf(sub: string): ComputersCategory {
 /**
  * A laptop's or build's options as its variations (91.5): each memory with
  * each storage, its price the product's with each step up's (its sale
- * price lowered the same); the first chosen when the page opens. None for a
- * product without options.
+ * price lowered the same); the first chosen when the page opens, the top one
+ * sold out (228.7). None for a product without options.
  */
 export function computersVariants(product: ComputersProduct): CatalogVariants | null {
   const o = product.options;
@@ -372,5 +372,7 @@ export function computersVariants(product: ComputersProduct): CatalogVariants | 
       });
     }
   }
+  // 228.7 The top memory with the top storage sold out where there are three or more, as a real shop's: "Notify me" shows there, never on the first.
+  if (items.length >= 3) items[items.length - 1]!.stock = 0;
   return { attributes: [{ name: "Memory", values: o.ram.map(([v]) => v) }, { name: "Storage", values: o.storage.map(([v]) => v) }], items, defaultId: 1 };
 }

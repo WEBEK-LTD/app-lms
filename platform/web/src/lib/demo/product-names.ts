@@ -1,3 +1,6 @@
+import { productWords } from "../catalog/product-langs";
+import type { ProductTranslation } from "../data/shop-features-types";
+import { choiceWordsIn } from "./choice-words";
 import { PRODUCT_DESCRIPTIONS } from "./product-descriptions";
 
 /**
@@ -11,14 +14,25 @@ export type ProductNames = Readonly<Record<string, { ar: string; tr: string }>>;
 
 /**
  * The product's `translations` from its names, and 228.7 its description in
- * Arabic and Turkish too (./product-descriptions.ts); none without names.
+ * Arabic and Turkish too (./product-descriptions.ts) and its choices' words
+ * (./choice-words.ts, from `choices`: its variations and option groups);
+ * none without names.
  */
-export function namedTranslations(names: ProductNames | undefined, sku: string): { ar: { name: string; description?: string }; tr: { name: string; description?: string } } | null {
+export function namedTranslations(names: ProductNames | undefined, sku: string, choices: ChoiceSource = {}): { ar: ProductTranslation & { name: string }; tr: ProductTranslation & { name: string } } | null {
   const n = names?.[sku];
   if (!n) return null;
   const d = PRODUCT_DESCRIPTIONS[sku];
-  return { ar: { name: n.ar, ...(d ? { description: d.ar } : {}) }, tr: { name: n.tr, ...(d ? { description: d.tr } : {}) } };
+  // 228.7 Its choices' names and values too ("Colour" → "اللون", "Sand" → "رملي").
+  const words = productWords(choices);
+  const lang = (l: "ar" | "tr") => {
+    const w = choiceWordsIn(words, l);
+    return { name: n[l], ...(d ? { description: d[l] } : {}), ...(w ? { words: w } : {}) };
+  };
+  return { ar: lang("ar"), tr: lang("tr") };
 }
+
+/** What a product's choices are made of: its variations' attributes and its option groups. */
+type ChoiceSource = Parameters<typeof productWords>[0];
 
 export const CROCHET_PRODUCT_NAMES: ProductNames = {
   "CR-101": { ar: "كارديغان دفا", tr: "Dafa hırka" },

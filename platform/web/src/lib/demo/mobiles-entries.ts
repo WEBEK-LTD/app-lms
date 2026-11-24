@@ -76,7 +76,7 @@ export async function demoMobilesProducts(deps: EntryDeps, app: App): Promise<vo
       addonFor: null,
       specs: seed.specs.map((s) => ({ ...s })),
       // 226 Its name in Arabic and Turkish too.
-      translations: namedTranslations(MOBILES_PRODUCT_NAMES, seed.sku),
+      translations: namedTranslations(MOBILES_PRODUCT_NAMES, seed.sku, { variants }),
       ...marked,
     };
     if (deps.sample) {

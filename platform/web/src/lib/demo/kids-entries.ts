@@ -74,7 +74,7 @@ export async function demoKidsProducts(deps: EntryDeps, app: App): Promise<void>
       addonFor: seed.addon ? { offerWith: "categories" as const, categoryIds: [categoryIds.get(KIDS_GIFTS_CATEGORY)!], productIds: [] } : null,
       details: kidsDetails(seed),
       // 223 Its name in Arabic and Turkish too.
-      translations: namedTranslations(KIDS_PRODUCT_NAMES, seed.sku),
+      translations: namedTranslations(KIDS_PRODUCT_NAMES, seed.sku, { variants: kidsVariants(seed, KIDS_PRODUCTS.indexOf(seed)) }),
       ...marked,
     };
     if (deps.sample) {

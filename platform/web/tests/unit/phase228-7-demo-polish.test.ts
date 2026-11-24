@@ -1,6 +1,19 @@
 import { describe, expect, it } from "vitest";
 import * as NAMES from "@/lib/demo/product-names";
+import { productWords } from "@/lib/catalog/product-langs";
+import { CHOICE_WORDS } from "@/lib/demo/choice-words";
+import { BEAUTY_PRODUCTS, beautyVariants } from "@/lib/demo/beauty";
+import { CLOTHES_PRODUCTS, clothesVariants } from "@/lib/demo/clothes";
+import { COMPUTERS_PRODUCTS, computersVariants } from "@/lib/demo/computers";
+import { ELECTRONICS_PRODUCTS, electronicsCover, electronicsVariants } from "@/lib/demo/electronics";
+import { KIDS_PRODUCTS, kidsVariants } from "@/lib/demo/kids";
+import { CROCHET_KIT } from "@/lib/demo/kits/crochet";
+import { DECOR_KIT } from "@/lib/demo/kits/decor";
+import { FURNITURE_KIT } from "@/lib/demo/kits/furniture";
+import { MOBILES_PRODUCTS, mobilesVariants } from "@/lib/demo/mobiles";
 import { PRODUCT_DESCRIPTIONS } from "@/lib/demo/product-descriptions";
+import { kitVariants } from "@/lib/demo/shop-kit";
+import type { CatalogOptionGroup, CatalogVariants } from "@/lib/data/types";
 import { listHeadings, withListHeadings, withoutEmptied } from "@/lib/hosted/pages/lists";
 import type { StudioNode } from "@/lib/pages/types";
 import { APP_WORDS } from "@/lib/studio/app-words";
@@ -82,6 +95,57 @@ describe("228.7 the demo products' descriptions in Arabic and Turkish", () => {
       expect(d.ar, sku).toMatch(/[؀-ۿ]/);
       expect(d.ar, sku).not.toMatch(/\b(the|and|with|for)\b/i);
       expect(d.tr, sku).not.toMatch(/\b(the|and|with|your)\b/i);
+    }
+  });
+});
+
+/** Every demo product with choices: its SKU, its shop type's names, its variations and option groups. */
+const money = (c: number) => c;
+const CHOOSING: { sku: string; names: NAMES.ProductNames; variants: CatalogVariants | null; optionGroups?: CatalogOptionGroup[] | null; type: string }[] = [
+  ...MOBILES_PRODUCTS.map((p, i) => ({ sku: p.sku, names: NAMES.MOBILES_PRODUCT_NAMES, variants: mobilesVariants(p, i), type: "mobiles" })),
+  ...KIDS_PRODUCTS.map((p, i) => ({ sku: p.sku, names: NAMES.KIDS_PRODUCT_NAMES, variants: kidsVariants(p, i), type: "kids" })),
+  ...CLOTHES_PRODUCTS.map((p, i) => ({ sku: p.sku, names: NAMES.CLOTHES_PRODUCT_NAMES, variants: clothesVariants(p, i), type: "clothes" })),
+  ...BEAUTY_PRODUCTS.map((p, i) => ({ sku: p.sku, names: NAMES.BEAUTY_PRODUCT_NAMES, variants: beautyVariants(p, i), type: "beauty" })),
+  ...ELECTRONICS_PRODUCTS.map((p, i) => ({ sku: p.sku, names: NAMES.ELECTRONICS_PRODUCT_NAMES, variants: electronicsVariants(p, i, money), optionGroups: p.cover ? electronicsCover(money) : null, type: "electronics" })),
+  ...COMPUTERS_PRODUCTS.map((p) => ({ sku: p.sku, names: NAMES.COMPUTERS_PRODUCT_NAMES, variants: computersVariants(p), type: "computers" })),
+  ...([["crochet", CROCHET_KIT, NAMES.CROCHET_PRODUCT_NAMES], ["decor", DECOR_KIT, NAMES.DECOR_PRODUCT_NAMES], ["furniture", FURNITURE_KIT, NAMES.FURNITURE_PRODUCT_NAMES]] as const).flatMap(([type, kit, names]) => kit.products.map((p, i) => ({ sku: p.sku, names, variants: kitVariants(p, i), type }))),
+];
+
+/** A word read the same in every language: a size or code (XS, 1N, 256 GB, 55″, 3 mm, 80 × 80 cm, 36). */
+const universal = (w: string) => !/[a-z]{2,}/.test(w.replace(/\b(mm|cm)\b/g, ""));
+
+describe("228.7 the demo products' choices in Arabic and Turkish", () => {
+  it("every choice name and value of every demo product of the 10 types, but sizes and codes, has its words in both", () => {
+    const missing = new Set<string>();
+    for (const p of CHOOSING) {
+      const words = productWords(p);
+      const t = NAMES.namedTranslations(p.names, p.sku, p)!;
+      for (const w of words.filter((x) => !universal(x))) {
+        if (!t.ar.words?.[w] || !t.tr.words?.[w]) missing.add(`${p.type}: ${w}`);
+      }
+      // Only its own words, none of another product's.
+      for (const k of Object.keys(t.ar.words ?? {})) expect(words, p.sku).toContain(k);
+    }
+    expect([...missing]).toEqual([]);
+  });
+
+  it("reads as Arabic and Turkish, never the English again", () => {
+    for (const [en, t] of Object.entries(CHOICE_WORDS)) {
+      expect(t.ar, en).toMatch(/[\u0600-\u06FF]/);
+      expect(t.tr.trim(), en).toBeTruthy();
+    }
+  });
+});
+
+describe("228.7 a demo phone, device or computer opens on a choice in stock", () => {
+  it("its first choice is in stock, and where it has several one stays sold out, so Notify me still shows", () => {
+    for (const p of CHOOSING.filter((x) => ["mobiles", "electronics", "computers"].includes(x.type) && x.variants)) {
+      const v = p.variants!;
+      const first = v.items.find((x) => x.id === (v.defaultId ?? v.items[0]!.id))!;
+      expect(first.stock === null || first.stock > 0, `${p.sku} opens on ${first.values.join(" ")}`).toBe(true);
+    }
+    for (const type of ["mobiles", "electronics", "computers"]) {
+      expect(CHOOSING.some((p) => p.type === type && p.variants?.items.some((x) => x.stock === 0)), type).toBe(true);
     }
   });
 });
