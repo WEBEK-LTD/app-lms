@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import type { StudioDemoId } from "@/lib/demo/constants";
 import { signatureLooksOf } from "@/lib/studio/demo-designs";
+import { beforeEach, describe, expect, it } from "vitest";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import type { MemoryStore } from "@/lib/data/memory";

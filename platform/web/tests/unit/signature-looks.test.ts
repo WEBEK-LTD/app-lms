@@ -15,10 +15,10 @@ import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { itemSourcesFor } from "@/lib/pages/sources";
 import { STUDIO_HEADER_STYLES, TAB_BAR_DESIGNS, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { parseLayoutContent } from "@/lib/pages/validate";
-import { mainLookOf, signatureDesign, signatureDesigns, signatureLooksOf, studioDemoDesign } from "@/lib/studio/demo-designs";
+import { mainLookOf, mainTemplateOf, signatureDesign, signatureDesigns, signatureLooksOf, studioDemoDesign } from "@/lib/studio/demo-designs";
 import { SYSTEM_SCREENS, systemLookFor } from "@/lib/studio/premium-chrome";
 import { parseStudioScreens } from "@/lib/studio/screens";
-import type { SignatureLook } from "@/lib/studio/demo-designs/signature";
+import { SIGNATURE_LOOKS, type SignatureLook } from "@/lib/studio/demo-designs/signature";
 import { DEMO_HOME_TEMPLATES, withDemoFacts } from "@/lib/studio/demo-templates";
 import { designsFor } from "@/lib/studio/designs";
 import { TEMPLATES, templatesFor, type SectionContext } from "@/lib/studio/sections";
@@ -69,10 +69,15 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
   it("has looks A and B for each of the twenty Studio demos (131.20 Leqaa's too), one template of its kind each, named in Studio's three languages", () => {
     // 208 Lujain's two looks too.
     // 209 And Velours's, Toota's and Toot's; 210 Sakan's, Ghurza's and Rukn's; 211 Madar's, Nova's and Nawah's: twenty demos, forty looks.
-    // 223 A shop type's templates C and D first (its main one, then its second), then A and B: forty looks and two more for each type with C and D.
+    // 223 And a shop type's templates C and D, in Studio's order: C, D, A, B.
     expect(STUDIO_DEMO_TYPES).toHaveLength(20);
-    for (const demo of STUDIO_DEMO_TYPES) expect([["a", "b"], ["c", "d", "a", "b"]], demo).toContainEqual(signatureLooksOf(demo));
-    expect(LOOKS).toHaveLength(40 + 2 * STUDIO_DEMO_TYPES.filter((demo) => signatureLooksOf(demo).includes("c")).length);
+    for (const demo of STUDIO_DEMO_TYPES) {
+      const looks = signatureLooksOf(demo);
+      expect(looks, demo).toEqual(expect.arrayContaining(["a", "b"]));
+      expect(looks, demo).toEqual(SIGNATURE_LOOKS.filter((l) => looks.includes(l)));
+      if (looks.includes("c") || looks.includes("d")) expect(isStoreTemplateDemo(demo), demo).toBe(true);
+    }
+    expect(LOOKS).toHaveLength(40 + STUDIO_DEMO_TYPES.filter((d) => signatureLooksOf(d).includes("c")).length * 2);
     expect(signatureDesigns().map((d) => `${d.demo}_signature_${d.variant}`).sort()).toEqual(LOOKS.map(([demo, look]) => `${demo}_signature_${look}`).sort());
     for (const [demo, look] of LOOKS) {
       const id = `${demo}_signature_${look}`;
@@ -98,10 +103,10 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
 
   it("makes every demo's main look the demo (223: C where it has one, else A): its home, bar, screens and chrome", () => {
     for (const demo of STUDIO_DEMO_TYPES) {
-      // 223 The demo is its main look: C where the shop type has it, else A.
       const main = mainLookOf(demo);
       expect(main).toBe(signatureLooksOf(demo).includes("c") ? "c" : "a");
       expect(DEMO_HOME_TEMPLATES[demo]).toBe(`${demo}_signature_${main}`);
+      expect(mainTemplateOf(demo)).toBe(`${demo}_signature_${main}`);
       expect(studioDemoDesign(demo)).toEqual(signatureDesign(demo, main));
       expect(demoTabBar(demo)).toEqual(signatureDesign(demo, main)!.bar);
       expect(demoStudioScreens(demo, appUrl())).toEqual(demoStudioScreens(demo, appUrl(), main));

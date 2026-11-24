@@ -66,6 +66,10 @@ const TAB_WORDS: Record<string, SectionWord> = {
   Bouquets: "lqTabBouquets",
   // 208 Lujain's shop.
   Shop: "tabShop",
+  // 223 RUNWAY's Discover and Bag, the nursery's Gifts.
+  Discover: "rwyTabDiscover",
+  Bag: "rwyTabBag",
+  Gifts: "nrsTabGifts",
   // 224 Velours C's lab and D's shades, the wishlist; Ghurza C's market and pieces.
   "The lab": "vcLabTitle",
   Shades: "vdShadesMenu",

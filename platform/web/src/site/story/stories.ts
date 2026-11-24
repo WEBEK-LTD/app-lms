@@ -345,7 +345,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "flowers-vase", screen: "leqaa-home" },
   },
-  // 208 Lujain, the clothes shop: a dress for Thursday's wedding, in its look A (LUJAIN) by day and by night; look B (NOUN) in its section.
+  // 208 Lujain, the clothes shop: a dress for Thursday's wedding, 223 in its template C (RUNWAY, the demo) by day and by night; template D (the outfit builder) in its section.
   clothes: {
     id: "clothes",
     icon: "checkroom",
@@ -359,7 +359,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
       { screen: "lujain-menu", icon: "menu_open" },
       { photo: "clothes-dress", screen: "lujain-product", icon: "straighten" },
       { photo: "clothes-heels", screen: "lujain-product", icon: "checkroom" },
-      { screen: "clothes-sig-a-home-dark", icon: "bolt" },
+      { screen: "clothes-sig-c-home-dark", icon: "bolt" },
       { photo: "clothes-rack", screen: "lujain-menu", icon: "inventory_2" },
     ],
     interlude: { photo: "clothes-street" },
@@ -368,7 +368,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
       { icon: "menu_open", screens: ["lujain-menu"], features: ["view_list", "category", "view_carousel", "search", "person", "dashboard_customize"] },
       { icon: "straighten", screens: ["lujain-product"], features: ["palette", "block", "straighten", "translate", "check", "checkroom"] },
       { icon: "checkroom", screens: [], features: ["checkroom", "add", "sync", "bolt", "confirmation_number"] },
-      { icon: "palette", screens: ["clothes-sig-b-home", "clothes-sig-b-home-dark"], features: ["apparel", "trending_up", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "palette", screens: ["clothes-sig-d-home", "clothes-sig-d-home-dark"], features: ["apparel", "trending_up", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
       { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
     ],
     bundle: ["smartphone", "dashboard_customize", "web"],
@@ -404,7 +404,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "web"],
     finale: { photo: "beauty-candle", screen: "beauty-sig-c-home" },
   },
-  // 209 Toota, the kids' clothes shop: a newborn gift and a coat for the first cold week, in its look A (TOOTA) by day and by night; look B (MINIMO) in its section.
+  // 209 Toota, the kids' clothes shop: a newborn gift and a coat for the first cold week, 223 in its template C (the story world, the demo) by day and by night; template D (the nursery) in its section.
   kids: {
     id: "kids",
     icon: "child_care",
@@ -418,7 +418,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
       { screen: "toota-menu", icon: "menu_open" },
       { photo: "kids-newborn", screen: "toota-home", icon: "straighten" },
       { photo: "kids-gift", screen: "toota-product", icon: "redeem" },
-      { screen: "kids-sig-a-home-dark", icon: "bolt" },
+      { screen: "kids-sig-c-home-dark", icon: "bolt" },
       { photo: "kids-school", screen: "toota-menu", icon: "inventory_2" },
     ],
     interlude: { photo: "kids-party" },
@@ -427,7 +427,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
       { icon: "straighten", screens: ["toota-home"], features: ["child_care", "straighten", "table_chart", "translate", "check", "block"] },
       { icon: "menu_open", screens: ["toota-menu"], features: ["view_list", "category", "family_restroom", "search", "person", "dashboard_customize"] },
       { icon: "redeem", screens: ["toota-product"], features: ["redeem", "edit_note", "sell", "checkroom", "spa", "verified_user"] },
-      { icon: "palette", screens: ["kids-sig-b-home", "kids-sig-b-home-dark"], features: ["toys", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "palette", screens: ["kids-sig-d-home", "kids-sig-d-home-dark"], features: ["toys", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
       { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
     ],
     bundle: ["smartphone", "dashboard_customize", "web"],

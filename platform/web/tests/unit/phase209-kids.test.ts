@@ -1,3 +1,4 @@
+import { KIDS_PRODUCT_NAMES } from "@/lib/demo/product-names";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -68,14 +69,16 @@ describe("209 the kids' clothes type", () => {
     expect(SHOP_TYPE_DEMOS.kids).toBe("kids_signature_a");
     expect(shopTypesIn("fashion").map((t) => t.id)).toEqual(["clothes", "kids_clothes"]);
     expect(shopTypesIn("kids").map((t) => t.id)).toEqual(["kids_clothes", "toys"]);
-    expect(shopTypeTemplate(kids)).toBe("kids_signature_a");
+    // 223 Its main template is C, the story world.
+    expect(shopTypeTemplate(kids)).toBe("kids_signature_c");
     expect(shopTypeTemplate(kids, "b")).toBe("kids_signature_b");
     expect(shopTypeOfDemo(KIDS_DEMO)?.id).toBe("kids_clothes");
     expect(shopTypeOfDesign("kids_signature_b")?.id).toBe("kids_clothes");
     const store = templatesFor({ type: "store", vertical: null }).map((t) => t.id);
     expect(store).toEqual(expect.arrayContaining(["kids_signature_a", "kids_signature_b"]));
     expect(templatesFor({ type: "store", vertical: "restaurant" }).map((t) => t.id)).not.toContain("kids_signature_a");
-    expect(TEMPLATES.filter((t) => t.demo === KIDS_DEMO).map((t) => t.id)).toEqual(["kids_signature_a", "kids_signature_b"]);
+    // 223 C and D first, A and B kept after them.
+    expect(TEMPLATES.filter((t) => t.demo === KIDS_DEMO).map((t) => t.id)).toEqual(["kids_signature_c", "kids_signature_d", "kids_signature_a", "kids_signature_b"]);
   });
 
   it("shows its owner the kids' notice once: child safety and age warnings, sold to parents", () => {
@@ -95,7 +98,7 @@ describe("209 the kids' clothes type", () => {
 
   it("names its looks and every ready section in Studio's three languages", () => {
     for (const words of [studioEn, studioAr, studioTr] as unknown as Record<string, string>[]) {
-      for (const id of ["kids_signature_a", "kids_signature_b"]) {
+      for (const id of ["kids_signature_c", "kids_signature_d", "kids_signature_a", "kids_signature_b"]) {
         expect(words[`tpl_${id}`], id).toBeTruthy();
         expect(words[`tplText_${id}`], id).toBeTruthy();
       }
@@ -232,7 +235,8 @@ describe("209 Toota, the kids' clothes shop's demo", () => {
     }
 
     it("keeps its categories, its pieces, their details and its settings", async () => {
-      expect(app.design).toBe("kids_signature_a");
+      // 223 The demo is its main template, C.
+      expect(app.design).toBe("kids_signature_c");
       expect(app.catalogSettings?.currency).toBe("EGP");
       expect(app.catalogSettings?.returnDays).toBe(30);
       expect(fashionOf(app)).toEqual({ sizeChart: KIDS_SIZE_CHART, completeLook: true });
@@ -273,6 +277,13 @@ describe("209 Toota, the kids' clothes shop's demo", () => {
       // Never listed on their own.
       const all = (await call("/store/products", { per_page: "100" })).body as { items: { name: string }[] };
       expect(all.items.map((x) => x.name)).not.toContain("Gift wrapping");
+      // 223 Its products in Arabic and Turkish too, each named.
+      expect(KIDS_PRODUCTS.filter((p) => !KIDS_PRODUCT_NAMES[p.sku])).toEqual([]);
+      const arProducts = (await call("/store/products", { per_page: "100" }, "ar")).body as { items: { name: string }[] };
+      expect(arProducts.items.map((p) => p.name)).toContain(KIDS_PRODUCT_NAMES["KD-306"]!.ar);
+      expect(arProducts.items.every((p) => /[\u0600-\u06FF]/u.test(p.name))).toBe(true);
+      const trProducts = (await call("/store/products", { per_page: "100" }, "tr")).body as { items: { name: string }[] };
+      expect(trProducts.items.map((p) => p.name)).toContain("Ahşap düğmeli merinos kazak");
     });
 
     it("serves the category menu and the size guide on their pages", async () => {

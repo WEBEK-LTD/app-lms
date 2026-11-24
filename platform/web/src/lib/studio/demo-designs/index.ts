@@ -28,11 +28,17 @@ import { ZAD_A, ZAD_B } from "./zad-signature";
 import { LEQAA_A, LEQAA_B } from "./leqaa-signature";
 // 208 Lujain, the clothes shop: A LUJAIN the boutique, B NOUN streetwear.
 import { LUJAIN_A, NOUN_B } from "./clothes-signature";
+// 223 Lujain's templates C (RUNWAY, its main one) and D (the outfit builder).
+import { RUNWAY_C } from "./clothes-c-signature";
+import { OUTFIT_D } from "./clothes-d-signature";
 // 209 Cosmetics: Velours, A VELOURS plum and gold, B NAQA LAB the clinic.
 import { VELOURS_A, NAQA_B } from "./beauty-signature";
 import { VELOURS_C, VELOURS_D } from "./beauty-cd-signature";
 // 209 Kids' clothes: Toota, A TOOTA soft pastels, B MINIMO playful navy.
 import { MINIMO_B, TOOTA_A } from "./kids-signature";
+// 223 Toota's templates C (the story world, its main one) and D (the nursery).
+import { STORY_C } from "./kids-c-signature";
+import { NURSERY_D } from "./kids-d-signature";
 // 209 Toys
 // 209 Toot, the toy shop: A Toot playful and colourful, B Mukaab calm and educational.
 import { MUKAAB_B, TOOT_A } from "./toys-signature";
@@ -194,11 +200,13 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Partial<Record<SignatureLook, Sign
   // 131.20 Leqaa, the flower shop (a store): A rose hour, B botanical press.
   flowers: { a: LEQAA_A, b: LEQAA_B },
   // 208 Lujain, the clothes shop (a store): A the black and white boutique, B NOUN's streetwear.
-  clothes: { a: LUJAIN_A, b: NOUN_B },
+  // 223 C RUNWAY, its main template (the demo), and D the outfit builder before them.
+  clothes: { c: RUNWAY_C, d: OUTFIT_D, a: LUJAIN_A, b: NOUN_B },
   // 209 Cosmetics: Velours (a store), A VELOURS plum and gold, B NAQA LAB the clinic; 224 C the ritual clinic (its main template), D the shade studio.
   beauty: { c: VELOURS_C, d: VELOURS_D, a: VELOURS_A, b: NAQA_B },
   // 209 Kids' clothes: Toota (a store): A TOOTA's soft pastels, B MINIMO's playful navy.
-  kids: { a: TOOTA_A, b: MINIMO_B },
+  // 223 C the story world, its main template (the demo), and D the nursery before them.
+  kids: { c: STORY_C, d: NURSERY_D, a: TOOTA_A, b: MINIMO_B },
   // 209 Toys
   // 209 Toot, the toy shop (a store): A Toot, playful and colourful; B Mukaab, calm and educational.
   toys: { a: TOOT_A, b: MUKAAB_B },

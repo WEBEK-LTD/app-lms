@@ -129,7 +129,7 @@ describe("130.21 the system screens' look", () => {
 });
 
 describe("130.23 the defaults", () => {
-  it("gives every Studio demo's new project premium system screens and its pages a premium header: its look A's (130)", () => {
+  it("gives every Studio demo's new project premium system screens and its pages a premium header: its main look's (130; 223 C where it has one)", () => {
     for (const demo of STUDIO_DEMO_TYPES) {
       const screens = demoStudioScreens(demo, "https://yallapp.test");
       const chrome = demoChrome(demo)!;

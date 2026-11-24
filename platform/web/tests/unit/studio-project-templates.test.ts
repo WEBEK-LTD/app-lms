@@ -1,5 +1,6 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import type { StudioDemoId } from "@/lib/demo/constants";
 import { signatureLooksOf } from "@/lib/studio/demo-designs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";

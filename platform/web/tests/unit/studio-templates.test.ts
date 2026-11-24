@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { signatureLooksOf } from "@/lib/studio/demo-designs";
+import { describe, expect, it } from "vitest";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import { allNodes } from "@/lib/studio/tree";

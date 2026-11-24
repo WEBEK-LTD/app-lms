@@ -90,7 +90,7 @@ async function demoAccount(): Promise<string> {
 const houseIds = () => houseLooks().map((l) => houseTemplateId(l.demo, l.look));
 
 describe("190 every Studio demo look, made in code", () => {
-  it("is every look /start?for=studio starts a Studio project from: each demo's looks A and B", () => {
+  it("is every look /start?for=studio starts a Studio project from: each demo's looks (A and B; 223 a shop type's C and D too)", () => {
     const fromStart = pickerSections().studio.flatMap((demo) => startLooks(demo).map((look) => `${demo}:${look}`));
     expect(houseLooks().map((l) => `${l.demo}:${l.look}`).sort()).toEqual([...fromStart].sort());
     // 223 Two looks each, and two more (C and D) for each shop type that has them.

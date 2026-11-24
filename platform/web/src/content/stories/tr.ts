@@ -1161,9 +1161,9 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           time: "21:24",
-          kicker: "Günün fırsatı",
+          kicker: "İndirimde",
           title: "Topuklular %30 indirimli",
-          text: "Ana sayfada koyu bir kart Günün fırsatı diyor, sayacı geri sayıyor. Bantlı topuklular içinde, eski fiyatın üstü çizili. 38 numarasını sepete ekliyor ve ödemede mağazanın kodunu, LUJAIN10'u kopyalıyor."
+          text: "Gece uygulama siyaha yakın oluyor, görünümler yine ekranı kaplıyor. Mağazada bantlı topuklular indirimde, eski fiyatın üstü çizili. 38 numarasını sepete ekliyor ve ödemede mağazanın kodunu, LUJAIN10'u kopyalıyor."
         },
         {
           time: "09:30",
@@ -1282,28 +1282,28 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           name: "Yallapp Studio'da tasarlandı",
-          title: "İki görünüm, her parçası değiştirilebilir",
-          text: "Lujain, yalnızca Studio öğeleriyle kurulmuş iki premium görünümle gelir.",
+          title: "Dört şablon, her parçası değiştirilebilir",
+          text: "Lujain, yalnızca Studio öğeleriyle kurulmuş dört premium şablonla gelir.",
           features: [
             [
-              "LUJAIN",
-              "A görünümü: siyah beyaz bir butik, büyük fotoğraflar ve sakin bir yazı."
+              "RUNWAY",
+              "C şablonu, demonun kendisi: ekranı kaplayan sezon görünümleri, fildişi ve siyah, tek bir bordo."
             ],
             [
-              "NOUN",
-              "B görünümü: sokak stili, beton grisi üstünde elektrik mavisi, droplar ve bir şerit."
+              "Kombin kurucu",
+              "D şablonu: üst, alt ve ayakkabıdan kurulan bir kombin, ortada bir dock ve yuvarlak bir sepet düğmesi. LUJAIN ve NOUN, A ve B, duruyor."
             ],
             [
               "Açık ve koyu",
-              "İki görünümün de tasarlanmış bir gecesi var."
+              "Her şablonun tasarlanmış bir gecesi var."
             ],
             [
-              "Kompakt vitrin",
-              "Koleksiyonlar yaklaşık 210 nokta yüksekliğinde kartlarda, bir sonrakinin kenarı görünür."
+              "Görünüm kitabı",
+              "Küçük bir yazı markasının altında 640 nokta yüksekliğinde sezon görünümleri, kutusuz uzun parçalar."
             ],
             [
-              "Yüzen çubuk",
-              "Ana sayfa, Alışveriş, Sepet, Siparişler ve Hesap; açık olan adıyla bir hap."
+              "Sade çubuk",
+              "Ana sayfa, Keşfet, Favoriler, Sepet ve Hesap; ince simgeler adlarının üstünde."
             ],
             [
               "Hazır bölümler",
@@ -1578,9 +1578,9 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           time: "20:58",
-          kicker: "Hafta sonu fırsatları",
+          kicker: "İndirimde",
           title: "Kapüşonlu %30 indirimli",
-          text: "Ana sayfada hafta sonu fırsatları geri sayıyor. Gri polar kapüşonlu Youssef'in bedeninde orada, eski fiyatın üstü çizili. Yağmurlukla birlikte ekliyor; mağazanın kodu TOOTA10 siparişten yüzde on düşüyor."
+          text: "Gece uygulama koyu mora dönüyor, Tooti hâlâ gülümsüyor. Mağazada gri polar kapüşonlu Youssef'in bedeninde indirimde, eski fiyatın üstü çizili. Yağmurlukla birlikte ekliyor; mağazanın kodu TOOTA10 siparişten yüzde on düşüyor."
         },
         {
           time: "10:15",
@@ -1703,16 +1703,16 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           name: "Yallapp Studio'da tasarlandı",
-          title: "İki görünüm, her parçası sizin",
-          text: "Toota, yalnızca Studio'nun öğeleriyle yapılmış iki premium görünümle gelir.",
+          title: "Dört şablon, her parçası sizin",
+          text: "Toota, yalnızca Studio'nun öğeleriyle yapılmış dört premium şablonla gelir.",
           features: [
             [
-              "TOOTA ve MINIMO",
-              "A görünümü yumuşak pastel, kiremit ve krem; B görünümü neşeli lacivert, bölümleri numaralı."
+              "Masal dünyası ve bebek odası",
+              "C şablonu, demonun kendisi: maskot Tooti, baloncuk yaşlar ve dalgalı kenarlar; D şablonu: keten ve adaçayı, beden cetveli ve bebek hediye listesi. TOOTA ve MINIMO, A ve B, duruyor."
             ],
             [
               "Açık ve koyu",
-              "İki görünümün de tasarlanmış bir gecesi var."
+              "Her şablonun tasarlanmış bir gecesi var."
             ],
             [
               "Kompakt vitrin",

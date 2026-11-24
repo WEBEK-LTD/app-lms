@@ -353,6 +353,8 @@ export type SectionWord =
   | Extract<AppWord, `el${string}`>
   // 225 Furniture's looks C and D (MIZAN, MANZIL) and home decor's (ATHAR, MAZAJ): lib/studio/demo-designs/*-c-signature.ts, *-d-signature.ts.
   | Extract<AppWord, `mz${string}` | `mn${string}` | `at${string}` | `mj${string}`>
+  // 223 Lujain's templates C and D (RUNWAY, the outfit builder); Toota's (the story world, the nursery).
+  | Extract<AppWord, `rwy${string}` | `obd${string}` | `stw${string}` | `nrs${string}`>
   // 224 Velours's templates C and D, Ghurza's templates C and D (lib/studio/demo-designs/beauty-cd-signature.ts, crochet-cd-signature.ts).
   | Extract<AppWord, `vc${string}` | `vd${string}` | `gc${string}` | `gd${string}`>
   // 227 Madar's and Nawah's looks C and D (lib/studio/words/electronics-cd.ts and computers-cd.ts).

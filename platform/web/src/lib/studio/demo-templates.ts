@@ -49,12 +49,14 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   // 131.20 Leqaa, the flower shop, is its Signature look A, rose hour (lib/studio/demo-designs/leqaa-signature.ts).
   flowers: "flowers_signature_a",
   // 208 Lujain, the clothes shop, is its Signature look A, the boutique (lib/studio/demo-designs/clothes-signature.ts).
-  clothes: "clothes_signature_a",
+  // 223 Lujain is now its template C, RUNWAY (lib/studio/demo-designs/clothes-c-signature.ts).
+  clothes: "clothes_signature_c",
   // 209 Cosmetics: Velours is its Signature look A, plum and gold (lib/studio/demo-designs/beauty-signature.ts).
   // 224 Velours is now its template C, the ritual clinic (lib/studio/demo-designs/beauty-cd-signature.ts).
   beauty: "beauty_signature_c",
   // 209 Kids' clothes: Toota is its Signature look A, soft pastels (lib/studio/demo-designs/kids-signature.ts).
-  kids: "kids_signature_a",
+  // 223 Toota is now its template C, the story world (lib/studio/demo-designs/kids-c-signature.ts).
+  kids: "kids_signature_c",
   // 209 Toys
   // 209 Toot, the toy shop, is its Signature look A, playful and colourful (lib/studio/demo-designs/toys-signature.ts).
   toys: "toys_signature_a",
@@ -384,6 +386,9 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     clContactLine: { en: "Customer care every day, 9 am to 11 pm", ar: "خدمة العملاء يوميًا من 9 صباحًا إلى 11 مساءً", tr: "Müşteri hizmetleri her gün 09.00–23.00" },
     clEditTitle: { en: "Day dresses, the new season", ar: "فساتين النهار للموسم الجديد", tr: "Yeni sezonun gündüz elbiseleri" },
     clExchangeNote: { en: "Free exchange within 14 days, picked up from your door.", ar: "استبدال مجاني خلال 14 يومًا، نستلم القطعة من باب منزلكِ.", tr: "14 gün içinde ücretsiz değişim, kapınızdan alınır." },
+    // 223 The shop's name in each language (لُجين in Arabic), wherever a look writes it.
+    clWordmark: { en: "Lujain", ar: "لُجين", tr: "Lujain" },
+    rwyWordmark: { en: "Lujain", ar: "لُجين", tr: "Lujain" },
   },
   // 209 Cosmetics: Velours's own words where its looks leave the owner brackets: its delivery, its returns, its hours and its edit (lib/demo/beauty.ts).
   beauty: {
@@ -401,6 +406,12 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
     kdEditTitle: { en: "Whole outfits, sold as one", ar: "إطلالات كاملة تُباع معًا", tr: "Tek parça satılan komple kombinler" },
     kdExchangeNote: { en: "Free exchange within 30 days if the size isn't right.", ar: "استبدال مجاني خلال 30 يومًا إن لم يناسب المقاس.", tr: "Beden uymazsa 30 gün içinde ücretsiz değişim." },
     kdGiftNote: { en: "A newborn gift? Add gift wrapping and a card, and write its message at checkout.", ar: "هدية لمولود؟ أضيفي التغليف وبطاقة، واكتبي رسالتها عند الدفع.", tr: "Yenidoğan hediyesi mi? Hediye paketi ve kart ekleyin, mesajını ödemede yazın." },
+    // 223 The shop's name in each language (توتة in Arabic), wherever a look writes it.
+    kdWordmark: { en: "Toota", ar: "توتة", tr: "Toota" },
+    stwWordmark: { en: "Toota", ar: "توتة", tr: "Toota" },
+    stwWorlds: { en: "Toota's worlds", ar: "عوالم توتة", tr: "Toota dünyaları" },
+    stwContact: { en: "Ask Toota's team", ar: "اسأل فريق توتة", tr: "Toota ekibine sorun" },
+    nrsWordmark: { en: "Toota · nursery", ar: "توتة · الحضانة", tr: "Toota · bebek odası" },
   },
   // 209 Toys
   // 209 Toot's own words where its looks leave the owner brackets: its wraps, its newborn box, its returns and its offer (lib/demo/toys.ts).
