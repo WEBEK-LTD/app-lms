@@ -477,7 +477,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get socialReasonSpam => 'Spam veya reklam';
 
   @override
-  String get socialReasonAbuse => 'Hakaret veya nefret';
+  String get socialReasonHarassment => 'Taciz veya zorbalık';
+
+  @override
+  String get socialReasonHate => 'Nefret söylemi';
+
+  @override
+  String get socialReasonMisinformation => 'Yanlış bilgi';
+
+  @override
+  String get socialReasonImpersonation => 'Başkası gibi davranma';
 
   @override
   String get socialReasonInappropriate => 'Uygunsuz içerik';
@@ -580,15 +589,6 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get profileApplyLine =>
       'Yallapp’te 5+ uygulaman var. Profesyonel Geliştirici rozetine başvur.';
-
-  @override
-  String get socialReasonHarassment => 'Taciz';
-
-  @override
-  String get socialReasonOffTopic => 'Konu dışı';
-
-  @override
-  String get socialReasonCopyright => 'Başkasının eseri';
 
   @override
   String get commonShowMore => 'Daha fazla göster';

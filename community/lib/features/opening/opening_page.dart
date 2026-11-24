@@ -207,7 +207,11 @@ class _Frame extends StatelessWidget {
                       const SizedBox(height: 14),
                       Text(
                         l.openingTag,
+                        // Its own family: the opening comes before any
+                        // screen's theme is certain.
                         style: const TextStyle(
+                          fontFamily: Fonts.text,
+                          fontFamilyFallback: Fonts.fallback,
                           fontSize: 14,
                           letterSpacing: .3,
                           color: Color(0x8CF4EFE6),

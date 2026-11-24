@@ -18,6 +18,7 @@ import '../../core/widgets/avatar.dart';
 import '../../core/widgets/badge_mark.dart';
 import '../../core/widgets/floating_tab_bar.dart';
 import '../../core/widgets/glass.dart';
+import '../../core/widgets/images.dart';
 import '../../core/widgets/sym.dart';
 import '../social/data/social.dart';
 import '../social/report_sheet.dart';
@@ -941,26 +942,21 @@ class _AppRow extends ConsumerWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: Avatar.gradientFor(app.id)),
-                borderRadius: BorderRadius.circular(13),
-                image: app.iconUrl == null
-                    ? null
-                    : DecorationImage(
-                        image: NetworkImage(app.iconUrl!),
+            // The app's own icon, the letter tile when it has none or it
+            // fails to load.
+            ClipRRect(
+              borderRadius: BorderRadius.circular(13),
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: app.iconUrl == null
+                    ? _AppTile(app: app)
+                    : Image(
+                        image: imageOf(app.iconUrl!),
                         fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => _AppTile(app: app),
                       ),
               ),
-              child: app.iconUrl == null
-                  ? const Sym(
-                      Symbols.storefront_rounded,
-                      size: 21,
-                      color: Colors.white,
-                    )
-                  : null,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -992,6 +988,30 @@ class _AppRow extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// An app without its icon: its initial on its gradient.
+class _AppTile extends StatelessWidget {
+  const _AppTile({required this.app});
+
+  final LinkedApp app;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(colors: Avatar.gradientFor(app.id)),
+    ),
+    child: Center(
+      child: Text(
+        app.name.isEmpty ? '?' : app.name.characters.first.toUpperCase(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+          fontSize: 17,
+        ),
+      ),
+    ),
+  );
 }
 
 class _Cta extends StatelessWidget {

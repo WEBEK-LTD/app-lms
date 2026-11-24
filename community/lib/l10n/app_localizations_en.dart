@@ -484,7 +484,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get socialReasonSpam => 'Spam or ads';
 
   @override
-  String get socialReasonAbuse => 'Abuse or hate';
+  String get socialReasonHarassment => 'Harassment or bullying';
+
+  @override
+  String get socialReasonHate => 'Hate speech';
+
+  @override
+  String get socialReasonMisinformation => 'False information';
+
+  @override
+  String get socialReasonImpersonation => 'Pretending to be someone else';
 
   @override
   String get socialReasonInappropriate => 'Inappropriate content';
@@ -587,15 +596,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get profileApplyLine =>
       'You have 5+ apps on Yallapp. Apply for the Pro Developer badge.';
-
-  @override
-  String get socialReasonHarassment => 'Harassment';
-
-  @override
-  String get socialReasonOffTopic => 'Off topic';
-
-  @override
-  String get socialReasonCopyright => 'Someone else’s work';
 
   @override
   String get commonShowMore => 'Show more';

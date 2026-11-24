@@ -129,6 +129,9 @@ void main() {
       'top_badge': 'green',
       'team': false,
       'deleted': false,
+      'rank': 'contributor',
+      'rank_label': 'Contributor',
+      'headline': 'Fashion stores',
       'bio': 'Hi',
       'skills': ['Fashion'],
       'links': [],
@@ -159,6 +162,11 @@ void main() {
       'yallapp_linked': true,
     });
     expect(p.member.badge, BadgeKind.green);
+    // Under the name: the rank's own name, before the headline.
+    expect(p.member.level, 'Contributor');
+    expect(p.member.rank, 'contributor');
+    // 40 points: past member (25), on the way to contributor (250).
+    expect(p.progress, closeTo((40 - 25) / (250 - 25), 1e-9));
     expect(topBadge(p.badges)!.company, 'Lujain');
     expect(p.appsCount, 6);
     expect(p.followers, 3);

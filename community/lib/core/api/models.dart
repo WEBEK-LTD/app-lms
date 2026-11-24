@@ -171,6 +171,7 @@ class MemberSummary {
     this.team = false,
     this.deleted = false,
     this.relationship,
+    this.rank,
   });
 
   factory MemberSummary.fromJson(Json json) => MemberSummary(
@@ -179,7 +180,10 @@ class MemberSummary {
     username: str(json, 'username'),
     avatarUrl: optStr(json, 'avatar_url'),
     badge: BadgeKind.parse(optStr(json, 'top_badge')),
-    level: optStr(json, 'headline'),
+    // The rank's name in the reader's language ("Expert"), else their
+    // headline.
+    level: optStr(json, 'rank_label') ?? optStr(json, 'headline'),
+    rank: optStr(json, 'rank'),
     team: boolean(json, 'team'),
     deleted: boolean(json, 'deleted'),
     relationship: optObject(json, 'relationship') == null
@@ -207,6 +211,9 @@ class MemberSummary {
 
   /// Where the viewer stands with them (signed in only).
   final Relationship? relationship;
+
+  /// Their standing by points: newcomer, member, contributor, expert, pro.
+  final String? rank;
 
   String get initial => name.trim().isEmpty ? '?' : name.trim().characters1;
 }
@@ -348,9 +355,11 @@ class Profile {
   /// The member's own account (their own profile only).
   final Account? account;
 
-  static const _milestones = [0, 100, 500, 1000, 2500, 5000, 10000, 25000];
+  /// The ranks' points (the contract: member from 25, contributor from
+  /// 250, expert from 1,000, pro from 5,000).
+  static const _milestones = [0, 25, 250, 1000, 5000];
 
-  /// How far to the next points milestone, 0 to 1 (the menu's bar).
+  /// How far to the next rank, 0 to 1 (the menu's bar); a pro's is full.
   double get progress {
     for (var i = 1; i < _milestones.length; i++) {
       if (points < _milestones[i]) {
@@ -463,14 +472,14 @@ class FriendRequest {
 /// Why something is reported (the contract's reasons).
 enum ReportReason {
   spam,
-  abuse,
   harassment,
-  offTopic,
+  hate,
   inappropriate,
-  copyright,
+  misinformation,
+  impersonation,
   other;
 
-  String get wire => this == offTopic ? 'off_topic' : name;
+  String get wire => name;
 }
 
 /// A section of the side menu or the tab bar (`GET /config`).

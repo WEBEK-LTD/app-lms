@@ -101,4 +101,25 @@ void main() {
     final context = tester.element(key('header-menu'));
     expect(Theme.of(context).brightness, Brightness.dark);
   });
+
+  testWidgets('the menu\'s Q&A shows the new questions, hidden at 0', (
+    tester,
+  ) async {
+    await TestApp.start(tester);
+    await tap(tester, 'header-menu');
+    expect(key('menu-qa-count'), findsNothing);
+  });
+
+  testWidgets('the menu\'s Q&A count, and the tab bar\'s dot', (tester) async {
+    await TestApp.start(
+      tester,
+      overrides: [newQuestionsProvider.overrideWithValue(12)],
+    );
+    expect(key('tab-dot'), findsOneWidget);
+    await tap(tester, 'header-menu');
+    expect(
+      find.descendant(of: key('menu-qa-count'), matching: find.text('12')),
+      findsOneWidget,
+    );
+  });
 }
