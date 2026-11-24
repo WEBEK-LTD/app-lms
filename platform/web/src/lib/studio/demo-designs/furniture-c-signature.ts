@@ -737,7 +737,7 @@ function productSheet(ctx: SectionContext) {
       },
       { type: "product_delivery", text: "mzpNotes", ...accent, node: { ...ink, margin: sides(12, 16, 0, 16), padding: sides(14, 14, 14, 14), border_color: K.line, dark_border_color: K.darkLine, border_width: 1 } },
       { type: "product_price", look: "sale", node: { ...ink, font: font(22, 800), margin: sides(18, 16, 0, 16) } },
-      { type: "product_variants", look: "grid", ...accent, node: { ...ink, margin: sides(18, 16, 0, 16) } },
+      { type: "product_variants", look: "chips", ...accent, node: { ...ink, margin: sides(18, 16, 0, 16) } },
       { element: { ...planCard(ctx), margin: sides(26, 16, 0, 16) } },
       { type: "product_description", node: { ...ink, margin: sides(26, 16, 0, 16), padding: sides(14, 0, 14, 0), border_color: K.line, dark_border_color: K.darkLine, border_width: 1 } },
       { type: "product_reviews", ...accent, node: { ...ink, margin: sides(22, 16, 0, 16) } },

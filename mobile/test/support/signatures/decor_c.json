@@ -3181,7 +3181,6 @@
          "start": 40
         },
         "product_part": {
-         "look": "grid",
          "accent": "#0B0B0B",
          "dark_accent": "#F2F2EF"
         },
