@@ -23,6 +23,11 @@ the admins' tools and audit log, settings, moderation, reports and
 notifications (list and email) in English, Arabic and Turkish, through
 `/api/community/v1` (`community-trust-*`).
 
+Roadmap 231, area D (the Yallapp Community app, `community/`): the opening,
+welcome and signing in (Apple, Google, email), the shell, Home, the side
+menu, profiles with follow, friends, block and report, and settings, on area
+A's contract; no payments in the app (a test guards it); not yet released.
+
 Roadmap 231 area F (Yallapp Community's website, under `src/app/community/`,
 served on `community.yallapp.com.tr`): the approved look in English, Arabic
 and Turkish, light and dark; welcome and signing in (Apple, Google, email),

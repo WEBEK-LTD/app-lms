@@ -1,0 +1,623 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appName => 'Yallapp Community';
+
+  @override
+  String get commonComingSoon => 'Coming soon';
+
+  @override
+  String get commonComingSoonBody =>
+      'We’re building this. It arrives in a coming update.';
+
+  @override
+  String get commonOk => 'OK';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonSave => 'Save';
+
+  @override
+  String get commonRetry => 'Try again';
+
+  @override
+  String get commonClose => 'Close';
+
+  @override
+  String get commonBack => 'Back';
+
+  @override
+  String get commonSeeAll => 'See all';
+
+  @override
+  String get commonError => 'Something went wrong. Try again.';
+
+  @override
+  String get commonOffline =>
+      'You’re offline. Check your connection and try again.';
+
+  @override
+  String get commonEmpty => 'Nothing here yet.';
+
+  @override
+  String get langTitle => 'Language';
+
+  @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langArabic => 'العربية';
+
+  @override
+  String get langTurkish => 'Türkçe';
+
+  @override
+  String get authHeadline1 => 'Build apps.';
+
+  @override
+  String get authHeadline2 => 'Build together.';
+
+  @override
+  String get authPitch =>
+      'Join 18,000+ app makers. Learn, ask,\nand show what you built.';
+
+  @override
+  String get authBubbleNour => 'Launched my store today 🎉';
+
+  @override
+  String get authBubbleAccepted => 'Answer accepted';
+
+  @override
+  String get authBubblePoints => '+25 points';
+
+  @override
+  String get authBubbleChallenge => 'Winter challenge';
+
+  @override
+  String get authBubbleDays => '4 days left';
+
+  @override
+  String get authContinueApple => 'Continue with Apple';
+
+  @override
+  String get authContinueGoogle => 'Continue with Google';
+
+  @override
+  String get authSignUpEmail => 'Sign up with email';
+
+  @override
+  String get authAlreadyMember => 'Already a member?';
+
+  @override
+  String get authLogIn => 'Log in';
+
+  @override
+  String get authSignUpTitle => 'Create your account';
+
+  @override
+  String get authSignUpLine =>
+      'Learn, ask and show your apps with 18,000+ app makers.';
+
+  @override
+  String get authLogInTitle => 'Welcome back';
+
+  @override
+  String get authLogInLine => 'Log in to your Community account.';
+
+  @override
+  String get authName => 'Your name';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authPassword => 'Password';
+
+  @override
+  String get authCreateAccount => 'Create account';
+
+  @override
+  String get authForgot => 'Forgot password?';
+
+  @override
+  String get authResetSent =>
+      'If that email has an account, a reset link is on its way.';
+
+  @override
+  String get authResetTitle => 'Reset your password';
+
+  @override
+  String get authSendLink => 'Send reset link';
+
+  @override
+  String get authNoAccount => 'New here?';
+
+  @override
+  String get authOr => 'or';
+
+  @override
+  String get authNameNeeded => 'Enter your name.';
+
+  @override
+  String get authEmailInvalid => 'Enter a valid email.';
+
+  @override
+  String get authPasswordShort => 'Use at least 8 characters.';
+
+  @override
+  String get authTerms =>
+      'By continuing you agree to the Community rules and privacy policy.';
+
+  @override
+  String get authProviderNotReady =>
+      'This sign-in isn’t set up in this build. Use email for now.';
+
+  @override
+  String get tabHome => 'Home';
+
+  @override
+  String get tabQa => 'Q&A';
+
+  @override
+  String get tabCreate => 'Create';
+
+  @override
+  String get tabLearn => 'Learn';
+
+  @override
+  String get tabGroups => 'Groups';
+
+  @override
+  String get headerMenu => 'Menu';
+
+  @override
+  String get headerSearch => 'Search';
+
+  @override
+  String get headerMessages => 'Messages';
+
+  @override
+  String get headerNotifications => 'Notifications';
+
+  @override
+  String get headerProfile => 'Your profile';
+
+  @override
+  String get homeMorning => 'Good morning ☀️';
+
+  @override
+  String get homeAfternoon => 'Good afternoon 🌤️';
+
+  @override
+  String get homeEvening => 'Good evening 🌙';
+
+  @override
+  String get homeRead => 'Read';
+
+  @override
+  String get homeJoin => 'Join now';
+
+  @override
+  String get homeStartTutorial => 'Start tutorial';
+
+  @override
+  String homeAnswers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count answers',
+      one: '1 answer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeTeam => 'Yallapp Team';
+
+  @override
+  String get homeDays => 'days';
+
+  @override
+  String get homeHours => 'hrs';
+
+  @override
+  String get homeMinutes => 'min';
+
+  @override
+  String get homeStoryLive => 'Live Thu';
+
+  @override
+  String get homeStoryTutorial => 'New tutorial';
+
+  @override
+  String get homeStoryShowcase => 'Showcase';
+
+  @override
+  String get homeStoryTip => 'Daily tip';
+
+  @override
+  String get homeStoryNews => 'What’s new';
+
+  @override
+  String get homeFeedEmpty =>
+      'Questions and tutorials from the community show here.';
+
+  @override
+  String get menuCommunity => 'Community';
+
+  @override
+  String get menuHome => 'Home';
+
+  @override
+  String get menuQa => 'Q&A';
+
+  @override
+  String get menuTutorials => 'Tutorials';
+
+  @override
+  String get menuAcademy => 'Academy';
+
+  @override
+  String get menuShowcase => 'Showcase';
+
+  @override
+  String get menuChallenges => 'Challenges';
+
+  @override
+  String get menuGroups => 'Groups';
+
+  @override
+  String get menuFriends => 'Friends';
+
+  @override
+  String get menuPros => 'Pros';
+
+  @override
+  String get menuEvents => 'Events';
+
+  @override
+  String get menuYourGroups => 'Your groups';
+
+  @override
+  String get menuGroupsSoon => 'Groups arrive in a coming update.';
+
+  @override
+  String get menuLight => 'Light';
+
+  @override
+  String get menuDark => 'Dark';
+
+  @override
+  String get menuSaved => 'Saved';
+
+  @override
+  String get menuSettings => 'Settings';
+
+  @override
+  String get menuLogOut => 'Log out';
+
+  @override
+  String menuPoints(int points) {
+    final intl.NumberFormat pointsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String pointsString = pointsNumberFormat.format(points);
+
+    return '$pointsString pts';
+  }
+
+  @override
+  String get createTitle => 'Create';
+
+  @override
+  String get createAsk => 'Ask a question';
+
+  @override
+  String get createAskLine =>
+      'Get answers from the community and the Yallapp Team.';
+
+  @override
+  String get createShowcase => 'Show your app';
+
+  @override
+  String get createShowcaseLine => 'Share what you built with Yallapp.';
+
+  @override
+  String get createChallenge => 'Join a challenge';
+
+  @override
+  String get createChallengeLine => 'Build to a theme and win.';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get profileEdit => 'Edit profile';
+
+  @override
+  String get profileFollowers => 'Followers';
+
+  @override
+  String get profileFollowing => 'Following';
+
+  @override
+  String get profileFriends => 'Friends';
+
+  @override
+  String get profilePoints => 'Points';
+
+  @override
+  String get profileAnswers => 'Answers';
+
+  @override
+  String get profileQuestions => 'Questions';
+
+  @override
+  String get profileBadges => 'Badges';
+
+  @override
+  String get profileNoBadges =>
+      'No badges yet. Answer, teach and build to earn them.';
+
+  @override
+  String get profileBadgeGold => 'Pro Developer';
+
+  @override
+  String get profileBadgeGreen => 'Verified Business';
+
+  @override
+  String get profileBadgeBlue => 'Active Member';
+
+  @override
+  String get profileSkills => 'Skills';
+
+  @override
+  String get profileApps => 'Apps on Yallapp';
+
+  @override
+  String get profileNoApps => 'No apps linked yet.';
+
+  @override
+  String get profileLinkYallapp => 'Link your Yallapp account';
+
+  @override
+  String get profileLinkLine =>
+      'Show the apps you made and qualify for badges.';
+
+  @override
+  String get profileLinkOpened =>
+      'Confirm the link on the page that opened, then come back.';
+
+  @override
+  String profileJoined(String date) {
+    return 'Joined $date';
+  }
+
+  @override
+  String get profileBio => 'Bio';
+
+  @override
+  String get profileName => 'Name';
+
+  @override
+  String get profileUsername => 'Username';
+
+  @override
+  String get profileAddSkill => 'Add a skill';
+
+  @override
+  String get profileChangePhoto => 'Change photo';
+
+  @override
+  String get profileSaved => 'Profile saved.';
+
+  @override
+  String get profileTeam => 'Yallapp Team';
+
+  @override
+  String get socialFollow => 'Follow';
+
+  @override
+  String get socialFollowingState => 'Following';
+
+  @override
+  String get socialFollowsYou => 'Follows you';
+
+  @override
+  String get socialAddFriend => 'Add friend';
+
+  @override
+  String get socialRequested => 'Requested';
+
+  @override
+  String get socialAccept => 'Accept';
+
+  @override
+  String get socialDecline => 'Decline';
+
+  @override
+  String get socialFriendsState => 'Friends';
+
+  @override
+  String get socialRemoveFriend => 'Remove friend';
+
+  @override
+  String get socialCancelRequest => 'Cancel request';
+
+  @override
+  String get socialUnfollow => 'Unfollow';
+
+  @override
+  String get socialBlock => 'Block';
+
+  @override
+  String get socialUnblock => 'Unblock';
+
+  @override
+  String socialBlockConfirm(String name) {
+    return 'Block $name? They won’t see your posts or message you, and you won’t see theirs.';
+  }
+
+  @override
+  String get socialBlockedNote => 'You blocked this member.';
+
+  @override
+  String get socialReport => 'Report';
+
+  @override
+  String get socialReportTitle => 'Why are you reporting this?';
+
+  @override
+  String get socialReasonSpam => 'Spam or ads';
+
+  @override
+  String get socialReasonHarassment => 'Harassment or bullying';
+
+  @override
+  String get socialReasonHate => 'Hate speech';
+
+  @override
+  String get socialReasonMisinformation => 'False information';
+
+  @override
+  String get socialReasonImpersonation => 'Pretending to be someone else';
+
+  @override
+  String get socialReasonInappropriate => 'Inappropriate content';
+
+  @override
+  String get socialReasonOther => 'Something else';
+
+  @override
+  String get socialReportNote => 'Anything to add? (optional)';
+
+  @override
+  String get socialReportSend => 'Send report';
+
+  @override
+  String get socialReportSent => 'Thanks. Our moderators will review it.';
+
+  @override
+  String get socialFriendRequests => 'Friend requests';
+
+  @override
+  String get socialNoRequests => 'No friend requests.';
+
+  @override
+  String get socialNoFollowers => 'No followers yet.';
+
+  @override
+  String get socialNoFollowing => 'Not following anyone yet.';
+
+  @override
+  String get socialNoFriends => 'No friends yet.';
+
+  @override
+  String get socialMore => 'More';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsAccount => 'Account';
+
+  @override
+  String get settingsAppearance => 'Appearance';
+
+  @override
+  String get settingsSystem => 'Phone setting';
+
+  @override
+  String get settingsLight => 'Light';
+
+  @override
+  String get settingsDark => 'Dark';
+
+  @override
+  String get settingsBlocked => 'Blocked members';
+
+  @override
+  String get settingsNoBlocked => 'You haven’t blocked anyone.';
+
+  @override
+  String get settingsYallapp => 'Yallapp account';
+
+  @override
+  String get settingsLinked => 'Linked';
+
+  @override
+  String get settingsNotLinked => 'Not linked';
+
+  @override
+  String get settingsLink => 'Link';
+
+  @override
+  String get settingsUnlink => 'Unlink';
+
+  @override
+  String get settingsUnlinkConfirm =>
+      'Unlink your Yallapp account? Your apps leave your profile, and badges that need them go.';
+
+  @override
+  String get settingsAbout => 'About';
+
+  @override
+  String settingsVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get settingsLogOutConfirm =>
+      'Log out of Yallapp Community on this phone?';
+
+  @override
+  String get savedEmpty => 'Questions and tutorials you save show here.';
+
+  @override
+  String get profileApply => 'Apply';
+
+  @override
+  String get profileApplyLine =>
+      'You have 5+ apps on Yallapp. Apply for the Pro Developer badge.';
+
+  @override
+  String get commonShowMore => 'Show more';
+
+  @override
+  String get settingsEmail => 'Email';
+
+  @override
+  String get settingsEmailUnconfirmed => 'Not confirmed';
+
+  @override
+  String get settingsResend => 'Send the link again';
+
+  @override
+  String get settingsResent => 'Sent. Check your inbox.';
+
+  @override
+  String get settingsDeleteAccount => 'Delete account';
+
+  @override
+  String get settingsDeleteLine =>
+      'This deletes your profile, follows and friends at once. Your questions and answers stay, shown as from “Deleted member”.';
+
+  @override
+  String get settingsDeletePassword => 'Your password';
+
+  @override
+  String get settingsDeleteConfirm => 'Delete my account';
+
+  @override
+  String get openingTag => 'Build apps. Build together.';
+}
