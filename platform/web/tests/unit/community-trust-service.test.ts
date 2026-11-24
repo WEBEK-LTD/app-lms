@@ -26,7 +26,10 @@ let deps: T.TrustDeps;
 
 const apps = (n: number): LinkedApp[] => Array.from({ length: n }, (_, i) => ({ appId: `app${i + 1}`, name: `App ${i + 1}`, iconUrl: null, appStoreUrl: null, playStoreUrl: null, fromTemplate: i === 0, paidPlan: false }));
 const post = (kind: ContentKind, id: string, authorId: string, title: string, status: "pending" | "published" = "pending") => posts.set(`${kind}:${id}`, { authorId, title, status });
-const idProof = (type = "image/jpeg", size = 200_000) => ({ type, size, bytes: async () => new Uint8Array([1, 2, 3]) });
+/** An upload: its declared type and size, and its bytes (a real JPEG's or PDF's first bytes unless said). */
+const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 16, 0x4a, 0x46]);
+const PDF = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x37]);
+const idProof = (type = "image/jpeg", size = 200_000, bytes: Uint8Array = type === "application/pdf" ? PDF : JPEG) => ({ type, size, bytes: async () => bytes });
 const ok = <T,>(x: T | T.Fail): T => {
   if (T.isFail(x)) throw new Error(`${x.code}: ${x.message}`);
   return x as T;
@@ -236,7 +239,9 @@ describe("231 moderation: the queue", () => {
     ok(await T.decideModeration(deps, ADMIN, item.id, { decision: "remove", note: "Spam" }));
     expect(posts.get("answer:a20")!.status).toBe("hidden");
     expect(await deps.store.lastViolationAt(ALI)).toEqual(clock);
-    expect((await T.listNotifications(deps, ALI)).page.items[0]!.text).toContain("Spam");
+    // The member is told the post was removed; the moderator's note stays private.
+    expect((await T.listNotifications(deps, ALI)).page.items[0]).toMatchObject({ kind: "post_removed", actorId: null });
+    expect((await T.listNotifications(deps, ALI)).page.items[0]!.text).not.toContain("Spam");
     expect(ok(await T.moderationQueue(deps, ADMIN, { status: "removed" })).page.items).toHaveLength(1);
   });
 
@@ -359,5 +364,92 @@ describe("231 the Community's staff: admins by their Yallapp account, moderators
       ["moderator.revoke", "Stepped down"],
       ["moderator.grant", "Answers every Turkish question"],
     ]);
+  });
+});
+
+describe("231 security: the ID proof by its bytes, one request at a time", () => {
+  it("refuses a file whose bytes aren't a JPEG, PNG or PDF, whatever it claims; keeps the type its bytes are", async () => {
+    linked.set(NOUR, { apps: apps(5), business: null });
+    const html = new TextEncoder().encode("<html><script>alert(1)</script></html>");
+    expect(await T.submitVerification(deps, NOUR, { full_name: "Nour El Hoda", idProof: idProof("application/pdf", 200, html) })).toMatchObject({ ok: false, status: 400, errors: { id_proof: expect.any(String) } });
+    expect(files.size).toBe(0);
+    // A PNG sent as a JPEG is kept as the PNG it is.
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0]);
+    const sent = ok(await T.submitVerification(deps, NOUR, { full_name: "Nour El Hoda", idProof: idProof("image/jpeg", 2000, png) }));
+    expect(sent.state.request!.idProofKey).toMatch(/\.png$/);
+    expect([...files.values()][0]!.type).toBe("image/png");
+  });
+
+  it("two requests sent at once: one waits, the other is refused", async () => {
+    linked.set(NOUR, { apps: apps(5), business: null });
+    const both = await Promise.all([1, 2].map(() => T.submitVerification(deps, NOUR, { full_name: "Nour El Hoda", idProof: idProof() })));
+    expect(both.filter((r) => r.ok)).toHaveLength(1);
+    expect(both.find((r) => !r.ok)).toMatchObject({ status: 409, code: "already_pending" });
+  });
+});
+
+describe("231 security: reports and notices", () => {
+  const OLD = new Date("2026-01-01T00:00:00Z");
+  const extra = (id: string, createdAt = OLD) => members.set(id, { id, displayName: id, role: "member", status: "active", language: "en", email: null, createdAt, approvedPosts: 5 });
+
+  it("a ring of new accounts can't hide a post: only established members' reports count, a badge holder's twice", async () => {
+    ok(await T.updateSettings(deps, ADMIN, { spam_filter: { hide_after_reports: 3 } }));
+    post("answer", "a70", NOUR, "A fine answer", "published");
+    for (const id of ["new1", "new2", "new3", "new4"]) {
+      extra(id, new Date(clock.getTime() - 2 * DAY));
+      ok(await T.report(deps, id, { target_type: "answer", target_id: "a70", reason: "spam" }));
+    }
+    expect(posts.get("answer:a70")!.status).toBe("published");
+    extra("old1");
+    ok(await T.report(deps, "old1", { target_type: "answer", target_id: "a70", reason: "spam" }));
+    expect(posts.get("answer:a70")!.status).toBe("published");
+    // A badge holder counts twice: 1 + 2 = 3.
+    extra("old2");
+    ok(await T.grantBadge(deps, ADMIN, "old2", { badge: "blue", reason: "Helpful" }));
+    ok(await T.report(deps, "old2", { target_type: "answer", target_id: "a70", reason: "spam" }));
+    expect(posts.get("answer:a70")!.status).toBe("hidden");
+  });
+
+  it("a member with a recent violation, or reported themselves, doesn't count", async () => {
+    ok(await T.updateSettings(deps, ADMIN, { spam_filter: { hide_after_reports: 1 } }));
+    post("answer", "a71", NOUR, "Another answer", "published");
+    extra("bad1");
+    await deps.store.addViolation({ memberId: "bad1", kind: "content_removed", targetType: "answer", targetId: "x", createdBy: ADMIN, createdAt: new Date(clock.getTime() - DAY) });
+    ok(await T.report(deps, "bad1", { target_type: "answer", target_id: "a71", reason: "spam" }));
+    extra("bad2");
+    extra("old3");
+    ok(await T.report(deps, "old3", { target_type: "member", target_id: "bad2", reason: "spam" }));
+    ok(await T.report(deps, "bad2", { target_type: "answer", target_id: "a71", reason: "spam" }));
+    expect(posts.get("answer:a71")!.status).toBe("published");
+  });
+
+  it("never hides the team's or the staff's posts by reports: queued for a look instead", async () => {
+    ok(await T.updateSettings(deps, ADMIN, { spam_filter: { hide_after_reports: 1 } }));
+    post("answer", "a72", TEAM, "Official answer", "published");
+    extra("old4");
+    ok(await T.report(deps, "old4", { target_type: "answer", target_id: "a72", reason: "misinformation" }));
+    expect(posts.get("answer:a72")!.status).toBe("published");
+    expect(ok(await T.moderationQueue(deps, ADMIN, {})).page.items).toEqual([expect.objectContaining({ targetId: "a72", cause: "reports" })]);
+  });
+
+  it("the moderator stays unnamed and their note private: notices from the staff carry no actor and no note", async () => {
+    post("answer", "a73", ALI, "Spam answer");
+    await T.moderateNew(deps, { memberId: ALI, targetType: "answer", targetId: "a73", text: "Something new" });
+    const item = ok(await T.moderationQueue(deps, ADMIN, {})).page.items[0]!;
+    ok(await T.decideModeration(deps, ADMIN, item.id, { decision: "remove", note: "Same spammer as last week, ban next time" }));
+    const n = (await T.listNotifications(deps, ALI)).page.items[0]!;
+    expect(n).toMatchObject({ kind: "post_removed", actorId: null });
+    expect(n.text).not.toContain("spammer");
+    linked.set(NOUR, { apps: apps(5), business: null });
+    const r = ok(await T.submitVerification(deps, NOUR, { full_name: "Nour El Hoda", idProof: idProof() })).state.request!;
+    ok(await T.decideVerification(deps, ADMIN, r.id, { decision: "reject", reason: "The ID photo is unreadable." }));
+    expect((await T.listNotifications(deps, NOUR)).page.items[0]).toMatchObject({ kind: "verification_rejected", actorId: null });
+  });
+
+  it("nothing from a member the recipient blocked (or who blocked them): not listed, not counted, not emailed", async () => {
+    deps.blockedEitherWay = async (id) => new Set(id === NOUR ? [ALI] : []);
+    await T.notify(deps, { memberId: NOUR, kind: "answer", actorId: ALI, data: { actor: "Ali", title: "x" }, link: "/q/1" });
+    expect((await T.listNotifications(deps, NOUR)).unread).toBe(0);
+    expect(mails).toHaveLength(0);
   });
 });

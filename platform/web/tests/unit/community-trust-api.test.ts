@@ -21,6 +21,12 @@ let admin: Joined;
 let nour: Joined;
 let ali: Joined;
 
+/** Makes a member's account `days` older (in the memory store the tests run on). */
+function backdate(id: string, days: number): void {
+  const m = (c.deps.store.base as unknown as { members: Map<string, { createdAt: Date }> }).members.get(id)!;
+  m.createdAt = new Date(m.createdAt.getTime() - days * 86_400_000);
+}
+
 beforeEach(async () => {
   c = await testCommunity();
   files = new Map();
@@ -67,7 +73,8 @@ describe("231 the Gold verification form through the API", () => {
   const form = (fields: Record<string, string | string[]>, file?: { type: string; bytes: number }) => {
     const f = new FormData();
     for (const [k, v] of Object.entries(fields)) for (const x of Array.isArray(v) ? v : [v]) f.append(k, x);
-    if (file) f.append("id_proof", new File([new Uint8Array(file.bytes)], "id.jpg", { type: file.type }));
+    // A real JPEG's first bytes, then padding.
+    if (file) f.append("id_proof", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, ...new Array(Math.max(0, file.bytes - 4)).fill(0)])], "id.jpg", { type: file.type }));
     return f;
   };
 
@@ -242,6 +249,8 @@ describe("231 moderation and notifications with the Q&A (area B)", () => {
     const a = await api<{ id: string; status: string }>(c, "POST", `/qa/questions/${q.body.id}/answers`, { token: ali.token, body: { body: "This question is silly and so are you, ask someone else." } });
     expect(a.body.status).toBe("published");
     const extra = await joinWithEmail(c, "Third Member");
+    // Only established members' reports count: these two joined weeks ago.
+    for (const who of [nour, extra]) backdate(who.id, 30);
     for (const who of [nour, extra]) expect((await api(c, "POST", "/reports", { token: who.token, body: { target_type: "answer", target_id: a.body.id, reason: "spam" } })).status).toBe(201);
     const queue = await api<{ items: { id: string; cause: string; report_count: number }[] }>(c, "GET", "/admin/moderation", { token: admin.token });
     expect(queue.body.items).toEqual([expect.objectContaining({ cause: "reports", report_count: 2 })]);

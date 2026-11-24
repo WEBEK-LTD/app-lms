@@ -79,7 +79,7 @@ test("231 the Gold form: Apply is closed without 5 apps on a linked Yallapp acco
   expect(await state.json()).toMatchObject({ has_gold: false, yallapp_linked: false, app_count: 0, required_apps: 5, can_apply: false, request: null });
   const sent = await request.post(`${api}/badges/verification`, {
     headers: auth(reem),
-    multipart: { full_name: "Reem Saleh", id_proof: { name: "id.jpg", mimeType: "image/jpeg", buffer: Buffer.alloc(2048, 1) } },
+    multipart: { full_name: "Reem Saleh", id_proof: { name: "id.jpg", mimeType: "image/jpeg", buffer: Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(2044, 1)]) } },
   });
   expect(sent.status()).toBe(403);
   expect(((await sent.json()) as { error: { code: string } }).error.code).toBe("not_eligible");

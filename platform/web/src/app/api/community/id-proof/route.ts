@@ -21,5 +21,10 @@ export async function GET(request: Request): Promise<Response> {
   }
   const file = await getBlobStore().get(key);
   if (!file) return new Response("Not found.", { status: 404, headers });
-  return new Response(new Uint8Array(file.data), { status: 200, headers: { ...headers, "content-type": file.contentType, "content-disposition": "inline", "x-content-type-options": "nosniff" } });
+  // Always a download, never shown on Yallapp's own address: no file can run as a page here.
+  const ext = ({ "image/jpeg": "jpg", "image/png": "png", "application/pdf": "pdf" } as Record<string, string>)[file.contentType] ?? "bin";
+  return new Response(new Uint8Array(file.data), {
+    status: 200,
+    headers: { ...headers, "content-type": file.contentType, "content-disposition": `attachment; filename="id-proof.${ext}"`, "x-content-type-options": "nosniff", "content-security-policy": "sandbox; default-src 'none'" },
+  });
 }
