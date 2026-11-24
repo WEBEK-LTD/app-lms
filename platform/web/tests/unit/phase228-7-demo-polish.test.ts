@@ -3,7 +3,7 @@ import { MemoryStore } from "@/lib/data/memory";
 import { MOBILES_DEMO, TOYS_DEMO } from "@/lib/demo/constants";
 import { setupDemoApps } from "@/lib/demo/setup";
 import { FACT_WORDS } from "@/lib/demo/fact-words";
-import { CatalogConnector, PREVIEW_CHECKOUT_NOTICE } from "@/lib/hosted/connectors/catalog";
+import { CatalogConnector, PREVIEW_CHECKOUT_NOTICE, PREVIEW_CHECKOUT_PLAN_NOTICE } from "@/lib/hosted/connectors/catalog";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted } from "@/lib/hosted/service";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
@@ -209,7 +209,7 @@ describe("228.7 the owner's preview of a shop that can't take payments yet", () 
     const store = new MemoryStore();
     const made = await setupDemoApps({ store, encryptionKey: KEY, putBlob: async () => undefined, assetUrl, platformUrl: "https://yallapp.test", contact: { whatsapp: "+90 544 673 19 42", email: "info@yallapp.test" }, actorEmail: "admin@yallapp.test", now: NOW }, [TOYS_DEMO] as never);
     // As a /start shop: the owner's own, no payment method yet.
-    await store.updateApp(made.apps[0]!.appId, { demo: false, catalogSettings: { ...(await store.getAppById(made.apps[0]!.appId))!.catalogSettings!, payment: null, manualPayments: [] } } as never, NOW);
+    await store.updateApp(made.apps[0]!.appId, { demo: false, catalogSettings: { ...(await store.getAppById(made.apps[0]!.appId))!.catalogSettings!, payment: null, manualPayments: null } } as never, NOW);
     const app = (await store.getAppById(made.apps[0]!.appId))!;
     const product = (await store.listCatalogProducts(app.id)).find((p) => p.sku === "TY-301")!;
     return { store, app, product };
@@ -228,6 +228,20 @@ describe("228.7 the owner's preview of a shop that can't take payments yet", () 
       expect(out.body).toEqual({ code: "preview_checkout", message: PREVIEW_CHECKOUT_NOTICE[lang] });
     }
     expect(PREVIEW_CHECKOUT_NOTICE.ar).toBe("هذه معاينة: فعّل وسيلة دفع من لوحة التحكم لتبدأ البيع.");
+    expect((await store.listCatalogOrders({ appId: app.id, offset: 0, limit: 10 })).total).toBe(0);
+  }, 60000);
+
+  it("previewed with a payment method but a plan without selling in the app: the notice says to upgrade; both missing: the payment method's", async () => {
+    const { store, app, product } = await shop();
+    const lines = { lines: [{ product_id: product.id, quantity: 1 }] };
+    const paid = { ...app, catalogSettings: { ...app.catalogSettings!, manualPayments: { bankTransfer: "IBAN TR00 0000 0000 0000 0000 0000 00" } } } as typeof app;
+    const planless = new CatalogConnector({ store, app: paid, assetUrl, platformUrl: "https://yallapp.test", cardPayments: false, preview: true });
+    for (const lang of ["ar", "en", "tr"] as const) {
+      const out = (await ask(planless, "POST", "/store/checkout-link", lines, lang))!;
+      expect(out.body).toEqual({ code: "preview_checkout", message: PREVIEW_CHECKOUT_PLAN_NOTICE[lang] });
+    }
+    const neither = new CatalogConnector({ store, app, assetUrl, platformUrl: "https://yallapp.test", cardPayments: false, preview: true });
+    expect(((await ask(neither, "POST", "/store/checkout-link", lines, "ar"))!.body as { message: string }).message).toBe(PREVIEW_CHECKOUT_NOTICE.ar);
     expect((await store.listCatalogOrders({ appId: app.id, offset: 0, limit: 10 })).total).toBe(0);
   }, 60000);
 
