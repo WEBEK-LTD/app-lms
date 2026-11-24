@@ -491,7 +491,8 @@ function galleryPiece(ctx: SectionContext) {
         },
       },
       { type: "product_variants", ...accent, node: { ...ink, margin: sides(34, 40, 0, 40) } },
-      { type: "product_buy", ...accent, node: { radius: 0, margin: sides(18, 40, 0, 40), ...ink } },
+      // In the flow, not fixed at the foot; square (1, as 0 is the button's own rounding in the app).
+      { type: "product_buy", ...accent, node: { pin: "none", radius: 1, margin: sides(18, 40, 0, 40), padding: undefined, ...ink } },
       { element: head(ctx, "atpKicker", "atpAbout") },
       { type: "product_description", node: { ...ink, margin: sides(0, 28, 0, 28) } },
       { type: "product_reviews", ...accent, node: { ...ink, margin: sides(30, 28, 0, 28) } },

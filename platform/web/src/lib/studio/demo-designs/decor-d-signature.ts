@@ -498,7 +498,7 @@ function boardPiece(ctx: SectionContext) {
           children: [
             { id: id(), type: "row", width: 84, height: 18, background: TAPE, dark_background: TAPE, opacity: 0.6, rotation: 3, children: [] },
             productPart(ctx, { type: "product_gallery", radius: 2, node: { aspect_ratio: 1, margin: undefined } }),
-            productPart(ctx, { type: "product_title", node: { color: PRINT_INK, dark_color: PRINT_INK, font: font(18, 500), text_align: "center", margin: undefined } }),
+            { ...productPart(ctx, { type: "product_title", node: { color: PRINT_INK, dark_color: PRINT_INK, font: font(18, 500), text_align: "center", margin: undefined } }), self_align: "stretch" },
           ],
         },
       },
@@ -508,6 +508,7 @@ function boardPiece(ctx: SectionContext) {
           id: id(),
           type: "row",
           name: ctx.w("mjpTag"),
+          width: "hug",
           self_align: "end",
           padding: sides(8, 16, 8, 16),
           margin: sides(0, 34, 0, 34),

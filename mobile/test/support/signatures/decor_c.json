@@ -3190,14 +3190,8 @@
        {
         "id": "sig-141",
         "type": "product_buy",
-        "pin": "bottom",
-        "radius": 0,
-        "padding": {
-         "top": 10,
-         "end": 16,
-         "bottom": 10,
-         "start": 16
-        },
+        "pin": "none",
+        "radius": 1,
         "product_part": {
          "accent": "#0B0B0B",
          "dark_accent": "#F2F2EF"

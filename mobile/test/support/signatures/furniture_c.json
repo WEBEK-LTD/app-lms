@@ -5850,7 +5850,7 @@
        {
         "id": "sig-270",
         "type": "column",
-        "gap": 4,
+        "gap": 0,
         "margin": {
          "top": 16,
          "end": 16,
@@ -5885,7 +5885,7 @@
           "id": "sig-272",
           "type": "row",
           "gap": 0,
-          "cross": "center",
+          "align": "between",
           "children": [
            {
             "id": "sig-273",
@@ -5899,15 +5899,6 @@
            {
             "id": "sig-274",
             "type": "row",
-            "width": "fill",
-            "height": 1,
-            "background": "#111111",
-            "dark_background": "#F1F1EE",
-            "children": []
-           },
-           {
-            "id": "sig-275",
-            "type": "row",
             "width": 1,
             "height": 9,
             "background": "#111111",
@@ -5915,6 +5906,21 @@
             "children": []
            }
           ]
+         },
+         {
+          "id": "sig-275",
+          "type": "divider",
+          "height": 1,
+          "background": "#111111",
+          "dark_background": "#F1F1EE",
+          "color": "#111111",
+          "dark_color": "#F1F1EE",
+          "margin": {
+           "top": 0,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          }
          }
         ]
        },
@@ -5935,10 +5941,10 @@
         "color": "#111111",
         "dark_color": "#F1F1EE",
         "padding": {
-         "top": 12,
-         "end": 0,
-         "bottom": 12,
-         "start": 0
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
         },
         "border_color": "#D6D6D1",
         "dark_border_color": "#343432",
@@ -6638,7 +6644,7 @@
         "id": "sig-323",
         "type": "product_buy",
         "pin": "bottom",
-        "radius": 0,
+        "radius": 1,
         "padding": {
          "top": 10,
          "end": 16,

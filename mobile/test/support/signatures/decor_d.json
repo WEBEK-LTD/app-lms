@@ -3283,7 +3283,8 @@
           },
           "color": "#3A2418",
           "dark_color": "#3A2418",
-          "text_align": "center"
+          "text_align": "center",
+          "self_align": "stretch"
          }
         ]
        },
@@ -3291,6 +3292,7 @@
         "id": "sig-147",
         "type": "row",
         "name": "Pinned to your board",
+        "width": "hug",
         "self_align": "end",
         "padding": {
          "top": 8,

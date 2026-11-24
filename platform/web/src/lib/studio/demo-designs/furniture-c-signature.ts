@@ -725,15 +725,17 @@ function productSheet(ctx: SectionContext) {
         element: {
           id: id(),
           type: "column",
-          gap: 4,
+          gap: 0,
           margin: sides(16, 16, 0, 16),
           children: [
             say(ctx, L, "mzpDims", font(11, 700, { letter_spacing: 1.5, uppercase: true }), { muted: true, max_lines: 1 }),
-            { id: id(), type: "row", gap: 0, cross: "center", children: [tick(), { id: id(), type: "row", width: "fill", height: 1, background: K.ink, dark_background: K.darkInk, children: [] }, tick()] },
+            // The dimension rule: a tick at each end over a line across.
+            { id: id(), type: "row", gap: 0, align: "between", children: [tick(), tick()] },
+            { id: id(), type: "divider", height: 1, background: K.ink, dark_background: K.darkInk, color: K.ink, dark_color: K.darkInk, margin: sides(0, 0, 0, 0) },
           ],
         },
       },
-      { type: "product_delivery", text: "mzpNotes", ...accent, node: { ...ink, margin: sides(12, 16, 0, 16), padding: sides(12, 0, 12, 0), border_color: K.line, dark_border_color: K.darkLine, border_width: 1 } },
+      { type: "product_delivery", text: "mzpNotes", ...accent, node: { ...ink, margin: sides(12, 16, 0, 16), padding: sides(14, 14, 14, 14), border_color: K.line, dark_border_color: K.darkLine, border_width: 1 } },
       { type: "product_price", look: "sale", node: { ...ink, font: font(22, 800), margin: sides(18, 16, 0, 16) } },
       { type: "product_variants", look: "chips", ...accent, node: { ...ink, margin: sides(18, 16, 0, 16) } },
       { element: { ...planCard(ctx), margin: sides(26, 16, 0, 16) } },
@@ -744,7 +746,8 @@ function productSheet(ctx: SectionContext) {
         type: "product_buy",
         look: "price",
         ...accent,
-        node: { pin: "bottom", radius: 0, padding: sides(10, 16, 10, 16), background: K.surface, dark_background: K.darkSurface, border_color: K.ink, dark_border_color: K.darkInk, border_width: 1, ...ink },
+        // Square: 1, as 0 is the button's own rounding in the app.
+        node: { pin: "bottom", radius: 1, padding: sides(10, 16, 10, 16), background: K.surface, dark_background: K.darkSurface, border_color: K.ink, dark_border_color: K.darkInk, border_width: 1, ...ink },
       },
     ],
   });
