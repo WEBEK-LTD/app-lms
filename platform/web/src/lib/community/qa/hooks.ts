@@ -10,6 +10,8 @@ import type { MemberSummary } from "./types";
  */
 
 export type ModeratedKind = "question" | "answer" | "reply" | "tutorial";
+/** Area C's name for what is moderated: a reply is a "comment" there. */
+export type ModeratedTarget = "question" | "answer" | "comment" | "tutorial";
 /** Area C's notice kinds the Q&A sends: an answer (to the asker), an official one, an accepted one, a reply (to the answer's author), a vote milestone (1, 10, 50, 100 upvotes). */
 export type QaNoticeKind = "answer" | "answer_accepted" | "official_answer" | "reply" | "vote_milestone";
 
@@ -27,7 +29,7 @@ export interface QaHooks {
    * moderateNew: a new member's first posts and the spam filter hold it,
    * and it goes into the queue).
    */
-  moderate(input: { memberId: string; kind: ModeratedKind; contentId: string; text: string }): Promise<"published" | "pending">;
+  moderate(input: { memberId: string; targetType: ModeratedTarget; targetId: string; text: string }): Promise<"published" | "pending">;
   /** Tells a member (the list in the app and email): area C's notify. Never about their own doing. */
   notify(input: { memberId: string; kind: QaNoticeKind; actorId: string | null; targetType: "question" | "answer" | "reply"; targetId: string; data: { actor?: string; title?: string; count?: number }; link: string }): Promise<void>;
 }

@@ -338,7 +338,7 @@ function check(text: unknown, min: number, max: number, field: string, what: str
 /** Stored as pending first, then moderation (area C) says whether it shows now; its status. */
 async function moderated(memberId: string, kind: ModeratedKind, contentId: string, text: string, skip: boolean): Promise<ContentStatus> {
   if (skip) return "published";
-  return qaHooks().moderate({ memberId, kind, contentId, text });
+  return qaHooks().moderate({ memberId, targetType: kind === "reply" ? "comment" : kind, targetId: contentId, text });
 }
 
 async function tagsFor(input: readonly string[] | undefined, now: Date): Promise<TagRecord[]> {

@@ -80,8 +80,8 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
           .filter(([, p]) => p.name.toLowerCase().includes(q.toLowerCase()))
           .map(([id, p]) => ({ id, username: id, displayName: p.name, avatarUrl: null, topBadge: null, team: p.team === true, deleted: false }));
       },
-      async moderate({ memberId, kind, contentId }) {
-        moderated.push({ kind, contentId });
+      async moderate({ memberId, targetType, targetId }) {
+        moderated.push({ kind: targetType === "comment" ? "reply" : targetType, contentId: targetId });
         return pendingFor.has(memberId) ? "pending" : "published";
       },
       async notify({ memberId, kind, actorId, link, data }) {
