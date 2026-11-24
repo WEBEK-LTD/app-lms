@@ -416,6 +416,8 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
   // 209 Toys
   // 209 Toot's own words where its looks leave the owner brackets: its wraps, its newborn box, its returns and its offer (lib/demo/toys.ts).
   toys: {
+    // 226 Its name in each language, the wordmark of every look's home and menu.
+    tyWordmark: { en: "Toot", ar: "توت", tr: "Toot" },
     tyWrapBLine: { en: "A black box with a gold ribbon and a card, from 15 AED", ar: "صندوق أسود بشريط ذهبي وبطاقة، من 15 د.إ", tr: "Altın kurdeleli siyah kutu ve kart, 15 AED'den" },
     tyBoxPrice: { en: "399 AED", ar: "399 د.إ", tr: "399 AED" },
     tyStat4: { en: "30", ar: "30", tr: "30" },
@@ -500,6 +502,8 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
   },
   // 211 Nova's own words where its looks leave the owner brackets: its new phone, its trade-in, its brands, its bundle, its numbers and its returns (lib/demo/mobiles.ts).
   mobiles: {
+    // 226 Its name in each language, the wordmark of every look's home and menu.
+    mbWordmark: { en: "Nova", ar: "نوفا", tr: "Nova" },
     mbHeroKicker1: { en: "Veyra X3 Pro · Just in", ar: "Veyra X3 Pro · وصل حديثًا", tr: "Veyra X3 Pro · Yeni geldi" },
     mbTradeHeroLine: { en: "Up to 14,500 EGP for your device, off your new one at once", ar: "حتى 14,500 ج.م قيمة جهازك، خصمًا فوريًا من جهازك الجديد", tr: "Cihazınız için 14.500 EGP'ye kadar, yenisinden anında düşülür" },
     mbBrand1: { en: "Veyra", ar: "Veyra", tr: "Veyra" },

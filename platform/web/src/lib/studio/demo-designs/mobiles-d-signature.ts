@@ -108,7 +108,9 @@ function deals(ctx: SectionContext, margin = sides(8, 12, 0, 12)): StudioNode {
     background: HOT,
     dark_background: "#C8143D",
     children: [
-      { id: id(), type: "flash_sale", name: ctx.w("mbDeal"), text: t.text, translations: t.translations, flash_sale: { look: "carousel", limit: 6, countdown: true, stock_bar: true, accent: HOT }, font: { family: FACE }, background: K.page, dark_background: K.darkPage, radius: 12, padding: sides(8, 8, 8, 8) },
+      { id: id(), type: "flash_sale", name: ctx.w("mbDeal"), text: t.text, translations: t.translations, flash_sale: { look: "carousel", limit: 1, countdown: true, stock_bar: true, accent: HOT }, font: { family: FACE }, background: K.page, dark_background: K.darkPage, radius: 12, padding: sides(8, 8, 8, 8) },
+      // The rest of what is on sale, as the hub's dense cards (their names on two lines).
+      { id: id(), type: "items", name: ctx.w("mbHubDealsLine"), source: "products", layout: "carousel", gap: 8, padding: sides(0, 0, 2, 0), query: { limit: 8, category_id: null, featured: false, sort: "popular", ids: [], on_sale: true }, card: { ...denseCard(ctx), width: 132 } },
     ],
   };
 }
@@ -145,7 +147,7 @@ function denseCard(ctx: SectionContext): StudioNode {
         padding: sides(7, 7, 8, 7),
         children: [
           { id: id(), type: "text", text: ctx.w("installmentsSoon"), max_lines: 1, font: font(9.5, 700), color: GOOD.day, dark_color: GOOD.night, background: GOOD.soft, dark_background: GOOD.darkSoft, radius: 5, padding: sides(2, 5, 2, 5), self_align: "start" },
-          { id: id(), type: "text", bind: "title", max_lines: 1, color: K.ink, dark_color: K.darkInk, font: font(11.5, 700), margin: sides(2, 0, 0, 0) },
+          { id: id(), type: "text", bind: "title", max_lines: 2, color: K.ink, dark_color: K.darkInk, font: font(11.5, 700), margin: sides(2, 0, 0, 0) },
           { id: id(), type: "text", bind: "price", max_lines: 2, color: K.ink, dark_color: K.darkInk, font: font(12.5, 800) },
           { id: id(), type: "text", bind: "was_price", max_lines: 1, color: K.muted, dark_color: K.darkMuted, font: font(10.5, 400) },
         ],
