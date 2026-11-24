@@ -2,11 +2,11 @@ import type { MemberRank } from "./types";
 
 /** 231 Limits of what members write. */
 export const LIMITS = {
-  titleMin: 12,
-  titleMax: 150,
+  titleMin: 10,
+  titleMax: 200,
   bodyMin: 20,
   bodyMax: 20_000,
-  answerMin: 2,
+  answerMin: 10,
   answerMax: 20_000,
   replyMax: 1_000,
   tagsMax: 5,

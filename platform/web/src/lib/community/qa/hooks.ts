@@ -1,3 +1,5 @@
+import { AsyncLocalStorage } from "node:async_hooks";
+import type { QaStore } from "./store";
 import type { MemberSummary } from "./types";
 
 /**
@@ -31,6 +33,8 @@ export interface QaHooks {
    */
   moderate(input: { memberId: string; targetType: ModeratedTarget; targetId: string; text: string }): Promise<"published" | "pending">;
   /** Tells a member (the list in the app and email): area C's notify. Never about their own doing. */
+  /** The member's Q&A points went up or down by `delta` (area A adds it to the member's points, shown on the profile). */
+  pointsChanged(memberId: string, delta: number): Promise<void>;
   notify(input: { memberId: string; kind: QaNoticeKind; actorId: string | null; targetType: "question" | "answer" | "reply"; targetId: string; data: { actor?: string; title?: string; count?: number }; link: string }): Promise<void>;
 }
 
@@ -51,12 +55,26 @@ const DEFAULTS: QaHooks = {
     return "published";
   },
   async notify() {},
+  async pointsChanged() {},
 };
 
 let current: QaHooks = DEFAULTS;
 
+/**
+ * One API call's store and hooks (lib/community/api/qa-routes.ts runs each
+ * call in it), so concurrent calls never share a member's language, blocks
+ * or store.
+ */
+export const qaScope = new AsyncLocalStorage<{ store: QaStore; hooks: QaHooks }>();
+
+/** The hooks of the call being answered, else the ones set (tests), else the defaults. */
 export function qaHooks(): QaHooks {
-  return current;
+  return qaScope.getStore()?.hooks ?? current;
+}
+
+/** Runs `fn` with this store and these hooks (the others' defaults fill what's missing). */
+export function withQa<T>(store: QaStore, hooks: Partial<QaHooks>, fn: () => Promise<T>): Promise<T> {
+  return qaScope.run({ store, hooks: { ...DEFAULTS, ...hooks } }, fn);
 }
 
 /** Sets some of the hooks (the others keep theirs); `null` puts the defaults back. */

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { qaHooks, type ModeratedKind } from "./hooks";
+import { qaHooks, qaScope, type ModeratedKind } from "./hooks";
 import { MemoryQaStore } from "./memory";
 import type { AnswerRecord, QaStore, QuestionFilter, QuestionOrder, QuestionRecord, ReplyRecord, SectionRecord, TagRecord, TutorialRecord } from "./store";
 import { LIMITS, POINTS, SIMILAR_MIN, cursorOf, excerpt, offsetOf, rankOf, similarity, slugify, tagOf, words } from "./text";
@@ -42,16 +42,31 @@ import {
 
 let store: QaStore | null = null;
 
-/** The Q&A's storage: memory until the database's is set (lib/community/store sets it); tests set their own. */
+/** The Q&A's storage: the request's (the API runs each call in `qaScope`), else the one set, else memory. */
 export function qaStore(): QaStore {
-  return (store ??= new MemoryQaStore());
+  return qaScope.getStore()?.store ?? (store ??= new MemoryQaStore());
 }
+/** The storage outside a request (tests, scripts); null goes back to a new memory one. */
 export function setQaStore(next: QaStore | null): void {
   store = next;
-  seeded = null;
 }
 
 const SHOWN: readonly ContentStatus[] = ["published"];
+
+// ——— Points ———
+
+/** Gives points and tells area A the member's total (their profile's points). */
+async function award(e: Parameters<QaStore["addPoints"]>[0]): Promise<void> {
+  await qaStore().addPoints(e);
+  if (e.points) await qaHooks().pointsChanged(e.memberId, e.points);
+}
+async function unaward(memberId: string, reason: Parameters<QaStore["removePoints"]>[1], ref: string): Promise<void> {
+  const before = await totalOf(memberId);
+  await qaStore().removePoints(memberId, reason, ref);
+  const delta = (await totalOf(memberId)) - before;
+  if (delta) await qaHooks().pointsChanged(memberId, delta);
+}
+const totalOf = async (memberId: string) => (await qaStore().pointsOf([memberId]))[memberId] ?? 0;
 
 // ——— Sections ———
 
@@ -67,17 +82,24 @@ export const DEFAULT_SECTIONS: readonly Omit<SectionRecord, "id" | "kind">[] = [
   { slug: "general", icon: "forum", position: 80, names: { en: "General", ar: "عام", tr: "Genel" } },
 ];
 
-let seeded: Promise<void> | null = null;
+/** Each store's sections are added once, the first time it is used. */
+const seeded = new WeakMap<QaStore, Promise<void>>();
 function ensureSections(): Promise<void> {
-  return (seeded ??= (async () => {
-    for (const kind of ["qa", "tutorial"] as const) {
-      const had = new Set((await qaStore().listSections(kind)).map((s) => s.slug));
-      for (const s of DEFAULT_SECTIONS) if (!had.has(s.slug)) await qaStore().upsertSection({ ...s, kind, id: randomUUID() });
-    }
-  })().catch((e) => {
-    seeded = null;
-    throw e;
-  }));
+  const target = qaStore();
+  let done = seeded.get(target);
+  if (!done) {
+    done = (async () => {
+      for (const kind of ["qa", "tutorial"] as const) {
+        const had = new Set((await target.listSections(kind)).map((s) => s.slug));
+        for (const s of DEFAULT_SECTIONS) if (!had.has(s.slug)) await target.upsertSection({ ...s, kind, id: randomUUID() });
+      }
+    })().catch((e: unknown) => {
+      seeded.delete(target);
+      throw e;
+    });
+    seeded.set(target, done);
+  }
+  return done;
 }
 
 async function sectionsOf(kind: SectionKind): Promise<{ byId: Map<string, SectionRecord>; bySlug: Map<string, SectionRecord> }> {
@@ -529,11 +551,11 @@ export async function vote(viewerId: string | null, input: { kind: VoteKind; id:
   // Points: the vote's reason taken back, then given again for the new one.
   const ref = `${input.kind}:${target.id}:${member}`;
   const [up, down] = input.kind === "question" ? (["question_upvoted", "question_downvoted"] as const) : (["answer_upvoted", "answer_downvoted"] as const);
-  await qaStore().removePoints(target.authorId, up, ref);
-  await qaStore().removePoints(target.authorId, down, ref);
+  await unaward(target.authorId, up, ref);
+  await unaward(target.authorId, down, ref);
   if (input.value !== 0) {
     const reason = input.value > 0 ? up : down;
-    await qaStore().addPoints({ id: randomUUID(), memberId: target.authorId, reason, points: POINTS[reason], ref, createdAt: now });
+    await award({ id: randomUUID(), memberId: target.authorId, reason, points: POINTS[reason], ref, createdAt: now });
   }
   if (input.value === 1 && score > target.score && (VOTE_MILESTONES as readonly number[]).includes(score)) {
     const q = input.kind === "question" ? (target as QuestionRecord) : await qaStore().getQuestion((target as AnswerRecord).questionId);
@@ -553,19 +575,19 @@ export async function acceptAnswer(viewerId: string | null, answerId: string, on
   if (!on) {
     if (previous === a.id) {
       await qaStore().updateQuestion(q.id, { acceptedAnswerId: null });
-      await qaStore().removePoints(a.authorId, "answer_accepted", a.id);
-      await qaStore().removePoints(member, "accepted_an_answer", q.id);
+      await unaward(a.authorId, "answer_accepted", a.id);
+      await unaward(member, "accepted_an_answer", q.id);
     }
   } else if (previous !== a.id) {
     if (previous) {
       const old = await qaStore().getAnswer(previous);
-      if (old) await qaStore().removePoints(old.authorId, "answer_accepted", old.id);
+      if (old) await unaward(old.authorId, "answer_accepted", old.id);
     }
     await qaStore().updateQuestion(q.id, { acceptedAnswerId: a.id, lastActivityAt: now });
-    await qaStore().removePoints(member, "accepted_an_answer", q.id);
+    await unaward(member, "accepted_an_answer", q.id);
     if (a.authorId !== member) {
-      await qaStore().addPoints({ id: randomUUID(), memberId: a.authorId, reason: "answer_accepted", points: POINTS.answer_accepted, ref: a.id, createdAt: now });
-      await qaStore().addPoints({ id: randomUUID(), memberId: member, reason: "accepted_an_answer", points: POINTS.accepted_an_answer, ref: q.id, createdAt: now });
+      await award({ id: randomUUID(), memberId: a.authorId, reason: "answer_accepted", points: POINTS.answer_accepted, ref: a.id, createdAt: now });
+      await award({ id: randomUUID(), memberId: member, reason: "accepted_an_answer", points: POINTS.accepted_an_answer, ref: q.id, createdAt: now });
       const actor = (await membersOf([member]))[member]!;
       await qaHooks().notify({ memberId: a.authorId, kind: "answer_accepted", actorId: member, targetType: "answer", targetId: a.id, data: { actor: actor.displayName, title: q.title, count: POINTS.answer_accepted }, link: answerLink(q, a.id) });
     }
@@ -615,8 +637,8 @@ export async function setContentStatus(kind: QaContentKind, id: string, status: 
     if (!t) return false;
     if (t.status === next) return true;
     await qaStore().updateTutorial(id, { status: next, updatedAt: now, ...(next === "published" && !t.publishedAt ? { publishedAt: now } : {}) });
-    if (next === "published") await qaStore().addPoints({ id: randomUUID(), memberId: t.authorId, reason: "tutorial_published", points: POINTS.tutorial_published, ref: t.id, createdAt: now });
-    else if (t.status === "published") await qaStore().removePoints(t.authorId, "tutorial_published", t.id);
+    if (next === "published") await award({ id: randomUUID(), memberId: t.authorId, reason: "tutorial_published", points: POINTS.tutorial_published, ref: t.id, createdAt: now });
+    else if (t.status === "published") await unaward(t.authorId, "tutorial_published", t.id);
     return true;
   }
   if (kind === "answer") {
@@ -630,7 +652,7 @@ export async function setContentStatus(kind: QaContentKind, id: string, status: 
       await qaStore().addAnswerCount(q.id, -1, null);
       if (q.acceptedAnswerId === a.id) {
         await qaStore().updateQuestion(q.id, { acceptedAnswerId: null });
-        await qaStore().removePoints(a.authorId, "answer_accepted", a.id);
+        await unaward(a.authorId, "answer_accepted", a.id);
       }
     }
     return true;
@@ -899,6 +921,6 @@ export async function publishTutorial(
     updatedAt: now,
     publishedAt: now,
   });
-  await qaStore().addPoints({ id: randomUUID(), memberId: author, reason: "tutorial_published", points: POINTS.tutorial_published, ref: t.id, createdAt: now });
+  await award({ id: randomUUID(), memberId: author, reason: "tutorial_published", points: POINTS.tutorial_published, ref: t.id, createdAt: now });
   return getTutorial(t.id, { viewerId: author, lang: input.language });
 }
