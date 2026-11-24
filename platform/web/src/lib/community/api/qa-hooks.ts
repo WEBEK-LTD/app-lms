@@ -1,4 +1,6 @@
 import type { MemberPerson, QaHooks } from "../qa/hooks";
+import { trustDepsOf } from "../trust/context";
+import { moderateNew, notify } from "../trust/service";
 import type { CommunityContext } from "./http";
 import { memberSummaries, type MemberSummaryView } from "./views";
 
@@ -34,12 +36,20 @@ export function qaHooksFor(ctx: CommunityContext): Partial<QaHooks> {
 
 /**
  * Area C's side: a new post's status (moderateNew: a new member's first
- * posts and the spam filter hold it) and the notices (notify). Until area C
- * fills it, every post shows and nothing is sent.
+ * posts and the spam filter hold it, and it goes into the moderation
+ * queue) and the notices (notify: the list, and email for the kinds that
+ * email).
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- area C fills it in
-export function trustForQa(_ctx: CommunityContext): Partial<Pick<QaHooks, "moderate" | "notify">> {
-  return {};
+export function trustForQa(ctx: CommunityContext): Partial<Pick<QaHooks, "moderate" | "notify">> {
+  const deps = trustDepsOf(ctx);
+  return {
+    async moderate(input) {
+      return (await moderateNew(deps, input)).status;
+    },
+    async notify(input) {
+      await notify(deps, input);
+    },
+  };
 }
 
 /** Area A's MemberSummary, kept whole (its rank and rank_label too) so the app and site see one shape everywhere. */

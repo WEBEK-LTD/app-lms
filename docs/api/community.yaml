@@ -1767,13 +1767,14 @@ components:
         handled_at: { type: [string, "null"], format: date-time }
     Notification:
       type: object
-      required: [id, kind, text, actor, target_type, target_id, read, created_at]
+      required: [id, kind, text, link, actor, target_type, target_id, read, created_at]
       properties:
         id: { type: string, format: uuid }
         kind:
           type: string
-          examples: [follow, friend_request, friend_accepted, answer, answer_accepted, official_answer, mention, vote_milestone, badge_granted, badge_revoked, verification_approved, verification_rejected, post_approved, post_removed, yallapp_linked]
+          examples: [follow, friend_request, friend_accepted, answer, answer_accepted, official_answer, reply, mention, vote_milestone, badge_granted, badge_revoked, verification_approved, verification_rejected, post_approved, post_removed, report_resolved, yallapp_linked]
         text: { type: string, description: "In the member's language." }
+        link: { type: string, description: "Where it opens on the Community, a path (\"/questions/12#a31\", \"/u/nour\")." }
         actor: { oneOf: [{ $ref: "#/components/schemas/MemberSummary" }, { type: "null" }] }
         target_type: { type: [string, "null"] }
         target_id: { type: [string, "null"] }

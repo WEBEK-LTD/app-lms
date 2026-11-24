@@ -34,6 +34,8 @@ import { runStudioMarketDaily } from "@/lib/studio-market/daily";
 import { payoutNow } from "@/lib/studio-market/payout-clock";
 import { getBlobStore } from "@/lib/blobs";
 import { appPlan } from "@/lib/entitlements";
+import { communityDeps } from "@/lib/community/deps";
+import { runCommunityTrustDaily } from "@/lib/community/trust/daily";
 
 /**
  * POST /api/internal/daily (roadmap 13.4): the daily job. Netlify's scheduled
@@ -120,6 +122,11 @@ async function runDaily(store: DataStore, now: Date) {
     return null;
   });
   // 78.2 Who has a plan running today.
+  // 231 Yallapp Community: the automatic badges follow their rules (Blue, Green).
+  const community = await communityTrustDaily(now).catch((e: unknown) => {
+    console.error("[daily] community badges", e);
+    return null;
+  });
   const productDay = await recordProductDay(store, now)
     .then((d) => ({ day: d.day, clients: d.clients, withPlan: d.activeClientIds.length }))
     .catch((e: unknown) => {
@@ -176,5 +183,11 @@ async function runDaily(store: DataStore, now: Date) {
     return null;
   });
   const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
-  return { ...report, rates, mailHistory, marketplace, studioMarket, analytics: { ...analytics, history: analyticsHistory, weekly }, media, addonReminders, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, buildFiles, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, demoVisitsPurged, watch };
+  return { ...report, rates, mailHistory, marketplace, studioMarket, analytics: { ...analytics, history: analyticsHistory, weekly }, media, addonReminders, chat, milestones, community, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, buildFiles, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, demoVisitsPurged, watch };
+}
+
+/** 231 The Community's daily trust run, on its own store. */
+async function communityTrustDaily(now: Date) {
+  const deps = await communityDeps({ ip: "daily-job", now });
+  return runCommunityTrustDaily({ deps, store: deps.store, now });
 }
