@@ -20,6 +20,30 @@ by side with every other template's home (header, hero, card shape, section
 order, tab bar, type scale) before it ships; one that could be made by
 recolouring another has failed.
 
+Roadmap 224 (cosmetics and crochet, templates C and D): Velours and Ghurza
+each have two new whole templates that share no skeleton with A and B or
+with any other type's: Velours C, the ritual clinic (its main template:
+clinical white and teal, Zain; the skin test as frosted glass first, the
+morning and night routine as numbered steps, ingredient chips with their
+strength, numbered lab cards, a segmented bar) and D, the shade studio
+(plum and black gloss, Kufam; the shade swatches as the hero, tutorial
+reels, before and after, mood tiles, a glowing bar); Ghurza C, the makers'
+market (its main template: stitched paper, Aref Ruqaa headlines over Noto
+Naskh Arabic text; the yarn-colour picker, "who made it" makers' cards,
+made to order step by step, pieces on hanging tags, a line bar) and
+D, the cozy studio (dusty rose, Mada; ready pieces or kits to make, the
+pattern of the week, dated class cards, a bubble bar). Each has its own
+category menu, shop, cart and orders tops, tabs, sign-in and account menu,
+in light and dark and in Arabic, English and Turkish; their parts are
+ready sections for any store too. A and B stay as extra templates.
+
+Distinct templates (224): before shipping, the four homes were compared
+side by side with all forty A and B homes and the other types' C and D
+previews; crochet D's edge-to-edge photo under a header lying over it was
+too close to clothes C (the runway) and became a soft photo card under a
+large title, and crochet C's yarn swatches are squares, unlike decor D's
+colour circles. The rule stands for every future template.
+
 Roadmap 216 (Yallapp's Firebase rides out a moment when Google can't
 reach the platform's issuer): the token exchange is tried up to 3 times
 (about 1 s, then 3 s) on a passing failure only (unreachable, 429, 5xx,
@@ -31,6 +55,7 @@ OIDC endpoints allow `stale-while-revalidate`. Optional owner step, not
 done: upload the key set to the Google provider (`jwksJson`) so Google
 needs no call to the site, at the cost of uploading it again on every
 key rotation.
+
 
 Roadmap 222 (the plugin's follow-ups): plugin 0.4.54 (after 0.4.53, #496)
 serves WordPress apps' Studio pages without an empty section, as hosted

@@ -4,6 +4,7 @@ import type { App, CatalogCurrency, CatalogSettings, CatalogVariants, ProductDim
 import type { ShopTypeDemo } from "./constants";
 import { priceFor, type EntryDeps } from "./entries";
 import { unchanged } from "./rows";
+import { namedTranslations, type ProductNames } from "./product-names";
 import type { KitPhoto } from "./shop-photos";
 
 /**
@@ -60,6 +61,8 @@ export interface ShopKit {
   products: readonly KitProduct[];
   flashSale: { title: string; titles: { ar: string; tr: string }; percent: number; hours: number; limit: number; sold: number; skus: readonly string[] };
   coupon: { code: string; percent: number; minOrderCents: number };
+  /** 224 Its products' names in Arabic and Turkish, by SKU (./product-names.ts); missing: English only. */
+  productNames?: ProductNames;
   /** Its settings besides money (returns, delivery days and slots, the card message, its titles). */
   commerce: Omit<Partial<CatalogSettings>, "currency" | "shippingCents" | "freeShippingOverCents" | "payment">;
 }
@@ -157,6 +160,8 @@ export async function demoKitProducts(deps: EntryDeps, app: App, kit: ShopKit): 
       optionGroups: null,
       dimensions: seed.dimensions ?? null,
       makeDays: seed.makeDays ?? null,
+      // 224 Its name in Arabic and Turkish, where the kit names its products (missing: left out, as before).
+      ...(kit.productNames ? { translations: namedTranslations(kit.productNames, seed.sku) } : {}),
       addon: Boolean(seed.addon),
       addonFor: seed.addon && seed.addon.categories.length ? { offerWith: "categories" as const, categoryIds: seed.addon.categories.map((c) => categoryIds.get(c)!).filter(Boolean), productIds: [] } : null,
       ...marked,
