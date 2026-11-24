@@ -1,6 +1,6 @@
 import { afterAll, describe } from "vitest";
 import { createPool } from "@/lib/data/mysql";
-import { MysqlQaStore } from "@/lib/community/qa/mysql";
+import { mysqlCommunityStore } from "@/lib/community/store/mysql";
 import { communityQaSuite } from "./community-qa-suite";
 
 /**
@@ -24,6 +24,7 @@ describe.skipIf(!url)("231 the community's Q&A on MySQL", () => {
     const now = new Date();
     for (const id of MEMBERS)
       await pool.query("INSERT INTO community_members (id, display_name, username, bio, skills, links, language, created_at, updated_at, last_active_at) VALUES (?, ?, ?, '', '[]', '[]', 'en', ?, ?, ?)", [id, id, `u_${id.replace(/-/g, "_")}`, now, now, now]);
-    return new MysqlQaStore(pool);
+    // As the API builds it (lib/community/store/mysql.ts), on drizzle with the community schema.
+    return mysqlCommunityStore(pool).qa;
   });
 });

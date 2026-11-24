@@ -1,7 +1,10 @@
+import { MysqlQaStore } from "../qa/mysql";
 import type { CommunityDb } from "./db";
 import type { CommunityQaStore } from "./qa";
 
-/** 231 Area B's data on MySQL or MariaDB (lib/db/community-schema.ts). Area B fills it. */
-export class MysqlCommunityQaStore implements CommunityQaStore {
-  constructor(protected readonly db: CommunityDb) {}
+/** 231 Area B's data on MySQL or MariaDB (lib/db/community-schema.ts, migration 0156). */
+export class MysqlCommunityQaStore extends MysqlQaStore implements CommunityQaStore {
+  constructor(db: CommunityDb) {
+    super(db as never);
+  }
 }

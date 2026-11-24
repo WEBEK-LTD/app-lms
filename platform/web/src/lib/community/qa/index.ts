@@ -3,7 +3,7 @@
  * site, the API and the other areas use.
  */
 export * from "./types";
-export { setQaHooks, qaHooks, type QaHooks, type QaNoticeKind, type ModeratedKind, type ModeratedTarget } from "./hooks";
+export { setQaHooks, qaHooks, withQa, type QaHooks, type QaNoticeKind, type ModeratedKind, type ModeratedTarget } from "./hooks";
 export { rankOf, POINTS, LIMITS } from "./text";
 export type { QaStore } from "./store";
 export { MemoryQaStore } from "./memory";

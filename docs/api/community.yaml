@@ -588,12 +588,79 @@ paths:
       security: [{}, { bearerAuth: [] }]
       responses:
         "200": { description: In order., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/Section" } } } } } } }
+  /qa/sections/{section}/follow:
+    parameters: [{ name: section, in: path, required: true, schema: { type: string }, description: "A section's slug." }]
+    put:
+      tags: [Q&A]
+      summary: Follow a section ("My sections"; the `for_you` filter puts its questions first)
+      responses:
+        "204": { description: Followed. }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Q&A]
+      summary: Stop following a section
+      responses:
+        "204": { description: Not followed. }
+  /qa/home:
+    get:
+      tags: [Q&A]
+      summary: The Q&A home's side panels
+      description: "Questions waiting for an answer (the signed-in member's sections first), this week's figures and its most helpful members."
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: limit, in: query, schema: { type: integer, default: 5, maximum: 20 }, description: "Waiting questions." }]
+      responses:
+        "200":
+          description: The panels.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [waiting, stats, active_members]
+                properties:
+                  waiting:
+                    type: object
+                    required: [items, total, in_my_sections]
+                    properties:
+                      items: { type: array, items: { $ref: "#/components/schemas/QuestionSummary" } }
+                      total: { type: integer }
+                      in_my_sections: { type: boolean, description: "The items are from the member's followed sections." }
+                  stats:
+                    type: object
+                    required: [questions, answered_rate, new_count]
+                    properties:
+                      questions: { type: integer, description: "Published questions." }
+                      answered_rate: { type: integer, description: "Percent of them with an answer." }
+                      new_count: { type: integer, description: "Asked in the last 7 days." }
+                  active_members:
+                    type: array
+                    items:
+                      type: object
+                      required: [member, points, accepted_answers]
+                      properties:
+                        member: { $ref: "#/components/schemas/MemberSummary" }
+                        points: { type: integer, description: "Earned in the last 7 days." }
+                        accepted_answers: { type: integer }
+  /qa/saved:
+    get:
+      tags: [Q&A]
+      summary: The signed-in member's saved questions and tutorials, the last saved first
+      responses:
+        "200":
+          description: Saved posts.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [questions, tutorials]
+                properties:
+                  questions: { type: array, items: { $ref: "#/components/schemas/QuestionSummary" } }
+                  tutorials: { type: array, items: { $ref: "#/components/schemas/TutorialSummary" } }
   /qa/tags:
     get:
       tags: [Q&A]
       summary: Tags, most used first, or matching `q`
       security: [{}, { bearerAuth: [] }]
-      parameters: [{ name: q, in: query, schema: { type: string } }, { $ref: "#/components/parameters/Limit" }]
+      parameters: [{ name: q, in: query, schema: { type: string } }, { name: section, in: query, schema: { type: string }, description: "Those used in this section's questions." }, { $ref: "#/components/parameters/Limit" }]
       responses:
         "200": { description: Tags., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/Tag" } } } } } } }
   /qa/questions:
@@ -605,7 +672,7 @@ paths:
         - { name: section, in: query, schema: { type: string }, description: "A section's slug." }
         - { name: tag, in: query, schema: { type: string } }
         - { name: author, in: query, schema: { type: string }, description: "A member's id." }
-        - { name: filter, in: query, schema: { type: string, enum: [all, unanswered, answered, official, following] , default: all } }
+        - { name: filter, in: query, schema: { type: string, enum: [all, unanswered, answered, official, following, for_you], default: all }, description: "answered: with an accepted answer; official: with an answer from Yallapp's team; following: by members the signed-in member follows; for_you: the member's followed sections first." }
         - { name: sort, in: query, schema: { type: string, enum: [active, newest, votes], default: active } }
         - { name: language, in: query, schema: { $ref: "#/components/schemas/Language" } }
         - { $ref: "#/components/parameters/Cursor" }
@@ -646,16 +713,20 @@ paths:
       tags: [Q&A, Search]
       summary: Questions like the one being typed, before asking
       security: [{}, { bearerAuth: [] }]
-      parameters: [{ name: title, in: query, required: true, schema: { type: string, minLength: 3 } }, { name: limit, in: query, schema: { type: integer, default: 5, maximum: 10 } }]
+      parameters:
+        - { name: title, in: query, required: true, schema: { type: string, minLength: 3 } }
+        - { name: body, in: query, schema: { type: string }, description: "What is typed so far of the question's body (weighs less than the title)." }
+        - { name: section, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, default: 5, maximum: 10 } }
       responses:
         "200": { description: Most similar first., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/QuestionSummary" } } } } } } }
   /qa/questions/{question_id}:
     get:
       tags: [Q&A]
       summary: A question with its answers
-      description: The accepted answer first, then official answers, then by score.
+      description: "The accepted answer first, then official answers, then by score. Reading it counts a view unless `view=0`. A pending question is shown to its author only; a removed one to nobody."
       security: [{}, { bearerAuth: [] }]
-      parameters: [{ $ref: "#/components/parameters/QuestionId" }]
+      parameters: [{ $ref: "#/components/parameters/QuestionId" }, { name: view, in: query, schema: { type: string, enum: ["0", "1"], default: "1" } }]
       responses:
         "200": { description: The question., content: { application/json: { schema: { $ref: "#/components/schemas/Question" } } } }
         "404": { $ref: "#/components/responses/NotFound" }
@@ -694,11 +765,24 @@ paths:
       responses:
         "200": { $ref: "#/components/responses/Voted" }
         "400": { $ref: "#/components/responses/NotAllowed" }
+  /qa/questions/{question_id}/bookmark:
+    parameters: [{ $ref: "#/components/parameters/QuestionId" }]
+    put:
+      tags: [Q&A]
+      summary: Save a question
+      responses:
+        "204": { description: Saved. }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Q&A]
+      summary: Unsave a question
+      responses:
+        "204": { description: Unsaved. }
   /qa/questions/{question_id}/answers:
     post:
       tags: [Q&A]
       summary: Answer a question
-      description: Yallapp's team may send `official` true ("Yallapp Team" badge); others get 403.
+      description: "Yallapp's team's answers are official (\"Yallapp Team\" badge) unless they send `official` false; others sending `official` true get 403. A blocked member can't answer: 403."
       parameters: [{ $ref: "#/components/parameters/QuestionId" }]
       requestBody:
         required: true
@@ -759,6 +843,45 @@ paths:
       responses:
         "200": { description: The question., content: { application/json: { schema: { $ref: "#/components/schemas/Question" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
+  /qa/answers/{answer_id}/replies:
+    parameters: [{ $ref: "#/components/parameters/AnswerId" }]
+    get:
+      tags: [Q&A]
+      summary: An answer's replies, oldest first
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200":
+          description: A page of replies.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Reply" } }
+                  next_cursor: { type: [string, "null"] }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      tags: [Q&A]
+      summary: Reply to an answer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [body], properties: { body: { type: string, minLength: 1, maxLength: 1000 } } }
+      responses:
+        "201": { description: Replied., content: { application/json: { schema: { $ref: "#/components/schemas/Reply" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /qa/replies/{reply_id}:
+    delete:
+      tags: [Q&A]
+      summary: Delete one's own reply
+      parameters: [{ name: reply_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Deleted. }
+        "403": { $ref: "#/components/responses/Forbidden" }
 
   # ------------------------------------------------------------ Area B: Tutorials, search
   /tutorials/sections:
@@ -791,12 +914,52 @@ paths:
                 properties:
                   items: { type: array, items: { $ref: "#/components/schemas/TutorialSummary" } }
                   next_cursor: { type: [string, "null"] }
+    post:
+      tags: [Tutorials]
+      summary: Publish an official tutorial (Yallapp's team; others get 403)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, summary, kind, section, level, language]
+              properties:
+                title: { type: string, minLength: 10, maxLength: 200 }
+                summary: { type: string, minLength: 10, maxLength: 400 }
+                kind: { type: string, enum: [article, video] }
+                section: { type: string }
+                level: { type: string, enum: [beginner, intermediate, advanced] }
+                language: { $ref: "#/components/schemas/Language" }
+                body: { type: string, description: "Markdown: the article, or a video's notes." }
+                video_url: { type: string, description: "A video's address on YouTube, Vimeo or yallapp.com.tr." }
+                duration_seconds: { type: integer, description: "A video's length." }
+                cover_url: { type: string, format: uri }
+                tags: { type: array, maxItems: 5, items: { type: string } }
+      responses:
+        "201": { description: Published., content: { application/json: { schema: { $ref: "#/components/schemas/Tutorial" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /tutorials/{tutorial}/bookmark:
+    parameters: [{ name: tutorial, in: path, required: true, schema: { type: string }, description: "Its id or slug." }]
+    put:
+      tags: [Tutorials]
+      summary: Save a tutorial
+      responses:
+        "204": { description: Saved. }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Tutorials]
+      summary: Unsave a tutorial
+      responses:
+        "204": { description: Unsaved. }
   /tutorials/{tutorial}:
     get:
       tags: [Tutorials]
       summary: A tutorial (by id or slug)
+      description: "Reading it counts a view unless `view=0`."
       security: [{}, { bearerAuth: [] }]
-      parameters: [{ name: tutorial, in: path, required: true, schema: { type: string } }]
+      parameters: [{ name: tutorial, in: path, required: true, schema: { type: string } }, { name: view, in: query, schema: { type: string, enum: ["0", "1"], default: "1" } }]
       responses:
         "200": { description: The tutorial., content: { application/json: { schema: { $ref: "#/components/schemas/Tutorial" } } } }
         "404": { $ref: "#/components/responses/NotFound" }
@@ -808,6 +971,7 @@ paths:
       parameters:
         - { name: q, in: query, required: true, schema: { type: string, minLength: 2 } }
         - { name: type, in: query, schema: { type: string, enum: [all, questions, tutorials, members, tags], default: all } }
+        - { name: section, in: query, schema: { type: string }, description: "Questions and tutorials in this section only." }
         - { $ref: "#/components/parameters/Limit" }
       responses:
         "200":
@@ -1275,6 +1439,7 @@ components:
         rank: { type: string, enum: [newcomer, member, contributor, expert, pro], description: "Their standing by points (newcomer, member from 25, contributor from 250, expert from 1,000, pro from 5,000)." }
         rank_label: { type: string, description: "The rank's name in the reader's language (\"Expert\")." }
         relationship: { $ref: "#/components/schemas/Relationship" }
+        rank: { type: string, enum: [newcomer, member, contributor, expert, pro], description: "In the Q&A and tutorials: the member's standing by their points (25, 250, 1000 and 5000 points)." }
     Relationship:
       type: object
       description: How the signed-in member stands with this member (absent when signed out).
@@ -1375,8 +1540,9 @@ components:
         slug: { type: string }
         name: { type: string, description: "In the reader's language." }
         icon: { type: string, description: "A Material Symbols Rounded name." }
-        count: { type: integer }
+        count: { type: integer, description: "Published questions (or tutorials) in it; 0 where a section is shown inside a question." }
         coming_soon: { type: boolean }
+        followed: { type: boolean, description: "In the Q&A: whether the signed-in member follows it (\"My sections\")." }
     Config:
       type: object
       required: [languages, default_language, sections, tabs]
@@ -1402,14 +1568,15 @@ components:
         count: { type: integer }
     QuestionSummary:
       type: object
-      required: [id, title, excerpt, author, section, tags, language, score, answer_count, view_count, accepted, has_official_answer, status, created_at, last_activity_at]
+      required: [id, slug, title, excerpt, author, section, tags, language, score, answer_count, view_count, accepted, has_official_answer, status, created_at, last_activity_at, bookmarked]
       properties:
         id: { type: string, format: uuid }
+        slug: { type: string, description: "The website's address: /questions/{slug}. The API takes it wherever it takes the id." }
         title: { type: string }
         excerpt: { type: string }
         author: { $ref: "#/components/schemas/MemberSummary" }
         section: { $ref: "#/components/schemas/Section" }
-        tags: { type: array, items: { type: string } }
+        tags: { type: array, items: { $ref: "#/components/schemas/Tag" } }
         language: { $ref: "#/components/schemas/Language" }
         score: { type: integer }
         answer_count: { type: integer }
@@ -1419,6 +1586,7 @@ components:
         status: { type: string, enum: [pending, published, removed] }
         created_at: { type: string, format: date-time }
         last_activity_at: { type: string, format: date-time }
+        bookmarked: { type: boolean, description: "Saved by the signed-in member." }
     Question:
       allOf:
         - $ref: "#/components/schemas/QuestionSummary"
@@ -1433,7 +1601,7 @@ components:
             answers: { type: array, items: { $ref: "#/components/schemas/Answer" } }
     Answer:
       type: object
-      required: [id, question_id, body, author, official, accepted, score, my_vote, status, created_at, updated_at]
+      required: [id, question_id, body, author, official, accepted, score, my_vote, status, reply_count, replies, can_edit, created_at, updated_at]
       properties:
         id: { type: string, format: uuid }
         question_id: { type: string, format: uuid }
@@ -1444,11 +1612,26 @@ components:
         score: { type: integer }
         my_vote: { type: integer, enum: [1, 0, -1] }
         status: { type: string, enum: [pending, published, removed] }
+        reply_count: { type: integer, description: "Published replies." }
+        replies: { type: array, description: "The newest 3, oldest first; the rest from /qa/answers/{answer_id}/replies.", items: { $ref: "#/components/schemas/Reply" } }
+        can_edit: { type: boolean }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
+    Reply:
+      type: object
+      description: "A short reply under an answer (moderation calls it a `comment`)."
+      required: [id, answer_id, body, author, status, created_at, can_edit]
+      properties:
+        id: { type: string, format: uuid }
+        answer_id: { type: string, format: uuid }
+        body: { type: string, maxLength: 1000 }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        status: { type: string, enum: [pending, published, removed] }
+        created_at: { type: string, format: date-time }
+        can_edit: { type: boolean, description: "Its author may delete it." }
     TutorialSummary:
       type: object
-      required: [id, slug, title, summary, kind, level, language, section, cover_url, duration_minutes, official, locked, published_at]
+      required: [id, slug, title, summary, kind, level, language, section, cover_url, duration_seconds, duration_minutes, official, locked, tags, author, view_count, bookmarked, published_at]
       properties:
         id: { type: string, format: uuid }
         slug: { type: string }
@@ -1459,20 +1642,23 @@ components:
         language: { $ref: "#/components/schemas/Language" }
         section: { $ref: "#/components/schemas/Section" }
         cover_url: { type: [string, "null"] }
-        duration_minutes: { type: [integer, "null"] }
+        duration_seconds: { type: integer, description: "A video's length; an article's reading time (200 words a minute)." }
+        duration_minutes: { type: [integer, "null"], description: "duration_seconds rounded up to minutes." }
         official: { type: boolean }
         locked: { type: boolean, description: "Paid on the website and not unlocked for this member. Never a price." }
-        tags: { type: array, items: { type: string } }
+        tags: { type: array, items: { type: string }, description: "Tag slugs." }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        view_count: { type: integer }
+        bookmarked: { type: boolean, description: "Saved by the signed-in member." }
         published_at: { type: string, format: date-time }
     Tutorial:
       allOf:
         - $ref: "#/components/schemas/TutorialSummary"
         - type: object
-          required: [body, video_url, author]
+          required: [body, video_url]
           properties:
             body: { type: string, description: "Markdown; empty when locked." }
             video_url: { type: [string, "null"], description: "Null when locked." }
-            author: { $ref: "#/components/schemas/MemberSummary" }
     VerificationState:
       type: object
       required: [has_gold, app_count, required_apps, yallapp_linked, can_apply, request]

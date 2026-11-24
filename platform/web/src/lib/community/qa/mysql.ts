@@ -46,9 +46,10 @@ const fullNames = (names: Partial<Record<CommunityLang, string>>): Record<Commun
 export class MysqlQaStore implements QaStore {
   private readonly db: Db;
 
-  constructor(pool: mysql.Pool) {
+  /** On a pool, or on the community's drizzle database (lib/community/store/mysql.ts). */
+  constructor(source: mysql.Pool | MySql2Database<never>) {
     // Positional: drizzle takes `{ client, mode }` without a schema for the client itself (its config check needs `schema`).
-    this.db = drizzle(pool) as Db;
+    this.db = "select" in source ? (source as unknown as Db) : (drizzle(source) as Db);
   }
 
   // ——— Sections and tags ———
