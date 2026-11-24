@@ -22,10 +22,10 @@ interface QaBridge {
   recentTexts?: (memberId: string) => Promise<string[]>;
 }
 
-/** Private files (the Gold form's ID proof): kept out of the public files, opened by admins through a signed link. */
+/** Private files (the Gold form's ID proof): kept out of the public files, opened by admins through a signed link (`CommunityDeps.privateFiles`). */
 export interface PrivateFiles {
   put: (key: string, bytes: Uint8Array, contentType: string) => Promise<void>;
-  get: (key: string) => Promise<{ data: Uint8Array; contentType: string } | null>;
+  get: (key: string) => Promise<{ bytes: Uint8Array; contentType: string } | null>;
 }
 
 /** Yallapp's blob store, loaded when first needed (server only). */
@@ -36,7 +36,7 @@ async function blobFiles(): Promise<PrivateFiles> {
     put: (key, bytes, type) => blobs.put(key, Buffer.from(bytes), type),
     get: async (key) => {
       const got = await blobs.get(key);
-      return got ? { data: new Uint8Array(got.data), contentType: got.contentType } : null;
+      return got ? { bytes: new Uint8Array(got.data), contentType: got.contentType } : null;
     },
   };
 }
@@ -77,10 +77,10 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
   const qa = ctx.store.qa as unknown as QaBridge;
   const store = ctx.store.trust as TrustStore;
   // Given in tests (options, or the deps' `privateFiles`); Yallapp's blob store otherwise.
-  const given = options.files ?? (ctx.deps as { privateFiles?: PrivateFiles }).privateFiles;
+  const given = options.files ?? ctx.deps.privateFiles;
   const files = given ? Promise.resolve(given) : null;
   const filesOf = () => files ?? blobFiles();
-  const secret = async () => options.secret ?? (ctx.deps as { fileSecret?: string }).fileSecret ?? (await import("../../env")).signingSecret();
+  const secret = async () => options.secret ?? ctx.deps.fileSecret ?? (await import("../../env")).signingSecret();
   const member = async (id: string) => {
     const m = await base.getMember(id);
     return m ? trustMemberOf(m) : null;
@@ -141,8 +141,7 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
         return url.toString();
       },
     },
-    // The Community's mailer sends the HTML too where it can (lib/mail.ts).
-    sendMail: (mail) => ctx.deps.mail(mail as Parameters<typeof ctx.deps.mail>[0]),
+    sendMail: (mail) => ctx.deps.mail(mail),
     siteUrl: ctx.deps.siteUrl,
     logoUrl: null,
   };

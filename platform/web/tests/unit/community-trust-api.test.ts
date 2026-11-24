@@ -15,7 +15,7 @@ import { api, joinWithEmail, NOW, testCommunity, type TestCommunity } from "./co
 
 const SECRET = "test-file-signing-secret";
 let c: TestCommunity;
-let files: Map<string, { data: Uint8Array; contentType: string }>;
+let files: Map<string, { bytes: Uint8Array; contentType: string }>;
 type Joined = Awaited<ReturnType<typeof joinWithEmail>>;
 let admin: Joined;
 let nour: Joined;
@@ -24,7 +24,7 @@ let ali: Joined;
 beforeEach(async () => {
   c = await testCommunity();
   files = new Map();
-  const privateFiles: PrivateFiles = { put: async (key, data, contentType) => void files.set(key, { data, contentType }), get: async (key) => files.get(key) ?? null };
+  const privateFiles: PrivateFiles = { put: async (key, bytes, contentType) => void files.set(key, { bytes, contentType }), get: async (key) => files.get(key) ?? null };
   Object.assign(c.deps, { privateFiles, fileSecret: SECRET });
   admin = await joinWithEmail(c, "Community Admin");
   nour = await joinWithEmail(c, "Nour El Hoda");

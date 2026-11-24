@@ -8,7 +8,14 @@ Last updated: 24 November 2026.
 
 ## Current release
 
-Roadmap 231 · C (Yallapp Community's trust, area C): badges (Gold by the
+Roadmap 231 area A (Yallapp Community's base, on `wip-community-base`):
+the community's API contract, its 24 tables (migration 0155), joining and
+signing in with email, Apple and Google, profiles, follow, friends, block,
+reports, linking a Yallapp account, its three languages and its own host
+(`community.yallapp.com.tr`). Needs `COMMUNITY_APPLE_AUDIENCES`,
+`COMMUNITY_GOOGLE_CLIENT_IDS` and (optionally) `COMMUNITY_SITE_URL`.
+
+Roadmap 231 area C (Yallapp Community's trust, area C): badges (Gold by the
 verification form and an admin's review, Blue and Green by their rules),
 the admins' tools and audit log, settings, moderation, reports and
 notifications (list and email) in English, Arabic and Turkish, through

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 
@@ -43,5 +43,13 @@ describe("231 the community contract", () => {
   it("sells nothing: no price, checkout or payment anywhere in it", () => {
     const text = JSON.stringify(contract.paths).toLowerCase();
     for (const word of ["checkout", "\"price", "payment_url", "buy_url", "purchase"]) expect(text, word).not.toContain(word);
+  });
+
+  it("names nothing in the community's migrations longer than MySQL's 64 characters", () => {
+    const dir = new URL("../../drizzle/", import.meta.url);
+    const files = readdirSync(dir).filter((f) => /^\d{4}_community.*\.sql$/.test(f));
+    expect(files.length).toBeGreaterThan(0);
+    const names = files.flatMap((f) => [...readFileSync(new URL(f, dir), "utf8").matchAll(/(?:CONSTRAINT|INDEX|TABLE) `([^`]+)`/g)].map((m) => m[1]!));
+    expect(names.filter((n) => n.length > 64)).toEqual([]);
   });
 });

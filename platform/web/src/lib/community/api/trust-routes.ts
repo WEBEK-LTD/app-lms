@@ -8,7 +8,7 @@ import * as T from "../trust/service";
 import type { ModerationStatus, Page } from "../trust/store";
 import type { CommunityReportStatus } from "../types";
 import { fail, iso, noContent, ok, pageOf, page, type CommunityContext, type CommunityResult, type CommunityRoute, type MemberContext } from "./http";
-import { memberSummaries, memberSummary, type MemberSummaryView } from "./views";
+import { linkedAppView, memberSummaries, memberSummary, type MemberSummaryView } from "./views";
 
 /**
  * 231 Area C's routes (docs/api/community.yaml): the Gold verification form
@@ -65,7 +65,7 @@ async function verificationStateView(ctx: CommunityContext, s: T.VerificationSta
     required_apps: s.requiredApps,
     yallapp_linked: s.yallappLinked,
     can_apply: s.canApply,
-    apps: s.apps.map((a) => ({ id: a.appId, name: a.name, icon_url: a.iconUrl, app_store_url: a.appStoreUrl, play_store_url: a.playStoreUrl, from_template: a.fromTemplate, paid_plan: a.paidPlan })),
+    apps: s.apps.map(linkedAppView),
     request: s.request ? verificationRequestView(s.request, await memberSummary(ctx, s.request.memberId)) : null,
   };
 }

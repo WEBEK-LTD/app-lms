@@ -81,9 +81,9 @@ export function parseDecision(input: unknown, options: { reasonRequired: "always
 
 // ——— Reports ———
 
-export const REPORT_TARGETS: readonly CommunityTargetType[] = ["member", "question", "answer", "tutorial", "comment"];
+export const REPORT_TARGETS: readonly CommunityTargetType[] = ["member", "question", "answer", "reply", "tutorial", "comment"];
 export type ReportTarget = CommunityTargetType;
-export const REPORT_REASONS: readonly CommunityReportReason[] = ["spam", "abuse", "harassment", "off_topic", "inappropriate", "copyright", "other"];
+export const REPORT_REASONS: readonly CommunityReportReason[] = ["spam", "harassment", "hate", "inappropriate", "misinformation", "impersonation", "other"];
 export type ReportReason = CommunityReportReason;
 export type ReportStatus = CommunityReportStatus;
 export type Report = CommunityReport;
