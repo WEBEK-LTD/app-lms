@@ -608,7 +608,7 @@ function runwayProductPage(ctx: SectionContext) {
       { type: "product_title", look: "plain", node: { ...ink, font: { family: UI, size: 19, weight: 500, line_height: 1.35, letter_spacing: 0.2 }, margin: gap(26) } },
       { type: "product_price", look: "from", node: { color: K.muted, dark_color: K.darkMuted, font: { family: UI, size: 15, weight: 500, letter_spacing: 0.4 }, margin: gap(6) } },
       hairline,
-      { type: "product_variants", look: "grid" /* 228.7 "chips" once the app draws a chip hugging its words (it stretches it across the row today) */, ...black, node: { ...ink, margin: gap(20) } },
+      { type: "product_variants", look: "chips", ...black, node: { ...ink, margin: gap(20) } },
       { type: "product_description", look: "plain", node: { ...ink, margin: gap(28) } },
       { type: "product_specs", look: "list", text: "rwyDetails", ...black, node: { ...ink, margin: gap(24) } },
       { type: "product_related", look: "grid", related: "complete_look", rows: 4, text: "rwyWearWith", node: { ...ink, margin: sides(34, 22, 24, 22) } },

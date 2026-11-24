@@ -524,7 +524,7 @@ function outfitProductPage(ctx: SectionContext) {
     { type: "product_title", look: "plain", node: { ...ink, font: face(22, { line_height: 1.3 }), margin: gap(18) } },
     { type: "product_price", look: "sale", node: { color: K.accent, dark_color: K.darkAccent, font: face(19), margin: gap(4) } },
     outfit,
-    { type: "product_variants", look: "grid" /* 228.7 "chips" once the app draws a chip hugging its words (it stretches it across the row today) */, ...warm, node: { ...ink, margin: gap(24) } },
+    { type: "product_variants", look: "grid" /* the sizes as cells; its colours draw as swatches whatever the look */, ...warm, node: { ...ink, margin: gap(24) } },
     { type: "product_quantity", look: "stepper", node: { ...ink, margin: gap(16) } },
     { type: "product_description", look: "plain", node: { ...ink, margin: gap(22) } },
     { type: "product_delivery", look: "rows", ...warm, node: { ...ink, margin: gap(18) } },

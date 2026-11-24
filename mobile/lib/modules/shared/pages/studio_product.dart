@@ -789,15 +789,19 @@ class _Cell extends StatelessWidget {
           width: width,
           constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
           padding: EdgeInsets.symmetric(horizontal: round ? 16 : 6),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: selected ? _on(accent) : ink,
-              decoration: soldOut ? TextDecoration.lineThrough : null,
+          // 228.8 A chip (no width of its own) hugs its words: centred
+          // without widening, as an aligned Container would across the row.
+          child: Center(
+            widthFactor: width == null ? 1 : null,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: selected ? _on(accent) : ink,
+                decoration: soldOut ? TextDecoration.lineThrough : null,
+              ),
             ),
           ),
         ),

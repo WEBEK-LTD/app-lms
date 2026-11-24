@@ -542,7 +542,7 @@ function storyProductPage(ctx: SectionContext) {
     padding: sides(16, 16, 18, 16),
     margin: gap(14),
     ...blob(LILAC),
-    children: [productPart(ctx, { type: "product_variants", look: "grid" /* 228.7 "chips" once the app draws a chip hugging its words (it stretches it across the row today) */, text: "stwPickAge", ...plum, node: { ...ink } })],
+    children: [productPart(ctx, { type: "product_variants", look: "chips", text: "stwPickAge", ...plum, node: { ...ink } })],
   };
   const band: StudioNode = {
     id: id(),

@@ -463,7 +463,7 @@ function nurseryProductPage(ctx: SectionContext) {
       { type: "product_price", look: "single", node: { color: K.muted, dark_color: K.darkMuted, font: { family: FACE, size: 15, weight: 400, letter_spacing: 0.3 }, margin: gap(8) } },
       hairline(ctx, gap(20)),
       { ...ruler, padding: sides(4, 20, 0, 20) },
-      { type: "product_variants", look: "grid" /* 228.7 "chips" once the app draws a chip hugging its words (it stretches it across the row today) */, ...sage, node: { ...ink, margin: gap(18) } },
+      { type: "product_variants", look: "chips", ...sage, node: { ...ink, margin: gap(18) } },
       { type: "product_buy", look: "cart", text: "nrsAddToBasket", accent: K.fill, dark_accent: K.darkFill, node: { pin: "none", radius: 2, margin: gap(22), ...ink } },
       hairline(ctx, gap(28)),
       { type: "product_description", look: "plain", node: { ...ink, margin: gap(20) } },

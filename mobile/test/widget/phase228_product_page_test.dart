@@ -75,7 +75,7 @@ void main() {
     Map<String, dynamic> more = const {},
   ]) => {'id': id, 'type': type, ...more};
 
-  List<Map<String, dynamic>> productNodes() => [
+  List<Map<String, dynamic>> productNodes({String variants = 'grid'}) => [
     node('g', 'product_gallery', {
       'product_part': {'look': 'thumbs'},
       'aspect_ratio': 0.8,
@@ -87,7 +87,7 @@ void main() {
       'product_part': {'look': 'from'},
     }),
     node('v', 'product_variants', {
-      'product_part': {'look': 'grid'},
+      'product_part': {'look': variants},
       'text': 'Choose your size',
     }),
     node('q', 'product_quantity'),
@@ -116,6 +116,7 @@ void main() {
     WidgetTester tester, {
     bool productPage = true,
     String language = 'en',
+    String variants = 'grid',
   }) async {
     tester.view
       ..devicePixelRatio = 3
@@ -169,7 +170,7 @@ void main() {
               node('welcome', 'text', {'text': 'Welcome'}),
               node('home-title', 'product_title'),
             ]),
-            if (productPage) 'product': page(productNodes()),
+            if (productPage) 'product': page(productNodes(variants: variants)),
           }
           ..product = dress();
     final app = TestApp(
@@ -290,6 +291,54 @@ void main() {
     expect(find.text('أضف إلى السلة'), findsOneWidget);
     expect(find.text('التوصيل والإرجاع'), findsOneWidget);
     expect(tester.takeException(), isNull);
+    app.container.dispose();
+  });
+
+  // 228.8 A chip hugs its words: chips sit side by side on a line and wrap
+  // onto the next, from the right in Arabic; never one across the row each.
+  for (final language in ['en', 'ar']) {
+    testWidgets('the sizes as chips: each as wide as its words, side by side '
+        '($language)', (tester) async {
+      final app = await open(tester, language: language, variants: 'chips');
+      app.container.read(appRouterProvider).push(Paths.product(30));
+      await TestApp.settle(tester, 20);
+      final row = find.byKey(const ValueKey('product-page-chips-a1'));
+      expect(row, findsOneWidget);
+      final width = tester.getSize(row).width;
+      Rect chip(String size) => tester.getRect(
+        find.descendant(of: row, matching: find.widgetWithText(Material, size)),
+      );
+      for (final size in ['S', 'M', 'L']) {
+        expect(chip(size).width, lessThan(width / 3), reason: size);
+      }
+      // Side by side: S and M on one line, S before M in the reading order.
+      expect(chip('S').top, chip('M').top);
+      if (language == 'ar') {
+        expect(chip('S').left, greaterThan(chip('M').left));
+      } else {
+        expect(chip('S').left, lessThan(chip('M').left));
+      }
+      // All three on the one line of a phone.
+      expect(chip('L').top, chip('S').top);
+      expect(tester.takeException(), isNull);
+      app.container.dispose();
+    });
+  }
+
+  testWidgets('chips wrap onto a second line on a narrow phone', (
+    tester,
+  ) async {
+    final app = await open(tester, variants: 'chips');
+    tester.view.physicalSize = const Size(150, 2400) * 3;
+    app.container.read(appRouterProvider).push(Paths.product(30));
+    await TestApp.settle(tester, 20);
+    final row = find.byKey(const ValueKey('product-page-chips-a1'));
+    Rect chip(String size) => tester.getRect(
+      find.descendant(of: row, matching: find.widgetWithText(Material, size)),
+    );
+    final tops = {for (final s in ['S', 'M', 'L']) chip(s).top};
+    expect(tops.length, greaterThan(1));
+    expect(chip('S').width, lessThan(tester.getSize(row).width));
     app.container.dispose();
   });
 }
