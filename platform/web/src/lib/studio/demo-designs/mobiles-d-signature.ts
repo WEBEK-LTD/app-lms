@@ -108,7 +108,7 @@ function deals(ctx: SectionContext, margin = sides(8, 12, 0, 12)): StudioNode {
     background: HOT,
     dark_background: "#C8143D",
     children: [
-      { id: id(), type: "flash_sale", name: ctx.w("mbDeal"), text: t.text, translations: t.translations, flash_sale: { look: "banner", limit: 1, countdown: true, stock_bar: true, accent: HOT }, font: { family: FACE }, background: K.page, dark_background: K.darkPage, radius: 12, padding: sides(8, 8, 8, 8) },
+      { id: id(), type: "flash_sale", name: ctx.w("mbDeal"), text: t.text, translations: t.translations, flash_sale: { look: "carousel", limit: 1, countdown: true, stock_bar: true, accent: HOT }, font: { family: FACE }, background: K.page, dark_background: K.darkPage, radius: 12, padding: sides(8, 8, 8, 8) },
       // The rest of what is on sale, as the hub's dense cards (their names on two lines).
       { id: id(), type: "items", name: ctx.w("mbHubDealsLine"), source: "products", layout: "carousel", gap: 8, padding: sides(0, 0, 2, 0), query: { limit: 8, category_id: null, featured: false, sort: "popular", ids: [], on_sale: true }, card: { ...denseCard(ctx), width: 132 } },
     ],
