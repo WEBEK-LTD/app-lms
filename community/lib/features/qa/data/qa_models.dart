@@ -71,8 +71,9 @@ class Author {
 
   factory Author.fromJson(Json json) => Author(
     member: MemberSummary.fromJson(json),
-    rank: MemberRank.parse(optStr(json, 'rank') ?? optStr(json, 'level')),
-    rankLabel: optStr(json, 'rank_label'),
+    // A's level (the same as rank) and its words in the reader's language.
+    rank: MemberRank.parse(optStr(json, 'level') ?? optStr(json, 'rank')),
+    rankLabel: optStr(json, 'level_label') ?? optStr(json, 'rank_label'),
   );
 
   final MemberSummary member;

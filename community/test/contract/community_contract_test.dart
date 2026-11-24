@@ -286,7 +286,14 @@ void main() {
       expect(q.summary.author.member.name, author['display_name']);
       expect(q.summary.author.member.username, author['username']);
       expect(q.summary.author.rank?.name, author['rank']);
-      expect(q.summary.author.rankLabel, author['rank_label']);
+      expect(
+        q.summary.author.rankLabel,
+        author['level_label'] ?? author['rank_label'],
+      );
+      // One MemberSummary everywhere (area A's): the level fields too.
+      for (final key in ['level', 'level_label', 'level_progress']) {
+        expect(author[key], isNotNull, reason: 'a Q&A author\'s $key');
+      }
       final rawAnswers = (raw['answers'] as List).cast<Map<String, dynamic>>();
       expect(q.answers.length, rawAnswers.length);
       for (final (i, ra) in rawAnswers.indexed) {
