@@ -15,7 +15,7 @@ reports, linking a Yallapp account, its three languages and its own host
 (`community.yallapp.com.tr`). Needs `COMMUNITY_APPLE_AUDIENCES`,
 `COMMUNITY_GOOGLE_CLIENT_IDS` and (optionally) `COMMUNITY_SITE_URL`.
 
-Roadmap 231 area B (Yallapp Community, area B, on `wip-community-qa`, to be integrated): questions and answers with the similar questions before asking, official answers from Yallapp's team, replies, votes and points, accepting, sections and tags, saving, search and the team's tutorials (articles and videos by section, level and language) through `/api/community/v1`; moderation and notices wait for area C.
+Roadmap 231 area B (Yallapp Community's Q&A and tutorials): questions and answers with the similar questions before asking, official answers from Yallapp's team, replies, votes and points, accepting, sections and tags, saving, search and the team's tutorials (articles and videos by section, level and language) through `/api/community/v1`, held for review and noticed through area C.
 
 Roadmap 231 area C (Yallapp Community's trust, area C): badges (Gold by the
 verification form and an admin's review, Blue and Green by their rules),
@@ -27,6 +27,7 @@ Roadmap 231, area D (the Yallapp Community app, `community/`): the opening,
 welcome and signing in (Apple, Google, email), the shell, Home, the side
 menu, profiles with follow, friends, block and report, and settings, on area
 A's contract; no payments in the app (a test guards it); not yet released.
+
 Roadmap 231 (area E, the Community app's features): the question screen
 as the approved dark question phone, the Q&A tab, asking with similar
 questions, official tutorials (all free, never a lock),
