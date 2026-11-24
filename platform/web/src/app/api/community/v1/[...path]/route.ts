@@ -1,11 +1,8 @@
+import { readCommunityBody } from "@/lib/community/api/body";
 import { handleCommunity } from "@/lib/community/api/service";
 import { communityOrigins, cookieRequestAllowed } from "@/lib/community/csrf";
 import { communityDeps } from "@/lib/community/deps";
 import { errorResponse, ipFromHeaders, json, noContent } from "@/lib/http";
-
-/** Questions and tutorials are long; a picture or an ID proof comes as multipart and is checked by its handler. */
-const MAX_JSON = 131_072;
-const MAX_FORM = 11 * 1024 * 1024;
 
 /** The website sends the access token in its cookie instead of a header. */
 const ACCESS_COOKIE = /(?:^|;\s*)yc_access=([^;]+)/;
@@ -18,36 +15,9 @@ const ACCESS_COOKIE = /(?:^|;\s*)yc_access=([^;]+)/;
  */
 async function handle(request: Request, { params }: RouteContext<"/api/community/v1/[...path]">): Promise<Response> {
   const { path } = await params;
-  const type = request.headers.get("content-type") ?? "";
-  let body: unknown;
-  let form: FormData | null = null;
-  if (request.method !== "GET" && request.method !== "HEAD") {
-    // The size is checked before the body is read: a body without its length isn't taken.
-    const length = request.headers.get("content-length");
-    const size = Number(length);
-    if (request.body && (length === null || !Number.isFinite(size))) return errorResponse(411, "invalid_request", "The request needs its Content-Length.");
-    if (type.startsWith("multipart/form-data")) {
-      if (size > MAX_FORM) return errorResponse(413, "too_large", "The file is too large.");
-      try {
-        form = await request.formData();
-      } catch {
-        return errorResponse(400, "invalid_request", "The form could not be read.");
-      }
-    } else {
-      if (size > MAX_JSON) return errorResponse(413, "invalid_request", "The request is too large.");
-      // A body is JSON, said so: a cross-site form (text/plain, urlencoded) can't pass for one.
-      if (size > 0 && !type.toLowerCase().startsWith("application/json")) return errorResponse(415, "invalid_request", "The request body must be JSON.");
-      const raw = await request.text();
-      if (raw.length > MAX_JSON) return errorResponse(413, "invalid_request", "The request is too large.");
-      if (raw.trim() !== "") {
-        try {
-          body = JSON.parse(raw) as unknown;
-        } catch {
-          return errorResponse(400, "invalid_request", "The request body must be JSON.");
-        }
-      }
-    }
-  }
+  const read = await readCommunityBody(request);
+  if (!read.ok) return errorResponse(read.status, read.code, read.message);
+  const { body, form } = read;
   const deps = await communityDeps({ ip: ipFromHeaders(request.headers) });
   const bearer = /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") ?? "")?.[1]?.trim();
   // 231 The cookie signs in a change only from the community's own pages (lib/community/csrf.ts).
