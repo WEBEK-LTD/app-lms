@@ -1740,11 +1740,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-190",
+      "id": "sig-253",
       "type": "column",
       "children": [
        {
-        "id": "sig-191",
+        "id": "sig-254",
         "type": "column",
         "name": "The nursery",
         "gap": 2,
@@ -1756,7 +1756,7 @@
         },
         "children": [
          {
-          "id": "sig-192",
+          "id": "sig-255",
           "type": "text",
           "text": "The nursery",
           "font": {
@@ -1777,7 +1777,7 @@
           }
          },
          {
-          "id": "sig-193",
+          "id": "sig-256",
           "type": "text",
           "text": "Soft pieces, by age",
           "font": {
@@ -1798,7 +1798,7 @@
         ]
        },
        {
-        "id": "sig-194",
+        "id": "sig-257",
         "type": "column",
         "name": "Size by age",
         "padding": {
@@ -1813,7 +1813,7 @@
         },
         "children": [
          {
-          "id": "sig-195",
+          "id": "sig-258",
           "type": "divider",
           "height": 1,
           "background": "#D8D1C3",
@@ -1826,7 +1826,7 @@
           }
          },
          {
-          "id": "sig-196",
+          "id": "sig-259",
           "type": "row",
           "cross": "center",
           "padding": {
@@ -1837,7 +1837,7 @@
           },
           "children": [
            {
-            "id": "sig-197",
+            "id": "sig-260",
             "type": "text",
             "text": "Size by age",
             "font": {
@@ -1860,7 +1860,7 @@
             }
            },
            {
-            "id": "sig-198",
+            "id": "sig-261",
             "type": "icon",
             "icon": "straighten",
             "icon_size": 20,
@@ -1870,18 +1870,18 @@
           ]
          },
          {
-          "id": "sig-199",
+          "id": "sig-262",
           "type": "divider",
           "height": 1,
           "background": "#2E322B",
           "dark_background": "#EDE9DF"
          },
          {
-          "id": "sig-200",
+          "id": "sig-263",
           "type": "row",
           "children": [
            {
-            "id": "sig-201",
+            "id": "sig-264",
             "type": "column",
             "name": "0–3 months",
             "width": "fill",
@@ -1889,7 +1889,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-202",
+              "id": "sig-265",
               "type": "row",
               "width": 1,
               "height": 9,
@@ -1898,7 +1898,7 @@
               "children": []
              },
              {
-              "id": "sig-203",
+              "id": "sig-266",
               "type": "text",
               "text": "0–3",
               "max_lines": 1,
@@ -1911,7 +1911,7 @@
               "dark_color": "#EDE9DF"
              },
              {
-              "id": "sig-204",
+              "id": "sig-267",
               "type": "text",
               "text": "months",
               "font": {
@@ -1933,7 +1933,7 @@
             ]
            },
            {
-            "id": "sig-205",
+            "id": "sig-268",
             "type": "column",
             "name": "3–6 months",
             "width": "fill",
@@ -1941,7 +1941,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-206",
+              "id": "sig-269",
               "type": "row",
               "width": 1,
               "height": 9,
@@ -1950,7 +1950,7 @@
               "children": []
              },
              {
-              "id": "sig-207",
+              "id": "sig-270",
               "type": "text",
               "text": "3–6",
               "max_lines": 1,
@@ -1963,7 +1963,7 @@
               "dark_color": "#EDE9DF"
              },
              {
-              "id": "sig-208",
+              "id": "sig-271",
               "type": "text",
               "text": "months",
               "font": {
@@ -1985,7 +1985,7 @@
             ]
            },
            {
-            "id": "sig-209",
+            "id": "sig-272",
             "type": "column",
             "name": "6–12 months",
             "width": "fill",
@@ -1993,7 +1993,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-210",
+              "id": "sig-273",
               "type": "row",
               "width": 9,
               "height": 9,
@@ -2003,7 +2003,7 @@
               "children": []
              },
              {
-              "id": "sig-211",
+              "id": "sig-274",
               "type": "text",
               "text": "6–12",
               "max_lines": 1,
@@ -2016,7 +2016,7 @@
               "dark_color": "#AFC09D"
              },
              {
-              "id": "sig-212",
+              "id": "sig-275",
               "type": "text",
               "text": "months",
               "font": {
@@ -2038,7 +2038,7 @@
             ]
            },
            {
-            "id": "sig-213",
+            "id": "sig-276",
             "type": "column",
             "name": "1–2 year",
             "width": "fill",
@@ -2046,7 +2046,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-214",
+              "id": "sig-277",
               "type": "row",
               "width": 1,
               "height": 9,
@@ -2055,7 +2055,7 @@
               "children": []
              },
              {
-              "id": "sig-215",
+              "id": "sig-278",
               "type": "text",
               "text": "1–2",
               "max_lines": 1,
@@ -2068,7 +2068,7 @@
               "dark_color": "#EDE9DF"
              },
              {
-              "id": "sig-216",
+              "id": "sig-279",
               "type": "text",
               "text": "year",
               "font": {
@@ -2090,7 +2090,7 @@
             ]
            },
            {
-            "id": "sig-217",
+            "id": "sig-280",
             "type": "column",
             "name": "2–4 years",
             "width": "fill",
@@ -2098,7 +2098,7 @@
             "cross": "center",
             "children": [
              {
-              "id": "sig-218",
+              "id": "sig-281",
               "type": "row",
               "width": 1,
               "height": 9,
@@ -2107,7 +2107,7 @@
               "children": []
              },
              {
-              "id": "sig-219",
+              "id": "sig-282",
               "type": "text",
               "text": "2–4",
               "max_lines": 1,
@@ -2120,7 +2120,7 @@
               "dark_color": "#EDE9DF"
              },
              {
-              "id": "sig-220",
+              "id": "sig-283",
               "type": "text",
               "text": "years",
               "font": {
@@ -2146,7 +2146,7 @@
         ]
        },
        {
-        "id": "sig-221",
+        "id": "sig-284",
         "type": "listing_filters",
         "name": "Sizes by age",
         "color": "#2E322B",
@@ -2201,11 +2201,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-222",
+      "id": "sig-285",
       "type": "column",
       "children": [
        {
-        "id": "sig-223",
+        "id": "sig-286",
         "type": "column",
         "name": "Newborn gifts can be wrapped, with your card written by hand.",
         "padding": {
@@ -2216,7 +2216,7 @@
         },
         "children": [
          {
-          "id": "sig-224",
+          "id": "sig-287",
           "type": "divider",
           "height": 1,
           "background": "#D8D1C3",
@@ -2229,7 +2229,7 @@
           }
          },
          {
-          "id": "sig-225",
+          "id": "sig-288",
           "type": "row",
           "gap": 12,
           "cross": "center",
@@ -2241,7 +2241,7 @@
           },
           "children": [
            {
-            "id": "sig-226",
+            "id": "sig-289",
             "type": "icon",
             "icon": "redeem",
             "icon_size": 22,
@@ -2249,7 +2249,7 @@
             "dark_color": "#AFC09D"
            },
            {
-            "id": "sig-227",
+            "id": "sig-290",
             "type": "text",
             "text": "Newborn gifts can be wrapped, with your card written by hand.",
             "font": {
@@ -2273,7 +2273,7 @@
           ]
          },
          {
-          "id": "sig-228",
+          "id": "sig-291",
           "type": "divider",
           "height": 1,
           "background": "#D8D1C3",
@@ -2330,11 +2330,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-230",
+      "id": "sig-293",
       "type": "column",
       "children": [
        {
-        "id": "sig-229",
+        "id": "sig-292",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -3700,6 +3700,962 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#F3EEE5",
+     "dark_background": "#151713",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-243",
+      "type": "column",
+      "gap": 0,
+      "children": [
+       {
+        "id": "sig-244",
+        "type": "product_gallery",
+        "aspect_ratio": 1,
+        "product_part": {
+         "look": "thumbs",
+         "radius": 0
+        },
+        "margin": {
+         "top": 6,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        }
+       },
+       {
+        "id": "sig-217",
+        "type": "divider",
+        "height": 1,
+        "background": "#D8D1C3",
+        "dark_background": "#30342C",
+        "margin": {
+         "top": 26,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        }
+       },
+       {
+        "id": "sig-245",
+        "type": "product_title",
+        "font": {
+         "family": "Vazirmatn",
+         "size": 27,
+         "weight": 300,
+         "line_height": 1.3
+        },
+        "margin": {
+         "top": 20,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "plain"
+        },
+        "color": "#2E322B",
+        "dark_color": "#EDE9DF"
+       },
+       {
+        "id": "sig-246",
+        "type": "product_price",
+        "font": {
+         "family": "Vazirmatn",
+         "size": 15,
+         "weight": 400,
+         "letter_spacing": 0.3
+        },
+        "margin": {
+         "top": 8,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "single"
+        },
+        "color": "#5F645A",
+        "dark_color": "#A9AD9E"
+       },
+       {
+        "id": "sig-218",
+        "type": "divider",
+        "height": 1,
+        "background": "#D8D1C3",
+        "dark_background": "#30342C",
+        "margin": {
+         "top": 20,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        }
+       },
+       {
+        "id": "sig-190",
+        "type": "column",
+        "name": "Size by age",
+        "padding": {
+         "top": 4,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "action": {
+         "type": "page",
+         "page_slug": "size-guide"
+        },
+        "children": [
+         {
+          "id": "sig-191",
+          "type": "divider",
+          "height": 1,
+          "background": "#D8D1C3",
+          "dark_background": "#30342C",
+          "margin": {
+           "top": 0,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          }
+         },
+         {
+          "id": "sig-192",
+          "type": "row",
+          "cross": "center",
+          "padding": {
+           "top": 16,
+           "end": 0,
+           "bottom": 14,
+           "start": 0
+          },
+          "children": [
+           {
+            "id": "sig-193",
+            "type": "text",
+            "text": "Size by age",
+            "font": {
+             "family": "Vazirmatn",
+             "size": 12,
+             "weight": 600,
+             "letter_spacing": 1.4
+            },
+            "color": "#5F645A",
+            "dark_color": "#A9AD9E",
+            "width": "fill",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "المقاس حسب العمر"
+             },
+             "tr": {
+              "text": "Yaşa göre beden"
+             }
+            }
+           },
+           {
+            "id": "sig-194",
+            "type": "icon",
+            "icon": "straighten",
+            "icon_size": 20,
+            "color": "#2E322B",
+            "dark_color": "#EDE9DF"
+           }
+          ]
+         },
+         {
+          "id": "sig-195",
+          "type": "divider",
+          "height": 1,
+          "background": "#2E322B",
+          "dark_background": "#EDE9DF"
+         },
+         {
+          "id": "sig-196",
+          "type": "row",
+          "children": [
+           {
+            "id": "sig-197",
+            "type": "column",
+            "name": "0–3 months",
+            "width": "fill",
+            "gap": 6,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-198",
+              "type": "row",
+              "width": 1,
+              "height": 9,
+              "background": "#2E322B",
+              "dark_background": "#EDE9DF",
+              "children": []
+             },
+             {
+              "id": "sig-199",
+              "type": "text",
+              "text": "0–3",
+              "max_lines": 1,
+              "font": {
+               "family": "Vazirmatn",
+               "size": 15,
+               "weight": 600
+              },
+              "color": "#2E322B",
+              "dark_color": "#EDE9DF"
+             },
+             {
+              "id": "sig-200",
+              "type": "text",
+              "text": "months",
+              "font": {
+               "family": "Vazirmatn",
+               "size": 10.5
+              },
+              "color": "#5F645A",
+              "dark_color": "#A9AD9E",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "أشهر"
+               },
+               "tr": {
+                "text": "ay"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-201",
+            "type": "column",
+            "name": "3–6 months",
+            "width": "fill",
+            "gap": 6,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-202",
+              "type": "row",
+              "width": 1,
+              "height": 9,
+              "background": "#2E322B",
+              "dark_background": "#EDE9DF",
+              "children": []
+             },
+             {
+              "id": "sig-203",
+              "type": "text",
+              "text": "3–6",
+              "max_lines": 1,
+              "font": {
+               "family": "Vazirmatn",
+               "size": 15,
+               "weight": 600
+              },
+              "color": "#2E322B",
+              "dark_color": "#EDE9DF"
+             },
+             {
+              "id": "sig-204",
+              "type": "text",
+              "text": "months",
+              "font": {
+               "family": "Vazirmatn",
+               "size": 10.5
+              },
+              "color": "#5F645A",
+              "dark_color": "#A9AD9E",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "أشهر"
+               },
+               "tr": {
+                "text": "ay"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-205",
+            "type": "column",
+            "name": "6–12 months",
+            "width": "fill",
+            "gap": 6,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-206",
+              "type": "row",
+              "width": 9,
+              "height": 9,
+              "radius": 5,
+              "background": "#5D6F4E",
+              "dark_background": "#AFC09D",
+              "children": []
+             },
+             {
+              "id": "sig-207",
+              "type": "text",
+              "text": "6–12",
+              "max_lines": 1,
+              "font": {
+               "family": "Vazirmatn",
+               "size": 15,
+               "weight": 600
+              },
+              "color": "#5D6F4E",
+              "dark_color": "#AFC09D"
+             },
+             {
+              "id": "sig-208",
+              "type": "text",
+              "text": "months",
+              "font": {
+               "family": "Vazirmatn",
+               "size": 10.5
+              },
+              "color": "#5F645A",
+              "dark_color": "#A9AD9E",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "أشهر"
+               },
+               "tr": {
+                "text": "ay"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-209",
+            "type": "column",
+            "name": "1–2 year",
+            "width": "fill",
+            "gap": 6,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-210",
+              "type": "row",
+              "width": 1,
+              "height": 9,
+              "background": "#2E322B",
+              "dark_background": "#EDE9DF",
+              "children": []
+             },
+             {
+              "id": "sig-211",
+              "type": "text",
+              "text": "1–2",
+              "max_lines": 1,
+              "font": {
+               "family": "Vazirmatn",
+               "size": 15,
+               "weight": 600
+              },
+              "color": "#2E322B",
+              "dark_color": "#EDE9DF"
+             },
+             {
+              "id": "sig-212",
+              "type": "text",
+              "text": "year",
+              "font": {
+               "family": "Vazirmatn",
+               "size": 10.5
+              },
+              "color": "#5F645A",
+              "dark_color": "#A9AD9E",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سنة"
+               },
+               "tr": {
+                "text": "yaş"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-213",
+            "type": "column",
+            "name": "2–4 years",
+            "width": "fill",
+            "gap": 6,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-214",
+              "type": "row",
+              "width": 1,
+              "height": 9,
+              "background": "#2E322B",
+              "dark_background": "#EDE9DF",
+              "children": []
+             },
+             {
+              "id": "sig-215",
+              "type": "text",
+              "text": "2–4",
+              "max_lines": 1,
+              "font": {
+               "family": "Vazirmatn",
+               "size": 15,
+               "weight": 600
+              },
+              "color": "#2E322B",
+              "dark_color": "#EDE9DF"
+             },
+             {
+              "id": "sig-216",
+              "type": "text",
+              "text": "years",
+              "font": {
+               "family": "Vazirmatn",
+               "size": 10.5
+              },
+              "color": "#5F645A",
+              "dark_color": "#A9AD9E",
+              "max_lines": 1,
+              "translations": {
+               "ar": {
+                "text": "سنوات"
+               },
+               "tr": {
+                "text": "yaş"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-247",
+        "type": "product_variants",
+        "margin": {
+         "top": 18,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "grid",
+         "accent": "#5D6F4E",
+         "dark_accent": "#AFC09D"
+        },
+        "color": "#2E322B",
+        "dark_color": "#EDE9DF"
+       },
+       {
+        "id": "sig-248",
+        "type": "product_buy",
+        "pin": "none",
+        "radius": 2,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "product_part": {
+         "look": "cart",
+         "accent": "#2E322B",
+         "dark_accent": "#EDE9DF"
+        },
+        "text": "Add to basket",
+        "margin": {
+         "top": 22,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "color": "#2E322B",
+        "dark_color": "#EDE9DF",
+        "translations": {
+         "ar": {
+          "text": "أضف إلى السلة"
+         },
+         "tr": {
+          "text": "Sepete ekle"
+         }
+        }
+       },
+       {
+        "id": "sig-219",
+        "type": "divider",
+        "height": 1,
+        "background": "#D8D1C3",
+        "dark_background": "#30342C",
+        "margin": {
+         "top": 28,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        }
+       },
+       {
+        "id": "sig-249",
+        "type": "product_description",
+        "margin": {
+         "top": 20,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "plain"
+        },
+        "color": "#2E322B",
+        "dark_color": "#EDE9DF"
+       },
+       {
+        "id": "sig-250",
+        "type": "product_specs",
+        "margin": {
+         "top": 22,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "table",
+         "accent": "#5D6F4E",
+         "dark_accent": "#AFC09D"
+        },
+        "color": "#2E322B",
+        "dark_color": "#EDE9DF"
+       },
+       {
+        "id": "sig-251",
+        "type": "product_delivery",
+        "margin": {
+         "top": 20,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "rows",
+         "accent": "#5D6F4E",
+         "dark_accent": "#AFC09D"
+        },
+        "color": "#2E322B",
+        "dark_color": "#EDE9DF"
+       },
+       {
+        "id": "sig-220",
+        "type": "column",
+        "name": "The baby gift list",
+        "padding": {
+         "top": 20,
+         "end": 20,
+         "bottom": 20,
+         "start": 20
+        },
+        "margin": {
+         "top": 34,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "border_color": "#2E322B",
+        "dark_border_color": "#EDE9DF",
+        "border_width": 1,
+        "action": {
+         "type": "page",
+         "page_slug": "gift-list"
+        },
+        "children": [
+         {
+          "id": "sig-221",
+          "type": "row",
+          "gap": 12,
+          "cross": "start",
+          "children": [
+           {
+            "id": "sig-222",
+            "type": "column",
+            "width": "fill",
+            "gap": 4,
+            "children": [
+             {
+              "id": "sig-223",
+              "type": "text",
+              "text": "The baby gift list",
+              "font": {
+               "family": "Vazirmatn",
+               "size": 24,
+               "weight": 400,
+               "line_height": 1.25
+              },
+              "color": "#2E322B",
+              "dark_color": "#EDE9DF",
+              "max_lines": 2,
+              "translations": {
+               "ar": {
+                "text": "قائمة هدايا المولود"
+               },
+               "tr": {
+                "text": "Bebek hediye listesi"
+               }
+              }
+             },
+             {
+              "id": "sig-224",
+              "type": "text",
+              "text": "Save what you love, and we wrap it with your card.",
+              "font": {
+               "family": "Vazirmatn",
+               "size": 12.5,
+               "line_height": 1.6
+              },
+              "color": "#5F645A",
+              "dark_color": "#A9AD9E",
+              "max_lines": 3,
+              "translations": {
+               "ar": {
+                "text": "احفظي ما تحبّين، ونغلّفه مع بطاقتك."
+               },
+               "tr": {
+                "text": "Sevdiklerinizi kaydedin, kartınızla paketleyelim."
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-225",
+            "type": "icon",
+            "icon": "redeem",
+            "icon_size": 26,
+            "color": "#5D6F4E",
+            "dark_color": "#AFC09D"
+           }
+          ]
+         },
+         {
+          "id": "sig-226",
+          "type": "column",
+          "margin": {
+           "top": 14,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "children": [
+           {
+            "id": "sig-227",
+            "type": "column",
+            "name": "A knitted blanket",
+            "children": [
+             {
+              "id": "sig-228",
+              "type": "divider",
+              "height": 1,
+              "background": "#D8D1C3",
+              "dark_background": "#30342C",
+              "margin": {
+               "top": 0,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              }
+             },
+             {
+              "id": "sig-229",
+              "type": "row",
+              "gap": 10,
+              "cross": "center",
+              "padding": {
+               "top": 11,
+               "end": 0,
+               "bottom": 11,
+               "start": 0
+              },
+              "children": [
+               {
+                "id": "sig-230",
+                "type": "text",
+                "text": "A knitted blanket",
+                "font": {
+                 "family": "Vazirmatn",
+                 "size": 14,
+                 "weight": 400
+                },
+                "color": "#5F645A",
+                "dark_color": "#A9AD9E",
+                "width": "fill",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "بطانية محبوكة"
+                 },
+                 "tr": {
+                  "text": "Örgü battaniye"
+                 }
+                }
+               },
+               {
+                "id": "sig-231",
+                "type": "icon",
+                "icon": "check_circle",
+                "icon_size": 20,
+                "color": "#5D6F4E",
+                "dark_color": "#AFC09D"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "sig-232",
+            "type": "column",
+            "name": "A newborn set",
+            "children": [
+             {
+              "id": "sig-233",
+              "type": "divider",
+              "height": 1,
+              "background": "#D8D1C3",
+              "dark_background": "#30342C",
+              "margin": {
+               "top": 0,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              }
+             },
+             {
+              "id": "sig-234",
+              "type": "row",
+              "gap": 10,
+              "cross": "center",
+              "padding": {
+               "top": 11,
+               "end": 0,
+               "bottom": 11,
+               "start": 0
+              },
+              "children": [
+               {
+                "id": "sig-235",
+                "type": "text",
+                "text": "A newborn set",
+                "font": {
+                 "family": "Vazirmatn",
+                 "size": 14,
+                 "weight": 400
+                },
+                "color": "#2E322B",
+                "dark_color": "#EDE9DF",
+                "width": "fill",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "طقم حديث الولادة"
+                 },
+                 "tr": {
+                  "text": "Yenidoğan seti"
+                 }
+                }
+               },
+               {
+                "id": "sig-236",
+                "type": "icon",
+                "icon": "radio_button_checked",
+                "icon_size": 20,
+                "color": "#D8D1C3",
+                "dark_color": "#30342C"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "id": "sig-237",
+            "type": "column",
+            "name": "A soft wool hat",
+            "children": [
+             {
+              "id": "sig-238",
+              "type": "divider",
+              "height": 1,
+              "background": "#D8D1C3",
+              "dark_background": "#30342C",
+              "margin": {
+               "top": 0,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              }
+             },
+             {
+              "id": "sig-239",
+              "type": "row",
+              "gap": 10,
+              "cross": "center",
+              "padding": {
+               "top": 11,
+               "end": 0,
+               "bottom": 11,
+               "start": 0
+              },
+              "children": [
+               {
+                "id": "sig-240",
+                "type": "text",
+                "text": "A soft wool hat",
+                "font": {
+                 "family": "Vazirmatn",
+                 "size": 14,
+                 "weight": 400
+                },
+                "color": "#2E322B",
+                "dark_color": "#EDE9DF",
+                "width": "fill",
+                "max_lines": 1,
+                "translations": {
+                 "ar": {
+                  "text": "قبعة صوف ناعمة"
+                 },
+                 "tr": {
+                  "text": "Yumuşak yün bere"
+                 }
+                }
+               },
+               {
+                "id": "sig-241",
+                "type": "icon",
+                "icon": "radio_button_checked",
+                "icon_size": 20,
+                "color": "#D8D1C3",
+                "dark_color": "#30342C"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "id": "sig-242",
+          "type": "button",
+          "name": "Start your list",
+          "text": "Start your list",
+          "icon": "arrow_forward",
+          "icon_position": "end",
+          "width": "fill",
+          "height": 48,
+          "radius": 0,
+          "margin": {
+           "top": 14,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "background": "#F3EEE5",
+          "dark_background": "#151713",
+          "color": "#2E322B",
+          "dark_color": "#EDE9DF",
+          "border_color": "#2E322B",
+          "dark_border_color": "#EDE9DF",
+          "border_width": 1,
+          "shadow": "none",
+          "font": {
+           "family": "Vazirmatn",
+           "size": 14,
+           "weight": 500
+          },
+          "action": {
+           "type": "page",
+           "page_slug": "gift-list"
+          },
+          "translations": {
+           "ar": {
+            "text": "ابدئي قائمتك"
+           },
+           "tr": {
+            "text": "Listenizi başlatın"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-252",
+        "type": "product_related",
+        "margin": {
+         "top": 34,
+         "end": 0,
+         "bottom": 28,
+         "start": 0
+        },
+        "product_part": {
+         "look": "carousel",
+         "rows": 8
+        },
+        "text": "Soft companions",
+        "color": "#2E322B",
+        "dark_color": "#EDE9DF",
+        "translations": {
+         "ar": {
+          "text": "رفاق ناعمون"
+         },
+         "tr": {
+          "text": "Yumuşak eşlikçiler"
+         }
+        }
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Product page",
+      "translations": {
+       "ar": {
+        "title": "صفحة المنتج"
+       },
+       "tr": {
+        "title": "Ürün sayfası"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#F3EEE5",
+      "color": "#2E322B",
+      "dark_background": "#151713",
+      "dark_color": "#EDE9DF",
+      "style": "large"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "orders",
     "title": "My orders",
     "translations": {
@@ -3712,11 +4668,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-231",
+      "id": "sig-294",
       "type": "column",
       "children": [
        {
-        "id": "sig-239",
+        "id": "sig-302",
         "type": "row",
         "name": "Your order",
         "cross": "end",
@@ -3729,7 +4685,7 @@
         },
         "children": [
          {
-          "id": "sig-240",
+          "id": "sig-303",
           "type": "text",
           "text": "Your order",
           "font": {
@@ -3754,7 +4710,7 @@
         ]
        },
        {
-        "id": "sig-241",
+        "id": "sig-304",
         "type": "timeline",
         "name": "Your order",
         "timeline": {
@@ -3881,7 +4837,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-232",
+      "id": "sig-295",
       "type": "column",
       "children": []
      },
@@ -3923,7 +4879,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-233",
+      "id": "sig-296",
       "type": "column",
       "children": []
      },
@@ -3965,7 +4921,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-234",
+      "id": "sig-297",
       "type": "column",
       "children": []
      },
@@ -4007,7 +4963,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-235",
+      "id": "sig-298",
       "type": "column",
       "children": []
      },
@@ -4049,7 +5005,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-236",
+      "id": "sig-299",
       "type": "column",
       "children": []
      },
@@ -4083,7 +5039,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-237",
+      "id": "sig-300",
       "type": "column",
       "children": []
      },
@@ -4100,7 +5056,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-238",
+      "id": "sig-301",
       "type": "column",
       "children": []
      },

@@ -3,6 +3,7 @@ import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigImage, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
+import { mixedProductPage } from "./product-page-mix";
 
 /**
  * 223 Toota's template D, the NURSERY (the owner, 23 November 2026): the
@@ -436,6 +437,44 @@ const NURSERY_SCREENS = signatureScreens({
   first: ["orders", "wishlist", "notifications", "settings", "help", "privacy", "terms"],
 });
 
+/**
+ * 228.7 The nursery's own product page, calm and editorial: the shop's name
+ * in a quiet header, the photo with its thumbnails under it, square, then
+ * the name in large light Vazirmatn and the price in grey between
+ * hairlines; the signature, the size by age as the ruler of ticks over the
+ * sizes; Add to basket in the page, outlined in ink, never pinned; the
+ * words, the details as a table of thin lines and the delivery lines; the
+ * baby gift list card; soft companions to slide through. No shadows, no
+ * fills, nothing rounded.
+ */
+function nurseryProductPage(ctx: SectionContext) {
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const sage = { accent: K.accent, dark_accent: K.darkAccent } as const;
+  const gap = (top: number, bottom = 0) => sides(top, 20, bottom, 20);
+  const t = sigTexts(ctx, { title: "nrsWordmark" });
+  const ruler = sizeRuler(ctx);
+  return mixedProductPage(
+    ctx,
+    { background: K.page, dark_background: K.darkPage, header: { type: "title", title: t.title, translations: t.translations, buttons: ["cart"], background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk } },
+    [
+      { type: "product_gallery", look: "thumbs", radius: 0, node: { aspect_ratio: 1, margin: gap(6) } },
+      hairline(ctx, gap(26)),
+      { type: "product_title", look: "plain", node: { ...ink, font: face(27, { line_height: 1.3 }), margin: gap(20) } },
+      { type: "product_price", look: "single", node: { color: K.muted, dark_color: K.darkMuted, font: { family: FACE, size: 15, weight: 400, letter_spacing: 0.3 }, margin: gap(8) } },
+      hairline(ctx, gap(20)),
+      { ...ruler, padding: sides(4, 20, 0, 20) },
+      { type: "product_variants", look: "grid" /* 228.7 "chips" once the app draws a chip hugging its words (it stretches it across the row today) */, ...sage, node: { ...ink, margin: gap(18) } },
+      { type: "product_buy", look: "cart", text: "nrsAddToBasket", accent: K.fill, dark_accent: K.darkFill, node: { pin: "none", radius: 2, margin: gap(22), ...ink } },
+      hairline(ctx, gap(28)),
+      { type: "product_description", look: "plain", node: { ...ink, margin: gap(20) } },
+      { type: "product_specs", look: "table", ...sage, node: { ...ink, margin: gap(22) } },
+      { type: "product_delivery", look: "rows", ...sage, node: { ...ink, margin: gap(20) } },
+      giftList(ctx),
+      { type: "product_related", look: "carousel", rows: 8, text: "nrsCompanions", node: { ...ink, margin: sides(34, 0, 28, 0) } },
+    ],
+  );
+}
+
 export const NURSERY_D: SignatureDesign = {
   demo: "kids",
   variant: "d",
@@ -447,6 +486,8 @@ export const NURSERY_D: SignatureDesign = {
     { slug: NURSERY_MENU_PAGE, title: "nrsMenu", studio: nurseryMenuPage(ctx) },
     { slug: NURSERY_SIZE_PAGE, title: "nrsSizeGuide", studio: nurserySizePage(ctx) },
     { slug: NURSERY_GIFT_PAGE, title: "nrsGiftPage", studio: nurseryGiftPage(ctx) },
+    // 228.7 Its own product page.
+    nurseryProductPage(ctx),
   ],
   bar: NURSERY_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },

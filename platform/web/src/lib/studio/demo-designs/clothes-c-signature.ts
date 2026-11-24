@@ -3,6 +3,7 @@ import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigPhoto, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
+import { mixedProductPage } from "./product-page-mix";
 
 /**
  * 223 Lujain's template C, RUNWAY (the owner, 23 November 2026): the clothes
@@ -588,6 +589,39 @@ const RUNWAY_SCREENS = signatureScreens({
   first: ["orders", "wishlist", "notifications", "settings", "help", "privacy", "terms"],
 });
 
+/**
+ * 228.7 RUNWAY's own product page: the piece's photos one under the other,
+ * edge to edge at 3:4 under the back button (a lookbook, not a carousel);
+ * then quiet type on ivory: its name in the house's sturdy face, its price
+ * from the lowest size, a hairline, the sizes as text chips in black, the
+ * words left open, the details as a list, and "Wear it with" as a grid of
+ * two; at the foot a minimal bar, flat ivory under a hairline, the price
+ * beside Add to bag. No stars, no quantity, no carousel.
+ */
+function runwayProductPage(ctx: SectionContext) {
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const black = { accent: K.fill, dark_accent: K.darkFill } as const;
+  const gap = (top: number, bottom = 0) => sides(top, 22, bottom, 22);
+  const hairline: StudioNode = { id: idOf(ctx)(), type: "divider", height: 1, background: K.line, dark_background: K.darkLine, margin: gap(22) };
+  return mixedProductPage(ctx, { background: K.page, dark_background: K.darkPage }, [
+      { type: "product_gallery", look: "stacked", radius: 0, node: { aspect_ratio: 3 / 4 } },
+      { type: "product_title", look: "plain", node: { ...ink, font: { family: UI, size: 19, weight: 500, line_height: 1.35, letter_spacing: 0.2 }, margin: gap(26) } },
+      { type: "product_price", look: "from", node: { color: K.muted, dark_color: K.darkMuted, font: { family: UI, size: 15, weight: 500, letter_spacing: 0.4 }, margin: gap(6) } },
+      hairline,
+      { type: "product_variants", look: "grid" /* 228.7 "chips" once the app draws a chip hugging its words (it stretches it across the row today) */, ...black, node: { ...ink, margin: gap(20) } },
+      { type: "product_description", look: "plain", node: { ...ink, margin: gap(28) } },
+      { type: "product_specs", look: "list", text: "rwyDetails", ...black, node: { ...ink, margin: gap(24) } },
+      { type: "product_related", look: "grid", related: "complete_look", rows: 4, text: "rwyWearWith", node: { ...ink, margin: sides(34, 22, 24, 22) } },
+      {
+        type: "product_buy",
+        look: "price",
+        text: "rwyAddToBag",
+        ...black,
+        node: { pin: "bottom", radius: 2, padding: sides(12, 22, 12, 22), background: K.page, dark_background: K.darkPage, border_color: K.line, dark_border_color: K.darkLine, border_width: 1, ...ink },
+      },
+  ]);
+}
+
 export const RUNWAY_C: SignatureDesign = {
   demo: "clothes",
   variant: "c",
@@ -598,6 +632,8 @@ export const RUNWAY_C: SignatureDesign = {
   pages: (ctx) => [
     { slug: RUNWAY_MENU_PAGE, title: "rwyMenu", studio: runwayMenuPage(ctx) },
     { slug: RUNWAY_SIZE_PAGE, title: "rwySizeGuide", studio: runwaySizePage(ctx) },
+    // 228.7 Its own product page.
+    runwayProductPage(ctx),
   ],
   bar: RUNWAY_BAR,
   look: { header: { background: K.fill, color: K.onFill, dark_background: K.darkSurface, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },

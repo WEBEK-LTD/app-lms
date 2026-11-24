@@ -80,7 +80,8 @@ describe("223 Lujain's and Toota's templates C and D", () => {
     expect(opens).toEqual(expect.arrayContaining(["account", "orders", "favorites", "settings"]));
     // Its pages say what they are: a header on each, the size guide among them.
     expect(pages.map((p) => p.slug)).toContain("size-guide");
-    for (const p of pages) expect(p.studio.header?.type).toBe("title");
+    // 228.7 The product page aside, which some looks draw under no header (the photos up to the top).
+    for (const p of pages) if (p.slug !== "product") expect(p.studio.header?.type).toBe("title");
   });
 
   it.each(LOOKS)("%s %s: every page the page checker takes, with and without the platform's pictures", (demo, look, name) => {
@@ -186,7 +187,7 @@ describe("223 Lujain's and Toota's templates C and D", () => {
     const nodes = allNodes(nursery.home(ctxOf("Toota")));
     expect(nodes.filter((n) => n.shadow && n.shadow !== "none")).toEqual([]);
     expect(nodes.some((n) => n.action?.type === "page" && n.action.page_slug === "gift-list")).toBe(true);
-    expect(nursery.pages!(ctxOf("Toota")).map((p) => p.slug)).toEqual(["menu", "size-guide", "gift-list"]);
+    expect(nursery.pages!(ctxOf("Toota")).map((p) => p.slug)).toEqual(["menu", "size-guide", "gift-list", "product"]);
   });
 
   it("starts a project from a look in that look's own colour (/start/<slug>/make?look=d): the first swatch and the default", () => {

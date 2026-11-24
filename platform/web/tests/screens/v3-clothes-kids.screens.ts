@@ -113,6 +113,12 @@ const preview = (appId: string) => previewAppPath(createPreviewToken({ appId, dr
 async function shoot(browser: Browser, t: (typeof TYPES)[number], look: "c" | "d", appId: string, address: string): Promise<void> {
   const shot = (name: string) => path.join(REVIEW, `${t.id}-${look}-${name}.png`);
   const listed = (await (await (await browser.newContext()).request.get(`/api/app/${appId}/store/products?platform=android&per_page=1`)).json().catch(() => ({}))) as { items?: { id: number; name: string }[] };
+  // 223.11 The products' Arabic names, as the Arabic app lists them.
+  const arListed = (await (await (await browser.newContext({ locale: "ar-EG", extraHTTPHeaders: { "accept-language": "ar" } })).request.get(`/api/app/${appId}/store/products?platform=android&per_page=40`)).json().catch(() => ({}))) as { items?: { name: string }[] };
+  const arNames = (arListed.items ?? []).map((p) => p.name);
+  // 228.7 And the Shop tab's Arabic name, as the Arabic app's bar shows it.
+  const arNav = (await (await (await browser.newContext({ locale: "ar-EG", extraHTTPHeaders: { "accept-language": "ar" } })).request.get(`/api/app/${appId}/pages?platform=android`)).json().catch(() => ({}))) as { tabs?: { label: string; target: { type: string; screen?: string } }[] };
+  const arShopTab = arNav.tabs?.find((tab) => tab.target.type === "screen" && tab.target.screen === "search")?.label ?? "";
   for (const dark of [false, true]) {
     const mode = dark ? "dark" : "light";
     // The site's picture of the home, as the other looks' are.
@@ -164,7 +170,28 @@ async function shoot(browser: Browser, t: (typeof TYPES)[number], look: "c" | "d
     expect(await tapProduct(shop, t.id, listed), "a product of the listing").toBe(true);
     await shop.waitForTimeout(4500);
     await shop.screenshot({ path: shot(`product-${mode}`) });
+    // 228.7 The rest of the look's own product page.
+    await scrollDown(shop, 700);
+    await shop.screenshot({ path: shot(`product-${mode}-2`) });
+    await scrollDown(shop, 700);
+    await shop.screenshot({ path: shot(`product-${mode}-3`) });
     await shop.context().close();
+    // 228.7 And in Arabic: a product of the home, by its Arabic name.
+    const arShop = await phone(browser, appId, address, "ar", dark);
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    await semantics(arShop);
+    expect(arShopTab, "the Shop tab's Arabic name").not.toBe("");
+    expect(await tapNamed(arShop, new RegExp(`^${escape(arShopTab)}`)), "the Arabic Shop tab").toBe(true);
+    await arShop.waitForTimeout(3500);
+    await semantics(arShop);
+    let opened = false;
+    for (const name of arNames) if ((opened = await tapNamed(arShop, new RegExp(`^${escape(name)}`)))) break;
+    expect(opened, "a product of the Arabic listing").toBe(true);
+    await arShop.waitForTimeout(4500);
+    await arShop.screenshot({ path: shot(`product-ar${dark ? "-dark" : ""}`) });
+    await scrollDown(arShop, 700);
+    await arShop.screenshot({ path: shot(`product-ar${dark ? "-dark" : ""}-2`) });
+    await arShop.context().close();
   }
   // In Arabic, light and dark.
   const ar = await phone(browser, appId, address, "ar", false);
