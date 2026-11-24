@@ -52,7 +52,8 @@ jobs:
           match() { [ "$files" = all ] || grep -qE "$1" <<<"$files"; }
           {
             if match '^(platform/web/|docs/api/pipeline\.yaml$|docs/build-config\.schema\.json$|\.github/workflows/platform\.yml$)'; then echo web=true; else echo web=false; fi
-            if match '^(platform/web/(drizzle/|src/lib/(data|db)/|scripts/migrate\.mjs$)|\.github/workflows/platform\.yml$)'; then echo db=true; else echo db=false; fi
+            # 231 The community's MySQL stores (lib/community: store/*-mysql.ts, qa/mysql.ts, trust/store-mysql.ts) run on MariaDB too.
+            if match '^(platform/web/(drizzle/|src/lib/(data|db|community)/|scripts/migrate\.mjs$)|\.github/workflows/platform\.yml$)'; then echo db=true; else echo db=false; fi
           } >> "$GITHUB_OUTPUT"
 
   pipeline-contract:

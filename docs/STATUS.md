@@ -8,6 +8,46 @@ Last updated: 24 November 2026.
 
 ## Current release
 
+Roadmap 231 area A (Yallapp Community's base, on `wip-community-base`):
+the community's API contract, its 24 tables (migration 0155), joining and
+signing in with email, Apple and Google, profiles, follow, friends, block,
+reports, linking a Yallapp account, its three languages and its own host
+(`community.yallapp.com.tr`). Needs `COMMUNITY_APPLE_AUDIENCES`,
+`COMMUNITY_GOOGLE_CLIENT_IDS` and (optionally) `COMMUNITY_SITE_URL`.
+
+Roadmap 231 area B (Yallapp Community's Q&A and tutorials): questions and answers with the similar questions before asking, official answers from Yallapp's team, replies, votes and points, accepting, sections and tags, saving, search and the team's tutorials (articles and videos by section, level and language) through `/api/community/v1`, held for review and noticed through area C.
+
+Roadmap 231 area C (Yallapp Community's trust, area C): badges (Gold by the
+verification form and an admin's review, Blue and Green by their rules),
+the admins' tools and audit log, settings, moderation, reports and
+notifications (list and email) in English, Arabic and Turkish, through
+`/api/community/v1` (`community-trust-*`). Hardened: reports weigh only
+established members, ID proofs checked by their bytes, served as downloads
+and deleted 30 days after the decision; the LOW items (pending race,
+private note, blocked actors, the moderator unnamed) are done too.
+Follow-ups: the admin e2e needs a member linked to a platform admin on the
+e2e server; an optional question title beside an answer's preview.
+
+Roadmap 231, area D (the Yallapp Community app, `community/`): the opening,
+welcome and signing in (Apple, Google, email), the shell, Home, the side
+menu, profiles with follow, friends, block and report, and settings, on area
+A's contract; no payments in the app (a test guards it); not yet released.
+
+Roadmap 231 (area E, the Community app's features): the question screen
+as the approved dark question phone, the Q&A tab, asking with similar
+questions, official tutorials (all free, never a lock),
+the Gold badge's verification form, notifications with the bell's count,
+search and saved, in English, Arabic and Turkish, light and dark.
+
+Roadmap 231 area F (Yallapp Community's website, under `src/app/community/`,
+served on `community.yallapp.com.tr`): the approved look in English, Arabic
+and Turkish, light and dark; welcome and signing in (Apple, Google, email),
+the home, Q&A, tutorials, search, profiles and the social graph, the Pro
+Developer form, notifications, settings and the admins' pages, through the
+community's modules and `/api/community/v1`; never a price or payment.
+Needs `COMMUNITY_APPLE_WEB_SERVICE_ID` and `COMMUNITY_GOOGLE_WEB_CLIENT_ID`
+(the website's public ids, also in A's audience lists) for Apple and Google.
+
 Roadmap 229.4 (prices that read cleanly everywhere else): the dashboard,
 the emails, the owner's pushes and the web checkout drop ".00" on a whole
 amount as the app does ("₺450", "Pay ₺750"), a fraction kept; receipts,

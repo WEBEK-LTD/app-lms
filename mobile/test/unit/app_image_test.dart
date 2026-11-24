@@ -209,7 +209,13 @@ void main() {
         );
         final shown = await later.load(rose, rose);
         expect(shown, hasLength(5000), reason: 'the kept copy, no waiting');
-        await settle();
+        // The new copy is written in the background: wait for it (up to
+        // about 5 seconds) instead of a fixed pause, so a busy machine
+        // does not fail the test.
+        for (var i = 0; i < 50; i++) {
+          await settle();
+          if ((await store().load(rose, rose)).length == 4000) break;
+        }
         expect(asked, ['/rose.jpg', '/rose.jpg']);
         expect(await store().load(rose, rose), hasLength(4000));
       },

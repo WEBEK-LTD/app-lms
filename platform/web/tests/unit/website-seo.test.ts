@@ -412,13 +412,15 @@ describe("67 Google: the favicon, and every public page indexed", () => {
   const blocked = (url: string) => PRIVATE_PATHS.some((p) => url.startsWith(p));
 
   /** Every page.tsx under src/app with its route ("/docs/[slug]"), route groups left out. */
+  // 231 Not the community's pages: they live on their own host (community.yallapp.com.tr), not yallapp.com.tr's sitemap.
   const pages = (dir = APP, route = ""): { route: string; file: string }[] =>
     readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+      if (e.isDirectory() && dir === APP && e.name === "community") return [];
       if (e.isDirectory()) return pages(path.join(dir, e.name), /^\(.*\)$/.test(e.name) ? route : `${route}/${e.name}`);
       return e.name === "page.tsx" ? [{ route: route || "/", file: path.join(dir, e.name) }] : [];
     });
   /** Pages kept out of the sitemap: each one is noindex (checked below), or "page not found". */
-  const NOT_LISTED = /^(\/\[lang\])?\/(dashboard|studio|admin|pay|give|receipts|fee-receipts|shop|r|pending|start|team|a|docs\/search|sign-in|sign-up|forgot-password|reset-password|unsubscribe|partner|join|designer|\[\.\.\.rest\])(\/|$)/;
+  const NOT_LISTED = /^(\/\[lang\])?\/(dashboard|studio|admin|pay|give|receipts|fee-receipts|shop|r|pending|start|team|a|docs\/search|sign-in|sign-up|forgot-password|reset-password|unsubscribe|partner|join|designer|link-community|\[\.\.\.rest\])(\/|$)/;
 
   it("links square PNG favicons of 48 px and more, /favicon.ico with 16, 32 and 48 px, the SVG and the Apple touch icon", () => {
     const pngs = SITE_ICONS.icon.filter((i) => i.type === "image/png");

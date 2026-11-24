@@ -1,0 +1,74 @@
+name: yallapp_community
+description: "Yallapp Community: learn, ask and show your apps."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+  flutter: ">=3.47.5"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  dio: ^5.11.1
+  flutter_riverpod: ^3.4.3
+  flutter_secure_storage: ^11.2.0
+  go_router: ^17.5.0
+  # The Apple sign-in nonce's SHA-256 (already in the lockfile).
+  crypto: 3.0.7
+  # Continue with Google: the account's ID token, checked by the server.
+  google_sign_in: 7.2.0
+  image_picker: 1.2.3
+  intl: ^0.20.2
+  material_symbols_icons: ^4.2960.0
+  shared_preferences: 2.5.5
+  # Continue with Apple: the identity token, checked by the server.
+  sign_in_with_apple: 8.2.0
+  url_launcher: 6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  # Interface strings: lib/l10n/app_*.arb (English is the template).
+  generate: true
+
+  assets:
+    - assets/images/
+
+  fonts:
+    # From github.com/google/fonts (SIL OFL 1.1, licence files next to each
+    # font). Bundled so the app never downloads fonts at runtime.
+    # Inter: the interface (the approved design's text).
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter/Inter-Variable.ttf
+    # Readex Pro: the brand word and the countdown's figures.
+    - family: Readex Pro
+      fonts:
+        - asset: assets/fonts/readexpro/ReadexPro-Variable.ttf
+    # Arabic letters: the fallback after Inter, which has none.
+    - family: IBM Plex Sans Arabic
+      fonts:
+        - asset: assets/fonts/ibmplexsansarabic/IBMPlexSansArabic-Regular.ttf
+        - asset: assets/fonts/ibmplexsansarabic/IBMPlexSansArabic-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ibmplexsansarabic/IBMPlexSansArabic-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/ibmplexsansarabic/IBMPlexSansArabic-Bold.ttf
+          weight: 700
+
+# Transitive packages held back to releases that are at least two weeks old
+# (project rule), as in business/.
+dependency_overrides:
+  file_selector_macos: 0.9.5+1
+  google_sign_in_android: 7.2.18
+  image_picker_ios: 0.8.13+9
+  image_picker_platform_interface: 2.11.1
+  shared_preferences_android: 2.4.28
