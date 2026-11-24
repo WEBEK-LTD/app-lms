@@ -521,7 +521,7 @@ function boardPiece(ctx: SectionContext) {
       },
       { element: head(ctx, "mjpGoesWith") },
       { element: byColour(ctx) },
-      { type: "product_variants", ...accent, node: { ...ink, margin: sides(24, 16, 0, 16) } },
+      { type: "product_variants", look: "grid", ...accent, node: { ...ink, margin: sides(24, 16, 0, 16) } },
       { type: "product_description", node: { ...ink, margin: sides(22, 16, 0, 16) } },
       { type: "product_delivery", look: "card", accent: K.accent, dark_accent: K.darkAccent, node: { ...ink, margin: sides(18, 16, 0, 16), padding: sides(16, 16, 16, 16), radius: 26, background: L.tint.day, dark_background: L.tint.night } },
       { type: "product_related", look: "carousel", rows: 8, text: "mjpRelated", node: { ...ink, margin: sides(26, 0, 20, 0) } },

@@ -5988,7 +5988,7 @@
          "start": 16
         },
         "product_part": {
-         "look": "chips",
+         "look": "grid",
          "accent": "#111111",
          "dark_accent": "#F1F1EE"
         },

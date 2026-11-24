@@ -3138,15 +3138,15 @@
              "accent": "#66665F",
              "dark_accent": "#A2A29B"
             },
-            "title": "Finished by hand in small batches\nChosen by our curators",
+            "title": "Hand-glazed stoneware · Riyadh studio",
             "color": "#66665F",
             "dark_color": "#A2A29B",
             "translations": {
              "ar": {
-              "title": "مشغولة يدويًا بكميات صغيرة\nاختارها أمناء المعرض"
+              "title": "خزف حجري مزجج يدويًا · مشغل الرياض"
              },
              "tr": {
-              "title": "Küçük partilerde elde bitirildi\nKüratörlerimiz seçti"
+              "title": "Elde sırlanmış taş seramik · Riyad atölyesi"
              }
             }
            },
@@ -3181,6 +3181,7 @@
          "start": 40
         },
         "product_part": {
+         "look": "grid",
          "accent": "#0B0B0B",
          "dark_accent": "#F2F2EF"
         },

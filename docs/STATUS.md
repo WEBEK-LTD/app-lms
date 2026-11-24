@@ -12,11 +12,12 @@ Roadmap 228.7 (the looks' own product pages, furniture and decor): Rukn's
 looks C (MIZAN, a drawing's sheet) and D (MANZIL, room by room) and Sakan's
 C (ATHAR, the piece framed in a gallery) and D (MAZAJ, a moodboard's
 polaroid) each draw their own product page from the product page's
-elements and the look's own parts. The app's product page elements: chips
-as wide as their words, the name's alignment, and the top band on every
-product page without a header once it scrolls (with the next app release).
-A product's size is drawn only as a line, so the architect's "W × D × H
-as the headline" is the line under a dimension rule for now.
+elements and the look's own parts, with no app change (their choices as a
+grid). Known until 228.8's app PR: "chips" stretch across the row; on a
+product page without a header that doesn't start with full-bleed photos the
+back button lies over the page as it scrolls; a product's size is drawn
+only as a line, so the architect's "W × D × H as the headline" is the line
+under a dimension rule.
 
 Roadmap 229 (prices that read cleanly): a product whose variations cost
 differently shows "From SAR 4,899" (Arabic "من SAR 4,899", Turkish

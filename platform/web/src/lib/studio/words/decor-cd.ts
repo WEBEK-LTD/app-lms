@@ -72,7 +72,7 @@ export const DECOR_CD_WORDS = typeWords({
     // 228.7 The look's own product page.
     atpKicker: "On the wall",
     atpAbout: "About the piece",
-    atpLabel: "Finished by hand in small batches\nChosen by our curators",
+    atpLabel: "Hand-glazed stoneware · Riyadh studio",
     atpRelated: "From the same hall",
     mjpTag: "Pinned to your board",
     mjpGoesWith: "Goes with",
@@ -143,7 +143,7 @@ export const DECOR_CD_WORDS = typeWords({
     // 228.7 The look's own product page.
     atpKicker: "على الجدار",
     atpAbout: "عن القطعة",
-    atpLabel: "مشغولة يدويًا بكميات صغيرة\nاختارها أمناء المعرض",
+    atpLabel: "خزف حجري مزجج يدويًا · مشغل الرياض",
     atpRelated: "من القاعة نفسها",
     mjpTag: "مثبّتة على لوحتك",
     mjpGoesWith: "تتناسب مع",
@@ -214,7 +214,7 @@ export const DECOR_CD_WORDS = typeWords({
     // 228.7 The look's own product page.
     atpKicker: "Duvarda",
     atpAbout: "Eser hakkında",
-    atpLabel: "Küçük partilerde elde bitirildi\nKüratörlerimiz seçti",
+    atpLabel: "Elde sırlanmış taş seramik · Riyad atölyesi",
     atpRelated: "Aynı salondan",
     mjpTag: "Panonuza iğnelendi",
     mjpGoesWith: "Yakışanlar",
