@@ -54,17 +54,59 @@ export function lookFontName(look: Pick<Appearance, "font" | "font_family">): st
  * The look as served to the app: with the files of its free fonts and (97.2)
  * of the app's own fonts (`own`), on Yallapp (`base`, like https://yallapp.com.tr).
  */
-export function servedAppearance(look: Appearance, base: string, own: readonly Pick<OwnFont, "family" | "files">[] = []): Appearance {
-  const { font_files: _files, arabic_font_files: _arabic, ...stored } = look;
+export function servedAppearance(look: Appearance, base: string, own: readonly Pick<OwnFont, "family" | "files">[] = [], pageFamilies: readonly string[] = []): Appearance {
+  const { font_files: _files, arabic_font_files: _arabic, page_fonts: _pages, ...stored } = look;
   void _files;
   void _arabic;
+  void _pages;
   const filesOf = (family: string | undefined): FontFile[] => {
     const mine = family ? own.find((f) => f.family === family) : undefined;
     return mine ? ownFontFiles(base, mine) : fontFiles(base, family);
   };
   const files = filesOf(look.font_family);
   const arabic = filesOf(look.arabic_font);
-  return { ...stored, ...(files.length ? { font_files: files } : {}), ...(arabic.length ? { arabic_font_files: arabic } : {}) };
+  // 224.10 The pages' own faces, besides the look's two, each that has files.
+  const pages = pageFamilies
+    .filter((family) => family !== look.font_family && family !== look.arabic_font)
+    .map((family) => ({ family, files: filesOf(family) }))
+    .filter((f) => f.files.length)
+    .slice(0, PAGE_FONTS_MAX);
+  return { ...stored, ...(files.length ? { font_files: files } : {}), ...(arabic.length ? { arabic_font_files: arabic } : {}), ...(pages.length ? { page_fonts: pages } : {}) };
+}
+
+/** 224.10 How many of the pages' own faces the app is sent, besides the look's two. */
+export const PAGE_FONTS_MAX = 4;
+
+/** A Studio element as far as its face goes: its font, its children and its list's card. */
+interface Faced {
+  font?: { family?: string | null } | null;
+  children?: readonly Faced[] | null;
+  card?: Faced | null;
+}
+
+/**
+ * 224.10 The free fonts the project's Studio pages name on their elements,
+ * in the order they first come, besides the look's own two (`font_family`,
+ * `arabic_font`) and the fonts bundled with the app: the ones the app has to
+ * download for a heading to show in its face. A name that is neither a free
+ * font nor one of `own` (the app's own fonts) is left out.
+ */
+export function pageFontFamilies(pages: readonly { studio?: { body?: Faced | null; header?: unknown } | null }[], look: Pick<Appearance, "font_family" | "arabic_font">, own: readonly string[] = []): string[] {
+  const out: string[] = [];
+  const add = (family: string | null | undefined) => {
+    if (!family || out.length >= PAGE_FONTS_MAX) return;
+    const name = ownName(family, own) ?? freeFont(family)?.family;
+    if (!name || name === look.font_family || name === look.arabic_font || isBundledFont(name) || out.includes(name)) return;
+    out.push(name);
+  };
+  const walk = (node: Faced | null | undefined) => {
+    if (!node) return;
+    add(node.font?.family);
+    for (const child of node.children ?? []) walk(child);
+    walk(node.card);
+  };
+  for (const page of pages) walk(page.studio?.body);
+  return out;
 }
 
 /**

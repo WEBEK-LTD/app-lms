@@ -68,7 +68,18 @@
    "font": "Plus Jakarta Sans",
    "corners": "round",
    "cards": "elevated",
-   "secondary_color": "#F2B544"
+   "secondary_color": "#F2B544",
+   "page_fonts": [
+    {
+     "family": "JetBrains Mono",
+     "files": [
+      {
+       "url": "http://localhost:3000/api/v1/fonts/ofl/jetbrainsmono/JetBrainsMono%5Bwght%5D.ttf",
+       "weight": null
+      }
+     ]
+    }
+   ]
   },
   "languages": {
    "default": "en",
