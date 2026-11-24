@@ -8,6 +8,14 @@ Last updated: 24 November 2026.
 
 ## Current release
 
+Roadmap 225.9 (the demo guides in look C): the demo guides of Velours,
+Ghurza, Toot, Sakan, Rukn, Madar, Nova and Nawah show their apps as they
+are now, in each type's main look C (home, menu or Ghurza's custom order,
+and a product, from the real app), with their words in English, Arabic and
+Turkish; the ten shop types' story pages name their four templates and show
+no look A or B screen; Madar's and Nawah's Studio demo pages show their
+looks C and D.
+
 Roadmap 229 (prices that read cleanly): a product whose variations cost
 differently shows "From SAR 4,899" (Arabic "من SAR 4,899", Turkish
 "SAR 4,899 ve üzeri") instead of the whole range, and every whole amount

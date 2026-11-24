@@ -1129,7 +1129,7 @@ export const STORIES_TR: StoryCopy = {
       navName: "Giyim mağazası uygulaması",
       metaTitle: "Bedenler, kategori menüsü ve görünümü tamamla ile bir giyim mağazası uygulaması, Yallapp Studio'da tasarlandı",
       metaDescription: "Lujain ile bir gün: perşembe bir düğün, kategori menüsü, bedenine ve rengine göre bir elbise, beden rehberi ve görünümü tamamlayan topuklular.",
-      summary: "Her birinin stoğuyla bedenler ve renkler, sıra sıra kategori menüsü, beden tablosu, görünümü tamamla ve değişim, iki premium görünümde.",
+      summary: "Her birinin stoğuyla bedenler ve renkler, sıra sıra kategori menüsü, beden tablosu, görünümü tamamla ve değişim, dört premium şablonda.",
       eyebrow: "Yallapp Studio · Giyim mağazası",
       title: "Perşembe, bakır rengi saten",
       intro: "Noura'nın perşembe bir düğünü var ve giymek istediği hiçbir şey yok. Riyad'da pazartesi akşamı. Telefonuyla geçen birkaç dakika, bedenine uygun bir elbiseye ve yanına yakışan topuklulara böyle dönüşüyor.",
@@ -1139,13 +1139,13 @@ export const STORIES_TR: StoryCopy = {
           time: "21:10",
           kicker: "Riyad, akşam yemeğinden sonra",
           title: "Perşembe bir düğün",
-          text: "Noura kanepede Lujain'i açıyor. Ana sayfa küçük ve hızlı: arama, yuvarlaklar içinde kategoriler ve kayan kartlarda sezonun koleksiyonları, bir sonrakinin kenarı görünüyor. Altında bu hafta gelenler."
+          text: "Noura kanepede Lujain'i açıyor. Ana sayfa bir lookbook: küçük bir yazı markasının altında sezonun görünümleri ekranı kenardan kenara dolduruyor, birinden ötekine kaydırıyor. Altında ince bir çizgi üstünde yazı olarak kategoriler ve bu hafta gelenler, uzun ve kutusuz."
         },
         {
           time: "21:13",
           kicker: "Menü",
           title: "Her kategori bir sıra",
-          text: "Zilin yanındaki menüye dokunuyor. Mağazanın her kategorisi fotoğraflı kartlardan bir sıra: önce Elbiseler, ardından kayan Midi, Maksi ve Mini; sonra Abayalar, Mont ve ceketler, Ayakkabılar, Çantalar. Elbiseler sırasını kaydırıp Midi'ye dokunuyor."
+          text: "Başlığın köşesindeki menüye dokunuyor. Mağazanın her kategorisi fotoğraflı kartlardan bir sıra: önce Elbiseler, ardından kayan Midi, Maksi ve Mini; sonra Abayalar, Mont ve ceketler, Ayakkabılar, Çantalar. Elbiseler sırasını kaydırıp Midi'ye dokunuyor."
         },
         {
           time: "21:17",
@@ -1189,7 +1189,7 @@ export const STORIES_TR: StoryCopy = {
         "dil, Arapça sağdan sola"
       ],
       systemsTitle: "Her parça, ayrıntısıyla",
-      systemsText: "Kategori menüsü, bedenler ve renkler, görünümü tamamla ve fırsatlar, iki görünüm ve ürünlerin nereden geldiği.",
+      systemsText: "Kategori menüsü, bedenler ve renkler, görünümü tamamla ve fırsatlar, dört şablon ve ürünlerin nereden geldiği.",
       systems: [
         {
           name: "Kategori menüsü",
@@ -1377,7 +1377,7 @@ export const STORIES_TR: StoryCopy = {
       navName: "Kozmetik mağazası uygulaması",
       metaTitle: "Tonlar, cilt testi, rutinler ve içeriklerle bir kozmetik mağazası uygulaması, Yallapp Studio'da tasarlandı",
       metaDescription: "Velours ile bir gün: biten bir fondöten, ton bulucu, cilt testi, hazır bir rutin ve her ürünün içeriği ile son kullanma tarihi.",
-      summary: "Her birinin stoğuyla renk renk tonlar, cilt testi, cilt tipine ve markaya göre filtre, içerik ve kullanım, son kullanma tarihiyle orijinal ürünler ve hazır rutinler, iki premium görünümde.",
+      summary: "Her birinin stoğuyla renk renk tonlar, cilt testi, cilt tipine ve markaya göre filtre, içerik ve kullanım, son kullanma tarihiyle orijinal ürünler ve hazır rutinler, dört premium şablonda.",
       eyebrow: "Yallapp Studio · Kozmetik mağazası",
       title: "Cuma, sıcak bejle",
       intro: "Leyla'nın fondöteni çarşamba günü bitti, kuzeninin nişanı cuma. Dubai'de çarşamba gecesi. Telefonuyla geçen birkaç dakika böyle doğru tona ve cildine uygun bir rutine dönüşüyor.",
@@ -1387,13 +1387,13 @@ export const STORIES_TR: StoryCopy = {
           time: "22:05",
           kicker: "Dubai, akşamın sonu",
           title: "Boş bir kutu",
-          text: "Leyla yatağında Velours'u açıyor. Ana sayfa küçük ve hızlı: arama, çipler halinde kategoriler, kayan kartlarda haftanın seçkileri, kenardan bir sonrakinin ucu görünüyor, bir de sayacıyla saatin fırsatları."
+          text: "Leyla yatağında Velours'u açıyor. Ana sayfa bir klinik gibi sakin ve beyaz: ortada kliniğin adı, sonra bir yüzün üstünde buzlu camda cilt testi, altında sabah ve akşam, numaralı adımlarla günlük rutin."
         },
         {
           time: "22:08",
           kicker: "Ton bulucu",
           title: "On iki ton, tek dokunuş",
-          text: "Aşağıda ton bulucu, kuşon fondötenin tonlarını kendi renklerinde yuvarlaklar olarak gösteriyor. Sıcak bej, 3W, zaten seçili: sıcak alt tonlu açık ve orta ten, kadınların en çok seçtiği ton. Fondöteni incele'ye dokunuyor."
+          text: "Aşağıda laboratuvarın kartları formüller gibi numaralı. Biri kuşon fondöten, sıcak bej, 3W: sıcak alt tonlu açık ve orta ten, kadınların en çok seçtiği ton. Ona dokunuyor."
         },
         {
           time: "22:11",
@@ -1405,7 +1405,7 @@ export const STORIES_TR: StoryCopy = {
           time: "22:15",
           kicker: "Cilt tipinizi öğrenin",
           title: "Karma, diyor",
-          text: "Cildinden hiç emin olmamıştı. Test dört soruyu tek tek soruyor: yıkadıktan sonra his, gözenekler, yeni bir krem, günün sonu. Karma. Tek dokunuş, mağazanın karma cilde uygun tüm ürünlerini açıyor."
+          text: "Cildinden hiç emin olmamıştı. Ana sayfanın en üstündeki cilt testi dört soruyu tek tek soruyor: yıkadıktan sonra his, gözenekler, yeni bir krem, günün sonu. Karma. Tek dokunuş, mağazanın karma cilde uygun tüm ürünlerini açıyor."
         },
         {
           time: "22:19",
@@ -1437,7 +1437,7 @@ export const STORIES_TR: StoryCopy = {
         "dil, Arapça sağdan sola"
       ],
       systemsTitle: "Her parça, açıklamasıyla",
-      systemsText: "Tonlar, cilt testi ve filtreler, bir ürün sayfasının anlattıkları, rutinler ve fırsatlar, iki görünüm ve ürünlerin nereden geldiği.",
+      systemsText: "Tonlar, cilt testi ve filtreler, bir ürün sayfasının anlattıkları, rutinler ve fırsatlar, dört şablon ve ürünlerin nereden geldiği.",
       systems: [
         {
           name: "Tonlar",
@@ -1490,12 +1490,12 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           name: "Yallapp Studio'da tasarlandı",
-          title: "İki görünüm, her parçası sizin",
-          text: "Velours, yalnızca Studio öğeleriyle yapılmış iki premium görünümle gelir.",
+          title: "Dört şablon, her parçası değiştirilebilir",
+          text: "Velours, yalnızca Studio öğeleriyle kurulmuş dört premium şablonla gelir.",
           features: [
-            ["VELOURS", "A görünümü: mürdüm, pudra ve altınla lüks."],
-            ["NAQA LAB", "B görünümü: porselen üstünde mürekkep ve kobaltla bir klinik, aktif içeriklerle."],
-            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var."],
+            ["RİTÜEL KLİNİĞİ", "C şablonu, demonun kendisi: beyaz ve camgöbeği bir klinik, önce cilt testi, adım adım rutin."],
+            ["TON STÜDYOSU", "D şablonu: koyu mürdüm ve parlak, önce ton şeridi. A ve B görünümleri de duruyor."],
+            ["Açık ve koyu", "Her şablonun tasarlanmış bir gecesi var."],
             ["Kompakt vitrin", "Seçkiler yaklaşık 210 punto yüksekliğinde kartlarda, sonrakinin ucu görünür."],
             ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan adıyla bir hap."],
             ["Hazır bölümler", "Ton bulucu, cilt testi, rutin, markalar ve dahası, her mağaza için."],
@@ -1546,7 +1546,7 @@ export const STORIES_TR: StoryCopy = {
       navName: "Çocuk giyim mağazası uygulaması",
       metaTitle: "Yaşa göre bedenler, yenidoğan hediyeleri ve hazır takımlarla bir çocuk giyim mağazası uygulaması, Yallapp Studio'da tasarlandı",
       metaDescription: "Toota ile bir gün: yeni doğan bir yeğen, kartıyla paketlenmiş bir hediye kutusu, yaşa göre beden bulucu ve dört yaşındaki için bir yağmurluk.",
-      summary: "Doğumdan 12 yaşına yaşa göre bedenler, beden bulucu ve tablosu, kız, erkek ve bebek kategorileri, paket ve kartıyla yenidoğan hediyeleri ve hazır takımlar, iki premium görünümde.",
+      summary: "Doğumdan 12 yaşına yaşa göre bedenler, beden bulucu ve tablosu, kız, erkek ve bebek kategorileri, paket ve kartıyla yenidoğan hediyeleri ve hazır takımlar, dört premium şablonda.",
       eyebrow: "Yallapp Studio · Çocuk giyim mağazası",
       title: "Adam'a bir hediye, Youssef'e bir yağmurluk",
       intro: "Salma'nın kız kardeşi bu sabah bir erkek bebek doğurdu, kendi oğlu Youssef'in yağmurluğu da yağmurlar başlarken küçük geldi. Kahire'de bir çarşamba akşamı. Telefonla geçen birkaç dakika ikisini birden böyle çözüyor.",
@@ -1556,13 +1556,13 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Kahire, banyodan sonra",
           title: "Bu akşam alınacak iki şey",
-          text: "Youssef uyurken Salma koltukta Toota'yı açıyor. Ana sayfa yumuşak ve hızlı: arama, yuvarlak kategoriler, kayan kartlarda sezonun koleksiyonu ve altında 0–6 aydan 8–12 yaşa kadar yaşlar, her biri pastel bir kutuda."
+          text: "Youssef uyurken Salma koltukta Toota'yı açıyor. Örgü kazağıyla tavşan Tooti en üstte bir kartta merhaba diyor. Altında yaşlar büyük yuvarlak baloncuklar, 0–2, 3–5, 6–9 ve 10+; yeni parçalar nane yeşili bir şeritte, her biri kendi baloncuğunda."
         },
         {
           time: "20:43",
           kicker: "Menü",
           title: "Kızlar, erkekler ve bebekler",
-          text: "Zilin yanındaki menüye dokunuyor. Mağazanın her kategorisi fotoğraflı bir kart sırası: önce Bebek ve yenidoğan, ardından kayan Yenidoğan setleri, Body ve Uyku giyimi; sonra Kız, Erkek, Ayakkabı, Yenidoğan hediyeleri ve Hazır takımlar."
+          text: "Üstteki menüye dokunuyor. Mağazanın her kategorisi fotoğraflı yuvarlak kartlardan bir sıra: önce Bebek ve yenidoğan, ardından kayan Yenidoğan setleri, Body ve Uyku giyimi; sonra Kız, Erkek, Ayakkabı, Yenidoğan hediyeleri ve Hazır takımlar."
         },
         {
           time: "20:46",
@@ -1606,7 +1606,7 @@ export const STORIES_TR: StoryCopy = {
         "dil, Arapça sağdan sola"
       ],
       systemsTitle: "Her parça, açıklamalı",
-      systemsText: "Yaşa göre bedenler, kategori menüsü, hediyeler ve takımlar, iki görünüm ve ürünlerin nereden geldiği.",
+      systemsText: "Yaşa göre bedenler, kategori menüsü, hediyeler ve takımlar, dört şablon ve ürünlerin nereden geldiği.",
       systems: [
         {
           name: "Yaşa göre bedenler",
@@ -1794,7 +1794,7 @@ export const STORIES_TR: StoryCopy = {
       navName: "Oyuncak mağazası uygulaması",
       metaTitle: "Yaşa göre alışveriş, güvenlik ve malzemeler ve kartlı doğum günü hediyeleriyle bir oyuncak mağazası uygulaması, Yallapp Studio'da tasarlandı",
       metaDescription: "Toot ile bir gün: cumartesi dördüncü yaş günü, 3–5 yaş oyuncakları, bir ayıcığın güvenliği ve malzemeleri, hediye bulucu, paket ve onun sözleriyle bir kart.",
-      summary: "Yaşa ve oyuncak türüne göre alışveriş, her oyuncağın yaşı, güvenliği ve malzemeleri, hediye bulucu, hediye paketi ve doğum günü kartı, fiyata göre hediyeler; iki premium görünümle.",
+      summary: "Yaşa ve oyuncak türüne göre alışveriş, her oyuncağın yaşı, güvenliği ve malzemeleri, hediye bulucu, hediye paketi ve doğum günü kartı, fiyata göre hediyeler; dört premium şablonla.",
       eyebrow: "Yallapp Studio · Oyuncak mağazası",
       title: "Dört mum ve bir ayıcık",
       intro: "Hüda'nın yeğeni Adem cumartesi dört yaşına giriyor ve Hüda cuma akşamına kadar işte. Dubai'de çarşamba akşamı. Telefonla geçen birkaç dakika, böylece onun sözleriyle yazılmış bir kartla paketlenmiş bir hediyeye dönüşüyor.",
@@ -1804,13 +1804,13 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Dubai, akşam yemeğinden sonra",
           title: "Cumartesi bir yaş günü",
-          text: "Hüda balkonda Toot'u açıyor. Ana sayfa küçük ve hızlı: arama, yuvarlak kategoriler, kayan kartlarda koleksiyonlar ve kenardan görünen bir sonraki. Altında, uzun fotoğraflarda yaşlar: 0–12 ay, 1–2 yaş, 3–5 yaş."
+          text: "Hüda balkonda Toot'u açıyor. Ana sayfa bir deniz haritası: mağazanın köşeleri haritada adalar, Ahşap, Yapı, Bilim, Pelüş ve Sanat; birine dokununca oraya yola çıkıyor. Haritanın altında bir çıkartma şeridi ve tıknaz renkli bloklar hâlinde yaşlar."
         },
         {
           time: "20:42",
           kicker: "Yaşa göre",
           title: "3–5 yaş",
-          text: "3–5 yaşa dokunuyor ve mağaza yalnızca o yaşın oyuncaklarıyla açılıyor. Zilin yanındaki menüde her kategori bir kart sırası: Ahşap oyuncaklar, Yapı oyuncakları, Pelüşler, Bulmaca ve oyunlar, sonra Yaşa göre ve Doğum günü hediyeleri; her birinin alt kategorileri ardından kayıyor."
+          text: "3–5 yaş bloğuna dokunuyor ve mağaza yalnızca o yaşın oyuncaklarıyla açılıyor. Üstteki menüde her kategori bir kart sırası: Ahşap oyuncaklar, Yapı oyuncakları, Pelüşler, Bulmaca ve oyunlar, sonra Yaşa göre ve Doğum günü hediyeleri; her birinin alt kategorileri ardından kayıyor."
         },
         {
           time: "20:46",
@@ -1822,7 +1822,7 @@ export const STORIES_TR: StoryCopy = {
           time: "20:50",
           kicker: "Hediye bulucu",
           title: "Üç soru",
-          text: "Emin olamayınca ana sayfaya dönüp 3 adımda mükemmel hediyeyi yanıtlıyor: dört yaşında, inşa etmeyi seviyor, 300'e kadar. Bulucu 3–5 yaş diyor ve açıyor. Ayıcığın yanına küçük mimar kulesini ekliyor."
+          text: "Emin olamayınca haritaya dönüp hediye avını oynuyor: dört yaşında, inşa etmeyi seviyor, 300'e kadar. Av 3–5 yaş diyor ve açıyor. Ayıcığın yanına küçük mimar kulesini ekliyor."
         },
         {
           time: "20:54",
@@ -1854,7 +1854,7 @@ export const STORIES_TR: StoryCopy = {
         "dil, Arapça sağdan sola"
       ],
       systemsTitle: "Her parça, açıklamasıyla",
-      systemsText: "Yaşa göre alışveriş, güvenlik ve malzemeler, doğum günü hediyeleri ve fırsatlar, iki görünüm ve oyuncakların nereden geldiği.",
+      systemsText: "Yaşa göre alışveriş, güvenlik ve malzemeler, doğum günü hediyeleri ve fırsatlar, dört şablon ve oyuncakların nereden geldiği.",
       systems: [
         {
           name: "Yaşa göre alışveriş",
@@ -1947,21 +1947,12 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           name: "Yallapp Studio'da tasarlandı",
-          title: "İki görünüm, her parçası sizin",
-          text: "Toot, yalnızca Studio öğeleriyle yapılmış iki premium görünümle gelir.",
+          title: "Dört şablon, her parçası değiştirilebilir",
+          text: "Toot, yalnızca Studio öğeleriyle kurulmuş dört premium şablonla gelir.",
           features: [
-            [
-              "Toot",
-              "A görünümü: neşeli ve renkli, krem üstünde mürdüm ve altın, yuvarlak fotoğraflar."
-            ],
-            [
-              "Mukaab",
-              "B görünümü: sakin ve eğitici, gri üstünde berrak mavi, kareler ve bir laboratuvar."
-            ],
-            [
-              "Açık ve koyu",
-              "İki görünümün de tasarlanmış bir gecesi var."
-            ],
+            ["MACERA HARİTASI", "C şablonu, demonun kendisi: deniz haritası gibi mağaza, adalar olarak kategoriler, kabartmalı kalın kartlar."],
+            ["MONTESSORI", "D şablonu: ahşap ve adaçayı, sakin satırlarda beceriye ve yaşa göre oyuncaklar. A ve B görünümleri de duruyor."],
+            ["Açık ve koyu", "Her şablonun tasarlanmış bir gecesi var."],
             [
               "Kompakt vitrin",
               "Koleksiyonlar yaklaşık 210 nokta yüksekliğinde kartlarda, bir sonraki görünür."
@@ -2042,7 +2033,7 @@ export const STORIES_TR: StoryCopy = {
       navName: "Tığ işi mağazası uygulaması",
       metaTitle: "Özel siparişler, yapım günleri, ipler ve atölyelerle bir tığ işi ve el yapımı mağaza uygulaması, Yallapp Studio'da tasarlandı",
       metaDescription: "Ghurza ile bir gün: annesinin renklerinde sipariş edilen bir battaniye, kaç günde yapıldığı, onu ören usta, bir başlangıç seti ve cumartesi atölyesinde bir yer.",
-      summary: "Kendi talep sayfasıyla özel siparişler, her parçanın kaç günde yapıldığı, ustanın hikâyesi, ipler ve aletler, atölyeler ve elle hediye paketi, iki premium görünümde.",
+      summary: "Kendi talep sayfasıyla özel siparişler, her parçanın kaç günde yapıldığı, ustanın hikâyesi, ipler ve aletler, atölyeler ve elle hediye paketi, dört premium şablonda.",
       eyebrow: "Yallapp Studio · Tığ işi mağazası",
       title: "Zeytin yeşili ve krem, on iki günde",
       intro: "Leyla'nın annesi iki hafta sonra altmış yaşına giriyor ve Leyla ona kimsenin veremeyeceği bir şey vermek istiyor. Maadi'de bir çarşamba akşamı. Telefonla geçen birkaç dakika, annesinin renklerinde elde örülen bir battaniyeye ve kendisi için bir atölye yerine böyle dönüşüyor.",
@@ -2052,13 +2043,13 @@ export const STORIES_TR: StoryCopy = {
           time: "21:30",
           kicker: "Maadi, akşamın geç saati",
           title: "Kimsenin veremeyeceği bir şey",
-          text: "Leyla Ghurza'yı balkonda açıyor. Ana sayfa sıcak ve hızlı: arama, yuvarlak kategoriler ve kayan kartlarda kış koleksiyonu, sonraki kart kenardan görünüyor. Altında bir kart, zevkinize göre bir parçanın size özel örüldüğünü, 7 ila 14 günde hazır olduğunu söylüyor."
+          text: "Leyla Ghurza'yı balkonda açıyor. Ana sayfa dikişli kâğıt üstünde bir zanaatkâr pazarı: büyük hat yazısıyla çerçeveli bir hikâye, her parçanın bir iple ve adınızı bilen bir elle başladığını söylüyor. Altında rafta çileler gibi seçilecek ip renkleri."
         },
         {
           time: "21:34",
           kicker: "Özel sipariş",
           title: "Annesinin renklerinde bir battaniye",
-          text: "Siparişe başla'ya dokunuyor. Sayfa nasıl çalıştığını dört adımda anlatıyor, sonra soruyor: parça, beden, ipin rengi ve ayrıntılar. Battaniye'yi seçiyor, 120'ye 150 cm yazıyor, annesinin kanepesi gibi zeytin yeşili ve krem, bir köşeye de annesinin adının işlenmesini istiyor. Adı, telefonu ve gönderiyor."
+          text: "Aşağıda dikişli üç daire bir parçanın nasıl yapıldığını anlatıyor: siz sipariş verin, biz yapalım, biz gönderelim. Parçanı kendi zevkine göre sipariş et'e dokunuyor. Sayfa soruyor: parça, beden, ipin rengi ve ayrıntılar. Battaniye'yi seçiyor, 120'ye 150 cm yazıyor, annesinin kanepesi gibi zeytin yeşili ve krem, bir köşeye de annesinin adının işlenmesini istiyor. Adı, telefonu ve gönderiyor."
         },
         {
           time: "21:41",
@@ -2070,7 +2061,7 @@ export const STORIES_TR: StoryCopy = {
           time: "22:05",
           kicker: "Usta",
           title: "Yirmi iki yıllık ilmekler",
-          text: "Telefon gece için karardı, Ghurza da kahve rengiyle. Ana sayfanın aşağısında atölyeyi yöneten Ümmü Yusuf, her parçanın günlerini, kalbinden de fazlasını aldığını söylüyor. On iki usta, 4.800 parça, hepsi elde."
+          text: "Telefon gece için karardı, Ghurza'nın kâğıdı da. Ana sayfanın aşağısında, dikişli iki çizginin arasında atölyeyi yöneten Ümmü Yusuf, her parçanın günlerini, kalbinden de fazlasını aldığını söylüyor. On iki usta, 4.800 parça, hepsi elde."
         },
         {
           time: "22:10",
@@ -2102,7 +2093,7 @@ export const STORIES_TR: StoryCopy = {
         "dil, Arapça sağdan sola"
       ],
       systemsTitle: "Her parça, ayrıntısıyla",
-      systemsText: "Özel sipariş, yapım günleri, ipler, aletler ve atölyeler, iki görünüm ve ürünlerin nereden geldiği.",
+      systemsText: "Özel sipariş, yapım günleri, ipler, aletler ve atölyeler, dört şablon ve ürünlerin nereden geldiği.",
       systems: [
         {
           name: "Özel sipariş",
@@ -2141,14 +2132,14 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           name: "Yallapp Studio'da tasarlandı",
-          title: "İki görünüm, her parçası sizin değiştirmeniz için",
-          text: "Ghurza, yalnızca Studio'nun öğeleriyle kurulmuş iki premium görünümle gelir.",
+          title: "Dört şablon, her parçası değiştirilebilir",
+          text: "Ghurza, yalnızca Studio öğeleriyle kurulmuş dört premium şablonla gelir.",
           features: [
-            ["GHURZA", "A görünümü: sıcak el emeği, bej kâğıt üzerinde kiremit rengi, yumuşak yuvarlak köşeler."],
-            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var: kahve rengi ve mürdüm siyahı."],
+            ["ZANAATKÂR PAZARI", "C şablonu, demonun kendisi: dikişli kâğıt ve hat yazısı başlıklar, her parçayı kimin ve nasıl yaptığı."],
+            ["Açık ve koyu", "Her şablonun tasarlanmış bir gecesi var."],
             ["Kompakt vitrin", "Koleksiyonlar yaklaşık 210 nokta yüksekliğinde kartlarda, sonraki görünüyor."],
             ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan vurgulu."],
-            ["HABKA", "B görünümü: renkli ve eğlenceli, mürdüm ve böğürtlen, kendi parçanı tasarla."],
+            ["SICAK STÜDYO", "D şablonu: gül kurusu, hazır parçalar ya da kitler, haftanın deseni ve ayın atölyeleri. A ve B görünümleri de duruyor."],
             ["Üç dil", "İngilizce, sağdan sola Arapça ve Türkçe."]
           ]
         },
@@ -2196,7 +2187,7 @@ export const STORIES_TR: StoryCopy = {
       navName: "Ev dekorasyonu mağazası uygulaması",
       metaTitle: "Görünümü satın al, odalar, tarzlar ve kartlı hediyelerle bir ev dekorasyonu mağazası uygulaması, Yallapp Studio'da tasarlandı",
       metaDescription: "Sakan ile bir gün: yeni bir daire, parça parça alınan bir yemek köşesi, kartıyla hediye gönderilen bir vazo ve Ramazan fenerleri.",
-      summary: "Düzenlenmiş bir odada görünümü satın al, odaya ve tarza göre alışveriş, santimetre ölçüler, kartlı hediye paketi ve mevsim afişleri, iki premium görünümde.",
+      summary: "Düzenlenmiş bir odada görünümü satın al, odaya ve tarza göre alışveriş, santimetre ölçüler, kartlı hediye paketi ve mevsim afişleri, dört premium şablonda.",
       eyebrow: "Yallapp Studio · Ev dekorasyonu mağazası",
       title: "Cumaya kadar iki kişilik bir köşe",
       intro: "Hessa ve eşi geçen hafta Riyad'da küçük bir daireye taşındı. Yemek köşesi ödünç bir masa ve iki koliden ibaret. Salı akşamı. Telefonla geçen birkaç dakika, yemek yiyecekleri bir köşeye ve kız kardeşine bir hediyeye böyle dönüşüyor.",
@@ -2206,13 +2197,13 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Riyad, akşam yemeğinden sonra",
           title: "İki koli ve ödünç bir masa",
-          text: "Hessa koltukta Sakan'ı açıyor. Ana sayfa küçük ve hızlı: arama, kategoriler ve kayan geniş fotoğraf kartlarında mevsimin koleksiyonları, bir sonraki kenardan görünüyor. Altında dört oda: yatak odası, oturma odası, yemek odası ve okuma köşesi."
+          text: "Hessa koltukta Sakan'ı açıyor. Ana sayfa bir galeri duvarı: büyük harflerle \"Şimdi sergide\", sonbahar sergisi ve tarihleri, sonra beyaz duvarda kalın bir çerçevede asılı tek bir parça ve müze etiketi: adı, yapanı, malzemesi, ölçüsü."
         },
         {
           time: "20:44",
           kicker: "Odayı tamamla",
           title: "Orkideye bir dokunuş",
-          text: "Aşağıda düzenlenmiş bir yemek köşesi ekranı dolduruyor: beyaz bir masa, iki beyaz sandalye, beyaz saksıda bir orkide. Fotoğraftaki her parçanın numaralı bir etiketi var. Orkideye dokunuyor ve sayfası açılıyor. Fotoğrafın altında üç parça fiyatlarıyla yan yana."
+          text: "Aşağıda koleksiyon iki sütun çerçevede asılı, ikincisi biraz daha aşağıda, her birinin etiketiyle. Birinde beyaz bir masa, iki beyaz sandalye ve beyaz saksıda bir orkide. Orkidenin çerçevesine dokunuyor ve sayfası açılıyor, fiyatı fotoğrafın altında."
         },
         {
           time: "20:47",
@@ -2224,7 +2215,7 @@ export const STORIES_TR: StoryCopy = {
           time: "20:52",
           kicker: "Menü",
           title: "Her oda bir sıra",
-          text: "Zilin yanındaki menüye dokunuyor. Mağazanın her odası fotoğraflı kartlardan bir sıra: vazoları, yastıkları ve koltuklarıyla oturma odası, nevresim ve lambalarıyla yatak odası, sonra bitkiler, mevsimler ve hediyeler. Oturma odası sırasını kaydırıp Vazolar ve kâseler'e dokunuyor."
+          text: "Üstteki menüye dokunuyor. Galerinin planı açılıyor: mağazanın her salonu fotoğraflı kartlardan bir sıra; vazoları, yastıkları ve koltuklarıyla oturma odası, nevresim ve lambalarıyla yatak odası, sonra bitkiler, mevsimler ve hediyeler. Oturma odası sırasını kaydırıp Vazolar ve kâseler'e dokunuyor."
         },
         {
           time: "20:58",
@@ -2236,7 +2227,7 @@ export const STORIES_TR: StoryCopy = {
           time: "09:15",
           kicker: "Çarşamba, mağazada",
           title: "Zeytin yeşili kâğıda sarılı",
-          text: "Sakan'da sabahın siparişleri açılıyor. Hessa'nınkinde bir masa, iki sandalye, bir orkide ve hediye olarak kartıyla paketlenmiş ikiz vazolar var. Kartın sözleri paket fişine basılıyor. Uygulamanın ana sayfasında Ramazan afişi pirinç fenerlerle çoktan yerinde.",
+          text: "Sakan'da sabahın siparişleri açılıyor. Hessa'nınkinde bir masa, iki sandalye, bir orkide ve hediye olarak kartıyla paketlenmiş ikiz vazolar var. Kartın sözleri paket fişine basılıyor. Uygulamanın ana sayfasında bir sonraki sergi çoktan asılmış: pirinç fenerleriyle Ramazan geceleri.",
           push: {
             app: "Sakan",
             title: "Sipariş 3124",
@@ -2256,7 +2247,7 @@ export const STORIES_TR: StoryCopy = {
         "dil, Arapça sağdan sola"
       ],
       systemsTitle: "Her parça, ayrıntılı",
-      systemsText: "Görünümü satın al, odalar ve tarzlar, hediyeler ve mevsimler, iki görünüm ve ürünlerin nereden geldiği.",
+      systemsText: "Görünümü satın al, odalar ve tarzlar, hediyeler ve mevsimler, dört şablon ve ürünlerin nereden geldiği.",
       systems: [
         {
           name: "Görünümü satın al",
@@ -2329,17 +2320,12 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           name: "Yallapp Studio'da tasarlandı",
-          title: "İki görünüm, her parçası sizin",
-          text: "Sakan, yalnızca Studio öğeleriyle kurulmuş iki premium görünümle gelir.",
+          title: "Dört şablon, her parçası değiştirilebilir",
+          text: "Sakan, yalnızca Studio öğeleriyle kurulmuş dört premium şablonla gelir.",
           features: [
-            [
-              "Teen",
-              "B görünümü: sıcak ve sakin, beyaz ve kum rengi üzerinde siyaha yakın mürekkep, meşe ve kil."
-            ],
-            [
-              "Açık ve koyu",
-              "İki görünümün de tasarlanmış bir gecesi var."
-            ],
+            ["ATHAR", "C şablonu, demonun kendisi: galeri beyazında bir müze duvarı, etiketiyle çerçeveli tek parça, Roma rakamlarıyla salonlar."],
+            ["MAZAJ", "D şablonu: terakota ve kremde bir ruh hali panosu, bantlı polaroidler ve renge göre alışveriş. A ve B görünümleri de duruyor."],
+            ["Açık ve koyu", "Her şablonun tasarlanmış bir gecesi var."],
             [
               "Kompakt vitrin",
               "Koleksiyonlar yaklaşık 210 nokta yüksekliğinde kartlarda, sonraki görünüyor."
@@ -2419,7 +2405,7 @@ export const STORIES_TR: StoryCopy = {
       navName: "Mobilya mağazası uygulaması",
       metaTitle: "Odalar, cm ölçüler, istediğiniz gün teslimat ve kurulumla bir mobilya mağazası uygulaması, Yallapp Studio'da tasarlandı",
       metaDescription: "Rukn ile bir hafta: ilk oturma odası, doğru kumaşta bir kanepe, 240 cm'lik duvara 220 cm, cumartesi teslimat ve kurulum, ölçüye özel bir ünite.",
-      summary: "Odalar ve parçaları, her birinin stokuyla kumaşlar ve renkler, cm ölçüler, müşterinin gününde teslimat ve kurulum, ölçüye özel talepler; iki premium görünümde.",
+      summary: "Odalar ve parçaları, her birinin stokuyla kumaşlar ve renkler, cm ölçüler, müşterinin gününde teslimat ve kurulum, ölçüye özel talepler; dört premium şablonda.",
       eyebrow: "Yallapp Studio · Mobilya mağazası",
       title: "Duvara tam oturan bir kanepe",
       intro: "Sara, Riyad'daki ilk dairesinin anahtarlarını aldı; oturma odasında bir halıdan başka bir şey yok. Çarşamba akşamı. Telefonuyla geçen bir hafta, doğru kumaşta, seçtiği gün teslim edilip kurulan bir kanepeye böyle dönüşüyor.",
@@ -2429,25 +2415,25 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Riyad, boş bir oda",
           title: "İçi bomboş bir oturma odası",
-          text: "Sara, Rukn'u yerde otururken açıyor. Ana sayfa sakin ve hızlı: arama, yuvarlak odalar, kayan kartlarda sezonun koleksiyonu. Altında yan yana dört vaat: ücretsiz teslimat ve kurulum, garanti, seçtiği teslimat günü ve taksitin yakında geleceğini söyleyen küçük bir etiket."
+          text: "Sara, Rukn'u yerde otururken açıyor. Ana sayfa bir çizim: pafta, oda ve ölçeğiyle bir antet, sonra ekran genişliğinde çizilmiş bir oturma odası, her parça ölçüsüyle numaralı, Najd kanepe 220 cm. Altında paftanın oda dizini, A'dan E'ye."
         },
         {
           time: "20:44",
           kicker: "Menü",
           title: "Her oda bir satır",
-          text: "Zilin yanındaki menü bütün evi açıyor: önce Oturma odası, ardından kayan Kanepeler, Berjerler, Sehpalar ve TV üniteleri; sonra Yatak odası, Yemek odası, Çalışma odası ve Bahçe. Kanepeler'e dokunuyor."
+          text: "Üstteki menü bütün evi açıyor, odaları bir paftanın dizini gibi numaralı: önce Oturma odası, ardından kayan Kanepeler, Berjerler, Sehpalar ve TV üniteleri; sonra Yatak odası, Yemek odası, Çalışma odası ve Bahçe. Kanepeler'e dokunuyor."
         },
         {
           time: "20:52",
           kicker: "Kanepenin sayfası",
           title: "Bukle mi, kadife mi",
-          text: "Sadeer kanepe bukle, kadife ya da keten; fildişi, zeytin ya da kum renginde. Zeytin kadifeden son iki tane kalmış. Ekrandan karar veremiyor; ana sayfadan ücretsiz kumaş örneklerini istiyor: beş örnek, üç günde kapısında."
+          text: "Sadeer kanepe bukle, kadife ya da keten; fildişi, zeytin ya da kum renginde. Zeytin kadifeden son iki tane kalmış. Ekrandan karar veremiyor; mağazadan ücretsiz kumaş örneklerini istiyor: beş örnek, üç günde kapısında."
         },
         {
           time: "21:05",
           kicker: "Elde şerit metre",
           title: "240 cm'lik duvara 220 cm",
-          text: "Her kart adının altında ölçüsünü yazıyor: W 220 × D 95 × H 82 cm. Pencereyle kapı arasındaki duvarı ölçüyor: 240. Her yanda on santim. Najd orta sehpa da komple takımın fotoğrafında, noktası bir dokunuş uzakta."
+          text: "Her kartta, bir çizimdeki gibi önce ölçü geliyor: ölçü çizgisi üstünde W 220 × D 95 × H 82 cm, altında adı. Pencereyle kapı arasındaki duvarı ölçüyor: 240. Her yanda on santim. Najd orta sehpa ana sayfanın çiziminde 3 numara, bir dokunuş uzakta."
         },
         {
           time: "Cumartesi",
@@ -2479,7 +2465,7 @@ export const STORIES_TR: StoryCopy = {
         "dil, Arapça sağdan sola"
       ],
       systemsTitle: "Her parça, tek tek",
-      systemsText: "Odalar ve menü, kumaşlar ve ölçüler, teslimat ve kurulum, ölçüye özel üretim ve iki görünüm.",
+      systemsText: "Odalar ve menü, kumaşlar ve ölçüler, teslimat ve kurulum, ölçüye özel üretim ve dört şablon.",
       systems: [
         {
           name: "Odaya göre alışveriş",
@@ -2528,14 +2514,14 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           name: "Yallapp Studio'da tasarlandı",
-          title: "İki görünüm, her parçası değiştirilebilir",
-          text: "Rukn, yalnızca Studio öğeleriyle kurulmuş iki premium görünümde gelir.",
+          title: "Dört şablon, her parçası değiştirilebilir",
+          text: "Rukn, yalnızca Studio öğeleriyle kurulmuş dört premium şablonla gelir.",
           features: [
-            ["RUKN", "Görünüm A: modern beyaz ve ceviz, yuvarlak köşeler ve sıcak fotoğraflar."],
-            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var."],
+            ["MIZAN", "C şablonu, demonun kendisi: siyah beyaz çizimler gibi mağaza, her parça genişliği, derinliği ve yüksekliğiyle."],
+            ["Açık ve koyu", "Her şablonun tasarlanmış bir gecesi var."],
             ["Kompakt vitrin", "Koleksiyonlar yaklaşık 210 nokta yüksekliğinde kartlarda, sonraki kenardan görünür."],
             ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan işaretli."],
-            ["KANAF", "Görünüm B: koyu yeşilde sessiz lüks, kanepeni parça parça tasarla ve haritada showroom."],
+            ["MANZIL", "D şablonu: yulaf ve lacivertte oda oda, üstte bir oda seçici. A ve B görünümleri de duruyor."],
             ["Üç dil", "İngilizce, sağdan sola Arapça ve Türkçe."]
           ]
         }
@@ -2573,7 +2559,7 @@ export const STORIES_TR: StoryCopy = {
       navName: "Elektronik mağazası uygulaması",
       metaTitle: "Özellikler, karşılaştırma, garanti ve takas ile bir elektronik mağazası uygulaması, Yallapp Studio'da tasarlandı",
       metaDescription: "Madar ile bir hafta: yeni bir iş, özelliklerine göre seçilen bir dizüstü, yan yana karşılaştırılan iki telefon, bir yıl daha garanti ve takasa verilen eski bir telefon.",
-      summary: "Her ürünün özellikleri tablo hâlinde, iki ya da üç ürün yan yana, her birinin kendi fiyatıyla renkler ve depolamalar, garanti ve ek koruma, takas ve taksit yakında, iki premium görünümde.",
+      summary: "Her ürünün özellikleri tablo hâlinde, iki ya da üç ürün yan yana, her birinin kendi fiyatıyla renkler ve depolamalar, garanti ve ek koruma, takas ve taksit yakında, dört premium şablonda.",
       eyebrow: "Yallapp Studio · Elektronik mağazası",
       title: "Pazar, doğru dizüstüyle",
       intro: "Faisal pazar günü yeni bir işe başlıyor ve eski dizüstüsü dayanmayacak. Riyad'da çarşamba akşamı. Telefonuyla geçen birkaç akşam doğru dizüstüye, yeni bir telefona ve takasa verilen eskisine böyle dönüşüyor.",
@@ -2583,13 +2569,13 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Riyad, işten sonra",
           title: "Pazara kadar bir dizüstü",
-          text: "Faisal kanepede Madar'ı açıyor. Ana sayfa küçük ve hızlı: arama, kategoriler, kayan kartlarda haftanın lansmanları, bir sonraki kenardan görünüyor. Altında tek satırda sözler: 24 saatte teslimat, ücretsiz kurulum, yetkili garanti ve taksit, yakında."
+          text: "Faisal kanepede Madar'ı açıyor. Ana sayfa cam karolardan bir ızgara: en üstte özellik çipleriyle akıllı ev, çok satanın yanında günün fırsatı, dört küçük karoda kategoriler, sonra takas ve karşılaştırma. En altta buzlu camdan bir çubuk."
         },
         {
           time: "20:44",
           kicker: "Menü",
           title: "Her kategori bir satır",
-          text: "Zilin yanındaki menüye dokunuyor. Telefonlar, Dizüstüler, Tablet ve saatler, TV'ler: her kategori bir kart satırı, alt kategorileri ardından kayıyor. Dizüstüler satırını kaydırıp İnce ve hafif'e dokunuyor."
+          text: "Izgaranın menü karosuna dokunuyor. Telefonlar, Dizüstüler, Tablet ve saatler, TV'ler: her kategori bir kart satırı, alt kategorileri ardından kayıyor. Dizüstüler satırını kaydırıp İnce ve hafif'e dokunuyor."
         },
         {
           time: "20:51",
@@ -2633,7 +2619,7 @@ export const STORIES_TR: StoryCopy = {
         "dil, Arapça sağdan sola"
       ],
       systemsTitle: "Her parça, açıklamasıyla",
-      systemsText: "Özellikler ve karşılaştırma tablosu, renkler, depolamalar ve garanti, takas, iki görünüm ve ürünlerin nereden geldiği.",
+      systemsText: "Özellikler ve karşılaştırma tablosu, renkler, depolamalar ve garanti, takas, dört şablon ve ürünlerin nereden geldiği.",
       systems: [
         {
           name: "Özellikler ve karşılaştırma",
@@ -2672,12 +2658,12 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           name: "Yallapp Studio'da tasarlandı",
-          title: "İki görünüm, her parçası değiştirilebilir",
-          text: "Madar, yalnızca Studio öğeleriyle yapılmış iki premium görünümle gelir.",
+          title: "Dört şablon, her parçası değiştirilebilir",
+          text: "Madar, yalnızca Studio öğeleriyle kurulmuş dört premium şablonla gelir.",
           features: [
-            ["MADAR", "A görünümü: temiz beyaz ve tek bir koyu mavi, hizmetler tek kartta."],
-            ["NABD", "B görünümü: sıcak taş üzerinde neredeyse siyah kartlarda limon yeşili, ilk 5 ve bir paket."],
-            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var."],
+            ["MADAR GRID", "C şablonu, demonun kendisi: koyu cam karolardan bir bento, çok satanın yanında günün fırsatı."],
+            ["Renk sahnesi", "D şablonu: her cihaz kendi canlı renginde, kayan büyük kartlar. A ve B görünümleri de duruyor."],
+            ["Açık ve koyu", "Her şablonun tasarlanmış bir gecesi var."],
             ["Kompakt vitrin", "Lansmanlar yaklaşık 210 nokta yüksekliğinde kartlarda, sonraki görünüyor."],
             ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan yanar."],
             ["Hazır bölümler", "Takas, karşılaştırma, özellikler, hizmetler, sezonun yıldızı ve daha fazlası, her mağaza için."],
@@ -2727,7 +2713,7 @@ export const STORIES_TR: StoryCopy = {
       navName: "Telefon mağazası uygulaması",
       metaTitle: "Takas, garantili ikinci el, özellikler ve karşılaştırmalı bir telefon mağazası uygulaması, Yallapp Studio'da tasarlandı",
       metaDescription: "Nova ile bir gün: bir dakikada eski telefonun değeri, depolaması, rengi ve garantisiyle yeni bir telefon, iki telefonun karşılaştırması ve mağazaya ulaşan takas.",
-      summary: "Her birinin fiyatıyla depolama ve renk, yerel ya da uluslararası garanti, tabloda özellikler, iki telefonun karşılaştırması, sınıflarıyla garantili ikinci el ve takas, iki premium görünümde.",
+      summary: "Her birinin fiyatıyla depolama ve renk, yerel ya da uluslararası garanti, tabloda özellikler, iki telefonun karşılaştırması, sınıflarıyla garantili ikinci el ve takas, dört premium şablonda.",
       eyebrow: "Yallapp Studio · Telefon mağazası",
       title: "Eski telefon yenisinin bir kısmını öder",
       intro: "Kerim'in telefonunun arkası çatlak, kamerası geceleri bulanık çekiyor. Kahire'de bir çarşamba akşamı. Aynı telefonla geçen on dakika, eskisinin değeri fiyatından düşülmüş yeni bir telefona böyle dönüşüyor.",
@@ -2737,13 +2723,13 @@ export const STORIES_TR: StoryCopy = {
           time: "20:40",
           kicker: "Nasr City, işten sonra",
           title: "Geceleri bulanık çeken bir kamera",
-          text: "Kerim Nova'yı balkonda açıyor. Ana sayfa küçük ve hızlı: arama, dairelerde kategoriler ve kayan kartlarda sezonun telefonları, sıradaki kart kenardan görünüyor. Altında üç söz: takas, yetkili servis ve her cihazda garanti."
+          text: "Kerim Nova'yı balkonda açıyor. Ana sayfa siyah bir sahnede bir lansman: küçük bir yazı markası, \"Yeni\", büyük ve sakin harflerle mağazanın amiral gemisi, sıcak bir ışıkta tek başına telefon, seçilecek renkleri ve fiyatı, taksit yakında."
         },
         {
           time: "20:43",
           kicker: "Ne eder?",
           title: "Eski telefonu, bir dakikadan kısa sürede",
-          text: "Ana sayfanın ortasında bir kart eski telefonunun ne ettiğini soruyor. Modelini, 256 GB'ını ve çatlak arkası yüzünden Yeni gibi değil İyi'yi seçiyor. Tahmin hemen, mağazanın kendi fiyatlarıyla çıkıyor. Takası başlat'a dokunup adını ve numarasını bırakıyor."
+          text: "Aşağıda, her satırda bir özelliğin ardından, koyu bir kart eski telefonunun ne ettiğini soruyor. Modelini, 256 GB'ını ve çatlak arkası yüzünden Yeni gibi değil İyi'yi seçiyor. Tahmin hemen, mağazanın kendi fiyatlarıyla çıkıyor. Takası başlat'a dokunup adını ve numarasını bırakıyor."
         },
         {
           time: "20:47",
@@ -2761,7 +2747,7 @@ export const STORIES_TR: StoryCopy = {
           time: "21:05",
           kicker: "Kız kardeşi için",
           title: "Garantili ikinci el, A sınıfı",
-          text: "Ana sayfaya dönüyor; gece olmuş, uygulama koyulaşmış. Kız kardeşinin üniversite için telefona ihtiyacı var: garantili ikinci el telefonlar sınıflarını, depolamalarını ve pil sağlıklarını gösteriyor. A sınıfı, %91 pilli ve 12 ay garantili bir Lumen 11. Bağlantıyı ona gönderiyor."
+          text: "Gece uygulamaya dönüyor; sahne hâlâ siyah. Kız kardeşinin üniversite için telefona ihtiyacı var: menüden garantili ikinci el telefonlar sınıflarını, depolamalarını ve pil sağlıklarını gösteriyor. A sınıfı, %91 pilli ve 12 ay garantili bir Lumen 11. Bağlantıyı ona gönderiyor."
         },
         {
           time: "10:15",
@@ -2787,7 +2773,7 @@ export const STORIES_TR: StoryCopy = {
         "dil, Arapça sağdan sola"
       ],
       systemsTitle: "Her parça, ayrıntısıyla",
-      systemsText: "Takas, özellikleri ve karşılaştırmasıyla telefonun sayfası, garantili ikinci el, iki görünüm ve ürünlerin nereden geldiği.",
+      systemsText: "Takas, özellikleri ve karşılaştırmasıyla telefonun sayfası, garantili ikinci el, dört şablon ve ürünlerin nereden geldiği.",
       systems: [
         {
           name: "Takas",
@@ -2829,12 +2815,12 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           name: "Yallapp Studio'da tasarlandı",
-          title: "İki görünüm, her parçası sizin",
-          text: "Nova, yalnızca Studio öğeleriyle kurulmuş iki premium görünümle gelir.",
+          title: "Dört şablon, her parçası değiştirilebilir",
+          text: "Nova, yalnızca Studio öğeleriyle kurulmuş dört premium şablonla gelir.",
           features: [
-            ["NOVA", "Görünüm A: beyaz, mürekkep ve tek bir kobalt vurgu, tahmin aracı ana sayfada."],
-            ["Zümrüt", "Görünüm B: sıcak taş üstünde koyu yeşil, üç adımda takas ve hazır paket."],
-            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var."],
+            ["LANSMAN", "C şablonu, demonun kendisi: siyah sahnede tek bir telefon, her satırda bir özellik."],
+            ["FIRSAT MERKEZİ", "D şablonu: sıcak pembede hızlı ve yoğun, geri sayımıyla günün fırsatları. A ve B görünümleri de duruyor."],
+            ["Açık ve koyu", "Her şablonun tasarlanmış bir gecesi var."],
             ["Kompakt vitrin", "Sezonun telefonları yaklaşık 210 nokta yüksekliğinde kartlarda, sıradaki görünür."],
             ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap; açık olan adıyla bir hap."],
             ["Hazır bölümler", "Takas, karşılaştırma, depolamaya göre, garantili ikinci el ve daha fazlası, her mağaza için."],
@@ -2885,7 +2871,7 @@ export const STORIES_TR: StoryCopy = {
       navName: "Bilgisayar mağazası uygulaması",
       metaTitle: "PC toplama, özelliğe göre filtre ve karşılaştırmalı bir bilgisayar ve oyun mağazası uygulaması, Yallapp Studio'da tasarlandı",
       metaDescription: "Nawah'la bir hafta: parça parça, her parçası kontrol edilerek toplanan bir oyun bilgisayarı, özelliğiyle bulunan bir dizüstü ve yan yana bir karşılaştırma.",
-      summary: "Uyum kontrolüyle PC toplama, işlemci, bellek, depolama ve ekran kartına göre filtreler, tablo halinde özellikler, karşılaştırma ve yapılandırma, iki premium görünümde.",
+      summary: "Uyum kontrolüyle PC toplama, işlemci, bellek, depolama ve ekran kartına göre filtreler, tablo halinde özellikler, karşılaştırma ve yapılandırma, dört premium şablonda.",
       eyebrow: "Yallapp Studio · Bilgisayar mağazası",
       title: "Parça parça, hepsi uyumlu",
       intro: "Faysal bütün yıl bir oyun bilgisayarı için biriktirdi; kız kardeşi Rim de gelecek ay üniversiteye dizüstüsüz başlıyor. Cidde'de bir perşembe gecesi. Tek bir uygulama birini topladı, ötekini buldu.",
@@ -2895,7 +2881,7 @@ export const STORIES_TR: StoryCopy = {
           time: "22:05",
           kicker: "Cidde, perşembe gecesi",
           title: "Parça parça bir PC",
-          text: "Faysal Nawah'ı açıyor. Ana sayfa küçük ve hızlı: arama, kategoriler, sonrakinin kenardan göründüğü bir vitrin kartı ve altında parçaları sıralanmış PC topla kartı: işlemci, anakart, bellek, ekran kartı, depolama, güç, kasa.",
+          text: "Faysal Nawah'ı açıyor. Ana sayfa siyah üzerinde neon bir savaş istasyonu: ne oynadığınız için sekmeler, Oyun, Yayın, Parçalar ve Ekipman, ve her şeyden önce Hayalindeki PC'yi topla, adımları bir sütunda: işlemci, ekran kartı, bellek.",
         },
         {
           time: "22:09",
@@ -2940,7 +2926,7 @@ export const STORIES_TR: StoryCopy = {
       statsTitle: "Bir toplamanın ardındaki küçük gerçekler",
       stats: ["demodaki PC toplamanın parçası, sırasıyla", "parçalar arasında kontrol: soket, bellek, güç ve boyut", "iade günü, her siparişte görünür", "dil, Arapça sağdan sola"],
       systemsTitle: "Her parça, açıklandı",
-      systemsText: "PC toplama, özelliğe göre filtreler, özellikler ve karşılaştırma, iki görünüm ve ürünlerin nereden geldiği.",
+      systemsText: "PC toplama, özelliğe göre filtreler, özellikler ve karşılaştırma, dört şablon ve ürünlerin nereden geldiği.",
       systems: [
         {
           name: "PC toplama",
@@ -2982,12 +2968,12 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           name: "Yallapp Studio'da tasarlandı",
-          title: "İki görünüm, her parçası sizin",
-          text: "Nawah, yalnızca Studio öğeleriyle kurulmuş iki premium görünümle gelir.",
+          title: "Dört şablon, her parçası değiştirilebilir",
+          text: "Nawah, yalnızca Studio öğeleriyle kurulmuş dört premium şablonla gelir.",
           features: [
-            ["NAWAH", "A görünümü: serin beyaz ve tek güçlü mavi, fırsatlar ve oyuncu bölgesi için koyu kartlar."],
-            ["SILICA", "B görünümü: sıcak taş üstünde koyu yeşil, numaralı bölümler."],
-            ["Açık ve koyu", "İki görünümün de tasarlanmış bir gecesi var."],
+            ["Savaş istasyonu", "C şablonu, demonun kendisi: siyah üzerinde neon, köşesi kesik kartlar ve önce Bilgisayarını topla."],
+            ["İş istasyonu", "D şablonu: kurumsal için sade mavi-gri, özellik sayfası, karşılaştırma ve teklif formu. A ve B görünümleri de duruyor."],
+            ["Açık ve koyu", "Her şablonun tasarlanmış bir gecesi var."],
             ["Kompakt vitrin", "Yaklaşık 210 punto yüksekliğinde kartlar, sonraki kenardan görünür."],
             ["Yüzen çubuk", "Ana sayfa, Mağaza, Sepet, Siparişler ve Hesap."],
             ["Hazır bölümler", "PC toplama, özellik filtreleri, karşılaştırılan toplamalar ve haftanın cihazı, her mağaza için."],
