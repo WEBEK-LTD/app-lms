@@ -53,6 +53,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonLocked => 'يُفتح على الحساب الذي يملكه';
 
   @override
+  String get commonLockedIos => 'مقفل';
+
+  @override
   String get langTitle => 'اللغة';
 
   @override

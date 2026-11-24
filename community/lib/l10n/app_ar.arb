@@ -14,6 +14,7 @@
   "commonOffline": "لا يوجد اتصال بالإنترنت. تحقّق من اتصالك وأعد المحاولة.",
   "commonEmpty": "لا يوجد شيء هنا بعد.",
   "commonLocked": "يُفتح على الحساب الذي يملكه",
+  "commonLockedIos": "مقفل",
   "langTitle": "اللغة",
   "langEnglish": "English",
   "langArabic": "العربية",

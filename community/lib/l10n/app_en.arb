@@ -14,6 +14,7 @@
   "commonOffline": "You’re offline. Check your connection and try again.",
   "commonEmpty": "Nothing here yet.",
   "commonLocked": "Unlocks on the account that has it",
+  "commonLockedIos": "Locked",
   "langTitle": "Language",
   "langEnglish": "English",
   "langArabic": "العربية",

@@ -20,7 +20,6 @@ Checked against `community/` (the app, areas D and E) and A's schema
 | Questions, answers, replies, votes, bookmarks, follows, friends, blocks, reports | What the member does in the app | The community itself | No |
 | Proof of identity (a photo or PDF), full name, portfolio links | The Gold badge form | Checking a Pro Developer before giving the badge; private, seen only by the reviewers | No: only when applying |
 | The linked Yallapp account and its apps | The member links it on yallapp.com.tr | Showing their apps; the Gold and Green badges | No |
-| What the member has unlocked | Their purchases on the website (the app sells nothing) | Showing unlocked tutorials without a lock | No |
 | Device name and platform ("iPhone", "Android phone"), last seen | Each sign-in | The member's list of signed-in devices, to sign one out | Yes |
 | Language and theme | Settings | The member's choices on every device | Yes |
 
@@ -30,6 +29,9 @@ What the app does not collect:
   areas D and E alike.
 - No push device tokens: there are no push notifications in phase 1, and no
   Firebase or APNs registration.
+- No purchases: phase 1 has no paid content (`review-notes.md`). When the
+  academy comes in phase 3, Purchase History (Apple) and Financial info →
+  Purchase history (Google) are added here.
 - No location, contacts, calendar, health or financial details. No IP
   address is stored with a session. No tracking across other companies' apps
   or websites.
@@ -54,7 +56,6 @@ analytics or third-party purposes):
 | User Content | Photos or Videos | The profile picture; the proof of identity (Gold badge) |
 | User Content | Other User Content | Questions, answers, replies, the profile's bio and links, reports |
 | Identifiers | User ID | The member's id; their Apple or Google sign-in id |
-| Purchases | Purchase History | Which paid items, bought on the website, the member has unlocked |
 | Other Data | Other Data Types | Device name and platform for the signed-in devices list |
 
 Data not linked to you: **None**.
@@ -82,7 +83,6 @@ processed ephemerally; none shared):
 | Personal info | User IDs | Required |
 | Personal info | Other info (the proof of identity, portfolio links) | Optional |
 | Photos and videos | Photos | Optional |
-| Financial info | Purchase history (what the member unlocked on the website) | Optional |
 | App activity | Other user-generated content (questions, answers, replies, profile text) | Optional |
 | App activity | Other actions (follows, friends, votes, bookmarks, blocks, reports) | Optional |
 | Device or other IDs | None | – |

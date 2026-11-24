@@ -937,7 +937,7 @@ String? _chip(BuildContext context, FeedItem item) {
   final l = context.l10n;
   return switch (item.kind) {
     FeedKind.question => l.homeAnswers(item.answers),
-    FeedKind.tutorial when item.locked => l.commonLocked,
+    FeedKind.tutorial when item.locked => lockedLabel(context),
     FeedKind.tutorial => l.homeStartTutorial,
     FeedKind.announcement => item.label,
   };

@@ -54,6 +54,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonLocked => 'Unlocks on the account that has it';
 
   @override
+  String get commonLockedIos => 'Locked';
+
+  @override
   String get langTitle => 'Language';
 
   @override

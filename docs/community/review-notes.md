@@ -18,11 +18,9 @@ repository.
 > It has sample questions, answers and a profile with badges. To see the
 > email flows, sign up with any address you can read.
 >
-> No in-app purchases: the app sells nothing. It has no prices, no buy
-> buttons and no links to buy. A few tutorials are paid on our website.
-> If the member has one unlocked, it opens; if not, it shows a lock and the
-> words "Unlocks on the account that has it". There is no price, link or
-> call to buy.
+> No in-app purchases and no paid content: the app sells nothing, and
+> this version has nothing paid in it. There are no prices, no buy buttons
+> and no links to buy anything, and nothing in the app is bought elsewhere.
 >
 > User-generated content (Guideline 1.2):
 > - Every question, answer, reply and member has Report (long-press, or the
@@ -58,30 +56,32 @@ instructions.
 4. After review, keep the account (reviewers come back for updates), or
    change its password.
 
-## A risk for the owner to decide before submitting
+## Paid content and the App Store (decided)
 
 Apple's guideline 3.1.1 asks that digital content unlocked in an app be
-sold through in-app purchase. Its exceptions are:
+sold through in-app purchase. Its exceptions (3.1.3(a) "reader" apps,
+3.1.3(b) "multiplatform services") may not cover tutorials bought on a
+website.
 
-- **3.1.3(a) "Reader" apps:** previously bought magazines, newspapers,
-  books, audio, music and video.
-- **3.1.3(b) "Multiplatform services":** content bought elsewhere,
-  provided those items are also available as in-app purchases.
+The coordinator's decision (24 November 2026), option (b):
 
-Paid tutorials bought on the website and opened in the app may be read as
-neither. Tutorial videos are close to "video", but courses are not named,
-and there is no in-app purchase. The brief's rule (no payments in the app,
-ever) keeps the app clear of buy links, but it doesn't by itself settle
-whether unlocking is allowed.
+- Phase 1 has no paid content at all. Paid content (the academy) arrives
+  in phase 3.
+- On iOS, any paid or locked item stays locked:
+  - there is no path to unlock it;
+  - there is no wording about unlocking it or about the website. The lock
+    reads only "Locked" (`lockedLabel`), never a price;
+  - Settings' note about paid things doesn't show
+    (`settings_test.dart`, "on iOS, no word about paid things or the
+    website").
+- Before phase 3, the owner gets the options again:
+  - in-app purchase for the academy on iOS;
+  - asking App Review;
+  - keeping paid items locked on iOS.
 
-Options for the owner:
-
-- **(a)** Keep it as it is and explain it as above. It may pass as a
-  reader-type app for video and articles.
-- **(b)** In phase 1, show paid tutorials only as locked in the iOS app,
-  without opening them even when unlocked.
-- **(c)** Ask App Review first, through Apple's Developer contact form, before
-  the first submission.
+To keep an unlocked paid item locked on iOS, the contract will need to say
+which items are paid, not only `locked`. That's for phase 3.
 
 Google Play's payments policy allows content bought outside the app to be
-used in it, with no link to buy, so this is about the App Store only.
+used in it, with no link to buy; Android keeps "Unlocks on the account that
+has it".
