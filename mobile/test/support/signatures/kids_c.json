@@ -3840,7 +3840,7 @@
            "start": 16
           },
           "product_part": {
-           "look": "grid",
+           "look": "chips",
            "accent": "#3A2952",
            "dark_accent": "#FFD2B8"
           },

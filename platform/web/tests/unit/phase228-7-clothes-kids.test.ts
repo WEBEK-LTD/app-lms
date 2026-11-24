@@ -86,14 +86,14 @@ describe("228.7 Lujain's and Toota's own product pages", () => {
     expect(galleries.filter((g) => g.startsWith("pager"))).toEqual([]);
   });
 
-  it("RUNWAY: the photos one under the other at 3:4, edge to edge; the sizes in black; a minimal bar pinned at the foot, the price beside Add to bag", () => {
+  it("RUNWAY: the photos one under the other at 3:4, edge to edge; sizes as text chips; a minimal bar pinned at the foot, the price beside Add to bag", () => {
     const page = productPageOfLook(CLOTHES_DEMO, "c", ctxOf("Lujain"))!;
     const nodes = allNodes(page);
     const gallery = nodes.find((n) => n.type === "product_gallery")!;
     expect(gallery).toMatchObject({ product_part: { look: "stacked", radius: 0 }, aspect_ratio: 0.75 });
     expect(page.header).toBeUndefined();
-    // The sizes as equal cells (228.7: chips once the app draws a chip hugging its words).
-    expect(lookOf(nodes.find((n) => n.type === "product_variants")!)).toBe("grid");
+    // 228.8 The sizes as text chips, each as wide as its words.
+    expect(lookOf(nodes.find((n) => n.type === "product_variants")!)).toBe("chips");
     expect(nodes.find((n) => n.type === "product_buy")).toMatchObject({ pin: "bottom", product_part: { look: "price" }, text: "Add to bag" });
     // Quiet: no stars, no quantity.
     expect(nodes.some((n) => n.type === "product_reviews" || n.type === "product_quantity")).toBe(false);

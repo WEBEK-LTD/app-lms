@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/api/models/models.dart';
+import '../../../core/format/bidi.dart';
 import '../../../core/format/money.dart';
 import '../../../core/format/text_case.dart';
 import '../../../core/gate/app_gate.dart' show appConfigProvider;
@@ -155,11 +156,18 @@ bool studioProductShows(BuildContext context, WidgetRef ref, StudioNode node) {
     StudioNodeType.productDescription =>
       product.descriptionHtml.trim().isNotEmpty ||
           (product.shortDescriptionHtml ?? '').trim().isNotEmpty,
+    // 228.8 The dimensions headline: the product's size.
+    StudioNodeType.productSpecs when node.productPart.look == 'dimensions' =>
+      product.dimensions != null,
     StudioNodeType.productSpecs =>
       product.specs.isNotEmpty || product.facts.isNotEmpty,
+    // 228.8 Only with a review to show, the customer's own, or a way to
+    // write one: the shop sends its preview even with none ("0.0").
     StudioNodeType.productReviews =>
-      product.reviewsPreview != null ||
-          (product.summary.rating != null && product.summary.ratingCount > 0),
+      (product.summary.rating != null && product.summary.ratingCount > 0) ||
+          (product.reviewsPreview?.summary.ratingCount ?? 0) > 0 ||
+          product.reviewsPreview?.mine != null ||
+          (product.reviewsPreview?.canReview ?? false),
     StudioNodeType.productRelated =>
       (node.productPart.completeLook ? product.completeLook : product.related)
           .isNotEmpty,
@@ -217,7 +225,17 @@ class StudioProductView extends ConsumerWidget {
           accent: accent,
         );
       case StudioNodeType.productTitle:
-        return _Title(controller: c, style: style, ink: ink, look: look);
+        return _Title(
+          controller: c,
+          style: style,
+          ink: ink,
+          look: look,
+          align: switch (node.textAlign) {
+            StudioTextAlign.center => TextAlign.center,
+            StudioTextAlign.end => TextAlign.end,
+            StudioTextAlign.start => TextAlign.start,
+          },
+        );
       case StudioNodeType.productPrice:
         return _Price(controller: c, style: style, ink: ink, look: look);
       case StudioNodeType.productVariants:
@@ -249,6 +267,15 @@ class StudioProductView extends ConsumerWidget {
                 ? (node.darkBorderColor ?? node.borderColor)
                 : node.borderColor,
           ),
+        );
+      case StudioNodeType.productSpecs when look == 'dimensions':
+        // 228.8 W × D × H as the headline figure over a dimension rule.
+        return _Dimensions(
+          controller: c,
+          style: style,
+          ink: ink,
+          title: title,
+          accent: accent,
         );
       case StudioNodeType.productSpecs:
         return _Specs(
@@ -517,12 +544,16 @@ class _Title extends ConsumerWidget {
     required this.style,
     required this.ink,
     required this.look,
+    this.align = TextAlign.start,
   });
 
   final ProductPageController controller;
   final TextStyle style;
   final Color ink;
   final String? look;
+
+  /// 228.8 Its alignment (`StudioNode.text_align`): a polaroid's name centred.
+  final TextAlign align;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -539,6 +570,7 @@ class _Title extends ConsumerWidget {
           child: Text(
             controller.product.name,
             key: const ValueKey('product-title'),
+            textAlign: align,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
@@ -789,15 +821,20 @@ class _Cell extends StatelessWidget {
           width: width,
           constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
           padding: EdgeInsets.symmetric(horizontal: round ? 16 : 6),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: selected ? _on(accent) : ink,
-              decoration: soldOut ? TextDecoration.lineThrough : null,
+          // 228.8 A chip (no width of its own) hugs its words: centred
+          // without widening, as an aligned Container would across the row.
+          child: Center(
+            widthFactor: width == null ? 1 : null,
+            child: Text(
+              // 228.8 A size or option kept whole in its own direction.
+              isolate(label),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: selected ? _on(accent) : ink,
+                decoration: soldOut ? TextDecoration.lineThrough : null,
+              ),
             ),
           ),
         ),
@@ -988,6 +1025,9 @@ class _Buy extends ConsumerWidget {
           productId: product.id,
           variationId: c.variation!.id,
           waiting: product.backInStock!.waitsFor(c.variation!.id),
+          // 228.8 In the part's colour and corners.
+          accent: accent,
+          radius: radius,
         ),
       ProductCta.unavailableOption => Row(
         children: [button(context.l10n.notAvailableInOptions, onPressed: null)],
@@ -998,6 +1038,9 @@ class _Buy extends ConsumerWidget {
           productId: product.id,
           variationId: c.variation?.id,
           waiting: product.backInStock!.waitsFor(c.variation?.id),
+          // 228.8 In the part's colour and corners.
+          accent: accent,
+          radius: radius,
         ),
       ProductCta.outOfStock => Row(
         children: [button(context.l10n.outOfStock, onPressed: null)],
@@ -1235,6 +1278,71 @@ class _DescriptionState extends State<_Description> {
   }
 }
 
+/// 228.8 The product's size (W × D × H) as the headline figure: its
+/// caption (the element's title, else the app's word), the size large in the
+/// element's font, and a dimension rule under it, a tick at each end.
+class _Dimensions extends StatelessWidget {
+  const _Dimensions({
+    required this.controller,
+    required this.style,
+    required this.ink,
+    required this.title,
+    required this.accent,
+  });
+
+  final ProductPageController controller;
+  final TextStyle style;
+  final Color ink;
+  final String title;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final size = controller.product.dimensions ?? '';
+    Widget tick() =>
+        SizedBox(width: 1.5, height: 10, child: ColoredBox(color: accent));
+    return Column(
+      key: const ValueKey('product-dimensions-headline'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          title.isNotEmpty ? title : context.l10n.productDimensions,
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.2,
+            color: p.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          size,
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
+            height: 1.2,
+            color: ink,
+          ).merge(style),
+        ),
+        const SizedBox(height: 8),
+        ExcludeSemantics(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              tick(),
+              Expanded(
+                child: SizedBox(height: 1.5, child: ColoredBox(color: accent)),
+              ),
+              tick(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _Specs extends StatelessWidget {
   const _Specs({
     required this.controller,
@@ -1285,7 +1393,8 @@ class _Specs extends StatelessWidget {
                       text: '$label: ',
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    TextSpan(text: value),
+                    // 228.8 Kept whole in its own direction ("256 GB", not "GB 256").
+                    TextSpan(text: isolate(value)),
                   ],
                 ),
                 style: TextStyle(fontSize: 14, color: ink, height: 1.45),
@@ -1310,7 +1419,7 @@ class _Specs extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      value,
+                      isolate(value),
                       textAlign: TextAlign.end,
                       style: TextStyle(
                         fontSize: 13,

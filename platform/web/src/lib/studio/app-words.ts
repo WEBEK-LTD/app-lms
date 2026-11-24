@@ -1073,6 +1073,8 @@ export const en = {
   pSampleFitValue: "Relaxed",
   pSampleCare: "Care",
   pSampleCareValue: "Machine wash at 30°",
+  pSampleSize: "W 220 × D 95 × H 82 cm",
+  pSizeTitle: "Dimensions",
   // 211 The tech elements' own words (lib/pages/types.ts STUDIO_TECH_TYPES), as the app says them.
   techSpecs: "Specifications",
   techCompare: "Compare",
@@ -2886,6 +2888,8 @@ export const ar: Record<AppWord, string> = {
   pSampleFitValue: "واسعة",
   pSampleCare: "العناية",
   pSampleCareValue: "غسيل آلي على 30°",
+  pSampleSize: "ع 220 × عم 95 × ار 82 سم",
+  pSizeTitle: "الأبعاد",
   // 211 The tech elements' own words (lib/pages/types.ts STUDIO_TECH_TYPES), as the app says them.
   techSpecs: "المواصفات",
   techCompare: "قارن",
@@ -4692,6 +4696,8 @@ export const tr: Record<AppWord, string> = {
   pSampleFitValue: "Rahat",
   pSampleCare: "Bakım",
   pSampleCareValue: "30°'de makinede yıkama",
+  pSampleSize: "G 220 × D 95 × Y 82 cm",
+  pSizeTitle: "Ölçüler",
   // 211 The tech elements' own words (lib/pages/types.ts STUDIO_TECH_TYPES), as the app says them.
   techSpecs: "Teknik özellikler",
   techCompare: "Karşılaştır",
