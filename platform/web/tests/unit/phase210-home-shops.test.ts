@@ -78,7 +78,7 @@ describe("210 a product's size in cm and the days it takes to make", () => {
   it("writes them in the app's language, the days first on a card", () => {
     expect(dimensionsLine({ width: 220, depth: 95, height: 82 }, "en")).toBe("W 220 × D 95 × H 82 cm");
     expect(dimensionsLine({ width: 62, depth: null, height: null }, "tr")).toBe("G 62 cm");
-    expect(dimensionsLine({ width: 220, depth: 95, height: 82.5 }, "ar")).toBe("ع 220 × عم 95 × ار 82.5 سم");
+    expect(dimensionsLine({ width: 220, depth: 95, height: 82.5 }, "ar")).toBe("220 × 95 × 82.5 سم");
     expect(dimensionsLine(null, "en")).toBeNull();
     expect(makeDaysLine({ min: 3, max: 5 }, "en")).toBe("Made in 3–5 days");
     expect(makeDaysLine({ min: 1, max: 1 }, "ar")).toBe("يُصنع في يوم واحد");

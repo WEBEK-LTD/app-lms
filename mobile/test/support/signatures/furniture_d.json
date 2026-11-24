@@ -3379,11 +3379,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-230",
+      "id": "sig-297",
       "type": "column",
       "children": [
        {
-        "id": "sig-231",
+        "id": "sig-298",
         "type": "row",
         "name": "Rooms",
         "pin": "none",
@@ -3406,7 +3406,7 @@
         "shadow": "light",
         "children": [
          {
-          "id": "sig-232",
+          "id": "sig-299",
           "type": "column",
           "name": "Living room",
           "width": "fill",
@@ -3427,7 +3427,7 @@
           "dark_background": "#E3B868",
           "children": [
            {
-            "id": "sig-233",
+            "id": "sig-300",
             "type": "icon",
             "icon": "airline_seat_recline_extra",
             "icon_size": 20,
@@ -3435,7 +3435,7 @@
             "dark_color": "#1A1408"
            },
            {
-            "id": "sig-234",
+            "id": "sig-301",
             "type": "text",
             "text": "Living",
             "max_lines": 1,
@@ -3459,7 +3459,7 @@
           ]
          },
          {
-          "id": "sig-235",
+          "id": "sig-302",
           "type": "column",
           "name": "Bedroom",
           "width": "fill",
@@ -3478,7 +3478,7 @@
           },
           "children": [
            {
-            "id": "sig-236",
+            "id": "sig-303",
             "type": "icon",
             "icon": "bed",
             "icon_size": 20,
@@ -3486,7 +3486,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-237",
+            "id": "sig-304",
             "type": "text",
             "text": "Bedroom",
             "max_lines": 1,
@@ -3510,7 +3510,7 @@
           ]
          },
          {
-          "id": "sig-238",
+          "id": "sig-305",
           "type": "column",
           "name": "Dining room",
           "width": "fill",
@@ -3529,7 +3529,7 @@
           },
           "children": [
            {
-            "id": "sig-239",
+            "id": "sig-306",
             "type": "icon",
             "icon": "restaurant",
             "icon_size": 20,
@@ -3537,7 +3537,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-240",
+            "id": "sig-307",
             "type": "text",
             "text": "Dining",
             "max_lines": 1,
@@ -3561,7 +3561,7 @@
           ]
          },
          {
-          "id": "sig-241",
+          "id": "sig-308",
           "type": "column",
           "name": "Office",
           "width": "fill",
@@ -3580,7 +3580,7 @@
           },
           "children": [
            {
-            "id": "sig-242",
+            "id": "sig-309",
             "type": "icon",
             "icon": "computer",
             "icon_size": 20,
@@ -3588,7 +3588,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-243",
+            "id": "sig-310",
             "type": "text",
             "text": "Office",
             "max_lines": 1,
@@ -3612,7 +3612,7 @@
           ]
          },
          {
-          "id": "sig-244",
+          "id": "sig-311",
           "type": "column",
           "name": "Outdoor",
           "width": "fill",
@@ -3631,7 +3631,7 @@
           },
           "children": [
            {
-            "id": "sig-245",
+            "id": "sig-312",
             "type": "icon",
             "icon": "yard",
             "icon_size": 20,
@@ -3639,7 +3639,7 @@
             "dark_color": "#AAB0BF"
            },
            {
-            "id": "sig-246",
+            "id": "sig-313",
             "type": "text",
             "text": "Outdoor",
             "max_lines": 1,
@@ -3707,11 +3707,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-247",
+      "id": "sig-314",
       "type": "column",
       "children": [
        {
-        "id": "sig-248",
+        "id": "sig-315",
         "type": "coupon",
         "name": "Your code",
         "code": "RUKN10",
@@ -3729,7 +3729,7 @@
         }
        },
        {
-        "id": "sig-249",
+        "id": "sig-316",
         "type": "row",
         "name": "The team assembles your pieces on the delivery day and takes the boxes away.",
         "gap": 12,
@@ -3751,7 +3751,7 @@
         "dark_background": "#1F2636",
         "children": [
          {
-          "id": "sig-250",
+          "id": "sig-317",
           "type": "icon",
           "icon": "build",
           "icon_size": 22,
@@ -3759,7 +3759,7 @@
           "dark_color": "#E3B868"
          },
          {
-          "id": "sig-251",
+          "id": "sig-318",
           "type": "text",
           "text": "The team assembles your pieces on the delivery day and takes the boxes away.",
           "font": {
@@ -3826,11 +3826,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-252",
+      "id": "sig-319",
       "type": "column",
       "children": [
        {
-        "id": "sig-253",
+        "id": "sig-320",
         "type": "row",
         "name": "Your order's journey",
         "gap": 12,
@@ -3843,13 +3843,13 @@
         },
         "children": [
          {
-          "id": "sig-254",
+          "id": "sig-321",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-255",
+            "id": "sig-322",
             "type": "text",
             "text": "Your order's journey",
             "font": {
@@ -3874,7 +3874,7 @@
         ]
        },
        {
-        "id": "sig-256",
+        "id": "sig-323",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -4001,11 +4001,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-258",
+      "id": "sig-325",
       "type": "column",
       "children": [
        {
-        "id": "sig-257",
+        "id": "sig-324",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -4807,6 +4807,1167 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#F3F1EC",
+     "dark_background": "#0F131C",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-288",
+      "type": "column",
+      "gap": 0,
+      "children": [
+       {
+        "id": "sig-230",
+        "type": "row",
+        "name": "For your room",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 12,
+         "end": 16,
+         "bottom": 6,
+         "start": 72
+        },
+        "children": [
+         {
+          "id": "sig-231",
+          "type": "icon",
+          "icon": "chair",
+          "icon_size": 20,
+          "color": "#9A6A2C",
+          "dark_color": "#E3B868"
+         },
+         {
+          "id": "sig-232",
+          "type": "text",
+          "text": "For your room",
+          "font": {
+           "family": "Noto Sans Arabic",
+           "size": 13,
+           "weight": 700
+          },
+          "color": "#1B2233",
+          "dark_color": "#EEF0F5",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "لغرفتك"
+           },
+           "tr": {
+            "text": "Odanız için"
+           }
+          }
+         },
+         {
+          "id": "sig-233",
+          "type": "row",
+          "name": "Cart",
+          "width": 42,
+          "height": 42,
+          "radius": 21,
+          "align": "center",
+          "cross": "center",
+          "self_align": "center",
+          "action": {
+           "type": "screen",
+           "screen": "cart"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#181E2B",
+          "border_color": "#E2DED5",
+          "dark_border_color": "#283042",
+          "border_width": 1,
+          "children": [
+           {
+            "id": "sig-234",
+            "type": "icon",
+            "icon": "shopping_bag",
+            "icon_size": 21,
+            "color": "#1B2233",
+            "dark_color": "#EEF0F5"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-289",
+        "type": "product_gallery",
+        "aspect_ratio": 1.3333333333333333,
+        "product_part": {
+         "look": "card",
+         "radius": 26
+        },
+        "margin": {
+         "top": 8,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        }
+       },
+       {
+        "id": "sig-235",
+        "type": "row",
+        "gap": 12,
+        "cross": "start",
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-236",
+          "type": "product_title",
+          "font": {
+           "family": "Noto Sans Arabic",
+           "size": 21,
+           "weight": 800,
+           "line_height": 1.3
+          },
+          "color": "#1B2233",
+          "dark_color": "#EEF0F5",
+          "width": "fill"
+         },
+         {
+          "id": "sig-237",
+          "type": "product_price",
+          "font": {
+           "family": "Noto Sans Arabic",
+           "size": 17,
+           "weight": 800
+          },
+          "product_part": {
+           "look": "from"
+          },
+          "color": "#9A6A2C",
+          "dark_color": "#E3B868"
+         }
+        ]
+       },
+       {
+        "id": "sig-238",
+        "type": "row",
+        "name": "Choose the material",
+        "gap": 12,
+        "cross": "end",
+        "padding": {
+         "top": 22,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-239",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-240",
+            "type": "text",
+            "text": "Choose the material",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 19,
+             "weight": 800
+            },
+            "color": "#1B2233",
+            "dark_color": "#EEF0F5",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "اختر الخامة"
+             },
+             "tr": {
+              "text": "Malzemeyi seçin"
+             }
+            }
+           },
+           {
+            "id": "sig-241",
+            "type": "text",
+            "text": "Every finish, side by side",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 12,
+             "weight": 400
+            },
+            "color": "#596071",
+            "dark_color": "#AAB0BF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "كل التشطيبات جنبًا إلى جنب"
+             },
+             "tr": {
+              "text": "Tüm yüzeyler yan yana"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-242",
+        "type": "row",
+        "name": "Choose the material first",
+        "gap": 10,
+        "scroll": true,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-243",
+          "type": "column",
+          "name": "Oak",
+          "width": 88,
+          "gap": 3,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-244",
+            "type": "row",
+            "width": 88,
+            "height": 88,
+            "radius": 20,
+            "gradient": {
+             "from": "#CFA068",
+             "to": "#A87842",
+             "angle": 135
+            },
+            "border_color": "#E2DED5",
+            "dark_border_color": "#283042",
+            "border_width": 1,
+            "children": []
+           },
+           {
+            "id": "sig-245",
+            "type": "text",
+            "text": "Oak",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 13,
+             "weight": 700
+            },
+            "color": "#1B2233",
+            "dark_color": "#EEF0F5",
+            "max_lines": 1,
+            "margin": {
+             "top": 5,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "سنديان"
+             },
+             "tr": {
+              "text": "Meşe"
+             }
+            }
+           },
+           {
+            "id": "sig-246",
+            "type": "text",
+            "text": "Solid wood",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 11,
+             "weight": 400
+            },
+            "color": "#596071",
+            "dark_color": "#AAB0BF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "خشب صلب"
+             },
+             "tr": {
+              "text": "Masif ahşap"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-247",
+          "type": "column",
+          "name": "Walnut",
+          "width": 88,
+          "gap": 3,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-248",
+            "type": "row",
+            "width": 88,
+            "height": 88,
+            "radius": 20,
+            "gradient": {
+             "from": "#6E4832",
+             "to": "#45291A",
+             "angle": 135
+            },
+            "border_color": "#E2DED5",
+            "dark_border_color": "#283042",
+            "border_width": 1,
+            "children": []
+           },
+           {
+            "id": "sig-249",
+            "type": "text",
+            "text": "Walnut",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 13,
+             "weight": 700
+            },
+            "color": "#1B2233",
+            "dark_color": "#EEF0F5",
+            "max_lines": 1,
+            "margin": {
+             "top": 5,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "جوز"
+             },
+             "tr": {
+              "text": "Ceviz"
+             }
+            }
+           },
+           {
+            "id": "sig-250",
+            "type": "text",
+            "text": "Natural veneer",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 11,
+             "weight": 400
+            },
+            "color": "#596071",
+            "dark_color": "#AAB0BF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "قشرة طبيعية"
+             },
+             "tr": {
+              "text": "Doğal kaplama"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-251",
+          "type": "column",
+          "name": "Linen",
+          "width": 88,
+          "gap": 3,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-252",
+            "type": "row",
+            "width": 88,
+            "height": 88,
+            "radius": 20,
+            "gradient": {
+             "from": "#EAE3D6",
+             "to": "#DCD2C1",
+             "angle": 135
+            },
+            "border_color": "#E2DED5",
+            "dark_border_color": "#283042",
+            "border_width": 1,
+            "children": []
+           },
+           {
+            "id": "sig-253",
+            "type": "text",
+            "text": "Linen",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 13,
+             "weight": 700
+            },
+            "color": "#1B2233",
+            "dark_color": "#EEF0F5",
+            "max_lines": 1,
+            "margin": {
+             "top": 5,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "كتّان"
+             },
+             "tr": {
+              "text": "Keten"
+             }
+            }
+           },
+           {
+            "id": "sig-254",
+            "type": "text",
+            "text": "Washable",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 11,
+             "weight": 400
+            },
+            "color": "#596071",
+            "dark_color": "#AAB0BF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "قابل للغسل"
+             },
+             "tr": {
+              "text": "Yıkanabilir"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-255",
+          "type": "column",
+          "name": "Bouclé",
+          "width": 88,
+          "gap": 3,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-256",
+            "type": "row",
+            "width": 88,
+            "height": 88,
+            "radius": 20,
+            "gradient": {
+             "from": "#FBF8F2",
+             "to": "#E3DACB",
+             "angle": 135
+            },
+            "border_color": "#E2DED5",
+            "dark_border_color": "#283042",
+            "border_width": 1,
+            "children": []
+           },
+           {
+            "id": "sig-257",
+            "type": "text",
+            "text": "Bouclé",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 13,
+             "weight": 700
+            },
+            "color": "#1B2233",
+            "dark_color": "#EEF0F5",
+            "max_lines": 1,
+            "margin": {
+             "top": 5,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "بوكليه"
+             },
+             "tr": {
+              "text": "Bukle"
+             }
+            }
+           },
+           {
+            "id": "sig-258",
+            "type": "text",
+            "text": "Soft texture",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 11,
+             "weight": 400
+            },
+            "color": "#596071",
+            "dark_color": "#AAB0BF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ملمس ناعم"
+             },
+             "tr": {
+              "text": "Yumuşak doku"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-259",
+          "type": "column",
+          "name": "Velvet",
+          "width": 88,
+          "gap": 3,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-260",
+            "type": "row",
+            "width": 88,
+            "height": 88,
+            "radius": 20,
+            "gradient": {
+             "from": "#3F5B49",
+             "to": "#28402F",
+             "angle": 135
+            },
+            "border_color": "#E2DED5",
+            "dark_border_color": "#283042",
+            "border_width": 1,
+            "children": []
+           },
+           {
+            "id": "sig-261",
+            "type": "text",
+            "text": "Velvet",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 13,
+             "weight": 700
+            },
+            "color": "#1B2233",
+            "dark_color": "#EEF0F5",
+            "max_lines": 1,
+            "margin": {
+             "top": 5,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "translations": {
+             "ar": {
+              "text": "مخمل"
+             },
+             "tr": {
+              "text": "Kadife"
+             }
+            }
+           },
+           {
+            "id": "sig-262",
+            "type": "text",
+            "text": "Deep colours",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 11,
+             "weight": 400
+            },
+            "color": "#596071",
+            "dark_color": "#AAB0BF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "ألوان عميقة"
+             },
+             "tr": {
+              "text": "Derin renkler"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-290",
+        "type": "product_variants",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "look": "swatches",
+         "accent": "#1F2A44",
+         "dark_accent": "#E3B868"
+        },
+        "color": "#1B2233",
+        "dark_color": "#EEF0F5"
+       },
+       {
+        "id": "sig-291",
+        "type": "product_quantity",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "accent": "#1F2A44",
+         "dark_accent": "#E3B868"
+        },
+        "color": "#1B2233",
+        "dark_color": "#EEF0F5"
+       },
+       {
+        "id": "sig-263",
+        "type": "column",
+        "name": "From the order to the assembly",
+        "gap": 14,
+        "radius": 26,
+        "padding": {
+         "top": 18,
+         "end": 16,
+         "bottom": 18,
+         "start": 16
+        },
+        "margin": {
+         "top": 24,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#1F2A44",
+        "dark_background": "#181E2B",
+        "children": [
+         {
+          "id": "sig-264",
+          "type": "column",
+          "gap": 3,
+          "children": [
+           {
+            "id": "sig-265",
+            "type": "text",
+            "text": "You choose your delivery day",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 17,
+             "weight": 800
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#EEF0F5",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "يوم توصيلك تختاره أنت"
+             },
+             "tr": {
+              "text": "Teslimat gününü siz seçersiniz"
+             }
+            }
+           },
+           {
+            "id": "sig-266",
+            "type": "text",
+            "text": "The team delivers, assembles and takes the boxes away",
+            "font": {
+             "family": "Noto Sans Arabic",
+             "size": 12,
+             "weight": 400
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#AAB0BF",
+            "opacity": 0.86,
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "الفريق يوصل ويركّب ويأخذ الكراتين معه"
+             },
+             "tr": {
+              "text": "Ekip teslim eder, kurar ve kutuları götürür"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-267",
+          "type": "row",
+          "name": "From the order to the assembly",
+          "gap": 4,
+          "children": [
+           {
+            "id": "sig-268",
+            "type": "column",
+            "name": "Order",
+            "width": "fill",
+            "gap": 3,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-269",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "radius": 20,
+              "align": "center",
+              "cross": "center",
+              "background": "#E3B868",
+              "dark_background": "#E3B868",
+              "children": [
+               {
+                "id": "sig-270",
+                "type": "icon",
+                "icon": "shopping_cart",
+                "icon_size": 20,
+                "color": "#1A1408",
+                "dark_color": "#1A1408"
+               }
+              ]
+             },
+             {
+              "id": "sig-271",
+              "type": "text",
+              "text": "Order",
+              "font": {
+               "family": "Noto Sans Arabic",
+               "size": 12,
+               "weight": 700
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#EEF0F5",
+              "max_lines": 1,
+              "text_align": "center",
+              "margin": {
+               "top": 4,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "الطلب"
+               },
+               "tr": {
+                "text": "Sipariş"
+               }
+              }
+             },
+             {
+              "id": "sig-272",
+              "type": "text",
+              "text": "Today",
+              "font": {
+               "family": "Noto Sans Arabic",
+               "size": 10.5,
+               "weight": 400
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#AAB0BF",
+              "opacity": 0.8,
+              "max_lines": 1,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "اليوم"
+               },
+               "tr": {
+                "text": "Bugün"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-273",
+            "type": "column",
+            "name": "Prepared",
+            "width": "fill",
+            "gap": 3,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-274",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "radius": 20,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "dark_background": "#283042",
+              "children": [
+               {
+                "id": "sig-275",
+                "type": "icon",
+                "icon": "inventory_2",
+                "icon_size": 20,
+                "color": "#1F2A44",
+                "dark_color": "#EEF0F5"
+               }
+              ]
+             },
+             {
+              "id": "sig-276",
+              "type": "text",
+              "text": "Prepared",
+              "font": {
+               "family": "Noto Sans Arabic",
+               "size": 12,
+               "weight": 700
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#EEF0F5",
+              "max_lines": 1,
+              "text_align": "center",
+              "margin": {
+               "top": 4,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "التجهيز"
+               },
+               "tr": {
+                "text": "Hazırlık"
+               }
+              }
+             },
+             {
+              "id": "sig-277",
+              "type": "text",
+              "text": "2–4 days",
+              "font": {
+               "family": "Noto Sans Arabic",
+               "size": 10.5,
+               "weight": 400
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#AAB0BF",
+              "opacity": 0.8,
+              "max_lines": 1,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "2–4 أيام"
+               },
+               "tr": {
+                "text": "2–4 gün"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-278",
+            "type": "column",
+            "name": "Delivered",
+            "width": "fill",
+            "gap": 3,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-279",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "radius": 20,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "dark_background": "#283042",
+              "children": [
+               {
+                "id": "sig-280",
+                "type": "icon",
+                "icon": "local_shipping",
+                "icon_size": 20,
+                "color": "#1F2A44",
+                "dark_color": "#EEF0F5"
+               }
+              ]
+             },
+             {
+              "id": "sig-281",
+              "type": "text",
+              "text": "Delivered",
+              "font": {
+               "family": "Noto Sans Arabic",
+               "size": 12,
+               "weight": 700
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#EEF0F5",
+              "max_lines": 1,
+              "text_align": "center",
+              "margin": {
+               "top": 4,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "التوصيل"
+               },
+               "tr": {
+                "text": "Teslimat"
+               }
+              }
+             },
+             {
+              "id": "sig-282",
+              "type": "text",
+              "text": "On your day",
+              "font": {
+               "family": "Noto Sans Arabic",
+               "size": 10.5,
+               "weight": 400
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#AAB0BF",
+              "opacity": 0.8,
+              "max_lines": 1,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "في يومك"
+               },
+               "tr": {
+                "text": "Sizin gününüzde"
+               }
+              }
+             }
+            ]
+           },
+           {
+            "id": "sig-283",
+            "type": "column",
+            "name": "Assembled",
+            "width": "fill",
+            "gap": 3,
+            "cross": "center",
+            "children": [
+             {
+              "id": "sig-284",
+              "type": "row",
+              "width": 40,
+              "height": 40,
+              "radius": 20,
+              "align": "center",
+              "cross": "center",
+              "background": "#FFFFFF",
+              "dark_background": "#283042",
+              "children": [
+               {
+                "id": "sig-285",
+                "type": "icon",
+                "icon": "build",
+                "icon_size": 20,
+                "color": "#1F2A44",
+                "dark_color": "#EEF0F5"
+               }
+              ]
+             },
+             {
+              "id": "sig-286",
+              "type": "text",
+              "text": "Assembled",
+              "font": {
+               "family": "Noto Sans Arabic",
+               "size": 12,
+               "weight": 700
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#EEF0F5",
+              "max_lines": 1,
+              "text_align": "center",
+              "margin": {
+               "top": 4,
+               "end": 0,
+               "bottom": 0,
+               "start": 0
+              },
+              "translations": {
+               "ar": {
+                "text": "التركيب"
+               },
+               "tr": {
+                "text": "Kurulum"
+               }
+              }
+             },
+             {
+              "id": "sig-287",
+              "type": "text",
+              "text": "Free",
+              "font": {
+               "family": "Noto Sans Arabic",
+               "size": 10.5,
+               "weight": 400
+              },
+              "color": "#FFFFFF",
+              "dark_color": "#AAB0BF",
+              "opacity": 0.8,
+              "max_lines": 1,
+              "text_align": "center",
+              "translations": {
+               "ar": {
+                "text": "مجانًا"
+               },
+               "tr": {
+                "text": "Ücretsiz"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-292",
+        "type": "product_delivery",
+        "margin": {
+         "top": 18,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "rows",
+         "accent": "#9A6A2C",
+         "dark_accent": "#E3B868"
+        },
+        "color": "#1B2233",
+        "dark_color": "#EEF0F5"
+       },
+       {
+        "id": "sig-293",
+        "type": "product_description",
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "look": "accordion"
+        },
+        "color": "#1B2233",
+        "dark_color": "#EEF0F5",
+        "border_color": "#E2DED5",
+        "dark_border_color": "#283042"
+       },
+       {
+        "id": "sig-294",
+        "type": "product_reviews",
+        "margin": {
+         "top": 20,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "accent": "#9A6A2C",
+         "dark_accent": "#E3B868"
+        },
+        "color": "#1B2233",
+        "dark_color": "#EEF0F5"
+       },
+       {
+        "id": "sig-295",
+        "type": "product_related",
+        "margin": {
+         "top": 24,
+         "end": 0,
+         "bottom": 20,
+         "start": 0
+        },
+        "product_part": {
+         "look": "carousel",
+         "rows": 8
+        },
+        "text": "Pieces for the same room",
+        "color": "#1B2233",
+        "dark_color": "#EEF0F5",
+        "translations": {
+         "ar": {
+          "text": "قطع للغرفة نفسها"
+         },
+         "tr": {
+          "text": "Aynı oda için parçalar"
+         }
+        }
+       },
+       {
+        "id": "sig-296",
+        "type": "product_buy",
+        "pin": "bottom",
+        "radius": 22,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "product_part": {
+         "accent": "#1F2A44",
+         "dark_accent": "#E3B868"
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#181E2B",
+        "color": "#1B2233",
+        "dark_color": "#EEF0F5"
+       }
+      ]
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "settings",
     "title": "Settings",
     "translations": {
@@ -4819,7 +5980,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-259",
+      "id": "sig-326",
       "type": "column",
       "children": []
      },
@@ -4861,7 +6022,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-260",
+      "id": "sig-327",
       "type": "column",
       "children": []
      },
@@ -4903,7 +6064,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-261",
+      "id": "sig-328",
       "type": "column",
       "children": []
      },
@@ -4945,7 +6106,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-262",
+      "id": "sig-329",
       "type": "column",
       "children": []
      },
@@ -4987,7 +6148,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-263",
+      "id": "sig-330",
       "type": "column",
       "children": []
      },
@@ -5021,7 +6182,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-264",
+      "id": "sig-331",
       "type": "column",
       "children": []
      },
@@ -5038,7 +6199,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-265",
+      "id": "sig-332",
       "type": "column",
       "children": []
      },

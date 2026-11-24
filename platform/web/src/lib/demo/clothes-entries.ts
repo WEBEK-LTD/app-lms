@@ -68,7 +68,7 @@ export async function demoClothesProducts(deps: EntryDeps, app: App): Promise<vo
       addon: false,
       addonFor: null,
       // 223 Its name in Arabic and Turkish too.
-      translations: namedTranslations(CLOTHES_PRODUCT_NAMES, seed.sku),
+      translations: namedTranslations(CLOTHES_PRODUCT_NAMES, seed.sku, { variants: clothesVariants(seed, CLOTHES_PRODUCTS.indexOf(seed)) }),
       ...marked,
     };
     if (deps.sample) {

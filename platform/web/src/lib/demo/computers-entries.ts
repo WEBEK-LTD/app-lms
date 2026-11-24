@@ -72,7 +72,7 @@ export async function demoComputersProducts(deps: EntryDeps, app: App): Promise<
       // Its specifications: the table, the filters, the compare sheet and Build your PC's checks.
       specs: seed.specs.map((s) => ({ ...s })),
       // 227 Its name in Arabic and Turkish too.
-      translations: namedTranslations(COMPUTERS_PRODUCT_NAMES, seed.sku),
+      translations: namedTranslations(COMPUTERS_PRODUCT_NAMES, seed.sku, { variants, specs: seed.specs }),
       ...marked,
     };
     if (deps.sample) {

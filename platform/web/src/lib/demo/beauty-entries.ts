@@ -74,7 +74,7 @@ export async function demoBeautyProducts(deps: EntryDeps, app: App): Promise<voi
       // Its facts, ingredients, how to use it, genuine, its expiry and its shades' colours.
       details: beautyDetails(seed),
       // 224 Its name in Arabic and Turkish too.
-      translations: namedTranslations(BEAUTY_PRODUCT_NAMES, seed.sku),
+      translations: namedTranslations(BEAUTY_PRODUCT_NAMES, seed.sku, { variants: beautyVariants(seed, BEAUTY_PRODUCTS.indexOf(seed)), details: beautyDetails(seed) }),
       ...marked,
     };
     if (deps.sample) {

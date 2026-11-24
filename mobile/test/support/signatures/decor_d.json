@@ -1863,11 +1863,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-142",
+      "id": "sig-170",
       "type": "column",
       "children": [
        {
-        "id": "sig-143",
+        "id": "sig-171",
         "type": "row",
         "name": "Shop by colour",
         "gap": 8,
@@ -1880,7 +1880,7 @@
         },
         "children": [
          {
-          "id": "sig-144",
+          "id": "sig-172",
           "type": "row",
           "name": "Terracotta",
           "radius": 20,
@@ -1898,7 +1898,7 @@
           },
           "children": [
            {
-            "id": "sig-145",
+            "id": "sig-173",
             "type": "text",
             "text": "Terracotta",
             "font": {
@@ -1921,7 +1921,7 @@
           ]
          },
          {
-          "id": "sig-146",
+          "id": "sig-174",
           "type": "row",
           "name": "Sage",
           "radius": 20,
@@ -1939,7 +1939,7 @@
           },
           "children": [
            {
-            "id": "sig-147",
+            "id": "sig-175",
             "type": "text",
             "text": "Sage",
             "font": {
@@ -1962,7 +1962,7 @@
           ]
          },
          {
-          "id": "sig-148",
+          "id": "sig-176",
           "type": "row",
           "name": "Sand",
           "radius": 20,
@@ -1980,7 +1980,7 @@
           },
           "children": [
            {
-            "id": "sig-149",
+            "id": "sig-177",
             "type": "text",
             "text": "Sand",
             "font": {
@@ -2003,7 +2003,7 @@
           ]
          },
          {
-          "id": "sig-150",
+          "id": "sig-178",
           "type": "row",
           "name": "Blush",
           "radius": 20,
@@ -2021,7 +2021,7 @@
           },
           "children": [
            {
-            "id": "sig-151",
+            "id": "sig-179",
             "type": "text",
             "text": "Blush",
             "font": {
@@ -2044,7 +2044,7 @@
           ]
          },
          {
-          "id": "sig-152",
+          "id": "sig-180",
           "type": "row",
           "name": "Indigo",
           "radius": 20,
@@ -2062,7 +2062,7 @@
           },
           "children": [
            {
-            "id": "sig-153",
+            "id": "sig-181",
             "type": "text",
             "text": "Indigo",
             "font": {
@@ -2085,7 +2085,7 @@
           ]
          },
          {
-          "id": "sig-154",
+          "id": "sig-182",
           "type": "row",
           "name": "Olive",
           "radius": 20,
@@ -2103,7 +2103,7 @@
           },
           "children": [
            {
-            "id": "sig-155",
+            "id": "sig-183",
             "type": "text",
             "text": "Olive",
             "font": {
@@ -2170,11 +2170,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-156",
+      "id": "sig-184",
       "type": "column",
       "children": [
        {
-        "id": "sig-157",
+        "id": "sig-185",
         "type": "coupon",
         "name": "Your code",
         "code": "SAKAN10",
@@ -2192,7 +2192,7 @@
         }
        },
        {
-        "id": "sig-158",
+        "id": "sig-186",
         "type": "row",
         "name": "Add the gift wrap with a card in your words at checkout.",
         "gap": 12,
@@ -2215,7 +2215,7 @@
         "rotation": -1,
         "children": [
          {
-          "id": "sig-159",
+          "id": "sig-187",
           "type": "icon",
           "icon": "redeem",
           "icon_size": 22,
@@ -2223,7 +2223,7 @@
           "dark_color": "#F0976F"
          },
          {
-          "id": "sig-160",
+          "id": "sig-188",
           "type": "text",
           "text": "Add the gift wrap with a card in your words at checkout.",
           "font": {
@@ -2290,11 +2290,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-161",
+      "id": "sig-189",
       "type": "column",
       "children": [
        {
-        "id": "sig-162",
+        "id": "sig-190",
         "type": "row",
         "name": "Your order's journey",
         "gap": 12,
@@ -2307,7 +2307,7 @@
         },
         "children": [
          {
-          "id": "sig-163",
+          "id": "sig-191",
           "type": "text",
           "text": "Your order's journey",
           "font": {
@@ -2331,7 +2331,7 @@
         ]
        },
        {
-        "id": "sig-164",
+        "id": "sig-192",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -2458,11 +2458,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-166",
+      "id": "sig-194",
       "type": "column",
       "children": [
        {
-        "id": "sig-165",
+        "id": "sig-193",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -3206,6 +3206,527 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#F7EEE2",
+     "dark_background": "#1C130F",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-164",
+      "type": "column",
+      "gap": 0,
+      "children": [
+       {
+        "id": "sig-142",
+        "type": "spacer",
+        "height": 70
+       },
+       {
+        "id": "sig-143",
+        "type": "column",
+        "name": "Pinned to your board",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 0,
+         "end": 14,
+         "bottom": 16,
+         "start": 14
+        },
+        "margin": {
+         "top": 4,
+         "end": 30,
+         "bottom": 0,
+         "start": 30
+        },
+        "background": "#FFFDF8",
+        "dark_background": "#FFFDF8",
+        "shadow": "medium",
+        "rotation": -3,
+        "children": [
+         {
+          "id": "sig-144",
+          "type": "row",
+          "width": 84,
+          "height": 18,
+          "background": "#E98A63",
+          "dark_background": "#E98A63",
+          "opacity": 0.6,
+          "rotation": 3,
+          "children": []
+         },
+         {
+          "id": "sig-145",
+          "type": "product_gallery",
+          "aspect_ratio": 1,
+          "product_part": {
+           "radius": 2
+          }
+         },
+         {
+          "id": "sig-146",
+          "type": "product_title",
+          "font": {
+           "family": "Marhey",
+           "size": 18,
+           "weight": 500
+          },
+          "color": "#3A2418",
+          "dark_color": "#3A2418",
+          "text_align": "center",
+          "self_align": "stretch"
+         }
+        ]
+       },
+       {
+        "id": "sig-147",
+        "type": "row",
+        "name": "Pinned to your board",
+        "width": "hug",
+        "self_align": "end",
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "margin": {
+         "top": 0,
+         "end": 34,
+         "bottom": 0,
+         "start": 34
+        },
+        "radius": 14,
+        "background": "#E98A63",
+        "dark_background": "#E98A63",
+        "rotation": 4,
+        "children": [
+         {
+          "id": "sig-148",
+          "type": "product_price",
+          "font": {
+           "family": "Marhey",
+           "size": 17,
+           "weight": 700
+          },
+          "product_part": {
+           "look": "sale"
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF"
+         }
+        ]
+       },
+       {
+        "id": "sig-149",
+        "type": "row",
+        "name": "Goes with",
+        "gap": 12,
+        "cross": "end",
+        "padding": {
+         "top": 28,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-150",
+          "type": "text",
+          "text": "Goes with",
+          "font": {
+           "family": "Marhey",
+           "size": 20,
+           "weight": 700
+          },
+          "color": "#3A2418",
+          "dark_color": "#F7E9DC",
+          "width": "fill",
+          "max_lines": 2,
+          "translations": {
+           "ar": {
+            "text": "تتناسب مع"
+           },
+           "tr": {
+            "text": "Yakışanlar"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-151",
+        "type": "grid",
+        "name": "Shop by colour",
+        "columns": 3,
+        "gap": 12,
+        "padding": {
+         "top": 0,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "children": [
+         {
+          "id": "sig-152",
+          "type": "column",
+          "name": "Terracotta",
+          "height": 96,
+          "radius": 48,
+          "align": "center",
+          "cross": "center",
+          "background": "#C4623F",
+          "dark_background": "#C4623F",
+          "rotation": -4,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-153",
+            "type": "text",
+            "text": "Terracotta",
+            "font": {
+             "family": "Marhey",
+             "size": 13,
+             "weight": 600
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "تيراكوتا"
+             },
+             "tr": {
+              "text": "Terakota"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-154",
+          "type": "column",
+          "name": "Sage",
+          "height": 96,
+          "radius": 48,
+          "align": "center",
+          "cross": "center",
+          "background": "#A3B18A",
+          "dark_background": "#A3B18A",
+          "rotation": 3,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-155",
+            "type": "text",
+            "text": "Sage",
+            "font": {
+             "family": "Marhey",
+             "size": 13,
+             "weight": 600
+            },
+            "color": "#3A2418",
+            "dark_color": "#3A2418",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "مريمية"
+             },
+             "tr": {
+              "text": "Adaçayı"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-156",
+          "type": "column",
+          "name": "Sand",
+          "height": 96,
+          "radius": 48,
+          "align": "center",
+          "cross": "center",
+          "background": "#E6D3B6",
+          "dark_background": "#E6D3B6",
+          "rotation": -2,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-157",
+            "type": "text",
+            "text": "Sand",
+            "font": {
+             "family": "Marhey",
+             "size": 13,
+             "weight": 600
+            },
+            "color": "#3A2418",
+            "dark_color": "#3A2418",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "رملي"
+             },
+             "tr": {
+              "text": "Kum"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-158",
+          "type": "column",
+          "name": "Blush",
+          "height": 96,
+          "radius": 48,
+          "align": "center",
+          "cross": "center",
+          "background": "#E8B4A6",
+          "dark_background": "#E8B4A6",
+          "rotation": 4,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-159",
+            "type": "text",
+            "text": "Blush",
+            "font": {
+             "family": "Marhey",
+             "size": 13,
+             "weight": 600
+            },
+            "color": "#3A2418",
+            "dark_color": "#3A2418",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "وردي"
+             },
+             "tr": {
+              "text": "Pudra"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-160",
+          "type": "column",
+          "name": "Indigo",
+          "height": 96,
+          "radius": 48,
+          "align": "center",
+          "cross": "center",
+          "background": "#3D4A5C",
+          "dark_background": "#3D4A5C",
+          "rotation": -3,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-161",
+            "type": "text",
+            "text": "Indigo",
+            "font": {
+             "family": "Marhey",
+             "size": 13,
+             "weight": 600
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "نيلي"
+             },
+             "tr": {
+              "text": "Çivit"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-162",
+          "type": "column",
+          "name": "Olive",
+          "height": 96,
+          "radius": 48,
+          "align": "center",
+          "cross": "center",
+          "background": "#7D7A45",
+          "dark_background": "#7D7A45",
+          "rotation": 2,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "children": [
+           {
+            "id": "sig-163",
+            "type": "text",
+            "text": "Olive",
+            "font": {
+             "family": "Marhey",
+             "size": 13,
+             "weight": 600
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "زيتوني"
+             },
+             "tr": {
+              "text": "Zeytin"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-165",
+        "type": "product_variants",
+        "margin": {
+         "top": 24,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "accent": "#C4623F",
+         "dark_accent": "#E98A63"
+        },
+        "color": "#3A2418",
+        "dark_color": "#F7E9DC"
+       },
+       {
+        "id": "sig-166",
+        "type": "product_description",
+        "margin": {
+         "top": 22,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "color": "#3A2418",
+        "dark_color": "#F7E9DC"
+       },
+       {
+        "id": "sig-167",
+        "type": "product_delivery",
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "look": "card",
+         "accent": "#B4532F",
+         "dark_accent": "#F0976F"
+        },
+        "color": "#3A2418",
+        "dark_color": "#F7E9DC",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "radius": 26,
+        "background": "#F0E0CF",
+        "dark_background": "#33251E"
+       },
+       {
+        "id": "sig-168",
+        "type": "product_related",
+        "margin": {
+         "top": 26,
+         "end": 0,
+         "bottom": 20,
+         "start": 0
+        },
+        "product_part": {
+         "look": "carousel",
+         "rows": 8
+        },
+        "text": "More for your board",
+        "color": "#3A2418",
+        "dark_color": "#F7E9DC",
+        "translations": {
+         "ar": {
+          "text": "المزيد للوحتك"
+         },
+         "tr": {
+          "text": "Panonuz için daha fazlası"
+         }
+        }
+       },
+       {
+        "id": "sig-169",
+        "type": "product_buy",
+        "pin": "bottom",
+        "radius": 26,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "product_part": {
+         "look": "buy_now",
+         "accent": "#C4623F",
+         "dark_accent": "#E98A63"
+        },
+        "background": "#FFFBF5",
+        "dark_background": "#2A1E18",
+        "color": "#3A2418",
+        "dark_color": "#F7E9DC"
+       }
+      ]
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "settings",
     "title": "Settings",
     "translations": {
@@ -3218,7 +3739,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-167",
+      "id": "sig-195",
       "type": "column",
       "children": []
      },
@@ -3260,7 +3781,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-168",
+      "id": "sig-196",
       "type": "column",
       "children": []
      },
@@ -3302,7 +3823,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-169",
+      "id": "sig-197",
       "type": "column",
       "children": []
      },
@@ -3344,7 +3865,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-170",
+      "id": "sig-198",
       "type": "column",
       "children": []
      },
@@ -3386,7 +3907,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-171",
+      "id": "sig-199",
       "type": "column",
       "children": []
      },
@@ -3420,7 +3941,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-172",
+      "id": "sig-200",
       "type": "column",
       "children": []
      },
@@ -3437,7 +3958,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-173",
+      "id": "sig-201",
       "type": "column",
       "children": []
      },

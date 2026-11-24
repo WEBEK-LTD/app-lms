@@ -69,6 +69,14 @@ export const DECOR_CD_WORDS = typeWords({
     mjCartNote: "Add the gift wrap with a card in your words at checkout.",
     mjMenuSearch: "Search a piece or a colour…",
     mjWishlist: "My boards",
+    // 228.7 The look's own product page.
+    atpKicker: "On the wall",
+    atpAbout: "About the piece",
+    atpLabel: "Hand-glazed stoneware · Riyadh studio",
+    atpRelated: "From the same hall",
+    mjpTag: "Pinned to your board",
+    mjpGoesWith: "Goes with",
+    mjpRelated: "More for your board",
   },
   ar: {
     atWordmarkLine: "معرض القطع",
@@ -132,6 +140,14 @@ export const DECOR_CD_WORDS = typeWords({
     mjCartNote: "أضف التغليف ببطاقة بكلماتك عند إتمام الطلب.",
     mjMenuSearch: "ابحث عن قطعة أو لون…",
     mjWishlist: "لوحاتي",
+    // 228.7 The look's own product page.
+    atpKicker: "على الجدار",
+    atpAbout: "عن القطعة",
+    atpLabel: "خزف حجري مزجج يدويًا · مشغل الرياض",
+    atpRelated: "من القاعة نفسها",
+    mjpTag: "مثبّتة على لوحتك",
+    mjpGoesWith: "تتناسب مع",
+    mjpRelated: "المزيد للوحتك",
   },
   tr: {
     atWordmarkLine: "Nesneler galerisi",
@@ -195,5 +211,13 @@ export const DECOR_CD_WORDS = typeWords({
     mjCartNote: "Ödemede sizin sözlerinizle kartlı hediye paketini ekleyin.",
     mjMenuSearch: "Bir parça veya renk arayın…",
     mjWishlist: "Panolarım",
+    // 228.7 The look's own product page.
+    atpKicker: "Duvarda",
+    atpAbout: "Eser hakkında",
+    atpLabel: "Elde sırlanmış taş seramik · Riyad atölyesi",
+    atpRelated: "Aynı salondan",
+    mjpTag: "Panonuza iğnelendi",
+    mjpGoesWith: "Yakışanlar",
+    mjpRelated: "Panonuz için daha fazlası",
   },
 });

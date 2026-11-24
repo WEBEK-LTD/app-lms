@@ -2,6 +2,7 @@ import type { Action, LayoutTab, StudioEntry, StudioFont, StudioNode, StudioPage
 import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { sides, sigEntry, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
+import { productPageOf, productPart } from "../product-page";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { kitPhoto, say, shop, type KitLook } from "./shop-kit-parts";
 
@@ -462,6 +463,78 @@ const MAZAJ_SCREENS = signatureScreens({
 /** The drop bar: cream paper, the open tab hanging as a coral drop. */
 const MAZAJ_BAR = signatureBar(K, { design: "drop", background: K.surface, dark_background: K.darkSurface, active: K.fill, dark_active: K.darkFill, inactive: "#9C8273", dark_inactive: "#A88F80", labels: "active", radius: 28 });
 
+/**
+ * 228.7 MAZAJ's own product page, pinned to a moodboard: the piece's photos
+ * as a big polaroid (tape on top, the print's paper, the name handwritten on
+ * its foot) tilted on the board, its price on a terracotta tag pinned beside
+ * it the other way, "Goes with" as the board's colour circles (each opening
+ * the shop), the choices, the description and the delivery lines on a soft
+ * card, more for the board as a row of cards, and Add to cart beside Buy now
+ * fixed at the foot, rounded.
+ */
+function boardPiece(ctx: SectionContext) {
+  const id = idOf(ctx);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const accent = { accent: K.fill, dark_accent: K.darkFill } as const;
+  return productPageOf(ctx, {
+    background: K.page,
+    dark_background: K.darkPage,
+    parts: [
+      { element: { id: id(), type: "spacer", height: 70 } },
+      {
+        // The polaroid: tape, the photos on the print's paper, the name on its foot.
+        element: {
+          id: id(),
+          type: "column",
+          name: ctx.w("mjpTag"),
+          gap: 8,
+          cross: "center",
+          padding: sides(0, 14, 16, 14),
+          margin: sides(4, 30, 0, 30),
+          background: PAPER,
+          dark_background: PAPER,
+          shadow: "medium",
+          rotation: -3,
+          children: [
+            { id: id(), type: "row", width: 84, height: 18, background: TAPE, dark_background: TAPE, opacity: 0.6, rotation: 3, children: [] },
+            productPart(ctx, { type: "product_gallery", radius: 2, node: { aspect_ratio: 1, margin: undefined } }),
+            { ...productPart(ctx, { type: "product_title", node: { color: PRINT_INK, dark_color: PRINT_INK, font: font(18, 500), text_align: "center", margin: undefined } }), self_align: "stretch" },
+          ],
+        },
+      },
+      {
+        // Its price on a tag pinned the other way.
+        element: {
+          id: id(),
+          type: "row",
+          name: ctx.w("mjpTag"),
+          width: "hug",
+          self_align: "end",
+          padding: sides(8, 16, 8, 16),
+          margin: sides(0, 34, 0, 34),
+          radius: 14,
+          background: TAPE,
+          dark_background: TAPE,
+          rotation: 4,
+          children: [productPart(ctx, { type: "product_price", look: "sale", node: { color: "#FFFFFF", dark_color: "#FFFFFF", font: font(17, 700), margin: undefined } })],
+        },
+      },
+      { element: head(ctx, "mjpGoesWith") },
+      { element: byColour(ctx) },
+      { type: "product_variants", ...accent, node: { ...ink, margin: sides(24, 16, 0, 16) } },
+      { type: "product_description", node: { ...ink, margin: sides(22, 16, 0, 16) } },
+      { type: "product_delivery", look: "card", accent: K.accent, dark_accent: K.darkAccent, node: { ...ink, margin: sides(18, 16, 0, 16), padding: sides(16, 16, 16, 16), radius: 26, background: L.tint.day, dark_background: L.tint.night } },
+      { type: "product_related", look: "carousel", rows: 8, text: "mjpRelated", node: { ...ink, margin: sides(26, 0, 20, 0) } },
+      {
+        type: "product_buy",
+        look: "buy_now",
+        ...accent,
+        node: { pin: "bottom", radius: 26, padding: sides(10, 16, 10, 16), background: K.surface, dark_background: K.darkSurface, ...ink },
+      },
+    ],
+  });
+}
+
 export const DECOR_D: SignatureDesign = {
   demo: "decor",
   variant: "d",
@@ -469,7 +542,8 @@ export const DECOR_D: SignatureDesign = {
   home,
   over,
   tabs: mazajTabs,
-  pages: (ctx) => [{ slug: MENU_PAGE, title: "skCategoryMenu", studio: menuPage(ctx) }],
+  // 228.7 And its own product page.
+  pages: (ctx) => [{ slug: MENU_PAGE, title: "skCategoryMenu", studio: menuPage(ctx) }, boardPiece(ctx)],
   bar: MAZAJ_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },
   chrome: { header: "photo", system: "photo" },

@@ -8,6 +8,15 @@ Last updated: 24 November 2026.
 
 ## Current release
 
+Roadmap 228.7 and 228.8 (the looks' own product pages): every round-3
+look C and D (Lujain, Toota, Velours, Ghurza, Toot, Nova, Madar, Nawah,
+Rukn, Sakan) draws its own product page, no two with the same skeleton;
+the demo shops' descriptions, choices and facts in MSA and Turkish. 228.8's
+app fixes (chips as wide as their words, the name's alignment, the top band
+on every header-less product page, the size as a headline, Arabic units in
+their own direction, Notify me in the part's accent) ship with the next app
+release (no `CLIENT_APP_RELEASE` change).
+
 Roadmap 225.9 (the demo guides in look C): the demo guides of Velours,
 Ghurza, Toot, Sakan, Rukn, Madar, Nova and Nawah show their apps as they
 are now, in each type's main look C (home, menu or Ghurza's custom order,
@@ -33,9 +42,37 @@ specs, reviews, related, delivery and returns) bound to the product open,
 each with its looks, in the contract, the editor (library, canvas,
 inspector) and the app. A shop without one keeps the app's product screen.
 Lujain's look A is the first look with its own (`lib/studio/product-page.ts`).
+Madar's (electronics) looks C and D and Nawah's (computers) have theirs
+(228.7): a bento of dark glass tiles, a colour stage, neon cut-corner
+frames, and a dense spec sheet with the business quote.
+228.7: Lujain's templates C and D (RUNWAY's lookbook of photos and
+minimal bar, the outfit builder's "Complete the outfit" card) and Toota's
+(the story world's Tooti and ages on a bubble, the nursery's size-by-age
+ruler and thin lines) draw their own product pages, each its own skeleton.
 The app part ships with the next app release (no `CLIENT_APP_RELEASE`
 change). Without a header, the status bar and the back button stay over
 the page as it scrolls, as on any pushed Studio page without one.
+
+Roadmap 228.7 (cosmetics and crochet): Velours's and Ghurza's templates C
+and D each have their own product page, built from the product elements
+and their template's parts, none like another's or like Lujain A's: the
+clinic's formula sheet (actives, numbered use steps on frosted glass), the
+shade studio's gloss panel with the shade swatches and the shade on real
+skin, the makers' market's stitched frames with the price on a hanging tag
+and who made it, and the cozy studio's ready piece or kit switch with the
+piece's pattern. Light and dark, Arabic, English and Turkish.
+
+228.7 (toys and mobiles): Toot's looks C (the adventure map) and D
+(Montessori) and Nova's looks C (the keynote) and D (the deals hub) each
+draw their own product page: chunky frames, the treasure chest and a big
+red Add to cart; age and material tags with "How to play with it"; one
+spotlight shot on black with swatches and specs revealed line by line; price
+first, installments soon, the compare tray and today's countdown. No two
+share a skeleton, and none shares Lujain A's (`phase228-7-toys-mobiles`).
+The demo shops read in Arabic or Turkish show every product's description
+in that language (397 products, 10 shop types), and a template's coupon
+chest or deals card is left out, heading and frame, while a new shop has no
+code or sale (`phase228-7-demo-polish`).
 
 Roadmap 216 (Yallapp's Firebase rides out a moment when Google can't
 reach the platform's issuer): the token exchange is tried up to 3 times

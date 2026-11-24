@@ -161,7 +161,7 @@ export async function demoKitProducts(deps: EntryDeps, app: App, kit: ShopKit): 
       dimensions: seed.dimensions ?? null,
       makeDays: seed.makeDays ?? null,
       // 224 Its name in Arabic and Turkish, where the kit names its products (missing: left out, as before).
-      ...(kit.productNames ? { translations: namedTranslations(kit.productNames, seed.sku) } : {}),
+      ...(kit.productNames ? { translations: namedTranslations(kit.productNames, seed.sku, { variants: kitVariants(seed, kit.products.indexOf(seed)) }) } : {}),
       addon: Boolean(seed.addon),
       addonFor: seed.addon && seed.addon.categories.length ? { offerWith: "categories" as const, categoryIds: seed.addon.categories.map((c) => categoryIds.get(c)!).filter(Boolean), productIds: [] } : null,
       ...marked,

@@ -3112,11 +3112,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-257",
+      "id": "sig-319",
       "type": "column",
       "children": [
        {
-        "id": "sig-258",
+        "id": "sig-320",
         "type": "row",
         "name": "Sheet 01",
         "gap": 1,
@@ -3130,7 +3130,7 @@
         "dark_background": "#343432",
         "children": [
          {
-          "id": "sig-259",
+          "id": "sig-321",
           "type": "column",
           "width": "fill",
           "gap": 0,
@@ -3144,7 +3144,7 @@
           "dark_background": "#0D0D0D",
           "children": [
            {
-            "id": "sig-260",
+            "id": "sig-322",
             "type": "text",
             "text": "All pieces",
             "font": {
@@ -3165,7 +3165,7 @@
             }
            },
            {
-            "id": "sig-261",
+            "id": "sig-323",
             "type": "text",
             "text": "The index",
             "font": {
@@ -3188,7 +3188,7 @@
           ]
          },
          {
-          "id": "sig-262",
+          "id": "sig-324",
           "type": "column",
           "width": "fill",
           "gap": 0,
@@ -3202,7 +3202,7 @@
           "dark_background": "#0D0D0D",
           "children": [
            {
-            "id": "sig-263",
+            "id": "sig-325",
             "type": "text",
             "text": "1:50",
             "font": {
@@ -3223,7 +3223,7 @@
             }
            },
            {
-            "id": "sig-264",
+            "id": "sig-326",
             "type": "text",
             "text": "Scale",
             "font": {
@@ -3246,7 +3246,7 @@
           ]
          },
          {
-          "id": "sig-265",
+          "id": "sig-327",
           "type": "column",
           "width": "fill",
           "gap": 0,
@@ -3260,7 +3260,7 @@
           "dark_background": "#0D0D0D",
           "children": [
            {
-            "id": "sig-266",
+            "id": "sig-328",
             "type": "text",
             "text": "cm",
             "font": {
@@ -3281,7 +3281,7 @@
             }
            },
            {
-            "id": "sig-267",
+            "id": "sig-329",
             "type": "text",
             "text": "Every size",
             "font": {
@@ -3306,7 +3306,7 @@
         ]
        },
        {
-        "id": "sig-268",
+        "id": "sig-330",
         "type": "row",
         "name": "Index of rooms",
         "gap": 1,
@@ -3327,7 +3327,7 @@
         "dark_background": "#343432",
         "children": [
          {
-          "id": "sig-269",
+          "id": "sig-331",
           "type": "column",
           "name": "Living room",
           "gap": 0,
@@ -3345,7 +3345,7 @@
           },
           "children": [
            {
-            "id": "sig-270",
+            "id": "sig-332",
             "type": "text",
             "text": "A",
             "color": "#5A5A56",
@@ -3357,7 +3357,7 @@
             }
            },
            {
-            "id": "sig-271",
+            "id": "sig-333",
             "type": "text",
             "text": "Living room",
             "font": {
@@ -3380,7 +3380,7 @@
           ]
          },
          {
-          "id": "sig-272",
+          "id": "sig-334",
           "type": "column",
           "name": "Bedroom",
           "gap": 0,
@@ -3398,7 +3398,7 @@
           },
           "children": [
            {
-            "id": "sig-273",
+            "id": "sig-335",
             "type": "text",
             "text": "B",
             "color": "#5A5A56",
@@ -3410,7 +3410,7 @@
             }
            },
            {
-            "id": "sig-274",
+            "id": "sig-336",
             "type": "text",
             "text": "Bedroom",
             "font": {
@@ -3433,7 +3433,7 @@
           ]
          },
          {
-          "id": "sig-275",
+          "id": "sig-337",
           "type": "column",
           "name": "Dining room",
           "gap": 0,
@@ -3451,7 +3451,7 @@
           },
           "children": [
            {
-            "id": "sig-276",
+            "id": "sig-338",
             "type": "text",
             "text": "C",
             "color": "#5A5A56",
@@ -3463,7 +3463,7 @@
             }
            },
            {
-            "id": "sig-277",
+            "id": "sig-339",
             "type": "text",
             "text": "Dining room",
             "font": {
@@ -3486,7 +3486,7 @@
           ]
          },
          {
-          "id": "sig-278",
+          "id": "sig-340",
           "type": "column",
           "name": "Office",
           "gap": 0,
@@ -3504,7 +3504,7 @@
           },
           "children": [
            {
-            "id": "sig-279",
+            "id": "sig-341",
             "type": "text",
             "text": "D",
             "color": "#5A5A56",
@@ -3516,7 +3516,7 @@
             }
            },
            {
-            "id": "sig-280",
+            "id": "sig-342",
             "type": "text",
             "text": "Office",
             "font": {
@@ -3539,7 +3539,7 @@
           ]
          },
          {
-          "id": "sig-281",
+          "id": "sig-343",
           "type": "column",
           "name": "Outdoor",
           "gap": 0,
@@ -3557,7 +3557,7 @@
           },
           "children": [
            {
-            "id": "sig-282",
+            "id": "sig-344",
             "type": "text",
             "text": "E",
             "color": "#5A5A56",
@@ -3569,7 +3569,7 @@
             }
            },
            {
-            "id": "sig-283",
+            "id": "sig-345",
             "type": "text",
             "text": "Outdoor",
             "font": {
@@ -3636,11 +3636,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-284",
+      "id": "sig-346",
       "type": "column",
       "children": [
        {
-        "id": "sig-285",
+        "id": "sig-347",
         "type": "coupon",
         "name": "Your code",
         "code": "RUKN10",
@@ -3658,7 +3658,7 @@
         }
        },
        {
-        "id": "sig-286",
+        "id": "sig-348",
         "type": "column",
         "name": "Notes",
         "gap": 0,
@@ -3670,7 +3670,7 @@
         },
         "children": [
          {
-          "id": "sig-287",
+          "id": "sig-349",
           "type": "row",
           "height": 1,
           "margin": {
@@ -3684,7 +3684,7 @@
           "children": []
          },
          {
-          "id": "sig-288",
+          "id": "sig-350",
           "type": "row",
           "name": "Delivery",
           "gap": 12,
@@ -3697,7 +3697,7 @@
           },
           "children": [
            {
-            "id": "sig-289",
+            "id": "sig-351",
             "type": "text",
             "text": "Delivery",
             "font": {
@@ -3719,7 +3719,7 @@
             }
            },
            {
-            "id": "sig-290",
+            "id": "sig-352",
             "type": "text",
             "text": "Free, with assembly, in 5–7 days",
             "font": {
@@ -3743,7 +3743,7 @@
           ]
          },
          {
-          "id": "sig-291",
+          "id": "sig-353",
           "type": "row",
           "height": 1,
           "margin": {
@@ -3757,7 +3757,7 @@
           "children": []
          },
          {
-          "id": "sig-292",
+          "id": "sig-354",
           "type": "row",
           "name": "Warranty",
           "gap": 12,
@@ -3770,7 +3770,7 @@
           },
           "children": [
            {
-            "id": "sig-293",
+            "id": "sig-355",
             "type": "text",
             "text": "Warranty",
             "font": {
@@ -3792,7 +3792,7 @@
             }
            },
            {
-            "id": "sig-294",
+            "id": "sig-356",
             "type": "text",
             "text": "2 years on the frame",
             "font": {
@@ -3816,7 +3816,7 @@
           ]
          },
          {
-          "id": "sig-295",
+          "id": "sig-357",
           "type": "row",
           "height": 1,
           "margin": {
@@ -3830,7 +3830,7 @@
           "children": []
          },
          {
-          "id": "sig-296",
+          "id": "sig-358",
           "type": "row",
           "name": "Fabric samples",
           "gap": 12,
@@ -3843,7 +3843,7 @@
           },
           "children": [
            {
-            "id": "sig-297",
+            "id": "sig-359",
             "type": "text",
             "text": "Fabric samples",
             "font": {
@@ -3865,7 +3865,7 @@
             }
            },
            {
-            "id": "sig-298",
+            "id": "sig-360",
             "type": "text",
             "text": "Sent free on request",
             "font": {
@@ -3889,7 +3889,7 @@
           ]
          },
          {
-          "id": "sig-299",
+          "id": "sig-361",
           "type": "row",
           "height": 1,
           "margin": {
@@ -3903,7 +3903,7 @@
           "children": []
          },
          {
-          "id": "sig-300",
+          "id": "sig-362",
           "type": "row",
           "name": "Payment",
           "gap": 12,
@@ -3916,7 +3916,7 @@
           },
           "children": [
            {
-            "id": "sig-301",
+            "id": "sig-363",
             "type": "text",
             "text": "Payment",
             "font": {
@@ -3938,7 +3938,7 @@
             }
            },
            {
-            "id": "sig-302",
+            "id": "sig-364",
             "type": "text",
             "text": "Installments coming soon",
             "font": {
@@ -3962,7 +3962,7 @@
           ]
          },
          {
-          "id": "sig-303",
+          "id": "sig-365",
           "type": "row",
           "height": 1,
           "margin": {
@@ -4020,11 +4020,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-304",
+      "id": "sig-366",
       "type": "column",
       "children": [
        {
-        "id": "sig-305",
+        "id": "sig-367",
         "type": "row",
         "name": "Your order's journey",
         "gap": 10,
@@ -4037,7 +4037,7 @@
         },
         "children": [
          {
-          "id": "sig-306",
+          "id": "sig-368",
           "type": "text",
           "text": "—",
           "color": "#5A5A56",
@@ -4050,7 +4050,7 @@
           }
          },
          {
-          "id": "sig-307",
+          "id": "sig-369",
           "type": "text",
           "text": "Your order's journey",
           "font": {
@@ -4071,7 +4071,7 @@
           }
          },
          {
-          "id": "sig-308",
+          "id": "sig-370",
           "type": "row",
           "width": "fill",
           "height": 1,
@@ -4083,7 +4083,7 @@
         ]
        },
        {
-        "id": "sig-309",
+        "id": "sig-371",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -4213,11 +4213,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-311",
+      "id": "sig-373",
       "type": "column",
       "children": [
        {
-        "id": "sig-310",
+        "id": "sig-372",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -5576,6 +5576,1057 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#F6F6F4",
+     "dark_background": "#0D0D0D",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-309",
+      "type": "column",
+      "gap": 0,
+      "children": [
+       {
+        "id": "sig-257",
+        "type": "row",
+        "name": "Product sheet",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 72
+        },
+        "children": [
+         {
+          "id": "sig-258",
+          "type": "text",
+          "text": "Product sheet",
+          "font": {
+           "family": "Cairo",
+           "size": 12,
+           "weight": 700,
+           "letter_spacing": 2,
+           "uppercase": true
+          },
+          "color": "#111111",
+          "dark_color": "#F1F1EE",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "لوحة القطعة"
+           },
+           "tr": {
+            "text": "Ürün paftası"
+           }
+          }
+         },
+         {
+          "id": "sig-259",
+          "type": "row",
+          "name": "Cart",
+          "width": 38,
+          "height": 38,
+          "align": "center",
+          "cross": "center",
+          "self_align": "center",
+          "border_color": "#D6D6D1",
+          "dark_border_color": "#343432",
+          "border_width": 1,
+          "action": {
+           "type": "screen",
+           "screen": "cart"
+          },
+          "children": [
+           {
+            "id": "sig-260",
+            "type": "icon",
+            "icon": "shopping_bag",
+            "icon_size": 21,
+            "color": "#111111",
+            "dark_color": "#F1F1EE"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-261",
+        "type": "row",
+        "name": "Sheet 01",
+        "gap": 1,
+        "padding": {
+         "top": 1,
+         "end": 0,
+         "bottom": 1,
+         "start": 0
+        },
+        "background": "#D6D6D1",
+        "dark_background": "#343432",
+        "children": [
+         {
+          "id": "sig-262",
+          "type": "column",
+          "width": "fill",
+          "gap": 0,
+          "padding": {
+           "top": 7,
+           "end": 14,
+           "bottom": 7,
+           "start": 14
+          },
+          "background": "#F6F6F4",
+          "dark_background": "#0D0D0D",
+          "children": [
+           {
+            "id": "sig-263",
+            "type": "text",
+            "text": "Sheet 01",
+            "font": {
+             "family": "Cairo",
+             "size": 12.5,
+             "weight": 700
+            },
+            "color": "#111111",
+            "dark_color": "#F1F1EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "لوحة 01"
+             },
+             "tr": {
+              "text": "Pafta 01"
+             }
+            }
+           },
+           {
+            "id": "sig-264",
+            "type": "text",
+            "text": "Product sheet",
+            "font": {
+             "family": "Cairo",
+             "size": 10.5,
+             "weight": 400
+            },
+            "color": "#5A5A56",
+            "dark_color": "#A6A6A1",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "لوحة القطعة"
+             },
+             "tr": {
+              "text": "Ürün paftası"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-265",
+          "type": "column",
+          "width": "fill",
+          "gap": 0,
+          "padding": {
+           "top": 7,
+           "end": 14,
+           "bottom": 7,
+           "start": 14
+          },
+          "background": "#F6F6F4",
+          "dark_background": "#0D0D0D",
+          "children": [
+           {
+            "id": "sig-266",
+            "type": "text",
+            "text": "1:50",
+            "font": {
+             "family": "Cairo",
+             "size": 12.5,
+             "weight": 700
+            },
+            "color": "#111111",
+            "dark_color": "#F1F1EE",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "1:50"
+             },
+             "tr": {
+              "text": "1:50"
+             }
+            }
+           },
+           {
+            "id": "sig-267",
+            "type": "text",
+            "text": "Scale",
+            "font": {
+             "family": "Cairo",
+             "size": 10.5,
+             "weight": 400
+            },
+            "color": "#5A5A56",
+            "dark_color": "#A6A6A1",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "المقياس"
+             },
+             "tr": {
+              "text": "Ölçek"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-268",
+        "type": "column",
+        "gap": 0,
+        "padding": {
+         "top": 12,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#161616",
+        "border_color": "#111111",
+        "dark_border_color": "#F1F1EE",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-269",
+          "type": "product_gallery",
+          "aspect_ratio": 1.3333333333333333,
+          "product_part": {
+           "look": "thumbs",
+           "radius": 0,
+           "accent": "#111111",
+           "dark_accent": "#F1F1EE"
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-310",
+        "type": "product_title",
+        "font": {
+         "family": "Cairo",
+         "size": 26,
+         "weight": 800,
+         "line_height": 1.2
+        },
+        "margin": {
+         "top": 22,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "color": "#111111",
+        "dark_color": "#F1F1EE"
+       },
+       {
+        "id": "sig-311",
+        "type": "product_specs",
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "look": "dimensions",
+         "accent": "#111111",
+         "dark_accent": "#F1F1EE"
+        },
+        "text": "W × D × H, in centimetres",
+        "color": "#111111",
+        "dark_color": "#F1F1EE",
+        "font": {
+         "family": "Cairo",
+         "size": 26,
+         "weight": 800,
+         "line_height": 1.2
+        },
+        "translations": {
+         "ar": {
+          "text": "العرض × العمق × الارتفاع، بالسنتيمتر"
+         },
+         "tr": {
+          "text": "G × D × Y, santimetre"
+         }
+        }
+       },
+       {
+        "id": "sig-312",
+        "type": "product_delivery",
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "accent": "#111111",
+         "dark_accent": "#F1F1EE"
+        },
+        "text": "The drawing's notes",
+        "color": "#111111",
+        "dark_color": "#F1F1EE",
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "border_color": "#D6D6D1",
+        "dark_border_color": "#343432",
+        "border_width": 1,
+        "translations": {
+         "ar": {
+          "text": "ملاحظات اللوحة"
+         },
+         "tr": {
+          "text": "Paftanın notları"
+         }
+        }
+       },
+       {
+        "id": "sig-313",
+        "type": "product_price",
+        "font": {
+         "family": "Cairo",
+         "size": 22,
+         "weight": 800
+        },
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "look": "sale"
+        },
+        "color": "#111111",
+        "dark_color": "#F1F1EE"
+       },
+       {
+        "id": "sig-314",
+        "type": "product_variants",
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "look": "chips",
+         "accent": "#111111",
+         "dark_accent": "#F1F1EE"
+        },
+        "color": "#111111",
+        "dark_color": "#F1F1EE"
+       },
+       {
+        "id": "sig-297",
+        "type": "column",
+        "name": "Send your room's size, we draw the plan",
+        "gap": 0,
+        "margin": {
+         "top": 26,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#161616",
+        "border_color": "#111111",
+        "dark_border_color": "#F1F1EE",
+        "border_width": 1,
+        "action": {
+         "type": "page",
+         "page_slug": "custom-order"
+        },
+        "children": [
+         {
+          "id": "sig-298",
+          "type": "stack",
+          "height": 190,
+          "children": [
+           {
+            "id": "sig-270",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 0,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-271",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 6,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-272",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 12,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-273",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 18,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-274",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 24,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-275",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 30,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-276",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 36,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-277",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 42,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-278",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 48,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-279",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 54,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-280",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 60,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-281",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 66,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-282",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 72,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-283",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 78,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-284",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 84,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-285",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 90,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-286",
+            "type": "row",
+            "width": 1,
+            "height": 200,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 96,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-287",
+            "type": "row",
+            "width": 420,
+            "height": 1,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 0,
+             "y": 0
+            },
+            "children": []
+           },
+           {
+            "id": "sig-288",
+            "type": "row",
+            "width": 420,
+            "height": 1,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 0,
+             "y": 10
+            },
+            "children": []
+           },
+           {
+            "id": "sig-289",
+            "type": "row",
+            "width": 420,
+            "height": 1,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 0,
+             "y": 20
+            },
+            "children": []
+           },
+           {
+            "id": "sig-290",
+            "type": "row",
+            "width": 420,
+            "height": 1,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 0,
+             "y": 30
+            },
+            "children": []
+           },
+           {
+            "id": "sig-291",
+            "type": "row",
+            "width": 420,
+            "height": 1,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 0,
+             "y": 40
+            },
+            "children": []
+           },
+           {
+            "id": "sig-292",
+            "type": "row",
+            "width": 420,
+            "height": 1,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 0,
+             "y": 50
+            },
+            "children": []
+           },
+           {
+            "id": "sig-293",
+            "type": "row",
+            "width": 420,
+            "height": 1,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 0,
+             "y": 60
+            },
+            "children": []
+           },
+           {
+            "id": "sig-294",
+            "type": "row",
+            "width": 420,
+            "height": 1,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 0,
+             "y": 70
+            },
+            "children": []
+           },
+           {
+            "id": "sig-295",
+            "type": "row",
+            "width": 420,
+            "height": 1,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 0,
+             "y": 80
+            },
+            "children": []
+           },
+           {
+            "id": "sig-296",
+            "type": "row",
+            "width": 420,
+            "height": 1,
+            "background": "#E6E6E2",
+            "dark_background": "#222221",
+            "place": {
+             "x": 0,
+             "y": 90
+            },
+            "children": []
+           },
+           {
+            "id": "sig-299",
+            "type": "row",
+            "width": 290,
+            "height": 136,
+            "radius": 0,
+            "border_color": "#111111",
+            "dark_border_color": "#F1F1EE",
+            "border_width": 2.5,
+            "place": {
+             "x": 8,
+             "y": 11
+            },
+            "children": []
+           },
+           {
+            "id": "sig-300",
+            "type": "row",
+            "width": 118,
+            "height": 34,
+            "radius": 0,
+            "border_color": "#111111",
+            "dark_border_color": "#F1F1EE",
+            "border_width": 1.5,
+            "place": {
+             "x": 50,
+             "y": 20
+            },
+            "children": []
+           },
+           {
+            "id": "sig-301",
+            "type": "row",
+            "width": 60,
+            "height": 32,
+            "radius": 16,
+            "border_color": "#111111",
+            "dark_border_color": "#F1F1EE",
+            "border_width": 1.5,
+            "place": {
+             "x": 58,
+             "y": 50
+            },
+            "children": []
+           },
+           {
+            "id": "sig-302",
+            "type": "row",
+            "width": 38,
+            "height": 38,
+            "radius": 0,
+            "border_color": "#111111",
+            "dark_border_color": "#F1F1EE",
+            "border_width": 1.5,
+            "place": {
+             "x": 16,
+             "y": 30
+            },
+            "children": []
+           },
+           {
+            "id": "sig-303",
+            "type": "text",
+            "text": "← 4.20 m →",
+            "font": {
+             "family": "Cairo",
+             "size": 10,
+             "weight": 600
+            },
+            "color": "#5A5A56",
+            "dark_color": "#A6A6A1",
+            "width": 120,
+            "text_align": "center",
+            "place": {
+             "x": 36,
+             "y": 88
+            },
+            "translations": {
+             "ar": {
+              "text": "← 4.20 م →"
+             },
+             "tr": {
+              "text": "← 4,20 m →"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-304",
+          "type": "row",
+          "height": 1,
+          "margin": {
+           "top": 0,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "background": "#D6D6D1",
+          "dark_background": "#343432",
+          "children": []
+         },
+         {
+          "id": "sig-305",
+          "type": "column",
+          "gap": 4,
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 16,
+           "start": 14
+          },
+          "children": [
+           {
+            "id": "sig-306",
+            "type": "text",
+            "text": "Send your room's size, we draw the plan",
+            "font": {
+             "family": "Cairo",
+             "size": 17,
+             "weight": 800,
+             "line_height": 1.3
+            },
+            "color": "#111111",
+            "dark_color": "#F1F1EE",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "أرسل مقاسات غرفتك، نرسم لك المخطط"
+             },
+             "tr": {
+              "text": "Odanızın ölçüsünü gönderin, planı biz çizelim"
+             }
+            }
+           },
+           {
+            "id": "sig-307",
+            "type": "text",
+            "text": "Its width and length, where the door and the window are: our team draws where each piece stands before you order.",
+            "font": {
+             "family": "Cairo",
+             "size": 12.5,
+             "weight": 400,
+             "line_height": 1.55
+            },
+            "color": "#5A5A56",
+            "dark_color": "#A6A6A1",
+            "max_lines": 3,
+            "translations": {
+             "ar": {
+              "text": "العرض والطول ومكان الباب والنافذة، وفريقنا يرسم أين تقف كل قطعة قبل أن تطلب."
+             },
+             "tr": {
+              "text": "Genişliği, uzunluğu, kapı ve pencerenin yeri: ekibimiz siz sipariş vermeden her parçanın yerini çizer."
+             }
+            }
+           },
+           {
+            "id": "sig-308",
+            "type": "button",
+            "name": "Draw my room",
+            "text": "Draw my room",
+            "icon": "arrow_forward",
+            "icon_position": "end",
+            "width": "hug",
+            "height": 44,
+            "radius": 0,
+            "padding": {
+             "top": 0,
+             "end": 18,
+             "bottom": 0,
+             "start": 18
+            },
+            "self_align": "start",
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "background": "#111111",
+            "dark_background": "#F1F1EE",
+            "color": "#FFFFFF",
+            "dark_color": "#0D0D0D",
+            "font": {
+             "family": "Cairo",
+             "size": 13.5,
+             "weight": 700
+            },
+            "action": {
+             "type": "page",
+             "page_slug": "custom-order"
+            },
+            "translations": {
+             "ar": {
+              "text": "ارسم غرفتي"
+             },
+             "tr": {
+              "text": "Odamı çiz"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-315",
+        "type": "product_description",
+        "margin": {
+         "top": 26,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "color": "#111111",
+        "dark_color": "#F1F1EE",
+        "padding": {
+         "top": 14,
+         "end": 0,
+         "bottom": 14,
+         "start": 0
+        },
+        "border_color": "#D6D6D1",
+        "dark_border_color": "#343432",
+        "border_width": 1
+       },
+       {
+        "id": "sig-316",
+        "type": "product_reviews",
+        "margin": {
+         "top": 22,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "accent": "#111111",
+         "dark_accent": "#F1F1EE"
+        },
+        "color": "#111111",
+        "dark_color": "#F1F1EE"
+       },
+       {
+        "id": "sig-317",
+        "type": "product_related",
+        "margin": {
+         "top": 26,
+         "end": 0,
+         "bottom": 20,
+         "start": 0
+        },
+        "product_part": {
+         "look": "grid",
+         "rows": 4
+        },
+        "text": "From the same room",
+        "color": "#111111",
+        "dark_color": "#F1F1EE",
+        "translations": {
+         "ar": {
+          "text": "من الغرفة نفسها"
+         },
+         "tr": {
+          "text": "Aynı odadan"
+         }
+        }
+       },
+       {
+        "id": "sig-318",
+        "type": "product_buy",
+        "pin": "bottom",
+        "radius": 1,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 10,
+         "start": 16
+        },
+        "product_part": {
+         "look": "price",
+         "accent": "#111111",
+         "dark_accent": "#F1F1EE"
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#161616",
+        "border_color": "#111111",
+        "dark_border_color": "#F1F1EE",
+        "border_width": 1,
+        "color": "#111111",
+        "dark_color": "#F1F1EE"
+       }
+      ]
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "settings",
     "title": "Settings",
     "translations": {
@@ -5588,7 +6639,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-312",
+      "id": "sig-374",
       "type": "column",
       "children": []
      },
@@ -5630,7 +6681,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-313",
+      "id": "sig-375",
       "type": "column",
       "children": []
      },
@@ -5672,7 +6723,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-314",
+      "id": "sig-376",
       "type": "column",
       "children": []
      },
@@ -5714,7 +6765,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-315",
+      "id": "sig-377",
       "type": "column",
       "children": []
      },
@@ -5756,7 +6807,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-316",
+      "id": "sig-378",
       "type": "column",
       "children": []
      },
@@ -5790,7 +6841,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-317",
+      "id": "sig-379",
       "type": "column",
       "children": []
      },
@@ -5807,7 +6858,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-318",
+      "id": "sig-380",
       "type": "column",
       "children": []
      },

@@ -2129,11 +2129,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-151",
+      "id": "sig-182",
       "type": "column",
       "children": [
        {
-        "id": "sig-152",
+        "id": "sig-183",
         "type": "text",
         "text": "Every little piece",
         "font": {
@@ -2161,7 +2161,7 @@
         }
        },
        {
-        "id": "sig-153",
+        "id": "sig-184",
         "type": "row",
         "name": "Shop by age",
         "gap": 6,
@@ -2173,7 +2173,7 @@
         },
         "children": [
          {
-          "id": "sig-154",
+          "id": "sig-185",
           "type": "column",
           "name": "0–2 year",
           "width": "fill",
@@ -2191,7 +2191,7 @@
           },
           "children": [
            {
-            "id": "sig-155",
+            "id": "sig-186",
             "type": "column",
             "corners": {
              "top_start": 58,
@@ -2211,7 +2211,7 @@
             },
             "children": [
              {
-              "id": "sig-156",
+              "id": "sig-187",
               "type": "text",
               "text": "0–2",
               "max_lines": 1,
@@ -2225,7 +2225,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-157",
+              "id": "sig-188",
               "type": "text",
               "text": "year",
               "max_lines": 1,
@@ -2248,7 +2248,7 @@
             ]
            },
            {
-            "id": "sig-158",
+            "id": "sig-189",
             "type": "text",
             "text": "Babies",
             "font": {
@@ -2272,7 +2272,7 @@
           ]
          },
          {
-          "id": "sig-159",
+          "id": "sig-190",
           "type": "column",
           "name": "3–5 years",
           "width": "fill",
@@ -2290,7 +2290,7 @@
           },
           "children": [
            {
-            "id": "sig-160",
+            "id": "sig-191",
             "type": "column",
             "corners": {
              "top_start": 24,
@@ -2313,7 +2313,7 @@
             "border_width": 3,
             "children": [
              {
-              "id": "sig-161",
+              "id": "sig-192",
               "type": "text",
               "text": "3–5",
               "max_lines": 1,
@@ -2327,7 +2327,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-162",
+              "id": "sig-193",
               "type": "text",
               "text": "years",
               "max_lines": 1,
@@ -2350,7 +2350,7 @@
             ]
            },
            {
-            "id": "sig-163",
+            "id": "sig-194",
             "type": "text",
             "text": "Little ones",
             "font": {
@@ -2374,7 +2374,7 @@
           ]
          },
          {
-          "id": "sig-164",
+          "id": "sig-195",
           "type": "column",
           "name": "6–9 years",
           "width": "fill",
@@ -2392,7 +2392,7 @@
           },
           "children": [
            {
-            "id": "sig-165",
+            "id": "sig-196",
             "type": "column",
             "corners": {
              "top_start": 50,
@@ -2412,7 +2412,7 @@
             },
             "children": [
              {
-              "id": "sig-166",
+              "id": "sig-197",
               "type": "text",
               "text": "6–9",
               "max_lines": 1,
@@ -2426,7 +2426,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-167",
+              "id": "sig-198",
               "type": "text",
               "text": "years",
               "max_lines": 1,
@@ -2449,7 +2449,7 @@
             ]
            },
            {
-            "id": "sig-168",
+            "id": "sig-199",
             "type": "text",
             "text": "School days",
             "font": {
@@ -2473,7 +2473,7 @@
           ]
          },
          {
-          "id": "sig-169",
+          "id": "sig-200",
           "type": "column",
           "name": "10+ years",
           "width": "fill",
@@ -2491,7 +2491,7 @@
           },
           "children": [
            {
-            "id": "sig-170",
+            "id": "sig-201",
             "type": "column",
             "corners": {
              "top_start": 28,
@@ -2511,7 +2511,7 @@
             },
             "children": [
              {
-              "id": "sig-171",
+              "id": "sig-202",
               "type": "text",
               "text": "10+",
               "max_lines": 1,
@@ -2525,7 +2525,7 @@
               "dark_color": "#F6EEFF"
              },
              {
-              "id": "sig-172",
+              "id": "sig-203",
               "type": "text",
               "text": "years",
               "max_lines": 1,
@@ -2548,7 +2548,7 @@
             ]
            },
            {
-            "id": "sig-173",
+            "id": "sig-204",
             "type": "text",
             "text": "Big kids",
             "font": {
@@ -2574,7 +2574,7 @@
         ]
        },
        {
-        "id": "sig-174",
+        "id": "sig-205",
         "type": "row",
         "name": "Size guide",
         "gap": 8,
@@ -2602,7 +2602,7 @@
         },
         "children": [
          {
-          "id": "sig-175",
+          "id": "sig-206",
           "type": "icon",
           "icon": "straighten",
           "icon_size": 18,
@@ -2610,7 +2610,7 @@
           "dark_color": "#F6EEFF"
          },
          {
-          "id": "sig-176",
+          "id": "sig-207",
           "type": "text",
           "text": "Size guide",
           "font": {
@@ -2633,7 +2633,7 @@
         ]
        },
        {
-        "id": "sig-177",
+        "id": "sig-208",
         "type": "listing_filters",
         "name": "Sizes by age",
         "color": "#3A2952",
@@ -2688,7 +2688,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-178",
+      "id": "sig-209",
       "type": "column",
       "children": []
      },
@@ -2733,11 +2733,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-179",
+      "id": "sig-210",
       "type": "column",
       "children": [
        {
-        "id": "sig-180",
+        "id": "sig-211",
         "type": "row",
         "name": "A newborn gift can be wrapped, with your card written by hand.",
         "gap": 12,
@@ -2759,7 +2759,7 @@
         "dark_background": "#5A3A44",
         "children": [
          {
-          "id": "sig-181",
+          "id": "sig-212",
           "type": "icon",
           "icon": "redeem",
           "icon_size": 24,
@@ -2767,7 +2767,7 @@
           "dark_color": "#F6EEFF"
          },
          {
-          "id": "sig-182",
+          "id": "sig-213",
           "type": "text",
           "text": "A newborn gift can be wrapped, with your card written by hand.",
           "font": {
@@ -2834,11 +2834,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-184",
+      "id": "sig-215",
       "type": "column",
       "children": [
        {
-        "id": "sig-183",
+        "id": "sig-214",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -3651,6 +3651,562 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#FFF6EC",
+     "dark_background": "#1B1530",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-176",
+      "type": "column",
+      "gap": 0,
+      "children": [
+       {
+        "id": "sig-151",
+        "type": "column",
+        "name": "Toota",
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 22,
+         "start": 16
+        },
+        "corners": {
+         "top_start": 0,
+         "top_end": 0,
+         "bottom_start": 48,
+         "bottom_end": 48
+        },
+        "background": "#C6E2FF",
+        "dark_background": "#253E5C",
+        "children": [
+         {
+          "id": "sig-152",
+          "type": "product_gallery",
+          "aspect_ratio": 1,
+          "product_part": {
+           "look": "card",
+           "radius": 34
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-177",
+        "type": "product_title",
+        "font": {
+         "family": "Lemonada",
+         "size": 21,
+         "weight": 700,
+         "line_height": 1.4
+        },
+        "margin": {
+         "top": 18,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "product_part": {
+         "look": "plain"
+        },
+        "color": "#3A2952",
+        "dark_color": "#F6EEFF"
+       },
+       {
+        "id": "sig-178",
+        "type": "product_price",
+        "font": {
+         "family": "Lemonada",
+         "size": 18,
+         "weight": 700,
+         "line_height": 1.35
+        },
+        "margin": {
+         "top": 4,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "product_part": {
+         "look": "sale"
+        },
+        "color": "#B23E6E",
+        "dark_color": "#FF9EC0"
+       },
+       {
+        "id": "sig-154",
+        "type": "row",
+        "name": "Tooti",
+        "gap": 10,
+        "cross": "center",
+        "margin": {
+         "top": 18,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "children": [
+         {
+          "id": "sig-153",
+          "type": "image",
+          "image_url": "http://localhost:3000/design-pictures/kids-tooti.png",
+          "fit": "contain",
+          "name": "Tooti",
+          "width": 70,
+          "height": 78
+         },
+         {
+          "id": "sig-155",
+          "type": "column",
+          "width": "fill",
+          "padding": {
+           "top": 12,
+           "end": 14,
+           "bottom": 12,
+           "start": 14
+          },
+          "corners": {
+           "top_start": 22,
+           "top_end": 22,
+           "bottom_start": 6,
+           "bottom_end": 22
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#272040",
+          "shadow": "light",
+          "children": [
+           {
+            "id": "sig-156",
+            "type": "text",
+            "text": "Pick their age and I'll check it fits!",
+            "font": {
+             "family": "Lemonada",
+             "size": 13,
+             "weight": 600,
+             "line_height": 1.45
+            },
+            "color": "#3A2952",
+            "dark_color": "#F6EEFF",
+            "translations": {
+             "ar": {
+              "text": "اختر عمر طفلك وسأتأكّد أن المقاس يناسبه!"
+             },
+             "tr": {
+              "text": "Yaşını seç, bedenin uyduğuna ben bakarım!"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-157",
+        "type": "column",
+        "name": "Pick an age",
+        "radius": 32,
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 18,
+         "start": 16
+        },
+        "margin": {
+         "top": 14,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "background": "#E4D6FF",
+        "dark_background": "#3B2D5E",
+        "children": [
+         {
+          "id": "sig-158",
+          "type": "product_variants",
+          "margin": {
+           "top": 12,
+           "end": 16,
+           "bottom": 4,
+           "start": 16
+          },
+          "product_part": {
+           "look": "chips",
+           "accent": "#3A2952",
+           "dark_accent": "#FFD2B8"
+          },
+          "text": "Pick an age",
+          "color": "#3A2952",
+          "dark_color": "#F6EEFF",
+          "translations": {
+           "ar": {
+            "text": "اختر العمر"
+           },
+           "tr": {
+            "text": "Yaş seçin"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-179",
+        "type": "product_quantity",
+        "margin": {
+         "top": 16,
+         "end": 18,
+         "bottom": 0,
+         "start": 18
+        },
+        "product_part": {
+         "look": "pill"
+        },
+        "color": "#3A2952",
+        "dark_color": "#F6EEFF"
+       },
+       {
+        "id": "sig-163",
+        "type": "row",
+        "name": "~",
+        "height": 20,
+        "scroll": true,
+        "margin": {
+         "top": 18,
+         "end": 0,
+         "bottom": 0,
+         "start": 0
+        },
+        "children": [
+         {
+          "id": "sig-164",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-165",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-166",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-167",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-168",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-169",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-170",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-171",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-172",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-173",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-174",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         },
+         {
+          "id": "sig-175",
+          "type": "row",
+          "width": 40,
+          "height": 20,
+          "background": "#FFD2B8",
+          "dark_background": "#5A3A44",
+          "corners": {
+           "top_start": 20,
+           "top_end": 20,
+           "bottom_start": 0,
+           "bottom_end": 0
+          },
+          "children": []
+         }
+        ]
+       },
+       {
+        "id": "sig-159",
+        "type": "column",
+        "name": "~",
+        "gap": 16,
+        "padding": {
+         "top": 8,
+         "end": 18,
+         "bottom": 26,
+         "start": 18
+        },
+        "background": "#FFD2B8",
+        "dark_background": "#5A3A44",
+        "children": [
+         {
+          "id": "sig-160",
+          "type": "product_description",
+          "margin": {
+           "top": 12,
+           "end": 16,
+           "bottom": 4,
+           "start": 16
+          },
+          "product_part": {
+           "look": "accordion"
+          },
+          "color": "#3A2952",
+          "dark_color": "#F6EEFF",
+          "border_color": "#F0E2D2",
+          "dark_border_color": "#3A3157"
+         },
+         {
+          "id": "sig-161",
+          "type": "product_delivery",
+          "margin": {
+           "top": 12,
+           "end": 16,
+           "bottom": 4,
+           "start": 16
+          },
+          "product_part": {
+           "look": "card",
+           "accent": "#3A2952",
+           "dark_accent": "#FFD2B8"
+          },
+          "color": "#3A2952",
+          "dark_color": "#F6EEFF",
+          "radius": 24,
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 14
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#272040"
+         },
+         {
+          "id": "sig-162",
+          "type": "product_reviews",
+          "margin": {
+           "top": 12,
+           "end": 16,
+           "bottom": 4,
+           "start": 16
+          },
+          "product_part": {
+           "look": "bars",
+           "accent": "#B23E6E",
+           "dark_accent": "#FF9EC0"
+          },
+          "color": "#3A2952",
+          "dark_color": "#F6EEFF"
+         }
+        ]
+       },
+       {
+        "id": "sig-180",
+        "type": "product_related",
+        "margin": {
+         "top": 24,
+         "end": 0,
+         "bottom": 20,
+         "start": 0
+        },
+        "product_part": {
+         "look": "carousel",
+         "rows": 8
+        },
+        "text": "Little friends also loved",
+        "color": "#3A2952",
+        "dark_color": "#F6EEFF",
+        "translations": {
+         "ar": {
+          "text": "أحبّها أصدقاء صغار أيضًا"
+         },
+         "tr": {
+          "text": "Küçük arkadaşlar bunları da sevdi"
+         }
+        }
+       },
+       {
+        "id": "sig-181",
+        "type": "product_buy",
+        "pin": "bottom",
+        "radius": 32,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 12,
+         "start": 16
+        },
+        "product_part": {
+         "look": "cart",
+         "accent": "#3A2952",
+         "dark_accent": "#FFD2B8"
+        },
+        "text": "Into the basket",
+        "background": "#FFF6EC",
+        "dark_background": "#1B1530",
+        "color": "#3A2952",
+        "dark_color": "#F6EEFF",
+        "translations": {
+         "ar": {
+          "text": "إلى السلة"
+         },
+         "tr": {
+          "text": "Sepete at"
+         }
+        }
+       }
+      ]
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "orders",
     "title": "My orders",
     "translations": {
@@ -3663,11 +4219,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-185",
+      "id": "sig-216",
       "type": "column",
       "children": [
        {
-        "id": "sig-192",
+        "id": "sig-223",
         "type": "row",
         "name": "Your parcel's journey",
         "cross": "center",
@@ -3680,7 +4236,7 @@
         },
         "children": [
          {
-          "id": "sig-193",
+          "id": "sig-224",
           "type": "text",
           "text": "Your parcel's journey",
           "font": {
@@ -3705,7 +4261,7 @@
         ]
        },
        {
-        "id": "sig-194",
+        "id": "sig-225",
         "type": "timeline",
         "name": "Your parcel's journey",
         "timeline": {
@@ -3829,7 +4385,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-186",
+      "id": "sig-217",
       "type": "column",
       "children": []
      },
@@ -3871,7 +4427,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-187",
+      "id": "sig-218",
       "type": "column",
       "children": []
      },
@@ -3913,7 +4469,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-188",
+      "id": "sig-219",
       "type": "column",
       "children": []
      },
@@ -3955,7 +4511,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-189",
+      "id": "sig-220",
       "type": "column",
       "children": []
      },
@@ -3989,7 +4545,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-190",
+      "id": "sig-221",
       "type": "column",
       "children": []
      },
@@ -4006,7 +4562,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-191",
+      "id": "sig-222",
       "type": "column",
       "children": []
      },

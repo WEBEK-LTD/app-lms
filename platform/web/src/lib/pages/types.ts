@@ -93,8 +93,8 @@ export const STUDIO_PRODUCT_LOOKS = {
   product_buy: ["cart", "buy_now", "price"],
   // Its words open, or under a title that opens them.
   product_description: ["plain", "accordion"],
-  // Its specs and facts as a table of two columns, or as a list of lines.
-  product_specs: ["table", "list"],
+  // Its specs and facts as a table of two columns, or as a list of lines; 228.8 its size (W × D × H) as the headline figure.
+  product_specs: ["table", "list", "dimensions"],
   // The rating and the count with a link to the reviews, or the bars of each star, its customers' photos and first reviews.
   product_reviews: ["summary", "bars"],
   // The products as a row that slides, or a grid of two.

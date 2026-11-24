@@ -38,6 +38,14 @@ function titleOnly(node: StudioNode): boolean {
 }
 
 /**
+ * 228.7 What the servers leave out with nothing to show, and their titles
+ * with them: a list, the shop's flash sale (none on) and a coupon bound to
+ * the shop's codes (none shown), so a template's treasure chest or deals card
+ * is never a heading over nothing in a shop that has no code or sale yet.
+ */
+const SERVED_LISTS = new Set<string>(["items", "flash_sale", "coupon"]);
+
+/**
  * Each list's title, by the title's ID: the element just before the list,
  * only words, either named as the list is (a template's section title, the
  * list named after it) or the list's one companion in what holds them (a
@@ -48,7 +56,7 @@ export function listHeadings(root: StudioNode): Map<string, string> {
   const walk = (node: StudioNode) => {
     const kids = node.children ?? [];
     kids.forEach((child, i) => {
-      if (child.type !== "items" || i === 0) return;
+      if (!SERVED_LISTS.has(child.type) || i === 0) return;
       const before = kids[i - 1]!;
       if (before.heads || !titleOnly(before)) return;
       const named = Boolean(child.name) && before.name === child.name;
@@ -90,6 +98,28 @@ export function withListHeadings(root: StudioNode, headings: Map<string, string>
     return { ...node, children };
   };
   return walk(root) ?? root;
+}
+
+/**
+ * 228.7 The served page without the rows and columns the servers emptied:
+ * one that held elements in the page (a template's deals card, its flash
+ * sale and its products on sale) and has none left goes too, rather than
+ * stand as an empty coloured box. One the page left empty on purpose stays.
+ */
+export function withoutEmptied(page: StudioNode, served: StudioNode): StudioNode {
+  const had = new Set<string>();
+  const mark = (node: StudioNode) => {
+    if (node.children?.length) had.add(node.id);
+    node.children?.forEach(mark);
+  };
+  mark(page);
+  const walk = (node: StudioNode): StudioNode | null => {
+    if (!node.children) return node;
+    const children = node.children.map(walk).filter((c): c is StudioNode => c !== null);
+    if (!children.length && had.has(node.id) && node.id !== served.id) return null;
+    return children.length === node.children.length ? node : { ...node, children };
+  };
+  return walk(served) ?? served;
 }
 
 /** The template's words for its sample bouquet ("Blush Garden" and its brackets), in Studio's three languages. */

@@ -54,18 +54,23 @@ export function readProductDetails(v: { width?: string; depth?: string; height?:
 
 const WORDS = {
   en: { w: "W", d: "D", h: "H", cm: "cm", day: "Made in 1 day", days: "Made in {n} days" },
-  ar: { w: "ع", d: "عم", h: "ار", cm: "سم", day: "يُصنع في يوم واحد", days: "يُصنع في {n} أيام" },
+  ar: { w: "", d: "", h: "", cm: "سم", day: "يُصنع في يوم واحد", days: "يُصنع في {n} أيام" },
   tr: { w: "G", d: "D", h: "Y", cm: "cm", day: "1 günde yapılır", days: "{n} günde yapılır" },
 } as const;
 
 const wordsIn = (lang: string | null | undefined) => (lang === "ar" || lang === "tr" ? WORDS[lang] : WORDS.en);
 const num = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
 
-/** "W 220 × D 95 × H 82 cm" in the app's language (only the sizes it has); null without any. */
+/**
+ * "W 220 × D 95 × H 82 cm" in the app's language (only the sizes it has);
+ * null without any. Arabic has no standard letters for them: "220 × 95 × 82
+ * سم", the order width, depth, height, carried by the words around it
+ * (228.8). Turkish keeps G, D and Y.
+ */
 export function dimensionsLine(d: ProductDimensions | null | undefined, lang: string | null | undefined): string | null {
   if (!d) return null;
   const w = wordsIn(lang);
-  const parts = ([["w", d.width], ["d", d.depth], ["h", d.height]] as const).filter(([, n]) => n !== null && n > 0).map(([k, n]) => `${w[k]} ${num(n!)}`);
+  const parts = ([["w", d.width], ["d", d.depth], ["h", d.height]] as const).filter(([, n]) => n !== null && n > 0).map(([k, n]) => (w[k] ? `${w[k]} ${num(n!)}` : num(n!)));
   return parts.length ? `${parts.join(" × ")} ${w.cm}` : null;
 }
 

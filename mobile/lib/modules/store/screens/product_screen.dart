@@ -134,9 +134,20 @@ class ProductStudioPage extends ConsumerStatefulWidget {
 }
 
 class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
-  late ProductPageController _controller = ProductPageController(
-    widget.product,
-  );
+  late ProductPageController _controller = _controllerFor(widget);
+
+  static ProductPageController _controllerFor(ProductStudioPage w) =>
+      ProductPageController(w.product, sizeHeadline: _headsWithSize(w.page));
+
+  /// 228.8 Whether the page shows the product's size as its headline.
+  static bool _headsWithSize(StudioPage page) {
+    bool has(StudioNode n) =>
+        (!n.hidden &&
+            n.type == StudioNodeType.productSpecs &&
+            n.productPart.look == 'dimensions') ||
+        n.children.any(has);
+    return has(page.body);
+  }
 
   @override
   void initState() {
@@ -154,9 +165,9 @@ class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
   @override
   void didUpdateWidget(ProductStudioPage old) {
     super.didUpdateWidget(old);
-    if (old.product != widget.product) {
+    if (old.product != widget.product || old.page != widget.page) {
       _controller.dispose();
-      _controller = ProductPageController(widget.product);
+      _controller = _controllerFor(widget);
     }
   }
 
@@ -169,6 +180,16 @@ class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
     _controller.dispose();
     _scrolledPast.dispose();
     super.dispose();
+  }
+
+  /// How far the page scrolls before the top band shows, on a page without
+  /// a header (whose back button lies over it): past the photos it starts
+  /// with full bleed under the status bar (the gallery's pager), else (228.8)
+  /// as soon as it scrolls; null with a header of its own.
+  double? _bandAfter(double width, double top, double bar) {
+    if (widget.page.header != null) return null;
+    final photos = _bleedingPhotos(width);
+    return photos == null ? 8 : photos - top - bar;
   }
 
   /// The height of the photos the page starts with, when it starts with
@@ -195,7 +216,6 @@ class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
     final p = context.palette;
     final media = MediaQuery.of(context);
     final top = media.padding.top;
-    final photos = _bleedingPhotos(media.size.width);
     final dark = Theme.of(context).brightness == Brightness.dark;
     final background =
         parseHexColor(
@@ -205,6 +225,7 @@ class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
         ) ??
         p.background;
     const bar = 64.0;
+    final after = _bandAfter(media.size.width, top, bar);
     Widget view = StudioPageView(
       page: widget.page,
       pageSlug: widget.slug,
@@ -214,11 +235,12 @@ class _ProductStudioPageState extends ConsumerState<ProductStudioPage> {
     // under the status bar holds the back button, the product's name and
     // its heart: the page never scrolls under the bar's clock or the
     // buttons.
-    if (photos != null) {
+    // 228.8 Elsewhere, once the page scrolls under the back button.
+    if (after != null) {
       view = NotificationListener<ScrollNotification>(
         onNotification: (n) {
           if (n.depth == 0 && n.metrics.axis == Axis.vertical) {
-            _scrolledPast.value = n.metrics.pixels > photos - top - bar;
+            _scrolledPast.value = n.metrics.pixels > after;
           }
           return false;
         },

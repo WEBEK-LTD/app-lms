@@ -1413,11 +1413,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-96",
+      "id": "sig-122",
       "type": "column",
       "children": [
        {
-        "id": "sig-97",
+        "id": "sig-123",
         "type": "column",
         "name": "The line-up",
         "gap": 6,
@@ -1429,7 +1429,7 @@
         },
         "children": [
          {
-          "id": "sig-98",
+          "id": "sig-124",
           "type": "text",
           "text": "Every device we sell, with the agent's warranty",
           "font": {
@@ -1451,7 +1451,7 @@
           }
          },
          {
-          "id": "sig-99",
+          "id": "sig-125",
           "type": "text",
           "text": "The line-up",
           "font": {
@@ -1476,7 +1476,7 @@
         ]
        },
        {
-        "id": "sig-100",
+        "id": "sig-126",
         "type": "categories",
         "name": "Categories",
         "source": "products",
@@ -1491,7 +1491,7 @@
         }
        },
        {
-        "id": "sig-101",
+        "id": "sig-127",
         "type": "spec_filter",
         "name": "Shop by storage",
         "text": "Shop by storage",
@@ -1562,11 +1562,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-102",
+      "id": "sig-128",
       "type": "column",
       "children": [
        {
-        "id": "sig-103",
+        "id": "sig-129",
         "type": "coupon",
         "name": "Your code",
         "coupon": {
@@ -1583,7 +1583,7 @@
         }
        },
        {
-        "id": "sig-104",
+        "id": "sig-130",
         "type": "row",
         "name": "Every device is sealed, with its warranty from us.",
         "gap": 12,
@@ -1605,7 +1605,7 @@
         "dark_background": "#111113",
         "children": [
          {
-          "id": "sig-105",
+          "id": "sig-131",
           "type": "icon",
           "icon": "verified",
           "icon_size": 22,
@@ -1613,7 +1613,7 @@
           "dark_color": "#2997FF"
          },
          {
-          "id": "sig-106",
+          "id": "sig-132",
           "type": "text",
           "text": "Every device is sealed, with its warranty from us.",
           "font": {
@@ -1680,11 +1680,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-107",
+      "id": "sig-133",
       "type": "column",
       "children": [
        {
-        "id": "sig-108",
+        "id": "sig-134",
         "type": "column",
         "name": "Your order, step by step",
         "gap": 6,
@@ -1696,7 +1696,7 @@
         },
         "children": [
          {
-          "id": "sig-109",
+          "id": "sig-135",
           "type": "text",
           "text": "My orders",
           "font": {
@@ -1718,7 +1718,7 @@
           }
          },
          {
-          "id": "sig-110",
+          "id": "sig-136",
           "type": "text",
           "text": "Your order, step by step",
           "font": {
@@ -1743,7 +1743,7 @@
         ]
        },
        {
-        "id": "sig-111",
+        "id": "sig-137",
         "type": "timeline",
         "name": "Your order, step by step",
         "timeline": {
@@ -1873,11 +1873,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-113",
+      "id": "sig-139",
       "type": "column",
       "children": [
        {
-        "id": "sig-112",
+        "id": "sig-138",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -2422,6 +2422,525 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#F5F5F7",
+     "dark_background": "#000000",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-97",
+      "type": "column",
+      "gap": 0,
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 24,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-98",
+        "type": "column",
+        "name": "New",
+        "gap": 0,
+        "padding": {
+         "top": 0,
+         "end": 0,
+         "bottom": 28,
+         "start": 0
+        },
+        "background": "#000000",
+        "dark_background": "#000000",
+        "children": [
+         {
+          "id": "sig-99",
+          "type": "product_gallery",
+          "aspect_ratio": 1,
+          "product_part": {
+           "look": "card",
+           "radius": 34
+          },
+          "margin": {
+           "top": 12,
+           "end": 28,
+           "bottom": 0,
+           "start": 28
+          },
+          "background": "#111111",
+          "dark_background": "#111111"
+         },
+         {
+          "id": "sig-100",
+          "type": "product_title",
+          "font": {
+           "family": "Readex Pro",
+           "size": 30,
+           "weight": 600,
+           "line_height": 1.15,
+           "letter_spacing": -0.4
+          },
+          "margin": {
+           "top": 18,
+           "end": 24,
+           "bottom": 0,
+           "start": 24
+          },
+          "product_part": {
+           "look": "plain"
+          },
+          "color": "#F5F5F7",
+          "dark_color": "#F5F5F7",
+          "text_align": "center"
+         },
+         {
+          "id": "sig-101",
+          "type": "product_price",
+          "font": {
+           "family": "Readex Pro",
+           "size": 16,
+           "weight": 400,
+           "line_height": 1.25
+          },
+          "margin": {
+           "top": 6,
+           "end": 24,
+           "bottom": 0,
+           "start": 24
+          },
+          "product_part": {
+           "look": "from"
+          },
+          "color": "#A1A1A6",
+          "dark_color": "#A1A1A6",
+          "text_align": "center"
+         },
+         {
+          "id": "sig-102",
+          "type": "product_variants",
+          "margin": {
+           "top": 18,
+           "end": 24,
+           "bottom": 0,
+           "start": 24
+          },
+          "product_part": {
+           "look": "swatches",
+           "accent": "#F5F5F7",
+           "dark_accent": "#F5F5F7"
+          },
+          "color": "#F5F5F7",
+          "dark_color": "#F5F5F7"
+         },
+         {
+          "id": "sig-103",
+          "type": "row",
+          "align": "center",
+          "margin": {
+           "top": 16,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "children": [
+           {
+            "id": "sig-104",
+            "type": "row",
+            "name": "Installments coming soon",
+            "width": "hug",
+            "radius": 15,
+            "gap": 6,
+            "cross": "center",
+            "self_align": "start",
+            "padding": {
+             "top": 7,
+             "end": 12,
+             "bottom": 7,
+             "start": 10
+            },
+            "background": "#1C1C1E",
+            "dark_background": "#1C1C1E",
+            "children": [
+             {
+              "id": "sig-105",
+              "type": "icon",
+              "icon": "schedule",
+              "icon_size": 16,
+              "color": "#C9C9CE",
+              "dark_color": "#C9C9CE"
+             },
+             {
+              "id": "sig-106",
+              "type": "text",
+              "text": "Installments coming soon",
+              "max_lines": 2,
+              "font": {
+               "size": 12.5,
+               "weight": 700,
+               "line_height": 1.2
+              },
+              "color": "#C9C9CE",
+              "dark_color": "#C9C9CE",
+              "translations": {
+               "ar": {
+                "text": "التقسيط قريبًا"
+               },
+               "tr": {
+                "text": "Taksit yakında"
+               }
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-107",
+        "type": "column",
+        "name": "Every figure that matters.",
+        "gap": 6,
+        "padding": {
+         "top": 40,
+         "end": 24,
+         "bottom": 10,
+         "start": 24
+        },
+        "children": [
+         {
+          "id": "sig-108",
+          "type": "text",
+          "text": "In detail",
+          "font": {
+           "family": "Readex Pro",
+           "size": 13.5,
+           "weight": 400,
+           "line_height": 1.25
+          },
+          "color": "#6E6E73",
+          "dark_color": "#9A9AA0",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "بالتفصيل"
+           },
+           "tr": {
+            "text": "Ayrıntılı"
+           }
+          }
+         },
+         {
+          "id": "sig-109",
+          "type": "text",
+          "text": "Every figure that matters.",
+          "font": {
+           "family": "Readex Pro",
+           "size": 29,
+           "weight": 600,
+           "line_height": 1.2,
+           "letter_spacing": -0.3
+          },
+          "color": "#1D1D1F",
+          "dark_color": "#F5F5F7",
+          "max_lines": 3,
+          "translations": {
+           "ar": {
+            "text": "كل رقم يهمّك."
+           },
+           "tr": {
+            "text": "Önemli her rakam."
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-110",
+        "type": "product_specs",
+        "margin": {
+         "top": 0,
+         "end": 24,
+         "bottom": 0,
+         "start": 24
+        },
+        "product_part": {
+         "look": "list",
+         "rows": 8
+        },
+        "color": "#1D1D1F",
+        "dark_color": "#F5F5F7",
+        "font": {
+         "family": "Readex Pro",
+         "size": 15,
+         "weight": 300,
+         "line_height": 1.5
+        }
+       },
+       {
+        "id": "sig-111",
+        "type": "column",
+        "name": "Your old phone takes money off the new one.",
+        "gap": 8,
+        "radius": 28,
+        "padding": {
+         "top": 24,
+         "end": 20,
+         "bottom": 20,
+         "start": 20
+        },
+        "margin": {
+         "top": 28,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "gradient": {
+         "from": "#1C1C1E",
+         "to": "#000000",
+         "angle": 160
+        },
+        "background": "#111113",
+        "dark_background": "#111113",
+        "border_color": "#1C1C1E",
+        "dark_border_color": "#2A2A2D",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-112",
+          "type": "text",
+          "text": "Trade in",
+          "font": {
+           "family": "Readex Pro",
+           "size": 13,
+           "weight": 400,
+           "line_height": 1.25
+          },
+          "color": "#E8B07A",
+          "dark_color": "#E8B07A",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "استبدل جهازك"
+           },
+           "tr": {
+            "text": "Takas"
+           }
+          }
+         },
+         {
+          "id": "sig-113",
+          "type": "trade_in",
+          "name": "Trade in",
+          "text": "Your old phone takes money off the new one.",
+          "translations": {
+           "ar": {
+            "text": "هاتفك القديم يخفّض سعر الجديد."
+           },
+           "tr": {
+            "text": "Eski telefonunuz yenisinin fiyatını düşürür."
+           }
+          },
+          "tech": {
+           "look": "full",
+           "accent": "#E8B07A"
+          },
+          "font": {
+           "family": "Readex Pro"
+          },
+          "color": "#F5F5F7",
+          "dark_color": "#F5F5F7",
+          "background": "#111113",
+          "dark_background": "#111113",
+          "radius": 20,
+          "padding": {
+           "top": 14,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-114",
+        "type": "product_delivery",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 0,
+         "start": 16
+        },
+        "product_part": {
+         "look": "card",
+         "accent": "#0071E3",
+         "dark_accent": "#2997FF"
+        },
+        "color": "#1D1D1F",
+        "dark_color": "#F5F5F7",
+        "padding": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        },
+        "radius": 24,
+        "background": "#FFFFFF",
+        "dark_background": "#111113"
+       },
+       {
+        "id": "sig-115",
+        "type": "product_description",
+        "margin": {
+         "top": 24,
+         "end": 24,
+         "bottom": 0,
+         "start": 24
+        },
+        "product_part": {
+         "look": "accordion"
+        },
+        "color": "#1D1D1F",
+        "dark_color": "#F5F5F7",
+        "border_color": "#D9D9DE",
+        "dark_border_color": "#262629"
+       },
+       {
+        "id": "sig-116",
+        "type": "product_reviews",
+        "margin": {
+         "top": 22,
+         "end": 24,
+         "bottom": 0,
+         "start": 24
+        },
+        "product_part": {
+         "look": "summary",
+         "accent": "#0071E3",
+         "dark_accent": "#2997FF"
+        },
+        "color": "#1D1D1F",
+        "dark_color": "#F5F5F7"
+       },
+       {
+        "id": "sig-117",
+        "type": "column",
+        "name": "Every device, its own star.",
+        "gap": 6,
+        "padding": {
+         "top": 36,
+         "end": 24,
+         "bottom": 10,
+         "start": 24
+        },
+        "children": [
+         {
+          "id": "sig-118",
+          "type": "text",
+          "text": "The line-up",
+          "font": {
+           "family": "Readex Pro",
+           "size": 13.5,
+           "weight": 400,
+           "line_height": 1.25
+          },
+          "color": "#6E6E73",
+          "dark_color": "#9A9AA0",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "التشكيلة"
+           },
+           "tr": {
+            "text": "Seri"
+           }
+          }
+         },
+         {
+          "id": "sig-119",
+          "type": "text",
+          "text": "Every device, its own star.",
+          "font": {
+           "family": "Readex Pro",
+           "size": 29,
+           "weight": 600,
+           "line_height": 1.2,
+           "letter_spacing": -0.3
+          },
+          "color": "#1D1D1F",
+          "dark_color": "#F5F5F7",
+          "max_lines": 3,
+          "translations": {
+           "ar": {
+            "text": "لكل جهاز بطولته."
+           },
+           "tr": {
+            "text": "Her cihaz kendi yıldızı."
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-120",
+        "type": "product_related",
+        "margin": {
+         "top": 0,
+         "end": 0,
+         "bottom": 16,
+         "start": 0
+        },
+        "product_part": {
+         "look": "carousel",
+         "rows": 8
+        },
+        "color": "#1D1D1F",
+        "dark_color": "#F5F5F7"
+       },
+       {
+        "id": "sig-121",
+        "type": "product_buy",
+        "pin": "bottom",
+        "radius": 30,
+        "padding": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "product_part": {
+         "look": "buy_now",
+         "accent": "#F5F5F7",
+         "dark_accent": "#F5F5F7"
+        },
+        "margin": {
+         "top": 0,
+         "end": 14,
+         "bottom": 10,
+         "start": 14
+        },
+        "background": "#1C1C1E",
+        "dark_background": "#1C1C1E",
+        "color": "#F5F5F7",
+        "dark_color": "#F5F5F7"
+       }
+      ]
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "settings",
     "title": "Settings",
     "translations": {
@@ -2434,7 +2953,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-114",
+      "id": "sig-140",
       "type": "column",
       "children": []
      },
@@ -2476,7 +2995,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-115",
+      "id": "sig-141",
       "type": "column",
       "children": []
      },
@@ -2518,7 +3037,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-116",
+      "id": "sig-142",
       "type": "column",
       "children": []
      },
@@ -2560,7 +3079,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-117",
+      "id": "sig-143",
       "type": "column",
       "children": []
      },
@@ -2602,7 +3121,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-118",
+      "id": "sig-144",
       "type": "column",
       "children": []
      },
@@ -2636,7 +3155,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-119",
+      "id": "sig-145",
       "type": "column",
       "children": []
      },
@@ -2653,7 +3172,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-120",
+      "id": "sig-146",
       "type": "column",
       "children": []
      },

@@ -1826,11 +1826,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-126",
+      "id": "sig-145",
       "type": "column",
       "children": [
        {
-        "id": "sig-127",
+        "id": "sig-146",
         "type": "text",
         "text": "The whole collection",
         "font": {
@@ -1858,7 +1858,7 @@
         }
        },
        {
-        "id": "sig-128",
+        "id": "sig-147",
         "type": "text",
         "text": "Every piece",
         "font": {
@@ -1886,7 +1886,7 @@
         }
        },
        {
-        "id": "sig-129",
+        "id": "sig-148",
         "type": "row",
         "name": "The halls",
         "gap": 18,
@@ -1899,7 +1899,7 @@
         },
         "children": [
          {
-          "id": "sig-130",
+          "id": "sig-149",
           "type": "row",
           "name": "Living room",
           "gap": 6,
@@ -1910,7 +1910,7 @@
           },
           "children": [
            {
-            "id": "sig-131",
+            "id": "sig-150",
             "type": "text",
             "text": "I",
             "color": "#66665F",
@@ -1923,7 +1923,7 @@
             }
            },
            {
-            "id": "sig-132",
+            "id": "sig-151",
             "type": "text",
             "text": "Living room",
             "font": {
@@ -1947,7 +1947,7 @@
           ]
          },
          {
-          "id": "sig-133",
+          "id": "sig-152",
           "type": "row",
           "name": "Bedroom",
           "gap": 6,
@@ -1958,7 +1958,7 @@
           },
           "children": [
            {
-            "id": "sig-134",
+            "id": "sig-153",
             "type": "text",
             "text": "II",
             "color": "#66665F",
@@ -1971,7 +1971,7 @@
             }
            },
            {
-            "id": "sig-135",
+            "id": "sig-154",
             "type": "text",
             "text": "Bedroom",
             "font": {
@@ -1995,7 +1995,7 @@
           ]
          },
          {
-          "id": "sig-136",
+          "id": "sig-155",
           "type": "row",
           "name": "Dining room",
           "gap": 6,
@@ -2006,7 +2006,7 @@
           },
           "children": [
            {
-            "id": "sig-137",
+            "id": "sig-156",
             "type": "text",
             "text": "III",
             "color": "#66665F",
@@ -2019,7 +2019,7 @@
             }
            },
            {
-            "id": "sig-138",
+            "id": "sig-157",
             "type": "text",
             "text": "Dining room",
             "font": {
@@ -2043,7 +2043,7 @@
           ]
          },
          {
-          "id": "sig-139",
+          "id": "sig-158",
           "type": "row",
           "name": "Reading corner",
           "gap": 6,
@@ -2054,7 +2054,7 @@
           },
           "children": [
            {
-            "id": "sig-140",
+            "id": "sig-159",
             "type": "text",
             "text": "IV",
             "color": "#66665F",
@@ -2067,7 +2067,7 @@
             }
            },
            {
-            "id": "sig-141",
+            "id": "sig-160",
             "type": "text",
             "text": "Reading corner",
             "font": {
@@ -2091,7 +2091,7 @@
           ]
          },
          {
-          "id": "sig-142",
+          "id": "sig-161",
           "type": "row",
           "name": "Plants & terrariums",
           "gap": 6,
@@ -2102,7 +2102,7 @@
           },
           "children": [
            {
-            "id": "sig-143",
+            "id": "sig-162",
             "type": "text",
             "text": "V",
             "color": "#66665F",
@@ -2115,7 +2115,7 @@
             }
            },
            {
-            "id": "sig-144",
+            "id": "sig-163",
             "type": "text",
             "text": "Plants & terrariums",
             "font": {
@@ -2183,11 +2183,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-145",
+      "id": "sig-164",
       "type": "column",
       "children": [
        {
-        "id": "sig-146",
+        "id": "sig-165",
         "type": "coupon",
         "name": "Your code",
         "code": "SAKAN10",
@@ -2205,7 +2205,7 @@
         }
        },
        {
-        "id": "sig-147",
+        "id": "sig-166",
         "type": "row",
         "name": "Wrapped as a work of art",
         "gap": 12,
@@ -2217,7 +2217,7 @@
         },
         "children": [
          {
-          "id": "sig-148",
+          "id": "sig-167",
           "type": "row",
           "width": 2,
           "background": "#0B0B0B",
@@ -2225,13 +2225,13 @@
           "children": []
          },
          {
-          "id": "sig-149",
+          "id": "sig-168",
           "type": "column",
           "width": "fill",
           "gap": 1,
           "children": [
            {
-            "id": "sig-150",
+            "id": "sig-169",
             "type": "text",
             "text": "Wrapped as a work of art",
             "font": {
@@ -2253,7 +2253,7 @@
             }
            },
            {
-            "id": "sig-151",
+            "id": "sig-170",
             "type": "text",
             "text": "Each piece wrapped by hand, a card with your words on request",
             "font": {
@@ -2321,11 +2321,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-152",
+      "id": "sig-171",
       "type": "column",
       "children": [
        {
-        "id": "sig-153",
+        "id": "sig-172",
         "type": "row",
         "name": "Your order's journey",
         "gap": 12,
@@ -2338,13 +2338,13 @@
         },
         "children": [
          {
-          "id": "sig-154",
+          "id": "sig-173",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-155",
+            "id": "sig-174",
             "type": "text",
             "text": "From our wall to yours",
             "font": {
@@ -2366,7 +2366,7 @@
             }
            },
            {
-            "id": "sig-156",
+            "id": "sig-175",
             "type": "text",
             "text": "Your order's journey",
             "font": {
@@ -2392,7 +2392,7 @@
         ]
        },
        {
-        "id": "sig-157",
+        "id": "sig-176",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -2511,11 +2511,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-159",
+      "id": "sig-178",
       "type": "column",
       "children": [
        {
-        "id": "sig-158",
+        "id": "sig-177",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -3030,6 +3030,309 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#FFFFFF",
+     "dark_background": "#0B0B0B",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-139",
+      "type": "column",
+      "gap": 0,
+      "children": [
+       {
+        "id": "sig-126",
+        "type": "spacer",
+        "height": 76
+       },
+       {
+        "id": "sig-128",
+        "type": "column",
+        "gap": 0,
+        "padding": {
+         "top": 22,
+         "end": 22,
+         "bottom": 22,
+         "start": 22
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#171716",
+        "border_color": "#0B0B0B",
+        "dark_border_color": "#E6E1D6",
+        "border_width": 2,
+        "children": [
+         {
+          "id": "sig-127",
+          "type": "product_gallery",
+          "aspect_ratio": 0.8,
+          "product_part": {
+           "radius": 0
+          }
+         }
+        ],
+        "margin": {
+         "top": 0,
+         "end": 40,
+         "bottom": 0,
+         "start": 40
+        }
+       },
+       {
+        "id": "sig-129",
+        "type": "row",
+        "name": "On the wall",
+        "gap": 12,
+        "margin": {
+         "top": 30,
+         "end": 40,
+         "bottom": 0,
+         "start": 40
+        },
+        "children": [
+         {
+          "id": "sig-130",
+          "type": "row",
+          "width": 2,
+          "background": "#0B0B0B",
+          "dark_background": "#F2F2EF",
+          "children": []
+         },
+         {
+          "id": "sig-131",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-132",
+            "type": "product_title",
+            "font": {
+             "family": "Amiri",
+             "size": 20,
+             "weight": 700,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF"
+           },
+           {
+            "id": "sig-133",
+            "type": "product_delivery",
+            "margin": {
+             "top": 6,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "product_part": {
+             "accent": "#66665F",
+             "dark_accent": "#A2A29B"
+            },
+            "title": "Hand-glazed stoneware · Riyadh studio",
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "translations": {
+             "ar": {
+              "title": "خزف حجري مزجج يدويًا · مشغل الرياض"
+             },
+             "tr": {
+              "title": "Elde sırlanmış taş seramik · Riyad atölyesi"
+             }
+            }
+           },
+           {
+            "id": "sig-134",
+            "type": "product_price",
+            "font": {
+             "family": "IBM Plex Sans Arabic",
+             "size": 14,
+             "weight": 600
+            },
+            "margin": {
+             "top": 10,
+             "end": 0,
+             "bottom": 0,
+             "start": 0
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-140",
+        "type": "product_variants",
+        "margin": {
+         "top": 34,
+         "end": 40,
+         "bottom": 0,
+         "start": 40
+        },
+        "product_part": {
+         "accent": "#0B0B0B",
+         "dark_accent": "#F2F2EF"
+        },
+        "color": "#0B0B0B",
+        "dark_color": "#F2F2EF"
+       },
+       {
+        "id": "sig-141",
+        "type": "product_buy",
+        "pin": "none",
+        "radius": 1,
+        "product_part": {
+         "accent": "#0B0B0B",
+         "dark_accent": "#F2F2EF"
+        },
+        "margin": {
+         "top": 18,
+         "end": 40,
+         "bottom": 0,
+         "start": 40
+        },
+        "color": "#0B0B0B",
+        "dark_color": "#F2F2EF"
+       },
+       {
+        "id": "sig-135",
+        "type": "row",
+        "name": "About the piece",
+        "gap": 12,
+        "cross": "end",
+        "padding": {
+         "top": 44,
+         "end": 28,
+         "bottom": 18,
+         "start": 28
+        },
+        "children": [
+         {
+          "id": "sig-136",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-137",
+            "type": "text",
+            "text": "On the wall",
+            "font": {
+             "family": "IBM Plex Sans Arabic",
+             "size": 10.5,
+             "weight": 500,
+             "letter_spacing": 2
+            },
+            "color": "#66665F",
+            "dark_color": "#A2A29B",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "على الجدار"
+             },
+             "tr": {
+              "text": "Duvarda"
+             }
+            }
+           },
+           {
+            "id": "sig-138",
+            "type": "text",
+            "text": "About the piece",
+            "font": {
+             "family": "Amiri",
+             "size": 28,
+             "weight": 400,
+             "line_height": 1.25
+            },
+            "color": "#0B0B0B",
+            "dark_color": "#F2F2EF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "عن القطعة"
+             },
+             "tr": {
+              "text": "Eser hakkında"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-142",
+        "type": "product_description",
+        "margin": {
+         "top": 0,
+         "end": 28,
+         "bottom": 0,
+         "start": 28
+        },
+        "color": "#0B0B0B",
+        "dark_color": "#F2F2EF"
+       },
+       {
+        "id": "sig-143",
+        "type": "product_reviews",
+        "margin": {
+         "top": 30,
+         "end": 28,
+         "bottom": 0,
+         "start": 28
+        },
+        "product_part": {
+         "accent": "#0B0B0B",
+         "dark_accent": "#F2F2EF"
+        },
+        "color": "#0B0B0B",
+        "dark_color": "#F2F2EF"
+       },
+       {
+        "id": "sig-144",
+        "type": "product_related",
+        "margin": {
+         "top": 40,
+         "end": 12,
+         "bottom": 28,
+         "start": 12
+        },
+        "product_part": {
+         "look": "grid",
+         "rows": 4
+        },
+        "text": "From the same hall",
+        "color": "#0B0B0B",
+        "dark_color": "#F2F2EF",
+        "translations": {
+         "ar": {
+          "text": "من القاعة نفسها"
+         },
+         "tr": {
+          "text": "Aynı salondan"
+         }
+        }
+       }
+      ]
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "settings",
     "title": "Settings",
     "translations": {
@@ -3042,7 +3345,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-160",
+      "id": "sig-179",
       "type": "column",
       "children": []
      },
@@ -3084,7 +3387,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-161",
+      "id": "sig-180",
       "type": "column",
       "children": []
      },
@@ -3126,7 +3429,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-162",
+      "id": "sig-181",
       "type": "column",
       "children": []
      },
@@ -3168,7 +3471,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-163",
+      "id": "sig-182",
       "type": "column",
       "children": []
      },
@@ -3210,7 +3513,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-164",
+      "id": "sig-183",
       "type": "column",
       "children": []
      },
@@ -3244,7 +3547,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-165",
+      "id": "sig-184",
       "type": "column",
       "children": []
      },
@@ -3261,7 +3564,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-166",
+      "id": "sig-185",
       "type": "column",
       "children": []
      },

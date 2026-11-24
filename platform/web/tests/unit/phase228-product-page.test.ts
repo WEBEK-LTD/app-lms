@@ -217,7 +217,11 @@ describe("228 on the hosted API: Lujain's demo", () => {
     const page = (await call("/pages/{slug}", "ar", [PRODUCT_PAGE_SLUG])).body as { studio: StudioPage };
     expect(page.studio.screen).toBe("product");
     const nodes = allNodes(page.studio);
-    expect(nodes.filter((n) => (STUDIO_PRODUCT_TYPES as readonly string[]).includes(n.type)).length).toBeGreaterThanOrEqual(10);
+    // 228.7 The demo's main look's own page, element for element (a look that is its element's first is saved without it).
+    const own = signatureDesign(CLOTHES_DEMO)!.pages!(demoStudioContext(CLOTHES_DEMO, "https://yallapp.test")).find((p) => p.slug === PRODUCT_PAGE_SLUG)!;
+    const products = (list: StudioNode[]) => list.filter((n) => (STUDIO_PRODUCT_TYPES as readonly string[]).includes(n.type)).map((n) => `${n.type}:${n.product_part?.look ?? STUDIO_PRODUCT_LOOKS[n.type as keyof typeof STUDIO_PRODUCT_LOOKS][0]}`);
+    expect(products(nodes)).toEqual(products(allNodes(own.studio)));
+    expect(products(nodes).length).toBeGreaterThanOrEqual(7);
     for (const n of nodes) expect(n.translations).toBeUndefined();
   });
 });

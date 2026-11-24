@@ -3,6 +3,8 @@ import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigImage, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
+import { productPart } from "../product-page";
+import { mixedProductPage } from "./product-page-mix";
 
 /**
  * 223 Toota's template C, the STORY WORLD (the owner, 23 November 2026): the
@@ -486,6 +488,95 @@ const STORY_SCREENS = signatureScreens({
   first: ["orders", "wishlist", "notifications", "settings", "help", "privacy", "terms"],
 });
 
+/**
+ * 228.7 The story world's own product page: the photo as a rounded card on
+ * a sky blob that curves away under it; the name in round Lemonada and its
+ * price; Tooti beside a speech bubble ("Pick their age…"); the ages as
+ * round chips on a lilac bubble; the quantity as a pill; then a wavy edge
+ * into a peach band with the words that open, the delivery card and the
+ * stars' bars; the little friends' favourites; Into the basket a bubble
+ * pinned at the foot.
+ */
+function storyProductPage(ctx: SectionContext) {
+  const id = idOf(ctx);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const plum = { accent: K.fill, dark_accent: K.darkFill } as const;
+  const gap = (top: number, bottom = 0) => sides(top, 18, bottom, 18);
+  const stage: StudioNode = {
+    id: id(),
+    type: "column",
+    name: ctx.w("stwWordmark"),
+    padding: sides(10, 16, 22, 16),
+    corners: { top_start: 0, top_end: 0, bottom_start: 48, bottom_end: 48 },
+    ...blob(SKY),
+    children: [productPart(ctx, { type: "product_gallery", look: "card", radius: 34, node: { aspect_ratio: 1 } })],
+  };
+  const mascot = tooti(ctx);
+  const tip: StudioNode = {
+    id: id(),
+    type: "row",
+    name: ctx.w("stwMascot"),
+    gap: 10,
+    cross: "center",
+    margin: gap(18),
+    children: [
+      { ...mascot, width: 70, height: 78 },
+      {
+        id: id(),
+        type: "column",
+        width: "fill",
+        padding: sides(12, 14, 12, 14),
+        corners: { top_start: 22, top_end: 22, bottom_start: 6, bottom_end: 22 },
+        background: K.surface,
+        dark_background: K.darkSurface,
+        shadow: "light",
+        children: [say(ctx, "stwTootiTip", face(13, { weight: 600, line_height: 1.45 }))],
+      },
+    ],
+  };
+  const ages: StudioNode = {
+    id: id(),
+    type: "column",
+    name: ctx.w("stwPickAge"),
+    radius: 32,
+    padding: sides(16, 16, 18, 16),
+    margin: gap(14),
+    ...blob(LILAC),
+    children: [productPart(ctx, { type: "product_variants", look: "chips", text: "stwPickAge", ...plum, node: { ...ink } })],
+  };
+  const band: StudioNode = {
+    id: id(),
+    type: "column",
+    name: "~",
+    gap: 16,
+    padding: sides(8, 18, 26, 18),
+    ...blob(PEACH),
+    children: [
+      productPart(ctx, { type: "product_description", look: "accordion", node: { ...ink, border_color: K.line, dark_border_color: K.darkLine } }),
+      productPart(ctx, { type: "product_delivery", look: "card", ...plum, node: { ...ink, radius: 24, padding: sides(14, 14, 14, 14), background: K.surface, dark_background: K.darkSurface } }),
+      productPart(ctx, { type: "product_reviews", look: "bars", accent: K.accent, dark_accent: K.darkAccent, node: { ...ink } }),
+    ],
+  };
+  return mixedProductPage(ctx, { background: K.page, dark_background: K.darkPage }, [
+    stage,
+    { type: "product_title", look: "plain", node: { ...ink, font: face(21, { line_height: 1.4 }), margin: gap(18) } },
+    { type: "product_price", look: "sale", node: { color: K.accent, dark_color: K.darkAccent, font: face(18), margin: gap(4) } },
+    tip,
+    ages,
+    { type: "product_quantity", look: "pill", node: { ...ink, margin: gap(16) } },
+    scallops(ctx, PEACH),
+    band,
+    { type: "product_related", look: "carousel", rows: 8, text: "stwAlsoLoved", node: { ...ink, margin: sides(24, 0, 20, 0) } },
+    {
+      type: "product_buy",
+      look: "cart",
+      text: "stwIntoBasket",
+      ...plum,
+      node: { pin: "bottom", radius: 32, padding: sides(10, 16, 12, 16), background: K.page, dark_background: K.darkPage, ...ink },
+    },
+  ]);
+}
+
 export const STORY_C: SignatureDesign = {
   demo: "kids",
   variant: "c",
@@ -496,6 +587,8 @@ export const STORY_C: SignatureDesign = {
   pages: (ctx) => [
     { slug: STORY_MENU_PAGE, title: "stwMenu", studio: storyMenuPage(ctx) },
     { slug: STORY_SIZE_PAGE, title: "stwSizeGuide", studio: storySizePage(ctx) },
+    // 228.7 Its own product page.
+    storyProductPage(ctx),
   ],
   bar: STORY_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },

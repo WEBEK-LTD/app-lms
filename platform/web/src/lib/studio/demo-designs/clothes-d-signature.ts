@@ -3,6 +3,8 @@ import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigImage, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
+import { productPart } from "../product-page";
+import { mixedProductPage } from "./product-page-mix";
 
 /**
  * 223 Lujain's template D, the OUTFIT BUILDER (the owner, 23 November
@@ -487,6 +489,56 @@ const OUTFIT_SCREENS = signatureScreens({
   first: ["orders", "wishlist", "notifications", "settings", "help", "privacy", "terms"],
 });
 
+/**
+ * 228.7 The outfit builder's own product page: the photo as a rounded card
+ * on warm linen (28 px corners, the masonry's), the moods to wear it to as
+ * chips under it, its name in heavy Tajawal and its sale price, then the
+ * signature, "Complete the outfit": a tinted card of the pieces that go with
+ * it, a grid of two, before the sizes; the colours as swatches, the
+ * quantity, the words, the delivery lines and the stars' summary; Add to my
+ * bag a floating pill over the page, no bar behind it.
+ */
+function outfitProductPage(ctx: SectionContext) {
+  const id = idOf(ctx);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const warm = { accent: K.fill, dark_accent: K.darkFill } as const;
+  const gap = (top: number, bottom = 0) => sides(top, 18, bottom, 18);
+  const outfit: StudioNode = {
+    id: id(),
+    type: "column",
+    name: ctx.w("obdCompleteOutfit"),
+    gap: 10,
+    radius: R,
+    padding: sides(18, 14, 16, 14),
+    margin: gap(22),
+    background: TINT.day,
+    dark_background: TINT.night,
+    children: [
+      productPart(ctx, { type: "product_related", look: "grid", related: "complete_look", rows: 4, text: "obdCompleteOutfit", node: { ...ink } }),
+      say(ctx, "obdOutfitLine", face(13, { weight: 500 }), { muted: true, padding: sides(0, 4, 0, 4) }),
+    ],
+  };
+  return mixedProductPage(ctx, { background: K.page, dark_background: K.darkPage }, [
+    { type: "product_gallery", look: "card", radius: R, node: { aspect_ratio: 4 / 5, margin: sides(8, 14, 0, 14) } },
+    { ...moods(ctx), margin: sides(14, 0, 0, 0) },
+    { type: "product_title", look: "plain", node: { ...ink, font: face(22, { line_height: 1.3 }), margin: gap(18) } },
+    { type: "product_price", look: "sale", node: { color: K.accent, dark_color: K.darkAccent, font: face(19), margin: gap(4) } },
+    outfit,
+    { type: "product_variants", look: "grid" /* the sizes as cells; its colours draw as swatches whatever the look */, ...warm, node: { ...ink, margin: gap(24) } },
+    { type: "product_quantity", look: "stepper", node: { ...ink, margin: gap(16) } },
+    { type: "product_description", look: "plain", node: { ...ink, margin: gap(22) } },
+    { type: "product_delivery", look: "rows", ...warm, node: { ...ink, margin: gap(18) } },
+    { type: "product_reviews", look: "summary", ...warm, node: { ...ink, margin: gap(20, 96) } },
+    {
+      type: "product_buy",
+      look: "cart",
+      text: "obdAddToBag",
+      ...warm,
+      node: { pin: "bottom", radius: 30, padding: sides(8, 18, 14, 18), color: K.onFill, dark_color: K.darkOnFill },
+    },
+  ]);
+}
+
 export const OUTFIT_D: SignatureDesign = {
   demo: "clothes",
   variant: "d",
@@ -497,6 +549,8 @@ export const OUTFIT_D: SignatureDesign = {
   pages: (ctx) => [
     { slug: OUTFIT_MENU_PAGE, title: "obdMenu", studio: outfitMenuPage(ctx) },
     { slug: OUTFIT_SIZE_PAGE, title: "obdSizeGuide", studio: outfitSizePage(ctx) },
+    // 228.7 Its own product page.
+    outfitProductPage(ctx),
   ],
   bar: OUTFIT_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },

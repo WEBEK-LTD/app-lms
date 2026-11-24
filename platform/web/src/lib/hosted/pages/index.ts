@@ -26,7 +26,7 @@ import { readShopCategories } from "./shop-categories";
 import { showsRideClasses, withRideClassesIn } from "../../studio/ride-classes";
 import { rideClassesOf } from "./ride-classes";
 import { withMapWordsIn } from "../../studio/map-words";
-import { listHeadings, productFallbacks, withListHeadings, withSampleProduct } from "./lists";
+import { listHeadings, productFallbacks, withListHeadings, withoutEmptied, withSampleProduct } from "./lists";
 import "./sources";
 import { dashboardStoriesSaved, ensureStoriesSeeded, servedStories } from "../../stories";
 import { dashboardStoryElements, withServedStories, type ServedStory, type StoryElementKind } from "../../stories/elements";
@@ -191,7 +191,7 @@ async function servedStudio(pc: PageContext, page: StudioPage): Promise<StudioPa
   // 159 At their automatic sizes, as Studio's canvas draws them, so apps already on phones draw them so too (a cover's
   // top bar across the cover, its bag at the edge, whatever width a corner drag gave it before the owner was asked).
   // 164 A list's title goes with it, and is marked so the app hides it with a list it hides (what was seen lately).
-  return { ...studio, ...(header !== undefined ? { header } : {}), body: autoSized(withListHeadings(served ?? studio.body, listHeadings(studio.body))) };
+  return { ...studio, ...(header !== undefined ? { header } : {}), body: autoSized(withoutEmptied(studio.body, withListHeadings(served ?? studio.body, listHeadings(studio.body)))) };
 }
 
 /**

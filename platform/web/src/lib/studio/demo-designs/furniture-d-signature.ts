@@ -2,6 +2,7 @@ import type { Action, LayoutTab, StudioFont, StudioNode, StudioPage } from "../.
 import type { SectionContext, SectionWord } from "../sections";
 import { idOf, screen } from "./parts";
 import { sides, sigEntry, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
+import { productPageOf, productPart } from "../product-page";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { kitPhoto, ownPage, say, shop, type KitLook } from "./shop-kit-parts";
 
@@ -552,6 +553,72 @@ const MANZIL_SCREENS = signatureScreens({
 /** Its own bar: a deep navy island across the foot, the open tab's name in ochre. */
 const MANZIL_BAR = signatureBar(K, { design: "island", background: "#1F2A44", dark_background: "#0A0E16", active: "#E3B868", dark_active: "#E3B868", inactive: "#A9B0C2", dark_inactive: "#8F96A6", labels: "active", radius: 26, margin: 14 });
 
+/**
+ * 228.7 MANZIL's own product page, room by room: the piece's photos on a
+ * wide rounded card under the room it is for, its name and "From" price side
+ * by side on one row, the house's material strip (oak, walnut, linen,
+ * bouclé; each opening the shop) over the piece's own choices as swatches,
+ * the quantity, the delivery and assembly journey in its navy card, the
+ * piece's size and the shop's exchanges, the description that opens, the
+ * reviews, the pieces for the same room as a row of cards, and Add to cart
+ * fixed at the foot, rounded.
+ */
+function roomProduct(ctx: SectionContext) {
+  const id = idOf(ctx);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const accent = { accent: K.fill, dark_accent: K.darkFill } as const;
+  return productPageOf(ctx, {
+    background: K.page,
+    dark_background: K.darkPage,
+    parts: [
+      {
+        // The room it is for, beside the back button.
+        element: {
+          id: id(),
+          type: "row",
+          name: ctx.w("mnpRoom"),
+          gap: 8,
+          cross: "center",
+          padding: sides(12, 16, 6, 72),
+          children: [
+            { id: id(), type: "icon", icon: "chair", icon_size: 20, color: K.accent, dark_color: K.darkAccent },
+            say(ctx, L, "mnpRoom", font(13, 700), { width: "fill", max_lines: 1 }),
+            roundButton(ctx, "shopping_bag", "tabCart", screen("cart")),
+          ],
+        },
+      },
+      { type: "product_gallery", look: "card", radius: 26, node: { aspect_ratio: 4 / 3, margin: sides(8, 16, 0, 16) } },
+      {
+        element: {
+          id: id(),
+          type: "row",
+          gap: 12,
+          cross: "start",
+          padding: sides(18, 16, 0, 16),
+          children: [
+            { ...productPart(ctx, { type: "product_title", node: { ...ink, font: font(21, 800, { line_height: 1.3 }), margin: undefined } }), width: "fill" },
+            productPart(ctx, { type: "product_price", look: "from", node: { color: K.accent, dark_color: K.darkAccent, font: font(17, 800), margin: undefined } }),
+          ],
+        },
+      },
+      { element: { ...head(ctx, "mnpMaterials", "mnpMaterialsLine"), padding: sides(22, 16, 10, 16) } },
+      { element: materials(ctx) },
+      { type: "product_variants", look: "swatches", ...accent, node: { ...ink, margin: sides(16, 16, 0, 16) } },
+      { type: "product_quantity", ...accent, node: { ...ink, margin: sides(16, 16, 0, 16) } },
+      { element: { ...journey(ctx), margin: sides(24, 16, 0, 16) } },
+      { type: "product_delivery", look: "rows", accent: K.accent, dark_accent: K.darkAccent, node: { ...ink, margin: sides(18, 20, 0, 20) } },
+      { type: "product_description", look: "accordion", node: { ...ink, margin: sides(18, 16, 0, 16), border_color: K.line, dark_border_color: K.darkLine } },
+      { type: "product_reviews", accent: K.accent, dark_accent: K.darkAccent, node: { ...ink, margin: sides(20, 16, 0, 16) } },
+      { type: "product_related", look: "carousel", rows: 8, text: "mnpRelated", node: { ...ink, margin: sides(24, 0, 20, 0) } },
+      {
+        type: "product_buy",
+        ...accent,
+        node: { pin: "bottom", radius: 22, padding: sides(10, 16, 10, 16), background: K.surface, dark_background: K.darkSurface, ...ink },
+      },
+    ],
+  });
+}
+
 export const FURNITURE_D: SignatureDesign = {
   demo: "furniture",
   variant: "d",
@@ -559,7 +626,8 @@ export const FURNITURE_D: SignatureDesign = {
   home,
   over,
   tabs: manzilTabs,
-  pages: (ctx) => [{ slug: MENU_PAGE, title: "skCategoryMenu", studio: menuPage(ctx) }],
+  // 228.7 And its own product page.
+  pages: (ctx) => [{ slug: MENU_PAGE, title: "skCategoryMenu", studio: menuPage(ctx) }, roomProduct(ctx)],
   bar: MANZIL_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },
   chrome: { header: "search", home: "glass", system: "glass" },

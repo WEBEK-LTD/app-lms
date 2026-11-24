@@ -118,6 +118,15 @@ export const FURNITURE_CD_WORDS = typeWords({
     mnCartNote: "The team assembles your pieces on the delivery day and takes the boxes away.",
     mnMenuSearch: "Search every room…",
     mnWishlist: "Wishlist",
+    // 228.7 The look's own product page.
+    mzpSheet: "Product sheet",
+    mzpDims: "W × D × H, in centimetres",
+    mzpNotes: "The drawing's notes",
+    mzpRelated: "From the same room",
+    mnpRoom: "For your room",
+    mnpMaterials: "Choose the material",
+    mnpMaterialsLine: "Every finish, side by side",
+    mnpRelated: "Pieces for the same room",
   },
   ar: {
     mzSheet: "لوحة 01",
@@ -229,6 +238,15 @@ export const FURNITURE_CD_WORDS = typeWords({
     mnCartNote: "الفريق يركّب قطعك يوم التوصيل ويأخذ الكراتين معه.",
     mnMenuSearch: "ابحث في كل الغرف…",
     mnWishlist: "المفضلة",
+    // 228.7 The look's own product page.
+    mzpSheet: "لوحة القطعة",
+    mzpDims: "العرض × العمق × الارتفاع، بالسنتيمتر",
+    mzpNotes: "ملاحظات اللوحة",
+    mzpRelated: "من الغرفة نفسها",
+    mnpRoom: "لغرفتك",
+    mnpMaterials: "اختر الخامة",
+    mnpMaterialsLine: "كل التشطيبات جنبًا إلى جنب",
+    mnpRelated: "قطع للغرفة نفسها",
   },
   tr: {
     mzSheet: "Pafta 01",
@@ -340,5 +358,14 @@ export const FURNITURE_CD_WORDS = typeWords({
     mnCartNote: "Ekip parçalarınızı teslimat günü kurar ve kutuları götürür.",
     mnMenuSearch: "Tüm odalarda arayın…",
     mnWishlist: "Favoriler",
+    // 228.7 The look's own product page.
+    mzpSheet: "Ürün paftası",
+    mzpDims: "G × D × Y, santimetre",
+    mzpNotes: "Paftanın notları",
+    mzpRelated: "Aynı odadan",
+    mnpRoom: "Odanız için",
+    mnpMaterials: "Malzemeyi seçin",
+    mnpMaterialsLine: "Tüm yüzeyler yan yana",
+    mnpRelated: "Aynı oda için parçalar",
   },
 });
