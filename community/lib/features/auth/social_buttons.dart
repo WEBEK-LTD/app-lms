@@ -39,14 +39,16 @@ class _SocialButtonsState extends ConsumerState<SocialButtons> {
       final language = ref.read(languageProvider);
       final result = which == 'apple'
           ? await api.signInWithApple(
-              identityToken: credential.token,
-              authorizationCode: credential.code,
+              idToken: credential.token,
+              nonce: credential.nonce,
               name: credential.name,
               language: language,
+              device: ref.read(deviceProvider),
             )
           : await api.signInWithGoogle(
               idToken: credential.token,
               language: language,
+              device: ref.read(deviceProvider),
             );
       await ref.read(sessionProvider.notifier).signedIn(result);
     } on ApiException catch (e) {

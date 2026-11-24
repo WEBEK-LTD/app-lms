@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -223,7 +225,8 @@ class _ProfileView extends ConsumerWidget {
                         ),
                 ),
                 if (own &&
-                    profile.apps.length >= goldAppsNeeded &&
+                    max(profile.appsCount, profile.apps.length) >=
+                        goldAppsNeeded &&
                     !profile.badges.any((b) => b.kind == BadgeKind.gold))
                   Padding(
                     padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
@@ -630,24 +633,15 @@ class _Actions extends ConsumerWidget {
               key: const ValueKey('profile-friend'),
               label: l.socialRequested,
               icon: Symbols.schedule,
-              onTap: () => after(() => api.cancelFriendRequest(m.id)),
+              onTap: () => after(() => api.removeFriend(m.id)),
             ),
+            // Asking back accepts their request.
             FriendState.incoming => _Button(
               key: const ValueKey('profile-friend'),
               label: l.socialAccept,
               icon: Symbols.how_to_reg,
               filled: true,
-              onTap: () async {
-                final requests = await ref.read(friendRequestsProvider.future);
-                final r = requests
-                    .where((r) => r.member.id == m.id)
-                    .firstOrNull;
-                if (r != null) {
-                  await after(
-                    () => api.answerFriendRequest(r.id, accept: true),
-                  );
-                }
-              },
+              onTap: () => after(() => api.requestFriend(m.id)),
             ),
             FriendState.friends => _Button(
               key: const ValueKey('profile-friend'),

@@ -467,13 +467,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get socialReasonSpam => 'Spam or ads';
 
   @override
-  String get socialReasonAbuse => 'Harassment or hate';
+  String get socialReasonAbuse => 'Abuse or hate';
 
   @override
   String get socialReasonInappropriate => 'Inappropriate content';
-
-  @override
-  String get socialReasonMisleading => 'Misleading or a scam';
 
   @override
   String get socialReasonOther => 'Something else';
@@ -573,6 +570,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get profileApplyLine =>
       'You have 5+ apps on Yallapp. Apply for the Pro Developer badge.';
+
+  @override
+  String get socialReasonHarassment => 'Harassment';
+
+  @override
+  String get socialReasonOffTopic => 'Off topic';
+
+  @override
+  String get socialReasonCopyright => 'Someone else’s work';
+
+  @override
+  String get commonShowMore => 'Show more';
+
+  @override
+  String get settingsEmail => 'Email';
+
+  @override
+  String get settingsEmailUnconfirmed => 'Not confirmed';
+
+  @override
+  String get settingsResend => 'Send the link again';
+
+  @override
+  String get settingsResent => 'Sent. Check your inbox.';
+
+  @override
+  String get settingsDeleteAccount => 'Delete account';
+
+  @override
+  String get settingsDeleteLine =>
+      'This deletes your profile, follows and friends at once. Your questions and answers stay, shown as from “Deleted member”.';
+
+  @override
+  String get settingsDeletePassword => 'Your password';
+
+  @override
+  String get settingsDeleteConfirm => 'Delete my account';
+
+  @override
+  String get socialReasonMisleading => 'Misleading or a scam';
 
   @override
   String get qaTitle => 'Q&A';

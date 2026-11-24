@@ -466,13 +466,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get socialReasonSpam => 'Spam veya reklam';
 
   @override
-  String get socialReasonAbuse => 'Taciz veya nefret';
+  String get socialReasonAbuse => 'Hakaret veya nefret';
 
   @override
   String get socialReasonInappropriate => 'Uygunsuz içerik';
-
-  @override
-  String get socialReasonMisleading => 'Yanıltıcı veya dolandırıcılık';
 
   @override
   String get socialReasonOther => 'Başka bir şey';
@@ -572,6 +569,46 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get profileApplyLine =>
       'Yallapp’te 5+ uygulaman var. Profesyonel Geliştirici rozetine başvur.';
+
+  @override
+  String get socialReasonHarassment => 'Taciz';
+
+  @override
+  String get socialReasonOffTopic => 'Konu dışı';
+
+  @override
+  String get socialReasonCopyright => 'Başkasının eseri';
+
+  @override
+  String get commonShowMore => 'Daha fazla göster';
+
+  @override
+  String get settingsEmail => 'E-posta';
+
+  @override
+  String get settingsEmailUnconfirmed => 'Onaylanmadı';
+
+  @override
+  String get settingsResend => 'Bağlantıyı yeniden gönder';
+
+  @override
+  String get settingsResent => 'Gönderildi. Gelen kutunuza bakın.';
+
+  @override
+  String get settingsDeleteAccount => 'Hesabı sil';
+
+  @override
+  String get settingsDeleteLine =>
+      'Profiliniz, takipleriniz ve arkadaşlarınız hemen silinir. Sorularınız ve yanıtlarınız “Silinmiş üye” adıyla kalır.';
+
+  @override
+  String get settingsDeletePassword => 'Şifreniz';
+
+  @override
+  String get settingsDeleteConfirm => 'Hesabımı sil';
+
+  @override
+  String get socialReasonMisleading => 'Yanıltıcı veya dolandırıcılık';
 
   @override
   String get qaTitle => 'Soru-Cevap';

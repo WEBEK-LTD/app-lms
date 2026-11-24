@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api/community_api.dart';
 import '../../../core/api/models.dart';
 import '../../../core/providers.dart';
 
@@ -55,18 +56,66 @@ final friendRequestsProvider = FutureProvider.autoDispose<List<FriendRequest>>(
   (ref) => ref.watch(communityApiProvider).friendRequests(),
 );
 
-enum MemberList { followers, following, friends }
+enum MemberList { followers, following, friends, blocked }
 
-final memberListProvider = FutureProvider.autoDispose
-    .family<List<MemberSummary>, (String, MemberList)>((ref, key) {
-      final api = ref.watch(communityApiProvider);
-      return switch (key.$2) {
-        MemberList.followers => api.followers(key.$1),
-        MemberList.following => api.following(key.$1),
-        MemberList.friends => api.friends(key.$1),
-      };
-    });
+/// A list of members a page at a time (the contract's cursors): the first
+/// page on open, [more] at the foot. Each member's Follow starts from what
+/// the list said.
+class MemberListController extends AsyncNotifier<Page<MemberSummary>> {
+  MemberListController(this.key);
 
-final blockedProvider = FutureProvider.autoDispose<List<MemberSummary>>(
-  (ref) => ref.watch(communityApiProvider).blocked(),
-);
+  final (String, MemberList) key;
+
+  Future<Page<MemberSummary>> _load(String? cursor) {
+    final api = ref.read(communityApiProvider);
+    final (id, list) = key;
+    return switch (list) {
+      MemberList.followers => api.followers(id, cursor: cursor),
+      MemberList.following => api.following(id, cursor: cursor),
+      MemberList.friends => api.friends(id, cursor: cursor),
+      MemberList.blocked => api.blocked(cursor: cursor),
+    };
+  }
+
+  void _seed(Iterable<MemberSummary> members) {
+    for (final m in members) {
+      final r = m.relationship;
+      if (r != null) {
+        ref.read(followingProvider(m.id).notifier).seed(r.following);
+      }
+    }
+  }
+
+  @override
+  Future<Page<MemberSummary>> build() async {
+    ref.watch(communityApiProvider);
+    final page = await _load(null);
+    _seed(page.items);
+    return page;
+  }
+
+  bool _loading = false;
+
+  /// The next page, added to the foot.
+  Future<void> more() async {
+    final now = state.value;
+    final cursor = now?.nextCursor;
+    if (now == null || cursor == null || _loading) return;
+    _loading = true;
+    try {
+      final next = await _load(cursor);
+      _seed(next.items);
+      state = AsyncData(Page([...now.items, ...next.items], next.nextCursor));
+    } finally {
+      _loading = false;
+    }
+  }
+}
+
+final memberListProvider = AsyncNotifierProvider.autoDispose
+    .family<MemberListController, Page<MemberSummary>, (String, MemberList)>(
+      MemberListController.new,
+    );
+
+/// The members the member blocked.
+final blockedProvider = memberListProvider(('', MemberList.blocked));

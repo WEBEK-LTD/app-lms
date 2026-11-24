@@ -29,11 +29,13 @@ class MemberListPage extends ConsumerWidget {
       MemberList.followers => l.profileFollowers,
       MemberList.following => l.profileFollowing,
       MemberList.friends => l.profileFriends,
+      MemberList.blocked => l.settingsBlocked,
     };
     final empty = switch (list) {
       MemberList.followers => l.socialNoFollowers,
       MemberList.following => l.socialNoFollowing,
       MemberList.friends => l.socialNoFriends,
+      MemberList.blocked => l.settingsNoBlocked,
     };
     final members = ref.watch(memberListProvider((id, list)));
     return Scaffold(
@@ -47,18 +49,24 @@ class MemberListPage extends ConsumerWidget {
         ),
       ),
       body: switch (members) {
-        AsyncData(:final value) when value.isEmpty => Center(
+        AsyncData(:final value) when value.items.isEmpty => Center(
           child: Text(empty, style: TextStyle(color: p.muted)),
         ),
-        AsyncData(:final value) => ListView.builder(
+        AsyncData(:final value) => ListView(
           padding: const EdgeInsets.fromLTRB(
             14,
             4,
             14,
             FloatingTabBar.clearance,
           ),
-          itemCount: value.length,
-          itemBuilder: (context, i) => MemberRow(member: value[i]),
+          children: [
+            for (final m in value.items) MemberRow(member: m),
+            if (value.nextCursor != null)
+              ShowMore(
+                onTap: () =>
+                    ref.read(memberListProvider((id, list)).notifier).more(),
+              ),
+          ],
         ),
         AsyncError() => Center(
           child: TextButton(
@@ -174,6 +182,26 @@ class MemberRow extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// "Show more" at a list's foot (the next page).
+class ShowMore extends StatelessWidget {
+  const ShowMore({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: TextButton(
+      key: const ValueKey('list-more'),
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        foregroundColor: Brand.orange,
+        textStyle: const TextStyle(fontWeight: FontWeight.w700),
+      ),
+      child: Text(context.l10n.commonShowMore),
+    ),
+  );
 }
 
 /// The member's friend requests: accept or decline each.

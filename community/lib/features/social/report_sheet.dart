@@ -86,8 +86,10 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
     final reasons = [
       (ReportReason.spam, l.socialReasonSpam),
       (ReportReason.abuse, l.socialReasonAbuse),
+      (ReportReason.harassment, l.socialReasonHarassment),
+      (ReportReason.offTopic, l.socialReasonOffTopic),
       (ReportReason.inappropriate, l.socialReasonInappropriate),
-      (ReportReason.misleading, l.socialReasonMisleading),
+      (ReportReason.copyright, l.socialReasonCopyright),
       (ReportReason.other, l.socialReasonOther),
     ];
     return Padding(
