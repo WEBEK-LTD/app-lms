@@ -230,16 +230,32 @@ void main() {
       );
       expect(find.byKey(const ValueKey('product-buy-now')), findsOneWidget);
       expect(
-        find.text(
-          language == 'ar'
-              ? 'فستان ساتان ميدي بلون الصدأ'
-              : 'Rust satin midi dress',
-        ),
-        findsOneWidget,
+        tester.widget<Text>(find.byKey(const ValueKey('product-title'))).data,
+        language == 'ar'
+            ? 'فستان ساتان ميدي بلون الصدأ'
+            : 'Rust satin midi dress',
+      );
+      // Over the photos, no band under the status bar.
+      expect(
+        tester
+            .widget<AnimatedOpacity>(
+              find.byKey(const ValueKey('product-page-top-band')),
+            )
+            .opacity,
+        0,
       );
       if (_screens) await _write(tester, 'lujain-a-product-$mode');
       await _down(tester);
       expect(find.byKey(const ValueKey('product-specs-table')), findsOneWidget);
+      // Scrolled past them: the band in the page's colour.
+      expect(
+        tester
+            .widget<AnimatedOpacity>(
+              find.byKey(const ValueKey('product-page-top-band')),
+            )
+            .opacity,
+        1,
+      );
       if (_screens) await _write(tester, 'lujain-a-product-$mode-2');
       expect(tester.takeException(), isNull);
       debugDisableShadows = true;
