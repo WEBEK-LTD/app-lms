@@ -3023,15 +3023,15 @@
          "look": "carousel",
          "rows": 8
         },
-        "title": "Build with it",
+        "text": "Build with it",
         "color": "#0B0C12",
         "dark_color": "#F1F3FA",
         "translations": {
          "ar": {
-          "title": "جمّع معه"
+          "text": "جمّع معه"
          },
          "tr": {
-          "title": "Onunla topla"
+          "text": "Onunla topla"
          }
         }
        },
