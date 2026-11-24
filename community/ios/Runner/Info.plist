@@ -66,6 +66,14 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- 231 The photo picker (image_picker): a profile picture, and the
+	     proof of identity for the Gold badge. The app never records. -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Yallapp Community uses your photos when you choose a profile picture or send your proof of identity for the Gold badge.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Yallapp Community uses the camera when you take a profile picture or a photo of your proof of identity.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Yallapp Community doesn't record sound; the photo picker asks for this when a video is chosen.</string>
 	<!-- 231 Back from linking a Yallapp account in the browser
 	     (yallappcommunity://linked): the app opens, nothing more. -->
 	<key>CFBundleURLTypes</key>
