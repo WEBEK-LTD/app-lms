@@ -1,8 +1,8 @@
-import type { MemberRef } from "./types";
+import type { MemberSummary } from "./types";
 
 /**
  * 231 What the Q&A needs from the community's other areas, as one seam:
- * the members (area A: accounts, profiles, blocks), moderation and
+ * the members (area A: accounts, profiles, follows, blocks), moderation and
  * notifications (area C). Each area sets its own (`setQaHooks`); until
  * then, and in tests, these defaults: every member a plain one, every post
  * shown, no notices. Nothing here imports the other areas, so the Q&A
@@ -10,25 +10,41 @@ import type { MemberRef } from "./types";
  */
 
 export type ModeratedKind = "question" | "answer" | "reply" | "tutorial";
+/** Area C's name for what is moderated: a reply is a "comment" there. */
+export type ModeratedTarget = "question" | "answer" | "comment" | "tutorial";
+/** Area C's notice kinds the Q&A sends: an answer (to the asker), an official one, an accepted one, a reply (to the answer's author), a vote milestone (1, 10, 50, 100 upvotes). */
+export type QaNoticeKind = "answer" | "answer_accepted" | "official_answer" | "reply" | "vote_milestone";
 
 export interface QaHooks {
-  /** The members with these ids as shown beside a post (missing ids left out). */
-  members(ids: readonly string[]): Promise<Record<string, Omit<MemberRef, "rank">>>;
+  /** The members with these ids as shown beside a post; missing ids are shown as deleted. */
+  members(ids: readonly string[]): Promise<Record<string, Omit<MemberSummary, "rank">>>;
   /** The members the viewer blocked or who blocked them: neither sees the other's posts. */
   hiddenFor(viewerId: string): Promise<string[]>;
-  /** A new post's status: published, or pending a moderator (a new member's first posts, a bad link); "rejected" refuses it. */
-  moderate(input: { memberId: string; kind: ModeratedKind; text: string; links: string[] }): Promise<"published" | "pending" | "rejected">;
-  /** Tells a member (the list in the app and email): area C. */
-  notify(memberId: string, event: QaEvent, data: Record<string, string>): Promise<void>;
+  /** The members the viewer follows (the "following" filter). */
+  followingIds(viewerId: string): Promise<string[]>;
+  /** Members whose name or username has the text (search's members). */
+  searchMembers(q: string, limit: number): Promise<Omit<MemberSummary, "rank">[]>;
+  /**
+   * A new post's status, called once it is stored as pending (area C's
+   * moderateNew: a new member's first posts and the spam filter hold it,
+   * and it goes into the queue).
+   */
+  moderate(input: { memberId: string; targetType: ModeratedTarget; targetId: string; text: string }): Promise<"published" | "pending">;
+  /** Tells a member (the list in the app and email): area C's notify. Never about their own doing. */
+  notify(input: { memberId: string; kind: QaNoticeKind; actorId: string | null; targetType: "question" | "answer" | "reply"; targetId: string; data: { actor?: string; title?: string; count?: number }; link: string }): Promise<void>;
 }
-
-export type QaEvent = "answer_posted" | "answer_accepted" | "official_answer" | "reply_posted";
 
 const DEFAULTS: QaHooks = {
   async members(ids) {
-    return Object.fromEntries(ids.map((id) => [id, { id, name: "Member", handle: null, avatarUrl: null, badge: null, staff: false }]));
+    return Object.fromEntries(ids.map((id) => [id, { id, username: id, displayName: "Member", avatarUrl: null, topBadge: null, team: false, deleted: false }]));
   },
   async hiddenFor() {
+    return [];
+  },
+  async followingIds() {
+    return [];
+  },
+  async searchMembers() {
     return [];
   },
   async moderate() {

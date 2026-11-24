@@ -3,12 +3,17 @@
  * site, the API and the other areas use.
  */
 export * from "./types";
-export { setQaHooks, qaHooks, type QaHooks, type QaEvent, type ModeratedKind } from "./hooks";
+export { setQaHooks, qaHooks, type QaHooks, type QaNoticeKind, type ModeratedKind, type ModeratedTarget } from "./hooks";
 export { rankOf, POINTS, LIMITS } from "./text";
+export type { QaStore } from "./store";
+export { MemoryQaStore } from "./memory";
 export {
   DEFAULT_SECTIONS,
   qaStore,
   setQaStore,
+  questionLink,
+  answerLink,
+  tutorialLink,
   listSections,
   mySections,
   followSection,
@@ -17,21 +22,31 @@ export {
   getQuestion,
   similarQuestions,
   askQuestion,
+  editQuestion,
+  deleteQuestion,
   answerQuestion,
+  editAnswer,
+  deleteAnswer,
+  listReplies,
   replyToAnswer,
+  deleteReply,
   vote,
   acceptAnswer,
   bookmark,
   saved,
   setContentStatus,
-  contentOf,
+  contentInfo,
   search,
   waitingForAnswer,
   qaStats,
   activeMembers,
   memberStats,
-  memberQuestions,
+  recentTexts,
+  pointsOf,
   listTutorials,
   getTutorial,
   publishTutorial,
+  type ListQuestionsInput,
+  type QaContentKind,
+  type SearchType,
 } from "./service";

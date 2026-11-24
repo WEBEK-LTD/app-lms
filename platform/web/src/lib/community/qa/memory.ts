@@ -1,6 +1,8 @@
-import type { AnswerRecord, PointEvent, PointReason, QaStore, QuestionFilter, QuestionOrder, QuestionRecord, ReplyRecord, SectionRecord, TagRecord, TutorialRecord } from "./store";
-import type { BookmarkKind, ContentStatus, VoteKind, VoteValue } from "./types";
+import type { AnswerRecord, PointEvent, PointReason, QaStore, QuestionFilter, QuestionOrder, QuestionRecord, ReplyRecord, SectionRecord, TagRecord, TutorialFilter, TutorialRecord } from "./store";
+import type { BookmarkKind, ContentStatus, SectionKind, VoteKind, VoteValue } from "./types";
 import { randomUUID } from "node:crypto";
+
+const low = (s: string) => s.normalize("NFKC").toLocaleLowerCase("en");
 
 /** 231 The Q&A kept in memory: tests and the e2e server (`YALLAPP_DATA=memory`). */
 export class MemoryQaStore implements QaStore {
@@ -15,11 +17,14 @@ export class MemoryQaStore implements QaStore {
   private tutorials = new Map<string, TutorialRecord>();
   private points: PointEvent[] = [];
 
-  async listSections() {
-    return [...this.sections.values()].sort((a, b) => a.sort - b.sort || a.slug.localeCompare(b.slug)).map((s) => structuredClone(s));
+  async listSections(kind: SectionKind) {
+    return [...this.sections.values()]
+      .filter((s) => s.kind === kind)
+      .sort((a, b) => a.position - b.position || a.slug.localeCompare(b.slug))
+      .map((s) => structuredClone(s));
   }
   async upsertSection(section: SectionRecord) {
-    const same = [...this.sections.values()].find((s) => s.slug === section.slug);
+    const same = [...this.sections.values()].find((s) => s.kind === section.kind && s.slug === section.slug);
     this.sections.set(same?.id ?? section.id, { ...structuredClone(section), id: same?.id ?? section.id });
   }
   async followedSectionIds(memberId: string) {
@@ -33,7 +38,7 @@ export class MemoryQaStore implements QaStore {
     let out = [...this.tags.values()];
     if (filter.ids) out = out.filter((t) => filter.ids!.includes(t.id));
     if (filter.slugs) out = out.filter((t) => filter.slugs!.includes(t.slug));
-    if (filter.prefix) out = out.filter((t) => t.slug.startsWith(filter.prefix!) || t.name.toLocaleLowerCase("en").startsWith(filter.prefix!));
+    if (filter.prefix) out = out.filter((t) => t.slug.startsWith(filter.prefix!) || low(t.name).startsWith(filter.prefix!));
     out.sort((a, b) => a.slug.localeCompare(b.slug));
     return (filter.limit ? out.slice(0, filter.limit) : out).map((t) => ({ ...t }));
   }
@@ -44,15 +49,17 @@ export class MemoryQaStore implements QaStore {
     this.tags.set(tag.id, tag);
     return { ...tag };
   }
-  async countQuestionsBy() {
-    const sections: Record<string, number> = {};
+  async counts() {
+    const questionSections: Record<string, number> = {};
     const tags: Record<string, number> = {};
+    const tutorialSections: Record<string, number> = {};
     for (const q of this.questions.values()) {
       if (q.status !== "published") continue;
-      sections[q.sectionId] = (sections[q.sectionId] ?? 0) + 1;
+      questionSections[q.sectionId] = (questionSections[q.sectionId] ?? 0) + 1;
       for (const t of q.tagIds) tags[t] = (tags[t] ?? 0) + 1;
     }
-    return { sections, tags };
+    for (const t of this.tutorials.values()) if (t.status === "published") tutorialSections[t.sectionId] = (tutorialSections[t.sectionId] ?? 0) + 1;
+    return { questionSections, tags, tutorialSections };
   }
 
   async createQuestion(q: QuestionRecord) {
@@ -74,40 +81,58 @@ export class MemoryQaStore implements QaStore {
     const q = this.questions.get(id);
     if (q) this.questions.set(id, { ...q, ...structuredClone(patch) });
   }
-  private matches(q: QuestionRecord, f: QuestionFilter): boolean {
+  async addAnswerCount(id: string, by: number, lastActivityAt: Date | null) {
+    const q = this.questions.get(id);
+    if (!q) return;
+    q.answerCount = Math.max(0, q.answerCount + by);
+    if (lastActivityAt) q.lastActivityAt = lastActivityAt;
+  }
+  private officialIds(): Set<string> {
+    return new Set([...this.answers.values()].filter((a) => a.official && a.status === "published").map((a) => a.questionId));
+  }
+  private matches(q: QuestionRecord, f: QuestionFilter, official: Set<string>): boolean {
     const shown = !f.statuses || f.statuses.includes(q.status) || (f.orAuthorId != null && q.authorId === f.orAuthorId);
     if (!shown) return false;
     if (f.sectionIds && !f.sectionIds.includes(q.sectionId)) return false;
     if (f.tagId && !q.tagIds.includes(f.tagId)) return false;
-    if (f.authorId && q.authorId !== f.authorId) return false;
+    if (f.authorIds && !f.authorIds.includes(q.authorId)) return false;
+    if (f.language && q.language !== f.language) return false;
     if (f.unanswered && q.answerCount > 0) return false;
+    if (f.answered && !q.acceptedAnswerId) return false;
+    if (f.official && !official.has(q.id)) return false;
     if (f.since && q.createdAt < f.since) return false;
     if (f.ids && !f.ids.includes(q.id)) return false;
     if (f.excludeAuthorIds?.includes(q.authorId)) return false;
     if (f.words?.length) {
-      const text = `${q.title} ${q.body}`.normalize("NFKC").toLocaleLowerCase("en");
+      const text = low(`${q.title} ${q.body}`);
       if (!f.words.every((w) => text.includes(w))) return false;
     }
     return true;
   }
   async listQuestions(filter: QuestionFilter, order: QuestionOrder, page: { offset: number; limit: number }) {
+    const official = this.officialIds();
     const key: Record<QuestionOrder, (q: QuestionRecord) => number> = {
-      latest: (q) => q.createdAt.getTime(),
+      newest: (q) => q.createdAt.getTime(),
       active: (q) => q.lastActivityAt.getTime(),
-      score: (q) => q.score * 1e13 + q.createdAt.getTime(),
+      votes: (q) => q.score * 1e13 + q.createdAt.getTime(),
     };
     return [...this.questions.values()]
-      .filter((q) => this.matches(q, filter))
+      .filter((q) => this.matches(q, filter, official))
       .sort((a, b) => key[order](b) - key[order](a) || b.id.localeCompare(a.id))
       .slice(page.offset, page.offset + page.limit)
       .map((q) => structuredClone(q));
   }
   async countQuestions(filter: QuestionFilter) {
-    return [...this.questions.values()].filter((q) => this.matches(q, filter)).length;
+    const official = this.officialIds();
+    return [...this.questions.values()].filter((q) => this.matches(q, filter, official)).length;
+  }
+  async withOfficialAnswer(questionIds: readonly string[]) {
+    const official = this.officialIds();
+    return questionIds.filter((id) => official.has(id));
   }
   async addQuestionView(id: string) {
     const q = this.questions.get(id);
-    if (q) q.views += 1;
+    if (q) q.viewCount += 1;
   }
 
   async createAnswer(a: AnswerRecord) {
@@ -122,15 +147,29 @@ export class MemoryQaStore implements QaStore {
     const a = this.answers.get(id);
     if (a) this.answers.set(id, { ...a, ...structuredClone(patch) });
   }
+  async addReplyCount(id: string, by: number) {
+    const a = this.answers.get(id);
+    if (a) a.replyCount = Math.max(0, a.replyCount + by);
+  }
+  private visible<T extends { status: ContentStatus; authorId: string }>(x: T, filter: { statuses?: readonly ContentStatus[]; orAuthorId?: string | null }): boolean {
+    return !filter.statuses || filter.statuses.includes(x.status) || (filter.orAuthorId != null && x.authorId === filter.orAuthorId);
+  }
   async listAnswers(questionIds: readonly string[], filter: { statuses?: readonly ContentStatus[]; orAuthorId?: string | null } = {}) {
     return [...this.answers.values()]
-      .filter((a) => questionIds.includes(a.questionId) && (!filter.statuses || filter.statuses.includes(a.status) || (filter.orAuthorId != null && a.authorId === filter.orAuthorId)))
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .filter((a) => questionIds.includes(a.questionId) && this.visible(a, filter))
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id.localeCompare(b.id))
       .map((a) => structuredClone(a));
   }
   async countAnswers(filter: { authorId: string; statuses?: readonly ContentStatus[]; accepted?: boolean }) {
     const accepted = new Set([...this.questions.values()].map((q) => q.acceptedAnswerId).filter(Boolean));
     return [...this.answers.values()].filter((a) => a.authorId === filter.authorId && (!filter.statuses || filter.statuses.includes(a.status)) && (filter.accepted === undefined || accepted.has(a.id) === filter.accepted)).length;
+  }
+  async answersBy(authorId: string, limit: number) {
+    return [...this.answers.values()]
+      .filter((a) => a.authorId === authorId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit)
+      .map((a) => structuredClone(a));
   }
   async createReply(r: ReplyRecord) {
     this.replies.set(r.id, structuredClone(r));
@@ -146,8 +185,8 @@ export class MemoryQaStore implements QaStore {
   }
   async listReplies(answerIds: readonly string[], filter: { statuses?: readonly ContentStatus[]; orAuthorId?: string | null } = {}) {
     return [...this.replies.values()]
-      .filter((r) => answerIds.includes(r.answerId) && (!filter.statuses || filter.statuses.includes(r.status) || (filter.orAuthorId != null && r.authorId === filter.orAuthorId)))
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .filter((r) => answerIds.includes(r.answerId) && this.visible(r, filter))
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id.localeCompare(b.id))
       .map((r) => structuredClone(r));
   }
 
@@ -166,8 +205,9 @@ export class MemoryQaStore implements QaStore {
   }
   async setBookmark(memberId: string, kind: BookmarkKind, targetId: string, on: boolean, now: Date) {
     const key = `${memberId}|${kind}|${targetId}`;
-    if (on) this.bookmarks.set(key, now);
-    else this.bookmarks.delete(key);
+    if (on) {
+      if (!this.bookmarks.has(key)) this.bookmarks.set(key, now);
+    } else this.bookmarks.delete(key);
   }
   async bookmarksOf(memberId: string, kind: BookmarkKind, targetIds?: readonly string[]) {
     const prefix = `${memberId}|${kind}|`;
@@ -197,25 +237,32 @@ export class MemoryQaStore implements QaStore {
     const t = this.tutorials.get(id);
     if (t) this.tutorials.set(id, { ...t, ...structuredClone(patch) });
   }
-  async listTutorials(filter: Parameters<QaStore["listTutorials"]>[0], page: { offset: number; limit: number }) {
+  private tutorialMatches(t: TutorialRecord, f: TutorialFilter): boolean {
+    return (
+      (!f.statuses || f.statuses.includes(t.status)) &&
+      (!f.sectionId || t.sectionId === f.sectionId) &&
+      (!f.level || t.level === f.level) &&
+      (!f.language || t.language === f.language) &&
+      (!f.kind || t.kind === f.kind) &&
+      (!f.authorId || t.authorId === f.authorId) &&
+      (!f.ids || f.ids.includes(t.id)) &&
+      (!f.words?.length || f.words.every((w) => low(`${t.title} ${t.summary} ${t.body}`).includes(w)))
+    );
+  }
+  async listTutorials(filter: TutorialFilter, page: { offset: number; limit: number }) {
+    const at = (t: TutorialRecord) => (t.publishedAt ?? t.createdAt).getTime();
     return [...this.tutorials.values()]
-      .filter(
-        (t) =>
-          (!filter.statuses || filter.statuses.includes(t.status)) &&
-          (!filter.sectionId || t.sectionId === filter.sectionId) &&
-          (!filter.level || t.level === filter.level) &&
-          (!filter.language || t.language === filter.language) &&
-          (!filter.kind || t.kind === filter.kind) &&
-          (!filter.authorId || t.authorId === filter.authorId) &&
-          (!filter.words?.length || filter.words.every((w) => `${t.title} ${t.summary} ${t.body}`.normalize("NFKC").toLocaleLowerCase("en").includes(w))),
-      )
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id.localeCompare(a.id))
+      .filter((t) => this.tutorialMatches(t, filter))
+      .sort((a, b) => at(b) - at(a) || b.id.localeCompare(a.id))
       .slice(page.offset, page.offset + page.limit)
       .map((t) => structuredClone(t));
   }
+  async countTutorials(filter: TutorialFilter) {
+    return [...this.tutorials.values()].filter((t) => this.tutorialMatches(t, filter)).length;
+  }
   async addTutorialView(id: string) {
     const t = this.tutorials.get(id);
-    if (t) t.views += 1;
+    if (t) t.viewCount += 1;
   }
 
   async addPoints(e: PointEvent) {
