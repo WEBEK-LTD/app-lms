@@ -1,0 +1,159 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+<style>
+body{width:2200px;height:1190px;overflow:hidden;background:radial-gradient(900px 600px at 80% 10%,rgba(255,90,31,.28),transparent 60%),radial-gradient(800px 600px at 10% 90%,rgba(107,91,255,.22),transparent 60%),linear-gradient(160deg,#121130,#0A0920);position:relative}
+.top{position:absolute;top:56px;left:0;right:0;text-align:center;color:var(--cream)}
+.top .lg{display:inline-flex;align-items:center;gap:16px}
+.top img{width:64px;height:64px;border-radius:16px;box-shadow:0 10px 30px rgba(255,90,31,.35)}
+.top h1{font-family:'Readex Pro';font-size:44px;font-weight:600;direction:ltr}
+.top p{margin-top:10px;font-size:20px;color:rgba(244,239,230,.7)}
+.row{position:absolute;top:220px;left:0;right:0;display:flex;justify-content:center;gap:90px;align-items:flex-start}
+.phone{width:410px;height:864px;border-radius:62px;background:#050510;padding:10px;box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 1.5px rgba(255,255,255,.08) inset;position:relative}
+.phone.mid{margin-top:-30px}
+.scr{width:390px;height:844px;border-radius:52px;overflow:hidden;position:relative;background:var(--paper);color:var(--ink)}
+.notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#050510;border-radius:20px;z-index:9}
+.sb{height:50px;display:flex;justify-content:space-between;align-items:center;padding:0 30px;font-weight:600;font-size:15px;direction:ltr}
+.sb .r{display:flex;gap:5px;align-items:center}.sb .ms{font-size:17px}
+.cap{position:absolute;bottom:-58px;left:0;right:0;text-align:center;color:rgba(244,239,230,.75);font-size:18px;font-weight:500}
+/* tab bar */
+.tb{position:absolute;bottom:0;left:0;right:0;height:86px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px}
+.tb .t{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#8A879A;width:64px}
+.tb .t .ms{font-size:25px}.tb .t.on{color:var(--orange);font-weight:600}
+.tb .plus{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--orange2),var(--orange));display:flex;align-items:center;justify-content:center;color:#fff;margin-top:-8px;box-shadow:0 10px 22px rgba(255,90,31,.45)}
+.tb .plus .ms{font-size:30px}
+.dark .tb{background:rgba(14,13,36,.92);border-top-color:rgba(255,255,255,.07)}
+/* home */
+.hd{display:flex;align-items:center;justify-content:space-between;padding:4px 20px 10px}
+.hd .l{display:flex;align-items:center;gap:9px}.hd .l img{width:34px;height:34px;border-radius:10px}
+.hd .l b{font-family:'Readex Pro';font-size:19px;font-weight:600;direction:ltr}
+.icb{width:40px;height:40px;border-radius:14px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative}
+.icb .ms{font-size:22px}.icb i{position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid #fff}
+.stories{display:flex;gap:14px;padding:6px 18px 12px;overflow:hidden}
+.st{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;font-weight:500;width:70px;text-align:center}
+.st .ring{width:64px;height:64px;border-radius:50%;padding:3px;background:conic-gradient(from 200deg,#FF5A1F,#FFB23D,#7C6BFF,#FF5A1F)}
+.st .ring div{width:100%;height:100%;border-radius:50%;border:3px solid var(--paper);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff}
+.seg{display:flex;gap:8px;padding:0 18px 12px}
+.seg span{padding:8px 16px;border-radius:20px;font-size:13.5px;font-weight:600;background:#fff;border:1px solid var(--line);color:var(--muted)}
+.seg span.on{background:var(--navy);color:var(--cream);border-color:var(--navy)}
+.card{background:#fff;border-radius:24px;margin:0 14px 12px;padding:14px;box-shadow:0 1px 0 var(--line),0 8px 24px rgba(20,19,39,.05)}
+.who{display:flex;align-items:center;gap:10px}
+.who .n{font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:6px}
+.who .m{font-size:12px;color:var(--muted)}
+.ptxt{font-size:14.5px;line-height:1.65;margin:10px 2px}
+.pimg{height:200px;border-radius:18px;background-size:cover;background-position:center 30%;position:relative}
+.pimg .tag{position:absolute;bottom:10px;right:10px;background:rgba(14,13,36,.72);backdrop-filter:blur(6px);color:#fff;font-size:11.5px;padding:5px 10px;border-radius:12px;display:flex;align-items:center;gap:5px}
+.act{display:flex;align-items:center;gap:18px;margin-top:12px;font-size:13px;color:var(--muted);font-weight:600}
+.act span{display:flex;align-items:center;gap:5px}.act .ms{font-size:21px}.act .sp{flex:1}
+.qtag{display:flex;gap:6px;margin-bottom:8px}
+.pill{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:20px}
+.p-or{background:#FFEDE5;color:#E2480F}.p-gy{background:#F2EEE7;color:#5C596E}
+.qt{font-size:16px;font-weight:700;line-height:1.5}
+.qm{display:flex;gap:12px;margin-top:10px;font-size:12.5px;color:var(--muted);align-items:center}
+.qm .ok{color:var(--green);font-weight:600;display:flex;align-items:center;gap:4px}.qm .ok .ms{font-size:17px}
+/* dark question */
+.dark .scr{background:#0E0D24;color:#EDEAF5}
+.dark .sb{color:#fff}
+.qh{display:flex;justify-content:space-between;align-items:center;padding:4px 18px 8px}
+.qh .icb{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:#fff}
+.qh b{font-size:16px}
+.qbody{padding:6px 20px 0}
+.qbody .tags{display:flex;gap:6px}
+.dp{background:rgba(255,255,255,.08);color:#CFCBE0}
+.dp.o{background:rgba(255,90,31,.16);color:#FF8A5C}
+.qbody h2{font-size:21px;line-height:1.5;margin:12px 0 12px;font-weight:700}
+.qbody .who .m{color:#9C98B5}
+.qbody p{font-size:14px;line-height:1.7;color:#C9C5DA;margin:12px 0}
+.code{background:#07061A;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px 12px;font-family:monospace;font-size:12px;color:#9FE3C4;direction:ltr;text-align:left}
+.ahd{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 10px}
+.ahd b{font-size:15.5px}.ahd span{font-size:12px;color:#C9C5DA;background:rgba(255,255,255,.07);padding:5px 10px;border-radius:12px;display:flex;align-items:center;gap:4px}
+.ans{margin:0 14px 12px;border-radius:22px;background:#17163A;padding:14px;display:flex;gap:12px;border:1px solid rgba(255,255,255,.06)}
+.ans.acc{border:1.5px solid rgba(24,165,107,.7);background:linear-gradient(180deg,rgba(24,165,107,.12),#17163A 60%)}
+.vote{display:flex;flex-direction:column;align-items:center;gap:2px;color:#9C98B5;font-weight:700;font-size:15px}
+.vote .ms{font-size:26px}.vote .up{color:#FF8A5C}
+.ans .tx{flex:1}.ans .tx p{font-size:13.5px;line-height:1.7;color:#DAD6EA;margin-top:8px}
+.accb{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:#2FD392;background:rgba(24,165,107,.15);padding:4px 9px;border-radius:12px;margin-top:10px}
+.inp{position:absolute;bottom:0;left:0;right:0;padding:12px 14px 30px;background:#0E0D24;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:10px;align-items:center}
+.inp div{flex:1;height:46px;border-radius:16px;background:#17163A;color:#8A86A6;display:flex;align-items:center;padding:0 14px;font-size:14px;gap:8px}
+.inp .snd{flex:none;width:46px;padding:0;justify-content:center;background:linear-gradient(135deg,var(--orange2),var(--orange));color:#fff}
+/* learn */
+.lh{padding:2px 20px 12px;display:flex;justify-content:space-between;align-items:center}
+.lh h2{font-size:26px;font-weight:700}
+.cont{margin:0 14px 16px;border-radius:26px;padding:18px;color:#fff;background:radial-gradient(260px 160px at 10% 0%,rgba(255,90,31,.55),transparent 70%),linear-gradient(140deg,#1D1B4A,#0E0D24);position:relative;overflow:hidden}
+.cont small{font-size:12px;color:rgba(255,255,255,.7)}
+.cont h3{font-size:21px;margin:4px 0 2px}
+.cont .sub{font-size:12.5px;color:rgba(255,255,255,.75)}
+.bar{height:8px;border-radius:8px;background:rgba(255,255,255,.15);margin:16px 0 8px;overflow:hidden}.bar i{display:block;height:100%;width:38%;border-radius:8px;background:linear-gradient(90deg,#FFB23D,var(--orange))}
+.cont .bm{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.8)}
+.play{position:absolute;left:18px;top:18px;width:50px;height:50px;border-radius:50%;background:#fff;color:var(--navy);display:flex;align-items:center;justify-content:center}.play .ms{font-size:30px}
+.sh{display:flex;justify-content:space-between;align-items:center;padding:0 20px 10px}.sh b{font-size:16.5px}.sh a{font-size:12.5px;color:var(--orange);font-weight:600}
+.paths{display:flex;gap:12px;padding:0 14px 16px;overflow:hidden}
+.path{width:200px;flex:none;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 1px 0 var(--line),0 8px 20px rgba(20,19,39,.05)}
+.path .im{height:104px;background-size:cover;background-position:center}
+.path .b{padding:10px 12px 12px}.path b{font-size:14px}.path .m{font-size:11.5px;color:var(--muted);margin-top:3px;display:flex;gap:4px;align-items:center}.path .m .ms{font-size:15px}
+.crs{margin:0 14px 10px;background:#fff;border-radius:20px;padding:12px;display:flex;gap:12px;align-items:center;box-shadow:0 1px 0 var(--line)}
+.crs .ic{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff}.crs .ic .ms{font-size:28px}
+.crs .t{flex:1}.crs b{font-size:14px}.crs .m{font-size:11.5px;color:var(--muted);margin-top:3px}
+.lock{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#5C596E;background:#F2EEE7;padding:5px 9px;border-radius:12px}.lock .ms{font-size:15px}
+.cert{color:var(--green);background:#E5F6EE}
+</style></head><body>
+<div class="top"><div class="lg"><img src="logo.svg"><h1>Yallapp Community</h1></div><p>تعلّم، اسأل، واعرض تطبيقك — مجتمع صُنّاع التطبيقات</p></div>
+<div class="row">
+<!-- LEARN -->
+<div class="phone"><div class="notch"></div><div class="scr">
+ <div class="sb"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
+ <div class="lh"><h2>التعلّم</h2><div class="icb"><span class="ms">workspace_premium</span></div></div>
+ <div class="cont"><div class="play"><span class="ms f">play_arrow</span></div><small>تابِع من حيث توقفت</small><h3>احترف Studio</h3><div class="sub">الدرس 4 · صفحة المنتج لكل تمبلت</div><div class="bar"><i></i></div><div class="bm"><span>3 من 8 دروس</span><span>12 دقيقة متبقية</span></div></div>
+ <div class="sh"><b>المسارات</b><a>عرض الكل</a></div>
+ <div class="paths">
+  <div class="path"><div class="im" style="background-image:url(pub/clothes-photos/beige-dress.jpg)"></div><div class="b"><b>أول متجر لك</b><div class="m"><span class="ms">play_circle</span>6 دروس · مبتدئ</div></div></div>
+  <div class="path"><div class="im" style="background-image:url(pub/furniture-photos/armchair.jpg)"></div><div class="b"><b>انشر على المتاجر</b><div class="m"><span class="ms">play_circle</span>5 دروس · متوسط</div></div></div>
+ </div>
+ <div class="sh"><b>الأكاديمية</b><a>كل الكورسات</a></div>
+ <div class="crs"><div class="ic a2"><span class="ms f">school</span></div><div class="t"><b>مطوّر Yallapp معتمد</b><div class="m">12 درسًا · شهادة في ملفك</div></div><span class="lock cert"><span class="ms f">verified</span>شهادة</span></div>
+ <div class="crs"><div class="ic a1"><span class="ms f">rocket_launch</span></div><div class="t"><b>المستوى المتقدم: متاجر كبيرة</b><div class="m">9 دروس · للأعضاء المشتركين</div></div><span class="lock"><span class="ms f">lock</span>مقفول</span></div>
+ <div class="tb"><div class="t"><span class="ms">home</span>الرئيسية</div><div class="t"><span class="ms">forum</span>الأسئلة</div><div class="plus"><span class="ms">add</span></div><div class="t on"><span class="ms f">school</span>التعلّم</div><div class="t"><span class="ms">person</span>حسابي</div></div>
+</div><div class="cap">التعلّم · فاتح</div></div>
+
+<!-- QUESTION DARK -->
+<div class="phone mid dark"><div class="notch"></div><div class="scr">
+ <div class="sb"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
+ <div class="qh"><div class="icb"><span class="ms">arrow_forward</span></div><b>سؤال</b><div class="icb"><span class="ms">bookmark</span></div></div>
+ <div class="qbody">
+  <div class="tags"><span class="pill dp o">Studio</span><span class="pill dp">صفحة المنتج</span></div>
+  <h2>كيف أجعل صفحة المنتج بشكل مختلف لكل تمبلت في متجري؟</h2>
+  <div class="who"><div class="av a6" style="width:34px;height:34px;font-size:14px">ك</div><div><div class="n" style="font-size:13.5px">كريم سامي <span class="lvl" style="background:rgba(63,169,245,.15);color:#7CC4FF">مبتدئ</span></div><div class="m">منذ 3 ساعات · 284 مشاهدة</div></div></div>
+  <p>غيّرت التمبلت إلى Runway لكن صفحة المنتج بقيت بالشكل القديم. هل أحتاج لإعداد خاص؟</p>
+ </div>
+ <div class="ahd"><b>4 إجابات</b><span><span class="ms" style="font-size:16px">swap_vert</span>الأعلى تصويتًا</span></div>
+ <div class="ans acc"><div class="vote"><span class="ms f up">keyboard_arrow_up</span>42<span class="ms">keyboard_arrow_down</span></div><div class="tx">
+  <div class="who"><img src="logo.svg" style="width:30px;height:30px;border-radius:9px"><div><div class="n" style="font-size:13.5px">فريق Yallapp <span class="badge-team"><span class="ms f" style="font-size:12px">verified</span>رسمي</span></div><div class="m">منذ ساعتين</div></div></div>
+  <p>من Studio افتح «الصفحات» ثم «صفحة المنتج» واختر «من التمبلت». كل تمبلت له صفحته الخاصة وتتغير تلقائيًا.</p>
+  <div class="code">Studio › Pages › Product › From template</div>
+  <span class="accb"><span class="ms f" style="font-size:15px">check_circle</span>الإجابة المقبولة</span></div></div>
+ <div class="ans"><div class="vote"><span class="ms">keyboard_arrow_up</span>17<span class="ms">keyboard_arrow_down</span></div><div class="tx">
+  <div class="who"><div class="av a5" style="width:30px;height:30px;font-size:13px">ن</div><div><div class="n" style="font-size:13.5px">نور الهدى <span class="lvl" style="background:rgba(255,110,154,.15);color:#FF8FB3">خبيرة</span></div><div class="m">منذ ساعة</div></div></div>
+  <p>وتأكد أن المنتج له صور بنسبة 3:4 حتى يظهر المعرض بالكامل…</p></div></div>
+ <div class="inp"><div><span class="ms" style="font-size:20px">edit</span>اكتب إجابتك…</div><div class="snd"><span class="ms f" style="transform:scaleX(-1)">send</span></div></div>
+</div><div class="cap">صفحة سؤال · غامق</div></div>
+
+<!-- HOME -->
+<div class="phone"><div class="notch"></div><div class="scr">
+ <div class="sb"><span>9:41</span><span class="r"><span class="ms">signal_cellular_alt</span><span class="ms">wifi</span><span class="ms">battery_full</span></span></div>
+ <div class="hd"><div class="l"><img src="logo.svg"><b>Community</b></div><div style="display:flex;gap:8px"><div class="icb"><span class="ms">search</span></div><div class="icb"><span class="ms">notifications</span><i></i></div></div></div>
+ <div class="stories">
+  <div class="st"><div class="ring"><div style="background:linear-gradient(135deg,#FF8A3D,#FF4A1A)"><span class="ms f" style="font-size:28px">emoji_events</span></div></div>تحدّي الشهر</div>
+  <div class="st"><div class="ring"><div style="background-image:url(pub/crochet-photos/bunny-knit.jpg)"></div></div>شرح جديد</div>
+  <div class="st"><div class="ring"><div style="background:linear-gradient(135deg,#7C6BFF,#3B2BD0)"><span class="ms f" style="font-size:28px">live_tv</span></div></div>لايف الخميس</div>
+  <div class="st"><div class="ring"><div style="background-image:url(pub/beauty-photos/argan.jpg)"></div></div>من المعرض</div>
+ </div>
+ <div class="seg"><span class="on">لك</span><span>المتابَعون</span><span>الأحدث</span></div>
+ <div class="card">
+  <div class="who"><div class="av a5" style="width:40px;height:40px;font-size:16px">ن</div><div style="flex:1"><div class="n">نور الهدى <span class="lvl" style="background:#FFE9F0;color:#D93368">خبيرة</span></div><div class="m">منذ ساعتين · متاجر</div></div><span class="ms" style="color:#9A97AA">more_horiz</span></div>
+  <div class="ptxt">أطلقت متجري اليوم بتمبلت Runway 🎉 شكرًا لكل من ساعدني في إعداد الدفع!</div>
+  <div class="pimg" style="background-image:url(pub/clothes-photos/abaya-desert.jpg)"><span class="tag"><span class="ms" style="font-size:15px">storefront</span>لُجين · متجر ملابس</span></div>
+  <div class="act"><span style="color:var(--orange)"><span class="ms f">favorite</span>128</span><span><span class="ms">chat_bubble</span>24</span><span class="sp"></span><span><span class="ms">bookmark</span></span><span><span class="ms">ios_share</span></span></div>
+ </div>
+ <div class="card"><div class="qtag"><span class="pill p-or">سؤال</span><span class="pill p-gy">الدفع</span></div><div class="qt">كيف أربط بوابة الدفع بمتجري خطوة بخطوة؟</div><div class="qm"><span>6 إجابات</span><span>·</span><span class="ok"><span class="ms f">check_circle</span>إجابة مقبولة</span></div></div>
+ <div class="tb"><div class="t on"><span class="ms f">home</span>الرئيسية</div><div class="t"><span class="ms">forum</span>الأسئلة</div><div class="plus"><span class="ms">add</span></div><div class="t"><span class="ms">school</span>التعلّم</div><div class="t"><span class="ms">person</span>حسابي</div></div>
+</div><div class="cap">الرئيسية · فاتح</div></div>
+</div>
+</body></html>

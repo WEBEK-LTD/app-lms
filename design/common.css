@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Readex+Pro:wght@500;600;700&display=block');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block');
+:root{
+  --orange:#FF5A1F; --orange2:#FF8A3D; --navy:#0E0D24; --navy2:#17163A; --cream:#F4EFE6;
+  --paper:#FBF8F3; --card:#FFFFFF; --ink:#141327; --muted:#6E6B80; --line:#ECE6DC;
+  --green:#18A56B; --violet:#6B5BFF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;-webkit-font-smoothing:antialiased}
+.ms{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;font-feature-settings:'liga';-webkit-font-feature-settings:'liga';font-variation-settings:'FILL' 0,'wght' 450,'GRAD' 0,'opsz' 24}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24}
+.brandword{font-family:'Readex Pro',sans-serif;font-weight:600;letter-spacing:-.2px}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex:none}
+.a1{background:linear-gradient(135deg,#FF8A3D,#FF5A1F)}
+.a2{background:linear-gradient(135deg,#7C6BFF,#4B3BE0)}
+.a3{background:linear-gradient(135deg,#1FC08A,#0E8F63)}
+.a4{background:linear-gradient(135deg,#F2B544,#E08A12)}
+.a5{background:linear-gradient(135deg,#FF6E9A,#E23F72)}
+.a6{background:linear-gradient(135deg,#3FA9F5,#1F6FD1)}
+.badge-team{background:var(--navy);color:var(--cream);font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
+.lvl{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:20px}
