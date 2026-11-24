@@ -44,9 +44,10 @@ class WelcomePage extends ConsumerWidget {
           // The design's frame is 844 tall; what a phone has beyond it goes
           // under the collage.
           final extra = (h - 844).clamp(0, 400).toDouble();
-          const buttonsBottom = 60.0;
+          const buttonsBottom = 70.0;
           const buttonsHeight = 54.0 * 3 + 10 * 2;
-          const wordsTop = 422.0;
+          // The design's 476, up by the Google button and its gap (54 + 10).
+          const wordsTop = 476.0 - 64;
           return Stack(
             children: [
               const Positioned.fill(child: _Backdrop()),
@@ -132,8 +133,7 @@ class WelcomePage extends ConsumerWidget {
               Positioned(
                 left: 22,
                 right: 22,
-                bottom:
-                    buttonsBottom + MediaQuery.paddingOf(context).bottom * 0,
+                bottom: buttonsBottom,
                 height: buttonsHeight,
                 child: const SocialButtons(),
               ),
@@ -141,7 +141,7 @@ class WelcomePage extends ConsumerWidget {
               Positioned(
                 left: 0,
                 right: 0,
-                bottom: 24,
+                bottom: 30,
                 child: Center(
                   child: GestureDetector(
                     key: const ValueKey('welcome-login'),
@@ -184,7 +184,7 @@ class WelcomePage extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Sym(
-                          Symbols.language,
+                          Symbols.language_rounded,
                           size: 16,
                           color: Colors.white,
                         ),
@@ -199,7 +199,7 @@ class WelcomePage extends ConsumerWidget {
                         ),
                         const SizedBox(width: 5),
                         const Sym(
-                          Symbols.expand_more,
+                          Symbols.expand_more_rounded,
                           size: 16,
                           color: Colors.white,
                         ),
@@ -321,7 +321,7 @@ class _Collage extends StatelessWidget {
             top: 222,
             child: _Bubble(
               lead: const Sym(
-                Symbols.check_circle,
+                Symbols.check_circle_rounded,
                 size: 22,
                 fill: true,
                 color: Brand.mint,
@@ -330,12 +330,14 @@ class _Collage extends StatelessWidget {
               line: l.authBubblePoints,
             ),
           ),
+          // The design's 300, up with the words (the Google button), so it
+          // keeps the design's 31 points above "Build apps.".
           Positioned(
             left: 14,
-            top: 270,
+            top: 237,
             child: _Bubble(
               lead: const Sym(
-                Symbols.emoji_events,
+                Symbols.emoji_events_rounded,
                 size: 22,
                 fill: true,
                 color: Brand.gold,

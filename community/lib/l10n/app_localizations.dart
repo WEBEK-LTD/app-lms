@@ -1239,6 +1239,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete my account'**
   String get settingsDeleteConfirm;
+
+  /// No description provided for @openingTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Build apps. Build together.'**
+  String get openingTag;
 }
 
 class _AppLocalizationsDelegate

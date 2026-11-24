@@ -55,14 +55,14 @@ class SettingsPage extends ConsumerWidget {
             children: [
               _Row(
                 key: const ValueKey('settings-profile'),
-                icon: Symbols.person,
+                icon: Symbols.person_rounded,
                 title: l.profileEdit,
                 onTap: () => context.push(Paths.editProfile),
               ),
               if (account?.email case final email?)
                 _Row(
                   key: const ValueKey('settings-email'),
-                  icon: Symbols.mail,
+                  icon: Symbols.mail_rounded,
                   title: email,
                   value: account!.emailVerified
                       ? null
@@ -91,7 +91,7 @@ class SettingsPage extends ConsumerWidget {
                 ),
               _Row(
                 key: const ValueKey('settings-yallapp'),
-                icon: Symbols.link,
+                icon: Symbols.link_rounded,
                 title: l.settingsYallapp,
                 value: linked ? l.settingsLinked : l.settingsNotLinked,
                 onTap: () async {
@@ -124,7 +124,7 @@ class SettingsPage extends ConsumerWidget {
               ),
               _Row(
                 key: const ValueKey('settings-blocked'),
-                icon: Symbols.block,
+                icon: Symbols.block_rounded,
                 title: l.settingsBlocked,
                 onTap: () => context.push(Paths.blocked),
               ),
@@ -135,7 +135,7 @@ class SettingsPage extends ConsumerWidget {
             children: [
               _Row(
                 key: const ValueKey('settings-language'),
-                icon: Symbols.language,
+                icon: Symbols.language_rounded,
                 title: l.langTitle,
                 value: language,
                 onTap: () => showLanguageSheet(context),
@@ -154,17 +154,17 @@ class SettingsPage extends ConsumerWidget {
                     ButtonSegment(
                       value: ThemeMode.system,
                       label: Text(l.settingsSystem),
-                      icon: const Sym(Symbols.smartphone, size: 18),
+                      icon: const Sym(Symbols.smartphone_rounded, size: 18),
                     ),
                     ButtonSegment(
                       value: ThemeMode.light,
                       label: Text(l.settingsLight),
-                      icon: const Sym(Symbols.light_mode, size: 18),
+                      icon: const Sym(Symbols.light_mode_rounded, size: 18),
                     ),
                     ButtonSegment(
                       value: ThemeMode.dark,
                       label: Text(l.settingsDark),
-                      icon: const Sym(Symbols.dark_mode, size: 18),
+                      icon: const Sym(Symbols.dark_mode_rounded, size: 18),
                     ),
                   ],
                   selected: {mode},
@@ -216,7 +216,7 @@ class SettingsPage extends ConsumerWidget {
             title: l.settingsAbout,
             children: [
               _Row(
-                icon: Symbols.info,
+                icon: Symbols.info_rounded,
                 title: l.appName,
                 value: l.settingsVersion(appVersion),
               ),
@@ -250,7 +250,7 @@ class SettingsPage extends ConsumerWidget {
                 }
               },
               icon: const Sym(
-                Symbols.logout,
+                Symbols.logout_rounded,
                 size: 20,
                 color: Color(0xFFE5484D),
               ),
@@ -472,7 +472,9 @@ class _Row extends StatelessWidget {
             Text(value!, style: TextStyle(color: p.muted, fontSize: 13)),
           if (onTap != null)
             Sym(
-              rtl ? Symbols.chevron_left : Symbols.chevron_right,
+              rtl
+                  ? Symbols.chevron_left_rounded
+                  : Symbols.chevron_right_rounded,
               size: 22,
               color: p.muted,
             ),

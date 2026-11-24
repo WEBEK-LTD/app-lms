@@ -150,8 +150,8 @@ class _EmailAuthPageState extends ConsumerState<EmailAuthPage> {
                             height: 42,
                             child: Sym(
                               Directionality.of(context) == TextDirection.rtl
-                                  ? Symbols.arrow_forward
-                                  : Symbols.arrow_back,
+                                  ? Symbols.arrow_forward_rounded
+                                  : Symbols.arrow_back_rounded,
                               size: 22,
                               color: Colors.white,
                             ),
@@ -192,7 +192,7 @@ class _EmailAuthPageState extends ConsumerState<EmailAuthPage> {
                       key: const ValueKey('auth-name'),
                       controller: _name,
                       label: l.authName,
-                      icon: Symbols.person,
+                      icon: Symbols.person_rounded,
                       autofill: const [AutofillHints.name],
                       validator: (v) =>
                           (v ?? '').trim().isEmpty ? l.authNameNeeded : null,
@@ -203,7 +203,7 @@ class _EmailAuthPageState extends ConsumerState<EmailAuthPage> {
                     key: const ValueKey('auth-email-field'),
                     controller: _email,
                     label: l.authEmail,
-                    icon: Symbols.mail,
+                    icon: Symbols.mail_rounded,
                     keyboard: TextInputType.emailAddress,
                     autofill: const [AutofillHints.email],
                     validator: (v) => _emailPattern.hasMatch((v ?? '').trim())
@@ -216,7 +216,7 @@ class _EmailAuthPageState extends ConsumerState<EmailAuthPage> {
                       key: const ValueKey('auth-password'),
                       controller: _password,
                       label: l.authPassword,
-                      icon: Symbols.lock,
+                      icon: Symbols.lock_rounded,
                       obscure: _hide,
                       autofill: [
                         mode == EmailMode.signUp
@@ -226,7 +226,9 @@ class _EmailAuthPageState extends ConsumerState<EmailAuthPage> {
                       trailing: IconButton(
                         onPressed: () => setState(() => _hide = !_hide),
                         icon: Sym(
-                          _hide ? Symbols.visibility : Symbols.visibility_off,
+                          _hide
+                              ? Symbols.visibility_rounded
+                              : Symbols.visibility_off_rounded,
                           size: 20,
                           color: const Color(0xB3FFFFFF),
                         ),

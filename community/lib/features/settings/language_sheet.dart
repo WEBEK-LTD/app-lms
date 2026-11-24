@@ -69,7 +69,7 @@ class _LanguageSheet extends ConsumerWidget {
                   ),
                   trailing: code == current
                       ? const Sym(
-                          Symbols.check_circle,
+                          Symbols.check_circle_rounded,
                           size: 22,
                           fill: true,
                           color: Brand.orange,

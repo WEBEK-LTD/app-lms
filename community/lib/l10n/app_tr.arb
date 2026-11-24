@@ -189,5 +189,6 @@
   "settingsDeleteAccount": "Hesabı sil",
   "settingsDeleteLine": "Profiliniz, takipleriniz ve arkadaşlarınız hemen silinir. Sorularınız ve yanıtlarınız “Silinmiş üye” adıyla kalır.",
   "settingsDeletePassword": "Şifreniz",
-  "settingsDeleteConfirm": "Hesabımı sil"
+  "settingsDeleteConfirm": "Hesabımı sil",
+  "openingTag": "Uygulama yap. Birlikte yap."
 }

@@ -189,5 +189,6 @@
   "settingsDeleteAccount": "حذف الحساب",
   "settingsDeleteLine": "يحذف هذا ملفك الشخصي ومتابعاتك وأصدقاءك فورًا. تبقى أسئلتك وإجاباتك باسم «عضو محذوف».",
   "settingsDeletePassword": "كلمة المرور",
-  "settingsDeleteConfirm": "احذف حسابي"
+  "settingsDeleteConfirm": "احذف حسابي",
+  "openingTag": "ابنِ تطبيقات. ابنِ معًا."
 }

@@ -218,5 +218,6 @@
   "settingsDeleteAccount": "Delete account",
   "settingsDeleteLine": "This deletes your profile, follows and friends at once. Your questions and answers stay, shown as from “Deleted member”.",
   "settingsDeletePassword": "Your password",
-  "settingsDeleteConfirm": "Delete my account"
+  "settingsDeleteConfirm": "Delete my account",
+  "openingTag": "Build apps. Build together."
 }

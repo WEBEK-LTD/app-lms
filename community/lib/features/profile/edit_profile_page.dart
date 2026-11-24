@@ -179,7 +179,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Sym(
-                        Symbols.photo_camera,
+                        Symbols.photo_camera_rounded,
                         size: 18,
                         color: Brand.orange,
                       ),
@@ -251,7 +251,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                   key: ValueKey('skill-$s'),
                   label: Text(s),
                   onDeleted: () => setState(() => _skills.remove(s)),
-                  deleteIcon: const Sym(Symbols.close, size: 16),
+                  deleteIcon: const Sym(Symbols.close_rounded, size: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -269,7 +269,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               suffixIcon: IconButton(
                 key: const ValueKey('edit-skill-add'),
                 onPressed: _addSkill,
-                icon: const Sym(Symbols.add, color: Brand.orange),
+                icon: const Sym(Symbols.add_rounded, color: Brand.orange),
               ),
             ),
           ),

@@ -10,6 +10,7 @@ import 'package:yallapp_community/core/api/models.dart';
 import 'package:yallapp_community/core/auth/social_sign_in.dart';
 import 'package:yallapp_community/core/providers.dart';
 import 'package:yallapp_community/features/home/data/home_api.dart';
+import 'package:yallapp_community/features/opening/opening_page.dart';
 
 /// The app on a 390 × 844 phone over the fake API, signed in or not, in a
 /// language and a theme. Every widget test starts here; area E's too.
@@ -30,6 +31,7 @@ class TestApp {
     SocialSignIn apple = const FakeSocialSignIn('apple-token'),
     SocialSignIn google = const FakeSocialSignIn('google-token'),
     List<Override> overrides = const [],
+    bool opening = false,
   }) async {
     tester.view
       ..devicePixelRatio = 2
@@ -62,6 +64,8 @@ class TestApp {
       ],
     );
     addTearDown(container.dispose);
+    // The opening's 1.2s plays in its own test (test/flows/opening_test.dart).
+    if (!opening) container.read(openingDoneProvider.notifier).done();
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,

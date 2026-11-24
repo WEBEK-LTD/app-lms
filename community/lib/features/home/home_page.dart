@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -56,7 +58,11 @@ class HomePage extends ConsumerWidget {
                     meId: me.member.id,
                     meName: me.member.name,
                     meAvatar: me.member.avatarUrl,
-                    notifications: ref.watch(unreadNotificationsProvider),
+                    // The account's unread count, or area E's live one.
+                    notifications: math.max(
+                      ref.watch(unreadNotificationsProvider),
+                      me.account?.unreadNotifications ?? 0,
+                    ),
                     onMenu: () =>
                         openSideMenu(context, current: MenuSection.home),
                     onSearch: () => context.push(FeatureLinks.search),
@@ -270,8 +276,8 @@ class _Featured extends StatelessWidget {
                         children: [
                           Sym(
                             item.endsAt != null
-                                ? Symbols.emoji_events
-                                : Symbols.auto_awesome,
+                                ? Symbols.emoji_events_rounded
+                                : Symbols.auto_awesome_rounded,
                             size: 14,
                             fill: true,
                             color: Brand.gold,
@@ -286,6 +292,8 @@ class _Featured extends StatelessWidget {
                                 color: Colors.white,
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w600,
+                                // CSS `line-height: normal` for Inter.
+                                height: 1.21,
                               ),
                             ),
                           ),
@@ -303,6 +311,7 @@ class _Featured extends StatelessWidget {
                         fontSize: 21,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -.3,
+                        height: 1.21,
                       ),
                     ),
                   ),
@@ -439,6 +448,8 @@ class _Stories extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // One-line labels sit under their ring, as two-line ones.
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Story(
             key: const ValueKey('story-live'),
@@ -448,7 +459,7 @@ class _Stories extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [Brand.lilac, Color(0xFF3B2BD0)],
             ),
-            icon: Symbols.live_tv,
+            icon: Symbols.live_tv_rounded,
             onTap: () => showComingSoon(context, l.homeStoryLive),
           ),
           _Story(
@@ -483,7 +494,7 @@ class _Stories extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [Color(0xFF1FC08A), Color(0xFF0E8F63)],
             ),
-            icon: Symbols.campaign,
+            icon: Symbols.campaign_rounded,
             seen: !feed.news,
             onTap: () => context.push(FeatureLinks.learn),
           ),
@@ -783,10 +794,10 @@ class _Post extends ConsumerWidget {
                               // Paid on the website: a lock, never a price.
                               Sym(
                                 item.locked
-                                    ? Symbols.lock
+                                    ? Symbols.lock_rounded
                                     : (item.kind == FeedKind.question
-                                          ? Symbols.forum
-                                          : Symbols.storefront),
+                                          ? Symbols.forum_rounded
+                                          : Symbols.storefront_rounded),
                                 size: 16,
                                 fill: item.locked,
                                 color: Colors.white,
@@ -809,8 +820,8 @@ class _Post extends ConsumerWidget {
                               const SizedBox(width: 7),
                               Sym(
                                 Directionality.of(context) == TextDirection.rtl
-                                    ? Symbols.arrow_back
-                                    : Symbols.arrow_forward,
+                                    ? Symbols.arrow_back_rounded
+                                    : Symbols.arrow_forward_rounded,
                                 size: 15,
                                 color: Colors.white,
                               ),
@@ -833,8 +844,8 @@ class _Post extends ConsumerWidget {
                         children: [
                           Sym(
                             item.kind == FeedKind.question
-                                ? Symbols.arrow_upward
-                                : Symbols.favorite,
+                                ? Symbols.arrow_upward_rounded
+                                : Symbols.favorite_rounded,
                             size: 16,
                             fill: true,
                             color: item.kind == FeedKind.question

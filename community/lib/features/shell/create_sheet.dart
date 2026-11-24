@@ -62,7 +62,7 @@ class _CreateSheet extends StatelessWidget {
             ),
             _Choice(
               key: const ValueKey('create-ask'),
-              icon: Symbols.forum,
+              icon: Symbols.forum_rounded,
               title: l.createAsk,
               line: l.createAskLine,
               gradient: Brand.sunrise,
@@ -74,7 +74,7 @@ class _CreateSheet extends StatelessWidget {
             const SizedBox(height: 8),
             _Choice(
               key: const ValueKey('create-showcase'),
-              icon: Symbols.apps,
+              icon: Symbols.apps_rounded,
               title: l.createShowcase,
               line: l.createShowcaseLine,
               gradient: const LinearGradient(
@@ -89,7 +89,7 @@ class _CreateSheet extends StatelessWidget {
             const SizedBox(height: 8),
             _Choice(
               key: const ValueKey('create-challenge'),
-              icon: Symbols.emoji_events,
+              icon: Symbols.emoji_events_rounded,
               title: l.createChallenge,
               line: l.createChallengeLine,
               gradient: const LinearGradient(

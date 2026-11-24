@@ -113,7 +113,7 @@ class _Spark extends StatelessWidget {
       ],
     ),
     child: const Sym(
-      Symbols.rocket_launch,
+      Symbols.rocket_launch_rounded,
       size: 28,
       fill: true,
       color: Colors.white,

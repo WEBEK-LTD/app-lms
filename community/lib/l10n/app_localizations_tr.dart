@@ -606,4 +606,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settingsDeleteConfirm => 'Hesabımı sil';
+
+  @override
+  String get openingTag => 'Uygulama yap. Birlikte yap.';
 }

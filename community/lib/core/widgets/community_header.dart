@@ -43,7 +43,7 @@ class CommunityHeader extends StatelessWidget {
         children: [
           IconBtn(
             key: const ValueKey('header-menu'),
-            icon: Symbols.menu,
+            icon: Symbols.menu_rounded,
             label: l.headerMenu,
             onTap: onMenu,
           ),
@@ -58,14 +58,14 @@ class CommunityHeader extends StatelessWidget {
           const Spacer(),
           IconBtn(
             key: const ValueKey('header-search'),
-            icon: Symbols.search,
+            icon: Symbols.search_rounded,
             label: l.headerSearch,
             onTap: onSearch,
           ),
           const SizedBox(width: 7),
           IconBtn(
             key: const ValueKey('header-messages'),
-            icon: Symbols.chat_bubble,
+            icon: Symbols.chat_bubble_rounded,
             label: l.headerMessages,
             onTap: onMessages,
             count: messages,
@@ -73,7 +73,7 @@ class CommunityHeader extends StatelessWidget {
           const SizedBox(width: 7),
           IconBtn(
             key: const ValueKey('header-notifications'),
-            icon: Symbols.notifications,
+            icon: Symbols.notifications_rounded,
             label: l.headerNotifications,
             onTap: onNotifications,
             count: notifications,

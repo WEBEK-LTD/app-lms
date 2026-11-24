@@ -94,7 +94,7 @@ class _SocialButtonsState extends ConsumerState<SocialButtons> {
         _WelcomeButton(
           key: const ValueKey('auth-email'),
           label: l.authSignUpEmail,
-          lead: const Sym(Symbols.mail, size: 22, color: Colors.white),
+          lead: const Sym(Symbols.mail_rounded, size: 22, color: Colors.white),
           orange: true,
           onTap: () => context.push(Paths.signUp),
         ),

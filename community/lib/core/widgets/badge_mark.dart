@@ -24,7 +24,7 @@ class BadgeMark extends StatelessWidget {
     final k = kind;
     if (k == null) return const SizedBox.shrink();
     return Sym(
-      Symbols.verified,
+      Symbols.verified_rounded,
       size: size,
       fill: true,
       color: colorOf(k),
@@ -54,7 +54,7 @@ class LockedMark extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Sym(
-          Symbols.lock,
+          Symbols.lock_rounded,
           size: 15,
           fill: true,
           color: dark ? Colors.white : Brand.ink,
