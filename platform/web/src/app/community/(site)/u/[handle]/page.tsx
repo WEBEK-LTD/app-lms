@@ -27,7 +27,7 @@ function Act({ action, fields, className, icon, label }: { action: (f: FormData)
   return (
     <form action={action}>
       {Object.entries(fields).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
-      <button type="submit" className={`cm-btn ${className}`}><span className="ms">{icon}</span>{label}</button>
+      <button type="submit" className={`cm-btn ${className}`}><span className="ms" aria-hidden="true">{icon}</span>{label}</button>
     </form>
   );
 }
@@ -69,17 +69,17 @@ export default async function MemberPage({ params }: Props) {
           <div className="who">
             <h1>
               {p.member.name} <BadgeMark kind={p.member.badge} w={w} />
-              {p.member.staff ? <span className="badge-team"><span className="ms f" style={{ fontSize: 12 }}>verified_user</span>{w.team}</span> : null}
+              {p.member.staff ? <span className="badge-team"><span className="ms f" style={{ fontSize: 12 }} aria-hidden="true">verified_user</span>{w.team}</span> : null}
             </h1>
             <div className="cm-muted">@{p.member.handle} · {fill(w.points, { n: p.points.toLocaleString("en-US") })}</div>
           </div>
           <div className="cm-row acts">
             {p.relation.self ? (
-              <Link href={cmLinks.editProfile()} className="cm-btn n"><span className="ms">edit</span>{w.editProfile}</Link>
+              <Link href={cmLinks.editProfile()} className="cm-btn n"><span className="ms" aria-hidden="true">edit</span>{w.editProfile}</Link>
             ) : viewer ? (
               <Relation p={p} w={w} back={back} />
             ) : (
-              <Link href={cmLinks.signIn(back)} className="cm-btn o"><span className="ms">person_add</span>{w.follow}</Link>
+              <Link href={cmLinks.signIn(back)} className="cm-btn o"><span className="ms" aria-hidden="true">person_add</span>{w.follow}</Link>
             )}
           </div>
         </div>
@@ -102,7 +102,7 @@ export default async function MemberPage({ params }: Props) {
                 <input type="hidden" name="memberId" value={p.member.id} />
                 <input type="hidden" name="back" value={back} />
                 <input type="hidden" name="on" value="1" />
-                <button type="submit" className="cm-link"><span className="ms">block</span>{w.block}</button>
+                <button type="submit" className="cm-link"><span className="ms" aria-hidden="true">block</span>{w.block}</button>
               </form>
             ) : null}
             <ReportButton w={w} kind="member" id={p.member.id} back={back} />
@@ -126,7 +126,7 @@ export default async function MemberPage({ params }: Props) {
         ) : (
           <p className="cm-muted" style={{ marginTop: 8 }}>{w.noBadges}</p>
         )}
-        {p.relation.self ? <Link href={cmLinks.verify()} className="cm-link" style={{ marginTop: 12 }}><span className="ms">workspace_premium</span>{w.goldHow}</Link> : null}
+        {p.relation.self ? <Link href={cmLinks.verify()} className="cm-link" style={{ marginTop: 12 }}><span className="ms" aria-hidden="true">workspace_premium</span>{w.goldHow}</Link> : null}
       </section>
       <section className="cm-card">
         <h2>{w.linkedApps}</h2>
@@ -135,7 +135,7 @@ export default async function MemberPage({ params }: Props) {
             {p.linkedApps.map((a) => {
               const inner = (
                 <>
-                  <span className="ic">{a.iconUrl ? <img src={a.iconUrl} alt="" /> : <span className="ms">apps</span>}</span>
+                  <span className="ic">{a.iconUrl ? <img src={a.iconUrl} alt="" /> : <span className="ms" aria-hidden="true">apps</span>}</span>
                   <b>{a.name}</b>
                 </>
               );

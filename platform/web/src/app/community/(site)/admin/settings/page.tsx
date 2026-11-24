@@ -67,7 +67,7 @@ export default async function AdminSettingsPage() {
             <textarea name="blockedWords" style={{ minHeight: 80 }} defaultValue={s.spam.blockedWords.join("\n")} />
             <small>{w.onePerLine}</small>
           </label>
-          <button type="submit" className="cm-btn o" style={{ marginTop: 16 }}><span className="ms">save</span>{w.saveChanges}</button>
+          <button type="submit" className="cm-btn o" style={{ marginTop: 16 }}><span className="ms" aria-hidden="true">save</span>{w.saveChanges}</button>
         </section>
       </ActionForm>
     </AdminPage>

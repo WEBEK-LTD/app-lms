@@ -55,7 +55,7 @@ export function AskForm({ w, sections, section: initial }: { w: CmWords; section
               {similar.map((s) => (
                 <li key={s.slug}>
                   <Link href={cmLinks.question(s.slug)} target="_blank">{s.title}</Link>
-                  {s.accepted ? <span className="ok"><span className="ms f">check_circle</span></span> : null}
+                  {s.accepted ? <span className="ok"><span className="ms f" aria-hidden="true">check_circle</span></span> : null}
                 </li>
               ))}
             </ul>
@@ -73,7 +73,7 @@ export function AskForm({ w, sections, section: initial }: { w: CmWords; section
       </label>
       <Note state={state} />
       <div className="cm-row" style={{ marginTop: 18 }}>
-        <button type="submit" className="cm-btn o" disabled={pending}><span className="ms">send</span>{w.postQuestion}</button>
+        <button type="submit" className="cm-btn o" disabled={pending}><span className="ms" aria-hidden="true">send</span>{w.postQuestion}</button>
         <small className="cm-muted">{w.reviewNote}</small>
       </div>
     </form>
@@ -98,7 +98,7 @@ export function AnswerForm({ w, questionId, slug }: { w: CmWords; questionId: st
       </label>
       <Note state={state} />
       <div className="cm-row" style={{ marginTop: 14 }}>
-        <button type="submit" className="cm-btn o" disabled={pending}><span className="ms">reply</span>{w.postAnswer}</button>
+        <button type="submit" className="cm-btn o" disabled={pending}><span className="ms" aria-hidden="true">reply</span>{w.postAnswer}</button>
       </div>
     </form>
   );
@@ -113,7 +113,7 @@ export function ReplyForm({ w, answerId, slug }: { w: CmWords; answerId: string;
   if (!open) {
     return (
       <>
-        <button type="button" className="cm-link" onClick={() => setOpen(true)}><span className="ms">reply</span>{w.reply}</button>
+        <button type="button" className="cm-link" onClick={() => setOpen(true)}><span className="ms" aria-hidden="true">reply</span>{w.reply}</button>
         <Note state={state} />
       </>
     );
@@ -144,7 +144,7 @@ export function ReportButton({ w, kind, id, back }: { w: CmWords; kind: "questio
   if (state?.ok) return <Note state={state} />;
   return (
     <>
-      <button type="button" className="cm-link" onClick={() => setOpen((o) => !o)} aria-expanded={open}><span className="ms">flag</span>{w.report}</button>
+      <button type="button" className="cm-link" onClick={() => setOpen((o) => !o)} aria-expanded={open}><span className="ms" aria-hidden="true">flag</span>{w.report}</button>
       {open ? (
         <form action={action} className="cm-report">
           <input type="hidden" name="kind" value={kind} />

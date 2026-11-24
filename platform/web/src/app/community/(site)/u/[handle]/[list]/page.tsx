@@ -27,7 +27,7 @@ export default async function MemberListPage({ params, searchParams }: Props) {
   return (
     <SitePage active="none">
       <div className="cm-card">
-        <Link href={cmLinks.member(p.member.handle)} className="cm-link"><span className="ms">arrow_back</span>{p.member.name}</Link>
+        <Link href={cmLinks.member(p.member.handle)} className="cm-link"><span className="ms" aria-hidden="true">arrow_back</span>{p.member.name}</Link>
         <h1 style={{ marginTop: 8 }}>{title}</h1>
         <div className="cm-tabs" style={{ marginBottom: 0 }}>
           {LISTS.map((l) => (
@@ -47,7 +47,7 @@ export default async function MemberListPage({ params, searchParams }: Props) {
           ))}
         </div>
       ) : (
-        <div className="cm-empty"><span className="ms f">group</span>{w.nobodyYet}</div>
+        <div className="cm-empty"><span className="ms f" aria-hidden="true">group</span>{w.nobodyYet}</div>
       )}
       {page.next ? (
         <div className="cm-row" style={{ justifyContent: "center" }}>

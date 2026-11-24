@@ -266,6 +266,9 @@ type ApiProfile = ApiMember & {
 type ApiMe = ApiProfile & { email: string | null; community_role?: "admin" | "moderator" | null; language: CmLang; unread_notifications: number; pending_friend_requests: number };
 type ApiApp = { id: string; name: string; icon_url: string | null; app_store_url: string | null; play_store_url: string | null; from_template: boolean; paid_plan: boolean };
 
+/** A member in the API's paths: "@username", or their id. */
+const memberPath = (handleOrId: string) => encodeURIComponent(/^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(handleOrId) ? handleOrId : `@${handleOrId.replace(/^@/, "")}`);
+
 const errorCode = (body: unknown): string => (body as ApiError | null)?.error?.code ?? "error";
 const errorFields = (body: unknown): Record<string, string> | undefined => (body as ApiError | null)?.error?.fields;
 
@@ -284,11 +287,11 @@ export async function communityViewer(): Promise<Viewer | null> {
 }
 
 export async function profile(handle: string, o: { viewerId: string | null; lang: CmLang }): Promise<Profile | null> {
-  const r = await communityApi<ApiProfile>("GET", `/members/${encodeURIComponent(handle)}`);
+  const r = await communityApi<ApiProfile>("GET", `/members/${memberPath(handle)}`);
   if (r.status !== 200) return null;
   const p = r.body;
   const [apps, asked] = await Promise.all([
-    communityApi<{ items: ApiApp[] }>("GET", `/members/${encodeURIComponent(p.username)}/apps`),
+    communityApi<{ items: ApiApp[] }>("GET", `/members/${memberPath(p.username)}/apps`),
     inQa(() => qa.listQuestions({ viewerId: o.viewerId, lang: o.lang, author: p.id, sort: "newest", limit: 6 })).catch(() => ({ items: [], nextCursor: null })),
   ]);
   const rel = p.relationship;
@@ -317,7 +320,7 @@ export async function profile(handle: string, o: { viewerId: string | null; lang
 
 export async function memberList(handle: string, list: "followers" | "following" | "friends", o: { viewerId: string | null; cursor?: string }): Promise<Page<MemberRef>> {
   const q = o.cursor ? `?cursor=${encodeURIComponent(o.cursor)}` : "";
-  const r = await communityApi<{ items: ApiMember[]; next_cursor: string | null }>("GET", `/members/${encodeURIComponent(handle)}/${list}${q}`);
+  const r = await communityApi<{ items: ApiMember[]; next_cursor: string | null }>("GET", `/members/${memberPath(handle)}/${list}${q}`);
   return r.status === 200 ? { items: r.body.items.map(apiMember), next: r.body.next_cursor } : { items: [], next: null };
 }
 
@@ -375,7 +378,7 @@ export async function linkedAccount(): Promise<{ linked: boolean; since: string 
 /** Where to send the member to confirm the link (yallapp.com.tr), or null when linking isn't available. */
 export async function startLink(): Promise<string | null> {
   const r = await communityApi<{ confirm_url: string }>("POST", "/me/yallapp-link/start", { body: { return_to: "web" } });
-  return r.status === 200 && /^https:\/\//.test(r.body.confirm_url) ? r.body.confirm_url : null;
+  return r.status === 200 && /^https?:\/\//.test(r.body.confirm_url) ? r.body.confirm_url : null;
 }
 
 export async function unlink(): Promise<SeamResult> {
@@ -578,7 +581,7 @@ export async function adminSettings(): Promise<SettingsView | null> {
   const s = r.body;
   const chosen = await Promise.all(
     (s.groups_create_members ?? []).slice(0, 100).map(async (id) => {
-      const m = await communityApi<ApiMember>("GET", `/members/${encodeURIComponent(id)}`);
+      const m = await communityApi<ApiMember>("GET", `/members/${memberPath(id)}`);
       return m.status === 200 ? apiMember(m.body) : { id, name: id, handle: null, avatarUrl: null, badge: null, staff: false, rank: null };
     }),
   );
@@ -601,7 +604,7 @@ export async function adminSettings(): Promise<SettingsView | null> {
 export async function updateSettings(input: Omit<SettingsView, "groups"> & { groups: { policy: SettingsView["groups"]["policy"]; chosenHandles: string[] } }): Promise<SeamResult> {
   const ids: string[] = [];
   for (const handle of input.groups.chosenHandles.slice(0, 100)) {
-    const m = await communityApi<ApiMember>("GET", `/members/${encodeURIComponent(handle)}`);
+    const m = await communityApi<ApiMember>("GET", `/members/${memberPath(handle)}`);
     if (m.status !== 200) return { ok: false, code: "invalid_request", errors: { groups_create_members: handle } };
     ids.push(m.body.id);
   }

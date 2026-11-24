@@ -27,9 +27,9 @@ export default async function BadgesPage({ searchParams }: { searchParams: Promi
           {w.username}
           <input name="member" defaultValue={handle} placeholder="@username" required />
         </label>
-        <button type="submit" className="cm-btn n" style={{ alignSelf: "flex-end" }}><span className="ms">search</span>{w.find}</button>
+        <button type="submit" className="cm-btn n" style={{ alignSelf: "flex-end" }}><span className="ms" aria-hidden="true">search</span>{w.find}</button>
       </form>
-      {handle && !found ? <div className="cm-empty"><span className="ms f">person_off</span>{w.noMember}</div> : null}
+      {handle && !found ? <div className="cm-empty"><span className="ms f" aria-hidden="true">person_off</span>{w.noMember}</div> : null}
       {found ? (
         <>
           <section className="cm-card" style={{ overflowX: "auto" }}>
@@ -76,7 +76,7 @@ export default async function BadgesPage({ searchParams }: { searchParams: Promi
                 {w.endsOptional}
                 <input name="expiresAt" type="date" />
               </label>
-              <button type="submit" className="cm-btn o" style={{ marginTop: 14 }}><span className="ms">workspace_premium</span>{w.grant}</button>
+              <button type="submit" className="cm-btn o" style={{ marginTop: 14 }}><span className="ms" aria-hidden="true">workspace_premium</span>{w.grant}</button>
             </ActionForm>
             {held.length ? (
               <ActionForm action={revokeAction} className="cm-card">
@@ -95,7 +95,7 @@ export default async function BadgesPage({ searchParams }: { searchParams: Promi
                   {w.privateReason}
                   <input name="reason" required minLength={3} maxLength={1000} />
                 </label>
-                <button type="submit" className="cm-btn g" style={{ marginTop: 14 }}><span className="ms">remove_moderator</span>{w.revoke}</button>
+                <button type="submit" className="cm-btn g" style={{ marginTop: 14 }}><span className="ms" aria-hidden="true">remove_moderator</span>{w.revoke}</button>
               </ActionForm>
             ) : null}
           </div>

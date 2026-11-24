@@ -52,7 +52,7 @@ export default async function TutorialsPage({ searchParams }: { searchParams: Pr
           {list.items.map((t) => <TutorialCard key={t.id} t={t} w={w} />)}
         </div>
       ) : (
-        <div className="cm-empty"><span className="ms f">menu_book</span>{w.noTutorials}</div>
+        <div className="cm-empty"><span className="ms f" aria-hidden="true">menu_book</span>{w.noTutorials}</div>
       )}
       {list.next ? (
         <div className="cm-row" style={{ justifyContent: "center" }}>

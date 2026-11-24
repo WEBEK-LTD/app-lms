@@ -35,10 +35,10 @@ export default async function VerifyPage() {
           <div className="cm-muted num" style={{ fontSize: 13, marginTop: 6 }}>{fill(w.appsCount, { n: g.appCount, min: need })}</div>
         </section>
         {g.hasGold ? (
-          <div className="cm-note ok" role="status" style={{ marginBottom: 16 }}><span className="ms f">check_circle</span><b>{w.verifyApproved}</b></div>
+          <div className="cm-note ok" role="status" style={{ marginBottom: 16 }}><span className="ms f" aria-hidden="true">check_circle</span><b>{w.verifyApproved}</b></div>
         ) : g.request ? (
           <div className={`cm-note ${g.request.status === "rejected" ? "err" : g.request.status === "approved" ? "ok" : ""}`} role="status" style={{ marginBottom: 16 }}>
-            <span className="ms f">{g.request.status === "pending" ? "hourglass_top" : g.request.status === "approved" ? "check_circle" : "cancel"}</span>
+            <span className="ms f" aria-hidden="true">{g.request.status === "pending" ? "hourglass_top" : g.request.status === "approved" ? "check_circle" : "cancel"}</span>
             <div>
               <b>{g.request.status === "pending" ? w.verifyPending : g.request.status === "approved" ? w.verifyApproved : w.verifyRejected}</b>
               {g.request.reason ? <div>{g.request.reason}</div> : null}
@@ -48,7 +48,7 @@ export default async function VerifyPage() {
         {!g.linked ? (
           <div className="cm-card cm-row">
             <span style={{ flex: 1 }}>{w.linkFirst}</span>
-            <Link href={cmLinks.settings()} className="cm-btn n"><span className="ms">link</span>{w.linkAccount}</Link>
+            <Link href={cmLinks.settings()} className="cm-btn n"><span className="ms" aria-hidden="true">link</span>{w.linkAccount}</Link>
           </div>
         ) : !g.hasGold && g.appCount < need ? (
           <div className="cm-card cm-muted">{fill(w.needMoreApps, { n: need - g.appCount })}</div>
@@ -77,7 +77,7 @@ export default async function VerifyPage() {
               <ul className="cm-applist">
                 {g.apps.map((a) => (
                   <li key={a.id}>
-                    <span className="ms">{a.template ? "storefront" : "apps"}</span>
+                    <span className="ms" aria-hidden="true">{a.template ? "storefront" : "apps"}</span>
                     {a.name}
                     {a.template ? <span className="pill p-vi">{w.template}</span> : null}
                   </li>
@@ -86,7 +86,7 @@ export default async function VerifyPage() {
               <small>{w.appsAutoFilled}</small>
             </div>
             <div className="cm-row" style={{ marginTop: 18 }}>
-              <button type="submit" className="cm-btn o"><span className="ms">workspace_premium</span>{w.apply}</button>
+              <button type="submit" className="cm-btn o"><span className="ms" aria-hidden="true">workspace_premium</span>{w.apply}</button>
             </div>
           </ActionForm>
         ) : null}

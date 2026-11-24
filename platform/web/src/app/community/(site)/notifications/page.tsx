@@ -43,16 +43,16 @@ export default async function NotificationsPage({ searchParams }: { searchParams
           <h1 style={{ flex: 1 }}>{w.notifications}</h1>
           {list.unread ? (
             <form action={readAllAction}>
-              <button type="submit" className="cm-btn g"><span className="ms">done_all</span>{w.markAllRead}</button>
+              <button type="submit" className="cm-btn g"><span className="ms" aria-hidden="true">done_all</span>{w.markAllRead}</button>
             </form>
           ) : null}
-          <Link href={cmLinks.settings()} className="cm-link"><span className="ms">settings</span>{w.settings}</Link>
+          <Link href={cmLinks.settings()} className="cm-link"><span className="ms" aria-hidden="true">settings</span>{w.settings}</Link>
         </div>
         {list.items.length ? (
           <ul className="cm-card cm-notices">
             {list.items.map((n) => (
               <li key={n.id} className={n.read ? "" : "new"}>
-                <span className="ic"><span className="ms f">{ICONS[n.kind] ?? "notifications"}</span></span>
+                <span className="ic"><span className="ms f" aria-hidden="true">{ICONS[n.kind] ?? "notifications"}</span></span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {n.link ? <Link href={n.link}>{n.text}</Link> : n.text}
                   <div className="m">{ago(w, n.createdAt)}</div>
@@ -61,7 +61,7 @@ export default async function NotificationsPage({ searchParams }: { searchParams
             ))}
           </ul>
         ) : (
-          <div className="cm-empty"><span className="ms f">notifications</span>{w.noNotices}</div>
+          <div className="cm-empty"><span className="ms f" aria-hidden="true">notifications</span>{w.noNotices}</div>
         )}
         {list.next ? (
           <div className="cm-row" style={{ justifyContent: "center" }}>

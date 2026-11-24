@@ -16,7 +16,7 @@ export default async function SavedPage() {
   return (
     <SitePage active="none">
       <div className="cm-card"><h1>{w.saved}</h1></div>
-      {!s.questions.length && !s.tutorials.length ? <div className="cm-empty"><span className="ms f">bookmark</span>{w.nothingSaved}</div> : null}
+      {!s.questions.length && !s.tutorials.length ? <div className="cm-empty"><span className="ms f" aria-hidden="true">bookmark</span>{w.nothingSaved}</div> : null}
       {s.questions.length ? (
         <>
           <h2 className="cm-h2">{w.navQuestions}</h2>

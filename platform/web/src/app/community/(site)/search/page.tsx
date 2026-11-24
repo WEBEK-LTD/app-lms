@@ -25,10 +25,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <span className="cm-sr">{w.search}</span>
             <input type="search" name="q" defaultValue={q} placeholder={w.searchPlaceholder} autoFocus={!q} />
           </label>
-          <button type="submit" className="cm-btn o"><span className="ms">search</span>{w.search}</button>
+          <button type="submit" className="cm-btn o"><span className="ms" aria-hidden="true">search</span>{w.search}</button>
         </div>
       </form>
-      {none ? <div className="cm-empty"><span className="ms f">search_off</span>{w.noResults}</div> : null}
+      {none ? <div className="cm-empty"><span className="ms f" aria-hidden="true">search_off</span>{w.noResults}</div> : null}
       {found.members.length ? (
         <section className="cm-card">
           <h2>{w.members}</h2>

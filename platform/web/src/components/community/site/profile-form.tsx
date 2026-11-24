@@ -19,7 +19,7 @@ export function ProfileForm({ w, initial }: { w: CmWords; initial: { name: strin
           {preview && !remove ? <img src={preview} alt="" /> : (initial.name[0] ?? "?").toUpperCase()}
         </span>
         <label className="cm-btn g">
-          <span className="ms">photo_camera</span>
+          <span className="ms" aria-hidden="true">photo_camera</span>
           {w.changePhoto}
           <input
             type="file"
@@ -36,7 +36,7 @@ export function ProfileForm({ w, initial }: { w: CmWords; initial: { name: strin
           />
         </label>
         {preview && !remove ? (
-          <button type="button" className="cm-link" onClick={() => setRemove(true)}><span className="ms">delete</span>{w.removePhoto}</button>
+          <button type="button" className="cm-link" onClick={() => setRemove(true)}><span className="ms" aria-hidden="true">delete</span>{w.removePhoto}</button>
         ) : null}
         <input type="hidden" name="removeAvatar" value={remove ? "1" : "0"} />
       </div>
@@ -59,7 +59,7 @@ export function ProfileForm({ w, initial }: { w: CmWords; initial: { name: strin
       </label>
       <Note state={state} />
       <div className="cm-row" style={{ marginTop: 18 }}>
-        <button type="submit" className="cm-btn o" disabled={pending}><span className="ms">save</span>{w.saveChanges}</button>
+        <button type="submit" className="cm-btn o" disabled={pending}><span className="ms" aria-hidden="true">save</span>{w.saveChanges}</button>
       </div>
     </form>
   );

@@ -53,10 +53,10 @@ export function ThemeButtons({ light, dark: darkLabel }: { light: string; dark: 
   return (
     <div className="tg" role="group">
       <button type="button" className={dark ? "" : "on"} aria-pressed={!dark} aria-label={light} onClick={() => set("light")}>
-        <span className={`ms${dark ? "" : " f"}`}>light_mode</span>
+        <span className={`ms${dark ? "" : " f"}`} aria-hidden="true">light_mode</span>
       </button>
       <button type="button" className={dark ? "on" : ""} aria-pressed={dark} aria-label={darkLabel} onClick={() => set("dark")}>
-        <span className={`ms${dark ? " f" : ""}`}>dark_mode</span>
+        <span className={`ms${dark ? " f" : ""}`} aria-hidden="true">dark_mode</span>
       </button>
     </div>
   );
@@ -74,13 +74,13 @@ export function Drawer({ label, closeLabel, children }: { label: string; closeLa
   return (
     <>
       <button type="button" className="cm-icb cm-menu" aria-label={label} aria-expanded={open} onClick={() => setOpen(true)}>
-        <span className="ms">menu</span>
+        <span className="ms" aria-hidden="true">menu</span>
       </button>
       {open ? (
         <div className="cm-dim" onClick={(e) => e.target === e.currentTarget && setOpen(false)}>
           <nav className="cm-drawer" aria-label={label} onClick={(e) => (e.target as HTMLElement).closest("a") && setOpen(false)}>
             <button type="button" className="x" aria-label={closeLabel} onClick={() => setOpen(false)}>
-              <span className="ms">close</span>
+              <span className="ms" aria-hidden="true">close</span>
             </button>
             {children}
           </nav>

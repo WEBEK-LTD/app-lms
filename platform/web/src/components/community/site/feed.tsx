@@ -47,13 +47,13 @@ export function Hero({ w, viewer, waitingCount, topSection, stats }: { w: CmWord
           <>
             <h2>{fill(w.heroHi, { name: viewer.name.split(" ")[0] ?? viewer.name })}</h2>
             <p>{waitingCount ? (topSection ? fill(w.heroWaiting, { n: waitingCount, section: topSection }) : fill(w.heroWaitingAny, { n: waitingCount })) : w.heroAllAnswered}</p>
-            <Link href={cmLinks.questions({ tab: "unanswered" })} className="btn"><span className="ms" style={{ fontSize: 20 }}>reply</span>{w.answerNow}</Link>
+            <Link href={cmLinks.questions({ tab: "unanswered" })} className="btn"><span className="ms" style={{ fontSize: 20 }} aria-hidden="true">reply</span>{w.answerNow}</Link>
           </>
         ) : (
           <>
             <h2>{w.heroGuest}</h2>
             <p>{w.heroGuestText}</p>
-            <Link href={cmLinks.signUp()} className="btn"><span className="ms" style={{ fontSize: 20 }}>person_add</span>{w.joinNow}</Link>
+            <Link href={cmLinks.signUp()} className="btn"><span className="ms" style={{ fontSize: 20 }} aria-hidden="true">person_add</span>{w.joinNow}</Link>
           </>
         )}
       </div>
@@ -72,13 +72,13 @@ export function Composer({ w, viewer }: { w: CmWords; viewer: Viewer | null }) {
   const ask = viewer ? cmLinks.ask() : cmLinks.signIn(cmLinks.ask());
   return (
     <div className="cm-comp">
-      {viewer ? <Avatar member={viewer} size={42} /> : <span className="av a1" style={{ width: 42, height: 42 }}><span className="ms">person</span></span>}
+      {viewer ? <Avatar member={viewer} size={42} /> : <span className="av a1" style={{ width: 42, height: 42 }}><span className="ms" aria-hidden="true">person</span></span>}
       <Link href={ask} className="in">{w.composerPlaceholder}</Link>
       <div className="t">
-        <span className="soon" title={w.comingSoon} aria-disabled="true"><span className="ms" style={{ color: "#18A56B" }}>image</span>{w.photo}</span>
-        <span className="soon" title={w.comingSoon} aria-disabled="true"><span className="ms" style={{ color: "#E23F72" }}>videocam</span>{w.video}</span>
-        <Link href={ask}><span className="ms" style={{ color: "#FF5A1F" }}>help</span>{w.question}</Link>
-        <span className="soon" title={w.comingSoon} aria-disabled="true"><span className="ms" style={{ color: "#6B5BFF" }}>apps</span>{w.showApp}</span>
+        <span className="soon" title={w.comingSoon} aria-disabled="true"><span className="ms" style={{ color: "#18A56B" }} aria-hidden="true">image</span>{w.photo}</span>
+        <span className="soon" title={w.comingSoon} aria-disabled="true"><span className="ms" style={{ color: "#E23F72" }} aria-hidden="true">videocam</span>{w.video}</span>
+        <Link href={ask}><span className="ms" style={{ color: "#FF5A1F" }} aria-hidden="true">help</span>{w.question}</Link>
+        <span className="soon" title={w.comingSoon} aria-disabled="true"><span className="ms" style={{ color: "#6B5BFF" }} aria-hidden="true">apps</span>{w.showApp}</span>
       </div>
     </div>
   );
@@ -89,7 +89,7 @@ export function Feed({ w, questions, tutorials }: { w: CmWords; questions: Quest
   if (!questions.length && !tutorials.length) {
     return (
       <div className="cm-empty">
-        <span className="ms f">forum</span>
+        <span className="ms f" aria-hidden="true">forum</span>
         {w.emptyFeed}
       </div>
     );

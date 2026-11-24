@@ -34,18 +34,18 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
             <input type="hidden" name="on" value={current.followed ? "0" : "1"} />
             <input type="hidden" name="back" value={here} />
             <button type="submit" className={`cm-btn ${current.followed ? "g" : "n"}`}>
-              <span className="ms">{current.followed ? "check" : "add"}</span>
+              <span className="ms" aria-hidden="true">{current.followed ? "check" : "add"}</span>
               {current.followed ? w.followingSection : w.followSection}
             </button>
           </form>
         ) : null}
-        <Link href={viewer ? cmLinks.ask() : cmLinks.signIn(cmLinks.ask())} className="cm-btn o"><span className="ms">add</span>{w.askShort}</Link>
+        <Link href={viewer ? cmLinks.ask() : cmLinks.signIn(cmLinks.ask())} className="cm-btn o"><span className="ms" aria-hidden="true">add</span>{w.askShort}</Link>
       </div>
       <FeedTabs w={w} tab={tab} section={sp.section} sections={all} base={(q) => cmLinks.questions({ ...q, tag: sp.tag })} />
       {list.items.length ? (
         list.items.map((q) => <QuestionPost key={q.id} q={q} w={w} />)
       ) : (
-        <div className="cm-empty"><span className="ms f">forum</span>{w.emptyFeed}</div>
+        <div className="cm-empty"><span className="ms f" aria-hidden="true">forum</span>{w.emptyFeed}</div>
       )}
       {list.next ? (
         <div className="cm-row" style={{ justifyContent: "center" }}>

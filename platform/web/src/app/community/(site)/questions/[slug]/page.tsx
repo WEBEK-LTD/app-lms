@@ -32,11 +32,11 @@ function Votes({ w, kind, id, slug, score, mine, signedIn }: { w: CmWords; kind:
         <input type="hidden" name="slug" value={slug} />
         <input type="hidden" name="value" value={mine === value ? 0 : value} />
         <button type="submit" className={mine === value ? "on" : ""} aria-pressed={mine === value} aria-label={label}>
-          <span className={`ms${mine === value ? " f" : ""}`}>{icon}</span>
+          <span className={`ms${mine === value ? " f" : ""}`} aria-hidden="true">{icon}</span>
         </button>
       </form>
     ) : (
-      <Link href={cmLinks.signIn(cmLinks.question(slug))} aria-label={label}><span className="ms">{icon}</span></Link>
+      <Link href={cmLinks.signIn(cmLinks.question(slug))} aria-label={label}><span className="ms" aria-hidden="true">{icon}</span></Link>
     );
   return (
     <div className="cm-votes">
@@ -54,8 +54,8 @@ function AnswerItem({ a, q, w, viewerId }: { a: Answer; q: QuestionDetail; w: Cm
       <Votes w={w} kind="answer" id={a.id} slug={q.slug} score={a.score} mine={a.myVote} signedIn={!!viewerId} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div className="cm-row" style={{ gap: 8 }}>
-          {a.accepted ? <span className="pill p-gr"><span className="ms f" style={{ fontSize: 15 }}>check_circle</span>{w.acceptedAnswer}</span> : null}
-          {a.official ? <span className="pill cm-official"><span className="ms f" style={{ fontSize: 15 }}>verified_user</span>{w.officialAnswer}</span> : null}
+          {a.accepted ? <span className="pill p-gr"><span className="ms f" style={{ fontSize: 15 }} aria-hidden="true">check_circle</span>{w.acceptedAnswer}</span> : null}
+          {a.official ? <span className="pill cm-official"><span className="ms f" style={{ fontSize: 15 }} aria-hidden="true">verified_user</span>{w.officialAnswer}</span> : null}
         </div>
         <div className="cm-md"><MemberMarkdown source={a.body} /></div>
         <div className="cm-who" style={{ marginTop: 12 }}>
@@ -70,7 +70,7 @@ function AnswerItem({ a, q, w, viewerId }: { a: Answer; q: QuestionDetail; w: Cm
               <input type="hidden" name="slug" value={q.slug} />
               <input type="hidden" name="on" value={a.accepted ? "0" : "1"} />
               <button type="submit" className={`cm-btn ${a.accepted ? "g" : "n"}`} style={{ height: 38, fontSize: 13.5 }}>
-                <span className="ms">{a.accepted ? "undo" : "check"}</span>
+                <span className="ms" aria-hidden="true">{a.accepted ? "undo" : "check"}</span>
                 {a.accepted ? w.unaccept : w.accept}
               </button>
             </form>
@@ -126,7 +126,7 @@ export default async function QuestionPage({ params, searchParams }: Props) {
     <SitePage active="questions" rail={rail}>
       {sp.pending ? (
         <div className="cm-note" role="status" style={{ marginTop: 0, marginBottom: 14 }}>
-          <span className="ms f">hourglass_top</span>
+          <span className="ms f" aria-hidden="true">hourglass_top</span>
           {w.questionPending}
         </div>
       ) : null}
@@ -158,7 +158,7 @@ export default async function QuestionPage({ params, searchParams }: Props) {
                 <input type="hidden" name="on" value={q.bookmarked ? "0" : "1"} />
                 <input type="hidden" name="back" value={back} />
                 <button type="submit" className="cm-link" aria-pressed={q.bookmarked}>
-                  <span className={`ms${q.bookmarked ? " f" : ""}`}>bookmark</span>
+                  <span className={`ms${q.bookmarked ? " f" : ""}`} aria-hidden="true">bookmark</span>
                   {q.bookmarked ? w.savedOne : w.save}
                 </button>
               </form>

@@ -69,7 +69,7 @@ export default async function TutorialPage({ params }: Props) {
               <input type="hidden" name="on" value={t.bookmarked ? "0" : "1"} />
               <input type="hidden" name="back" value={cmLinks.tutorial(t.slug)} />
               <button type="submit" className="cm-link" aria-pressed={t.bookmarked}>
-                <span className={`ms${t.bookmarked ? " f" : ""}`}>bookmark</span>
+                <span className={`ms${t.bookmarked ? " f" : ""}`} aria-hidden="true">bookmark</span>
                 {t.bookmarked ? w.savedOne : w.save}
               </button>
             </form>

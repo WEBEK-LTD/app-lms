@@ -133,10 +133,10 @@ export function Header({ w, lang, viewer, unread, active, mySections, newCount, 
           <ThemeButtons light={w.themeLight} dark={w.themeDark} />
           {viewer ? (
             <div className="fi">
-              <Link href={cmLinks.saved()} aria-label={w.saved}><span className="ms">bookmark</span></Link>
-              <Link href={cmLinks.settings()} aria-label={w.settings}><span className="ms">settings</span></Link>
+              <Link href={cmLinks.saved()} aria-label={w.saved}><span className="ms" aria-hidden="true">bookmark</span></Link>
+              <Link href={cmLinks.settings()} aria-label={w.settings}><span className="ms" aria-hidden="true">settings</span></Link>
               <form action={signOutAction}>
-                <button type="submit" aria-label={w.logOut}><span className="ms">logout</span></button>
+                <button type="submit" aria-label={w.logOut}><span className="ms" aria-hidden="true">logout</span></button>
               </form>
             </div>
           ) : null}
@@ -156,11 +156,11 @@ export function Header({ w, lang, viewer, unread, active, mySections, newCount, 
       </form>
       <div className="sp" />
       <LangSelect lang={lang} label={w.language} />
-      <Link href={cmLinks.search()} className="cm-icb cm-only-phone" aria-label={w.search}><span className="ms">search</span></Link>
-      <span className="cm-icb soon" aria-disabled="true" title={w.messagesSoon} aria-label={w.messagesSoon}><span className="ms">chat_bubble</span></span>
+      <Link href={cmLinks.search()} className="cm-icb cm-only-phone" aria-label={w.search}><span className="ms" aria-hidden="true">search</span></Link>
+      <span className="cm-icb soon" aria-disabled="true" title={w.messagesSoon} aria-label={w.messagesSoon}><span className="ms" aria-hidden="true">chat_bubble</span></span>
       {viewer ? (
         <Link href={cmLinks.notifications()} className="cm-icb" aria-label={unread ? `${w.notifications} (${unread})` : w.notifications}>
-          <span className="ms">notifications</span>
+          <span className="ms" aria-hidden="true">notifications</span>
           {unread ? <i /> : null}
         </Link>
       ) : null}

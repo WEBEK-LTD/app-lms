@@ -28,7 +28,7 @@ export function BadgeMark({ kind, w }: { kind: BadgeKind | null; w: CmWords }) {
 export function BadgePill({ kind, w }: { kind: BadgeKind; w: CmWords }) {
   return (
     <span className="pill" style={{ background: `${COLOR[kind]}1f`, color: COLOR[kind] }}>
-      <span className="ms f" style={{ fontSize: 15 }}>verified</span>
+      <span className="ms f" style={{ fontSize: 15 }} aria-hidden="true">verified</span>
       {badgeName(w, kind)}
     </span>
   );

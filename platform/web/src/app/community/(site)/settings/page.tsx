@@ -32,7 +32,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         <section className="cm-card cm-set">
           <h2>{w.profile}</h2>
           <p className="cm-muted">{w.profileHint}</p>
-          <Link href={cmLinks.editProfile()} className="cm-btn g"><span className="ms">edit</span>{w.editProfile}</Link>
+          <Link href={cmLinks.editProfile()} className="cm-btn g"><span className="ms" aria-hidden="true">edit</span>{w.editProfile}</Link>
         </section>
         <section className="cm-card cm-set">
           <h2>{w.yallappAccount}</h2>
@@ -40,15 +40,15 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <>
               <p className="cm-muted">{fill(w.linkedHint, { n: link.apps })}</p>
               <div className="cm-row">
-                <Link href={cmLinks.verify()} className="cm-btn n"><span className="ms">workspace_premium</span>{w.badgeGold}</Link>
-                <form action={unlinkAction}><button type="submit" className="cm-btn g"><span className="ms">link_off</span>{w.unlinkAccount}</button></form>
+                <Link href={cmLinks.verify()} className="cm-btn n"><span className="ms" aria-hidden="true">workspace_premium</span>{w.badgeGold}</Link>
+                <form action={unlinkAction}><button type="submit" className="cm-btn g"><span className="ms" aria-hidden="true">link_off</span>{w.unlinkAccount}</button></form>
               </div>
             </>
           ) : (
             <>
               <p className="cm-muted">{w.linkHint}</p>
-              {sp.link === "unavailable" ? <div className="cm-note err" role="alert"><span className="ms f">error</span>{w.errorNotReady}</div> : null}
-              <form action={linkAction}><button type="submit" className="cm-btn n"><span className="ms">link</span>{w.linkAccount}</button></form>
+              {sp.link === "unavailable" ? <div className="cm-note err" role="alert"><span className="ms f" aria-hidden="true">error</span>{w.errorNotReady}</div> : null}
+              <form action={linkAction}><button type="submit" className="cm-btn n"><span className="ms" aria-hidden="true">link</span>{w.linkAccount}</button></form>
             </>
           )}
         </section>
@@ -77,7 +77,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         </section>
         <section className="cm-card cm-set">
           <form action={signOutAction}>
-            <button type="submit" className="cm-btn g"><span className="ms">logout</span>{w.logOut}</button>
+            <button type="submit" className="cm-btn g"><span className="ms" aria-hidden="true">logout</span>{w.logOut}</button>
           </form>
         </section>
       </div>

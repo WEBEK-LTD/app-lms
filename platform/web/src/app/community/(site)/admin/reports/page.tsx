@@ -27,7 +27,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
               <div className="cm-row" style={{ gap: 6 }}>
                 <span className="pill p-or">{(w as Record<string, string>)[`reason_${r.reason}`] ?? r.reason}</span>
                 <span className="pill p-gy">{r.targetType}</span>
-                {r.link ? <Link href={r.link} className="cm-link"><span className="ms">open_in_new</span>{w.openPost}</Link> : null}
+                {r.link ? <Link href={r.link} className="cm-link"><span className="ms" aria-hidden="true">open_in_new</span>{w.openPost}</Link> : null}
               </div>
               <span className="cm-muted"><When at={r.createdAt} lang={lang} /></span>
             </div>
@@ -44,15 +44,15 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
                   <input name="note" maxLength={1000} />
                 </label>
                 <div className="cm-row" style={{ marginTop: 10 }}>
-                  <button type="submit" name="status" value="actioned" className="cm-btn o"><span className="ms">gavel</span>{w.actioned}</button>
-                  <button type="submit" name="status" value="dismissed" className="cm-btn g"><span className="ms">close</span>{w.dismiss}</button>
+                  <button type="submit" name="status" value="actioned" className="cm-btn o"><span className="ms" aria-hidden="true">gavel</span>{w.actioned}</button>
+                  <button type="submit" name="status" value="dismissed" className="cm-btn g"><span className="ms" aria-hidden="true">close</span>{w.dismiss}</button>
                 </div>
               </ActionForm>
             ) : null}
           </article>
         ))
       ) : (
-        <div className="cm-empty"><span className="ms f">flag</span>{w.queueEmpty}</div>
+        <div className="cm-empty"><span className="ms f" aria-hidden="true">flag</span>{w.queueEmpty}</div>
       )}
       <Pager w={w} base={`${base}?status=${status}`} cursor={sp.cursor} next={list.next} />
     </AdminPage>

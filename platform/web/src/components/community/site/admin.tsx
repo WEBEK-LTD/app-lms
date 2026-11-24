@@ -36,7 +36,7 @@ export async function AdminPage({ w, tab, children }: { w: CmWords; tab: AdminTa
   return (
     <SitePage active="admin">
       <div className="cm-card">
-        <h1><span className="ms f" style={{ fontSize: 26, color: "var(--cm-orange)", verticalAlign: "-4px" }}>admin_panel_settings</span> {w.admin}</h1>
+        <h1><span className="ms f" style={{ fontSize: 26, color: "var(--cm-orange)", verticalAlign: "-4px" }} aria-hidden="true">admin_panel_settings</span> {w.admin}</h1>
         <nav className="cm-tabs" style={{ marginBottom: 0 }} aria-label={w.admin}>
           {adminTabs(viewer?.role ?? null).map((t) => (
             <Link key={t} href={cmLinks.admin(t)} className={t === tab ? "on" : ""} aria-current={t === tab ? "page" : undefined}>{tabName(w, t)}</Link>

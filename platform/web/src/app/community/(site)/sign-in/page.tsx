@@ -23,7 +23,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   return (
     <AuthShell w={w} lang={lang}>
       <h1>{w.logIn}</h1>
-      {sp.reset ? <div className="cm-note ok" role="status" style={{ marginBottom: 14 }}><span className="ms f">check_circle</span>{w.passwordChanged}</div> : null}
+      {sp.reset ? <div className="cm-note ok" role="status" style={{ marginBottom: 14 }}><span className="ms f" aria-hidden="true">check_circle</span>{w.passwordChanged}</div> : null}
       <ProviderButtons w={w} providers={authProviders()} next={next} />
       <div className="cm-or"><span>{w.or}</span></div>
       <LogInForm w={w} next={next} />

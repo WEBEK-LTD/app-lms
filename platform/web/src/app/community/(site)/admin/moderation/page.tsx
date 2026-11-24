@@ -34,7 +34,7 @@ export default async function ModerationPage({ searchParams }: { searchParams: P
               <span className="cm-muted"><When at={m.createdAt} lang={lang} /></span>
             </div>
             <blockquote className="cm-quote">{m.preview}</blockquote>
-            {m.link ? <Link href={m.link} className="cm-link"><span className="ms">open_in_new</span>{w.openPost}</Link> : null}
+            {m.link ? <Link href={m.link} className="cm-link"><span className="ms" aria-hidden="true">open_in_new</span>{w.openPost}</Link> : null}
             {m.status === "open" ? (
               <ActionForm action={decideModerationAction} className="cm-decide">
                 <input type="hidden" name="id" value={m.id} />
@@ -43,8 +43,8 @@ export default async function ModerationPage({ searchParams }: { searchParams: P
                   <input name="note" maxLength={1000} />
                 </label>
                 <div className="cm-row" style={{ marginTop: 10 }}>
-                  <button type="submit" name="decision" value="approve" className="cm-btn o"><span className="ms">check</span>{w.approve}</button>
-                  <button type="submit" name="decision" value="remove" className="cm-btn g"><span className="ms">delete</span>{w.removePost}</button>
+                  <button type="submit" name="decision" value="approve" className="cm-btn o"><span className="ms" aria-hidden="true">check</span>{w.approve}</button>
+                  <button type="submit" name="decision" value="remove" className="cm-btn g"><span className="ms" aria-hidden="true">delete</span>{w.removePost}</button>
                 </div>
               </ActionForm>
             ) : m.note ? (
@@ -53,7 +53,7 @@ export default async function ModerationPage({ searchParams }: { searchParams: P
           </article>
         ))
       ) : (
-        <div className="cm-empty"><span className="ms f">task_alt</span>{w.queueEmpty}</div>
+        <div className="cm-empty"><span className="ms f" aria-hidden="true">task_alt</span>{w.queueEmpty}</div>
       )}
       <Pager w={w} base={`${base}?status=${status}`} cursor={sp.cursor} next={list.next} />
     </AdminPage>

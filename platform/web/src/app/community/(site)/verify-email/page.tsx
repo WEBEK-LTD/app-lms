@@ -16,7 +16,7 @@ export default async function VerifyEmailPage({ searchParams }: { searchParams: 
     <AuthShell w={w} lang={lang}>
       <h1>{w.verifyEmailTitle}</h1>
       <div className={`cm-note ${r.ok ? "ok" : "err"}`} role="status">
-        <span className="ms f">{r.ok ? "check_circle" : "error"}</span>
+        <span className="ms f" aria-hidden="true">{r.ok ? "check_circle" : "error"}</span>
         {r.ok ? w.emailVerified : w.errorResetLink}
       </div>
       <p className="cm-fine"><Link href={cmLinks.home()} className="cm-strong">{w.navHome}</Link></p>

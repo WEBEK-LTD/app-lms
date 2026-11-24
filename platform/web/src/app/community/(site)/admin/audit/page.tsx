@@ -30,7 +30,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
           </table>
         </div>
       ) : (
-        <div className="cm-empty"><span className="ms f">history</span>{w.nothingYet}</div>
+        <div className="cm-empty"><span className="ms f" aria-hidden="true">history</span>{w.nothingYet}</div>
       )}
       <Pager w={w} base={cmLinks.admin("audit")} cursor={sp.cursor} next={list.next} />
     </AdminPage>

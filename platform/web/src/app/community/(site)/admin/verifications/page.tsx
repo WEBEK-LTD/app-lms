@@ -31,7 +31,7 @@ export default async function VerificationsPage({ searchParams }: { searchParams
               <dd>
                 <form action={idProofAction} target="_blank">
                   <input type="hidden" name="id" value={r.id} />
-                  <button type="submit" className="cm-link"><span className="ms">open_in_new</span>{w.openFile}</button>
+                  <button type="submit" className="cm-link"><span className="ms" aria-hidden="true">open_in_new</span>{w.openFile}</button>
                 </form>
               </dd>
               <dt>{w.portfolio}</dt>
@@ -47,8 +47,8 @@ export default async function VerificationsPage({ searchParams }: { searchParams
                   <input name="reason" required minLength={3} maxLength={1000} />
                 </label>
                 <div className="cm-row" style={{ marginTop: 10 }}>
-                  <button type="submit" name="decision" value="approve" className="cm-btn o"><span className="ms">check</span>{w.approve}</button>
-                  <button type="submit" name="decision" value="reject" className="cm-btn g"><span className="ms">close</span>{w.reject}</button>
+                  <button type="submit" name="decision" value="approve" className="cm-btn o"><span className="ms" aria-hidden="true">check</span>{w.approve}</button>
+                  <button type="submit" name="decision" value="reject" className="cm-btn g"><span className="ms" aria-hidden="true">close</span>{w.reject}</button>
                 </div>
               </ActionForm>
             ) : r.reason ? (
@@ -57,7 +57,7 @@ export default async function VerificationsPage({ searchParams }: { searchParams
           </article>
         ))
       ) : (
-        <div className="cm-empty"><span className="ms f">inbox</span>{w.queueEmpty}</div>
+        <div className="cm-empty"><span className="ms f" aria-hidden="true">inbox</span>{w.queueEmpty}</div>
       )}
       <Pager w={w} base={`${base}?status=${status}`} cursor={sp.cursor} next={list.next} />
     </AdminPage>

@@ -15,7 +15,7 @@ export function MemberName({ member, w }: { member: MemberRef; w: CmWords }) {
     <span className="n">
       {member.handle ? <Link href={cmLinks.member(member.handle)}>{member.name}</Link> : member.name}
       <BadgeMark kind={member.badge} w={w} />
-      {member.staff ? <span className="badge-team"><span className="ms f" style={{ fontSize: 12 }}>verified_user</span>{w.team}</span> : null}
+      {member.staff ? <span className="badge-team"><span className="ms f" style={{ fontSize: 12 }} aria-hidden="true">verified_user</span>{w.team}</span> : null}
     </span>
   );
 }
@@ -43,11 +43,11 @@ export function QuestionPost({ q, w }: { q: QuestionSummary; w: CmWords }) {
         {q.excerpt ? <p className="cm-muted" style={{ margin: "6px 0 0", fontSize: 14.5 }}>{q.excerpt}</p> : null}
       </div>
       <div className="cm-acts">
-        <span className={q.score > 0 ? "on" : ""}><span className="ms f">arrow_upward</span><span className="num">{q.score}</span></span>
-        <span><span className="ms">chat_bubble</span>{answersLabel(w, q.answerCount)}</span>
-        {q.hasAccepted ? <span className="ok"><span className="ms f">check_circle</span>{w.acceptedAnswer}</span> : null}
+        <span className={q.score > 0 ? "on" : ""}><span className="ms f" aria-hidden="true">arrow_upward</span><span className="num">{q.score}</span></span>
+        <span><span className="ms" aria-hidden="true">chat_bubble</span>{answersLabel(w, q.answerCount)}</span>
+        {q.hasAccepted ? <span className="ok"><span className="ms f" aria-hidden="true">check_circle</span>{w.acceptedAnswer}</span> : null}
         <span className="sp" />
-        <span><span className="ms">visibility</span>{(q.views === 1 ? w.oneView : fill(w.views, { n: q.views }))}</span>
+        <span><span className="ms" aria-hidden="true">visibility</span>{(q.views === 1 ? w.oneView : fill(w.views, { n: q.views }))}</span>
       </div>
     </article>
   );
@@ -67,7 +67,7 @@ export function QuestionCard({ q, w }: { q: QuestionSummary; w: CmWords }) {
         {q.hasAccepted ? (
           <>
             <span>·</span>
-            <span className="ok"><span className="ms f">check_circle</span>{w.acceptedAnswer}</span>
+            <span className="ok"><span className="ms f" aria-hidden="true">check_circle</span>{w.acceptedAnswer}</span>
           </>
         ) : null}
         <span className="end">{ago(w, q.createdAt)}</span>
@@ -89,11 +89,11 @@ export function TutorialCard({ t, w }: { t: TutorialSummary; w: CmWords }) {
       <div className="cm-vid" style={t.coverUrl ? { backgroundImage: `url(${t.coverUrl})` } : undefined}>
         {t.kind === "video" ? (
           <>
-            <div className="pl"><span><span className="ms f" style={{ fontSize: 28 }}>play_arrow</span></span></div>
+            <div className="pl"><span><span className="ms f" style={{ fontSize: 28 }} aria-hidden="true">play_arrow</span></span></div>
             {t.durationSec ? <span className="du num">{duration(t.durationSec)}</span> : null}
           </>
         ) : (
-          <div className="pl"><span><span className="ms f" style={{ fontSize: 24 }}>article</span></span></div>
+          <div className="pl"><span><span className="ms f" style={{ fontSize: 24 }} aria-hidden="true">article</span></span></div>
         )}
       </div>
       <div className="tg">
@@ -142,7 +142,7 @@ export function ActiveBox({ items, w }: { items: ActiveMember[]; w: CmWords }) {
               <b>{a.member.name}</b>
               <div className="m">{fill(w.acceptedCount, { n: a.acceptedAnswers })}</div>
             </div>
-            <span className="p num"><span className="ms f">bolt</span>{a.points.toLocaleString("en-US")}</span>
+            <span className="p num"><span className="ms f" aria-hidden="true">bolt</span>{a.points.toLocaleString("en-US")}</span>
           </Link>
         ))
       ) : (
@@ -159,7 +159,7 @@ export function ChallengeBox({ w }: { w: CmWords }) {
       <div className="cm-ch">
         <small>{w.challengeKicker}</small>
         <h3>{w.challengeTitle} <span aria-hidden="true">❄️</span></h3>
-        <span className="soon"><span className="ms f" style={{ fontSize: 16 }}>schedule</span>{w.comingSoon}</span>
+        <span className="soon"><span className="ms f" style={{ fontSize: 16 }} aria-hidden="true">schedule</span>{w.comingSoon}</span>
       </div>
     </section>
   );
@@ -170,7 +170,7 @@ export function EventsBox({ w }: { w: CmWords }) {
   return (
     <section className="cm-box">
       <div className="cm-ev">
-        <div className="d"><span className="ms f">sensors</span></div>
+        <div className="d"><span className="ms f" aria-hidden="true">sensors</span></div>
         <div>
           <b style={{ fontSize: 14 }}>{w.eventsTitle}</b>
           <div style={{ fontSize: 12, color: "var(--cm-muted)" }}>{w.eventsText}</div>
