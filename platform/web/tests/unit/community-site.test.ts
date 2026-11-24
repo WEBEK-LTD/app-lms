@@ -128,3 +128,15 @@ describe("what members write", () => {
     expect(html).not.toContain("<script>");
   });
 });
+
+describe("the profile picture's preview", async () => {
+  const { safeImageSrc } = await import("../../src/components/community/site/safe-url");
+  it("shows only blob:, https: and this site's paths", () => {
+    expect(safeImageSrc("blob:http://localhost:3000/1b2c")).toBe("blob:http://localhost:3000/1b2c");
+    expect(safeImageSrc("https://yallapp.com.tr/api/community/files/a.png")).toBe("https://yallapp.com.tr/api/community/files/a.png");
+    expect(safeImageSrc("/api/community/files/a.png")).toBe("/api/community/files/a.png");
+    for (const bad of ["javascript:alert(1)", "data:text/html,<script>alert(1)</script>", "//evil.test/a.png", "/\\evil.test", "http://insecure.test/a.png", "\"><script>", "", null]) {
+      expect(safeImageSrc(bad), String(bad)).toBeNull();
+    }
+  });
+});

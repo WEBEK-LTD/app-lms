@@ -4,19 +4,20 @@
 import { useActionState, useState } from "react";
 import { profileAction } from "@/app/community/(site)/social-actions";
 import { Note } from "./forms";
+import { safeImageSrc } from "./safe-url";
 import type { CmWords } from "./words";
 
 /** The member's own profile: picture, name, username, bio and skills. */
 export function ProfileForm({ w, initial }: { w: CmWords; initial: { name: string; handle: string; bio: string; skills: string[]; avatarUrl: string | null } }) {
   const [state, action, pending] = useActionState(profileAction, undefined);
-  const [preview, setPreview] = useState(initial.avatarUrl);
+  const [preview, setPreview] = useState<string | null>(safeImageSrc(initial.avatarUrl));
   const [remove, setRemove] = useState(false);
   return (
     <form action={action} className="cm-card">
       <h1>{w.editProfile}</h1>
       <div className="cm-row" style={{ marginTop: 16, gap: 16 }}>
         <span className="av a1" style={{ width: 84, height: 84, fontSize: 32 }}>
-          {preview && !remove ? <img src={preview} alt="" /> : (initial.name[0] ?? "?").toUpperCase()}
+          {preview && !remove ? <img src={safeImageSrc(preview) ?? undefined} alt="" /> : (initial.name[0] ?? "?").toUpperCase()}
         </span>
         <label className="cm-btn g">
           <span className="ms" aria-hidden="true">photo_camera</span>
@@ -29,7 +30,7 @@ export function ProfileForm({ w, initial }: { w: CmWords; initial: { name: strin
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) {
-                setPreview(URL.createObjectURL(f));
+                setPreview(safeImageSrc(URL.createObjectURL(f)));
                 setRemove(false);
               }
             }}
