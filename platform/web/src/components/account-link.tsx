@@ -53,7 +53,8 @@ export function AccountLink({
   const known = useSignedIn();
   if (known && signedIn === null) return null;
   return (
-    <Link href={known ? signedInHref : href} className={className} onClick={onClick} data-account-link={known ? "signed-in" : "visitor"}>
+    // A visitor's link to an API route (the Market's /api/studio-market/continue remembers where to go next in a cookie) isn't prefetched: a prefetch would run it.
+    <Link href={known ? signedInHref : href} prefetch={!known && href.startsWith("/api/") ? false : undefined} className={className} onClick={onClick} data-account-link={known ? "signed-in" : "visitor"}>
       {known ? signedIn : children}
     </Link>
   );

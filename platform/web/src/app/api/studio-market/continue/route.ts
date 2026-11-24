@@ -22,7 +22,15 @@ export async function GET(request: Request): Promise<Response> {
   const next = to === "checkout" || to === "preview" || to === "template" ? marketNextPath(to as MarketNextTo, params.get("slug") ?? "", params.get("plan")) : null;
   if (!next) return NextResponse.redirect(new URL(localePath(site, "/templates"), appUrl()), 303);
   if (await getCurrentUser()) return NextResponse.redirect(new URL(next, appUrl()), 303);
+  // A link's prefetch never chooses where sign-in goes: only the click the visitor makes does.
+  if (isPrefetch(request)) return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
   const response = NextResponse.redirect(new URL(localePath(site, params.get("account") === "sign-in" ? "/sign-in" : "/sign-up"), appUrl()), 303);
   response.cookies.set(MARKET_NEXT_COOKIE, next, { httpOnly: true, secure: secureCookies(), sameSite: "lax", path: "/", maxAge: MARKET_NEXT_TTL_SECONDS });
   return response;
+}
+
+/** A browser or Next.js prefetch of the link, not the visitor's click. */
+function isPrefetch(request: Request): boolean {
+  const h = request.headers;
+  return h.get("next-router-prefetch") === "1" || /prefetch/i.test(h.get("sec-purpose") ?? h.get("purpose") ?? "");
 }
