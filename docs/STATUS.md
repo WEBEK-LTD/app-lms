@@ -21,6 +21,15 @@ the admins' tools and audit log, settings, moderation, reports and
 notifications (list and email) in English, Arabic and Turkish, through
 `/api/community/v1` (`community-trust-*`).
 
+Roadmap 231 area F (Yallapp Community's website, under `src/app/community/`,
+served on `community.yallapp.com.tr`): the approved look in English, Arabic
+and Turkish, light and dark; welcome and signing in (Apple, Google, email),
+the home, Q&A, tutorials, search, profiles and the social graph, the Pro
+Developer form, notifications, settings and the admins' pages, through the
+community's modules and `/api/community/v1`; never a price or payment.
+Needs `COMMUNITY_APPLE_WEB_SERVICE_ID` and `COMMUNITY_GOOGLE_WEB_CLIENT_ID`
+(the website's public ids, also in A's audience lists) for Apple and Google.
+
 Roadmap 229.4 (prices that read cleanly everywhere else): the dashboard,
 the emails, the owner's pushes and the web checkout drop ".00" on a whole
 amount as the app does ("₺450", "Pay ₺750"), a fraction kept; receipts,
