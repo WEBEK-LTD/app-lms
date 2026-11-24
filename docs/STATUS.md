@@ -8,6 +8,12 @@ Last updated: 24 November 2026.
 
 ## Current release
 
+Roadmap 231 · C (Yallapp Community's trust, area C): badges (Gold by the
+verification form and an admin's review, Blue and Green by their rules),
+the admins' tools and audit log, settings, moderation, reports and
+notifications (list and email) in English, Arabic and Turkish, through
+`/api/community/v1` (`community-trust-*`).
+
 Roadmap 229.4 (prices that read cleanly everywhere else): the dashboard,
 the emails, the owner's pushes and the web checkout drop ".00" on a whole
 amount as the app does ("₺450", "Pay ₺750"), a fraction kept; receipts,

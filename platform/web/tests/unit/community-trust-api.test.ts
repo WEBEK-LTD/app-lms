@@ -180,3 +180,16 @@ describe("231 reports reach the moderators", () => {
     expect((await api<{ items: unknown[] }>(c, "GET", "/admin/moderation", { token: admin.token })).body.items).toEqual([]);
   });
 });
+
+describe("231 the daily trust run", () => {
+  it("takes an automatic badge whose rules no longer hold, and leaves an admin's", async () => {
+    const { runCommunityTrustDaily } = await import("@/lib/community/trust/daily");
+    const trust = c.deps.store.trust;
+    await trust.addMemberBadge({ memberId: nour.id, badge: "blue", source: "auto", reason: null, grantedAt: NOW, grantedBy: null, expiresAt: null, details: null });
+    await api(c, "POST", `/admin/members/${ali.id}/badges`, { token: admin.token, body: { badge: "blue", reason: "Moderator" } });
+    // Nour has no points and no activity: Blue's rules don't hold.
+    expect(await runCommunityTrustDaily({ deps: c.deps, store: c.deps.store, now: c.deps.now })).toEqual({ checked: 1, granted: 0, revoked: 1 });
+    expect((await api<{ top_badge: string | null }>(c, "GET", `/members/${nour.id}`)).body.top_badge).toBeNull();
+    expect((await api<{ top_badge: string | null }>(c, "GET", `/members/${ali.id}`)).body.top_badge).toBe("blue");
+  });
+});
