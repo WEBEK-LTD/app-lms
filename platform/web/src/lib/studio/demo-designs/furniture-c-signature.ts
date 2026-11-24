@@ -675,9 +675,10 @@ const MIZAN_BAR = signatureBar(K, { design: "line", background: K.page, dark_bac
  * 228.7 MIZAN's own product page, the piece as a drawing's sheet: the
  * sheet's top (room for the back button, the sheet's name, the bag in a
  * square), its title block, the photos in a hairline frame with their
- * detail views as square thumbnails, the name large in Cairo, then W × D × H
- * over a dimension rule and the drawing's notes (the piece's size, the
- * shop's exchanges, the days it takes to make; `product_delivery`), the
+ * detail views as square thumbnails, the name large in Cairo, then the
+ * drawing's notes (the piece's size, the shop's exchanges, the days it
+ * takes to make; `product_delivery`; 228.8 puts W × D × H over them as
+ * the headline figure, on a dimension rule), the
  * price, the finishes as square chips, "Try it in your room" on its plan
  * grid, the description between hairlines, the pieces of the same room on
  * the hairline grid, and the price beside Add to cart, square, fixed at the
@@ -687,7 +688,6 @@ function productSheet(ctx: SectionContext) {
   const id = idOf(ctx);
   const ink = { color: K.ink, dark_color: K.darkInk } as const;
   const accent = { accent: K.fill, dark_accent: K.darkFill } as const;
-  const tick = (): StudioNode => ({ id: id(), type: "row", width: 1, height: 9, background: K.ink, dark_background: K.darkInk, children: [] });
   return productPageOf(ctx, {
     background: K.page,
     dark_background: K.darkPage,
@@ -721,21 +721,8 @@ function productSheet(ctx: SectionContext) {
         },
       },
       { type: "product_title", node: { ...ink, font: font(26, 800, { line_height: 1.2 }), margin: sides(22, 16, 0, 16) } },
-      {
-        element: {
-          id: id(),
-          type: "column",
-          gap: 0,
-          margin: sides(16, 16, 0, 16),
-          children: [
-            say(ctx, L, "mzpDims", font(11, 700, { letter_spacing: 1.5, uppercase: true }), { muted: true, max_lines: 1 }),
-            // The dimension rule: a tick at each end over a line across.
-            { id: id(), type: "row", gap: 0, align: "between", children: [tick(), tick()] },
-            { id: id(), type: "divider", height: 1, background: K.ink, dark_background: K.darkInk, color: K.ink, dark_color: K.darkInk, margin: sides(0, 0, 0, 0) },
-          ],
-        },
-      },
-      { type: "product_delivery", text: "mzpNotes", ...accent, node: { ...ink, margin: sides(12, 16, 0, 16), padding: sides(14, 14, 14, 14), border_color: K.line, dark_border_color: K.darkLine, border_width: 1 } },
+      // 228.8 W × D × H as the headline figure goes here (its caption and dimension rule) once the app draws it; until then the size is the notes' line.
+      { type: "product_delivery", text: "mzpNotes", ...accent, node: { ...ink, margin: sides(18, 16, 0, 16), padding: sides(14, 14, 14, 14), border_color: K.line, dark_border_color: K.darkLine, border_width: 1 } },
       { type: "product_price", look: "sale", node: { ...ink, font: font(22, 800), margin: sides(18, 16, 0, 16) } },
       { type: "product_variants", look: "chips", ...accent, node: { ...ink, margin: sides(18, 16, 0, 16) } },
       { element: { ...planCard(ctx), margin: sides(26, 16, 0, 16) } },
