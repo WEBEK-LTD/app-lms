@@ -30,6 +30,7 @@ import { LEQAA_A, LEQAA_B } from "./leqaa-signature";
 import { LUJAIN_A, NOUN_B } from "./clothes-signature";
 // 209 Cosmetics: Velours, A VELOURS plum and gold, B NAQA LAB the clinic.
 import { VELOURS_A, NAQA_B } from "./beauty-signature";
+import { VELOURS_C, VELOURS_D } from "./beauty-cd-signature";
 // 209 Kids' clothes: Toota, A TOOTA soft pastels, B MINIMO playful navy.
 import { MINIMO_B, TOOTA_A } from "./kids-signature";
 // 209 Toys
@@ -38,6 +39,7 @@ import { MUKAAB_B, TOOT_A } from "./toys-signature";
 // 210 Sakan (home decor), Ghurza (crochet and handmade), Rukn (furniture).
 import { DECOR_A, DECOR_B } from "./decor-signature";
 import { CROCHET_A, CROCHET_B } from "./crochet-signature";
+import { GHURZA_C, GHURZA_D } from "./crochet-cd-signature";
 import { FURNITURE_A, FURNITURE_B } from "./furniture-signature";
 // 225 Their looks C and D: Rukn's MIZAN the architect and MANZIL room by room, Sakan's ATHAR the gallery and MAZAJ the moodboard.
 import { FURNITURE_C } from "./furniture-c-signature";
@@ -188,8 +190,8 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Partial<Record<SignatureLook, Sign
   flowers: { a: LEQAA_A, b: LEQAA_B },
   // 208 Lujain, the clothes shop (a store): A the black and white boutique, B NOUN's streetwear.
   clothes: { a: LUJAIN_A, b: NOUN_B },
-  // 209 Cosmetics: Velours (a store), A VELOURS plum and gold, B NAQA LAB the clinic.
-  beauty: { a: VELOURS_A, b: NAQA_B },
+  // 209 Cosmetics: Velours (a store), A VELOURS plum and gold, B NAQA LAB the clinic; 224 C the ritual clinic (its main template), D the shade studio.
+  beauty: { c: VELOURS_C, d: VELOURS_D, a: VELOURS_A, b: NAQA_B },
   // 209 Kids' clothes: Toota (a store): A TOOTA's soft pastels, B MINIMO's playful navy.
   kids: { a: TOOTA_A, b: MINIMO_B },
   // 209 Toys
@@ -198,7 +200,8 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Partial<Record<SignatureLook, Sign
   // 210 Sakan, home decor: A the decor magazine, B Teen's warm earth. Ghurza, crochet: A warm handmade, B Habka's colours. Rukn, furniture: A white and wood, B KANAF.
   // 225 Sakan C ATHAR the gallery, D MAZAJ the moodboard; Rukn C MIZAN the architect, D MANZIL room by room.
   decor: { c: DECOR_C, d: DECOR_D, a: DECOR_A, b: DECOR_B },
-  crochet: { a: CROCHET_A, b: CROCHET_B },
+  // 224 Ghurza, crochet: C the makers' market (its main template), D the cozy studio.
+  crochet: { c: GHURZA_C, d: GHURZA_D, a: CROCHET_A, b: CROCHET_B },
   furniture: { c: FURNITURE_C, d: FURNITURE_D, a: FURNITURE_A, b: FURNITURE_B },
   // 211 Madar, the electronics shop (a store): A MADAR in white and deep blue, B NABD in lime on near black.
   electronics: { a: MADAR_A, b: NABD_B },

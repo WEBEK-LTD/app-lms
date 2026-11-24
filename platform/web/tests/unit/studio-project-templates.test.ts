@@ -69,7 +69,7 @@ describe("124.6 the premium academy in App setup", () => {
     // 130.15 130.16 An academy of many teachers gets Rawaq Academy's Signature looks.
     expect(projectTemplatesFor(await project("instructors")).map((t) => t.id)).toEqual(["instructors_signature_a", "instructors_signature_b"]);
     // 131.20 A Studio store gets Leqaa's two looks, the flower shop's; 208 and Lujain's, the clothes shop's; 209 Velours', Toota's and Toot's; 210 Sakan's, Ghurza's and Rukn's; 211 Madar's, Nova's and Nawah's.
-    expect(projectTemplatesFor(await project("store")).map((t) => t.id)).toEqual(/* 223 225 every store look in Studio's order, C and D first where a type has them */ (["flowers", "clothes", "beauty", "kids", "toys", "decor", "crochet", "furniture", "electronics", "mobiles", "computers"] as const).flatMap((demo) => signatureLooksOf(demo).map((look) => `${demo}_signature_${look}`)));
+    expect(projectTemplatesFor(await project("store")).map((t) => t.id)).toEqual(/* 223–225 every store look in Studio's order, C and D first where a type has them */ (["flowers", "clothes", "beauty", "kids", "toys", "decor", "crochet", "furniture", "electronics", "mobiles", "computers"] as const).flatMap((demo) => signatureLooksOf(demo).map((look) => `${demo}_signature_${look}`)));
     expect(projectTemplatesFor(await project("restaurant"))).toEqual([]);
     // A page design's id or a made-up one isn't a template.
     expect(projectTemplateOf(studio, "academy-kids")).toBeNull();

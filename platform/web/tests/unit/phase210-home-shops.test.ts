@@ -181,8 +181,9 @@ describe.each(KITS)("210 the %s type", (id) => {
     expect(DEMO_GUIDES[id].screens).toHaveLength(3);
     expect(type.liability).toBe(id === FURNITURE_DEMO ? "warranty" : "general");
     expect(Boolean(type.installmentsSoon)).toBe(id === FURNITURE_DEMO);
-    // 223 225 Its looks in Studio's order (C and D first where it has them).
+    // 223 Its looks in Studio's order: C and D first where the type has them (224 crochet), then A and B.
     expect(TEMPLATES.filter((t) => t.demo === id).map((t) => t.id)).toEqual(signatureLooksOf(id).map((look) => `${id}_signature_${look}`));
+    expect(signatureLooksOf(id).slice(-2)).toEqual(["a", "b"]);
   });
 
   it("has its products in their categories, each SKU once, their photos shipped and credited", () => {
@@ -271,6 +272,13 @@ describe.each(KITS)("210 the %s type", (id) => {
       expect(app.catalogSettings?.currency).toBe(k.currency);
       expect(await store.listCatalogProducts(app.id)).toHaveLength(k.products.length);
       const listed = (await call("/store/products", { per_page: "50" })).body as { items: { id: number; subtitle?: string | null }[] };
+      // 224 A kit that names its products in Arabic and Turkish (crochet; 225 furniture and decor too) lists them so in those languages.
+      if (k.productNames) {
+        const arabic = (await call("/store/products", { per_page: "50" }, "ar")).body as { items: { name: string }[] };
+        const first = k.products.find((p) => !p.addon)!;
+        expect(arabic.items.map((p) => p.name)).toContain(k.productNames[first.sku]!.ar);
+        expect(k.products.filter((p) => !k.productNames![p.sku])).toEqual([]);
+      }
       expect(listed.items.some((p) => typeof p.subtitle === "string" && p.subtitle.length > 0)).toBe(true);
       const products = await store.listCatalogProducts(app.id);
       const piece = products.find((p) => (id === CROCHET_DEMO ? p.makeDays : p.dimensions) && !p.addon)!;

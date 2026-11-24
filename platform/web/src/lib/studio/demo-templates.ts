@@ -51,16 +51,20 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   // 208 Lujain, the clothes shop, is its Signature look A, the boutique (lib/studio/demo-designs/clothes-signature.ts).
   clothes: "clothes_signature_a",
   // 209 Cosmetics: Velours is its Signature look A, plum and gold (lib/studio/demo-designs/beauty-signature.ts).
-  beauty: "beauty_signature_a",
+  // 224 Velours is now its template C, the ritual clinic (lib/studio/demo-designs/beauty-cd-signature.ts).
+  beauty: "beauty_signature_c",
   // 209 Kids' clothes: Toota is its Signature look A, soft pastels (lib/studio/demo-designs/kids-signature.ts).
   kids: "kids_signature_a",
   // 209 Toys
   // 209 Toot, the toy shop, is its Signature look A, playful and colourful (lib/studio/demo-designs/toys-signature.ts).
   toys: "toys_signature_a",
   // 210 Sakan, Ghurza and Rukn are their Signature looks A (lib/studio/demo-designs/decor-, crochet-, furniture-signature.ts).
-  decor: "decor_signature_a",
-  crochet: "crochet_signature_a",
-  furniture: "furniture_signature_a",
+  // 225 Sakan is now its template C, ATHAR the gallery (lib/studio/demo-designs/decor-c-signature.ts).
+  decor: "decor_signature_c",
+  // 224 Ghurza is now its template C, the makers' market (lib/studio/demo-designs/crochet-cd-signature.ts).
+  crochet: "crochet_signature_c",
+  // 225 Rukn is now its template C, MIZAN the architect (lib/studio/demo-designs/furniture-c-signature.ts).
+  furniture: "furniture_signature_c",
   // 211 Madar, the electronics shop, is its Signature look A, MADAR (lib/studio/demo-designs/electronics-signature.ts).
   electronics: "electronics_signature_a",
   // 211 Nova, the mobiles shop, is its Signature look A, NOVA (lib/studio/demo-designs/mobiles-signature.ts).

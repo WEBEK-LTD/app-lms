@@ -69,10 +69,10 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
   it("has looks A and B for each of the twenty Studio demos (131.20 Leqaa's too), one template of its kind each, named in Studio's three languages", () => {
     // 208 Lujain's two looks too.
     // 209 And Velours's, Toota's and Toot's; 210 Sakan's, Ghurza's and Rukn's; 211 Madar's, Nova's and Nawah's: twenty demos, forty looks.
-    // 223 225 And a shop type's C and D, before A and B (Studio's order): forty looks and two more for each shop type that has them.
-    expect(LOOKS).toHaveLength(40 + 2 * STUDIO_DEMO_TYPES.filter((demo) => signatureLooksOf(demo).includes("c")).length);
+    // 223 A shop type's templates C and D first (its main one, then its second), then A and B: forty looks and two more for each type with C and D.
     expect(STUDIO_DEMO_TYPES).toHaveLength(20);
-    for (const demo of STUDIO_DEMO_TYPES) expect(signatureLooksOf(demo), demo).toEqual(signatureLooksOf(demo).includes("c") ? ["c", "d", "a", "b"] : ["a", "b"]);
+    for (const demo of STUDIO_DEMO_TYPES) expect([["a", "b"], ["c", "d", "a", "b"]], demo).toContainEqual(signatureLooksOf(demo));
+    expect(LOOKS).toHaveLength(40 + 2 * STUDIO_DEMO_TYPES.filter((demo) => signatureLooksOf(demo).includes("c")).length);
     expect(signatureDesigns().map((d) => `${d.demo}_signature_${d.variant}`).sort()).toEqual(LOOKS.map(([demo, look]) => `${demo}_signature_${look}`).sort());
     for (const [demo, look] of LOOKS) {
       const id = `${demo}_signature_${look}`;
@@ -96,10 +96,12 @@ describe("130 the Signature looks: one registry, twenty looks", () => {
     }
   });
 
-  it("makes every demo's main look the demo (223 a shop type's C, else A): its home, bar, screens and chrome", () => {
+  it("makes every demo's look A the demo: its home, bar, screens and chrome", () => {
     for (const demo of STUDIO_DEMO_TYPES) {
+      // 223 The demo is its main look: C where the shop type has it, else A.
       const main = mainLookOf(demo);
-      expect(DEMO_HOME_TEMPLATES[demo]).toBe(`${demo}_signature_a`);
+      expect(main).toBe(signatureLooksOf(demo).includes("c") ? "c" : "a");
+      expect(DEMO_HOME_TEMPLATES[demo]).toBe(`${demo}_signature_${main}`);
       expect(studioDemoDesign(demo)).toEqual(signatureDesign(demo, main));
       expect(demoTabBar(demo)).toEqual(signatureDesign(demo, main)!.bar);
       expect(demoStudioScreens(demo, appUrl())).toEqual(demoStudioScreens(demo, appUrl(), main));

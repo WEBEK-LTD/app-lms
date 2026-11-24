@@ -17,9 +17,6 @@ import { allNodes } from "@/lib/studio/tree";
 import { expectContract } from "./contract";
 import { NOW, setupClient } from "./helpers";
 
-/** 223 225 Every store look in Studio's order, C and D first where a type has them. */
-const STORE_LOOKS = (["flowers", "clothes", "beauty", "kids", "toys", "decor", "crochet", "furniture", "electronics", "mobiles", "computers"] as const).flatMap((demo) => signatureLooksOf(demo).map((look) => `${demo}_signature_${look}`));
-
 const STORE = { type: "store" as const, vertical: null };
 const languages = { default: "en" as const, available: ["en" as const] };
 const storeApp = { ...newApp("c1", null, NOW, "store"), backend: "hosted" as const };
@@ -41,6 +38,9 @@ const parsedBody = (...children: unknown[]): StudioNode[] => {
   if (!parsed.ok) throw new Error(parsed.errors.join("; "));
   return parsed.value.body.children!;
 };
+
+/** 223–225 Every store look in Studio's order, C and D first where a type has them. */
+const STORE_LOOKS = (["flowers", "clothes", "beauty", "kids", "toys", "decor", "crochet", "furniture", "electronics", "mobiles", "computers"] as const).flatMap((demo) => signatureLooksOf(demo).map((look) => `${demo}_signature_${look}`));
 
 describe("112.4 a store's sections and sliders in Studio", () => {
   it("offers a store its own sections and three templates; the sliders to every project", () => {
