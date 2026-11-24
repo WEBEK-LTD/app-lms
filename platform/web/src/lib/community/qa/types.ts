@@ -24,6 +24,8 @@ export interface MemberSummary {
   team: boolean;
   deleted: boolean;
   rank: MemberRank;
+  /** The rank in the reader's language ("Expert"), from area A's views. */
+  rankLabel?: string;
 }
 
 export type MemberRank = "newcomer" | "member" | "contributor" | "expert" | "pro";
