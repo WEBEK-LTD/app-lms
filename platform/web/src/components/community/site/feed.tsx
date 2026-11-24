@@ -60,7 +60,7 @@ export function Hero({ w, viewer, waitingCount, topSection, stats }: { w: CmWord
       {/* Only the figures there are: a new community shows no "0 members". */}
       <div className="stats">
         {stats.members > 0 ? <div className="cm-stat"><b className="num">{compact(stats.members)}</b><span>{w.statMembers}</span></div> : null}
-        {stats.answeredRate > 0 ? <div className="cm-stat"><b className="num">{Math.round(stats.answeredRate * 100)}%</b><span>{w.statAnswered}</span></div> : null}
+        {stats.answeredRate > 0 ? <div className="cm-stat"><b className="num">{Math.round(stats.answeredRate)}%</b><span>{w.statAnswered}</span></div> : null}
         {stats.apps > 0 ? <div className="cm-stat"><b className="num">{compact(stats.apps)}</b><span>{w.statApps}</span></div> : null}
       </div>
     </section>

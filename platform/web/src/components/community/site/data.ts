@@ -120,6 +120,7 @@ export type Profile = {
 
 export type Notice = { id: string; kind: string; text: string; link: string | null; actor: MemberRef | null; createdAt: string; read: boolean };
 
+/** The home's figures; answeredRate is a percentage (0 to 100). */
 export type SiteStats = { members: number; answeredRate: number; apps: number; newQuestions: number };
 
 // ----- Trust (area C): badges, verification, admin, moderation, reports -----
