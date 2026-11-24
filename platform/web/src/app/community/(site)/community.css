@@ -405,14 +405,26 @@
 .cm-drawer .tg button, .cm-drawer .fi a, .cm-drawer .fi button { width: 40px; height: 36px; border-radius: 11px; display: flex; align-items: center; justify-content: center; color: #dad6ea; }
 .cm-drawer .tg button.on { background: #fff; color: #0e0d24; }
 .cm-drawer .fi form { display: contents; }
-.cm-tb { position: fixed; inset-inline: 12px; bottom: 12px; z-index: 40; height: 66px; border-radius: 24px; background: #0e0d24; box-shadow: 0 18px 40px rgba(14, 13, 36, 0.35); align-items: center; justify-content: space-around; padding: 0 8px; }
-.cm-tb .t { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #8f8bae; font-size: 10.5px; font-weight: 600; min-width: 54px; }
+.cm-tb { position: fixed; inset-inline: 14px; bottom: 16px; z-index: 40; height: 72px; border-radius: 28px; background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(22px) saturate(160%); box-shadow: 0 20px 44px rgba(20, 19, 39, 0.16), 0 0 0 1px rgba(255, 255, 255, 0.9) inset, 0 0 0 1px rgba(20, 19, 39, 0.05); align-items: center; justify-content: space-between; padding: 0 10px; }
+.cm-tb .t { width: 48px; height: 48px; border-radius: 17px; display: flex; align-items: center; justify-content: center; gap: 7px; color: #8b88a0; position: relative; }
 .cm-tb .t .ms { font-size: 25px; }
-.cm-tb .t.on { color: #fff; }
-.cm-tb .t.on .ms { color: #ff8a3d; }
+.cm-tb .t span:not(.ms) { display: none; }
+.cm-tb .t.on { width: auto; padding: 0 16px 0 12px; background: linear-gradient(135deg, #1e1c4e, #0e0d24); color: #fff; font-weight: 600; font-size: 13.5px; box-shadow: 0 8px 18px rgba(14, 13, 36, 0.3); }
+.cm-tb .t.on span:not(.ms) { display: inline; }
+.cm-tb .t.on .ms { color: #ffa06e; }
 .cm-tb .t.soon { opacity: 0.55; }
-.cm-tb .cr { width: 52px; height: 52px; border-radius: 18px; background: linear-gradient(135deg, #ff8a3d, #ff5a1f); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 22px rgba(255, 90, 31, 0.4); }
-.cm-tb .cr .ms { font-size: 28px; }
+.cm-tb .cr { width: 56px; height: 56px; border-radius: 20px; background: conic-gradient(from 210deg, #ffb23d, #ff5a1f, #e8410e, #ff7a3d, #ffb23d); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 10px 24px rgba(255, 90, 31, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.45); transform: translateY(-14px); border: 4px solid var(--cm-paper); }
+.cm-tb .cr .ms { font-size: 30px; }
+:root[data-theme="dark"] .cm-tb { background: rgba(24, 22, 58, 0.82); box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08) inset; }
+:root[data-theme="dark"] .cm-tb .t { color: #8f8bae; }
+:root[data-theme="dark"] .cm-tb .t.on { background: linear-gradient(135deg, #ffb23d, #ff5a1f); color: #fff; }
+:root[data-theme="dark"] .cm-tb .t.on .ms { color: #fff; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cm-tb { background: rgba(24, 22, 58, 0.82); box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08) inset; }
+  :root:not([data-theme="light"]) .cm-tb .t { color: #8f8bae; }
+  :root:not([data-theme="light"]) .cm-tb .t.on { background: linear-gradient(135deg, #ffb23d, #ff5a1f); color: #fff; }
+  :root:not([data-theme="light"]) .cm-tb .t.on .ms { color: #fff; }
+}
 
 /* Narrower screens: the rail goes, then the nav, then the header's search. */
 @media (max-width: 1280px) {
@@ -447,8 +459,14 @@
   .cm-tabs .flt { flex: none; }
   .cm-comp .in { white-space: normal; }
   .cm-gal { height: 160px; }
-  .cm-answer { gap: 10px; }
-  .cm-votes { width: 36px; }
-  .cm-votes button, .cm-votes a { width: 34px; height: 34px; }
+  /* The app design's question: the votes as a small pill under the post, the accepted mark on the card's corner. */
+  .cm-answer { flex-direction: column; gap: 0; position: relative; }
+  .cm-answer > div:last-child { width: 100%; }
+  .cm-votes { order: 2; flex-direction: row; width: auto; gap: 2px; margin-top: 12px; padding: 4px 8px; border-radius: 14px; background: var(--cm-soft); }
+  .cm-votes button, .cm-votes a { width: 30px; height: 30px; background: transparent; }
+  .cm-votes b { font-size: 15px; padding: 0 2px; }
+  .cm-answer h1 { font-size: 21px; }
+  .cm-answer.accepted .p-gr { position: absolute; top: -12px; inset-inline-end: 16px; background: #18a56b; color: #fff; box-shadow: 0 6px 14px rgba(24, 165, 107, 0.35); }
+  .cm-answer.accepted { margin-top: 18px; }
   .cm-card { padding: 18px 16px; }
 }
