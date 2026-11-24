@@ -50,6 +50,13 @@ describe("228.7 furniture and decor looks C and D: their own product pages", () 
     expect(parseStudioPage(page, STORE, LANGS)).toMatchObject({ ok: true });
   });
 
+  it("MIZAN heads its notes with the piece's size, W × D × H over a dimension rule (228.8)", () => {
+    const [demo, look] = LOOKS[0];
+    const dims = allNodes(productPageOf(demo, look)!).filter((n) => n.type === "product_specs" && n.product_part?.look === "dimensions");
+    expect(dims).toHaveLength(1);
+    expect(dims[0]?.text).toBe(APP_WORDS.en.mzpDims);
+  });
+
   it("every word of theirs is in the app's three languages", () => {
     for (const [demo, look] of LOOKS) {
       for (const n of allNodes(productPageOf(demo, look)!)) {

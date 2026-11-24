@@ -299,6 +299,11 @@ void main() {
         // The look's own product page, bound to the piece.
         expect(find.byKey(const ValueKey('product-title')), findsOneWidget);
         expect(find.byKey(const ValueKey('product-exchange')), findsNothing);
+        // 228.8 MIZAN heads its notes with the piece's size.
+        expect(
+          find.byKey(const ValueKey('product-dimensions-headline')),
+          demo == 'furniture' && look == 'c' ? findsOneWidget : findsNothing,
+        );
         if (_out.isNotEmpty) await _write(tester, name);
         await _down(tester);
         if (_out.isNotEmpty) await _write(tester, '$name-2');
