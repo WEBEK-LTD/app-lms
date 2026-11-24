@@ -1678,12 +1678,6 @@ abstract class AppLocalizations {
   /// **'Official'**
   String get tutOfficial;
 
-  /// No description provided for @tutLockedBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This tutorial opens when you sign in with the account that has it.'**
-  String get tutLockedBody;
-
   /// No description provided for @tutEmpty.
   ///
   /// In en, this message translates to:

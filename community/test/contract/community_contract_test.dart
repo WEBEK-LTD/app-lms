@@ -332,7 +332,8 @@ void main() {
       expect(t.language, rt['language']);
       expect(t.durationSeconds, rt['duration_seconds']);
       expect(t.durationMinutes, rt['duration_minutes']);
-      expect(t.locked, rt['locked']);
+      // Every tutorial is free: the API sends no lock.
+      expect(rt['locked'] ?? false, isFalse);
       expect(t.viewCount, rt['view_count']);
       expect(t.bookmarked, rt['bookmarked']);
       expect(t.section.slug, (rt['section'] as Map)['slug']);

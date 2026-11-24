@@ -7,7 +7,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/l10n.dart';
 import '../../../core/routing/feature_routes.dart';
 import '../../../core/theme/tokens.dart';
-import '../../../core/widgets/badge_mark.dart';
 import '../../../core/widgets/images.dart';
 import '../../../core/widgets/sym.dart';
 import '../../qa/ui/content_direction.dart';
@@ -86,7 +85,7 @@ class PhotoGlass extends StatelessWidget {
 
 /// A tutorial in a list: the design's featured card (`.feat`): its cover,
 /// corners 28, darkened towards the foot, with its kind and length in glass,
-/// its level, its title and its section; a lock when it is locked.
+/// its level, its title and its section.
 class TutorialCard extends StatelessWidget {
   const TutorialCard({super.key, required this.tutorial});
 
@@ -135,7 +134,7 @@ class TutorialCard extends StatelessWidget {
                 ),
               ),
               // A video's Play, in the top corner, clear of the words.
-              if (t.kind == TutorialKind.video && !t.locked)
+              if (t.kind == TutorialKind.video)
                 const PositionedDirectional(
                   top: 14,
                   end: 14,
@@ -213,8 +212,6 @@ class TutorialCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (t.locked)
-                          LockedMark(label: lockedLabel(context), dark: true),
                       ],
                     ),
                     const SizedBox(height: 8),

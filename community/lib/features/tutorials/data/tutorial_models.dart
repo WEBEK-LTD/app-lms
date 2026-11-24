@@ -2,7 +2,8 @@ import '../../../core/api/json.dart';
 import '../../qa/data/qa_models.dart';
 
 /// Area E: the official tutorials as the Community API sends them
-/// (`/tutorials`), read leniently.
+/// (`/tutorials`), read leniently. Every tutorial is free, always (the
+/// owner's decision): none is ever locked.
 
 enum TutorialKind {
   article,
@@ -39,7 +40,6 @@ class TutorialSummary {
     this.durationSeconds,
     this.durationMinutes,
     this.official = true,
-    this.locked = false,
     this.tags = const [],
     this.viewCount = 0,
     this.bookmarked = false,
@@ -63,9 +63,6 @@ class TutorialSummary {
       durationSeconds: seconds,
       durationMinutes: minutes,
       official: boolean(json, 'official', true),
-      // Paid on the website and not unlocked for this member: a lock, never
-      // a price.
-      locked: boolean(json, 'locked'),
       tags: [
         for (final t
             in (json['tags'] is List ? json['tags'] as List : const []))
@@ -98,7 +95,6 @@ class TutorialSummary {
   /// An article's reading time.
   final int? durationMinutes;
   final bool official;
-  final bool locked;
   final List<Tag> tags;
   final int viewCount;
   final bool bookmarked;
@@ -118,7 +114,6 @@ class TutorialSummary {
     durationSeconds: durationSeconds,
     durationMinutes: durationMinutes,
     official: official,
-    locked: locked,
     tags: tags,
     viewCount: viewCount,
     bookmarked: bookmarked ?? this.bookmarked,
@@ -138,10 +133,10 @@ class Tutorial {
 
   final TutorialSummary summary;
 
-  /// An article's text (Markdown) or a video's notes; empty when locked.
+  /// An article's text (Markdown) or a video's notes.
   final String body;
 
-  /// Null when locked.
+  /// A video's address; null for an article.
   final String? videoUrl;
 
   String get id => summary.id;

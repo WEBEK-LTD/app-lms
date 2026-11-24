@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:yallapp_community/core/providers.dart';
 import 'package:yallapp_community/core/routing/app_router.dart';
 import 'package:yallapp_community/features/tutorials/data/tutorials_api.dart';
@@ -76,34 +77,27 @@ void main() {
     await shot(tester, 'tutorial-article-dark-en');
   });
 
-  testWidgets('a locked tutorial shows a lock, no text, no video and no '
-      'price', (tester) async {
-    await _open(tester, '/learn/tut-pro-launch');
-    expect(find.text('Unlocks on the account that has it'), findsOneWidget);
-    expect(find.text('Watch the video'), findsNothing);
-    expect(
-      find.textContaining(RegExp(r'[$€£₺]|price|buy', caseSensitive: false)),
-      findsNothing,
-    );
-    await shot(tester, 'tutorial-locked-light-en');
-  });
-
-  testWidgets('on iOS a locked tutorial says only Locked: nothing about '
-      'unlocking it or the website, never a price', (tester) async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    try {
-      await _open(tester, '/learn/tut-pro-launch');
-      expect(find.text('Locked'), findsWidgets);
-      expect(
-        find.textContaining(
-          RegExp('unlock|website|account|sign in', caseSensitive: false),
-        ),
-        findsNothing,
-      );
-      expect(find.text('Watch the video'), findsNothing);
-      await shot(tester, 'tutorial-locked-ios-light-en');
-    } finally {
-      debugDefaultTargetPlatformOverride = null;
+  testWidgets('every tutorial is free: no lock on any card or page, on '
+      'Android and iOS alike', (tester) async {
+    for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
+      debugDefaultTargetPlatformOverride = platform;
+      try {
+        final (api, _) = await _open(tester, '/learn');
+        expect(find.byIcon(Symbols.lock_rounded), findsNothing);
+        expect(find.byKey(const ValueKey('locked')), findsNothing);
+        final all = await api.tutorials();
+        for (final t in all.items) {
+          await _open(tester, '/learn/${t.id}');
+          expect(find.byIcon(Symbols.lock_rounded), findsNothing);
+          expect(find.byKey(const ValueKey('locked')), findsNothing);
+          expect(
+            find.textContaining(RegExp('lock', caseSensitive: false)),
+            findsNothing,
+          );
+        }
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     }
   });
 

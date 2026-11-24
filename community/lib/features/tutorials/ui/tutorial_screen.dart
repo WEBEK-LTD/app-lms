@@ -8,7 +8,6 @@ import '../../../core/l10n.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/feature_routes.dart';
 import '../../../core/theme/tokens.dart';
-import '../../../core/widgets/badge_mark.dart';
 import '../../../core/widgets/glass.dart';
 import '../../../core/widgets/images.dart';
 import '../../../core/widgets/sym.dart';
@@ -52,8 +51,7 @@ final tutorialProvider =
     );
 
 /// A tutorial: its cover (a video's with Play), its kind, level, language
-/// and length, its title and its text. A locked one shows what it is and a
-/// lock, and opens on the account that has it; never a price.
+/// and length, its title and its text. Every tutorial is free.
 class TutorialScreen extends ConsumerWidget {
   const TutorialScreen({super.key, required this.id});
 
@@ -126,26 +124,22 @@ class TutorialScreen extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    if (t.summary.locked)
-                      _Locked()
-                    else ...[
-                      if (t.summary.kind == TutorialKind.video &&
-                          t.videoUrl != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: _WatchButton(url: t.videoUrl!),
+                    if (t.summary.kind == TutorialKind.video &&
+                        t.videoUrl != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _WatchButton(url: t.videoUrl!),
+                      ),
+                    if (t.body.isNotEmpty)
+                      Text(
+                        t.body,
+                        textDirection: contentDirection(t.body),
+                        style: TextStyle(
+                          fontSize: 15,
+                          height: 1.65,
+                          color: p.soft,
                         ),
-                      if (t.body.isNotEmpty)
-                        Text(
-                          t.body,
-                          textDirection: contentDirection(t.body),
-                          style: TextStyle(
-                            fontSize: 15,
-                            height: 1.65,
-                            color: p.soft,
-                          ),
-                        ),
-                    ],
+                      ),
                     SizedBox(
                       height: 120 + MediaQuery.paddingOf(context).bottom,
                     ),
@@ -233,7 +227,7 @@ class _Cover extends ConsumerWidget {
               ],
             ),
           ),
-          if (t.kind == TutorialKind.video && !t.locked)
+          if (t.kind == TutorialKind.video)
             Center(
               child: Semantics(
                 button: true,
@@ -256,8 +250,6 @@ class _Cover extends ConsumerWidget {
                 ),
               ),
             ),
-          if (t.locked)
-            Center(child: LockedMark(label: lockedLabel(context), dark: true)),
         ],
       ),
     );
@@ -303,36 +295,4 @@ class _WatchButton extends ConsumerWidget {
       ),
     ),
   );
-}
-
-class _Locked extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: p.dark ? const Color(0x0BFFFFFF) : Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: p.dark ? const Color(0x12FFFFFF) : const Color(0x0F141327),
-        ),
-      ),
-      child: Row(
-        children: [
-          Sym(Symbols.lock_rounded, size: 26, fill: true, color: p.ink),
-          const SizedBox(width: 12),
-          Expanded(
-            // On iOS only "Locked": nothing about unlocking it or where.
-            child: Text(
-              isIos(context)
-                  ? lockedLabel(context)
-                  : context.l10n.tutLockedBody,
-              style: TextStyle(fontSize: 14, height: 1.5, color: p.ink),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

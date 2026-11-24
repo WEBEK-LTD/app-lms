@@ -274,8 +274,6 @@ class _TutorialRow extends StatelessWidget {
                 ],
               ),
             ),
-            if (t.locked)
-              Sym(Symbols.lock_rounded, size: 18, fill: true, color: p.muted),
           ],
         ),
       ),

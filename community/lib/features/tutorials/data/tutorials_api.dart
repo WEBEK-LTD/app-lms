@@ -83,8 +83,7 @@ class HttpTutorialsApi implements TutorialsApi {
 }
 
 /// [TutorialsApi] in memory, for tests and the demo build: the design's
-/// "New tutorial" and a few more, in English, Arabic and Turkish; one is
-/// locked (bought on the website, not unlocked for the demo member).
+/// "New tutorial" and a few more, in English, Arabic and Turkish; all free.
 class FakeTutorialsApi implements TutorialsApi {
   FakeTutorialsApi({DateTime? now}) : now = now ?? DateTime.now().toUtc();
 
@@ -172,7 +171,8 @@ class FakeTutorialsApi implements TutorialsApi {
       cover: 'asset:assets/images/beanie-girl.jpg',
       seconds: 2710,
       days: 10,
-      locked: true,
+      video: 'https://yallapp.com.tr/community/videos/pro-launch',
+      body: 'The checklist, step by step: store pages, photos, reviews.',
     ),
   ];
 
@@ -190,7 +190,6 @@ class FakeTutorialsApi implements TutorialsApi {
     required int days,
     String? video,
     String body = '',
-    bool locked = false,
   }) => Tutorial(
     summary: TutorialSummary(
       id: id,
@@ -204,13 +203,11 @@ class FakeTutorialsApi implements TutorialsApi {
       coverUrl: cover,
       durationSeconds: seconds,
       durationMinutes: minutes,
-      locked: locked,
       viewCount: 120 * (11 - days),
       publishedAt: now.subtract(Duration(days: days)),
     ),
-    // Locked: no text and no video, only what it is.
-    body: locked ? '' : body,
-    videoUrl: locked ? null : video,
+    body: body,
+    videoUrl: video,
   );
 
   @override
