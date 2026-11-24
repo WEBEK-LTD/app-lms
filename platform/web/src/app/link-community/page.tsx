@@ -61,6 +61,7 @@ export default async function LinkCommunityPage({ searchParams }: PageProps<"/li
   return (
     <Card lang={lang} title={t(lang, "link.confirm.title")}>
       <p className="m-0 text-base leading-relaxed text-ink-4">{t(lang, "link.confirm.body", { name: member.displayName, username: member.username })}</p>
+      <p className="m-0 text-sm font-semibold">{t(lang, "link.confirm.warning")}</p>
       <p className="m-0 text-sm text-ink-4">{t(lang, "link.signedInAs", { name: user.name, email: user.email })}</p>
       <form action={confirmCommunityLinkAction} className="flex flex-col gap-3">
         <input type="hidden" name="state" value={state} />

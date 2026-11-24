@@ -208,7 +208,7 @@ describe("231 a member's standing", () => {
     const me = await joinWithEmail(c, "Nour El Hoda");
     expect((await api(c, "GET", `/members/${me.id}`)).body).toMatchObject({ rank: "newcomer", rank_label: "Newcomer", points: 0 });
     await c.deps.store.base.addPoints(me.id, 1240);
-    expect((await api(c, "GET", `/members/${me.id}`, { lang: "ar" })).body).toMatchObject({ rank: "expert", rank_label: "خبير", points: 1240 });
+    expect((await api(c, "GET", `/members/${me.id}`, { lang: "ar" })).body).toMatchObject({ rank: "pro", rank_label: "محترف", points: 1240 });
   });
 });
 

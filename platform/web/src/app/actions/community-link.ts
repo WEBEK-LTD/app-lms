@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { onYallappLinkChanged } from "@/lib/community/api/trust-hooks";
-import { confirmLink } from "@/lib/community/base/linking";
+import { confirmLink, linkedMail } from "@/lib/community/base/linking";
 import { communityDeps } from "@/lib/community/deps";
 
 /**
@@ -20,5 +20,7 @@ export async function confirmCommunityLinkAction(form: FormData): Promise<void> 
   const result = await confirmLink(deps, state, user.id);
   if (!result.ok) redirect(`/link-community?error=${result.code}&return=${back}`);
   await onYallappLinkChanged({ deps, store: deps.store, now: deps.now }, result.member.id);
+  // 231 The account's owner hears of it by email, whoever clicked: a link sent to them by someone else is caught.
+  await deps.mail(linkedMail(user, result.member));
   redirect(`/link-community?done=${encodeURIComponent(result.member.username)}&return=${back}&lang=${result.member.language}`);
 }
