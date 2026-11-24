@@ -45,7 +45,7 @@ export function ProfileForm({ w, initial }: { w: CmWords; initial: { name: strin
       </label>
       <label className="cm-field">
         {w.username}
-        <input name="handle" required pattern="[a-z0-9_]{3,24}" maxLength={24} defaultValue={initial.handle} autoCapitalize="none" spellCheck={false} />
+        <input name="handle" required pattern="[a-z0-9_.]{3,30}" maxLength={30} defaultValue={initial.handle} autoCapitalize="none" spellCheck={false} />
         <small>{w.usernameHint}</small>
       </label>
       <label className="cm-field">

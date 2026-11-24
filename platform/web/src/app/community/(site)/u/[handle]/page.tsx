@@ -44,7 +44,7 @@ function Relation({ p, w, back }: { p: Profile; w: CmWords; back: string }) {
       {r.friend === "incoming" ? (
         <>
           <Act action={friendAction} fields={{ ...base, act: "accept" }} className="n" icon="how_to_reg" label={w.acceptFriend} />
-          <Act action={friendAction} fields={{ ...base, act: "decline" }} className="g" icon="close" label={w.decline} />
+          <Act action={friendAction} fields={{ ...base, act: "decline", requestId: r.friendRequestId ?? "" }} className="g" icon="close" label={w.decline} />
         </>
       ) : null}
       {r.friend === "friends" ? <Act action={friendAction} fields={{ ...base, act: "remove" }} className="g" icon="diversity_3" label={w.friendsNow} /> : null}

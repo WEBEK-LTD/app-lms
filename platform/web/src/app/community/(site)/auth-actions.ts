@@ -64,6 +64,20 @@ export async function continueAction(provider: "apple" | "google", input: { idTo
   redirect(safeNext(input.next));
 }
 
+export async function signOutAction(): Promise<void> {
+  await source.signOut();
+  redirect(cmLinks.home());
+}
+
+export async function newPasswordAction(_prev: FormState, form: FormData): Promise<FormState> {
+  const { w } = await siteContext();
+  const password = String(form.get("password") ?? "");
+  if (password.length < 8) return { error: w.errorPassword, at: Date.now() };
+  const r = await source.confirmPasswordReset(text(form, "token"), password);
+  if (!r.ok) return { error: r.code === "invalid_token" ? w.errorResetLink : w.errorGeneric, at: Date.now() };
+  redirect(`${cmLinks.signIn()}?reset=1`);
+}
+
 export async function resetAction(_prev: FormState, form: FormData): Promise<FormState> {
   const { w } = await siteContext();
   const email = text(form, "email").toLowerCase();

@@ -15,13 +15,15 @@ function nextOf(v: string | undefined): string {
 }
 
 /** 231 Log in: Apple, Google, then email and password. */
-export default async function SignInPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
-  const next = nextOf((await searchParams).next);
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ next?: string; reset?: string }> }) {
+  const sp = await searchParams;
+  const next = nextOf(sp.next);
   const { lang, w, viewer } = await siteContext();
   if (viewer) redirect(next);
   return (
     <AuthShell w={w} lang={lang}>
       <h1>{w.logIn}</h1>
+      {sp.reset ? <div className="cm-note ok" role="status" style={{ marginBottom: 14 }}><span className="ms f">check_circle</span>{w.passwordChanged}</div> : null}
       <ProviderButtons w={w} providers={authProviders()} next={next} />
       <div className="cm-or"><span>{w.or}</span></div>
       <LogInForm w={w} next={next} />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { logInAction, resetAction, signUpAction } from "@/app/community/(site)/auth-actions";
+import { logInAction, newPasswordAction, resetAction, signUpAction } from "@/app/community/(site)/auth-actions";
 import { Note } from "./forms";
 import { cmLinks } from "./links";
 import type { CmWords } from "./words";
@@ -43,6 +43,18 @@ export function ResetForm({ w }: { w: CmWords }) {
       <label className="cm-field">{w.email}<input name="email" type="email" required autoComplete="email" /></label>
       <Note state={state} />
       <button type="submit" className="cm-btn o cm-wide" disabled={pending} style={{ marginTop: 16 }}>{w.sendResetLink}</button>
+    </form>
+  );
+}
+
+export function NewPasswordForm({ w, token }: { w: CmWords; token: string }) {
+  const [state, action, pending] = useActionState(newPasswordAction, undefined);
+  return (
+    <form action={action}>
+      <input type="hidden" name="token" value={token} />
+      <label className="cm-field">{w.newPassword}<input name="password" type="password" required minLength={8} maxLength={200} autoComplete="new-password" /><small>{w.passwordHint}</small></label>
+      <Note state={state} />
+      <button type="submit" className="cm-btn o cm-wide" disabled={pending} style={{ marginTop: 16 }}>{w.setPassword}</button>
     </form>
   );
 }

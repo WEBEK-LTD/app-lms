@@ -117,6 +117,8 @@
 .cm-nav .cnt { margin-inline-start: auto; font-size: 11.5px; font-weight: 700; background: #ffede5; color: #e2480f; padding: 2px 8px; border-radius: 10px; }
 .cm-nav .soon { cursor: default; opacity: 0.75; }
 .cm-nav .soon em { margin-inline-start: auto; font-style: normal; font-size: 11px; font-weight: 600; color: var(--cm-faint); background: var(--cm-soft); padding: 2px 8px; border-radius: 10px; }
+.cm-nav a.cm-chip { height: auto; padding: 8px 14px; font-size: 14px; font-weight: 400; }
+.cm-nav a.cm-mecard { height: auto; padding: 14px; color: var(--cm-ink); }
 .cm-nav h6 { font-size: 12px; color: var(--cm-faint); font-weight: 600; margin: 22px 14px 8px; }
 .cm-chip { display: flex; align-items: center; gap: 10px; padding: 8px 14px; font-size: 14px; color: var(--cm-text2); }
 .cm-chip i { width: 10px; height: 10px; border-radius: 4px; display: block; }

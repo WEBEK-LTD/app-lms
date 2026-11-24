@@ -47,7 +47,7 @@ export function QuestionPost({ q, w }: { q: QuestionSummary; w: CmWords }) {
         <span><span className="ms">chat_bubble</span>{answersLabel(w, q.answerCount)}</span>
         {q.hasAccepted ? <span className="ok"><span className="ms f">check_circle</span>{w.acceptedAnswer}</span> : null}
         <span className="sp" />
-        <span><span className="ms">visibility</span>{fill(w.views, { n: q.views })}</span>
+        <span><span className="ms">visibility</span>{(q.views === 1 ? w.oneView : fill(w.views, { n: q.views }))}</span>
       </div>
     </article>
   );

@@ -33,7 +33,7 @@ export async function friendAction(form: FormData): Promise<void> {
   const back = text(form, "back");
   const { viewer } = await member(back);
   const act = FRIEND_ACTS.find((a) => a === text(form, "act"));
-  if (act) await source.friend(viewer.id, text(form, "memberId"), act).catch(() => undefined);
+  if (act) await source.friend(viewer.id, text(form, "memberId"), act, text(form, "requestId") || undefined).catch(() => undefined);
   revalidatePath(back);
 }
 
@@ -44,7 +44,7 @@ export async function blockAction(form: FormData): Promise<void> {
   revalidatePath(back);
 }
 
-const HANDLE = /^[a-z0-9_]{3,24}$/;
+const HANDLE = /^[a-z0-9_.]{3,30}$/;
 
 export async function profileAction(_prev: FormState, form: FormData): Promise<FormState> {
   const { viewer, w } = await member(cmLinks.editProfile());
@@ -54,19 +54,12 @@ export async function profileAction(_prev: FormState, form: FormData): Promise<F
   const skills = text(form, "skills").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 12).map((s) => s.slice(0, 30));
   if (name.length < 2) return { error: w.errorName, at: Date.now() };
   if (!HANDLE.test(handle)) return { error: w.errorHandle, at: Date.now() };
-  try {
-    await source.updateProfile(viewer.id, { name, handle, bio, skills });
-    const avatar = form.get("avatar");
-    if (avatar instanceof File && avatar.size > 0) {
-      if (avatar.size > 5 * 1024 * 1024 || !/^image\/(png|jpeg|webp)$/.test(avatar.type)) return { error: w.errorAvatar, at: Date.now() };
-      await source.setAvatar(viewer.id, avatar);
-    } else if (text(form, "removeAvatar") === "1") {
-      await source.setAvatar(viewer.id, null);
-    }
-  } catch (e) {
-    const code = e instanceof Error ? e.message : "";
-    return { error: code === "handle_taken" ? w.errorHandleTaken : code === "not_ready" ? w.errorNotReady : w.errorGeneric, at: Date.now() };
-  }
+  const avatar = form.get("avatar");
+  if (avatar instanceof File && avatar.size > 0 && (avatar.size > 5 * 1024 * 1024 || !/^image\/(png|jpeg|webp)$/.test(avatar.type))) return { error: w.errorAvatar, at: Date.now() };
+  const saved = await source.updateProfile(viewer.id, { name, handle, bio, skills });
+  if (!saved.ok) return { error: saved.code === "username_taken" ? w.errorHandleTaken : saved.code === "invalid_request" && saved.errors?.username ? w.errorHandle : w.errorGeneric, at: Date.now() };
+  const pic = avatar instanceof File && avatar.size > 0 ? await source.setAvatar(viewer.id, avatar) : text(form, "removeAvatar") === "1" ? await source.setAvatar(viewer.id, null) : { ok: true as const };
+  if (!pic.ok) return { error: w.errorAvatar, at: Date.now() };
   revalidatePath(cmLinks.member(handle));
   return { ok: w.profileSaved, at: Date.now() };
 }

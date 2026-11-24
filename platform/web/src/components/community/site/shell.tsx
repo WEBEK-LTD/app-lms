@@ -5,6 +5,7 @@ import { Drawer, LangSelect, SearchKey, ThemeButtons } from "./client";
 import type { Section, Viewer } from "./data";
 import { cmLinks } from "./links";
 import { sectionColor } from "./source";
+import { signOutAction } from "@/app/community/(site)/auth-actions";
 import { fill, type CmLang, type CmWords } from "./words";
 
 export type NavKey = "home" | "questions" | "tutorials" | "none";
@@ -132,7 +133,7 @@ export function Header({ w, lang, viewer, unread, active, mySections, newCount, 
             <div className="fi">
               <Link href={cmLinks.saved()} aria-label={w.saved}><span className="ms">bookmark</span></Link>
               <Link href={cmLinks.settings()} aria-label={w.settings}><span className="ms">settings</span></Link>
-              <form action={cmLinks.signOut()} method="post">
+              <form action={signOutAction}>
                 <button type="submit" aria-label={w.logOut}><span className="ms">logout</span></button>
               </form>
             </div>

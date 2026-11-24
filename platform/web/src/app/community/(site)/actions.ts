@@ -29,16 +29,16 @@ function text(form: FormData, name: string): string {
 function failed(w: Awaited<ReturnType<typeof siteContext>>["w"], e: unknown): FormState {
   const at = Date.now();
   if (e instanceof QaError) {
-    if (e.code === "rate_limited") return { error: w.errorRate, at };
-    if (e.code === "duplicate") return { error: w.errorDuplicate, at };
-    if (e.code === "invalid") {
+    if (e.code === "too_many_attempts") return { error: w.errorRate, at };
+    if (e.code === "conflict") return { error: w.errorDuplicate, at };
+    if (e.code === "invalid_request") {
       if (e.field === "title") return { error: w.errorTitleShort, at };
       if (e.field === "body") return { error: w.errorBodyShort, at };
       if (e.field === "section") return { error: w.errorSection, at };
-      if (e.field === "content") return { error: w.errorSpam, at };
+      if (e.field === "tags") return { error: w.errorTags, at };
     }
-    if (e.code === "signed_out") return { error: w.errorSignedOut, at };
-    if (e.code === "forbidden") return { error: w.errorForbidden, at };
+    if (e.code === "invalid_token") return { error: w.errorSignedOut, at };
+    if (e.code === "not_allowed") return { error: w.errorForbidden, at };
   }
   const code = e instanceof Error ? e.message : "";
   return { error: code === "not_ready" ? w.errorNotReady : code === "spam" ? w.errorSpam : w.errorGeneric, at };
@@ -108,8 +108,8 @@ export async function voteAction(form: FormData): Promise<void> {
 
 export async function acceptAction(form: FormData): Promise<void> {
   const slug = text(form, "slug");
-  const { viewer } = await member(cmLinks.question(slug));
-  await source.acceptAnswer(viewer.id, text(form, "answerId"), text(form, "on") === "1").catch(() => undefined);
+  const { viewer, lang } = await member(cmLinks.question(slug));
+  await source.acceptAnswer(viewer.id, text(form, "answerId"), text(form, "on") === "1", lang).catch(() => undefined);
   revalidatePath(cmLinks.question(slug));
 }
 

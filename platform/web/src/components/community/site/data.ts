@@ -10,8 +10,75 @@ import type { CmLang } from "./words";
 
 export type BadgeKind = "gold" | "green" | "blue";
 
-export type { Answer, MemberRef, Page, QuestionDetail, QuestionSummary, Reply, Section, Tag, TutorialDetail, TutorialSummary } from "@/lib/community/qa";
-import type { MemberRef, QuestionSummary } from "@/lib/community/qa";
+/** A member wherever they appear: their name, picture, highest badge, whether they are on the Yallapp team, and their standing. */
+export type MemberRef = {
+  id: string;
+  name: string;
+  handle: string | null;
+  avatarUrl: string | null;
+  badge: BadgeKind | null;
+  staff: boolean;
+  rank: "newcomer" | "member" | "contributor" | "expert" | "pro" | null;
+};
+
+export type Section = { slug: string; name: string; icon: string; sort: number; questionCount: number; followed: boolean };
+
+export type Tag = { slug: string; name: string };
+
+export type QuestionSummary = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  section: { slug: string; name: string };
+  tags: Tag[];
+  author: MemberRef;
+  createdAt: string;
+  views: number;
+  answerCount: number;
+  hasAccepted: boolean;
+  score: number;
+  bookmarked: boolean;
+  status: "pending" | "published" | "removed";
+};
+
+export type Reply = { id: string; body: string; author: MemberRef; createdAt: string };
+
+export type Answer = {
+  id: string;
+  body: string;
+  author: MemberRef;
+  official: boolean;
+  accepted: boolean;
+  score: number;
+  myVote: -1 | 0 | 1;
+  replyCount: number;
+  replies: Reply[];
+  createdAt: string;
+  status: "pending" | "published" | "removed";
+};
+
+export type QuestionDetail = QuestionSummary & { body: string; myVote: -1 | 0 | 1; answers: Answer[]; mine: boolean };
+
+export type TutorialSummary = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  kind: "article" | "video";
+  section: { slug: string; name: string };
+  level: "beginner" | "intermediate" | "advanced";
+  language: CmLang;
+  durationSec: number;
+  coverUrl: string | null;
+  author: MemberRef;
+  createdAt: string;
+  bookmarked: boolean;
+};
+
+export type TutorialDetail = TutorialSummary & { body: string; videoUrl: string | null };
+
+export type Page<T> = { items: T[]; next: string | null };
 
 export type Viewer = MemberRef & {
   handle: string;
@@ -19,6 +86,7 @@ export type Viewer = MemberRef & {
   email: string | null;
   admin: boolean;
   lang: CmLang;
+  unread: number;
 };
 
 export type FeedTab = "for_you" | "latest" | "active" | "unanswered";
@@ -41,7 +109,7 @@ export type Profile = {
   friends: number;
   linkedApps: LinkedApp[];
   /** How the viewer stands with this member. */
-  relation: { self: boolean; following: boolean; friend: "none" | "requested" | "incoming" | "friends"; blocked: boolean };
+  relation: { self: boolean; following: boolean; friend: "none" | "requested" | "incoming" | "friends"; friendRequestId: string | null; blocked: boolean };
   questions: QuestionSummary[];
   answersCount: number;
 };

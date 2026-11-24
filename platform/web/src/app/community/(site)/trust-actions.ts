@@ -156,7 +156,7 @@ export async function resolveReportAction(_prev: FormState, form: FormData): Pro
 
 export async function linkAction(): Promise<void> {
   const { viewer } = await member(cmLinks.settings());
-  const to = await source.startLink(viewer.id, cmLinks.settings());
+  const to = await source.startLink(viewer.id);
   redirect(to ?? `${cmLinks.settings()}?link=unavailable`);
 }
 

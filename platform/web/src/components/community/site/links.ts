@@ -29,7 +29,6 @@ export const cmLinks = {
   welcome: () => cmHref("/welcome"),
   signIn: (next?: string) => withQuery(cmHref("/sign-in"), next ? { next } : undefined),
   signUp: (next?: string) => withQuery(cmHref("/sign-up"), next ? { next } : undefined),
-  signOut: () => "/api/community/v1/auth/sign-out",
   admin: (part = "") => cmHref(`/admin${part ? `/${part}` : ""}`),
 };
 

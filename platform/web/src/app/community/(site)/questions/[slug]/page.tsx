@@ -146,7 +146,7 @@ export default async function QuestionPage({ params, searchParams }: Props) {
             <Avatar member={q.author} size={38} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <MemberName member={q.author} w={w} />
-              <div className="m">{ago(w, q.createdAt)} · {fill(w.views, { n: q.views })}</div>
+              <div className="m">{ago(w, q.createdAt)} · {(q.views === 1 ? w.oneView : fill(w.views, { n: q.views }))}</div>
             </div>
           </div>
           <div className="cm-md"><Markdown source={q.body} /></div>

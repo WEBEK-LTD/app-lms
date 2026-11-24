@@ -9,6 +9,7 @@ import { SitePage } from "@/components/community/site/page";
 import { linkedAccount, noticePrefs } from "@/components/community/site/source";
 import { fill } from "@/components/community/site/words";
 import { linkAction, prefsAction, unlinkAction } from "../trust-actions";
+import { signOutAction } from "../auth-actions";
 
 export const metadata: Metadata = { title: "Settings", robots: { index: false } };
 
@@ -63,7 +64,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </div>
         </section>
         <section className="cm-card cm-set">
-          <form action={cmLinks.signOut()} method="post">
+          <form action={signOutAction}>
             <button type="submit" className="cm-btn g"><span className="ms">logout</span>{w.logOut}</button>
           </form>
         </section>
