@@ -99,7 +99,10 @@ describe("52 pounds and dollars", () => {
     expect(formatMoney({ cents: 149950, currency: "EGP" })).toBe(nbsp("EGP 1,499.50"));
     expect(formatMoney({ cents: 2900, currency: "USD" })).toBe("$29");
     expect(formatMoney({ cents: 2320, currency: "USD" })).toBe("$23.20");
-    expect(formatAmount(480000, "TRY")).toBe("₺4,800.00");
+    expect(formatAmount(480000, "TRY")).toBe("₺4,800");
+    // 229.4 A receipt writes every digit.
+    expect(formatAmount(480000, "TRY", { exact: true })).toBe("₺4,800.00");
+    expect(formatAmount(150000, "EGP", { exact: true })).toBe("EGP\u00a01,500.00");
   });
 
   it("tells a client outside Egypt what is charged", () => {
@@ -227,8 +230,8 @@ describe("52 plans and payments", () => {
       Receipt: receiptNumber(paid),
       "Issued by": "Yallapp, Cairo, Egypt",
       Plan: "Growth, 1 year",
-      "Amount charged": nbsp("EGP 1,500"),
-      "Price shown": "About $30. Your bank may have converted the charge at its own rate.",
+      "Amount charged": nbsp("EGP 1,500.00"),
+      "Price shown": "About $30.00. Your bank may have converted the charge at its own rate.",
       "Paid with": "Card, through Kashier (reference TX-1)",
     });
     expect(receiptNumber(paid)).toMatch(/^YA-[0-9A-F]{8}$/);

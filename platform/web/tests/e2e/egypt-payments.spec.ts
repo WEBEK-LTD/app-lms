@@ -233,10 +233,10 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   await page.getByLabel("Email").fill("mona@example.com");
   await page.getByLabel("City").fill("Cairo");
   await page.getByLabel("Address").fill("26 July Street, Zamalek");
-  await page.getByRole("button", { name: "Pay E£1,700.00" }).click();
+  await page.getByRole("button", { name: "Pay E£1,700" }).click();
   // 153 Kashier's card form in this page: its session's page in a frame, under the details.
   await expect(page.getByRole("heading", { name: "Your card" })).toBeVisible();
-  await expect(page.getByText("Enter your card to pay E£1,700.00. It goes straight to Kashier: the shop never sees its number.")).toBeVisible();
+  await expect(page.getByText("Enter your card to pay E£1,700. It goes straight to Kashier: the shop never sees its number.")).toBeVisible();
   await expect(page).toHaveURL(/\/pay\/[\w-]+$/);
   const form = page.frameLocator("iframe[data-kashier-embedded]");
   await expect(form.getByText("Total 1700.00")).toBeVisible();
@@ -250,7 +250,7 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   await signIn(page, shop.email, shop.password);
   await page.getByRole("link", { name: "Orders", exact: true }).click();
   const order = page.getByRole("listitem").filter({ hasText: "Mona Hassan" });
-  await expect(order).toContainText("E£1,700.00");
+  await expect(order).toContainText("E£1,700");
   await expect(order).toContainText("Lotus Bouquet × 2");
 
   // 132.33 Kashier's signed webhook was noted; 132.34 Test connection with the saved keys says it all works.

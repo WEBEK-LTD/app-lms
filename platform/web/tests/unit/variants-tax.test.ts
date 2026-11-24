@@ -83,7 +83,7 @@ describe("91.5 variations", () => {
     const list = await call("GET", "/store/products");
     expect((list!.body as { items: unknown[] }).items[0]).toMatchObject({
       type: "variable",
-      price: { amount: "250.00", formatted: "₺250.00 – ₺300.00", on_sale: true, range: true },
+      price: { amount: "250.00", formatted: "₺250 – ₺300", on_sale: true, range: true },
       stock_status: "in_stock",
       purchasable: true,
     });
@@ -94,8 +94,8 @@ describe("91.5 variations", () => {
     ]);
     // The one turned off isn't offered; an empty one is out of stock.
     expect(detail.variations).toEqual([
-      expect.objectContaining({ id: 1, attributes: { a1: "Red", a2: "S" }, price: expect.objectContaining({ formatted: "₺250.00", on_sale: false }), stock_status: "in_stock", max_quantity: 2, purchasable: true }),
-      expect.objectContaining({ id: 2, attributes: { a1: "Red", a2: "L" }, price: expect.objectContaining({ formatted: "₺300.00", regular_formatted: "₺320.00", on_sale: true }), max_quantity: null }),
+      expect.objectContaining({ id: 1, attributes: { a1: "Red", a2: "S" }, price: expect.objectContaining({ formatted: "₺250", on_sale: false }), stock_status: "in_stock", max_quantity: 2, purchasable: true }),
+      expect.objectContaining({ id: 2, attributes: { a1: "Red", a2: "L" }, price: expect.objectContaining({ formatted: "₺300", regular_formatted: "₺320", on_sale: true }), max_quantity: null }),
       expect.objectContaining({ id: 3, stock_status: "out_of_stock", purchasable: false }),
     ]);
 
@@ -110,8 +110,8 @@ describe("91.5 variations", () => {
     });
     expect((quote!.body as { lines: unknown[] }).lines).toEqual([
       expect.objectContaining({ available: false, problem: "Choose the options first." }),
-      expect.objectContaining({ variation_id: 1, name: "Tee - Red, S", quantity: 2, unit_price: "₺250.00", problem: "Only 2 left in stock.", max_quantity: 2 }),
-      expect.objectContaining({ variation_id: 2, name: "Tee - Red, L", unit_price: "₺300.00", available: true }),
+      expect.objectContaining({ variation_id: 1, name: "Tee - Red, S", quantity: 2, unit_price: "₺250", problem: "Only 2 left in stock.", max_quantity: 2 }),
+      expect.objectContaining({ variation_id: 2, name: "Tee - Red, L", unit_price: "₺300", available: true }),
       expect.objectContaining({ available: false, problem: "This product is no longer available." }),
     ]);
 
@@ -145,7 +145,7 @@ describe("91.5 tax", () => {
     const { store, app, product, call } = await shop({ tax: { label: "KDV", rateBps: 2000, included: true } });
     const quote = (await call("POST", "/store/cart", { lines: [{ product_id: product.id, variation_id: 1, quantity: 2 }] }))!.body;
     // 2 × 250 + 50 shipping = 550, of which 91.67 is KDV.
-    expect(quote).toMatchObject({ total: "₺550.00", tax: null, tax_included: "₺91.67", tax_label: "KDV 20%", total_final: true });
+    expect(quote).toMatchObject({ total: "₺550", tax: null, tax_included: "₺91.67", tax_label: "KDV 20%", total_final: true });
     await call("POST", "/store/checkout-link", { lines: [{ product_id: product.id, variation_id: 1, quantity: 2 }] });
     const order = (await store.listCatalogOrders({ appId: app.id, limit: 5, offset: 0 })).items[0]!;
     expect(order).toMatchObject({ totalCents: 55000, tax: { label: "KDV", rateBps: 2000, included: true, cents: 9167 } });
@@ -162,7 +162,7 @@ describe("91.5 tax", () => {
     const { store, app, product, call } = await shop({ tax: { label: "VAT", rateBps: 1000, included: false } });
     const quote = (await call("POST", "/store/cart", { lines: [{ product_id: product.id, variation_id: 2, quantity: 1 }] }))!.body;
     // 300 + 50 shipping = 350, plus 35 VAT.
-    expect(quote).toMatchObject({ tax: "₺35.00", tax_included: null, tax_label: "VAT 10%", total: "₺385.00" });
+    expect(quote).toMatchObject({ tax: "₺35", tax_included: null, tax_label: "VAT 10%", total: "₺385" });
     await call("POST", "/store/checkout-link", { lines: [{ product_id: product.id, variation_id: 2, quantity: 1 }] });
     const order = (await store.listCatalogOrders({ appId: app.id, limit: 5, offset: 0 })).items[0]!;
     expect(order).toMatchObject({ totalCents: 38500, tax: { cents: 3500, included: false } });
@@ -188,6 +188,6 @@ describe("91.5 tax", () => {
       paidPrice: "385.00",
       basketItems: [{ name: "Tee - Red, L", price: "300.00" }, { id: "shipping", price: "50.00" }, { id: "tax", name: "VAT", price: "35.00" }],
     });
-    expect(newOrderMail(order, "Tee Shop", "https://yallapp.test/dashboard/orders").text).toContain("VAT 10%: ₺35.00");
+    expect(newOrderMail(order, "Tee Shop", "https://yallapp.test/dashboard/orders").text).toContain("VAT 10%: ₺35");
   });
 });

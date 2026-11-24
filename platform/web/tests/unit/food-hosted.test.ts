@@ -208,7 +208,7 @@ describe("105.1 food delivery apps on the hosted API", () => {
     // With a price, it shows.
     await store.saveDeliverySettings(app.id, { ...SETTINGS, pricing: "fixed", fixedCents: 25_00 }, NOW);
     const priced = (await call("GET", "/food/restaurants")).body as { items: { delivery_fee_formatted: string | null }[] };
-    expect(priced.items[0]!.delivery_fee_formatted).toBe("E£25.00");
+    expect(priced.items[0]!.delivery_fee_formatted).toBe("E£25");
   });
 
   it("sends Config.food: currency, time zone, cuisines, payment, tracking, when courier jobs are made, the map", async () => {
@@ -256,9 +256,9 @@ describe("105.1 food delivery apps on the hosted API", () => {
       // 20 minutes, 10 more, then 1.2 km at 25 km/h.
       delivery_minutes: 33,
       min_order: "60.00",
-      min_order_formatted: "E£60.00",
+      min_order_formatted: "E£60",
       // 20 + 10 × 1.2 = 32.
-      delivery_fee_formatted: "E£32.00",
+      delivery_fee_formatted: "E£32",
       distance_km: 1.2,
       delivers: true,
     });
@@ -322,7 +322,7 @@ describe("105.1 food delivery apps on the hosted API", () => {
     expect(await inbox(chef.user.id)).toEqual([["New order", "restaurant_order"]]);
     // The kitchen sees the first name and the dishes, not the address or number.
     const fresh = (await call("GET", "/restaurant/orders", { token: chef.access_token, query: { scope: "new" } })).body as { items: Record<string, unknown>[] };
-    expect(fresh.items).toEqual([expect.objectContaining({ id, customer: { name: "Karim" }, notes: "Ring twice", subtotal_formatted: "E£140.00" })]);
+    expect(fresh.items).toEqual([expect.objectContaining({ id, customer: { name: "Karim" }, notes: "Ring twice", subtotal_formatted: "E£140" })]);
     expect(fresh.items[0]).not.toHaveProperty("dropoff");
     // Others can't.
     expect((await call("GET", "/restaurant/orders", { token: customer.access_token, query: { scope: "new" } })).body).toMatchObject({ code: "not_restaurant" });
@@ -350,7 +350,7 @@ describe("105.1 food delivery apps on the hosted API", () => {
     expect((await call("PUT", "/me/food-orders/{order_id}/rating", { params: [String(id)], token: customer.access_token, body: { restaurant: 1 } })).body).toMatchObject({ code: "not_rateable" });
     expect((await store.getRestaurant(app.id, abou))).toMatchObject({ ratingSum: 5, ratingCount: 1 });
     const desk = (await call("GET", "/restaurant/me", { token: chef.access_token })).body;
-    expect(desk).toMatchObject({ id: abou, name: "Abou Tarek", open: true, accepting: true, busy_until: null, today: { orders: 1, sales_formatted: "E£140.00" } });
+    expect(desk).toMatchObject({ id: abou, name: "Abou Tarek", open: true, accepting: true, busy_until: null, today: { orders: 1, sales_formatted: "E£140" } });
     expect(((await call("GET", "/restaurant/orders", { token: chef.access_token, query: { scope: "done" } })).body as { total: number }).total).toBe(1);
   });
 

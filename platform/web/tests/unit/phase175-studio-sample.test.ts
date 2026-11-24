@@ -49,8 +49,8 @@ describe("175 Studio's gift checkout sample as the shop's", () => {
     expect(html).toContain("Morocco");
     expect(html).toContain("Casablanca");
     // E£ 2,100 at 0.2: MAD 420.
-    expect(html).toMatch(/MAD\s?420\.00/);
-    expect(html).toMatch(/Pay MAD\s?515\.00/);
+    expect(html).toMatch(/MAD\s?420(?![.\d])/);
+    expect(html).toMatch(/Pay MAD\s?515(?![.\d])/);
     const ar = draw(shopSampleOf(kech(), owner, rates, NOW), "ar");
     expect(ar).toContain("المغرب");
     expect(ar).toContain("غدًا، 19 نوفمبر");
@@ -59,7 +59,7 @@ describe("175 Studio's gift checkout sample as the shop's", () => {
 
   it("without a rate the numbers are kept, in the shop's currency", () => {
     const html = draw(shopSampleOf(kech(), owner, ratesOf(null, null), NOW));
-    expect(html).toMatch(/MAD\s?2,100\.00/);
+    expect(html).toMatch(/MAD\s?2,100(?![.\d])/);
   });
 
   it("without a shop, the sample's own", () => {

@@ -169,7 +169,8 @@ describe("168 a flash sale on a product with sizes, and the sale's name", () => 
   it("lists a product with sizes on sale, both ends at the sale's price, its cheapest size's sale", () => {
     const out = withSale(sized, [sale], now) as { price: Record<string, unknown>; sale: Record<string, unknown> };
     expect(out.price).toMatchObject({ amount: "240.00", max_amount: "400.00", on_sale: true, range: true });
-    expect(out.price.formatted).toMatch(/240\.00.*400\.00/);
+    expect(out.price.formatted).toMatch(/240.*400/);
+    expect(out.price.formatted).not.toMatch(/\.00/);
     expect(out.sale).toMatchObject({ was: "300.00", now: "240.00", percent_off: 20, flash_sale_id: 4, remaining: 10, title: "Eid roses", titles: { ar: "ورود العيد", tr: "Bayram gülleri" } });
     // Not in the sale, or the sale over: as it was.
     expect((withSale({ ...sized, id: 8 }, [sale], now) as { sale: unknown }).sale).toBeNull();

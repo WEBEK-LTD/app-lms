@@ -1,3 +1,4 @@
+import type { MoneyFormat } from "../catalog/money";
 /**
  * 115.4 Money in any currency. Amounts are kept as whole minor units (cents,
  * piastres, fils) so sums never drift; each currency has its own number of
@@ -53,14 +54,16 @@ export function fromMinor(minor: number, decimals: number): string {
 }
 
 /** "EGP 125.50" in the page's language, the currency's own decimals always written. */
-export function formatMinor(minor: number, currency: string, locale = "en"): string {
-  const decimals = currencyDecimals(currency);
+export function formatMinor(minor: number, currency: string, locale = "en", format: MoneyFormat = {}): string {
+  const all = currencyDecimals(currency);
+  // 229.4 A whole amount without its zeros ("USD 300"), unless an accounting document needs them all.
+  const decimals = !format.exact && minor % 10 ** all === 0 ? 0 : all;
   try {
     return new Intl.NumberFormat(locale, { style: "currency", currency, currencyDisplay: "code", minimumFractionDigits: decimals, maximumFractionDigits: decimals })
-      .format(minor / 10 ** decimals)
+      .format(minor / 10 ** all)
       .replace(/ /g, " ");
   } catch {
-    return `${currency} ${fromMinor(minor, decimals)}`;
+    return `${currency} ${decimals ? fromMinor(minor, all) : String(minor / 10 ** all)}`;
   }
 }
 

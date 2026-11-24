@@ -1,3 +1,4 @@
+import type { MoneyFormat } from "../catalog/money";
 import type { PaymentProviderId, PlanPayment } from "../data/types";
 
 /**
@@ -86,9 +87,9 @@ export function lowerShown(shownFull: Money, chargedFull: Money, chargedNow: num
 
 const formatters = new Map<string, Intl.NumberFormat>();
 
-/** "EGP 1,500" or "$29"; with piastres or cents only when there are some ("EGP 1,499.50", "$23.20"). */
-export function formatMoney(money: Money): string {
-  const whole = money.cents % 100 === 0;
+/** "EGP 1,500" or "$29"; with piastres or cents only when there are some ("EGP 1,499.50", "$23.20"); 229.4 always with them when `exact` (a receipt). */
+export function formatMoney(money: Money, format: MoneyFormat = {}): string {
+  const whole = !format.exact && money.cents % 100 === 0;
   const key = `${money.currency}:${whole}`;
   let formatter = formatters.get(key);
   if (!formatter) {
@@ -105,13 +106,14 @@ export function formatMoney(money: Money): string {
   return formatter.format(money.cents / 100);
 }
 
-/** A stored amount of Yallapp's (a plan payment, a coupon's use): "EGP 1,500" or "$29"; older amounts in other currencies as the catalog writes them ("₺4,800.00"). */
-export function formatAmount(cents: number, currency: string): string {
-  if (currency === "EGP" || currency === "USD") return formatMoney({ cents, currency });
+/** A stored amount of Yallapp's (a plan payment, a coupon's use): "EGP 1,500" or "$29"; 229.4 in other currencies the same way ("₺4,800"), with every digit when `exact` (a receipt). */
+export function formatAmount(cents: number, currency: string, format: MoneyFormat = {}): string {
+  if (currency === "EGP" || currency === "USD") return formatMoney({ cents, currency }, format);
+  const whole = !format.exact && cents % 100 === 0;
   try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency, currencyDisplay: "narrowSymbol" }).format(cents / 100);
+    return new Intl.NumberFormat("en-US", { style: "currency", currency, currencyDisplay: "narrowSymbol", ...(whole ? { minimumFractionDigits: 0, maximumFractionDigits: 0 } : {}) }).format(cents / 100);
   } catch {
-    return `${(cents / 100).toFixed(2)} ${currency}`;
+    return `${whole ? String(cents / 100) : (cents / 100).toFixed(2)} ${currency}`;
   }
 }
 

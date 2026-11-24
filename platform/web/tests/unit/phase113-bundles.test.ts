@@ -225,7 +225,7 @@ describe("113.1 bundles on the hosted API", () => {
     await h.store.createCatalogCoupon({ appId: h.state.app.id, code: "FREE", kind: "percent", value: 100, minOrderCents: null, endsAt: null, maxUses: 2, active: true, createdAt: NOW });
     await h.store.createCatalogCoupon({ appId: h.state.app.id, code: "HALF", kind: "percent", value: 50, minOrderCents: null, endsAt: null, maxUses: null, active: true, createdAt: NOW });
     const { access_token: token, user } = await h.signUp();
-    expect((await h.call("POST", "/courses/{course_id}/coupon", { params: ["10"], token, body: { code: "free" } })).body).toMatchObject({ status: "applied", free: true, total: expect.stringContaining("0.00") });
+    expect((await h.call("POST", "/courses/{course_id}/coupon", { params: ["10"], token, body: { code: "free" } })).body).toMatchObject({ status: "applied", free: true, total: expect.stringContaining("0") });
     expect((await h.call("POST", "/bundles/{bundle_id}/coupon", { params: ["50"], token, body: { code: "HALF" } })).body).toMatchObject({ status: "applied", free: false, total: expect.stringContaining("225") });
     const course = await h.call("POST", "/auth/checkout-link", { token, query: android, body: { course_id: 10, coupon: "FREE" } });
     expect(course.body).toMatchObject({ enrolled: true, course_ids: [10] });

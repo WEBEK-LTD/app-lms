@@ -86,17 +86,17 @@ describe("180.13 events, homes and campaigns in the customer's currency", () => 
 
   it("an event's cheapest paid ticket as money, null when every ticket is free", () => {
     const type = (priceCents: number) => ({ priceCents }) as TicketType;
-    expect(lowestPaid([type(0), type(25000), type(15000)], "EGP")).toEqual({ amount: "150.00", currency: "EGP", formatted: "E£150.00" });
+    expect(lowestPaid([type(0), type(25000), type(15000)], "EGP")).toEqual({ amount: "150.00", currency: "EGP", formatted: "E£150" });
     expect(lowestPaid([type(0)], "EGP")).toBeNull();
     const shown = addDisplayPrices({ price_label: "From E£150.00", price_from: lowestPaid([type(15000)], "EGP") }, usd);
-    expect((shown.price_from as unknown as { display: unknown }).display).toMatchObject({ currency: "USD", amount: "3.00", formatted: "$3.00" });
+    expect((shown.price_from as unknown as { display: unknown }).display).toMatchObject({ currency: "USD", amount: "3.00", formatted: "$3" });
   });
 
   it("a home's price and a campaign's goal and what was raised", () => {
     const home = addDisplayPrices({ price: { amount: "4250000.00", currency: "EGP", formatted: "EGP 4,250,000", period: null, negotiable: false } }, usd);
     expect(home.price).toMatchObject({ display: { currency: "USD", amount: "85000.00" } });
     const campaign = addDisplayPrices({ goal: "50000.00", goal_formatted: "₺50,000.00", raised: "12000.00", raised_formatted: "₺12,000.00", currency: "TRY" }, usd);
-    expect(campaign).toMatchObject({ display: { currency: "USD", goal: "1250.00", raised: "300.00", raised_formatted: "$300.00" } });
+    expect(campaign).toMatchObject({ display: { currency: "USD", goal: "1250.00", raised: "300.00", raised_formatted: "$300" } });
   });
 });
 

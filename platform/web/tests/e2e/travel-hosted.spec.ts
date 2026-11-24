@@ -125,7 +125,7 @@ test("Hotels: not on the plan yet; a hotel and its room added", async () => {
   await sheet.getByLabel("A night (USD)", { exact: true }).fill("150");
   await sheet.getByRole("button", { name: "Add", exact: true }).click();
   await expect(own.getByText("Deluxe Nile View", { exact: true }).first()).toBeVisible();
-  await expect(own.getByText("$150.00 a night", { exact: false })).toBeVisible();
+  await expect(own.getByText("$150 a night", { exact: false })).toBeVisible();
 
   await own.goto("/dashboard/travel/hotels");
   await expect(own.getByText("Nile Garden Resort")).toBeVisible();

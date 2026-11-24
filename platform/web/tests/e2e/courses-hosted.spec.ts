@@ -87,7 +87,7 @@ test("the academy adds a course with a lesson", async () => {
   await expect(own.getByText("Saved “Turkish for Beginners”.")).toBeVisible();
   await own.getByRole("link", { name: "Courses", exact: true }).first().click();
   await expect(own.getByText("Paid courses can't be bought until you set up")).toBeVisible();
-  await expect(own.getByRole("link", { name: /Turkish for Beginners/ })).toContainText("₺450.00 · 1 lesson · 0 students");
+  await expect(own.getByRole("link", { name: /Turkish for Beginners/ })).toContainText("₺450 · 1 lesson · 0 students");
 });
 
 test("the app sees the course and its preview lesson", async ({ request }) => {
@@ -320,9 +320,9 @@ test("113.1 the academy sells two courses together in a bundle at its own price,
   await form.getByRole("button", { name: "Add bundle" }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Turkish, complete" })).toBeVisible();
   // The owner's price next to what the courses cost on their own.
-  await expect(own.locator("[data-compare-at]")).toHaveText("Its courses on their own: ₺750.00. Students save ₺150.00.");
+  await expect(own.locator("[data-compare-at]")).toHaveText("Its courses on their own: ₺750. Students save ₺150.");
   await own.getByRole("link", { name: "Back to bundles" }).click();
-  await expect(own.locator("li[data-bundle]")).toContainText("2 courses · ₺600.00 instead of ₺750.00");
+  await expect(own.locator("li[data-bundle]")).toContainText("2 courses · ₺600 instead of ₺750");
 
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
   expect(config.features).toMatchObject({ bundles: true });

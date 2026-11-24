@@ -135,7 +135,7 @@ test("a campaign with a goal, suggested amounts and a picture, published", async
   await own.getByLabel("Add pictures").setInputFiles({ name: "parcels.png", mimeType: "image/png", buffer: solidPng(64, 36, [200, 150, 90]) });
   await own.getByRole("button", { name: "Publish" }).click();
   await expect(own.getByRole("status")).toContainText("Published “Winter food parcels”.");
-  await expect(own.getByRole("link", { name: /Winter food parcels/ })).toContainText("₺0.00 of ₺50,000.00");
+  await expect(own.getByRole("link", { name: /Winter food parcels/ })).toContainText("₺0 of ₺50,000");
 
   const config = await (await request.get(`${api}/config?platform=ios&app_version=1.0.0`)).json();
   expect(config).toMatchObject({ vertical: "charity", donations: { currency: "TRY", ios_mode: "browser", monthly: false, updates_push: false } });
@@ -168,11 +168,11 @@ test("a supporter donates; the campaign moves once iyzico confirms, with a recei
   const { url } = (await link.json()) as { url: string };
   await page.goto(url);
   await expect(page.getByRole("heading", { name: "Your donation" })).toBeVisible();
-  await expect(page.getByRole("region", { name: "Winter food parcels" })).toContainText("₺300.00");
+  await expect(page.getByRole("region", { name: "Winter food parcels" })).toContainText("₺300");
   await page.getByLabel("Full name").fill(donor.name);
   await page.getByLabel("Email").fill(donor.email);
   await page.getByLabel("City").fill("Izmir");
-  await page.getByRole("button", { name: "Donate ₺300.00" }).click();
+  await page.getByRole("button", { name: "Donate ₺300" }).click();
 
   // On iyzico's page: nothing counted yet.
   await expect(page.getByRole("button", { name: "Pay with test card" })).toBeVisible();
@@ -182,11 +182,11 @@ test("a supporter donates; the campaign moves once iyzico confirms, with a recei
   await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
 
   const after = await (await request.get(`${api}/donations/campaigns/${campaignId}`)).json();
-  expect(after).toMatchObject({ raised: "300.00", donor_count: 1, recent_donations: [{ name: null, amount_formatted: "₺300.00", message: "Stay warm" }] });
+  expect(after).toMatchObject({ raised: "300.00", donor_count: 1, recent_donations: [{ name: null, amount_formatted: "₺300", message: "Stay warm" }] });
 
   const receipt = (await mailsTo(donor.email)).at(-1)!;
   expect(receipt.subject).toMatch(/^Your donation to .+ · D-\d+$/);
-  expect(receipt.text).toContain("Amount: ₺300.00");
+  expect(receipt.text).toContain("Amount: ₺300");
   // The word itself, not letters in the random receipt link ("…/receipts/Yq9nxltax…").
   expect(receipt.text.replace(/https?:\/\/\S+/g, "")).not.toMatch(/\btax\b/i);
   const receiptUrl = /(https?:\/\/\S+\/receipts\/\S+)/.exec(receipt.text)![1]!;
@@ -201,7 +201,7 @@ test("a supporter donates; the campaign moves once iyzico confirms, with a recei
 test("the dashboard lists the donation, exports it and shows the donor", async () => {
   await own.goto("/dashboard/donations");
   const row = own.getByRole("row").filter({ hasText: donor.email });
-  await expect(row).toContainText("₺300.00");
+  await expect(row).toContainText("₺300");
   await expect(row).toContainText("Anonymous");
   await expect(row).toContainText("Stay warm");
 
@@ -213,12 +213,12 @@ test("the dashboard lists the donation, exports it and shows the donor", async (
   expect(text).toContain(`Winter food parcels,300.00,TRY,One-off,${donor.name},${donor.email}`);
 
   await own.getByRole("link", { name: "Donors" }).click();
-  await expect(own.getByRole("row").filter({ hasText: donor.email })).toContainText("₺300.00 in 1 donation");
+  await expect(own.getByRole("row").filter({ hasText: donor.email })).toContainText("₺300 in 1 donation");
 
   // A campaign with donations can only be closed: its donors keep their receipts.
   await own.goto("/dashboard/campaigns");
   await own.getByRole("link", { name: /Winter food parcels/ }).click();
-  await expect(own.getByText("₺300.00 of ₺50,000.00 from 1 donor")).toBeVisible();
+  await expect(own.getByText("₺300 of ₺50,000 from 1 donor")).toBeVisible();
   await own.getByRole("button", { name: "Delete" }).click();
   await expect(own.getByText("This campaign has donations, so it can't be deleted")).toBeVisible();
   await own.getByRole("button", { name: "Close the campaign" }).click();

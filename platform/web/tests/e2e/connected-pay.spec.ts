@@ -127,9 +127,9 @@ async function pay(customer: Page, request: import("@playwright/test").APIReques
   await customer.getByLabel("Address").fill("Bağdat Caddesi 12, Kadıköy");
   await customer.getByRole("button", { name: /^Pay / }).click();
   // The site priced its shipping for the address: the customer sees the new total before paying.
-  await expect(customer.getByText("With the shipping and tax for your address, the total is ₺1,075.00. Check it, then tap Pay.")).toBeVisible();
+  await expect(customer.getByText("With the shipping and tax for your address, the total is ₺1,075. Check it, then tap Pay.")).toBeVisible();
   await expect(customer.getByText("Shipping", { exact: true })).toBeVisible();
-  await customer.getByRole("button", { name: "Pay ₺1,075.00" }).click();
+  await customer.getByRole("button", { name: "Pay ₺1,075" }).click();
   await customer.getByRole("button", { name: "Pay with test card" }).click();
   await expect(customer).toHaveURL(/\/pay\/[\w-]+\/order-received\?shop_order=(placed|confirming)$/);
   return customer.url();
@@ -240,7 +240,7 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   const confirming = await pay(customer, request);
   expect(confirming).toMatch(/shop_order=confirming$/);
   await expect(customer.getByText("Payment received")).toBeVisible();
-  await expect(customer.getByText(/We received your payment of ₺1,075\.00\. .+ will confirm your order shortly\./)).toBeVisible();
+  await expect(customer.getByText(/We received your payment of ₺1,075\. .+ will confirm your order shortly\./)).toBeVisible();
 
   await page.goto("/dashboard/payments");
   const list = page.getByRole("region", { name: "Payments in the app" });
@@ -267,7 +267,7 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
   await page.reload();
   const third = list.locator('[data-in-app-payment="needs_attention"]');
   await third.getByRole("button").click();
-  await expect(details).toContainText("Refunds ₺1,075.00 to the customer through Stripe.");
+  await expect(details).toContainText("Refunds ₺1,075 to the customer through Stripe.");
   await details.getByRole("button", { name: "Refund" }).click();
   await expect(list.locator('[data-in-app-payment="refunded"]')).toContainText("Refunded");
   const refund = stripe.calls.find((c) => c.method === "POST" && c.path === "/v1/refunds")!;

@@ -184,14 +184,14 @@ describe("iyzico refunds", () => {
       {
         key: "payment_refunded",
         to: "mona@example.com",
-        values: { org_name: "Harbour Books", customer_name: "Mona Hassan", amount: "₺450.00", what: "order 1001", total_refunded: "₺450.00 of ₺450.00", date: "12 October 2026" },
+        values: { org_name: "Harbour Books", customer_name: "Mona Hassan", amount: "₺450", what: "order 1001", total_refunded: "₺450 of ₺450", date: "12 October 2026" },
       },
     ]);
     // Nothing is left: no more refunds.
     expect((await orderRefundOptions(d, app, after)).refundable).toBe(false);
     // The audit log has it, with who and how.
     const audit = await store.listAuditEntries({ action: "payment.refund", offset: 0, limit: 5 });
-    expect(audit.items[0]).toMatchObject({ actorEmail: "owner@harbour.test", clientId: app.clientId, summary: "Refunded ₺450.00 of order 1001 through iyzico: Paid twice (Harbour Books)" });
+    expect(audit.items[0]).toMatchObject({ actorEmail: "owner@harbour.test", clientId: app.clientId, summary: "Refunded ₺450 of order 1001 through iyzico: Paid twice (Harbour Books)" });
   });
 
   it("refunds item by item after the day, never more than each item's price, minus earlier refunds", async () => {
@@ -211,7 +211,7 @@ describe("iyzico refunds", () => {
     // The rest: T1's last 50, then T2 and T3; no cancel, as something was refunded already.
     iyzico.calls.length = 0;
     const second = await refundOrder(d, app, (await store.getCatalogOrder(app.id, order.id))!, input(20000));
-    expect(second).toMatchObject({ ok: true, message: "Refunded ₺200.00: all of it." });
+    expect(second).toMatchObject({ ok: true, message: "Refunded ₺200: all of it." });
     expect(iyzico.calls.filter((c) => c.path === "/payment/refund").map((c) => [c.body!.paymentTransactionId, c.body!.price])).toEqual([
       ["T1", "50.00"],
       ["T2", "100.00"],
@@ -486,16 +486,16 @@ describe("donation refunds", () => {
     expect(iyzico.calls.find((c) => c.path === "/payment/refund")!.body).toMatchObject({ conversationId: "donation-D-1001", paymentTransactionId: "D1", price: "50.00" });
     expect(await store.getCampaign(app.id, campaign.id)).toMatchObject({ raisedCents: 30000, donorCount: 2 });
     let now = (await store.getDonation(app.id, donation.id))!;
-    expect(donationJson(now, "https://yallapp.test")).toMatchObject({ amount_formatted: "₺250.00", refunded_total: "₺50.00" });
+    expect(donationJson(now, "https://yallapp.test")).toMatchObject({ amount_formatted: "₺250", refunded_total: "₺50" });
 
     expect((await refundDonation(d, app, now, input(20000))).ok).toBe(true);
     now = (await store.getDonation(app.id, donation.id))!;
     expect(now).toMatchObject({ status: "refunded", refundedCents: 25000 });
     expect(await store.getCampaign(app.id, campaign.id)).toMatchObject({ raisedCents: 10000, donorCount: 1 });
-    expect(donationJson(now, "https://yallapp.test").refunded_total).toBe("₺250.00");
+    expect(donationJson(now, "https://yallapp.test").refunded_total).toBe("₺250");
     expect(mails.map((m) => [m.to, m.values.what, m.values.total_refunded])).toEqual([
-      ["elif@example.com", "donation D-1001", "₺50.00 of ₺250.00"],
-      ["elif@example.com", "donation D-1001", "₺250.00 of ₺250.00"],
+      ["elif@example.com", "donation D-1001", "₺50 of ₺250"],
+      ["elif@example.com", "donation D-1001", "₺250 of ₺250"],
     ]);
     // The app's list keeps refunded donations.
     expect((await store.listDonations({ appId: app.id, statuses: ["paid", "refunded"], offset: 0, limit: 10 })).total).toBe(2);

@@ -134,7 +134,7 @@ test("Restaurants: one added with its hours, a section, a dish with choices and 
   // The dish shows in its section; its add box folds once the section has one.
   await expect(menu.getByText("Edit Koshari")).toBeVisible();
   await own.reload();
-  await expect(menu.getByText("E£50.00 · Size")).toBeVisible();
+  await expect(menu.getByText("E£50 · Size")).toBeVisible();
   // Each dish is changed in a sheet from the side.
   await menu.getByRole("button", { name: "Edit Koshari" }).click();
   const sheet = own.getByRole("dialog", { name: "Koshari" });

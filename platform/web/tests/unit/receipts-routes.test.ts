@@ -340,7 +340,7 @@ describe("71 payment emails carry the receipt", () => {
     expect(mail!.html).toContain('<meta name="color-scheme" content="light dark">');
     expect(mail!.html).toContain(">Harbour Books<");
     expect(mail!.text).not.toContain(orderReceiptCode(app.id, paid.id, signingSecret()));
-    expect(mail!.text).toContain("Atlas × 1: ₺450.00");
+    expect(mail!.text).toContain("Atlas × 1: ₺450");
     expect(mail!.attachments).toHaveLength(1);
     const file = mail!.attachments![0]!;
     expect(file).toMatchObject({ filename: `receipt-${1000 + paid.id}.pdf`, contentType: "application/pdf" });

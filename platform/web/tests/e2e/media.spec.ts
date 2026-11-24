@@ -309,7 +309,7 @@ test("the owner buys a storage pack by card, then uploads", async () => {
   await list.getByRole("link", { name: "Receipt" }).first().click();
   const receipt = own.getByRole("region", { name: "Yallapp storage payment" });
   await expect(receipt).toContainText("+25 GB for the Media library");
-  await expect(receipt).toContainText(/About \$\d+\. Your bank may have converted the charge/);
+  await expect(receipt).toContainText(/About \$\d+\.00\. Your bank may have converted the charge/);
 
   // The team sees the pack and the payment.
   await admin.goto(`/admin?q=${encodeURIComponent(client.email)}`);

@@ -97,7 +97,7 @@ test("Vehicle types: not on the plan yet; one added with its fares", async () =>
   await expect(own.getByText("Added. Riders choose it when they ask for a ride.")).toBeVisible();
   await own.reload();
   await expect(own.getByText("Economy", { exact: true })).toBeVisible();
-  await expect(own.getByText(/15\.00 \+ .*6\.00\/km \+ .*1\.00\/min · at least .*30\.00/)).toBeVisible();
+  await expect(own.getByText(/15 \+ .*6\/km \+ .*1\/min · at least .*30(?![.\d])/)).toBeVisible();
 });
 
 test("Drivers: one added with their car", async () => {

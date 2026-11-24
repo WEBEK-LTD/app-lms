@@ -145,7 +145,7 @@ test("the hosted API serves the event; free tickets are taken, never more than t
   expect(config.events).toEqual({ show_map: true, allow_cancel_hours: 24, time_zone: "Europe/Istanbul", currency: "TRY" });
   const list = await (await request.get(`${api}/events`)).json();
   expect(list.items).toHaveLength(1);
-  expect(list.items[0]).toMatchObject({ id: eventId, title: "Saturday Film Club", category: { id: "film", name: "Film" }, price_label: "Free · from ₺150.00", spots_left: null, status: "scheduled" });
+  expect(list.items[0]).toMatchObject({ id: eventId, title: "Saturday Film Club", category: { id: "film", name: "Film" }, price_label: "Free · from ₺150", spots_left: null, status: "scheduled" });
   expect(list.items[0].venue).toMatchObject({ name: "Studio 2", latitude: 40.9837 });
   const detail = await (await request.get(`${api}/events/${eventId}?platform=ios`)).json();
   expect(detail.html).toContain("<p>An old film on the waterfront.</p>");

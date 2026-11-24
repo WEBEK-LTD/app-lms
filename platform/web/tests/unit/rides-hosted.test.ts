@@ -219,7 +219,7 @@ describe("105.2 ride apps on the hosted API", () => {
       scheduling: true,
       matching: "nearest",
       areas: [],
-      cancellation: { free_minutes: 2, fee_formatted: "E£15.00", no_show_minutes: 5 },
+      cancellation: { free_minutes: 2, fee_formatted: "E£15", no_show_minutes: 5 },
       pin: false,
       emergency_phone: null,
       driver_app: "same",
@@ -258,7 +258,7 @@ describe("105.2 ride apps on the hosted API", () => {
     const soon = await call("POST", "/rides/estimate", { body: { pickup: TAHRIR, dropoff: TOWER, scheduled_at: new Date(now.getTime() + 10 * 60_000).toISOString() } });
     expect(soon.status).toBe(400);
     const promo = (await call("POST", "/rides/estimate", { body: { pickup: TAHRIR, dropoff: TOWER, promo_code: "welcome" } })).body as { discount_formatted: string; options: { fare: string }[] };
-    expect([promo.discount_formatted, promo.options[0]!.fare]).toEqual(["E£10.00", "17.40"]);
+    expect([promo.discount_formatted, promo.options[0]!.fare]).toEqual(["E£10", "17.40"]);
     expect((await call("POST", "/rides/estimate", { body: { pickup: TAHRIR, dropoff: TOWER, promo_code: "NOPE" } })).body).toMatchObject({ code: "invalid_request", details: { field: "promo_code" } });
     // Without a vehicle type with fares, no rides yet.
     await store.updateVehicleType(app.id, economyId, { active: false }, NOW);
@@ -373,10 +373,10 @@ describe("105.2 ride apps on the hosted API", () => {
     const second = ((await ask(rider.access_token)).body as { id: number }).id;
     await call("POST", "/driver/rides/{ride_id}/accept", { params: [String(second)], token: omar.access_token });
     later(3 * 60);
-    expect((await call("POST", "/me/rides/{ride_id}/cancel", { params: [String(second)], token: rider.access_token })).body).toMatchObject({ status: "cancelled", fare: "15.00", final: true, cancellation: { fee_formatted: "E£15.00" } });
+    expect((await call("POST", "/me/rides/{ride_id}/cancel", { params: [String(second)], token: rider.access_token })).body).toMatchObject({ status: "cancelled", fare: "15.00", final: true, cancellation: { fee_formatted: "E£15" } });
     // The next ride carries it.
     const estimate = (await call("POST", "/rides/estimate", { token: rider.access_token, body: { pickup: TAHRIR, dropoff: TOWER } })).body as { previous_fee_formatted: string; options: { fare: string }[] };
-    expect([estimate.previous_fee_formatted, estimate.options[0]!.fare]).toEqual(["E£15.00", "42.40"]);
+    expect([estimate.previous_fee_formatted, estimate.options[0]!.fare]).toEqual(["E£15", "42.40"]);
     const third = ((await ask(rider.access_token)).body as { id: number; fare: string }).id;
     expect((await store.getRide(app.id, second))!.feeCarriedTo).toBe(third);
     await call("POST", "/driver/rides/{ride_id}/accept", { params: [String(third)], token: omar.access_token });
@@ -411,7 +411,7 @@ describe("105.2 ride apps on the hosted API", () => {
     later(60);
     expect((await step(second.access_token, id, { status: "cancelled", reason: "rider_no_show" })).body).toMatchObject({ code: "invalid_status" });
     later(5 * 60);
-    expect((await step(second.access_token, id, { status: "cancelled", reason: "rider_no_show" })).body).toMatchObject({ status: "cancelled", fare_formatted: "E£15.00" });
+    expect((await step(second.access_token, id, { status: "cancelled", reason: "rider_no_show" })).body).toMatchObject({ status: "cancelled", fare_formatted: "E£15" });
     expect((await store.getRide(app.id, id))!.cancellation).toEqual({ by: "driver", reason: "rider_no_show", feeCents: 15_00 });
   });
 

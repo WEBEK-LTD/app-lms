@@ -161,7 +161,7 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   await page.getByLabel("Email").fill(customer);
   await page.getByLabel("City").fill("Cairo");
   await page.getByLabel("Address").fill("9 Road 9, Maadi");
-  await page.getByRole("button", { name: "Pay E£1,700.00" }).click();
+  await page.getByRole("button", { name: "Pay E£1,700" }).click();
   // 153 Kashier's card form, in a frame on the payment page.
   await page.frameLocator("iframe[data-kashier-embedded]").getByRole("button", { name: "Pay with test card" }).click();
   await expect(page).toHaveURL(/\/pay\/[\w-]+\/order-received$/);
@@ -172,7 +172,7 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   await signIn(page, shop.email, shop.password);
   await page.goto("/dashboard/orders");
   const order = page.getByRole("listitem").filter({ hasText: "Nour Adel" });
-  await expect(order).toContainText("E£1,700.00");
+  await expect(order).toContainText("E£1,700");
   // 132.132 The order's details, its refunds with them, open in a drawer from its row.
   await order.getByRole("button", { name: /^Order \d+/ }).click();
   await order.locator("summary", { hasText: "Refund" }).click();
@@ -185,7 +185,7 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
   await form.getByLabel("Amount (EGP)").fill("300");
   await form.getByLabel("Note (optional)").fill("Damaged cover");
   await form.getByRole("button", { name: "Refund" }).click();
-  await expect(order.getByRole("status")).toHaveText("Refunded E£300.00.");
+  await expect(order.getByRole("status")).toHaveText("Refunded E£300.");
   expect(kashier.refunds).toHaveLength(1);
   expect(kashier.refunds[0]).toMatchObject({
     authorization: "garden-kashier-secret",
@@ -196,11 +196,11 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
 
   await page.reload();
   const after = page.getByRole("listitem").filter({ hasText: "Nour Adel" });
-  await expect(after).toContainText("Refunded E£300.00 of E£1,700.00");
+  await expect(after).toContainText("Refunded E£300 of E£1,700");
   await after.getByRole("button", { name: /^Order \d+/ }).click();
-  await expect(after.getByRole("list", { name: "Refunds" })).toContainText(`Refunded E£300.00 on`);
+  await expect(after.getByRole("list", { name: "Refunds" })).toContainText(`Refunded E£300 on`);
   await expect(after.getByRole("list", { name: "Refunds" })).toContainText(`by ${shop.email}: The customer asked (Damaged cover) · through Kashier · reference RF-1`);
-  await expect.poll(async () => (await mailsTo(customer)).map((m) => m.subject).join("\n")).toMatch(/refunded E£300\.00 of order \d+/);
+  await expect.poll(async () => (await mailsTo(customer)).map((m) => m.subject).join("\n")).toMatch(/refunded E£300 of order \d+/);
 
   // The rest: the order is refunded.
   await after.locator("summary", { hasText: "Refund" }).click();
@@ -220,7 +220,7 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
 
   // The team's audit log has both.
   await admin.goto("/admin/audit");
-  await expect(admin.getByText(/Refunded E£1,400\.00 of order \d+ through Kashier: The customer asked/).first()).toBeVisible();
+  await expect(admin.getByText(/Refunded E£1,400 of order \d+ through Kashier: The customer asked/).first()).toBeVisible();
 });
 
 test("the team edits what a plan includes, and the WordPress site on it is asked to check its license", async ({ page, request }) => {
@@ -301,7 +301,7 @@ test("cancelling a paid order asks first, then refunds through its gateway, rest
   await page.getByLabel("Email").fill(guest);
   await page.getByLabel("City").fill("Cairo");
   await page.getByLabel("Address").fill("12 Road 9, Maadi");
-  await page.getByRole("button", { name: "Pay E£900.00" }).click();
+  await page.getByRole("button", { name: "Pay E£900" }).click();
   await page.frameLocator("iframe[data-kashier-embedded]").getByRole("button", { name: "Pay with test card" }).click();
   await expect(page).toHaveURL(/\/pay\/[\w-]+\/order-received$/);
   // Both sold: out of stock.
@@ -325,7 +325,7 @@ test("cancelling a paid order asks first, then refunds through its gateway, rest
 
   // Cancel and refund.
   await order.getByRole("button", { name: "Cancel order" }).click();
-  await ask.getByRole("button", { name: "Cancel and refund E£900.00" }).click();
+  await ask.getByRole("button", { name: "Cancel and refund E£900" }).click();
   await expect.poll(() => kashier.refunds.length).toBe(refundsBefore + 1);
   expect((kashier.refunds.at(-1)!.body.transaction as Record<string, unknown>).amount).toBe(900);
   await page.reload();
@@ -335,7 +335,7 @@ test("cancelling a paid order asks first, then refunds through its gateway, rest
   expect((await (await request.get(`${api}/store/products`)).json()).items[0].stock_status).toBe("in_stock");
   // The guest is told: the cancel and the refund.
   await expect.poll(async () => (await mailsTo(guest)).map((m) => m.text).join("\n")).toContain("Your order was cancelled.");
-  await expect.poll(async () => (await mailsTo(guest)).some((m) => / refunded E£900\.00 /.test(m.subject))).toBe(true);
+  await expect.poll(async () => (await mailsTo(guest)).some((m) => / refunded E£900 /.test(m.subject))).toBe(true);
   // No longer a paid order.
   await expect(page.locator(".kit-tile").filter({ hasText: "Paid orders" }).locator(".kit-tile-v")).toHaveText("0");
 });

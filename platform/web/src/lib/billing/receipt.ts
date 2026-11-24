@@ -59,10 +59,10 @@ export function planReceiptRows(input: {
     rows.push(["Plan", `${input.planName}, ${paymentPeriod(payment)}`]);
     if (payment.storagePacks?.length) rows.push(["Storage renewed", packList(payment)]);
   }
-  if (input.coupon) rows.push(["Coupon", `${input.coupon.code}, ${formatAmount(input.coupon.discountCents, input.coupon.currency)} off`]);
-  rows.push(["Amount charged", formatAmount(payment.amountCents, payment.currency)]);
+  if (input.coupon) rows.push(["Coupon", `${input.coupon.code}, ${formatAmount(input.coupon.discountCents, input.coupon.currency, { exact: true })} off`]);
+  rows.push(["Amount charged", formatAmount(payment.amountCents, payment.currency, { exact: true })]);
   if (payment.shownCents && payment.shownCurrency && payment.shownCurrency !== payment.currency) {
-    rows.push(["Price shown", `About ${formatAmount(payment.shownCents, payment.shownCurrency)}. Your bank may have converted the charge at its own rate.`]);
+    rows.push(["Price shown", `About ${formatAmount(payment.shownCents, payment.shownCurrency, { exact: true })}. Your bank may have converted the charge at its own rate.`]);
   }
   rows.push(["Paid with", paidWith(payment)]);
   return rows;

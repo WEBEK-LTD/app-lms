@@ -175,7 +175,7 @@ test("the café sets up its menu with options, pickup and delivery", async () =>
   await own.getByRole("button", { name: "Add dish" }).click();
   await expect(own.getByRole("status").filter({ hasText: "Saved" })).toContainText("Saved “Defne Burger”.");
   const dish = own.locator('[data-product="Defne Burger"]');
-  await expect(dish).toContainText("₺460.00");
+  await expect(dish).toContainText("₺460");
   // 132.152 Its category and option groups in its inspector, opened from its row.
   await dish.getByRole("button", { name: /^Defne Burger/ }).click();
   const inspector = own.locator('[data-inspector-product="Defne Burger"]');
@@ -245,14 +245,14 @@ test("a customer orders the dish with options for delivery, on the iPhone, and p
   const summary = page.getByRole("region", { name: /Order \d+/ });
   await expect(summary).toContainText("Double, Cheddar");
   await expect(summary).toContainText("Delivery fee");
-  await expect(summary).toContainText("₺680.00");
+  await expect(summary).toContainText("₺680");
   await expect(summary).toContainText("Delivery as soon as possible to Moda Cd. 12, flat 3, Moda");
   await expect(page.getByLabel("Address")).toHaveValue("Moda Cd. 12, flat 3");
   await page.getByLabel("Full name").fill("Deniz Aç");
   await page.getByLabel("Mobile number").fill("0532 765 43 21");
   await page.getByLabel("Email").fill(`diner-${suffix}@example.com`);
   await page.getByLabel("City").fill("Istanbul");
-  await page.getByRole("button", { name: "Pay ₺680.00" }).click();
+  await page.getByRole("button", { name: "Pay ₺680" }).click();
   await page.getByRole("button", { name: "Pay with test card" }).click();
   await expect(page.getByRole("heading", { name: "Thank you!" })).toBeVisible();
 
@@ -260,7 +260,7 @@ test("a customer orders the dish with options for delivery, on the iPhone, and p
   expect(mine.items[0]).toMatchObject({ status: "processing", fulfilment_status: "received", status_label: "Received", items: [{ options: ["Double", "Cheddar"] }] });
 
   const mail = (await mailsTo(client.email)).filter((m) => m.subject.includes("order")).at(-1)!;
-  expect(mail.text).toContain("Defne Burger (Double, Cheddar) × 1: ₺650.00");
+  expect(mail.text).toContain("Defne Burger (Double, Cheddar) × 1: ₺650");
   expect(mail.text).toContain("Delivery as soon as possible: Moda Cd. 12, flat 3, Moda (Door code 12)");
 });
 

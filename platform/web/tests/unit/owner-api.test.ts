@@ -432,7 +432,7 @@ describe("58 the Owner API", () => {
       expect(apps.length).toBeGreaterThan(0);
       await paidOrder(store, kitchen, { totalCents: 30000 });
       const chosen = await call("GET", "/widget", { token: widget, query: { app_id: kitchen.id } });
-      expect(chosen.body).toMatchObject({ app: { id: kitchen.id, orders: 1, sales: { amount_cents: 30000, formatted: "₺300.00" } } });
+      expect(chosen.body).toMatchObject({ app: { id: kitchen.id, orders: 1, sales: { amount_cents: 30000, formatted: "₺300" } } });
       // The access token isn't the widget's, and the widget's opens nothing else.
       expect(await call("GET", "/widget", { token })).toMatchObject({ status: 401 });
       expect(await call("GET", "/me", { token: widget, check: false })).toMatchObject({ status: 401 });

@@ -75,7 +75,7 @@ describe("78.4 the client's timeline", () => {
     ]);
     expect(items[0]).toMatchObject({ app: "Ada Academy", tone: "bad", detail: "GET /store/products: no answer (7 times since 2026-10-22)" });
     expect(items[1]!.detail).toBe("The Android app couldn't be built.");
-    expect(items[5]!.detail).toBe("₺4,800.00");
+    expect(items[5]!.detail).toBe("₺4,800");
     expect(buildTimeline({ appNames: new Map(), builds: [build, ready], errors: [], notices: [], payments: [], milestones: [], publishing: [], audit: [] }, 2)).toHaveLength(2);
   });
 });

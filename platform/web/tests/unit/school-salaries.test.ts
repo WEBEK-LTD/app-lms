@@ -436,7 +436,7 @@ describe("113.12 a school's month of salaries, recorded by hand", () => {
     expect((await call("GET", "/staff/payslips/{payslip_id}", { params: [String(samirSheet!.id)], token: monaToken })).status).toBe(404);
     expect((await call("GET", "/staff/payslips/{payslip_id}", { params: [String(monaSheet!.id)], token: samirToken })).status).toBe(404);
     const own = await call("GET", "/staff/payslips/{payslip_id}", { params: [String(samirSheet!.id)], token: samirToken });
-    expect(own.body).toMatchObject({ name: "Samir Fawzy", job_title: "Nurse", net: { amount_formatted: "E£6,000.00" } });
+    expect(own.body).toMatchObject({ name: "Samir Fawzy", job_title: "Nurse", net: { amount_formatted: "E£6,000" } });
     // Who recorded a payment and the receipts' photos stay in the dashboard.
     await recordPayment(deps(), samirSheet!, { cents: 6000_00, method: "cash", paidOn: "2026-11-01", note: null, receiptAssetId: "receipt-photo" });
     const paid = JSON.stringify((await call("GET", "/staff/payslips/{payslip_id}", { params: [String(samirSheet!.id)], token: samirToken })).body);

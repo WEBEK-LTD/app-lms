@@ -214,7 +214,7 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   api = `${E2E.baseURL}/api/app/${/\/shop\/([0-9a-f-]{36})\//.exec(link)![1]}`;
 
   const customer = await page.context().browser()!.newPage({ extraHTTPHeaders });
-  await buyTwo(customer, request, "Stripe", "$25.00");
+  await buyTwo(customer, request, "Stripe", "$25");
   // The session was made with the shop's own key and read back before the order was paid, 132.32 at the pinned API version.
   const sessionCalls = stripe.calls.filter((c) => c.path.startsWith("/v1/checkout/sessions"));
   expect(sessionCalls.map((c) => c.method)).toEqual(expect.arrayContaining(["POST", "GET"]));
@@ -270,7 +270,7 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await expect(payments.locator('[data-gateway="paypal"]')).toHaveAttribute("data-checked", "");
   await expect(payments.getByText("On · your PayPal account · sandbox (test payments)")).toBeVisible();
 
-  await buyTwo(customer, request, "PayPal", "$25.00");
+  await buyTwo(customer, request, "PayPal", "$25");
   // Approved on PayPal's page, then captured by our server once, with the shop's own credentials.
   expect(paypal.calls.filter((c) => c.path.endsWith("/capture"))).toHaveLength(1);
   expect(paypal.calls.find((c) => c.path === "/v1/oauth2/token")!.headers.authorization).toBe(`Basic ${Buffer.from("AYharbour-client:harbour-paypal-secret").toString("base64")}`);
@@ -279,7 +279,7 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await page.getByRole("link", { name: "Orders", exact: true }).click();
   const orders = page.getByRole("listitem").filter({ hasText: "Ada Lovelace" });
   await expect(orders).toHaveCount(2);
-  await expect(orders.first()).toContainText("$25.00");
+  await expect(orders.first()).toContainText("$25");
   await expect(orders.first()).toContainText("Harbour Mug × 2");
 });
 
@@ -339,9 +339,9 @@ test("188 a Stripe payment in the app goes to the app's PaymentSheet", async ({ 
 
   const token = await checkout();
   await fillDetails();
-  await customer.getByRole("button", { name: "Pay $25.00" }).click();
+  await customer.getByRole("button", { name: "Pay $25" }).click();
   await expect(customer.getByRole("heading", { name: "Pay in the app" })).toBeVisible();
-  await expect(customer.getByText("Pay $25.00 by card, Apple Pay or Google Pay in the app's secure Stripe sheet.")).toBeVisible();
+  await expect(customer.getByText("Pay $25 by card, Apple Pay or Google Pay in the app's secure Stripe sheet.")).toBeVisible();
   // No Stripe form in the page, and the app was asked once.
   await expect(customer.locator("[data-stripe-embedded]")).toHaveCount(0);
   await expect.poll(asks).toBe(1);
@@ -364,7 +364,7 @@ test("188 a Stripe payment in the app goes to the app's PaymentSheet", async ({ 
   await tell("canceled");
   await expect(customer.getByText("The payment wasn't completed. Nothing was charged.")).toBeVisible();
   expect((await (await request.get(`/pay/${token}/status`)).json()).state).toBe("started");
-  await customer.getByRole("button", { name: "Pay $25.00" }).click();
+  await customer.getByRole("button", { name: "Pay $25" }).click();
   await expect.poll(asks).toBe(2);
 
   // Paid in the sheet: the status the app reads says so (read back from Stripe), and the order is paid once.
@@ -377,7 +377,7 @@ test("188 a Stripe payment in the app goes to the app's PaymentSheet", async ({ 
   // An app that can't take it: Stripe's own form in the page, with the same details.
   const other = await checkout();
   await fillDetails();
-  await customer.getByRole("button", { name: "Pay $25.00" }).click();
+  await customer.getByRole("button", { name: "Pay $25" }).click();
   await expect(customer.getByRole("heading", { name: "Pay in the app" })).toBeVisible();
   await tell("unavailable");
   await expect(customer.getByRole("heading", { name: "Your card" })).toBeVisible();
@@ -396,7 +396,7 @@ test("188 a Stripe payment in the app goes to the app's PaymentSheet", async ({ 
   await browser.getByLabel("Email").fill("ada@example.com");
   await browser.getByLabel("City").fill("London");
   await browser.getByLabel("Address").fill("1 Baker Street");
-  await browser.getByRole("button", { name: "Pay $25.00" }).click();
+  await browser.getByRole("button", { name: "Pay $25" }).click();
   await expect(browser.getByRole("heading", { name: "Your card" })).toBeVisible();
   await browser.close();
 });
