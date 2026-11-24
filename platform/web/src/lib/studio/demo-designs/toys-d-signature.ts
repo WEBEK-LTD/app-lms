@@ -1,5 +1,6 @@
 import type { Action, StudioEntry, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
 import type { SectionContext, SectionInfo, SectionWord } from "../sections";
+import { PRODUCT_PAGE_SLUG, productPage, productPart } from "../product-page";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigImage, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
@@ -506,6 +507,82 @@ function over(screenName: string, ctx: SectionContext): StudioNode[] | null {
   }
 }
 
+// ——— 228.7 Its own product page ———
+
+/**
+ * The Montessori product page: the photo and its thumbnails with square-ish
+ * corners, a sage line, the name in Playpen, its facts (its age, its
+ * materials) as quiet lines right under it, the price, the choices, the
+ * description open, "How to play with it" in three numbered steps, delivery
+ * and returns, the reviews, the quiet favourites, the wood promise, and the
+ * price beside Add to cart at the foot on a hairline.
+ */
+export function montessoriProductPage(ctx: SectionContext) {
+  const id = idOf(ctx);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const gap = (top: number) => sides(top, 20, 0, 20);
+  const step = (n: number, word: SectionWord): StudioNode => ({
+    id: id(),
+    type: "row",
+    gap: 10,
+    cross: "start",
+    children: [
+      { id: id(), type: "row", width: 24, height: 24, radius: 12, align: "center", cross: "center", border_color: WOOD.day, dark_border_color: WOOD.night, border_width: 1, children: [{ id: id(), type: "text", text: String(n), font: font(11.5, 600, { line_height: 1 }), color: WOOD.day, dark_color: WOOD.night }] },
+      say(ctx, word, font(13, 400, { line_height: 1.5 }), { muted: true, width: "fill", max_lines: 2 }),
+    ],
+  });
+  const page = productPage(ctx, { parts: [], background: K.page, dark_background: K.darkPage });
+  return {
+    slug: PRODUCT_PAGE_SLUG,
+    title: "pProductPage" as SectionWord,
+    studio: {
+      ...page,
+      body: {
+        id: id(),
+        type: "column" as const,
+        gap: 0,
+        padding: sides(0, 0, 24, 0),
+        children: [
+          productPart(ctx, { type: "product_gallery", look: "thumbs", radius: 4, node: { margin: sides(8, 20, 0, 20) } }),
+          { ...say(ctx, "tyMoPpKicker", font(12.5, 600), { max_lines: 1, color: SAGE.day, dark_color: "#A9B998" }), margin: gap(20) },
+          productPart(ctx, { type: "product_title", look: "plain", node: { ...ink, font: font(26, 500, { line_height: 1.35 }), margin: gap(4) } }),
+          productPart(ctx, { type: "product_specs", look: "list", rows: 3, node: { ...ink, font: { family: FACE }, margin: gap(12), padding: sides(10, 14, 10, 14), radius: 6, background: "#E6EADF", dark_background: "#232B1E" } }),
+          productPart(ctx, { type: "product_price", look: "single", node: { ...ink, font: font(20, 600), margin: gap(16) } }),
+          productPart(ctx, { type: "product_variants", look: "chips", accent: SAGE.day, dark_accent: SAGE.night, node: { ...ink, margin: gap(16) } }),
+          rule(ctx, sides(20, 20, 0, 20)),
+          productPart(ctx, { type: "product_description", look: "plain", node: { ...ink, font: { family: FACE }, margin: gap(16) } }),
+          {
+            id: id(),
+            type: "column" as const,
+            name: ctx.w("tyMoPlayTitle"),
+            gap: 12,
+            radius: 6,
+            padding: sides(16, 16, 16, 16),
+            margin: gap(22),
+            background: K.surface,
+            dark_background: K.darkSurface,
+            border_color: K.line,
+            dark_border_color: K.darkLine,
+            border_width: 1,
+            children: [say(ctx, "tyMoPlayTitle", font(16, 500), { max_lines: 1 }), step(1, "tyMoPlay1"), step(2, "tyMoPlay2"), step(3, "tyMoPlay3")],
+          },
+          productPart(ctx, { type: "product_delivery", look: "rows", accent: WOOD.day, dark_accent: WOOD.night, node: { ...ink, margin: gap(20) } }),
+          productPart(ctx, { type: "product_reviews", look: "summary", accent: SAGE.day, dark_accent: SAGE.night, node: { ...ink, margin: gap(22) } }),
+          productPart(ctx, { type: "product_related", look: "carousel", rows: 6, node: { ...ink, margin: sides(26, 0, 0, 0) } }),
+          woodBand(ctx, sides(26, 20, 0, 20)),
+          productPart(ctx, {
+            type: "product_buy",
+            look: "price",
+            accent: K.fill,
+            dark_accent: K.darkFill,
+            node: { pin: "bottom", padding: sides(10, 20, 12, 20), background: K.page, dark_background: K.darkPage, border_color: K.line, dark_border_color: K.darkLine, border_width: 1, ...ink },
+          }),
+        ],
+      },
+    },
+  };
+}
+
 // ——— The sign-in screen, the account menu, the bar and the look ———
 
 const MONTESSORI_SCREENS = signatureScreens({
@@ -527,7 +604,7 @@ export const MONTESSORI_D: SignatureDesign = {
   home: montessoriHome,
   over,
   tabs: clothesTabs,
-  pages: (ctx) => [{ slug: MENU_PAGE, title: "tyCategoryMenu", studio: montessoriMenuPage(ctx) }],
+  pages: (ctx) => [{ slug: MENU_PAGE, title: "tyCategoryMenu", studio: montessoriMenuPage(ctx) }, montessoriProductPage(ctx)],
   bar: MONTESSORI_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },
   chrome: { home: "large", header: "large", system: "large" },

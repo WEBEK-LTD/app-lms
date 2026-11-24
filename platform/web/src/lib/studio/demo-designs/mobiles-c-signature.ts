@@ -1,6 +1,7 @@
 import type { Action, StudioEntry, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
 import type { SectionContext, SectionInfo, SectionWord } from "../sections";
 import { installmentsTag } from "../installments";
+import { PRODUCT_PAGE_SLUG, productPage, productPart } from "../product-page";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigImage, sigPhoto, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
@@ -403,6 +404,68 @@ function over(screenName: string, ctx: SectionContext): StudioNode[] | null {
   }
 }
 
+// ——— 228.7 Its own product page ———
+
+/**
+ * The keynote's product page: the device alone on the black stage (its
+ * photos), its name large and centred, its price "From", its colours as
+ * swatches, "Installments coming soon"; then "Every figure that matters"
+ * with its specs as quiet lines, the trade-in on a dark card, delivery and
+ * returns, the description, the reviews and the line-up; Add to cart and
+ * Buy now in a dark pill at the foot.
+ */
+export function keynoteProductPage(ctx: SectionContext) {
+  const id = idOf(ctx);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const page = productPage(ctx, { parts: [], background: K.page, dark_background: K.darkPage });
+  return {
+    slug: PRODUCT_PAGE_SLUG,
+    title: "pProductPage" as SectionWord,
+    studio: {
+      ...page,
+      body: {
+        id: id(),
+        type: "column" as const,
+        gap: 0,
+        padding: sides(0, 0, 24, 0),
+        children: [
+          {
+            id: id(),
+            type: "column" as const,
+            name: ctx.w("mbKeyNew"),
+            gap: 0,
+            padding: sides(0, 0, 28, 0),
+            background: STAGE,
+            dark_background: STAGE,
+            children: [
+              productPart(ctx, { type: "product_gallery", look: "card", radius: 34, node: { aspect_ratio: 1, margin: sides(12, 28, 0, 28), background: "#111111", dark_background: "#111111" } }),
+              productPart(ctx, { type: "product_title", look: "plain", node: { ...silver, font: font(30, 600, { line_height: 1.15, letter_spacing: -0.4 }), text_align: "center", margin: sides(18, 24, 0, 24) } }),
+              productPart(ctx, { type: "product_price", look: "from", node: { ...grey, font: font(16, 400), text_align: "center", margin: sides(6, 24, 0, 24) } }),
+              productPart(ctx, { type: "product_variants", look: "swatches", accent: SILVER, dark_accent: SILVER, node: { ...silver, margin: sides(18, 24, 0, 24) } }),
+              { id: id(), type: "row" as const, align: "center" as const, margin: sides(16, 0, 0, 0), children: [installmentsTag(ctx, { color: "#C9C9CE", dark_color: "#C9C9CE", background: "#1C1C1E", dark_background: "#1C1C1E" })] },
+            ],
+          },
+          opening(ctx, "mbKeyPpKicker", "mbKeyPp", sides(40, 24, 10, 24)),
+          productPart(ctx, { type: "product_specs", look: "list", rows: 8, node: { ...ink, font: font(15, 300, { line_height: 1.5 }), margin: sides(0, 24, 0, 24) } }),
+          trade(ctx, sides(28, 16, 0, 16)),
+          productPart(ctx, { type: "product_delivery", look: "card", accent: K.accent, dark_accent: K.darkAccent, node: { ...ink, margin: sides(16, 16, 0, 16), padding: sides(16, 16, 16, 16), radius: 24, background: K.surface, dark_background: K.darkSurface } }),
+          productPart(ctx, { type: "product_description", look: "accordion", node: { ...ink, margin: sides(24, 24, 0, 24), border_color: K.line, dark_border_color: K.darkLine } }),
+          productPart(ctx, { type: "product_reviews", look: "summary", accent: K.accent, dark_accent: K.darkAccent, node: { ...ink, margin: sides(22, 24, 0, 24) } }),
+          opening(ctx, "mbKeyLineupKicker", "mbKeyLineup", sides(36, 24, 10, 24)),
+          productPart(ctx, { type: "product_related", look: "carousel", rows: 8, node: { ...ink, margin: sides(0, 0, 16, 0) } }),
+          productPart(ctx, {
+            type: "product_buy",
+            look: "buy_now",
+            accent: SILVER,
+            dark_accent: SILVER,
+            node: { pin: "bottom", radius: 30, padding: sides(8, 10, 8, 10), margin: sides(0, 14, 10, 14), background: "#1C1C1E", dark_background: "#1C1C1E", ...silver },
+          }),
+        ],
+      },
+    },
+  };
+}
+
 // ——— The sign-in screen, the account menu, the bar and the look ———
 
 const KEYNOTE_SCREENS = signatureScreens({
@@ -425,7 +488,7 @@ export const KEYNOTE_C: SignatureDesign = {
   home: keynoteHome,
   over,
   tabs: clothesTabs,
-  pages: (ctx) => [{ slug: MENU_PAGE, title: "mbCategoryMenu", studio: keynoteMenuPage(ctx) }],
+  pages: (ctx) => [{ slug: MENU_PAGE, title: "mbCategoryMenu", studio: keynoteMenuPage(ctx) }, keynoteProductPage(ctx)],
   bar: KEYNOTE_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },
   chrome: { home: "brand", header: "glass", system: "photo" },

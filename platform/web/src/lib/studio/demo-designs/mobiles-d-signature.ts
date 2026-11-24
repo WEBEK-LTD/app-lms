@@ -1,5 +1,6 @@
 import type { Action, StudioEntry, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
 import type { SectionContext, SectionInfo, SectionWord } from "../sections";
+import { PRODUCT_PAGE_SLUG, productPage, productPart } from "../product-page";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
@@ -395,6 +396,57 @@ function over(screenName: string, ctx: SectionContext): StudioNode[] | null {
   }
 }
 
+// ——— 228.7 Its own product page ———
+
+/**
+ * The deals hub's product page, dense and price first: the photo and its
+ * thumbnails, the sale price large in hot pink before the name and its
+ * stars, "Installments coming soon", the storages as a grid of cells, the
+ * quantity, the compare tray, the specs as a table, today's deals with
+ * their countdown, delivery and returns, the reviews' bars and more devices
+ * two to a row; the price beside Add to cart at the foot.
+ */
+export function hubProductPage(ctx: SectionContext) {
+  const id = idOf(ctx);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const gap = (top: number) => sides(top, 12, 0, 12);
+  const page = productPage(ctx, { parts: [], background: K.page, dark_background: K.darkPage });
+  return {
+    slug: PRODUCT_PAGE_SLUG,
+    title: "pProductPage" as SectionWord,
+    studio: {
+      ...page,
+      body: {
+        id: id(),
+        type: "column" as const,
+        gap: 0,
+        padding: sides(0, 0, 24, 0),
+        children: [
+          productPart(ctx, { type: "product_gallery", look: "thumbs", radius: 12, node: { margin: sides(6, 12, 0, 12) } }),
+          productPart(ctx, { type: "product_price", look: "sale", accent: HOT, dark_accent: HOT, node: { color: HOT, dark_color: "#FF5C7A", font: font(28, 800), margin: gap(14) } }),
+          productPart(ctx, { type: "product_title", look: "rating", accent: ZAP, dark_accent: ZAP, node: { ...ink, font: font(17, 700), margin: gap(4) } }),
+          soon(ctx, gap(12)),
+          productPart(ctx, { type: "product_variants", look: "chips", accent: HOT, dark_accent: HOT, node: { ...ink, margin: gap(14) } }),
+          productPart(ctx, { type: "product_quantity", look: "stepper", accent: HOT, dark_accent: HOT, node: { ...ink, margin: gap(12) } }),
+          tray(ctx, gap(14)),
+          productPart(ctx, { type: "product_specs", look: "table", rows: 8, node: { ...ink, font: { family: FACE }, margin: gap(16), padding: sides(8, 10, 8, 10), radius: 12, border_color: K.line, dark_border_color: K.darkLine, border_width: 1.5 } }),
+          deals(ctx, gap(16)),
+          productPart(ctx, { type: "product_delivery", look: "rows", accent: HOT, dark_accent: HOT, node: { ...ink, margin: gap(16) } }),
+          productPart(ctx, { type: "product_reviews", look: "bars", accent: HOT, dark_accent: HOT, node: { ...ink, margin: gap(18) } }),
+          productPart(ctx, { type: "product_related", look: "grid", rows: 6, node: { ...ink, margin: sides(18, 12, 8, 12) } }),
+          productPart(ctx, {
+            type: "product_buy",
+            look: "price",
+            accent: HOT,
+            dark_accent: HOT,
+            node: { pin: "bottom", radius: 14, padding: sides(8, 10, 8, 10), margin: sides(0, 10, 8, 10), background: K.page, dark_background: K.darkSurface, border_color: K.line, dark_border_color: K.darkLine, border_width: 1.5, ...ink },
+          }),
+        ],
+      },
+    },
+  };
+}
+
 // ——— The sign-in screen, the account menu, the bar and the look ———
 
 const HUB_SCREENS = signatureScreens({
@@ -419,6 +471,7 @@ export const HUB_D: SignatureDesign = {
   pages: (ctx) => [
     { slug: MENU_PAGE, title: "mbCategoryMenu", studio: hubMenuPage(ctx) },
     { slug: COMPARE_PAGE, title: "mbComparePage", studio: hubComparePage(ctx) },
+    hubProductPage(ctx),
   ],
   bar: HUB_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },

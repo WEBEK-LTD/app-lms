@@ -49,6 +49,14 @@ skin, the makers' market's stitched frames with the price on a hanging tag
 and who made it, and the cozy studio's ready piece or kit switch with the
 piece's pattern. Light and dark, Arabic, English and Turkish.
 
+228.7 (toys and mobiles): Toot's looks C (the adventure map) and D
+(Montessori) and Nova's looks C (the keynote) and D (the deals hub) each
+draw their own product page: chunky frames, the treasure chest and a big
+red Add to cart; age and material tags with "How to play with it"; one
+spotlight shot on black with swatches and specs revealed line by line; price
+first, installments soon, the compare tray and today's countdown. No two
+share a skeleton, and none shares Lujain A's (`phase228-7-toys-mobiles`).
+
 Roadmap 216 (Yallapp's Firebase rides out a moment when Google can't
 reach the platform's issuer): the token exchange is tried up to 3 times
 (about 1 s, then 3 s) on a passing failure only (unreachable, 429, 5xx,

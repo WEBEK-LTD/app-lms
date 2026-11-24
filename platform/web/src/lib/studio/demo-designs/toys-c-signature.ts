@@ -1,6 +1,7 @@
 import type { Action, StudioEntry, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
 import type { SectionContext, SectionInfo, SectionWord } from "../sections";
 import { APP_WORDS } from "../app-words";
+import { PRODUCT_PAGE_SLUG, productPage, productPart } from "../product-page";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigImage, sigTexts, signatureBar, type SignatureInk } from "./food-signature-parts";
@@ -684,6 +685,57 @@ function over(screenName: string, ctx: SectionContext): StudioNode[] | null {
   }
 }
 
+// ——— 228.7 Its own product page ———
+
+/**
+ * The adventure map's product page: the photo in a chunky sand frame, the
+ * name and its stars in Lalezar, the price in red, the choices and the
+ * quantity, the treasure chest (the shop's code), delivery and returns on a
+ * chunky blue card, the description, the facts, the safety strip, the
+ * reviews, the heroes' favourites, and a big red Add to cart pressed out
+ * at the foot.
+ */
+export function mapProductPage(ctx: SectionContext) {
+  const id = idOf(ctx);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const gap = (top: number) => sides(top, 16, 0, 16);
+  const page = productPage(ctx, { parts: [], background: K.page, dark_background: K.darkPage });
+  return {
+    slug: PRODUCT_PAGE_SLUG,
+    title: "pProductPage" as SectionWord,
+    studio: {
+      ...page,
+      body: {
+        id: id(),
+        type: "column" as const,
+        gap: 0,
+        padding: sides(0, 0, 24, 0),
+        children: [
+          chunky(ctx, productPart(ctx, { type: "product_gallery", look: "card", radius: 20, node: { aspect_ratio: 1, padding: sides(8, 8, 8, 8), background: SANDS[0], dark_background: "#2B2D63" } }), { radius: 28, depth: 6, margin: sides(10, 16, 0, 16) }),
+          productPart(ctx, { type: "product_title", look: "rating", accent: YELLOW, dark_accent: YELLOW, node: { ...ink, font: display(28, { line_height: 1.15 }), margin: gap(18) } }),
+          productPart(ctx, { type: "product_price", look: "sale", accent: RED, dark_accent: YELLOW, node: { color: RED, dark_color: YELLOW, font: display(26, { line_height: 1.1 }), margin: gap(6) } }),
+          productPart(ctx, { type: "product_variants", look: "chips", accent: BLUE, dark_accent: "#8EA0FF", node: { ...ink, margin: gap(16) } }),
+          productPart(ctx, { type: "product_quantity", look: "stepper", accent: GREEN, dark_accent: GREEN, node: { ...ink, margin: gap(14) } }),
+          chest(ctx),
+          chunky(ctx, productPart(ctx, { type: "product_delivery", look: "rows", accent: YELLOW, dark_accent: YELLOW, node: { ...onDark, padding: sides(14, 14, 14, 14), background: BLUE, dark_background: "#3049D6" } }), { radius: 22, depth: 5, margin: gap(18) }),
+          productPart(ctx, { type: "product_description", look: "accordion", node: { ...ink, margin: gap(20), border_color: K.line, dark_border_color: "#3B3E7A" } }),
+          productPart(ctx, { type: "product_specs", look: "list", node: { ...ink, margin: gap(16) } }),
+          safe(ctx),
+          productPart(ctx, { type: "product_reviews", look: "summary", accent: RED, dark_accent: YELLOW, node: { ...ink, margin: gap(24) } }),
+          productPart(ctx, { type: "product_related", look: "grid", rows: 4, node: { ...ink, margin: sides(24, 16, 8, 16) } }),
+          productPart(ctx, {
+            type: "product_buy",
+            look: "cart",
+            accent: RED,
+            dark_accent: RED,
+            node: { pin: "bottom", radius: 22, padding: sides(8, 8, 8, 8), margin: sides(0, 16, 10, 16), background: K.surface, dark_background: K.darkSurface, border_color: OUT.day, dark_border_color: "#3B3E7A", border_width: 2.5, font: display(20), ...ink },
+          }),
+        ],
+      },
+    },
+  };
+}
+
 // ——— The sign-in screen, the account menu, the bar and the look ———
 
 const MAP_SCREENS = signatureScreens({
@@ -705,7 +757,7 @@ export const MAP_C: SignatureDesign = {
   home: mapHome,
   over,
   tabs: clothesTabs,
-  pages: (ctx) => [{ slug: MENU_PAGE, title: "tyCategoryMenu", studio: mapMenuPage(ctx) }],
+  pages: (ctx) => [{ slug: MENU_PAGE, title: "tyCategoryMenu", studio: mapMenuPage(ctx) }, mapProductPage(ctx)],
   bar: MAP_BAR,
   look: { header: { background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk }, background: K.page, dark_background: K.darkPage },
   chrome: { home: "brand", header: "brand", system: "brand" },
