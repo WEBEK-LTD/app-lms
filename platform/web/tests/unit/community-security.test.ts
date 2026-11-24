@@ -3,6 +3,7 @@ import { newMember } from "@/lib/community/base/accounts";
 import { linkedMail } from "@/lib/community/base/linking";
 import { communityOrigins, cookieRequestAllowed } from "@/lib/community/csrf";
 import { safeHref } from "@/lib/content/markdown";
+import { isCommunityAdmin, isYallappTeam } from "@/lib/community/staff";
 import { api, joinWithEmail, makeYallappStaff, NOW, testCommunity, type TestCommunity } from "./community-support";
 
 /** A member made in the store (past the sign-up limits per IP). */
@@ -136,14 +137,20 @@ describe("231 who runs the community: a linked Yallapp owner or admin, asked on 
     const c = await testCommunity();
     const me = await joinWithEmail(c, "Would Be Admin");
     await c.deps.store.base.updateMember(me.id, { role: "admin" });
-    expect((await api<ErrorBody>(c, "GET", "/admin/settings", { token: me.token })).body.error.code).toBe("not_admin");
-    expect((await api(c, "GET", "/me", { token: me.token })).body).toMatchObject({ community_role: null });
+    const scope = {};
+    const stored = (await c.deps.store.base.getMember(me.id))!;
+    expect(await isCommunityAdmin(scope, c.deps.platform, stored)).toBe(false);
+    expect((await api(c, "GET", "/me", { token: me.token })).body).toMatchObject({ community_role: null, team: false });
     await makeYallappStaff(c, me.id, "admin");
     expect((await api(c, "GET", "/me", { token: me.token })).body).toMatchObject({ community_role: "admin", team: true });
-    expect((await api(c, "GET", "/admin/settings", { token: me.token })).status).toBe(200);
-    const userId = (await c.deps.store.base.getMember(me.id))!.yallappUserId!;
-    await c.deps.platform.deleteAdminMember(userId);
-    expect((await api(c, "GET", "/admin/settings", { token: me.token })).status).toBe(403);
+    const linked = (await c.deps.store.base.getMember(me.id))!;
+    expect(await isCommunityAdmin({}, c.deps.platform, linked)).toBe(true);
+    await c.deps.platform.deleteAdminMember(linked.yallappUserId!);
+    expect(await isCommunityAdmin({}, c.deps.platform, linked)).toBe(false);
+    expect((await api(c, "GET", "/me", { token: me.token })).body).toMatchObject({ community_role: null });
+    // A suspended member's link makes no admin either.
+    await c.deps.platform.saveAdminMember({ userId: linked.yallappUserId!, role: "owner", addedBy: "o@yallapp.test", addedAt: NOW, updatedAt: NOW });
+    expect(await isCommunityAdmin({}, c.deps.platform, { ...linked, status: "suspended" })).toBe(false);
   });
 
   it("Yallapp's support staff are the team (official answers, the team's names) but not admins", async () => {
@@ -152,7 +159,9 @@ describe("231 who runs the community: a linked Yallapp owner or admin, asked on 
     await makeYallappStaff(c, me.id, "support");
     expect((await api(c, "GET", "/me", { token: me.token })).body).toMatchObject({ community_role: null, team: true });
     expect((await api(c, "PATCH", "/me", { token: me.token, body: { display_name: "Yallapp Support" } })).status).toBe(200);
-    expect((await api(c, "GET", "/admin/settings", { token: me.token })).status).toBe(403);
+    const member = (await c.deps.store.base.getMember(me.id))!;
+    expect(await isYallappTeam({}, c.deps.platform, member)).toBe(true);
+    expect(await isCommunityAdmin({}, c.deps.platform, member)).toBe(false);
   });
 });
 

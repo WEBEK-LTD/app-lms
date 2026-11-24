@@ -55,6 +55,13 @@ test("231 two members join with email, follow, and become friends", async ({ req
   const profile = await (await request.get(`${api}/members/@${mo.username}`)).json();
   expect(profile).toMatchObject({ headline: "Flutter developer", counts: { following: 1, friends: 1 } });
   expect(profile).not.toHaveProperty("email");
+  // A DELETE with no body and no Content-Length, as browsers, curl and the apps send it.
+  const unfollow = await request.delete(`${api}/members/${nour.id}/follow`, { headers: auth(mo.token) });
+  expect(unfollow.status()).toBe(200);
+  expect(await unfollow.json()).toMatchObject({ following: false });
+  expect((await request.put(`${api}/members/${nour.id}/follow`, { headers: auth(mo.token) })).status()).toBe(200);
+  const bare = await fetch(`${api}/members/${nour.id}/follow`, { method: "DELETE", headers: { ...auth(mo.token), "x-forwarded-for": "203.0.113.231" } });
+  expect(bare.status).toBe(200);
 });
 
 test("231 the website's cookie signs the member in like the app's token; errors come in the asked language", async ({ request }) => {
