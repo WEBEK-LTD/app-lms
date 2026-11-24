@@ -848,8 +848,6 @@ async function tutorialSummaries(records: TutorialRecord[], viewerId: string | n
     durationSeconds: t.durationSeconds,
     durationMinutes: Math.max(1, Math.ceil(t.durationSeconds / 60)),
     official: t.official,
-    // Phase 1 sells nothing: no tutorial is locked. Paid ones (bought on the website) come later, shown with a lock and never a price.
-    locked: false,
     tags: t.tags,
     author: members[t.authorId]!,
     viewCount: t.viewCount,
@@ -877,7 +875,8 @@ export async function getTutorial(idOrSlug: string, input: { viewerId: string | 
     t.viewCount += 1;
   }
   const [summary] = await tutorialSummaries([t], input.viewerId, input.lang);
-  return { ...summary!, body: summary!.locked ? "" : t.body, videoUrl: summary!.locked ? null : t.videoUrl };
+  // Every tutorial is free, always (the owner): its whole text and video for everyone.
+  return { ...summary!, body: t.body, videoUrl: t.videoUrl };
 }
 
 const VIDEO_HOSTS = /^https:\/\/(www\.)?(youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com|yallapp\.com\.tr|[\w-]+\.yallapp\.com\.tr)\//i;

@@ -402,7 +402,7 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       await expect(publishTutorial(TEAM, { title: "A video without its address", summary: "A summary here.", kind: "video", section: "studio", level: "beginner", language: "en", body: "", videoUrl: "https://evil.example/v", durationSeconds: 60 })).rejects.toMatchObject({ field: "videoUrl" });
       const article = await publishTutorial(TEAM, { title: "A different product page per template", summary: "Each template its own product page.", kind: "article", section: "studio", level: "beginner", language: "en", body: "word ".repeat(1000), tags: ["Studio", "Product page"] }, later(1));
       const video = await publishTutorial(TEAM, { title: "صفحة منتج مختلفة لكل تمبلت", summary: "في ثماني دقائق.", kind: "video", section: "studio", level: "intermediate", language: "ar", body: "", videoUrl: "https://youtu.be/xyz", durationSeconds: 504 }, later(2));
-      expect(article).toMatchObject({ kind: "article", durationSeconds: 300, durationMinutes: 5, official: true, locked: false, tags: ["studio", "product-page"], author: { displayName: "Yallapp Team" }, section: { slug: "studio" } });
+      expect(article).toMatchObject({ kind: "article", durationSeconds: 300, durationMinutes: 5, official: true, tags: ["studio", "product-page"], author: { displayName: "Yallapp Team" }, section: { slug: "studio" } });
       expect(video).toMatchObject({ kind: "video", durationSeconds: 504, durationMinutes: 9, videoUrl: "https://youtu.be/xyz", slug: "صفحة-منتج-مختلفة-لكل-تمبلت", language: "ar" });
       // Never a price on a tutorial.
       expect(JSON.stringify(video)).not.toMatch(/price|checkout|payment|currency/i);

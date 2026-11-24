@@ -123,7 +123,9 @@ describe("231 Community Q&A API", () => {
       body: { title: "Accept card payments in your store", summary: "Add a gateway in five minutes.", kind: "article", section: "payments", level: "beginner", language: "en", body: "Open Payments, then add a gateway and paste your keys. ".repeat(30) },
     });
     expect(t.status, JSON.stringify(t.body)).toBe(201);
-    expect(t.body).toMatchObject({ official: true, locked: false, kind: "article", duration_minutes: expect.any(Number) });
+    // Every tutorial is free, always: no lock at all.
+    expect(t.body).not.toHaveProperty("locked");
+    expect(t.body).toMatchObject({ official: true, kind: "article", duration_minutes: expect.any(Number) });
     expect((await api(c, "PUT", `/tutorials/${t.body.slug}/bookmark`, { token: helper.token })).status).toBe(204);
     const saved = await api<Json>(c, "GET", "/qa/saved", { token: helper.token });
     expect(saved.body.questions.map((x: Json) => x.id)).toEqual([q.id]);

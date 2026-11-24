@@ -152,8 +152,6 @@ export interface TutorialSummary {
   /** Rounded up: "5 min read". */
   durationMinutes: number;
   official: boolean;
-  /** Paid on the website and not unlocked for this member: shown with a lock, never a price. Phase 1 has none. */
-  locked: boolean;
   tags: string[];
   author: MemberSummary;
   viewCount: number;
@@ -162,9 +160,9 @@ export interface TutorialSummary {
 }
 
 export interface Tutorial extends TutorialSummary {
-  /** An article's text (Markdown); a video's notes; empty when locked. */
+  /** An article's text (Markdown); a video's notes. Every tutorial is free. */
   body: string;
-  /** Null when locked. */
+  /** A video's address; null for an article. */
   videoUrl: string | null;
 }
 

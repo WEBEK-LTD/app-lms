@@ -27,9 +27,8 @@ info:
       notifications, emails, section names) follow `Member.language`, else
       `Accept-Language`, else English. What members wrote comes back as
       written.
-    - **No payments in the app.** Nothing is sold through this API. Paid
-      things are bought on the website and appear here unlocked (`locked`
-      false) after sign-in; locked things carry no price.
+    - **No payments in the app.** Nothing is sold through this API, and
+      every tutorial is free, always: no locks, no prices.
     - **Blocking.** A member never sees content, profiles or notifications
       from someone they blocked or who blocked them; follows and friendships
       between the two end when one blocks the other.
@@ -1660,7 +1659,7 @@ components:
         can_edit: { type: boolean, description: "Its author may delete it." }
     TutorialSummary:
       type: object
-      required: [id, slug, title, summary, kind, level, language, section, cover_url, duration_seconds, duration_minutes, official, locked, tags, author, view_count, bookmarked, published_at]
+      required: [id, slug, title, summary, kind, level, language, section, cover_url, duration_seconds, duration_minutes, official, tags, author, view_count, bookmarked, published_at]
       properties:
         id: { type: string, format: uuid }
         slug: { type: string }
@@ -1674,7 +1673,6 @@ components:
         duration_seconds: { type: integer, description: "A video's length; an article's reading time (200 words a minute)." }
         duration_minutes: { type: [integer, "null"], description: "duration_seconds rounded up to minutes." }
         official: { type: boolean }
-        locked: { type: boolean, description: "Paid on the website and not unlocked for this member. Never a price." }
         tags: { type: array, items: { type: string }, description: "Tag slugs." }
         author: { $ref: "#/components/schemas/MemberSummary" }
         view_count: { type: integer }
@@ -1686,8 +1684,8 @@ components:
         - type: object
           required: [body, video_url]
           properties:
-            body: { type: string, description: "Markdown; empty when locked." }
-            video_url: { type: [string, "null"], description: "Null when locked." }
+            body: { type: string, description: "Markdown: the article, or a video's notes. Every tutorial is free." }
+            video_url: { type: [string, "null"], description: "A video's address; null for an article." }
     VerificationState:
       type: object
       required: [has_gold, app_count, required_apps, yallapp_linked, can_apply, request]
