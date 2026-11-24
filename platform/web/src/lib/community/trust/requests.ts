@@ -76,7 +76,7 @@ export function parseDecision(input: unknown): { ok: true; value: { approve: boo
 
 // ——— Reports ———
 
-export const REPORT_TARGETS = ["question", "answer", "tutorial", "comment", "member"] as const;
+export const REPORT_TARGETS = ["question", "answer", "reply", "tutorial", "comment", "member"] as const;
 export type ReportTarget = (typeof REPORT_TARGETS)[number];
 
 export const REPORT_REASONS = ["spam", "harassment", "hate", "inappropriate", "misinformation", "impersonation", "other"] as const;
