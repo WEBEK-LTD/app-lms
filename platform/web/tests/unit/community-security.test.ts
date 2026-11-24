@@ -161,10 +161,10 @@ describe("231 levels by points", () => {
     const c = await testCommunity();
     const me = await joinWithEmail(c, "Climber");
     await c.deps.store.base.addPoints(me.id, 1240);
-    expect((await api(c, "GET", `/members/${me.id}`, { lang: "tr" })).body).toMatchObject({ level: "expert", level_label: "Uzman", level_progress: 0.06 });
+    expect((await api(c, "GET", `/members/${me.id}`, { lang: "tr" })).body).toMatchObject({ level: "pro", level_label: "Profesyonel", level_progress: 0.64 });
     const config = await api<{ levels: { key: string; min_points: number }[] }>(c, "GET", "/config");
-    expect(config.body.levels.map((l) => [l.key, l.min_points])).toEqual([["newcomer", 0], ["member", 25], ["contributor", 250], ["expert", 1000], ["pro", 5000]]);
+    expect(config.body.levels.map((l) => [l.key, l.min_points])).toEqual([["newcomer", 0], ["member", 25], ["contributor", 250], ["pro", 1000], ["expert", 1375], ["master", 5000]]);
     await c.deps.store.base.addPoints(me.id, 10_000);
-    expect((await api(c, "GET", `/members/${me.id}`)).body).toMatchObject({ level: "pro", level_progress: 1 });
+    expect((await api(c, "GET", `/members/${me.id}`)).body).toMatchObject({ level: "master", level_label: "Master", level_progress: 1 });
   });
 });

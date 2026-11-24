@@ -1,14 +1,11 @@
+import { levelOf, type CommunityLevel } from "../levels";
+
 /**
- * 231 A member's standing by their points, shown beside their name
- * ("Expert"): area B owns the thresholds (lib/community/qa/text.ts rankOf)
- * and may point this at them; these are the same numbers.
+ * 231 A member's standing by their points ("Pro"): the same as their level,
+ * from the one table (lib/community/levels.ts); area B's rankOf reads it too.
  */
-export type MemberRank = "newcomer" | "member" | "contributor" | "expert" | "pro";
+export type MemberRank = CommunityLevel;
 
 export function memberRank(points: number): MemberRank {
-  if (points >= 5000) return "pro";
-  if (points >= 1000) return "expert";
-  if (points >= 250) return "contributor";
-  if (points >= 25) return "member";
-  return "newcomer";
+  return levelOf(points).level;
 }

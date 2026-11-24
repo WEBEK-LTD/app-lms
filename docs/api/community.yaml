@@ -1436,9 +1436,9 @@ components:
         top_badge: { oneOf: [{ $ref: "#/components/schemas/BadgeKind" }, { type: "null" }], description: "The one badge shown next to the name." }
         team: { type: boolean, description: "Yallapp's team (\"Yallapp Team\")." }
         deleted: { type: boolean }
-        rank: { type: string, enum: [newcomer, member, contributor, expert, pro], description: "Their standing by points (newcomer, member from 25, contributor from 250, expert from 1,000, pro from 5,000)." }
+        rank: { type: string, enum: [newcomer, member, contributor, pro, expert, master], description: "Their standing by points: the same as level (newcomer, member from 25, contributor from 250, pro from 1,000, expert from 1,375, master from 5,000)." }
         rank_label: { type: string, description: "The rank's name in the reader's language (\"Expert\")." }
-        level: { type: string, enum: [newcomer, member, contributor, expert, pro], description: "The level by points, from one table (`/config` levels); the same as rank." }
+        level: { type: string, enum: [newcomer, member, contributor, pro, expert, master], description: "The level by points, from one table (`/config` levels); the same as rank." }
         level_label: { type: string, description: "The level's name in the reader's language." }
         level_progress: { type: number, minimum: 0, maximum: 1, description: "How far toward the next level (1 at the top): the side menu's bar." }
         relationship: { $ref: "#/components/schemas/Relationship" }

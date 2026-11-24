@@ -8,8 +8,10 @@ export const LEVELS = [
   { key: "newcomer", minPoints: 0 },
   { key: "member", minPoints: 25 },
   { key: "contributor", minPoints: 250 },
-  { key: "expert", minPoints: 1000 },
-  { key: "pro", minPoints: 5000 },
+  // The approved design: "Pro · 1,240 pts" with its bar about 64% full.
+  { key: "pro", minPoints: 1000 },
+  { key: "expert", minPoints: 1375 },
+  { key: "master", minPoints: 5000 },
 ] as const;
 
 export type CommunityLevel = (typeof LEVELS)[number]["key"];
