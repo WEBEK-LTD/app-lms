@@ -308,38 +308,41 @@ class _ProfileView extends ConsumerWidget {
               color: p.dark ? Brand.navy2 : Colors.white,
               borderRadius: BorderRadius.circular(24),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (profile.relationship.friend == FriendState.friends)
+            child: Material(
+              type: MaterialType.transparency,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (profile.relationship.friend == FriendState.friends)
+                    ListTile(
+                      key: const ValueKey('profile-unfriend'),
+                      leading: Sym(Symbols.person_remove, color: p.ink),
+                      title: Text(
+                        l.socialRemoveFriend,
+                        style: TextStyle(color: p.ink),
+                      ),
+                      onTap: () => Navigator.pop(sheet, 'unfriend'),
+                    ),
                   ListTile(
-                    key: const ValueKey('profile-unfriend'),
-                    leading: Sym(Symbols.person_remove, color: p.ink),
+                    key: const ValueKey('profile-report'),
+                    leading: Sym(Symbols.flag, color: p.ink),
+                    title: Text(l.socialReport, style: TextStyle(color: p.ink)),
+                    onTap: () => Navigator.pop(sheet, 'report'),
+                  ),
+                  ListTile(
+                    key: const ValueKey('profile-block'),
+                    leading: const Sym(Symbols.block, color: Color(0xFFE5484D)),
                     title: Text(
-                      l.socialRemoveFriend,
-                      style: TextStyle(color: p.ink),
+                      l.socialBlock,
+                      style: const TextStyle(
+                        color: Color(0xFFE5484D),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    onTap: () => Navigator.pop(sheet, 'unfriend'),
+                    onTap: () => Navigator.pop(sheet, 'block'),
                   ),
-                ListTile(
-                  key: const ValueKey('profile-report'),
-                  leading: Sym(Symbols.flag, color: p.ink),
-                  title: Text(l.socialReport, style: TextStyle(color: p.ink)),
-                  onTap: () => Navigator.pop(sheet, 'report'),
-                ),
-                ListTile(
-                  key: const ValueKey('profile-block'),
-                  leading: const Sym(Symbols.block, color: Color(0xFFE5484D)),
-                  title: Text(
-                    l.socialBlock,
-                    style: const TextStyle(
-                      color: Color(0xFFE5484D),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  onTap: () => Navigator.pop(sheet, 'block'),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
