@@ -4,6 +4,7 @@ import { Avatar } from "./avatar";
 import { Drawer, LangSelect, ThemeButtons } from "./client";
 import type { Section, Viewer } from "./data";
 import { cmLinks } from "./links";
+import { sectionColor } from "./source";
 import { fill, type CmLang, type CmWords } from "./words";
 
 export type NavKey = "home" | "questions" | "tutorials" | "none";
@@ -74,7 +75,7 @@ export function SideNav({ w, active, viewer, mySections, newCount }: { w: CmWord
           <h6>{w.mySections}</h6>
           {mySections.slice(0, 6).map((s) => (
             <Link key={s.slug} href={cmLinks.questions({ section: s.slug })} className="cm-chip">
-              <i style={{ background: s.color }} />
+              <i style={{ background: sectionColor(s) }} />
               {s.name}
             </Link>
           ))}
@@ -118,7 +119,7 @@ export function Header({ w, lang, viewer, unread, active, mySections, newCount, 
             <div className="dh">{w.mySections}</div>
             {mySections.slice(0, 6).map((s) => (
               <Link key={s.slug} href={cmLinks.questions({ section: s.slug })} className="cm-chip">
-                <i style={{ background: s.color }} />
+                <i style={{ background: sectionColor(s) }} />
                 {s.name}
               </Link>
             ))}

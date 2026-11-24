@@ -14,16 +14,17 @@ export default async function CommunityHome({ searchParams }: { searchParams: Pr
     sections(lang, viewerId),
     siteStats(),
     questions({ viewerId, lang, tab, section: sp.section, limit: 12 }),
-    tutorials({ lang, section: sp.section, limit: 4 }),
-    viewer ? waiting({ viewerId, lang, limit: 20 }) : Promise.resolve([]),
+    tutorials({ viewerId, lang, section: sp.section, limit: 4 }),
+    viewer ? waiting({ viewerId, lang, limit: 20 }) : Promise.resolve({ items: [], total: 0, inMySections: 0 }),
   ]);
-  // The member's section with the most questions waiting, for the hero.
+  // The member's followed section with the most questions waiting, for the hero ("3 questions in Stores…").
+  const followed = new Set(all.filter((s) => s.followed).map((s) => s.slug));
   const bySection = new Map<string, { name: string; n: number }>();
-  for (const q of wq) bySection.set(q.section.slug, { name: q.section.name, n: (bySection.get(q.section.slug)?.n ?? 0) + 1 });
+  for (const q of wq.items) if (followed.has(q.section.slug)) bySection.set(q.section.slug, { name: q.section.name, n: (bySection.get(q.section.slug)?.n ?? 0) + 1 });
   const top = [...bySection.values()].sort((a, b) => b.n - a.n)[0];
   return (
     <SitePage active="home" rail={<Rail w={w} lang={lang} viewer={viewer} />}>
-      <Hero w={w} viewer={viewer} waitingCount={top?.n ?? wq.length} topSection={top?.name ?? null} stats={stats} />
+      <Hero w={w} viewer={viewer} waitingCount={top?.n ?? wq.total} topSection={top?.name ?? null} stats={stats} />
       <Composer w={w} viewer={viewer} />
       <FeedTabs w={w} tab={tab} section={sp.section} sections={all} base={(q) => (q.tab || q.section ? `${cmLinks.home()}?${new URLSearchParams(Object.entries(q).filter((e): e is [string, string] => !!e[1])).toString()}` : cmLinks.home())} />
       <Feed w={w} questions={feed.items} tutorials={tab === "unanswered" ? [] : tuts.items} />

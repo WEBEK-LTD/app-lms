@@ -15,7 +15,7 @@ const LEVELS = ["beginner", "intermediate", "advanced"] as const;
 export default async function TutorialsPage({ searchParams }: { searchParams: Promise<{ section?: string; level?: string; language?: string; kind?: string; cursor?: string }> }) {
   const sp = await searchParams;
   const { lang, w, viewer } = await siteContext();
-  const [all, list] = await Promise.all([sections(lang, viewer?.id ?? null), tutorials({ lang, section: sp.section, level: sp.level, language: sp.language, kind: sp.kind, cursor: sp.cursor, limit: 18 })]);
+  const [all, list] = await Promise.all([sections(lang, viewer?.id ?? null), tutorials({ viewerId: viewer?.id ?? null, lang, section: sp.section, level: sp.level, language: sp.language, kind: sp.kind, cursor: sp.cursor, limit: 18 })]);
   const q = { section: sp.section, level: sp.level, language: sp.language, kind: sp.kind };
   // A chip for one value of a filter: on when chosen; pressing a chosen level or language clears it.
   const chip = (key: keyof typeof q, value: string | undefined, label: string, toggle = false) => {

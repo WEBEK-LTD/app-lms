@@ -295,6 +295,45 @@
 .cm-apps .ic { width: 38px; height: 38px; border-radius: 11px; overflow: hidden; background: var(--cm-card); display: flex; align-items: center; justify-content: center; flex: none; }
 .cm-apps .ic img { width: 100%; height: 100%; object-fit: cover; }
 
+/* ===== Settings, notices, verification, admin ===== */
+.cm .lvl-x { background: #ffe9f0; color: #d93368; }
+.cm-meter { margin-top: 16px; height: 10px; border-radius: 10px; background: var(--cm-soft); overflow: hidden; }
+.cm-meter i { display: block; height: 100%; border-radius: 10px; background: linear-gradient(90deg, #ffd27a, #e5a019); }
+.cm-applist { display: grid; gap: 6px; font-weight: 500; }
+.cm-applist li { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; background: var(--cm-soft); }
+.cm-applist .ms { font-size: 19px; color: var(--cm-icon); }
+.cm-notices { padding: 6px 0; }
+.cm-notices li { display: flex; gap: 12px; align-items: flex-start; padding: 12px 20px; border-top: 1px solid var(--cm-line); font-size: 14.5px; }
+.cm-notices li:first-child { border-top: 0; }
+.cm-notices li.new { background: rgba(255, 138, 61, 0.07); }
+.cm-notices .ic { width: 38px; height: 38px; border-radius: 12px; background: var(--cm-soft); color: var(--cm-orange); display: flex; align-items: center; justify-content: center; flex: none; }
+.cm-notices .m { font-size: 12px; color: var(--cm-muted); margin-top: 2px; }
+.cm-set { display: grid; gap: 10px; justify-items: start; }
+.cm-set p { font-size: 14px; }
+.cm-check { display: flex; gap: 10px; align-items: center; font-size: 14.5px; }
+.cm-check input, .cm-radios input { width: 18px; height: 18px; accent-color: var(--cm-orange); }
+.cm-radios { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 12px; font-size: 14.5px; }
+.cm-radios label { display: flex; align-items: center; gap: 8px; }
+.cm-themes .tg { display: flex; gap: 6px; padding: 4px; border-radius: 14px; background: var(--cm-soft); }
+.cm-themes .tg button { width: 44px; height: 36px; border-radius: 11px; display: flex; align-items: center; justify-content: center; color: var(--cm-icon); }
+.cm-themes .tg button.on { background: var(--cm-card); color: var(--cm-ink); box-shadow: 0 1px 4px rgba(20, 19, 39, 0.12); }
+.cm-set .cm-lang { display: flex; }
+.cm-adm dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin-top: 12px; font-size: 14px; }
+.cm-adm dt { color: var(--cm-muted); font-weight: 600; }
+.cm-adm dd { overflow-wrap: anywhere; }
+.cm-adm a { color: var(--cm-orange); }
+.cm-adm h3 { font-size: 16px; font-weight: 700; }
+.cm-decide { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cm-line); }
+.cm-quote { margin: 10px 0; padding: 10px 14px; border-radius: 14px; background: var(--cm-soft); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cm-strong { font-weight: 700; }
+.cm-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13.5px; }
+.cm-table th { text-align: start; font-weight: 600; color: var(--cm-muted); padding: 8px; border-bottom: 1px solid var(--cm-line); white-space: nowrap; }
+.cm-table td { padding: 10px 8px; border-bottom: 1px solid var(--cm-line); vertical-align: top; }
+.cm-table tr.off { opacity: 0.55; }
+.cm-inline { display: flex; gap: 6px; align-items: center; }
+.cm-inline input { font: inherit; font-size: 13px; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--cm-line); background: var(--cm-paper); color: var(--cm-ink); min-width: 120px; }
+.cm-grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 16px; }
+
 /* ===== Phone: menu button, side menu and tab bar (the app design) ===== */
 .cm-menu, .cm-only-phone, .cm-tb { display: none; }
 .cm-icb.soon { opacity: 0.55; cursor: default; }

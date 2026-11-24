@@ -40,7 +40,7 @@ export default async function MemberListPage({ params, searchParams }: Props) {
       {page.items.length ? (
         <div className="cm-card cm-people">
           {page.items.map((m) => (
-            <Link key={m.id} href={cmLinks.member(m.handle)} className="cm-who">
+            <Link key={m.id} href={cmLinks.member(m.handle ?? m.id)} className="cm-who">
               <Avatar member={m} size={44} />
               <div style={{ minWidth: 0 }}><MemberName member={m} w={w} /><div className="m">@{m.handle}</div></div>
             </Link>

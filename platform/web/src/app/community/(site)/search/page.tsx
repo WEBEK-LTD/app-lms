@@ -13,8 +13,8 @@ export const metadata: Metadata = { title: "Search", robots: { index: false } };
 /** 231 Search: questions, tutorials and members. */
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const q = ((await searchParams).q ?? "").trim().slice(0, 120);
-  const { lang, w } = await siteContext();
-  const found = q ? await search({ q, lang, limit: 20 }) : { questions: [], tutorials: [], members: [] };
+  const { lang, w, viewer } = await siteContext();
+  const found = q ? await search({ q, viewerId: viewer?.id ?? null, lang, limit: 20 }) : { questions: [], tutorials: [], members: [] };
   const none = q && !found.questions.length && !found.tutorials.length && !found.members.length;
   return (
     <SitePage active="none" q={q}>
@@ -34,7 +34,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           <h2>{w.members}</h2>
           <div className="cm-people">
             {found.members.map((m) => (
-              <Link key={m.id} href={cmLinks.member(m.handle)} className="cm-who">
+              <Link key={m.id} href={cmLinks.member(m.handle ?? m.id)} className="cm-who">
                 <Avatar member={m} size={40} />
                 <div><MemberName member={m} w={w} /><div className="m">@{m.handle}</div></div>
               </Link>

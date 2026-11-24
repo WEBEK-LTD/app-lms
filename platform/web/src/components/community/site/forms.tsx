@@ -139,7 +139,7 @@ export function ReplyForm({ w, answerId, slug }: { w: CmWords; answerId: string;
   );
 }
 
-const REASONS = ["spam", "abuse", "off_topic", "bad_link", "other"] as const;
+const REASONS = ["spam", "harassment", "hate", "inappropriate", "misinformation", "impersonation", "other"] as const;
 
 /** Report: a small form under a menu; the moderators get it in their queue. */
 export function ReportButton({ w, kind, id, back }: { w: CmWords; kind: "question" | "answer" | "reply" | "member" | "tutorial"; id: string; back: string }) {

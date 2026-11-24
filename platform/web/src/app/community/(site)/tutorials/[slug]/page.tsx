@@ -40,9 +40,9 @@ function embed(url: string): string | null {
 export default async function TutorialPage({ params }: Props) {
   const { slug } = await params;
   const { lang, w, viewer } = await siteContext();
-  const t = await tutorial(slug, { viewerId: viewer?.id ?? null, lang });
+  const t = await tutorial(slug, { viewerId: viewer?.id ?? null, lang, countView: true });
   if (!t) notFound();
-  const more = (await tutorials({ lang, section: t.section.slug, limit: 4 })).items.filter((x) => x.id !== t.id).slice(0, 3);
+  const more = (await tutorials({ viewerId: viewer?.id ?? null, lang, section: t.section.slug, limit: 4 })).items.filter((x) => x.id !== t.id).slice(0, 3);
   const video = t.kind === "video" && t.videoUrl ? embed(t.videoUrl) : null;
   return (
     <SitePage active="tutorials">

@@ -84,6 +84,7 @@ function AnswerItem({ a, q, w, viewerId }: { a: Answer; q: QuestionDetail; w: Cm
                 <div>
                   <MemberName member={r.author} w={w} /> <span className="cm-muted" style={{ fontSize: 12 }}>{ago(w, r.createdAt)}</span>
                   <div className="cm-md small"><Markdown source={r.body} /></div>
+                  {viewerId && r.author.id !== viewerId ? <ReportButton w={w} kind="reply" id={r.id} back={back} /> : null}
                 </div>
               </li>
             ))}
@@ -91,7 +92,7 @@ function AnswerItem({ a, q, w, viewerId }: { a: Answer; q: QuestionDetail; w: Cm
         ) : null}
         <div className="cm-row cm-answer-acts">
           {viewerId ? <ReplyForm w={w} answerId={a.id} slug={q.slug} /> : null}
-          {viewerId ? <ReportButton w={w} kind="answer" id={a.id} back={back} /> : null}
+          {viewerId && a.author.id !== viewerId ? <ReportButton w={w} kind="answer" id={a.id} back={back} /> : null}
         </div>
       </div>
     </article>
@@ -102,9 +103,9 @@ function AnswerItem({ a, q, w, viewerId }: { a: Answer; q: QuestionDetail; w: Cm
 export default async function QuestionPage({ params, searchParams }: Props) {
   const [{ slug }, sp] = await Promise.all([params, searchParams]);
   const { lang, w, viewer } = await siteContext();
-  const q = await question(slug, { viewerId: viewer?.id ?? null, lang });
+  const q = await question(slug, { viewerId: viewer?.id ?? null, lang, countView: true });
   if (!q) notFound();
-  const like = (await similar({ title: q.title, section: q.section.slug, limit: 6 })).filter((s) => s.id !== q.id).slice(0, 5);
+  const like = (await similar({ title: q.title, section: q.section.slug, limit: 6, viewerId: viewer?.id ?? null, lang })).filter((s) => s.id !== q.id).slice(0, 5);
   const back = cmLinks.question(q.slug);
   const rail = (
     <section className="cm-box">
@@ -136,7 +137,7 @@ export default async function QuestionPage({ params, searchParams }: Props) {
             <div className="tg">
               <Link href={cmLinks.questions({ section: q.section.slug })} className="pill p-or">{q.section.name}</Link>
               {q.tags.map((t) => (
-                <Link key={t} href={cmLinks.questions({ tag: t })} className="pill p-gy">{t}</Link>
+                <Link key={t.slug} href={cmLinks.questions({ tag: t.slug })} className="pill p-gy">{t.name}</Link>
               ))}
             </div>
           </div>

@@ -13,7 +13,7 @@ export function answersLabel(w: CmWords, n: number): string {
 export function MemberName({ member, w }: { member: MemberRef; w: CmWords }) {
   return (
     <span className="n">
-      <Link href={cmLinks.member(member.handle)}>{member.name}</Link>
+      {member.handle ? <Link href={cmLinks.member(member.handle)}>{member.name}</Link> : member.name}
       <BadgeMark kind={member.badge} w={w} />
       {member.staff ? <span className="badge-team"><span className="ms f" style={{ fontSize: 12 }}>verified_user</span>{w.team}</span> : null}
     </span>
@@ -34,8 +34,9 @@ export function QuestionPost({ q, w }: { q: QuestionSummary; w: CmWords }) {
       <div className="cm-q" style={{ marginTop: 12 }}>
         <div className="tg">
           <span className="pill p-or">{w.question}</span>
+          {q.author.rank === "expert" || q.author.rank === "pro" ? <span className="pill lvl-x">{w[`rank_${q.author.rank}`]}</span> : null}
           {q.tags.slice(0, 3).map((t) => (
-            <Link key={t} href={cmLinks.questions({ tag: t })} className="pill p-gy">{t}</Link>
+            <Link key={t.slug} href={cmLinks.questions({ tag: t.slug })} className="pill p-gy">{t.name}</Link>
           ))}
         </div>
         <h4><Link href={cmLinks.question(q.slug)}>{q.title}</Link></h4>
@@ -134,7 +135,7 @@ export function ActiveBox({ items, w }: { items: ActiveMember[]; w: CmWords }) {
       <h5>{w.activeTitle}</h5>
       {items.length ? (
         items.map((a, i) => (
-          <Link key={a.member.id} href={cmLinks.member(a.member.handle)} className="cm-lb">
+          <Link key={a.member.id} href={a.member.handle ? cmLinks.member(a.member.handle) : cmLinks.home()} className="cm-lb">
             <span className={`r num${i === 0 ? " g" : ""}`}>{i + 1}</span>
             <Avatar member={a.member} size={36} />
             <div style={{ minWidth: 0 }}>

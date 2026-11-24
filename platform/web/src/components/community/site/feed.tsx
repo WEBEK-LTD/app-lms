@@ -127,7 +127,7 @@ export async function Rail({ w, lang, viewer }: { w: CmWords; lang: CmLang; view
   return (
     <>
       <ChallengeBox w={w} />
-      <WaitingBox items={wq} w={w} />
+      <WaitingBox items={wq.items} w={w} />
       <ActiveBox items={active} w={w} />
       <EventsBox w={w} />
     </>

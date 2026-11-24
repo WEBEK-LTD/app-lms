@@ -10,75 +10,16 @@ import type { CmLang } from "./words";
 
 export type BadgeKind = "gold" | "green" | "blue";
 
-export type MemberRef = {
-  id: string;
-  handle: string;
-  name: string;
-  avatarUrl: string | null;
-  /** The highest badge only (Gold, then Green, then Blue). */
-  badge: BadgeKind | null;
-  staff: boolean;
-};
+export type { Answer, MemberRef, Page, QuestionDetail, QuestionSummary, Reply, Section, Tag, TutorialDetail, TutorialSummary } from "@/lib/community/qa";
+import type { MemberRef, QuestionSummary } from "@/lib/community/qa";
 
 export type Viewer = MemberRef & {
+  handle: string;
   points: number;
   email: string | null;
   admin: boolean;
   lang: CmLang;
 };
-
-export type Section = { slug: string; name: string; icon: string; color: string; questionCount: number; followed?: boolean };
-
-export type QuestionSummary = {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  section: { slug: string; name: string };
-  tags: string[];
-  author: MemberRef;
-  createdAt: string;
-  views: number;
-  answerCount: number;
-  hasAccepted: boolean;
-  score: number;
-  bookmarked: boolean;
-};
-
-export type Reply = { id: string; body: string; author: MemberRef; createdAt: string };
-
-export type Answer = {
-  id: string;
-  body: string;
-  author: MemberRef;
-  official: boolean;
-  accepted: boolean;
-  score: number;
-  myVote: -1 | 0 | 1;
-  replyCount: number;
-  replies: Reply[];
-  createdAt: string;
-};
-
-export type QuestionDetail = QuestionSummary & { body: string; myVote: -1 | 0 | 1; answers: Answer[]; mine: boolean };
-
-export type TutorialSummary = {
-  id: string;
-  slug: string;
-  title: string;
-  kind: "article" | "video";
-  section: { slug: string; name: string };
-  level: "beginner" | "intermediate" | "advanced";
-  language: CmLang;
-  durationSec: number | null;
-  coverUrl: string | null;
-  author: MemberRef;
-  createdAt: string;
-};
-
-export type TutorialDetail = TutorialSummary & { body: string | null; videoUrl: string | null; bookmarked: boolean };
-
-export type Page<T> = { items: T[]; next: string | null };
 
 export type FeedTab = "for_you" | "latest" | "active" | "unanswered";
 
@@ -89,7 +30,7 @@ export type EarnedBadge = { kind: BadgeKind; since: string; detail: string | nul
 export type LinkedApp = { id: string; name: string; iconUrl: string | null; url: string | null };
 
 export type Profile = {
-  member: MemberRef;
+  member: MemberRef & { handle: string };
   bio: string;
   skills: string[];
   joinedAt: string;
@@ -108,3 +49,54 @@ export type Profile = {
 export type Notice = { id: string; kind: string; text: string; link: string | null; createdAt: string; read: boolean };
 
 export type SiteStats = { members: number; answeredRate: number; apps: number; newQuestions: number };
+
+// ----- Trust (area C): badges, verification, admin, moderation, reports -----
+
+export type GoldApp = { id: string; name: string; url: string | null; template: boolean };
+
+export type GoldStatus = {
+  canApply: boolean;
+  blocked: null | "no_linked_account" | "not_enough_apps" | "pending" | "already_gold";
+  apps: GoldApp[];
+  minApps: number;
+  request: { status: "pending" | "approved" | "rejected"; createdAt: string; decidedAt: string | null; reason: string | null } | null;
+};
+
+export type AdminMember = { id: string; name: string; handle: string | null };
+
+export type VerificationRow = {
+  id: string;
+  member: AdminMember;
+  fullName: string;
+  idProofUrl: string | null;
+  portfolio: string[];
+  apps: GoldApp[];
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+  reason: string | null;
+};
+
+export type BadgeRow = {
+  id: string;
+  badge: BadgeKind;
+  source: string;
+  reason: string | null;
+  grantedAt: string;
+  expiresAt: string | null;
+  revokedAt: string | null;
+  revokeReason: string | null;
+};
+
+export type AuditRow = { id: string; actor: AdminMember | null; action: string; member: AdminMember | null; badge: BadgeKind | null; subject: string | null; reason: string | null; at: string };
+
+export type ModerationRow = { id: string; kind: string; member: AdminMember; reasons: string[]; excerpt: string; title: string | null; link: string | null; status: string; createdAt: string };
+
+export type ReportRow = { id: string; reporter: AdminMember; target: string; targetId: string; targetMember: AdminMember; reason: string; details: string | null; status: string; createdAt: string; link: string | null };
+
+export type SettingsView = {
+  blue: { minAccountDays: number; minPoints: number; minAcceptedAnswers: number; minApprovedTutorials: number; cleanDays: number; inactiveDays: number };
+  groups: { creators: "everyone" | "badge_holders" | "chosen"; chosen: AdminMember[] };
+  moderation: { reviewFirstPosts: number; maxLinks: number; blockedDomains: string[]; blockedWords: string[]; hideAfterReports: number };
+};
+
+export type Result = { ok: true } | { ok: false; code: string; errors?: Record<string, string> };
