@@ -287,8 +287,8 @@ describe("classes and memberships on the hosted API", () => {
     // Plans on sale: the old one is off sale.
     const plans = (await call("GET", "/memberships/plans")).body as { items: { name: string }[] };
     expect(plans.items).toEqual([
-      { id: 30, name: "Monthly unlimited", price: { amount: "1500.00", currency: "TRY", formatted: "₺1,500.00", free: false }, period: "month", credits: null, description: "Every class, every day." },
-      { id: 31, name: "5-class pack", price: { amount: "600.00", currency: "TRY", formatted: "₺600.00", free: false }, period: "pack", credits: 5, description: null },
+      { id: 30, name: "Monthly unlimited", price: { amount: "1500.00", currency: "TRY", formatted: "₺1,500", free: false }, period: "month", credits: null, description: "Every class, every day." },
+      { id: 31, name: "5-class pack", price: { amount: "600.00", currency: "TRY", formatted: "₺600", free: false }, period: "pack", credits: 5, description: null },
     ]);
   });
 

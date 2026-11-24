@@ -10,7 +10,7 @@ import type { LanguageCode } from "../pages/types";
 import type { SampleList } from "../samples/lists";
 import { TEMPLATES, type TemplateInfo } from "../studio/sections";
 import { startLayout } from "../studio/start";
-import { mainLookOf, signatureLooksOf } from "../studio/demo-designs";
+import { mainLookOf, signatureDesign, signatureLooksOf } from "../studio/demo-designs";
 import type { SignatureLook } from "../studio/demo-designs/signature";
 import { DEMO_SLUGS, DEMO_TYPES, demoKind, demoTypeOfSlug, isStoreTemplateDemo, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type DemoId, type StudioDemoId } from "./constants";
 import { CLINIC_SERVICES, DEMO_ARTICLES, DEMO_BRANDS, DEMO_CAMPAIGNS, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_GUIDES, DEMO_LISTINGS, DEMO_PRODUCTS, DEMO_RESTAURANTS, DEMO_SERVICES, FITNESS_SERVICES, RIDES_DEMO_TYPES, TAXI_DEMO_TYPES } from "./content";
@@ -297,6 +297,12 @@ export const LOOK_SHOTS: ReadonlySet<string> = new Set(STUDIO_DEMO_TYPES.flatMap
 /** Whether a look's picture is in public/screens. */
 export function hasLookShot(name: string): boolean {
   return LOOK_SHOTS.has(name);
+}
+
+/** 223 The colour a project from a demo's look starts in: the look's own main colour (RUNWAY's black, the nursery's sage), else the demo's. */
+export function lookColour(id: DemoId, look: SignatureLook | null | undefined): string {
+  const own = isStudioDemo(id) ? signatureDesign(id, look ?? undefined)?.project.primary : undefined;
+  return own ?? DEMO_BRANDS[id].primaryColor;
 }
 
 /** The look a page's `look` asks for, when the demo offers it; null otherwise. */

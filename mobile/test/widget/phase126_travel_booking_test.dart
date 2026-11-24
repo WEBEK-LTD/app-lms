@@ -278,7 +278,7 @@ void main() {
       await open(app, tester, TravelPaths.alerts);
       final ar = lang == 'ar';
       expect(
-        find.text(ar ? 'أي وجهة بأقل من \$600.00' : 'Anywhere under \$600.00'),
+        find.text(ar ? 'أي وجهة بأقل من \$600' : 'Anywhere under \$600'),
         findsWidgets,
       );
       await tapText(tester, ar ? 'جديد' : 'New');

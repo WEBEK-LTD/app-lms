@@ -21,13 +21,24 @@ void main() {
       expect(formatMoney(125, 'KWD'), 'KWD 1.250');
       expect(formatMoney(125, 'OMR'), 'OMR 1.250');
       expect(formatMoney(125000, 'JPY'), '¥1,250');
-      expect(formatMoney(45000, 'TRY'), '₺450.00');
+      expect(formatMoney(45050, 'TRY'), '₺450.50');
       expect(formatMoney(1240, 'USD'), r'$12.40');
     });
 
+    test('229 a whole amount without its zeros after the point, a fraction as it is', () {
+      expect(formatMoney(45000, 'TRY'), '₺450');
+      expect(formatMoney(489900, 'SAR'), 'SAR\u00a04,899');
+      expect(formatMoney(500, 'KWD'), 'KWD\u00a05');
+      expect(formatMoney(0, 'USD'), r'$0');
+      expect(formatMoney(1250, 'EUR'), '€12.50');
+      expect(formatMoney(1205, 'EUR'), '€12.05');
+      expect(formatMoney(101, 'KWD'), 'KWD\u00a01.010');
+      expect(formatMoney(125000, 'JPY'), '¥1,250');
+    });
+
     test('never fails on a code it doesn\'t know', () {
-      expect(formatMoney(1000, 'XCG'), contains('10.00'));
-      expect(formatMoney(1000, 'ZZZ'), contains('10.00'));
+      expect(formatMoney(1050, 'XCG'), contains('10.50'));
+      expect(formatMoney(1000, 'ZZZ'), contains('10'));
       expect(formatAmount('2.5', 'KWD'), 'KWD 2.500');
       expect(formatAmount('1250', 'JPY'), 'JPY 1,250');
     });
@@ -37,7 +48,8 @@ void main() {
       Intl.defaultLocale = 'ar';
       addTearDown(() => Intl.defaultLocale = before);
       expect(formatMoney(125, 'KWD'), 'KWD 1.250');
-      expect(formatMoney(60000, 'SAR'), contains('600.00'));
+      expect(formatMoney(60050, 'SAR'), contains('600.50'));
+      expect(formatMoney(60000, 'SAR'), endsWith('600'));
     });
   });
 

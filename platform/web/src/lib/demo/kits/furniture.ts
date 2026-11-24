@@ -1,3 +1,4 @@
+import { FURNITURE_PRODUCT_NAMES } from "../product-names";
 import type { KitCategory, KitProduct, ShopKit } from "../shop-kit";
 
 /**
@@ -582,6 +583,8 @@ export const FURNITURE_KIT: ShopKit = {
     ],
   },
   currency: "SAR",
+  // 225 Its products in Arabic and Turkish too (lib/demo/product-names.ts).
+  productNames: FURNITURE_PRODUCT_NAMES,
   // Delivery across Riyadh, free (with assembly) from 1,500 SAR.
   shippingCents: SAR(199),
   freeShippingOverCents: SAR(1500),

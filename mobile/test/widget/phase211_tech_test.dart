@@ -6,7 +6,11 @@ import 'package:yallapp/core/api/yallapp_api.dart' show ProductQuery;
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
+import 'package:yallapp/core/format/bidi.dart';
 import 'package:yallapp/core/format/money.dart';
+import 'package:yallapp/core/l10n/l10n.dart';
+import 'package:yallapp/modules/shared/pages/studio_page.dart'
+    show StudioScope, studioOwnText;
 import 'package:yallapp/modules/store/data/cart_controller.dart';
 import 'package:yallapp/modules/store/widgets/tech_widgets.dart';
 
@@ -428,6 +432,68 @@ void main() {
     expect(find.byKey(const ValueKey('studio-compare')), findsNothing);
     expect(find.byKey(const ValueKey('studio-spec-filter')), findsNothing);
     app.container.dispose();
+  });
+
+  testWidgets('227 a spec value reads whole in Arabic, its count in a badge '
+      'after it', (tester) async {
+    final (app, _) = await open(tester, language: 'ar');
+    final value = find.byKey(const ValueKey('spec-filter-value-16 GB'));
+    final count = find.byKey(const ValueKey('spec-filter-count-16 GB'));
+    expect(value, findsOneWidget);
+    expect(count, findsOneWidget);
+    // The value is its own directional run (a first strong isolate), never
+    // mixed with the count.
+    expect(tester.widget<Text>(value).data, '\u206816 GB\u2069');
+    expect(
+      find.descendant(of: count, matching: find.text('4')),
+      findsOneWidget,
+    );
+    // Right to left: the value first, at the chip's right, its count after
+    // it at its left.
+    expect(tester.getCenter(count).dx, lessThan(tester.getCenter(value).dx));
+    app.container.dispose();
+  });
+
+  test('227 a product card\'s spec line: each value whole in Arabic', () {
+    setCurrentLanguage('ar');
+    addTearDown(() => setCurrentLanguage('en'));
+    const line = '1 TB SSD · 32 GB DDR5 · 16″ 2.5K IPS';
+    expect(
+      specLine(line),
+      '\u20681 TB SSD\u2069 · \u206832 GB DDR5\u2069 · \u206816″ 2.5K IPS\u2069',
+    );
+    // A line without the dot, isolated whole; Arabic words keep theirs.
+    expect(specLine('512 GB'), '\u2068512 GB\u2069');
+    expect(specLine('ذاكرة 16 GB'), '\u2068ذاكرة 16 GB\u2069');
+    // The card's bound subtitle draws it so.
+    final node = StudioNode.tryParse({
+      'id': 's',
+      'type': 'text',
+      'bind': 'subtitle',
+    })!;
+    const entry = PageItem(
+      source: ItemSource.products,
+      id: '1',
+      title: 'Ofuq 16 Pro',
+      subtitle: line,
+    );
+    expect(
+      studioOwnText(
+        node,
+        const StudioScope(pageSlug: 'home', dark: false, entry: entry),
+      ),
+      specLine(line),
+    );
+    // In English, as it is.
+    setCurrentLanguage('en');
+    expect(specLine(line), line);
+    expect(
+      studioOwnText(
+        node,
+        const StudioScope(pageSlug: 'home', dark: false, entry: entry),
+      ),
+      line,
+    );
   });
 
   testWidgets('a spec value opens the shop filtered by it', (tester) async {

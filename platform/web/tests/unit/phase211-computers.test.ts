@@ -64,7 +64,7 @@ describe("211 the computers type, ready", () => {
     expect(shopTypesIn("shopping").map((t) => t.id)).toContain("computers");
     expect(shopTypeTemplate(type, "b")).toBe("computers_signature_b");
     expect(shopTypeOfDesign("computers_signature_a")?.id).toBe("computers");
-    expect(TEMPLATES.filter((t) => t.id.startsWith("computers_signature_")).map((t) => t.id)).toEqual(["computers_signature_a", "computers_signature_b"]);
+    expect(TEMPLATES.filter((t) => t.id.startsWith("computers_signature_")).map((t) => t.id)).toEqual(["computers_signature_c", "computers_signature_d", "computers_signature_a", "computers_signature_b"]);
   });
 });
 
@@ -140,7 +140,8 @@ describe("211 Nawah, the computers shop's demo", () => {
     });
 
     it("keeps its categories and sub-categories, its products with their specs, and Build your PC by its categories", async () => {
-      expect(app.design).toBe("computers_signature_a");
+      // 227 The demo is its main look, C.
+      expect(app.design).toBe("computers_signature_c");
       expect(app.catalogSettings?.currency).toBe("SAR");
       expect(app.catalogSettings?.returnDays).toBe(14);
       const categories = await store.listCatalogCategories(app.id);

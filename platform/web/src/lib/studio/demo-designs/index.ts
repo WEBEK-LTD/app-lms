@@ -28,11 +28,17 @@ import { ZAD_A, ZAD_B } from "./zad-signature";
 import { LEQAA_A, LEQAA_B } from "./leqaa-signature";
 // 208 Lujain, the clothes shop: A LUJAIN the boutique, B NOUN streetwear.
 import { LUJAIN_A, NOUN_B } from "./clothes-signature";
+// 223 Lujain's templates C (RUNWAY, its main one) and D (the outfit builder).
+import { RUNWAY_C } from "./clothes-c-signature";
+import { OUTFIT_D } from "./clothes-d-signature";
 // 209 Cosmetics: Velours, A VELOURS plum and gold, B NAQA LAB the clinic.
 import { VELOURS_A, NAQA_B } from "./beauty-signature";
 import { VELOURS_C, VELOURS_D } from "./beauty-cd-signature";
 // 209 Kids' clothes: Toota, A TOOTA soft pastels, B MINIMO playful navy.
 import { MINIMO_B, TOOTA_A } from "./kids-signature";
+// 223 Toota's templates C (the story world, its main one) and D (the nursery).
+import { STORY_C } from "./kids-c-signature";
+import { NURSERY_D } from "./kids-d-signature";
 // 209 Toys
 // 209 Toot, the toy shop: A Toot playful and colourful, B Mukaab calm and educational.
 import { MUKAAB_B, TOOT_A } from "./toys-signature";
@@ -41,12 +47,27 @@ import { DECOR_A, DECOR_B } from "./decor-signature";
 import { CROCHET_A, CROCHET_B } from "./crochet-signature";
 import { GHURZA_C, GHURZA_D } from "./crochet-cd-signature";
 import { FURNITURE_A, FURNITURE_B } from "./furniture-signature";
+// 225 Their looks C and D: Rukn's MIZAN the architect and MANZIL room by room, Sakan's ATHAR the gallery and MAZAJ the moodboard.
+import { FURNITURE_C } from "./furniture-c-signature";
+import { FURNITURE_D } from "./furniture-d-signature";
+import { DECOR_C } from "./decor-c-signature";
+import { DECOR_D } from "./decor-d-signature";
 // 211 Nova, the mobiles shop: A NOVA ink and cobalt, B emerald on stone.
 import { EMERALD_B, NOVA_A } from "./mobiles-signature";
+// 226 Toot C the adventure map, D Montessori; Nova C the keynote, D the deals hub.
+import { MAP_C } from "./toys-c-signature";
+import { MONTESSORI_D } from "./toys-d-signature";
+import { KEYNOTE_C } from "./mobiles-c-signature";
+import { HUB_D } from "./mobiles-d-signature";
 // 211 Nawah, computers and gaming: A NAWAH white and blue, B SILICA green on stone.
 import { NAWAH_A, SILICA_B } from "./computers-signature";
 // 211 Madar, the electronics shop: A MADAR white and deep blue, B NABD lime on near black.
 import { MADAR_A, NABD_B } from "./electronics-signature";
+// 227 Madar's looks C and D, Nawah's looks C and D (round 3).
+import { MADAR_GRID_C } from "./electronics-c-signature";
+import { STAGE_D } from "./electronics-d-signature";
+import { BATTLE_C } from "./computers-c-signature";
+import { DESK_D } from "./computers-d-signature";
 import { SIGNATURE_LOOKS, signatureProject, signatureSystem, signatureTemplateId, type SignatureDesign, type SignatureLook } from "./signature";
 
 /**
@@ -184,25 +205,30 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Partial<Record<SignatureLook, Sign
   // 131.20 Leqaa, the flower shop (a store): A rose hour, B botanical press.
   flowers: { a: LEQAA_A, b: LEQAA_B },
   // 208 Lujain, the clothes shop (a store): A the black and white boutique, B NOUN's streetwear.
-  clothes: { a: LUJAIN_A, b: NOUN_B },
+  // 223 C RUNWAY, its main template (the demo), and D the outfit builder before them.
+  clothes: { c: RUNWAY_C, d: OUTFIT_D, a: LUJAIN_A, b: NOUN_B },
   // 209 Cosmetics: Velours (a store), A VELOURS plum and gold, B NAQA LAB the clinic; 224 C the ritual clinic (its main template), D the shade studio.
   beauty: { c: VELOURS_C, d: VELOURS_D, a: VELOURS_A, b: NAQA_B },
   // 209 Kids' clothes: Toota (a store): A TOOTA's soft pastels, B MINIMO's playful navy.
-  kids: { a: TOOTA_A, b: MINIMO_B },
+  // 223 C the story world, its main template (the demo), and D the nursery before them.
+  kids: { c: STORY_C, d: NURSERY_D, a: TOOTA_A, b: MINIMO_B },
   // 209 Toys
   // 209 Toot, the toy shop (a store): A Toot, playful and colourful; B Mukaab, calm and educational.
-  toys: { a: TOOT_A, b: MUKAAB_B },
+  toys: { a: TOOT_A, b: MUKAAB_B, c: MAP_C, d: MONTESSORI_D },
   // 210 Sakan, home decor: A the decor magazine, B Teen's warm earth. Ghurza, crochet: A warm handmade, B Habka's colours. Rukn, furniture: A white and wood, B KANAF.
-  decor: { a: DECOR_A, b: DECOR_B },
+  // 225 Sakan C ATHAR the gallery, D MAZAJ the moodboard; Rukn C MIZAN the architect, D MANZIL room by room.
+  decor: { c: DECOR_C, d: DECOR_D, a: DECOR_A, b: DECOR_B },
   // 224 Ghurza, crochet: C the makers' market (its main template), D the cozy studio.
   crochet: { c: GHURZA_C, d: GHURZA_D, a: CROCHET_A, b: CROCHET_B },
-  furniture: { a: FURNITURE_A, b: FURNITURE_B },
+  furniture: { c: FURNITURE_C, d: FURNITURE_D, a: FURNITURE_A, b: FURNITURE_B },
   // 211 Madar, the electronics shop (a store): A MADAR in white and deep blue, B NABD in lime on near black.
-  electronics: { a: MADAR_A, b: NABD_B },
+  // 227 C MADAR GRID the bento of dark glass, D the colour stage.
+  electronics: { c: MADAR_GRID_C, d: STAGE_D, a: MADAR_A, b: NABD_B },
   // 211 Nova, the mobiles shop (a store): A NOVA's ink and cobalt, B emerald on warm stone.
-  mobiles: { a: NOVA_A, b: EMERALD_B },
+  mobiles: { a: NOVA_A, b: EMERALD_B, c: KEYNOTE_C, d: HUB_D },
   // 211 Nawah, computers and gaming (a store): A NAWAH in white and one strong blue, B SILICA in deep green on stone.
-  computers: { a: NAWAH_A, b: SILICA_B },
+  // 227 C the battle station, D the workstation.
+  computers: { c: BATTLE_C, d: DESK_D, a: NAWAH_A, b: SILICA_B },
 };
 
 /** A look with its demo's own tabs when it has none of its own. */

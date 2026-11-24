@@ -1,3 +1,4 @@
+import { DECOR_PRODUCT_NAMES } from "../product-names";
 import { giftBeginningsIn } from "../../selling/gift-starters";
 import type { KitCategory, KitName, KitProduct, ShopKit } from "../shop-kit";
 
@@ -133,6 +134,8 @@ export const DECOR_KIT: ShopKit = {
     ],
   },
   currency: "SAR",
+  // 225 Its products in Arabic and Turkish too (lib/demo/product-names.ts).
+  productNames: DECOR_PRODUCT_NAMES,
   shippingCents: 30_00,
   freeShippingOverCents: 1000_00,
   categories: CATEGORIES,

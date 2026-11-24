@@ -1,0 +1,2808 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "classic",
+   "image_url": "http://localhost:3000/mobiles-photos/phone-hand-grey.jpg",
+   "title": {
+    "en": "Today's best prices",
+    "ar": "أفضل أسعار اليوم",
+    "tr": "Bugünün en iyi fiyatları"
+   },
+   "subtitle": {
+    "en": "Sign in to follow your orders, your deals and your wishlist.",
+    "ar": "سجّل الدخول لتتابع طلباتك وعروضك ومفضّلتك.",
+    "tr": "Siparişlerinizi, fırsatlarınızı ve favorilerinizi takip etmek için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "card",
+   "items": [
+    {
+     "key": "orders",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "wishlist",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "notifications",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "settings",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "help",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "privacy",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    },
+    {
+     "key": "terms",
+     "hidden": false,
+     "label": {},
+     "icon": null
+    }
+   ]
+  },
+  "system": {
+   "look": "glass"
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "minimal",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "font": "Plus Jakarta Sans",
+   "corners": "round",
+   "cards": "outlined",
+   "secondary_color": "#111318",
+   "font_family": "Almarai",
+   "dark_background": "#0E0F13",
+   "dark_surface": "#1A1C22",
+   "font_files": [
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/almarai/Almarai-Regular.ttf",
+     "weight": 400
+    },
+    {
+     "url": "http://localhost:3000/api/v1/fonts/ofl/almarai/Almarai-Bold.ttf",
+     "weight": 600
+    }
+   ]
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "shop",
+    "label": "Shop",
+    "icon": "grid_view",
+    "target": {
+     "type": "page",
+     "page_slug": "shop"
+    },
+    "translations": {
+     "ar": {
+      "label": "المتجر"
+     },
+     "tr": {
+      "label": "Mağaza"
+     }
+    }
+   },
+   {
+    "id": "cart",
+    "label": "Cart",
+    "icon": "shopping_bag",
+    "target": {
+     "type": "page",
+     "page_slug": "cart"
+    },
+    "translations": {
+     "ar": {
+      "label": "السلة"
+     },
+     "tr": {
+      "label": "Sepet"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "package_2",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطلبات"
+     },
+     "tr": {
+      "label": "Siparişler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": null,
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13",
+     "body": {
+      "id": "sig-1",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 100,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-2",
+        "type": "row",
+        "name": "Nova",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 6,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "background": "#FFFFFF",
+        "dark_background": "#0E0F13",
+        "children": [
+         {
+          "id": "sig-3",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "radius": 10,
+          "align": "center",
+          "cross": "center",
+          "action": {
+           "type": "page",
+           "page_slug": "menu"
+          },
+          "background": "#F3F4F6",
+          "dark_background": "#1A1C22",
+          "children": [
+           {
+            "id": "sig-4",
+            "type": "icon",
+            "icon": "menu_open",
+            "icon_size": 22,
+            "color": "#111318",
+            "dark_color": "#F4F5F7"
+           }
+          ]
+         },
+         {
+          "id": "sig-5",
+          "type": "search",
+          "name": "Search phones, watches, earbuds…",
+          "text": "Search phones, watches, earbuds…",
+          "source": "products",
+          "width": "fill",
+          "radius": 10,
+          "height": 44,
+          "background": "#F3F4F6",
+          "dark_background": "#1A1C22",
+          "color": "#5E6470",
+          "dark_color": "#A3A8B3",
+          "translations": {
+           "ar": {
+            "text": "ابحث عن هاتف أو ساعة أو سماعة…"
+           },
+           "tr": {
+            "text": "Telefon, saat, kulaklık ara…"
+           }
+          }
+         },
+         {
+          "id": "sig-6",
+          "type": "row",
+          "width": 44,
+          "height": 44,
+          "radius": 10,
+          "align": "center",
+          "cross": "center",
+          "action": {
+           "type": "page",
+           "page_slug": "compare"
+          },
+          "background": "#FF2D55",
+          "dark_background": "#FF2D55",
+          "children": [
+           {
+            "id": "sig-7",
+            "type": "icon",
+            "icon": "compare_arrows",
+            "icon_size": 22,
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-8",
+        "type": "categories",
+        "name": "Departments",
+        "source": "products",
+        "style": "chips",
+        "color": "#111318",
+        "dark_color": "#F4F5F7",
+        "font": {
+         "family": "Almarai"
+        },
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 4,
+         "start": 10
+        }
+       },
+       {
+        "id": "sig-9",
+        "type": "column",
+        "name": "Today's deals",
+        "gap": 10,
+        "radius": 16,
+        "padding": {
+         "top": 6,
+         "end": 6,
+         "bottom": 6,
+         "start": 6
+        },
+        "margin": {
+         "top": 8,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        },
+        "background": "#FF2D55",
+        "dark_background": "#C8143D",
+        "children": [
+         {
+          "id": "sig-10",
+          "type": "flash_sale",
+          "name": "Deal of the day",
+          "text": "Today's deals",
+          "translations": {
+           "ar": {
+            "text": "عروض اليوم"
+           },
+           "tr": {
+            "text": "Günün fırsatları"
+           }
+          },
+          "flash_sale": {
+           "look": "carousel",
+           "limit": 1,
+           "countdown": true,
+           "stock_bar": true,
+           "accent": "#FF2D55"
+          },
+          "font": {
+           "family": "Almarai"
+          },
+          "background": "#FFFFFF",
+          "dark_background": "#0E0F13",
+          "radius": 12,
+          "padding": {
+           "top": 8,
+           "end": 8,
+           "bottom": 8,
+           "start": 8
+          }
+         },
+         {
+          "id": "sig-11",
+          "type": "items",
+          "name": "Until they run out",
+          "source": "products",
+          "layout": "carousel",
+          "gap": 8,
+          "padding": {
+           "top": 0,
+           "end": 0,
+           "bottom": 2,
+           "start": 0
+          },
+          "query": {
+           "limit": 8,
+           "category_id": null,
+           "featured": false,
+           "sort": "popular",
+           "ids": [],
+           "on_sale": true
+          },
+          "card": {
+           "id": "sig-12",
+           "type": "column",
+           "width": 132,
+           "gap": 0,
+           "radius": 12,
+           "border_color": "#E6E8EC",
+           "dark_border_color": "#2A2D35",
+           "border_width": 1.5,
+           "background": "#FFFFFF",
+           "dark_background": "#1A1C22",
+           "children": [
+            {
+             "id": "sig-13",
+             "type": "stack",
+             "width": "fill",
+             "height": 108,
+             "children": [
+              {
+               "id": "sig-14",
+               "type": "image",
+               "bind": "image",
+               "width": "fill",
+               "height": 108,
+               "corners": {
+                "top_start": 11,
+                "top_end": 11
+               },
+               "fit": "cover",
+               "background": "#F3F4F6",
+               "dark_background": "#24262D"
+              },
+              {
+               "id": "sig-15",
+               "type": "text",
+               "bind": "sale",
+               "font": {
+                "family": "Almarai",
+                "size": 10.5,
+                "weight": 800,
+                "line_height": 1.3
+               },
+               "color": "#111318",
+               "dark_color": "#111318",
+               "background": "#FFD60A",
+               "dark_background": "#FFD60A",
+               "radius": 5,
+               "padding": {
+                "top": 2,
+                "end": 5,
+                "bottom": 2,
+                "start": 5
+               },
+               "place": {
+                "x": 5,
+                "y": 6
+               }
+              }
+             ]
+            },
+            {
+             "id": "sig-16",
+             "type": "column",
+             "gap": 3,
+             "padding": {
+              "top": 7,
+              "end": 7,
+              "bottom": 8,
+              "start": 7
+             },
+             "children": [
+              {
+               "id": "sig-17",
+               "type": "text",
+               "text": "Installments coming soon",
+               "max_lines": 1,
+               "font": {
+                "family": "Almarai",
+                "size": 9.5,
+                "weight": 700,
+                "line_height": 1.3
+               },
+               "color": "#00875A",
+               "dark_color": "#3DDC97",
+               "background": "#E3F6EE",
+               "dark_background": "#12271F",
+               "radius": 5,
+               "padding": {
+                "top": 2,
+                "end": 5,
+                "bottom": 2,
+                "start": 5
+               },
+               "self_align": "start",
+               "translations": {
+                "ar": {
+                 "text": "التقسيط قريبًا"
+                },
+                "tr": {
+                 "text": "Taksit yakında"
+                }
+               }
+              },
+              {
+               "id": "sig-18",
+               "type": "text",
+               "bind": "title",
+               "max_lines": 2,
+               "color": "#111318",
+               "dark_color": "#F4F5F7",
+               "font": {
+                "family": "Almarai",
+                "size": 11.5,
+                "weight": 700,
+                "line_height": 1.3
+               },
+               "margin": {
+                "top": 2,
+                "end": 0,
+                "bottom": 0,
+                "start": 0
+               }
+              },
+              {
+               "id": "sig-19",
+               "type": "text",
+               "bind": "price",
+               "max_lines": 2,
+               "color": "#111318",
+               "dark_color": "#F4F5F7",
+               "font": {
+                "family": "Almarai",
+                "size": 12.5,
+                "weight": 800,
+                "line_height": 1.3
+               }
+              },
+              {
+               "id": "sig-20",
+               "type": "text",
+               "bind": "was_price",
+               "max_lines": 1,
+               "color": "#5E6470",
+               "dark_color": "#A3A8B3",
+               "font": {
+                "family": "Almarai",
+                "size": 10.5,
+                "weight": 400,
+                "line_height": 1.3
+               }
+              }
+             ]
+            }
+           ]
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-21",
+        "type": "row",
+        "name": "Departments",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 22,
+         "end": 12,
+         "bottom": 10,
+         "start": 12
+        },
+        "children": [
+         {
+          "id": "sig-22",
+          "type": "text",
+          "text": "Departments",
+          "font": {
+           "family": "Almarai",
+           "size": 18,
+           "weight": 800,
+           "line_height": 1.3
+          },
+          "color": "#111318",
+          "dark_color": "#F4F5F7",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "الأقسام"
+           },
+           "tr": {
+            "text": "Bölümler"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-23",
+        "type": "categories",
+        "name": "Departments",
+        "source": "products",
+        "style": "pictures",
+        "color": "#111318",
+        "dark_color": "#F4F5F7",
+        "font": {
+         "family": "Almarai"
+        },
+        "padding": {
+         "top": 0,
+         "end": 8,
+         "bottom": 0,
+         "start": 8
+        }
+       },
+       {
+        "id": "sig-24",
+        "type": "row",
+        "name": "Best sellers",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 22,
+         "end": 12,
+         "bottom": 10,
+         "start": 12
+        },
+        "children": [
+         {
+          "id": "sig-25",
+          "type": "text",
+          "text": "Best sellers",
+          "font": {
+           "family": "Almarai",
+           "size": 18,
+           "weight": 800,
+           "line_height": 1.3
+          },
+          "color": "#111318",
+          "dark_color": "#F4F5F7",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "الأكثر مبيعًا"
+           },
+           "tr": {
+            "text": "Çok satanlar"
+           }
+          }
+         },
+         {
+          "id": "sig-26",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "family": "Almarai",
+           "size": 12.5,
+           "weight": 700,
+           "line_height": 1.3
+          },
+          "color": "#D70F3D",
+          "dark_color": "#FF5C7A",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "عرض الكل"
+           },
+           "tr": {
+            "text": "Tümünü gör"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-27",
+        "type": "items",
+        "name": "Best sellers",
+        "source": "products",
+        "layout": "grid",
+        "columns": 3,
+        "gap": 8,
+        "padding": {
+         "top": 0,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        },
+        "query": {
+         "limit": 6,
+         "category_id": null,
+         "featured": false,
+         "sort": "popular",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-28",
+         "type": "column",
+         "width": "fill",
+         "gap": 0,
+         "radius": 12,
+         "border_color": "#E6E8EC",
+         "dark_border_color": "#2A2D35",
+         "border_width": 1.5,
+         "background": "#FFFFFF",
+         "dark_background": "#1A1C22",
+         "children": [
+          {
+           "id": "sig-29",
+           "type": "stack",
+           "width": "fill",
+           "height": 108,
+           "children": [
+            {
+             "id": "sig-30",
+             "type": "image",
+             "bind": "image",
+             "width": "fill",
+             "height": 108,
+             "corners": {
+              "top_start": 11,
+              "top_end": 11
+             },
+             "fit": "cover",
+             "background": "#F3F4F6",
+             "dark_background": "#24262D"
+            },
+            {
+             "id": "sig-31",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "family": "Almarai",
+              "size": 10.5,
+              "weight": 800,
+              "line_height": 1.3
+             },
+             "color": "#111318",
+             "dark_color": "#111318",
+             "background": "#FFD60A",
+             "dark_background": "#FFD60A",
+             "radius": 5,
+             "padding": {
+              "top": 2,
+              "end": 5,
+              "bottom": 2,
+              "start": 5
+             },
+             "place": {
+              "x": 5,
+              "y": 6
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-32",
+           "type": "column",
+           "gap": 3,
+           "padding": {
+            "top": 7,
+            "end": 7,
+            "bottom": 8,
+            "start": 7
+           },
+           "children": [
+            {
+             "id": "sig-33",
+             "type": "text",
+             "text": "Installments coming soon",
+             "max_lines": 1,
+             "font": {
+              "family": "Almarai",
+              "size": 9.5,
+              "weight": 700,
+              "line_height": 1.3
+             },
+             "color": "#00875A",
+             "dark_color": "#3DDC97",
+             "background": "#E3F6EE",
+             "dark_background": "#12271F",
+             "radius": 5,
+             "padding": {
+              "top": 2,
+              "end": 5,
+              "bottom": 2,
+              "start": 5
+             },
+             "self_align": "start",
+             "translations": {
+              "ar": {
+               "text": "التقسيط قريبًا"
+              },
+              "tr": {
+               "text": "Taksit yakında"
+              }
+             }
+            },
+            {
+             "id": "sig-34",
+             "type": "text",
+             "bind": "title",
+             "max_lines": 2,
+             "color": "#111318",
+             "dark_color": "#F4F5F7",
+             "font": {
+              "family": "Almarai",
+              "size": 11.5,
+              "weight": 700,
+              "line_height": 1.3
+             },
+             "margin": {
+              "top": 2,
+              "end": 0,
+              "bottom": 0,
+              "start": 0
+             }
+            },
+            {
+             "id": "sig-35",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 2,
+             "color": "#111318",
+             "dark_color": "#F4F5F7",
+             "font": {
+              "family": "Almarai",
+              "size": 12.5,
+              "weight": 800,
+              "line_height": 1.3
+             }
+            },
+            {
+             "id": "sig-36",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#5E6470",
+             "dark_color": "#A3A8B3",
+             "font": {
+              "family": "Almarai",
+              "size": 10.5,
+              "weight": 400,
+              "line_height": 1.3
+             }
+            }
+           ]
+          }
+         ]
+        }
+       },
+       {
+        "id": "sig-37",
+        "type": "row",
+        "name": "Compare phones",
+        "gap": 10,
+        "cross": "center",
+        "radius": 14,
+        "padding": {
+         "top": 10,
+         "end": 10,
+         "bottom": 10,
+         "start": 12
+        },
+        "margin": {
+         "top": 16,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        },
+        "background": "#111318",
+        "dark_background": "#22252D",
+        "action": {
+         "type": "page",
+         "page_slug": "compare"
+        },
+        "children": [
+         {
+          "id": "sig-38",
+          "type": "row",
+          "width": 42,
+          "height": 42,
+          "radius": 10,
+          "align": "center",
+          "cross": "center",
+          "border_color": "#4A4F5A",
+          "dark_border_color": "#4A4F5A",
+          "border_width": 1.5,
+          "children": [
+           {
+            "id": "sig-39",
+            "type": "icon",
+            "icon": "compare_arrows",
+            "icon_size": 22,
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF"
+           }
+          ]
+         },
+         {
+          "id": "sig-40",
+          "type": "column",
+          "width": "fill",
+          "gap": 1,
+          "children": [
+           {
+            "id": "sig-41",
+            "type": "text",
+            "text": "Compare phones",
+            "font": {
+             "family": "Almarai",
+             "size": 14,
+             "weight": 800,
+             "line_height": 1.3
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "قارن الهواتف"
+             },
+             "tr": {
+              "text": "Telefonları karşılaştır"
+             }
+            }
+           },
+           {
+            "id": "sig-42",
+            "type": "text",
+            "text": "Side by side, spec by spec",
+            "font": {
+             "family": "Almarai",
+             "size": 11.5,
+             "weight": 400,
+             "line_height": 1.3
+            },
+            "color": "#B9BDC6",
+            "dark_color": "#B9BDC6",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "جنبًا إلى جنب، مواصفة بمواصفة"
+             },
+             "tr": {
+              "text": "Yan yana, özellik özellik"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-43",
+          "type": "button",
+          "name": "Compare now",
+          "text": "Compare now",
+          "width": "hug",
+          "height": 40,
+          "radius": 10,
+          "padding": {
+           "top": 0,
+           "end": 14,
+           "bottom": 0,
+           "start": 14
+          },
+          "background": "#FF2D55",
+          "dark_background": "#FF2D55",
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "font": {
+           "family": "Almarai",
+           "size": 13,
+           "weight": 800,
+           "line_height": 1.3
+          },
+          "motion": {
+           "press": "shrink"
+          },
+          "action": {
+           "type": "page",
+           "page_slug": "compare"
+          },
+          "translations": {
+           "ar": {
+            "text": "قارن الآن"
+           },
+           "tr": {
+            "text": "Karşılaştır"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-44",
+        "type": "spec_filter",
+        "name": "Shop by storage",
+        "text": "Shop by storage",
+        "translations": {
+         "ar": {
+          "text": "تسوّق حسب السعة"
+         },
+         "tr": {
+          "text": "Depolamaya göre alışveriş"
+         }
+        },
+        "tech": {
+         "spec": "storage",
+         "accent": "#FF2D55"
+        },
+        "font": {
+         "family": "Almarai"
+        },
+        "color": "#111318",
+        "dark_color": "#F4F5F7",
+        "margin": {
+         "top": 18,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-45",
+        "type": "row",
+        "name": "Installments coming soon",
+        "gap": 12,
+        "cross": "center",
+        "radius": 14,
+        "padding": {
+         "top": 12,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "margin": {
+         "top": 14,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        },
+        "background": "#E3F6EE",
+        "dark_background": "#12271F",
+        "border_color": "#00875A",
+        "dark_border_color": "#3DDC97",
+        "border_width": 1.5,
+        "children": [
+         {
+          "id": "sig-46",
+          "type": "icon",
+          "icon": "calendar_month",
+          "icon_size": 28,
+          "color": "#00875A",
+          "dark_color": "#3DDC97"
+         },
+         {
+          "id": "sig-47",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-48",
+            "type": "text",
+            "text": "Installments coming soon",
+            "font": {
+             "family": "Almarai",
+             "size": 14,
+             "weight": 800,
+             "line_height": 1.3
+            },
+            "color": "#00875A",
+            "dark_color": "#3DDC97",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "التقسيط قريبًا"
+             },
+             "tr": {
+              "text": "Taksit yakında"
+             }
+            }
+           },
+           {
+            "id": "sig-49",
+            "type": "text",
+            "text": "Monthly plans will be announced here first. Today you pay in full.",
+            "font": {
+             "family": "Almarai",
+             "size": 12,
+             "weight": 400,
+             "line_height": 1.3
+            },
+            "color": "#111318",
+            "dark_color": "#F4F5F7",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "سنعلن خطط الدفع الشهرية في هذا المكان أولًا. اليوم يكون الدفع كاملًا."
+             },
+             "tr": {
+              "text": "Aylık planlar önce burada duyurulacak. Bugün ödeme peşin."
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-50",
+        "type": "row",
+        "name": "Lowest prices first",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 22,
+         "end": 12,
+         "bottom": 10,
+         "start": 12
+        },
+        "children": [
+         {
+          "id": "sig-51",
+          "type": "text",
+          "text": "Lowest prices first",
+          "font": {
+           "family": "Almarai",
+           "size": 18,
+           "weight": 800,
+           "line_height": 1.3
+          },
+          "color": "#111318",
+          "dark_color": "#F4F5F7",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "الأقل سعرًا أولًا"
+           },
+           "tr": {
+            "text": "Önce en uygun fiyatlar"
+           }
+          }
+         },
+         {
+          "id": "sig-52",
+          "type": "text",
+          "text": "See all",
+          "font": {
+           "family": "Almarai",
+           "size": 12.5,
+           "weight": 700,
+           "line_height": 1.3
+          },
+          "color": "#D70F3D",
+          "dark_color": "#FF5C7A",
+          "max_lines": 1,
+          "action": {
+           "type": "screen",
+           "screen": "search"
+          },
+          "translations": {
+           "ar": {
+            "text": "عرض الكل"
+           },
+           "tr": {
+            "text": "Tümünü gör"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-53",
+        "type": "items",
+        "name": "Lowest prices first",
+        "source": "products",
+        "layout": "grid",
+        "columns": 3,
+        "gap": 8,
+        "padding": {
+         "top": 0,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        },
+        "query": {
+         "limit": 6,
+         "category_id": null,
+         "featured": false,
+         "sort": "price_asc",
+         "ids": []
+        },
+        "card": {
+         "id": "sig-54",
+         "type": "column",
+         "width": "fill",
+         "gap": 0,
+         "radius": 12,
+         "border_color": "#E6E8EC",
+         "dark_border_color": "#2A2D35",
+         "border_width": 1.5,
+         "background": "#FFFFFF",
+         "dark_background": "#1A1C22",
+         "children": [
+          {
+           "id": "sig-55",
+           "type": "stack",
+           "width": "fill",
+           "height": 108,
+           "children": [
+            {
+             "id": "sig-56",
+             "type": "image",
+             "bind": "image",
+             "width": "fill",
+             "height": 108,
+             "corners": {
+              "top_start": 11,
+              "top_end": 11
+             },
+             "fit": "cover",
+             "background": "#F3F4F6",
+             "dark_background": "#24262D"
+            },
+            {
+             "id": "sig-57",
+             "type": "text",
+             "bind": "sale",
+             "font": {
+              "family": "Almarai",
+              "size": 10.5,
+              "weight": 800,
+              "line_height": 1.3
+             },
+             "color": "#111318",
+             "dark_color": "#111318",
+             "background": "#FFD60A",
+             "dark_background": "#FFD60A",
+             "radius": 5,
+             "padding": {
+              "top": 2,
+              "end": 5,
+              "bottom": 2,
+              "start": 5
+             },
+             "place": {
+              "x": 5,
+              "y": 6
+             }
+            }
+           ]
+          },
+          {
+           "id": "sig-58",
+           "type": "column",
+           "gap": 3,
+           "padding": {
+            "top": 7,
+            "end": 7,
+            "bottom": 8,
+            "start": 7
+           },
+           "children": [
+            {
+             "id": "sig-59",
+             "type": "text",
+             "text": "Installments coming soon",
+             "max_lines": 1,
+             "font": {
+              "family": "Almarai",
+              "size": 9.5,
+              "weight": 700,
+              "line_height": 1.3
+             },
+             "color": "#00875A",
+             "dark_color": "#3DDC97",
+             "background": "#E3F6EE",
+             "dark_background": "#12271F",
+             "radius": 5,
+             "padding": {
+              "top": 2,
+              "end": 5,
+              "bottom": 2,
+              "start": 5
+             },
+             "self_align": "start",
+             "translations": {
+              "ar": {
+               "text": "التقسيط قريبًا"
+              },
+              "tr": {
+               "text": "Taksit yakında"
+              }
+             }
+            },
+            {
+             "id": "sig-60",
+             "type": "text",
+             "bind": "title",
+             "max_lines": 2,
+             "color": "#111318",
+             "dark_color": "#F4F5F7",
+             "font": {
+              "family": "Almarai",
+              "size": 11.5,
+              "weight": 700,
+              "line_height": 1.3
+             },
+             "margin": {
+              "top": 2,
+              "end": 0,
+              "bottom": 0,
+              "start": 0
+             }
+            },
+            {
+             "id": "sig-61",
+             "type": "text",
+             "bind": "price",
+             "max_lines": 2,
+             "color": "#111318",
+             "dark_color": "#F4F5F7",
+             "font": {
+              "family": "Almarai",
+              "size": 12.5,
+              "weight": 800,
+              "line_height": 1.3
+             }
+            },
+            {
+             "id": "sig-62",
+             "type": "text",
+             "bind": "was_price",
+             "max_lines": 1,
+             "color": "#5E6470",
+             "dark_color": "#A3A8B3",
+             "font": {
+              "family": "Almarai",
+              "size": 10.5,
+              "weight": 400,
+              "line_height": 1.3
+             }
+            }
+           ]
+          }
+         ]
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "shop",
+    "title": "Shop",
+    "translations": {
+     "ar": {
+      "title": "المتجر"
+     },
+     "tr": {
+      "title": "Mağaza"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-93",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-94",
+        "type": "row",
+        "name": "Every deal",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 8,
+         "end": 12,
+         "bottom": 2,
+         "start": 12
+        },
+        "children": [
+         {
+          "id": "sig-95",
+          "type": "text",
+          "text": "Every deal",
+          "font": {
+           "family": "Almarai",
+           "size": 18,
+           "weight": 800,
+           "line_height": 1.3
+          },
+          "color": "#111318",
+          "dark_color": "#F4F5F7",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "كل العروض"
+           },
+           "tr": {
+            "text": "Tüm fırsatlar"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-96",
+        "type": "categories",
+        "name": "Departments",
+        "source": "products",
+        "style": "chips",
+        "color": "#111318",
+        "dark_color": "#F4F5F7",
+        "font": {
+         "family": "Almarai"
+        },
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 4,
+         "start": 10
+        }
+       },
+       {
+        "id": "sig-97",
+        "type": "listing_filters",
+        "name": "Every deal",
+        "padding": {
+         "top": 4,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-98",
+        "type": "spec_filter",
+        "name": "Shop by storage",
+        "text": "Shop by storage",
+        "translations": {
+         "ar": {
+          "text": "تسوّق حسب السعة"
+         },
+         "tr": {
+          "text": "Depolamaya göre alışveriş"
+         }
+        },
+        "tech": {
+         "spec": "storage",
+         "accent": "#FF2D55"
+        },
+        "font": {
+         "family": "Almarai"
+        },
+        "color": "#111318",
+        "dark_color": "#F4F5F7",
+        "margin": {
+         "top": 18,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        }
+       }
+      ]
+     },
+     "screen": "search",
+     "header": {
+      "type": "title",
+      "title": "Shop",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المتجر"
+       },
+       "tr": {
+        "title": "Mağaza"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#111318",
+      "dark_background": "#0E0F13",
+      "dark_color": "#F4F5F7",
+      "style": "search"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "cart",
+    "title": "Cart",
+    "translations": {
+     "ar": {
+      "title": "السلة"
+     },
+     "tr": {
+      "title": "Sepet"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-99",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-100",
+        "type": "coupon",
+        "name": "Your code",
+        "coupon": {
+         "look": "ticket",
+         "bind": "public"
+        },
+        "radius": 12,
+        "color": "#FF2D55",
+        "margin": {
+         "top": 10,
+         "end": 12,
+         "bottom": 4,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-101",
+        "type": "row",
+        "name": "Delivered to your door, with easy returns.",
+        "gap": 10,
+        "cross": "center",
+        "radius": 12,
+        "padding": {
+         "top": 12,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "margin": {
+         "top": 8,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        },
+        "background": "#F3F4F6",
+        "dark_background": "#1A1C22",
+        "children": [
+         {
+          "id": "sig-102",
+          "type": "icon",
+          "icon": "local_shipping",
+          "icon_size": 22,
+          "color": "#FF2D55",
+          "dark_color": "#FF2D55"
+         },
+         {
+          "id": "sig-103",
+          "type": "text",
+          "text": "Free delivery inside the city on orders over 5,000 EGP.",
+          "font": {
+           "family": "Almarai",
+           "size": 12.5,
+           "weight": 700,
+           "line_height": 1.3
+          },
+          "color": "#111318",
+          "dark_color": "#F4F5F7",
+          "width": "fill",
+          "max_lines": 3,
+          "translations": {
+           "ar": {
+            "text": "توصيل مجاني داخل المدينة للطلبات فوق 5,000 ج.م."
+           },
+           "tr": {
+            "text": "5.000 EGP üzerindeki siparişlerde şehir içi ücretsiz teslimat."
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-104",
+        "type": "row",
+        "name": "Installments coming soon",
+        "gap": 12,
+        "cross": "center",
+        "radius": 14,
+        "padding": {
+         "top": 12,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "margin": {
+         "top": 8,
+         "end": 12,
+         "bottom": 6,
+         "start": 12
+        },
+        "background": "#E3F6EE",
+        "dark_background": "#12271F",
+        "border_color": "#00875A",
+        "dark_border_color": "#3DDC97",
+        "border_width": 1.5,
+        "children": [
+         {
+          "id": "sig-105",
+          "type": "icon",
+          "icon": "calendar_month",
+          "icon_size": 28,
+          "color": "#00875A",
+          "dark_color": "#3DDC97"
+         },
+         {
+          "id": "sig-106",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-107",
+            "type": "text",
+            "text": "Installments coming soon",
+            "font": {
+             "family": "Almarai",
+             "size": 14,
+             "weight": 800,
+             "line_height": 1.3
+            },
+            "color": "#00875A",
+            "dark_color": "#3DDC97",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "التقسيط قريبًا"
+             },
+             "tr": {
+              "text": "Taksit yakında"
+             }
+            }
+           },
+           {
+            "id": "sig-108",
+            "type": "text",
+            "text": "Monthly plans will be announced here first. Today you pay in full.",
+            "font": {
+             "family": "Almarai",
+             "size": 12,
+             "weight": 400,
+             "line_height": 1.3
+            },
+            "color": "#111318",
+            "dark_color": "#F4F5F7",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "سنعلن خطط الدفع الشهرية في هذا المكان أولًا. اليوم يكون الدفع كاملًا."
+             },
+             "tr": {
+              "text": "Aylık planlar önce burada duyurulacak. Bugün ödeme peşin."
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "cart",
+     "header": {
+      "type": "title",
+      "title": "Cart",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "السلة"
+       },
+       "tr": {
+        "title": "Sepet"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#111318",
+      "dark_background": "#0E0F13",
+      "dark_color": "#F4F5F7",
+      "style": "search"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "Orders",
+    "translations": {
+     "ar": {
+      "title": "الطلبات"
+     },
+     "tr": {
+      "title": "Siparişler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-109",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-110",
+        "type": "row",
+        "name": "Your order, step by step",
+        "gap": 8,
+        "cross": "center",
+        "padding": {
+         "top": 10,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "children": [
+         {
+          "id": "sig-111",
+          "type": "text",
+          "text": "Your order, step by step",
+          "font": {
+           "family": "Almarai",
+           "size": 18,
+           "weight": 800,
+           "line_height": 1.3
+          },
+          "color": "#111318",
+          "dark_color": "#F4F5F7",
+          "width": "fill",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "طلبك خطوة بخطوة"
+           },
+           "tr": {
+            "text": "Siparişiniz adım adım"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-112",
+        "type": "timeline",
+        "name": "Your order, step by step",
+        "timeline": {
+         "style": "vertical",
+         "source": "latest_order"
+        },
+        "color": "#111318",
+        "dark_color": "#F4F5F7",
+        "font": {
+         "family": "Almarai"
+        },
+        "background": "#F3F4F6",
+        "dark_background": "#1A1C22",
+        "radius": 14,
+        "padding": {
+         "top": 14,
+         "end": 12,
+         "bottom": 14,
+         "start": 12
+        },
+        "margin": {
+         "top": 0,
+         "end": 12,
+         "bottom": 8,
+         "start": 12
+        },
+        "entries": [
+         {
+          "title": "Ordered",
+          "text": "We have your order.",
+          "highlight": true,
+          "translations": {
+           "ar": {
+            "title": "تم الطلب",
+            "text": "استلمنا طلبك."
+           },
+           "tr": {
+            "title": "Sipariş verildi",
+            "text": "Siparişinizi aldık."
+           }
+          }
+         },
+         {
+          "title": "Checked",
+          "text": "Tested, sealed and packed with care.",
+          "translations": {
+           "ar": {
+            "title": "تم الفحص",
+            "text": "مفحوص ومختوم ومغلّف بعناية."
+           },
+           "tr": {
+            "title": "Kontrol edildi",
+            "text": "Test edildi, mühürlendi, özenle paketlendi."
+           }
+          }
+         },
+         {
+          "title": "On its way",
+          "text": "With the courier, on its way to you.",
+          "translations": {
+           "ar": {
+            "title": "في الطريق",
+            "text": "مع المندوب في طريقه إليك."
+           },
+           "tr": {
+            "title": "Yolda",
+            "text": "Kuryede, size geliyor."
+           }
+          }
+         },
+         {
+          "title": "Delivered",
+          "text": "Set it up and enjoy it. Returns are easy from your orders.",
+          "translations": {
+           "ar": {
+            "title": "تم التوصيل",
+            "text": "شغّله واستمتع به. الإرجاع سهل من طلباتك."
+           },
+           "tr": {
+            "title": "Teslim edildi",
+            "text": "Kurun ve keyfini çıkarın. İade siparişlerinizden kolayca yapılır."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#111318",
+      "dark_background": "#0E0F13",
+      "dark_color": "#F4F5F7",
+      "style": "search"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-114",
+      "type": "column",
+      "children": [
+       {
+        "id": "sig-113",
+        "type": "button",
+        "name": "Sign out",
+        "text": "Sign out",
+        "translations": {
+         "ar": {
+          "text": "تسجيل الخروج"
+         },
+         "tr": {
+          "text": "Çıkış yap"
+         }
+        },
+        "action": {
+         "type": "sign_out"
+        },
+        "visibility": "signed_in",
+        "width": "fill",
+        "height": 48,
+        "radius": 14,
+        "border_color": "#B42318",
+        "dark_border_color": "#F0907F",
+        "border_width": 1.5,
+        "color": "#B42318",
+        "dark_color": "#F0907F",
+        "font": {
+         "size": 15,
+         "weight": 700
+        },
+        "text_align": "center",
+        "margin": {
+         "top": 16,
+         "end": 16,
+         "bottom": 16,
+         "start": 16
+        }
+       }
+      ]
+     },
+     "screen": "account",
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "menu",
+    "title": "All categories",
+    "translations": {
+     "ar": {
+      "title": "كل الأقسام"
+     },
+     "tr": {
+      "title": "Tüm kategoriler"
+     }
+    },
+    "studio": {
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13",
+     "body": {
+      "id": "sig-63",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 36,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-64",
+        "type": "categories",
+        "name": "All categories",
+        "source": "products",
+        "style": "rows",
+        "category_menu": {
+         "look": "lead",
+         "radius": 12
+        },
+        "color": "#111318",
+        "dark_color": "#F4F5F7",
+        "font": {
+         "family": "Almarai"
+        },
+        "padding": {
+         "top": 8,
+         "end": 0,
+         "bottom": 6,
+         "start": 0
+        }
+       },
+       {
+        "id": "sig-65",
+        "type": "grid",
+        "name": "Your account",
+        "columns": 4,
+        "gap": 8,
+        "padding": {
+         "top": 16,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        },
+        "children": [
+         {
+          "id": "sig-66",
+          "type": "column",
+          "name": "My account",
+          "gap": 6,
+          "cross": "center",
+          "radius": 12,
+          "padding": {
+           "top": 12,
+           "end": 4,
+           "bottom": 10,
+           "start": 4
+          },
+          "background": "#F3F4F6",
+          "dark_background": "#1A1C22",
+          "action": {
+           "type": "screen",
+           "screen": "account"
+          },
+          "children": [
+           {
+            "id": "sig-67",
+            "type": "icon",
+            "icon": "person",
+            "icon_size": 24,
+            "color": "#111318",
+            "dark_color": "#F4F5F7"
+           },
+           {
+            "id": "sig-68",
+            "type": "text",
+            "text": "My account",
+            "font": {
+             "family": "Almarai",
+             "size": 11.5,
+             "weight": 700,
+             "line_height": 1.3
+            },
+            "color": "#111318",
+            "dark_color": "#F4F5F7",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "حسابي"
+             },
+             "tr": {
+              "text": "Hesabım"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-69",
+          "type": "column",
+          "name": "My orders",
+          "gap": 6,
+          "cross": "center",
+          "radius": 12,
+          "padding": {
+           "top": 12,
+           "end": 4,
+           "bottom": 10,
+           "start": 4
+          },
+          "background": "#F3F4F6",
+          "dark_background": "#1A1C22",
+          "action": {
+           "type": "screen",
+           "screen": "orders"
+          },
+          "children": [
+           {
+            "id": "sig-70",
+            "type": "icon",
+            "icon": "receipt_long",
+            "icon_size": 24,
+            "color": "#111318",
+            "dark_color": "#F4F5F7"
+           },
+           {
+            "id": "sig-71",
+            "type": "text",
+            "text": "My orders",
+            "font": {
+             "family": "Almarai",
+             "size": 11.5,
+             "weight": 700,
+             "line_height": 1.3
+            },
+            "color": "#111318",
+            "dark_color": "#F4F5F7",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "طلباتي"
+             },
+             "tr": {
+              "text": "Siparişlerim"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-72",
+          "type": "column",
+          "name": "Wishlist",
+          "gap": 6,
+          "cross": "center",
+          "radius": 12,
+          "padding": {
+           "top": 12,
+           "end": 4,
+           "bottom": 10,
+           "start": 4
+          },
+          "background": "#F3F4F6",
+          "dark_background": "#1A1C22",
+          "action": {
+           "type": "screen",
+           "screen": "favorites"
+          },
+          "children": [
+           {
+            "id": "sig-73",
+            "type": "icon",
+            "icon": "favorite",
+            "icon_size": 24,
+            "color": "#111318",
+            "dark_color": "#F4F5F7"
+           },
+           {
+            "id": "sig-74",
+            "type": "text",
+            "text": "Wishlist",
+            "font": {
+             "family": "Almarai",
+             "size": 11.5,
+             "weight": 700,
+             "line_height": 1.3
+            },
+            "color": "#111318",
+            "dark_color": "#F4F5F7",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "المفضّلة"
+             },
+             "tr": {
+              "text": "Favoriler"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-75",
+          "type": "column",
+          "name": "Language",
+          "gap": 6,
+          "cross": "center",
+          "radius": 12,
+          "padding": {
+           "top": 12,
+           "end": 4,
+           "bottom": 10,
+           "start": 4
+          },
+          "background": "#F3F4F6",
+          "dark_background": "#1A1C22",
+          "action": {
+           "type": "screen",
+           "screen": "settings"
+          },
+          "children": [
+           {
+            "id": "sig-76",
+            "type": "icon",
+            "icon": "language",
+            "icon_size": 24,
+            "color": "#111318",
+            "dark_color": "#F4F5F7"
+           },
+           {
+            "id": "sig-77",
+            "type": "text",
+            "text": "Language",
+            "font": {
+             "family": "Almarai",
+             "size": 11.5,
+             "weight": 700,
+             "line_height": 1.3
+            },
+            "color": "#111318",
+            "dark_color": "#F4F5F7",
+            "max_lines": 1,
+            "text_align": "center",
+            "translations": {
+             "ar": {
+              "text": "اللغة"
+             },
+             "tr": {
+              "text": "Dil"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-78",
+        "type": "row",
+        "name": "Contact us",
+        "gap": 12,
+        "cross": "center",
+        "radius": 14,
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 10,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        },
+        "background": "#FF2D55",
+        "dark_background": "#C8143D",
+        "action": {
+         "type": "screen",
+         "screen": "account"
+        },
+        "children": [
+         {
+          "id": "sig-79",
+          "type": "icon",
+          "icon": "support_agent",
+          "icon_size": 24,
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF"
+         },
+         {
+          "id": "sig-80",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-81",
+            "type": "text",
+            "text": "Contact us",
+            "font": {
+             "family": "Almarai",
+             "size": 14,
+             "weight": 800,
+             "line_height": 1.3
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "تواصل معنا"
+             },
+             "tr": {
+              "text": "Bize ulaşın"
+             }
+            }
+           },
+           {
+            "id": "sig-82",
+            "type": "text",
+            "text": "Customer care every day, 10 am to midnight",
+            "font": {
+             "family": "Almarai",
+             "size": 11.5,
+             "weight": 400,
+             "line_height": 1.3
+            },
+            "color": "#FFFFFF",
+            "dark_color": "#FFFFFF",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "خدمة العملاء يوميًا من 10 صباحًا حتى منتصف الليل"
+             },
+             "tr": {
+              "text": "Müşteri hizmetleri her gün 10.00–24.00"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "sig-83",
+          "type": "icon",
+          "icon": "chat",
+          "icon_size": 22,
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF"
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "All categories",
+      "translations": {
+       "ar": {
+        "title": "كل الأقسام"
+       },
+       "tr": {
+        "title": "Tüm kategoriler"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#FFFFFF",
+      "dark_background": "#0E0F13",
+      "color": "#111318",
+      "dark_color": "#F4F5F7",
+      "style": "search",
+      "collapse": false
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "compare",
+    "title": "Compare",
+    "translations": {
+     "ar": {
+      "title": "قارن"
+     },
+     "tr": {
+      "title": "Karşılaştır"
+     }
+    },
+    "studio": {
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13",
+     "body": {
+      "id": "sig-84",
+      "type": "column",
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 36,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-85",
+        "type": "text",
+        "text": "Two phones side by side, read spec by spec before you choose.",
+        "font": {
+         "family": "Almarai",
+         "size": 13,
+         "weight": 400,
+         "line_height": 1.3
+        },
+        "color": "#5E6470",
+        "dark_color": "#A3A8B3",
+        "max_lines": 3,
+        "padding": {
+         "top": 6,
+         "end": 12,
+         "bottom": 10,
+         "start": 12
+        },
+        "translations": {
+         "ar": {
+          "text": "هاتفان جنبًا إلى جنب، اقرأهما مواصفة بمواصفة قبل أن تختار."
+         },
+         "tr": {
+          "text": "İki telefonu yan yana koyun, seçmeden önce özellik özellik okuyun."
+         }
+        }
+       },
+       {
+        "id": "sig-86",
+        "type": "compare",
+        "name": "Compare",
+        "tech": {
+         "accent": "#FF2D55",
+         "rows": 8
+        },
+        "font": {
+         "family": "Almarai"
+        },
+        "color": "#111318",
+        "dark_color": "#F4F5F7",
+        "background": "#FFFFFF",
+        "dark_background": "#1A1C22",
+        "border_color": "#E6E8EC",
+        "dark_border_color": "#2A2D35",
+        "border_width": 1.5,
+        "radius": 14,
+        "padding": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "margin": {
+         "top": 0,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-87",
+        "type": "spec_filter",
+        "name": "Shop by storage",
+        "text": "Shop by storage",
+        "translations": {
+         "ar": {
+          "text": "تسوّق حسب السعة"
+         },
+         "tr": {
+          "text": "Depolamaya göre alışveriş"
+         }
+        },
+        "tech": {
+         "spec": "storage",
+         "accent": "#FF2D55"
+        },
+        "font": {
+         "family": "Almarai"
+        },
+        "color": "#111318",
+        "dark_color": "#F4F5F7",
+        "margin": {
+         "top": 18,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        }
+       },
+       {
+        "id": "sig-88",
+        "type": "row",
+        "name": "Installments coming soon",
+        "gap": 12,
+        "cross": "center",
+        "radius": 14,
+        "padding": {
+         "top": 12,
+         "end": 12,
+         "bottom": 12,
+         "start": 12
+        },
+        "margin": {
+         "top": 14,
+         "end": 12,
+         "bottom": 0,
+         "start": 12
+        },
+        "background": "#E3F6EE",
+        "dark_background": "#12271F",
+        "border_color": "#00875A",
+        "dark_border_color": "#3DDC97",
+        "border_width": 1.5,
+        "children": [
+         {
+          "id": "sig-89",
+          "type": "icon",
+          "icon": "calendar_month",
+          "icon_size": 28,
+          "color": "#00875A",
+          "dark_color": "#3DDC97"
+         },
+         {
+          "id": "sig-90",
+          "type": "column",
+          "width": "fill",
+          "gap": 2,
+          "children": [
+           {
+            "id": "sig-91",
+            "type": "text",
+            "text": "Installments coming soon",
+            "font": {
+             "family": "Almarai",
+             "size": 14,
+             "weight": 800,
+             "line_height": 1.3
+            },
+            "color": "#00875A",
+            "dark_color": "#3DDC97",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "التقسيط قريبًا"
+             },
+             "tr": {
+              "text": "Taksit yakında"
+             }
+            }
+           },
+           {
+            "id": "sig-92",
+            "type": "text",
+            "text": "Monthly plans will be announced here first. Today you pay in full.",
+            "font": {
+             "family": "Almarai",
+             "size": 12,
+             "weight": 400,
+             "line_height": 1.3
+            },
+            "color": "#111318",
+            "dark_color": "#F4F5F7",
+            "max_lines": 2,
+            "translations": {
+             "ar": {
+              "text": "سنعلن خطط الدفع الشهرية في هذا المكان أولًا. اليوم يكون الدفع كاملًا."
+             },
+             "tr": {
+              "text": "Aylık planlar önce burada duyurulacak. Bugün ödeme peşin."
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Compare",
+      "translations": {
+       "ar": {
+        "title": "قارن"
+       },
+       "tr": {
+        "title": "Karşılaştır"
+       }
+      },
+      "buttons": [
+       "cart"
+      ],
+      "background": "#FFFFFF",
+      "dark_background": "#0E0F13",
+      "color": "#111318",
+      "dark_color": "#F4F5F7",
+      "style": "search"
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-115",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#111318",
+      "dark_background": "#0E0F13",
+      "dark_color": "#F4F5F7",
+      "style": "search"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-116",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#111318",
+      "dark_background": "#0E0F13",
+      "dark_color": "#F4F5F7",
+      "style": "search"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "favorites",
+    "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-117",
+      "type": "column",
+      "children": []
+     },
+     "screen": "favorites",
+     "header": {
+      "type": "title",
+      "title": "Wishlist",
+      "translations": {
+       "ar": {
+        "title": "المفضلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#111318",
+      "dark_background": "#0E0F13",
+      "dark_color": "#F4F5F7",
+      "style": "search"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-118",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#111318",
+      "dark_background": "#0E0F13",
+      "dark_color": "#F4F5F7",
+      "style": "search"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "sig-119",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#FFFFFF",
+      "color": "#111318",
+      "dark_background": "#0E0F13",
+      "dark_color": "#F4F5F7",
+      "style": "search"
+     },
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "sig-120",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "sig-121",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#FFFFFF",
+     "dark_background": "#0E0F13"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "background": "#FFFFFF",
+   "dark_background": "#0E0F13",
+   "active": "#FF2D55",
+   "dark_active": "#FF2D55",
+   "inactive": "#5E6470",
+   "dark_inactive": "#A3A8B3",
+   "design": "lift",
+   "labels": "always"
+  }
+ }
+}

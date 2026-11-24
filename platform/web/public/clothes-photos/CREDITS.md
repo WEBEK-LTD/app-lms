@@ -64,3 +64,15 @@
 - **walk-white.jpg**: "Woman Walking" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/woman-walking-RIUG2ATBWT
 - **white-backpack.jpg**: "Woman White" by Studio 7042, CC0 1.0. https://stocksnap.io/photo/woman-white-BKSLYECRJN
 - **yellow-coat.jpg**: "Person Woman" by donterase, CC0 1.0. https://stocksnap.io/photo/person-woman-5GB7LPF8SD
+- **top-black.jpg**: "Woman Fashion" by Christian Mackie, CC0 1.0, cut square around the garment (black-top.jpg's photo, 223). https://stocksnap.io/photo/woman-fashion-CGR7I2PUXK
+- **top-cream.jpg**: "Woman Fashion" by Matt Moloney, CC0 1.0, cut square around the garment (turtleneck.jpg's photo, 223). https://stocksnap.io/photo/woman-fashion-PT99RR9DAE
+- **top-knit.jpg**: "Urban Fashion" by Matt Moloney, CC0 1.0, cut square around the garment (fleece.jpg's photo, 223). https://stocksnap.io/photo/urban-fashion-7IOQMO7JTF
+- **top-plaid.jpg**: "Girl Woman" by Benjamin Combs, CC0 1.0, cut square around the garment (flannel.jpg's photo, 223). https://stocksnap.io/photo/girl-woman-4B5U95JDWJ
+- **bottom-jeans.jpg**: "City Woman" by Matt Moloney, CC0 1.0, cut square around the garment (fence-jeans.jpg's photo, 223). https://stocksnap.io/photo/city-woman-NBGPDH7RS9
+- **bottom-velvet.jpg**: "Woman Fashion" by Matt Moloney, CC0 1.0, cut square around the garment (turtleneck.jpg's photo, 223). https://stocksnap.io/photo/woman-fashion-PT99RR9DAE
+- **bottom-skirt.jpg**: "People Woman" by Zeny Rosalina, CC0 1.0, cut square around the garment (red-skirt.jpg's photo, 223). https://stocksnap.io/photo/people-woman-D85KN9KIDN
+- **stripe-dress.jpg**: "Woman Cover" by Daria Shevtsova, CC0 1.0. https://stocksnap.io/photo/woman-cover-A79NQ95LOI
+- **fur-jacket.jpg**: "Woman Fashion" by Matt Moloney, CC0 1.0. https://stocksnap.io/photo/woman-fashion-94TN6BQCV4
+- **editor-hat.jpg**: "Blackandwhite Monochrome" by Luke Braswell, CC0 1.0. https://stocksnap.io/photo/blackandwhite-monochrome-XZI69BCJTX
+- **brown-coat.jpg**: "People Girl" by Kaci Baum, CC0 1.0. https://stocksnap.io/photo/people-girl-0GZIHFBPFQ
+- **black-coat.jpg**: "Woman Red" by Nick Demou, CC0 1.0. https://stocksnap.io/photo/woman-red-1JF6CRZOCE

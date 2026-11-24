@@ -1,6 +1,7 @@
 import { catalogSettings } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
+import { KIDS_PRODUCT_NAMES, namedTranslations } from "./product-names";
 import { unchanged } from "./rows";
 import { priceFor, type EntryDeps } from "./entries";
 import { KIDS_ADDON_CATEGORY, KIDS_CATEGORIES, KIDS_COMMERCE, KIDS_COUPON, KIDS_CURRENCY, KIDS_FLASH_SALE, KIDS_GIFTS_CATEGORY, KIDS_PRODUCTS, kidsCategoriesOf, kidsDetails, kidsVariants } from "./kids";
@@ -72,6 +73,8 @@ export async function demoKidsProducts(deps: EntryDeps, app: App): Promise<void>
       addon: seed.addon === true,
       addonFor: seed.addon ? { offerWith: "categories" as const, categoryIds: [categoryIds.get(KIDS_GIFTS_CATEGORY)!], productIds: [] } : null,
       details: kidsDetails(seed),
+      // 223 Its name in Arabic and Turkish too.
+      translations: namedTranslations(KIDS_PRODUCT_NAMES, seed.sku),
       ...marked,
     };
     if (deps.sample) {

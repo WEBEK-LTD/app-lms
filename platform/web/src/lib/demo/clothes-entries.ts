@@ -1,6 +1,7 @@
 import { catalogSettings } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
+import { CLOTHES_PRODUCT_NAMES, namedTranslations } from "./product-names";
 import { unchanged } from "./rows";
 import { priceFor, type EntryDeps } from "./entries";
 import { CLOTHES_CATEGORIES, CLOTHES_COMMERCE, CLOTHES_COUPON, CLOTHES_CURRENCY, CLOTHES_FLASH_SALE, CLOTHES_PRODUCTS, clothesMainOf, clothesVariants } from "./clothes";
@@ -66,6 +67,8 @@ export async function demoClothesProducts(deps: EntryDeps, app: App): Promise<vo
       optionGroups: null,
       addon: false,
       addonFor: null,
+      // 223 Its name in Arabic and Turkish too.
+      translations: namedTranslations(CLOTHES_PRODUCT_NAMES, seed.sku),
       ...marked,
     };
     if (deps.sample) {

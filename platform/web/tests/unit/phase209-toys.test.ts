@@ -11,6 +11,7 @@ import { DEMO_BRANDS, DEMO_GUIDES } from "@/lib/demo/content";
 import { isShopPhoto, TOYS_PHOTO_NAMES } from "@/lib/demo/shop-photos";
 import { setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { ageLabel, TOYS_ADDONS, TOYS_AGES, TOYS_BIRTHDAY, TOYS_BY_AGE, TOYS_CATEGORIES, TOYS_COMMERCE, TOYS_PRODUCTS, toysAgesOf, toysMainOf } from "@/lib/demo/toys";
+import { TOYS_PRODUCT_NAMES } from "@/lib/demo/product-names";
 import { toysPartsForSamples } from "@/lib/demo/toys-entries";
 import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
 import { LogSender } from "@/lib/hosted/otp-sender";
@@ -68,7 +69,9 @@ describe("209 the toys type", () => {
     const toys = shopTypeById("toys")!;
     expect(shopTypeReady(toys)).toBe(true);
     expect(toys.demo).toBe(TOYS_DEMO);
-    expect(shopTypeTemplate(toys)).toBe("toys_signature_a");
+    // 226 Its main template is its look C, the adventure map.
+    expect(shopTypeTemplate(toys)).toBe("toys_signature_c");
+    expect(shopTypeTemplate(toys, "a")).toBe("toys_signature_a");
     expect(shopTypeTemplate(toys, "b")).toBe("toys_signature_b");
     expect(shopTypesIn("kids").map((t) => t.id)).toContain("toys");
     // Beside kids' clothes, the section's other ready type.
@@ -77,7 +80,7 @@ describe("209 the toys type", () => {
     expect(store).toEqual(expect.arrayContaining(["toys_signature_a", "toys_signature_b"]));
     expect(templatesFor({ type: "store", vertical: "restaurant" }).map((t) => t.id)).not.toContain("toys_signature_a");
     expect(shopTypeOfDesign("toys_signature_b")?.id).toBe("toys");
-    expect(TEMPLATES.filter((t) => t.demo === TOYS_DEMO).map((t) => t.id)).toEqual(["toys_signature_a", "toys_signature_b"]);
+    expect(TEMPLATES.filter((t) => t.demo === TOYS_DEMO).map((t) => t.id)).toEqual(["toys_signature_c", "toys_signature_d", "toys_signature_a", "toys_signature_b"]);
   });
 
   it("asks its owner to accept the kids' notice once: child-safety standards and age warnings, sold to parents", () => {
@@ -201,8 +204,16 @@ describe("209 Toot, the toy shop's demo", () => {
       return result;
     }
 
+    it("226 serves its toys and add-ons with their names in Arabic and Turkish", async () => {
+      expect(TOYS_PRODUCTS.filter((p) => !TOYS_PRODUCT_NAMES[p.sku])).toEqual([]);
+      const ar = (await call("/store/products", { per_page: "50" }, "ar")).body as { items: { name: string }[] };
+      expect(ar.items.map((p) => p.name)).toContain(TOYS_PRODUCT_NAMES["TY-501"]!.ar);
+      const tr = (await call("/store/products", { per_page: "50" }, "tr")).body as { items: { name: string }[] };
+      expect(tr.items.map((p) => p.name)).toContain(TOYS_PRODUCT_NAMES["TY-501"]!.tr);
+    });
+
     it("keeps its categories, its toys with their details, the add-ons, the card at checkout, the sale and the code", async () => {
-      expect(app.design).toBe("toys_signature_a");
+      expect(app.design).toBe("toys_signature_c");
       expect(app.catalogSettings?.currency).toBe("AED");
       expect(app.catalogSettings?.returnDays).toBe(30);
       expect(app.catalogSettings?.gifts).toMatchObject({ message: true, recipient: true, starterTexts: { ar: TOYS_COMMERCE.gifts!.starterTexts!.ar } });

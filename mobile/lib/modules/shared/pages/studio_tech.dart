@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/api/models/models.dart';
+import '../../../core/format/bidi.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/routing/paths.dart';
@@ -126,26 +127,43 @@ class StudioTechView extends ConsumerWidget {
                       shape: const StadiumBorder(),
                       side: BorderSide(color: p.border),
                       backgroundColor: p.surface,
-                      label: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: v.value,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: p.text,
-                              ),
+                      // 227 The value in its own direction and the count in
+                      // a badge of its own, so in Arabic "16 GB DDR5" reads
+                      // whole, then its count ("GB DDR5 3 16" before).
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            isolate(v.value),
+                            key: ValueKey('spec-filter-value-${v.value}'),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: p.text,
                             ),
-                            if (v.count > 0)
-                              TextSpan(
-                                text: '  ${v.count}',
+                          ),
+                          if (v.count > 0) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              key: ValueKey('spec-filter-count-${v.value}'),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 1,
+                              ),
+                              decoration: BoxDecoration(
+                                color: tint.withValues(alpha: 0.14),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                '${v.count}',
                                 style: TextStyle(
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: tint,
                                 ),
                               ),
+                            ),
                           ],
-                        ),
+                        ],
                       ),
                     ),
                 ].expand((w) => [w, const SizedBox(width: 8)]).toList(),

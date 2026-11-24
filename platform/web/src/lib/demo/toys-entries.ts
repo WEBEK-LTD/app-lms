@@ -1,3 +1,4 @@
+import { namedTranslations, TOYS_PRODUCT_NAMES } from "./product-names";
 import { catalogSettings } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
@@ -65,6 +66,8 @@ export async function demoToysProducts(deps: EntryDeps, app: App): Promise<void>
         addon: true,
         addonFor: null,
         details: null,
+        // 226 Its name in Arabic and Turkish too.
+        translations: namedTranslations(TOYS_PRODUCT_NAMES, a.sku),
       },
     })),
     ...[...TOYS_PRODUCTS].reverse().map((seed) => {
@@ -89,6 +92,8 @@ export async function demoToysProducts(deps: EntryDeps, app: App): Promise<void>
           addonFor: null,
           // Its age, safety, materials and what it promises, as its page shows them.
           details: structuredClone(seed.details),
+          // 226 Its name in Arabic and Turkish too.
+          translations: namedTranslations(TOYS_PRODUCT_NAMES, seed.sku),
         },
       };
     }),

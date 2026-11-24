@@ -23,6 +23,11 @@ import { BEAUTY_SECTIONS } from "./demo-designs/beauty-signature";
 import { KIDS_SECTIONS } from "./demo-designs/kids-signature";
 // 209 Toys
 import { TOYS_SECTIONS } from "./demo-designs/toys-signature";
+// 226 Toot's looks C (the adventure map) and D (Montessori), Nova's C (the keynote) and D (the deals hub).
+import { TOYS_C_SECTIONS } from "./demo-designs/toys-c-signature";
+import { TOYS_D_SECTIONS } from "./demo-designs/toys-d-signature";
+import { MOBILES_C_SECTIONS } from "./demo-designs/mobiles-c-signature";
+import { MOBILES_D_SECTIONS } from "./demo-designs/mobiles-d-signature";
 // 211 Nova's sections.
 import { MOBILES_SECTIONS } from "./demo-designs/mobiles-signature";
 import { INSTALLMENTS_SECTION } from "./installments";
@@ -351,8 +356,14 @@ export type SectionWord =
   | Extract<AppWord, `pc${string}`>
   // 211 Madar's looks, pages and sections (lib/studio/demo-designs/electronics-signature.ts).
   | Extract<AppWord, `el${string}`>
+  // 225 Furniture's looks C and D (MIZAN, MANZIL) and home decor's (ATHAR, MAZAJ): lib/studio/demo-designs/*-c-signature.ts, *-d-signature.ts.
+  | Extract<AppWord, `mz${string}` | `mn${string}` | `at${string}` | `mj${string}`>
+  // 223 Lujain's templates C and D (RUNWAY, the outfit builder); Toota's (the story world, the nursery).
+  | Extract<AppWord, `rwy${string}` | `obd${string}` | `stw${string}` | `nrs${string}`>
   // 224 Velours's templates C and D, Ghurza's templates C and D (lib/studio/demo-designs/beauty-cd-signature.ts, crochet-cd-signature.ts).
-  | Extract<AppWord, `vc${string}` | `vd${string}` | `gc${string}` | `gd${string}`>;
+  | Extract<AppWord, `vc${string}` | `vd${string}` | `gc${string}` | `gd${string}`>
+  // 227 Madar's and Nawah's looks C and D (lib/studio/words/electronics-cd.ts and computers-cd.ts).
+  | Extract<AppWord, `eb${string}` | `es${string}` | `pb${string}` | `pw${string}`>;
 
 export interface SectionContext {
   brand: string;
@@ -1150,6 +1161,8 @@ export const SECTIONS: readonly SectionInfo[] = [
   // 209 Toys
   // 209 The toys type's parts (the category menu, shopping by age, safety first, the gift finder and wraps, gifts under a price, the lab, the ready box).
   ...TOYS_SECTIONS,
+  ...TOYS_C_SECTIONS,
+  ...TOYS_D_SECTIONS,
   // 211 The electronics type's parts (trade-in, compare, specs, the services, the star, the brands, the top five, the bundle).
   ...ELECTRONICS_SECTIONS,
   INSTALLMENTS_SECTION,
@@ -1163,6 +1176,8 @@ export const SECTIONS: readonly SectionInfo[] = [
   ...FURNITURE_SECTIONS,
   // 211 The mobiles type's parts (trade-in, compare, by storage, certified used, accessories, brands, bundle, numbers).
   ...MOBILES_SECTIONS,
+  ...MOBILES_C_SECTIONS,
+  ...MOBILES_D_SECTIONS,
   // 211 The computers type's parts: Build your PC, the spec filters, ready builds compared, the device of the week, the services.
   ...COMPUTERS_SECTIONS,
   // 212 The listing filters (sizes, colours, price, brand), for every store and shop type.

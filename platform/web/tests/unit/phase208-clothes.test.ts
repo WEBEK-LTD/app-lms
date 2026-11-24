@@ -1,3 +1,4 @@
+import { CLOTHES_PRODUCT_NAMES } from "@/lib/demo/product-names";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -20,7 +21,7 @@ import { itemSourcesFor } from "@/lib/pages/sources";
 import type { StudioNode } from "@/lib/pages/types";
 import { completeLookFor, FASHION_FORM_ERRORS, fashionOf, parentChoice, parseFashionForm, sizeChartJson, sizeChartOf } from "@/lib/selling/fashion";
 import { appWords } from "@/lib/studio/app-words";
-import { signatureDesign } from "@/lib/studio/demo-designs";
+import { mainTemplateOf, signatureDesign } from "@/lib/studio/demo-designs";
 import { CLOTHES_SECTIONS, MENU_PAGE, SIZE_PAGE } from "@/lib/studio/demo-designs/clothes-signature";
 import { ELEMENTS, newNode } from "@/lib/studio/elements";
 import { INSTALLMENTS_SECTION, showsInstallmentsSoon } from "@/lib/studio/installments";
@@ -82,10 +83,12 @@ describe("208 the shop types: sections, then types, then templates", () => {
 
   it("offers a ready type's two looks as store templates, and nothing for a coming one", () => {
     const clothes = shopTypeById("clothes")!;
-    expect(shopTypeTemplate(clothes)).toBe("clothes_signature_a");
+    // 223 Its main template is C, RUNWAY.
+    expect(shopTypeTemplate(clothes)).toBe("clothes_signature_c");
     expect(shopTypeTemplate(clothes, "b")).toBe("clothes_signature_b");
     // 210 Furniture is ready now; a type without a demo still has no template.
-    expect(shopTypeTemplate(shopTypeById("furniture")!)).toBe("furniture_signature_a");
+    // 223 225 Its main look (C where the type has one).
+    expect(shopTypeTemplate(shopTypeById("furniture")!)).toBe(mainTemplateOf("furniture"));
     expect(shopTypeTemplate({ ...shopTypeById("furniture")!, demo: undefined })).toBeNull();
     const store = templatesFor({ type: "store", vertical: null }).map((t) => t.id);
     expect(store).toContain("clothes_signature_a");
@@ -206,7 +209,7 @@ describe("208 Lujain, the clothes shop's demo", () => {
     const v = clothesVariants(dress, 0)!;
     expect(v.attributes).toEqual([
       { name: "Size", values: ["XS", "S", "M", "L", "XL"] },
-      { name: "Colour", values: ["Rust", "Black", "Olive"] },
+      { name: "Colour", values: ["Blue", "Black", "Olive"] },
     ]);
     expect(v.items).toHaveLength(15);
     expect(v.items.some((i) => i.stock === 0)).toBe(true);
@@ -253,7 +256,8 @@ describe("208 Lujain, the clothes shop's demo", () => {
     }
 
     it("keeps its categories and sub-categories, its pieces and settings", async () => {
-      expect(app.design).toBe("clothes_signature_a");
+      // 223 The demo is its main template, C.
+      expect(app.design).toBe("clothes_signature_c");
       expect(app.catalogSettings?.currency).toBe("SAR");
       expect(app.catalogSettings?.returnDays).toBe(14);
       expect(fashionOf(app)).toEqual({ sizeChart: CLOTHES_SIZE_CHART, completeLook: true });
@@ -277,6 +281,13 @@ describe("208 Lujain, the clothes shop's demo", () => {
       // In Arabic, as the shop named them.
       const arabic = (await call("/store/categories", {}, "ar")).body as { items: { name: string }[] };
       expect(arabic.items.map((c) => c.name)).toContain("فساتين");
+      // 223 Its products in Arabic and Turkish too, each named.
+      expect(CLOTHES_PRODUCTS.filter((p) => !CLOTHES_PRODUCT_NAMES[p.sku])).toEqual([]);
+      const arProducts = (await call("/store/products", { per_page: "100" }, "ar")).body as { items: { name: string }[] };
+      expect(arProducts.items.map((p) => p.name)).toContain(CLOTHES_PRODUCT_NAMES["CL-101"]!.ar);
+      expect(arProducts.items.every((p) => /[\u0600-\u06FF]/u.test(p.name))).toBe(true);
+      const trProducts = (await call("/store/products", { per_page: "100" }, "tr")).body as { items: { name: string }[] };
+      expect(trProducts.items.map((p) => p.name)).toContain("Çizgili gömlek elbise");
       const inDresses = (await call("/store/products", { category: String(dresses.id), per_page: "50" })).body as { items: { id: number }[] };
       expect(inDresses.items).toHaveLength(dresses.count);
       const config = (await call("/config", { platform: "android", app_version: "1.0.0" })).body as { store: { size_chart: { headers: string[]; unit: string } | null; returns: { days: number } | null } };
@@ -357,7 +368,8 @@ describe("208 Lujain's two looks: LUJAIN the boutique and NOUN streetwear", () =
     const words = () => "x";
     expect(newNode("categories", { source: "products", brand: "#000000", text: words, preset: "category_menu" })).toMatchObject({ style: "rows", category_menu: { look: "lead" } });
     expect(newNode("size_chart", { source: "products", brand: "#000000", text: words }).type).toBe("size_chart");
-    expect(TEMPLATES.filter((t) => t.demo === CLOTHES_DEMO).map((t) => t.id)).toEqual(["clothes_signature_a", "clothes_signature_b"]);
+    // 223 C and D first, A and B kept after them.
+    expect(TEMPLATES.filter((t) => t.demo === CLOTHES_DEMO).map((t) => t.id)).toEqual(["clothes_signature_c", "clothes_signature_d", "clothes_signature_a", "clothes_signature_b"]);
   });
 
   it("draws the canvas's rows from the shop's categories: each main one with its sub-categories", () => {

@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+# A node_modules linked from elsewhere: a symlink isn't matched by "node_modules/".
+node_modules
 vendor/
 # 115 The app's vendor module is code, not dependencies.
 !mobile/lib/modules/vendor/

@@ -332,7 +332,7 @@ describe("a restaurant on the hosted API", () => {
         pickup: true,
         delivery: true,
         min_order: "150.00",
-        min_order_formatted: "₺150.00",
+        min_order_formatted: "₺150",
         delivery_fee: "30.00",
         delivery_areas: ["Kadıköy", "Moda"],
         prep_minutes: 20,
@@ -363,7 +363,7 @@ describe("a restaurant on the hosted API", () => {
         options: [
           // 161 With their currency, for the same in the customer's.
           { id: "small", name: "Small", price_delta: "0.00", price_delta_formatted: null, currency: "TRY" },
-          { id: "large", name: "Large", price_delta: "20.00", price_delta_formatted: "+₺20.00", currency: "TRY" },
+          { id: "large", name: "Large", price_delta: "20.00", price_delta_formatted: "+₺20", currency: "TRY" },
         ],
       },
       expect.objectContaining({ id: "extras", min: 0, max: 2 }),
@@ -379,13 +379,13 @@ describe("a restaurant on the hosted API", () => {
       },
     });
     expect(quote.body).toMatchObject({
-      subtotal: "₺590.00",
+      subtotal: "₺590",
       item_count: 3,
       lines: [
         {
           name: "Burger",
-          unit_price: "₺285.00",
-          line_total: "₺570.00",
+          unit_price: "₺285",
+          line_total: "₺570",
           available: true,
           problem: null,
           options: [
@@ -394,7 +394,7 @@ describe("a restaurant on the hosted API", () => {
           ],
         },
         { available: false, problem: "Choose a size." },
-        { name: "Water", unit_price: "₺20.00", available: true },
+        { name: "Water", unit_price: "₺20", available: true },
       ],
     });
     expect((await call("POST", "/store/cart", { body: { lines: [{ product_id: burger, quantity: 1, options: "large" }] } })).status).toBe(400);

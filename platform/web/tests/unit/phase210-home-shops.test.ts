@@ -272,10 +272,11 @@ describe.each(KITS)("210 the %s type", (id) => {
       expect(app.catalogSettings?.currency).toBe(k.currency);
       expect(await store.listCatalogProducts(app.id)).toHaveLength(k.products.length);
       const listed = (await call("/store/products", { per_page: "50" })).body as { items: { id: number; subtitle?: string | null }[] };
-      // 224 A kit that names its products in Arabic and Turkish (crochet) lists them so in those languages.
+      // 224 A kit that names its products in Arabic and Turkish (crochet; 225 furniture and decor too) lists them so in those languages.
       if (k.productNames) {
         const arabic = (await call("/store/products", { per_page: "50" }, "ar")).body as { items: { name: string }[] };
-        expect(arabic.items.map((p) => p.name)).toContain(k.productNames["CR-101"]!.ar);
+        const first = k.products.find((p) => !p.addon)!;
+        expect(arabic.items.map((p) => p.name)).toContain(k.productNames[first.sku]!.ar);
         expect(k.products.filter((p) => !k.productNames![p.sku])).toEqual([]);
       }
       expect(listed.items.some((p) => typeof p.subtitle === "string" && p.subtitle.length > 0)).toBe(true);

@@ -58,7 +58,8 @@ describe("211 the electronics type", () => {
     expect(t.demo).toBe(ELECTRONICS_DEMO);
     expect(t.liability).toBe("warranty");
     expect(showsInstallmentsSoon("electronics")).toBe(true);
-    expect(shopTypeTemplate(t)).toBe("electronics_signature_a");
+    // 227 Its main look, C.
+    expect(shopTypeTemplate(t)).toBe("electronics_signature_c");
     expect(shopTypeTemplate(t, "b")).toBe("electronics_signature_b");
     const store = templatesFor({ type: "store", vertical: null }).map((x) => x.id);
     expect(store).toEqual(expect.arrayContaining(["electronics_signature_a", "electronics_signature_b"]));

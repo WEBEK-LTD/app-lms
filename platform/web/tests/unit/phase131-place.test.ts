@@ -81,7 +81,7 @@ describe("131 the standard checkout's place", () => {
       const before = (await call("POST", "/store/cart", { body: { lines: [{ product_id: productId, quantity: 1 }] } })).body as { shipping: string | null; total_final: boolean };
       expect(before).toMatchObject({ shipping: null, total_final: false });
       const priced = (await call("POST", "/store/cart", { body: { lines: [{ product_id: productId, quantity: 1 }], place: { country: "TR", city: "İstanbul" } } })).body as { shipping: string | null; delivery_zone: string | null };
-      expect(priced).toMatchObject({ shipping: "₺60.00", delivery_zone: "İstanbul" });
+      expect(priced).toMatchObject({ shipping: "₺60", delivery_zone: "İstanbul" });
     });
   });
 

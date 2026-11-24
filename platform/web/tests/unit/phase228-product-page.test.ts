@@ -6,16 +6,19 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { MemoryStore } from "@/lib/data/memory";
 import type { App } from "@/lib/data/types";
 import { CLOTHES_DEMO } from "@/lib/demo/constants";
+import { demoStudioContext } from "@/lib/demo/look";
 import { setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { CatalogConnector } from "@/lib/hosted/connectors/catalog";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
+import { loadLayout, publishLayout } from "@/lib/pages/layout";
 import { parseStudioPage } from "@/lib/pages/validate";
 import { hasProductPage, pageScreenOptionsFor } from "@/lib/pages/sources";
 import { STUDIO_NODE_TYPES, STUDIO_PAGE_SCREENS, STUDIO_PRODUCT_LOOKS, STUDIO_PRODUCT_TYPES, SCREENS, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { APP_WORDS } from "@/lib/studio/app-words";
 import { signatureDesign } from "@/lib/studio/demo-designs";
+import { demoTabPages } from "@/lib/studio/demo-pages";
 import { ELEMENTS, newNode } from "@/lib/studio/elements";
 import { PRODUCT_PAGE_SLUG, productPage, productPageOf } from "@/lib/studio/product-page";
 import type { SectionContext, SectionWord } from "@/lib/studio/sections";
@@ -177,6 +180,14 @@ describe("228 on the hosted API: Lujain's demo", () => {
     store = new MemoryStore();
     const result = await setupDemoApps(deps(store), [CLOTHES_DEMO]);
     app = (await store.getAppById(result.apps[0]!.appId))!;
+    // The demo opens on its main look; while that look (223's C) has no product page of its own yet (228.7), the
+    // pilot's (look A's) is applied as an owner would, so the API is checked whichever look is the demo's main one.
+    const record = await loadLayout(store, app, NOW);
+    if (!record.draft.pages.some((p) => p.slug === PRODUCT_PAGE_SLUG)) {
+      const pilot = demoTabPages([], { ...demoStudioContext(CLOTHES_DEMO, "https://yallapp.test"), look: "a" }).find((p) => p.slug === PRODUCT_PAGE_SLUG)!;
+      const published = await publishLayout(store, app, { ...record.draft, pages: [...record.draft.pages, { ...pilot, show_title: false, blocks: [] }] }, "admin@yallapp.test", NOW);
+      expect(published.ok).toBe(true);
+    }
   });
   const context = (): HostedContext => ({
     store,

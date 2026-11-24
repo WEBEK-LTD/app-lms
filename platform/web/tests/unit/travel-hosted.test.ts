@@ -159,7 +159,7 @@ describe("126 travel apps on the hosted API", () => {
     };
     const card = stays.items[0]!;
     expect(card.currency).toBe("USD");
-    expect(card.display).toMatchObject({ currency: "EGP", rate: 50, from_nightly_formatted: "E£7,500.00" });
+    expect(card.display).toMatchObject({ currency: "EGP", rate: 50, from_nightly_formatted: "E£7,500" });
     expect(card.price.display).toMatchObject({ currency: "EGP", total: (Number(card.price.total) * 50).toFixed(2), nightly_formatted: expect.any(String) });
     const flights = (await call("GET", "/travel/flights", { currency: "EGP", query: { from: "CAI", to: "LXR", depart: "2026-11-14", return: "2026-11-18", adults: "2" } })).body as {
       display: Record<string, unknown>;
@@ -214,7 +214,7 @@ describe("126 travel apps on the hosted API", () => {
     expect(found.total).toBe(1);
     expect(found.nights).toBe(3);
     // Room only, 3 × 150 = 450, plus 17.5% taxes.
-    expect(found.items[0]).toMatchObject({ name: "Nile Garden Resort", free_cancellation: true, pay_at_hotel: true, breakfast: true, from_nightly_formatted: "$150.00", price: { nights: 3, total: "528.75", member: false } });
+    expect(found.items[0]).toMatchObject({ name: "Nile Garden Resort", free_cancellation: true, pay_at_hotel: true, breakfast: true, from_nightly_formatted: "$150", price: { nights: 3, total: "528.75", member: false } });
     expect(found.items[0]!.photo_urls).toEqual([ASSETS("pool-1"), ASSETS("suite-1")]);
     expect(((await call("GET", "/travel/hotels", { query: { city: "Istanbul" } })).body as { total: number }).total).toBe(0);
     expect((await call("GET", "/travel/hotels", { query: { check_in: "2026-11-17", check_out: "2026-11-14" } })).status).toBe(400);
@@ -244,7 +244,7 @@ describe("126 travel apps on the hosted API", () => {
       ["standard", "300.00", null],
       ["flex", "400.00", 4],
     ]);
-    expect(result.cheapest_formatted).toBe("$240.00");
+    expect(result.cheapest_formatted).toBe("$240");
     const month = (await call("GET", "/travel/flights/calendar", { query: { from: "CAI", to: "LXR", month: "2026-11", nights: "4" } })).body as { days: { date: string; price: string | null }[] };
     expect(month.days).toHaveLength(30);
     expect(month.days.find((d) => d.price !== null)).toMatchObject({ date: "2026-11-14", price: "240.00" });
@@ -316,7 +316,7 @@ describe("126 travel apps on the hosted API", () => {
     const order = (await store.getCatalogOrder(app.id, booking.orderId!))!;
     expect(order).toMatchObject({ totalCents: 130_00, lines: [{ productId: id }] });
     await deliverPaidOrder(store, app, { ...order, status: "processing" }, now);
-    expect((await call("GET", "/me/travel/bookings/{booking_id}", { token, params: [String(id)] })).body).toMatchObject({ status: "confirmed", payment: { status: "paid", due: null, paid_formatted: "$130.00" } });
+    expect((await call("GET", "/me/travel/bookings/{booking_id}", { token, params: [String(id)] })).body).toMatchObject({ status: "confirmed", payment: { status: "paid", due: null, paid_formatted: "$130" } });
     expect((await call("GET", "/me/travel/bookings/{booking_id}/passes", { token, params: [String(id)] })).status).toBe(409);
     // A light fare can't be refunded.
     expect((await call("GET", "/me/travel/bookings/{booking_id}", { token, params: [String(id)] })).body).toMatchObject({ cancel_refund_formatted: null });

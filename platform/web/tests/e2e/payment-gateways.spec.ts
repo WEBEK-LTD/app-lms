@@ -18,6 +18,11 @@ const suffix = Date.now().toString(36);
 const owner = { name: "Lotus Gifts", email: `lotus-${suffix}@studio.test`, password: "lotus-gifts-strong-password-1" };
 let stripe: FakeServer;
 let own: Page;
+// The limit on tests (src/lib/rate-limit.ts, gatewayTest) counts in fixed ten-minute windows aligned to the clock,
+// so the window each earlier test ran in is kept: a window that ends between them and the limit's test empties the count.
+const TEST_WINDOW_MS = 10 * 60 * 1000;
+const windowNow = () => Math.floor(Date.now() / TEST_WINDOW_MS);
+const testedIn: number[] = [];
 
 test.beforeAll(async ({ browser }) => {
   stripe = await startFakeStripe(E2E.stripePort, { accountName: "Lotus Gifts" });
@@ -77,6 +82,7 @@ test("a Studio project sets up Stripe on its Payments page and tests it", async 
 
   // Nothing typed, nothing saved: the test asks for the keys.
   await payments.getByRole("button", { name: "Test connection" }).click();
+  testedIn.push(windowNow());
   const results = payments.getByTestId("gateway-test-results");
   await expect(results).toContainText("Paste your Stripe keys first, then test.");
 
@@ -86,6 +92,7 @@ test("a Studio project sets up Stripe on its Payments page and tests it", async 
   stripe.endpoints!.push({ url: webhookUrl, status: "enabled", enabled_events: ["checkout.session.completed"] });
   await payments.getByRole("checkbox", { name: /Also make a 0.50 USD test payment/ }).check();
   await payments.getByRole("button", { name: "Test connection" }).click();
+  testedIn.push(windowNow());
   await expect(results).toContainText("Stripe account: Lotus Gifts · AE.");
   await expect(results).toContainText("Signing secret: it looks right (whsec_…).");
   await expect(results).toContainText("Your webhook endpoint doesn't send checkout.session.async_payment_succeeded and payment_intent.succeeded. Add them to the endpoint in Stripe.");
@@ -112,6 +119,7 @@ test("the page and the test's results in Egyptian Arabic", async () => {
   await own.locator("[data-gateway-edit]").click();
   const test = own.getByRole("button", { name: "جرّب الاتصال" });
   await test.click();
+  testedIn.push(windowNow());
   const results = own.getByTestId("gateway-test-results");
   await expect(results).toContainText("نتيجة التجربة");
   await expect(results).toContainText("حساب Stripe: Lotus Gifts · AE.");
@@ -120,18 +128,30 @@ test("the page and the test's results in Egyptian Arabic", async () => {
 });
 
 test("ten tests every ten minutes, then a plain message", async () => {
+  test.setTimeout(90_000);
+  // Not across a window's end while it counts: with under 20 s of this window left, it starts in the next one.
+  const left = TEST_WINDOW_MS - (Date.now() % TEST_WINDOW_MS);
+  if (left < 20_000) await own.waitForTimeout(left + 1_000);
+  const earlier = testedIn.filter((w) => w === windowNow()).length;
   await own.goto("/studio/project/payments");
   const payments = own.getByRole("region", { name: "Card payments" });
   await payments.getByRole("button", { name: "Edit" }).click();
   const button = payments.getByRole("button", { name: /^(Test connection|Testing…)$/ });
   const limited = payments.getByText(/^Too many tests\. Try again in \d+ minutes\.$/);
-  // Three tests so far; the eleventh in ten minutes is refused.
+  // Three tests so far (in this window, or none when a new window began since); the eleventh in ten minutes is refused.
   let ran = 0;
   for (; ran < 12 && !(await limited.isVisible()); ran++) {
     await button.click();
     await expect(button).toHaveText(/Test connection$/);
   }
   await expect(limited).toBeVisible();
-  expect(ran).toBeGreaterThanOrEqual(7);
-  expect(ran).toBeLessThanOrEqual(9);
+  // `ran` counts the refused click too: the tests left in the window, plus one.
+  if (earlier === 0) {
+    // A new window since the earlier tests: all ten, then the eleventh refused.
+    expect(ran).toBe(11);
+  } else {
+    // 7–9 with all three earlier tests in this window (11 − 3, give or take the one that sent no keys); fewer when a window ended between them.
+    expect(ran).toBeGreaterThanOrEqual(10 - earlier);
+    expect(ran).toBeLessThanOrEqual(12 - earlier);
+  }
 });

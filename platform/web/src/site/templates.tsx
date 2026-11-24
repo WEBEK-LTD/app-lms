@@ -587,7 +587,7 @@ export async function TemplatePublicPage({ lang, slug, demo }: { lang: Lang; slu
   const visitorOnly = (
     <VisitorOnly>
       <div className="flex flex-col items-center gap-1.5 text-center" data-visitor-note="">
-        <Link href={initialPlan ? `${continueHref(lang, "checkout", template.slug, "sign-in")}${initialPlan}` : continueHref(lang, "template", template.slug, "sign-in")} rel="nofollow" className="mk-link text-sm">
+        <Link href={initialPlan ? `${continueHref(lang, "checkout", template.slug, "sign-in")}${initialPlan}` : continueHref(lang, "template", template.slug, "sign-in")} prefetch={false} rel="nofollow" className="mk-link text-sm">
           {x.haveAccount}
         </Link>
         <span className="mk-muted text-xs">{x.visitorNote}</span>

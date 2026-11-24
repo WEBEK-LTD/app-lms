@@ -4,45 +4,18 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 23 November 2026.
+Last updated: 24 November 2026.
 
 ## Current release
 
-Roadmap 223 (Studio shop types, round 3, the shared base): Studio offers
-every demo's looks in one order, C, D, A, B, its main look first (C for a
-shop type that has one, else A), on /start, Studio's new project, the
-editor's whole designs, Studio Market and the website; the demo app opens
-on the main look. Templates C and D themselves come per type.
-
-Distinct templates (the owner's standing rule, 23 November 2026): no app,
-type or template may resemble another. Every new template is compared side
-by side with every other template's home (header, hero, card shape, section
-order, tab bar, type scale) before it ships; one that could be made by
-recolouring another has failed.
-
-Roadmap 224 (cosmetics and crochet, templates C and D): Velours and Ghurza
-each have two new whole templates that share no skeleton with A and B or
-with any other type's: Velours C, the ritual clinic (its main template:
-clinical white and teal, Zain; the skin test as frosted glass first, the
-morning and night routine as numbered steps, ingredient chips with their
-strength, numbered lab cards, a segmented bar) and D, the shade studio
-(plum and black gloss, Kufam; the shade swatches as the hero, tutorial
-reels, before and after, mood tiles, a glowing bar); Ghurza C, the makers'
-market (its main template: stitched paper, Aref Ruqaa headlines over Noto
-Naskh Arabic text; the yarn-colour picker, "who made it" makers' cards,
-made to order step by step, pieces on hanging tags, a line bar) and
-D, the cozy studio (dusty rose, Mada; ready pieces or kits to make, the
-pattern of the week, dated class cards, a bubble bar). Each has its own
-category menu, shop, cart and orders tops, tabs, sign-in and account menu,
-in light and dark and in Arabic, English and Turkish; their parts are
-ready sections for any store too. A and B stay as extra templates.
-
-Distinct templates (224): before shipping, the four homes were compared
-side by side with all forty A and B homes and the other types' C and D
-previews; crochet D's edge-to-edge photo under a header lying over it was
-too close to clothes C (the runway) and became a soft photo card under a
-large title, and crochet C's yarn swatches are squares, unlike decor D's
-colour circles. The rule stands for every future template.
+Roadmap 229 (prices that read cleanly): a product whose variations cost
+differently shows "From SAR 4,899" (Arabic "من SAR 4,899", Turkish
+"SAR 4,899 ve üzeri") instead of the whole range, and every whole amount
+the app shows reads without ".00" ("₺450", "E£600"), a real fraction with
+its digits ("€12.50"). Made once where the hosted API answers
+(`cleanPrices`), so lists, product pages, the cart and its totals, orders
+and every other type's prices change together; the app's own totals
+(`formatMoney`) the same. Emails, invoices and the dashboard unchanged.
 
 Roadmap 228 (a look's own product page): `product` is a Studio page
 screen (a shop's); a look's page for it is drawn for every product in place
@@ -68,6 +41,91 @@ done: upload the key set to the Google provider (`jwksJson`) so Google
 needs no call to the site, at the cost of uploading it again on every
 key rotation.
 
+Roadmap 227 (Studio's shop types, round 3: electronics and computers &
+gaming; in the code, not released): each type gets two new looks, C its
+main and D its second, listed before A and B, which stay as they are. Madar
+C MADAR GRID is a bento of frosted and dark-glass tiles (IBM Plex Sans
+Arabic, a glass bar); Madar D the colour stage puts every device on its own
+saturated colour (story circles, big snapping cards, El Messiri, a colour
+per tab); Nawah C the battle station is neon on black with cut-corner cards
+and the Build your PC configurator first (Changa, a glowing bar); Nawah D
+the workstation is a dense blue-grey spec sheet with a compare table and
+the business quote form (Alexandria, a line bar). Each is a whole project
+(home, category menu, its own pages, shop, cart, orders, sign-in and
+account, tabs and bar, light and dark, English, Arabic and Turkish), built
+only from Studio's existing elements. One app fix for every look: a
+spec filter's chip and a product card's spec line read right in Arabic
+(each value whole, a chip's count in a badge), the app's preview rebuilt; no `CLIENT_APP_RELEASE` change, no
+migration.
+
+**Distinct templates.** The owner's standing rule (23 November): no
+resemblance at all between one app and another. A new template's header,
+hero, navigation, card shape, section order, bar and type scale must differ
+from every other template's, it draws nothing with the kit's visual parts,
+and its home is compared beside every other template's before it ships.
+
+Roadmap 226 (Studio shop types, round 3: toys and mobiles): Toot and Nova
+each have two new templates on their own archetypes, C (now the demo) and
+D: Toot C the adventure map (categories as islands, chunky pressed-out
+cards, stickers, the treasure chest, the ages as a ladder of hero levels, a notch bar with the bag in the
+middle), Toot D Montessori (a sage opening by skill and by age, quiet rows,
+how-to-play cards, a names-only bar), Nova C the keynote (one phone on a
+black stage, its colours, specs one per row, compare, the trade-in on a dark
+card, a small dock) and Nova D the deals hub (category chips, today's deals
+on hot pink, a dense grid of three with "Installments coming soon", the
+compare tray and page, a bar whose open tab rises in a pink circle). Light and dark, Arabic, English and
+Turkish, built only from Studio's elements; A and B stay as extra templates.
+Not yet: the app draws a node's own font family only when it is the
+project's main or Arabic font (Toot C's Lalezar headings show in Rubik).
+
+Distinct templates (226, the owner's standing rule): each of these four was
+compared side by side with every other template's home before it shipped;
+toys D's opening was changed because it was too close to kids' clothes D.
+
+Roadmap 225 (Studio shop types, round 3: furniture and home decor): Rukn
+and Sakan each have two new whole templates, first in Studio's order, each
+from its own parts file and in light and dark, English, Arabic and Turkish:
+furniture C MIZAN the architect (monochrome hairlines, a room scene with
+numbered hotspots, the rooms as an index, W × D × H first, a floor plan
+that sends the room's size as a custom-order request, the line bar) and D
+MANZIL room by room (its own top and a room switcher pinned under it, the
+rooms as swipeable cards, the materials, large horizontal cards, the
+order-to-assembly steps, the navy island bar); decor C ATHAR the gallery (a framed piece with its museum
+label, a framed asymmetric masonry, the halls, the curator's note, the
+words-only bar) and D MAZAJ the moodboard (a collage of taped polaroids,
+shop by colour, the season's palettes, polaroid cards, the drop bar). A and
+B are kept after them. No migration, no app release: they are built only
+from Studio's elements the app already draws.
+
+Distinct templates (225): the owner's standing rule holds for these four
+and every template after them. Each new home was put beside every other
+template's home before it shipped; none shares another's header, hero,
+navigation, card shape, section order, bar or type scale.
+
+Roadmap 224 (cosmetics and crochet, templates C and D): Velours and Ghurza
+each have two new whole templates that share no skeleton with A and B or
+with any other type's: Velours C, the ritual clinic (its main template:
+clinical white and teal, Zain; the skin test as frosted glass first, the
+morning and night routine as numbered steps, ingredient chips with their
+strength, numbered lab cards, a segmented bar) and D, the shade studio
+(plum and black gloss, Kufam; the shade swatches as the hero, tutorial
+reels, before and after, mood tiles, a glowing bar); Ghurza C, the makers'
+market (its main template: stitched paper, Aref Ruqaa headlines over Noto
+Naskh Arabic text; the yarn-colour picker, "who made it" makers' cards,
+made to order step by step, pieces on hanging tags, a line bar) and
+D, the cozy studio (dusty rose, Mada; ready pieces or kits to make, the
+pattern of the week, dated class cards, a bubble bar). Each has its own
+category menu, shop, cart and orders tops, tabs, sign-in and account menu,
+in light and dark and in Arabic, English and Turkish; their parts are
+ready sections for any store too. A and B stay as extra templates.
+
+Distinct templates (224): before shipping, the four homes were compared
+side by side with all forty A and B homes and the other types' C and D
+previews; crochet D's edge-to-edge photo under a header lying over it was
+too close to clothes C (the runway) and became a soft photo card under a
+large title, and crochet C's yarn swatches are squares, unlike decor D's
+colour circles. The rule stands for every future template.
+
 Roadmap 224.10 (the faces Studio pages name, in the app): a project's Studio
 pages can name a face on an element besides the look's two fonts (a
 heading's display face); it is now served with the look
@@ -78,6 +136,25 @@ JetBrains Mono) show it too. The shade finder's, size finder's and quiz
 result's buttons draw in the app's font too. The app's part rides the next
 app release.
 
+
+Roadmap 223 (Studio shop types, round 3, the shared base): Studio offers
+every demo's looks in one order, C, D, A, B, its main look first (C for a
+shop type that has one, else A), on /start, Studio's new project, the
+editor's whole designs, Studio Market and the website; the demo app opens
+on the main look. Templates C and D themselves come per type: the clothes
+type's C RUNWAY (an edge-to-edge lookbook, Reem Kufi) and D the outfit
+builder (Tajawal, a dock and a round bag button), and the kids' clothes
+type's C the story world (Tooti the mascot, age bubbles, wavy edges,
+Lemonada) and D the nursery (linen and sage, a size ruler, the baby gift
+list, Vazirmatn); Lujain's and Toota's demos are now their C. Their
+products are named in Arabic and Turkish too, so the demos read in Arabic
+show Arabic names.
+
+Distinct templates (the owner's standing rule, 23 November 2026): no app,
+type or template may resemble another. Every new template is compared side
+by side with every other template's home (header, hero, card shape, section
+order, tab bar, type scale) before it ships; one that could be made by
+recolouring another has failed.
 
 Roadmap 222 (the plugin's follow-ups): plugin 0.4.54 (after 0.4.53, #496)
 serves WordPress apps' Studio pages without an empty section, as hosted

@@ -10,7 +10,7 @@ import { getStore } from "@/lib/data";
 import { DEFAULT_HOSTED_SETTINGS } from "@/lib/data/types";
 import { demoKind } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
-import { demoOfSlug, lookOf, pickerPath } from "@/lib/demo/picker";
+import { demoOfSlug, lookColour, lookOf, pickerPath } from "@/lib/demo/picker";
 import { DEMO_NAME_MAX, firstStepsOf, makeFromDemo } from "@/lib/demo/start";
 import { appPlan } from "@/lib/entitlements";
 import { appTypeOn, getSwitches } from "@/lib/switches";
@@ -49,7 +49,7 @@ export async function startFromDemoAction(formData: FormData): Promise<void> {
   if (!name || name.length > DEMO_NAME_MAX) back("name");
   if (context.apps.length >= MAX_APPS_PER_CLIENT) back("limit");
   const typed = String(formData.get("colour") ?? "");
-  const colour = /^#[0-9a-f]{6}$/i.test(typed) ? typed.toUpperCase() : DEMO_BRANDS[demo].primaryColor;
+  const colour = /^#[0-9a-f]{6}$/i.test(typed) ? typed.toUpperCase() : lookColour(demo, look);
   const logoAssetId = await ownAsset(context.client.id, formData.get("logoAssetId"), "logo");
   const iconAssetId = await ownAsset(context.client.id, formData.get("iconAssetId"), "icon");
   if (logoAssetId === false || iconAssetId === false) back("logo");

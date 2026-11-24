@@ -74,9 +74,9 @@
     "hotels": 2,
     "currency": "USD",
     "stay_from_amount": "90.00",
-    "stay_from_formatted": "$90.00",
+    "stay_from_formatted": "$90",
     "trip_from": "867.00",
-    "trip_from_formatted": "$867.00"
+    "trip_from_formatted": "$867"
    }
   ],
   "featured": [
@@ -115,7 +115,7 @@
     "member_price": true,
     "currency": "USD",
     "from_nightly_amount": "150.00",
-    "from_nightly_formatted": "$150.00",
+    "from_nightly_formatted": "$150",
     "price": null,
     "saved": false
    }
@@ -181,7 +181,7 @@
     "member_price": true,
     "currency": "USD",
     "from_nightly_amount": "150.00",
-    "from_nightly_formatted": "$150.00",
+    "from_nightly_formatted": "$150",
     "price": {
      "currency": "USD",
      "nights": 3,
@@ -230,7 +230,7 @@
     "member_price": true,
     "currency": "USD",
     "from_nightly_amount": "90.00",
-    "from_nightly_formatted": "$90.00",
+    "from_nightly_formatted": "$90",
     "price": {
      "currency": "USD",
      "nights": 3,
@@ -283,7 +283,7 @@
   "member_price": true,
   "currency": "USD",
   "from_nightly_amount": "150.00",
-  "from_nightly_formatted": "$150.00",
+  "from_nightly_formatted": "$150",
   "price": {
    "currency": "USD",
    "nights": 3,
@@ -363,9 +363,9 @@
        "currency": "USD",
        "nights": 3,
        "total": "567.00",
-       "total_formatted": "$567.00",
+       "total_formatted": "$567",
        "nightly_amount": "189.00",
-       "nightly_formatted": "$189.00",
+       "nightly_formatted": "$189",
        "was_total_amount": "592.20",
        "was_total_formatted": "$592.20",
        "member": true
@@ -461,7 +461,7 @@
       "name": "Light",
       "currency": "USD",
       "price": "240.00",
-      "price_formatted": "$240.00",
+      "price_formatted": "$240",
       "available": true,
       "seats_left": 3,
       "cabin_kg": 8,
@@ -483,7 +483,7 @@
       "name": "Classic",
       "currency": "USD",
       "price": "300.00",
-      "price_formatted": "$300.00",
+      "price_formatted": "$300",
       "available": true,
       "seats_left": null,
       "cabin_kg": 8,
@@ -505,7 +505,7 @@
       "name": "Flex",
       "currency": "USD",
       "price": "400.00",
-      "price_formatted": "$400.00",
+      "price_formatted": "$400",
       "available": true,
       "seats_left": 4,
       "cabin_kg": 8,
@@ -525,7 +525,7 @@
     ],
     "currency": "USD",
     "from_price": "240.00",
-    "from_price_formatted": "$240.00",
+    "from_price_formatted": "$240",
     "minutes": 130,
     "tags": [
      "best",
@@ -536,9 +536,9 @@
   ],
   "currency": "USD",
   "best_amount": "240.00",
-  "best_formatted": "$240.00",
+  "best_formatted": "$240",
   "cheapest_amount": "240.00",
-  "cheapest_formatted": "$240.00",
+  "cheapest_formatted": "$240",
   "fastest_minutes": 130,
   "price_level": null
  },
@@ -640,7 +640,7 @@
     "date": "2026-11-14",
     "currency": "USD",
     "price": "240.00",
-    "price_formatted": "$240.00",
+    "price_formatted": "$240",
     "level": "typical"
    },
    {
@@ -1073,9 +1073,9 @@
   ],
   "currency": "USD",
   "seat_price_amount": "10.00",
-  "seat_price_formatted": "$10.00",
+  "seat_price_formatted": "$10",
   "extra_price_amount": "24.00",
-  "extra_price_formatted": "$24.00"
+  "extra_price_formatted": "$24"
  },
  "quote": {
   "currency": "USD",
@@ -1085,7 +1085,7 @@
     "count": 2,
     "currency": "USD",
     "unit_amount": "300.00",
-    "unit_formatted": "$300.00",
+    "unit_formatted": "$300",
     "amount": "600.00",
     "amount_formatted": "$600.00"
    },
@@ -1094,7 +1094,7 @@
     "count": 1,
     "currency": "USD",
     "unit_amount": "30.00",
-    "unit_formatted": "$30.00",
+    "unit_formatted": "$30",
     "amount": "30.00",
     "amount_formatted": "$30.00"
    },
@@ -1103,7 +1103,7 @@
     "count": 4,
     "currency": "USD",
     "unit_amount": "168.00",
-    "unit_formatted": "$168.00",
+    "unit_formatted": "$168",
     "amount": "672.00",
     "amount_formatted": "$672.00"
    },
@@ -1139,7 +1139,7 @@
     "count": 1,
     "currency": "USD",
     "unit_amount": "48.00",
-    "unit_formatted": "$48.00",
+    "unit_formatted": "$48",
     "amount": "48.00",
     "amount_formatted": "$48.00"
    }
@@ -1163,7 +1163,7 @@
     "count": 4,
     "currency": "USD",
     "unit_amount": "168.00",
-    "unit_formatted": "$168.00",
+    "unit_formatted": "$168",
     "amount": "672.00",
     "amount_formatted": "$672.00"
    },
@@ -1187,7 +1187,7 @@
    }
   ],
   "total": "756.00",
-  "total_formatted": "$756.00",
+  "total_formatted": "$756",
   "saving_amount": "33.60",
   "saving_formatted": "$33.60",
   "refundable": true,
@@ -1362,7 +1362,7 @@
     "count": 2,
     "currency": "USD",
     "unit_amount": "300.00",
-    "unit_formatted": "$300.00",
+    "unit_formatted": "$300",
     "amount": "600.00",
     "amount_formatted": "$600.00"
    },
@@ -1371,7 +1371,7 @@
     "count": 1,
     "currency": "USD",
     "unit_amount": "30.00",
-    "unit_formatted": "$30.00",
+    "unit_formatted": "$30",
     "amount": "30.00",
     "amount_formatted": "$30.00"
    },
@@ -1380,7 +1380,7 @@
     "count": 4,
     "currency": "USD",
     "unit_amount": "168.00",
-    "unit_formatted": "$168.00",
+    "unit_formatted": "$168",
     "amount": "672.00",
     "amount_formatted": "$672.00"
    },
@@ -1416,7 +1416,7 @@
     "count": 1,
     "currency": "USD",
     "unit_amount": "48.00",
-    "unit_formatted": "$48.00",
+    "unit_formatted": "$48",
     "amount": "48.00",
     "amount_formatted": "$48.00"
    }
@@ -1595,7 +1595,7 @@
     "count": 2,
     "currency": "USD",
     "unit_amount": "300.00",
-    "unit_formatted": "$300.00",
+    "unit_formatted": "$300",
     "amount": "600.00",
     "amount_formatted": "$600.00"
    },
@@ -1604,7 +1604,7 @@
     "count": 1,
     "currency": "USD",
     "unit_amount": "30.00",
-    "unit_formatted": "$30.00",
+    "unit_formatted": "$30",
     "amount": "30.00",
     "amount_formatted": "$30.00"
    },
@@ -1613,7 +1613,7 @@
     "count": 4,
     "currency": "USD",
     "unit_amount": "168.00",
-    "unit_formatted": "$168.00",
+    "unit_formatted": "$168",
     "amount": "672.00",
     "amount_formatted": "$672.00"
    },
@@ -1649,7 +1649,7 @@
     "count": 1,
     "currency": "USD",
     "unit_amount": "48.00",
-    "unit_formatted": "$48.00",
+    "unit_formatted": "$48",
     "amount": "48.00",
     "amount_formatted": "$48.00"
    }
@@ -1830,7 +1830,7 @@
       "count": 2,
       "currency": "USD",
       "unit_amount": "300.00",
-      "unit_formatted": "$300.00",
+      "unit_formatted": "$300",
       "amount": "600.00",
       "amount_formatted": "$600.00"
      },
@@ -1839,7 +1839,7 @@
       "count": 1,
       "currency": "USD",
       "unit_amount": "30.00",
-      "unit_formatted": "$30.00",
+      "unit_formatted": "$30",
       "amount": "30.00",
       "amount_formatted": "$30.00"
      },
@@ -1848,7 +1848,7 @@
       "count": 4,
       "currency": "USD",
       "unit_amount": "168.00",
-      "unit_formatted": "$168.00",
+      "unit_formatted": "$168",
       "amount": "672.00",
       "amount_formatted": "$672.00"
      },
@@ -1884,7 +1884,7 @@
       "count": 1,
       "currency": "USD",
       "unit_amount": "48.00",
-      "unit_formatted": "$48.00",
+      "unit_formatted": "$48",
       "amount": "48.00",
       "amount_formatted": "$48.00"
      }
@@ -2022,7 +2022,7 @@
     "direction": null,
     "advice": null,
     "max_price_amount": "600.00",
-    "max_price_formatted": "$600.00",
+    "max_price_formatted": "$600",
     "matches": 0,
     "photo_url": null
    },
@@ -2045,7 +2045,7 @@
     "travellers": 2,
     "currency": "USD",
     "price": "480.00",
-    "price_formatted": "$480.00",
+    "price_formatted": "$480",
     "change_formatted": null,
     "direction": "same",
     "advice": "book_now",

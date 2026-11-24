@@ -1,3 +1,5 @@
+import type { StudioDemoId } from "@/lib/demo/constants";
+import { signatureLooksOf } from "@/lib/studio/demo-designs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
@@ -38,6 +40,9 @@ const parsedBody = (...children: unknown[]): StudioNode[] => {
   return parsed.value.body.children!;
 };
 
+/** 223–225 Every store look in Studio's order, C and D first where a type has them. */
+const STORE_LOOKS = (["flowers", "clothes", "beauty", "kids", "toys", "decor", "crochet", "furniture", "electronics", "mobiles", "computers"] as const).flatMap((demo) => signatureLooksOf(demo).map((look) => `${demo}_signature_${look}`));
+
 describe("112.4 a store's sections and sliders in Studio", () => {
   it("offers a store its own sections and three templates; the sliders to every project", () => {
     const store = sectionsFor(STORE).map((s) => s.id);
@@ -50,7 +55,7 @@ describe("112.4 a store's sections and sliders in Studio", () => {
     // Categories in pictures only where there are categories to show.
     expect(sectionsFor(STORE, { categories: false }).map((s) => s.id)).not.toContain("category_pictures");
     // 131.20 After Leqaa's two looks, the flower shop's (a store's first templates); 208 and Lujain's, the clothes shop's; 209, 210 and 211 each shop type's two looks.
-    expect(templatesFor(STORE).slice(0, 29).map((t) => t.id)).toEqual(["flowers_signature_a", "flowers_signature_b", "clothes_signature_a", "clothes_signature_b", "beauty_signature_c", "beauty_signature_d", "beauty_signature_a", "beauty_signature_b", "kids_signature_a", "kids_signature_b", "toys_signature_a", "toys_signature_b", "decor_signature_a", "decor_signature_b", "crochet_signature_c", "crochet_signature_d", "crochet_signature_a", "crochet_signature_b", "furniture_signature_a", "furniture_signature_b", "electronics_signature_a", "electronics_signature_b", "mobiles_signature_a", "mobiles_signature_b", "computers_signature_a", "computers_signature_b", "shop", "shop_deals", "shop_looks"]);
+    expect(templatesFor(STORE).slice(0, STORE_LOOKS.length + 3).map((t) => t.id)).toEqual([...STORE_LOOKS, "shop", "shop_deals", "shop_looks"]);
     // 130.30 A premium home made for the store first.
     expect(designsFor(STORE)[0]!.templates).toEqual(["premium_home", "shop", "shop_deals", "shop_looks", "brand", "contact"]);
   });

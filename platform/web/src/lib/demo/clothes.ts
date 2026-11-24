@@ -100,9 +100,9 @@ const p = (sku: string, name: string, sub: string, price: number, sale: number |
 
 /** The shop's pieces, newest first as the demo lists them. */
 export const CLOTHES_PRODUCTS: readonly ClothesProduct[] = [
-  p("CL-101", "Rust satin midi dress", "Midi dresses", 1490, 1190, ["rust-1", "rust-2", "rust-3", "rust-4"], "clothes", ["Rust", "Black", "Olive"], "Fluid satin that falls just below the knee, with fine straps you can tie shorter or longer.\n\nLined, with a hidden zip at the side.", true),
+  p("CL-101", "Striped shirt dress", "Midi dresses", 990, 790, ["stripe-dress"], "clothes", ["Blue", "Black", "Olive"], "A crisp cotton shirt dress in a bold stripe, wide sleeves and a tie at the waist, falling just below the knee.\n\nButtoned all the way down, with deep pockets.", true),
   p("CL-107", "Polka-dot A-line dress", "Mini dresses", 690, null, ["blue-dot"], "clothes", ["Blue", "Black"], "A light cotton dress with a fitted waist and a full skirt, polka dots in white on blue.", true),
-  p("CL-104", "Cream tiered maxi dress", "Maxi dresses", 1290, null, ["cream-maxi"], "clothes", ["Cream"], "Soft tiers of cotton voile, a tie at the neck and room to move.", true),
+  p("CL-104", "Cream tiered maxi dress", "Maxi dresses", 1090, null, ["cream-maxi"], "clothes", ["Cream"], "Soft tiers of cotton voile, a tie at the neck and room to move.", true),
   p("CL-110", "Little black dress", "Mini dresses", 1040, null, ["black-dress"], "clothes", ["Black", "Burgundy", "Navy"], "The dress every wardrobe needs: a clean neckline and a fitted cut, for the day and the evening."),
   p("CL-102", "Red front-slit midi dress", "Midi dresses", 960, null, ["red-dress"], "clothes", ["Red", "Black"], "A fitted midi in a stretch crepe with a slit at the front and a keyhole neckline."),
   p("CL-103", "Camel wrap midi dress", "Midi dresses", 1150, null, ["camel-dress"], "clothes", ["Camel"], "A wrap dress that moves with you, tied at the waist, in a soft crepe."),
@@ -114,11 +114,11 @@ export const CLOTHES_PRODUCTS: readonly ClothesProduct[] = [
   p("CL-202", "Open-front black abaya", "Classic abayas", 1180, null, ["abaya-road"], "clothes", ["Black", "Charcoal"], "A long open abaya with wide sleeves, easy over everything."),
   p("CL-203", "Floral kimono abaya", "Kimono abayas", 990, null, ["long-floral"], "clothes", ["Floral"], "Kimono sleeves and a soft floral print, worn open or tied."),
   p("CL-301", "Olive button jacket", "Jackets", 1450, null, ["olive-jacket", "hero-trench"], "clothes", ["Olive", "Black"], "A structured jacket with a row of buttons down the front and a high collar.", true),
-  p("CL-302", "Pink belted trench", "Trench coats", 1690, null, ["pink-trench"], "clothes", ["Pink", "Beige"], "A classic trench in a soft pink, belted, with deep pockets."),
-  p("CL-303", "Mustard wool coat", "Wool coats", 1890, null, ["yellow-coat"], "clothes", ["Mustard"], "A long wool-blend coat in a warm mustard."),
-  p("CL-304", "Short suede jacket, fur collar", "Jackets", 860, 690, ["camel-jacket", "brick-jacket"], "clothes", ["Camel", "Black", "Olive", "Rust"], "Soft faux suede, a faux fur collar and a cropped cut that sits at the waist.", true),
-  p("CL-305", "Orange teddy coat", "Wool coats", 1290, null, ["orange-coat"], "clothes", ["Orange", "Cream"], "A cosy teddy coat in a bright orange, warm without the weight."),
-  p("CL-306", "Black wool coat", "Wool coats", 1590, null, ["c-black-coat"], "clothes", ["Black"], "A long black coat with clean lines, made to last."),
+  p("CL-302", "Pink belted trench", "Trench coats", 1090, null, ["pink-trench"], "clothes", ["Pink", "Beige"], "A classic trench in a soft pink, belted, with deep pockets."),
+  p("CL-303", "Brown wool coat", "Wool coats", 1890, null, ["brown-coat"], "clothes", ["Brown"], "A long wool-blend coat in a deep, warm brown, with a high collar to turn up."),
+  p("CL-304", "Camel faux-fur jacket", "Jackets", 860, 690, ["fur-jacket", "brick-jacket"], "clothes", ["Camel", "Black", "Olive", "Rust"], "A camel jacket with a full faux-fur front and collar, cut to sit at the waist.", true),
+  p("CL-305", "Orange teddy coat", "Wool coats", 1090, null, ["orange-coat"], "clothes", ["Orange", "Cream"], "A cosy teddy coat in a bright orange, warm without the weight."),
+  p("CL-306", "Black wool coat", "Wool coats", 1590, null, ["black-coat"], "clothes", ["Black"], "A long black coat with clean lines, made to last."),
   p("CL-307", "Long dark coat", "Trench coats", 1490, null, ["dark-coat"], "clothes", ["Black", "Navy"], "A long coat with a wide collar, belted."),
   p("CL-308", "Printed bomber jacket", "Jackets", 920, null, ["graffiti"], "clothes", ["Multi"], "A bold printed bomber with ribbed cuffs."),
   p("CL-401", "Black halter top", "Tops", 390, null, ["look"], "clothes", ["Black"], "A halter neck top with a fitted cut, in a soft stretch jersey."),
