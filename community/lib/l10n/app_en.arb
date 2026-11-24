@@ -360,5 +360,62 @@
   "tutLocked": "Unlocks on the account that has it",
   "tutLockedBody": "This tutorial opens when you sign in with the account that has it.",
   "tutEmpty": "No tutorials here yet.",
-  "tutCannotOpen": "The video could not be opened."
+  "tutCannotOpen": "The video could not be opened.",
+  "verifyTitle": "Pro Developer",
+  "verifyIntro": "The gold badge for members who have built 5 or more apps with Yallapp. Studio Market templates count.",
+  "verifyNotLinked": "Link your Yallapp account first. Your apps come from it, so only your own apps count.",
+  "verifyLink": "Link my Yallapp account",
+  "verifyProgress": "{count} of {needed} apps",
+  "@verifyProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "verifyNeedMore": "You can apply once your Yallapp account has {needed} apps.",
+  "@verifyNeedMore": {
+    "placeholders": {
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "verifyHasGold": "You’re a Pro Developer. The gold badge shows beside your name.",
+  "verifyPending": "We’re reviewing your request. We’ll let you know either way.",
+  "verifySentOn": "Sent on {date}",
+  "@verifySentOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyRejected": "Your last request wasn’t approved.",
+  "verifyReason": "Reason: {reason}",
+  "@verifyReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyFullName": "Full name (as on your ID)",
+  "verifyIdProof": "ID proof",
+  "verifyIdProofHint": "A photo of your ID card or passport. Only the team reviewing your request sees it.",
+  "verifyPickId": "Choose a photo",
+  "verifyChangeId": "Change",
+  "verifyPortfolio": "Portfolio links (up to 5)",
+  "verifyAddLink": "Add a link",
+  "verifyApps": "Your apps",
+  "verifyAppsFrom": "From your linked Yallapp account",
+  "verifyTemplate": "Template",
+  "verifySend": "Send my request",
+  "verifyNameNeeded": "Write your full name.",
+  "verifyIdNeeded": "Add a photo of your ID.",
+  "verifyBadLink": "Links start with https://",
+  "verifySent": "Sent. We’ll let you know when it’s reviewed."
 }

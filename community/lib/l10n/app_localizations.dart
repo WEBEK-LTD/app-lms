@@ -1671,6 +1671,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The video could not be opened.'**
   String get tutCannotOpen;
+
+  /// No description provided for @verifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro Developer'**
+  String get verifyTitle;
+
+  /// No description provided for @verifyIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The gold badge for members who have built 5 or more apps with Yallapp. Studio Market templates count.'**
+  String get verifyIntro;
+
+  /// No description provided for @verifyNotLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Link your Yallapp account first. Your apps come from it, so only your own apps count.'**
+  String get verifyNotLinked;
+
+  /// No description provided for @verifyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Link my Yallapp account'**
+  String get verifyLink;
+
+  /// No description provided for @verifyProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {needed} apps'**
+  String verifyProgress(int count, int needed);
+
+  /// No description provided for @verifyNeedMore.
+  ///
+  /// In en, this message translates to:
+  /// **'You can apply once your Yallapp account has {needed} apps.'**
+  String verifyNeedMore(int needed);
+
+  /// No description provided for @verifyHasGold.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re a Pro Developer. The gold badge shows beside your name.'**
+  String get verifyHasGold;
+
+  /// No description provided for @verifyPending.
+  ///
+  /// In en, this message translates to:
+  /// **'We’re reviewing your request. We’ll let you know either way.'**
+  String get verifyPending;
+
+  /// No description provided for @verifySentOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent on {date}'**
+  String verifySentOn(String date);
+
+  /// No description provided for @verifyRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last request wasn’t approved.'**
+  String get verifyRejected;
+
+  /// No description provided for @verifyReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason: {reason}'**
+  String verifyReason(String reason);
+
+  /// No description provided for @verifyFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name (as on your ID)'**
+  String get verifyFullName;
+
+  /// No description provided for @verifyIdProof.
+  ///
+  /// In en, this message translates to:
+  /// **'ID proof'**
+  String get verifyIdProof;
+
+  /// No description provided for @verifyIdProofHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A photo of your ID card or passport. Only the team reviewing your request sees it.'**
+  String get verifyIdProofHint;
+
+  /// No description provided for @verifyPickId.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo'**
+  String get verifyPickId;
+
+  /// No description provided for @verifyChangeId.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get verifyChangeId;
+
+  /// No description provided for @verifyPortfolio.
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio links (up to 5)'**
+  String get verifyPortfolio;
+
+  /// No description provided for @verifyAddLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a link'**
+  String get verifyAddLink;
+
+  /// No description provided for @verifyApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Your apps'**
+  String get verifyApps;
+
+  /// No description provided for @verifyAppsFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From your linked Yallapp account'**
+  String get verifyAppsFrom;
+
+  /// No description provided for @verifyTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Template'**
+  String get verifyTemplate;
+
+  /// No description provided for @verifySend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send my request'**
+  String get verifySend;
+
+  /// No description provided for @verifyNameNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your full name.'**
+  String get verifyNameNeeded;
+
+  /// No description provided for @verifyIdNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo of your ID.'**
+  String get verifyIdNeeded;
+
+  /// No description provided for @verifyBadLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Links start with https://'**
+  String get verifyBadLink;
+
+  /// No description provided for @verifySent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. We’ll let you know when it’s reviewed.'**
+  String get verifySent;
 }
 
 class _AppLocalizationsDelegate

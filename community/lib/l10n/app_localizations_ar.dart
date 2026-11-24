@@ -870,4 +870,94 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tutCannotOpen => 'تعذّر فتح الفيديو.';
+
+  @override
+  String get verifyTitle => 'مطوّر محترف';
+
+  @override
+  String get verifyIntro =>
+      'الشارة الذهبية للأعضاء الذين بنوا 5 تطبيقات أو أكثر بيلا آب. قوالب متجر Studio تُحتسب.';
+
+  @override
+  String get verifyNotLinked =>
+      'اربط حساب يلا آب أولًا. تطبيقاتك تأتي منه، فلا تُحتسب إلا تطبيقاتك.';
+
+  @override
+  String get verifyLink => 'اربط حساب يلا آب';
+
+  @override
+  String verifyProgress(int count, int needed) {
+    return '$count من $needed تطبيقات';
+  }
+
+  @override
+  String verifyNeedMore(int needed) {
+    return 'يمكنك التقديم عندما يصبح في حساب يلا آب $needed تطبيقات.';
+  }
+
+  @override
+  String get verifyHasGold =>
+      'أنت مطوّر محترف. تظهر الشارة الذهبية بجانب اسمك.';
+
+  @override
+  String get verifyPending => 'نراجع طلبك، وسنخبرك بالنتيجة في الحالتين.';
+
+  @override
+  String verifySentOn(String date) {
+    return 'أُرسل في $date';
+  }
+
+  @override
+  String get verifyRejected => 'لم يُقبل طلبك الأخير.';
+
+  @override
+  String verifyReason(String reason) {
+    return 'السبب: $reason';
+  }
+
+  @override
+  String get verifyFullName => 'الاسم الكامل (كما في الهوية)';
+
+  @override
+  String get verifyIdProof => 'إثبات الهوية';
+
+  @override
+  String get verifyIdProofHint =>
+      'صورة لبطاقة الهوية أو جواز السفر. لا يراها إلا الفريق الذي يراجع طلبك.';
+
+  @override
+  String get verifyPickId => 'اختر صورة';
+
+  @override
+  String get verifyChangeId => 'غيّر';
+
+  @override
+  String get verifyPortfolio => 'روابط أعمالك (حتى 5)';
+
+  @override
+  String get verifyAddLink => 'أضف رابطًا';
+
+  @override
+  String get verifyApps => 'تطبيقاتك';
+
+  @override
+  String get verifyAppsFrom => 'من حساب يلا آب المرتبط';
+
+  @override
+  String get verifyTemplate => 'قالب';
+
+  @override
+  String get verifySend => 'أرسل طلبي';
+
+  @override
+  String get verifyNameNeeded => 'اكتب اسمك الكامل.';
+
+  @override
+  String get verifyIdNeeded => 'أضف صورة لهويتك.';
+
+  @override
+  String get verifyBadLink => 'تبدأ الروابط بـ https://';
+
+  @override
+  String get verifySent => 'أُرسل. سنخبرك عند مراجعته.';
 }

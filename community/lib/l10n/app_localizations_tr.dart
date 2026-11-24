@@ -862,4 +862,95 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get tutCannotOpen => 'Video açılamadı.';
+
+  @override
+  String get verifyTitle => 'Profesyonel Geliştirici';
+
+  @override
+  String get verifyIntro =>
+      'Yallapp ile 5 veya daha fazla uygulama yapan üyelerin altın rozeti. Studio Market şablonları sayılır.';
+
+  @override
+  String get verifyNotLinked =>
+      'Önce Yallapp hesabınızı bağlayın. Uygulamalarınız oradan gelir, yalnızca sizinkiler sayılır.';
+
+  @override
+  String get verifyLink => 'Yallapp hesabımı bağla';
+
+  @override
+  String verifyProgress(int count, int needed) {
+    return '$needed uygulamadan $count';
+  }
+
+  @override
+  String verifyNeedMore(int needed) {
+    return 'Yallapp hesabınızda $needed uygulama olduğunda başvurabilirsiniz.';
+  }
+
+  @override
+  String get verifyHasGold =>
+      'Profesyonel Geliştiricisiniz. Altın rozet adınızın yanında görünür.';
+
+  @override
+  String get verifyPending =>
+      'Başvurunuzu inceliyoruz. Sonucu her durumda size bildireceğiz.';
+
+  @override
+  String verifySentOn(String date) {
+    return '$date tarihinde gönderildi';
+  }
+
+  @override
+  String get verifyRejected => 'Son başvurunuz onaylanmadı.';
+
+  @override
+  String verifyReason(String reason) {
+    return 'Neden: $reason';
+  }
+
+  @override
+  String get verifyFullName => 'Ad soyad (kimlikteki gibi)';
+
+  @override
+  String get verifyIdProof => 'Kimlik belgesi';
+
+  @override
+  String get verifyIdProofHint =>
+      'Kimlik kartınızın veya pasaportunuzun fotoğrafı. Yalnızca başvurunuzu inceleyen ekip görür.';
+
+  @override
+  String get verifyPickId => 'Fotoğraf seç';
+
+  @override
+  String get verifyChangeId => 'Değiştir';
+
+  @override
+  String get verifyPortfolio => 'Portfolyo bağlantıları (en fazla 5)';
+
+  @override
+  String get verifyAddLink => 'Bağlantı ekle';
+
+  @override
+  String get verifyApps => 'Uygulamalarınız';
+
+  @override
+  String get verifyAppsFrom => 'Bağlı Yallapp hesabınızdan';
+
+  @override
+  String get verifyTemplate => 'Şablon';
+
+  @override
+  String get verifySend => 'Başvurumu gönder';
+
+  @override
+  String get verifyNameNeeded => 'Adınızı ve soyadınızı yazın.';
+
+  @override
+  String get verifyIdNeeded => 'Kimliğinizin fotoğrafını ekleyin.';
+
+  @override
+  String get verifyBadLink => 'Bağlantılar https:// ile başlar';
+
+  @override
+  String get verifySent => 'Gönderildi. İncelendiğinde size haber vereceğiz.';
 }

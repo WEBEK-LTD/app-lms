@@ -867,4 +867,95 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tutCannotOpen => 'The video could not be opened.';
+
+  @override
+  String get verifyTitle => 'Pro Developer';
+
+  @override
+  String get verifyIntro =>
+      'The gold badge for members who have built 5 or more apps with Yallapp. Studio Market templates count.';
+
+  @override
+  String get verifyNotLinked =>
+      'Link your Yallapp account first. Your apps come from it, so only your own apps count.';
+
+  @override
+  String get verifyLink => 'Link my Yallapp account';
+
+  @override
+  String verifyProgress(int count, int needed) {
+    return '$count of $needed apps';
+  }
+
+  @override
+  String verifyNeedMore(int needed) {
+    return 'You can apply once your Yallapp account has $needed apps.';
+  }
+
+  @override
+  String get verifyHasGold =>
+      'You’re a Pro Developer. The gold badge shows beside your name.';
+
+  @override
+  String get verifyPending =>
+      'We’re reviewing your request. We’ll let you know either way.';
+
+  @override
+  String verifySentOn(String date) {
+    return 'Sent on $date';
+  }
+
+  @override
+  String get verifyRejected => 'Your last request wasn’t approved.';
+
+  @override
+  String verifyReason(String reason) {
+    return 'Reason: $reason';
+  }
+
+  @override
+  String get verifyFullName => 'Full name (as on your ID)';
+
+  @override
+  String get verifyIdProof => 'ID proof';
+
+  @override
+  String get verifyIdProofHint =>
+      'A photo of your ID card or passport. Only the team reviewing your request sees it.';
+
+  @override
+  String get verifyPickId => 'Choose a photo';
+
+  @override
+  String get verifyChangeId => 'Change';
+
+  @override
+  String get verifyPortfolio => 'Portfolio links (up to 5)';
+
+  @override
+  String get verifyAddLink => 'Add a link';
+
+  @override
+  String get verifyApps => 'Your apps';
+
+  @override
+  String get verifyAppsFrom => 'From your linked Yallapp account';
+
+  @override
+  String get verifyTemplate => 'Template';
+
+  @override
+  String get verifySend => 'Send my request';
+
+  @override
+  String get verifyNameNeeded => 'Write your full name.';
+
+  @override
+  String get verifyIdNeeded => 'Add a photo of your ID.';
+
+  @override
+  String get verifyBadLink => 'Links start with https://';
+
+  @override
+  String get verifySent => 'Sent. We’ll let you know when it’s reviewed.';
 }

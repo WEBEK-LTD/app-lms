@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/badges/ui/verification_screen.dart';
 import '../../features/qa/ui/ask_screen.dart';
 import '../../features/qa/ui/question_screen.dart';
 import '../../features/qa/ui/questions_screen.dart';
@@ -88,7 +89,7 @@ List<RouteBase> featureRoutes() => [
   ),
   GoRoute(
     path: FeatureLinks.verify,
-    builder: (context, state) => const ComingSoonPage(title: 'Verify'),
+    builder: (context, state) => const VerificationScreen(),
   ),
 ];
 
