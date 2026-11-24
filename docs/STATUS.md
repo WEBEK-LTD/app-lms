@@ -20,8 +20,10 @@ the workstation is a dense blue-grey spec sheet with a compare table and
 the business quote form (Alexandria, a line bar). Each is a whole project
 (home, category menu, its own pages, shop, cart, orders, sign-in and
 account, tabs and bar, light and dark, English, Arabic and Turkish), built
-only from Studio's existing elements: no app change, no
-`CLIENT_APP_RELEASE` change, no migration.
+only from Studio's existing elements. One app fix for every look: a
+spec filter's chip reads right in Arabic (the value whole, its count in a
+badge), the app's preview rebuilt; no `CLIENT_APP_RELEASE` change, no
+migration.
 
 **Distinct templates.** The owner's standing rule (23 November): no
 resemblance at all between one app and another. A new template's header,
