@@ -326,10 +326,10 @@ class Question {
 }
 
 /// A page of a list and where the next one starts (null at the end).
-class Page<T> {
-  const Page(this.items, [this.next]);
+class Paged<T> {
+  const Paged(this.items, [this.next]);
 
-  factory Page.fromJson(Json json, T Function(Json) parse) => Page(
+  factory Paged.fromJson(Json json, T Function(Json) parse) => Paged(
     listOf(json, 'items', parse),
     optStr(json, 'next_cursor') ?? optStr(json, 'next'),
   );

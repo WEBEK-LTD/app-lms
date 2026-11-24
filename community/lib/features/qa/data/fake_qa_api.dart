@@ -256,7 +256,7 @@ class FakeQaApi implements QaApi {
   ];
 
   @override
-  Future<Page<QuestionSummary>> questions({
+  Future<Paged<QuestionSummary>> questions({
     String? section,
     String? tag,
     QuestionFilter filter = QuestionFilter.all,
@@ -301,7 +301,7 @@ class FakeQaApi implements QaApi {
     } else if (sort == QuestionSort.newest) {
       list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     }
-    return Page(list);
+    return Paged(list);
   }
 
   @override

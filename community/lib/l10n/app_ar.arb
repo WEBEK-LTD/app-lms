@@ -232,5 +232,22 @@
   "qaSearchHint": "ابحث في الأسئلة والدروس",
   "qaSearchEmpty": "لا نتائج لـ «{query}».",
   "qaSearchQuestions": "الأسئلة",
-  "qaSearchTutorials": "الدروس"
+  "qaSearchTutorials": "الدروس",
+  "tutTitle": "تعلّم",
+  "tutSubtitle": "دروس رسمية من فريق يلا آب",
+  "tutArticle": "مقال",
+  "tutVideo": "فيديو",
+  "tutAllKinds": "الكل",
+  "tutLevelBeginner": "مبتدئ",
+  "tutLevelIntermediate": "متوسط",
+  "tutLevelAdvanced": "متقدم",
+  "tutAnyLevel": "أي مستوى",
+  "tutAnyLanguage": "أي لغة",
+  "tutMinRead": "قراءة {count} د",
+  "tutWatch": "شاهد الفيديو",
+  "tutOfficial": "رسمي",
+  "tutLocked": "يُفتح على الحساب الذي يملكه",
+  "tutLockedBody": "يُفتح هذا الدرس عند تسجيل الدخول بالحساب الذي يملكه.",
+  "tutEmpty": "لا دروس هنا بعد.",
+  "tutCannotOpen": "تعذّر فتح الفيديو."
 }

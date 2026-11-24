@@ -55,12 +55,12 @@ final questionsQueryProvider =
     );
 
 /// The questions for a query, a page at a time.
-class QuestionsController extends AsyncNotifier<Page<QuestionSummary>> {
+class QuestionsController extends AsyncNotifier<Paged<QuestionSummary>> {
   QuestionsController(this.query);
 
   final QuestionsQuery query;
 
-  Future<Page<QuestionSummary>> _page([String? cursor]) => ref
+  Future<Paged<QuestionSummary>> _page([String? cursor]) => ref
       .read(qaApiProvider)
       .questions(
         filter: query.filter,
@@ -71,7 +71,7 @@ class QuestionsController extends AsyncNotifier<Page<QuestionSummary>> {
       );
 
   @override
-  Future<Page<QuestionSummary>> build() => _page();
+  Future<Paged<QuestionSummary>> build() => _page();
 
   var _loading = false;
 
@@ -82,7 +82,7 @@ class QuestionsController extends AsyncNotifier<Page<QuestionSummary>> {
     _loading = true;
     try {
       final next = await _page(now.next);
-      state = AsyncData(Page([...now.items, ...next.items], next.next));
+      state = AsyncData(Paged([...now.items, ...next.items], next.next));
     } finally {
       _loading = false;
     }
@@ -92,7 +92,7 @@ class QuestionsController extends AsyncNotifier<Page<QuestionSummary>> {
 final questionsProvider =
     AsyncNotifierProvider.family<
       QuestionsController,
-      Page<QuestionSummary>,
+      Paged<QuestionSummary>,
       QuestionsQuery
     >(QuestionsController.new);
 

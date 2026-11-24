@@ -6,6 +6,8 @@ import '../../features/qa/ui/question_screen.dart';
 import '../../features/qa/ui/questions_screen.dart';
 import '../../features/qa/ui/widgets/section_header.dart';
 import '../../features/shell/side_menu.dart';
+import '../../features/tutorials/ui/tutorial_screen.dart';
+import '../../features/tutorials/ui/tutorials_screen.dart';
 import '../widgets/coming_soon.dart';
 
 /// Area E's screens in the app (lib/features/qa, tutorials, badges,
@@ -55,11 +57,14 @@ List<RouteBase> featureTabRoutes() => [
   ),
   GoRoute(
     path: FeatureLinks.learn,
-    builder: (context, state) => const ComingSoonPage(title: 'Learn'),
+    builder: (context, state) => const TutorialsScreen(
+      header: SectionHeader(section: MenuSection.tutorials),
+    ),
   ),
   GoRoute(
     path: '/learn/:id',
-    builder: (context, state) => const ComingSoonPage(title: 'Learn'),
+    builder: (context, state) =>
+        TutorialScreen(id: state.pathParameters['id']!),
   ),
   GoRoute(
     path: FeatureLinks.notifications,

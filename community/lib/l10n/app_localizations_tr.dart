@@ -771,4 +771,58 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get qaSearchTutorials => 'Eğitimler';
+
+  @override
+  String get tutTitle => 'Öğren';
+
+  @override
+  String get tutSubtitle => 'Yallapp ekibinden resmî eğitimler';
+
+  @override
+  String get tutArticle => 'Makale';
+
+  @override
+  String get tutVideo => 'Video';
+
+  @override
+  String get tutAllKinds => 'Tümü';
+
+  @override
+  String get tutLevelBeginner => 'Başlangıç';
+
+  @override
+  String get tutLevelIntermediate => 'Orta';
+
+  @override
+  String get tutLevelAdvanced => 'İleri';
+
+  @override
+  String get tutAnyLevel => 'Her seviye';
+
+  @override
+  String get tutAnyLanguage => 'Her dil';
+
+  @override
+  String tutMinRead(int count) {
+    return '$count dk okuma';
+  }
+
+  @override
+  String get tutWatch => 'Videoyu izle';
+
+  @override
+  String get tutOfficial => 'Resmî';
+
+  @override
+  String get tutLocked => 'Sahip olan hesapta açılır';
+
+  @override
+  String get tutLockedBody =>
+      'Bu eğitim, ona sahip olan hesapla giriş yaptığınızda açılır.';
+
+  @override
+  String get tutEmpty => 'Burada henüz eğitim yok.';
+
+  @override
+  String get tutCannotOpen => 'Video açılamadı.';
 }

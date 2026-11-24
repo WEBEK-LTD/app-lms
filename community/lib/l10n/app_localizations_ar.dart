@@ -779,4 +779,58 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get qaSearchTutorials => 'الدروس';
+
+  @override
+  String get tutTitle => 'تعلّم';
+
+  @override
+  String get tutSubtitle => 'دروس رسمية من فريق يلا آب';
+
+  @override
+  String get tutArticle => 'مقال';
+
+  @override
+  String get tutVideo => 'فيديو';
+
+  @override
+  String get tutAllKinds => 'الكل';
+
+  @override
+  String get tutLevelBeginner => 'مبتدئ';
+
+  @override
+  String get tutLevelIntermediate => 'متوسط';
+
+  @override
+  String get tutLevelAdvanced => 'متقدم';
+
+  @override
+  String get tutAnyLevel => 'أي مستوى';
+
+  @override
+  String get tutAnyLanguage => 'أي لغة';
+
+  @override
+  String tutMinRead(int count) {
+    return 'قراءة $count د';
+  }
+
+  @override
+  String get tutWatch => 'شاهد الفيديو';
+
+  @override
+  String get tutOfficial => 'رسمي';
+
+  @override
+  String get tutLocked => 'يُفتح على الحساب الذي يملكه';
+
+  @override
+  String get tutLockedBody =>
+      'يُفتح هذا الدرس عند تسجيل الدخول بالحساب الذي يملكه.';
+
+  @override
+  String get tutEmpty => 'لا دروس هنا بعد.';
+
+  @override
+  String get tutCannotOpen => 'تعذّر فتح الفيديو.';
 }

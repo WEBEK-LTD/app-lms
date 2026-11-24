@@ -776,4 +776,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qaSearchTutorials => 'Tutorials';
+
+  @override
+  String get tutTitle => 'Learn';
+
+  @override
+  String get tutSubtitle => 'Official tutorials from the Yallapp team';
+
+  @override
+  String get tutArticle => 'Article';
+
+  @override
+  String get tutVideo => 'Video';
+
+  @override
+  String get tutAllKinds => 'All';
+
+  @override
+  String get tutLevelBeginner => 'Beginner';
+
+  @override
+  String get tutLevelIntermediate => 'Intermediate';
+
+  @override
+  String get tutLevelAdvanced => 'Advanced';
+
+  @override
+  String get tutAnyLevel => 'Any level';
+
+  @override
+  String get tutAnyLanguage => 'Any language';
+
+  @override
+  String tutMinRead(int count) {
+    return '$count min read';
+  }
+
+  @override
+  String get tutWatch => 'Watch the video';
+
+  @override
+  String get tutOfficial => 'Official';
+
+  @override
+  String get tutLocked => 'Unlocks on the account that has it';
+
+  @override
+  String get tutLockedBody =>
+      'This tutorial opens when you sign in with the account that has it.';
+
+  @override
+  String get tutEmpty => 'No tutorials here yet.';
+
+  @override
+  String get tutCannotOpen => 'The video could not be opened.';
 }

@@ -324,5 +324,29 @@
     }
   },
   "qaSearchQuestions": "Questions",
-  "qaSearchTutorials": "Tutorials"
+  "qaSearchTutorials": "Tutorials",
+  "tutTitle": "Learn",
+  "tutSubtitle": "Official tutorials from the Yallapp team",
+  "tutArticle": "Article",
+  "tutVideo": "Video",
+  "tutAllKinds": "All",
+  "tutLevelBeginner": "Beginner",
+  "tutLevelIntermediate": "Intermediate",
+  "tutLevelAdvanced": "Advanced",
+  "tutAnyLevel": "Any level",
+  "tutAnyLanguage": "Any language",
+  "tutMinRead": "{count} min read",
+  "@tutMinRead": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tutWatch": "Watch the video",
+  "tutOfficial": "Official",
+  "tutLocked": "Unlocks on the account that has it",
+  "tutLockedBody": "This tutorial opens when you sign in with the account that has it.",
+  "tutEmpty": "No tutorials here yet.",
+  "tutCannotOpen": "The video could not be opened."
 }

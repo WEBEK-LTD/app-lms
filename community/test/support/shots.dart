@@ -40,6 +40,13 @@ void phoneInsets(WidgetTester tester) {
 Future<void> shot(WidgetTester tester, String name) async {
   expect(tester.takeException(), isNull);
   if (shotsDir.isEmpty) return;
+  // Let pictures (covers, photos) decode, then draw them.
+  await tester.runAsync(
+    () => Future<void>.delayed(const Duration(milliseconds: 400)),
+  );
+  for (var i = 0; i < 6; i++) {
+    await tester.pump(const Duration(milliseconds: 60));
+  }
   final view = tester.binding.renderViews.first;
   final layer = view.debugLayer! as OffsetLayer;
   await tester.runAsync(() async {

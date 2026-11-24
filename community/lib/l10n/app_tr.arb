@@ -232,5 +232,22 @@
   "qaSearchHint": "Soru ve eğitimlerde ara",
   "qaSearchEmpty": "“{query}” ile eşleşen bir şey yok.",
   "qaSearchQuestions": "Sorular",
-  "qaSearchTutorials": "Eğitimler"
+  "qaSearchTutorials": "Eğitimler",
+  "tutTitle": "Öğren",
+  "tutSubtitle": "Yallapp ekibinden resmî eğitimler",
+  "tutArticle": "Makale",
+  "tutVideo": "Video",
+  "tutAllKinds": "Tümü",
+  "tutLevelBeginner": "Başlangıç",
+  "tutLevelIntermediate": "Orta",
+  "tutLevelAdvanced": "İleri",
+  "tutAnyLevel": "Her seviye",
+  "tutAnyLanguage": "Her dil",
+  "tutMinRead": "{count} dk okuma",
+  "tutWatch": "Videoyu izle",
+  "tutOfficial": "Resmî",
+  "tutLocked": "Sahip olan hesapta açılır",
+  "tutLockedBody": "Bu eğitim, ona sahip olan hesapla giriş yaptığınızda açılır.",
+  "tutEmpty": "Burada henüz eğitim yok.",
+  "tutCannotOpen": "Video açılamadı."
 }

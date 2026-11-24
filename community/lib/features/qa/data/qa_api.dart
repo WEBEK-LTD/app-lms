@@ -11,7 +11,7 @@ abstract class QaApi {
   Future<List<SectionRef>> sections();
   Future<List<Tag>> tags({String? query});
 
-  Future<Page<QuestionSummary>> questions({
+  Future<Paged<QuestionSummary>> questions({
     String? section,
     String? tag,
     QuestionFilter filter = QuestionFilter.all,
@@ -73,13 +73,13 @@ class HttpQaApi implements QaApi {
   }
 
   @override
-  Future<Page<QuestionSummary>> questions({
+  Future<Paged<QuestionSummary>> questions({
     String? section,
     String? tag,
     QuestionFilter filter = QuestionFilter.all,
     QuestionSort sort = QuestionSort.active,
     String? cursor,
-  }) async => Page.fromJson(
+  }) async => Paged.fromJson(
     await _client.get(
       '/qa/questions',
       query: {

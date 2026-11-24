@@ -1497,6 +1497,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tutorials'**
   String get qaSearchTutorials;
+
+  /// No description provided for @tutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn'**
+  String get tutTitle;
+
+  /// No description provided for @tutSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Official tutorials from the Yallapp team'**
+  String get tutSubtitle;
+
+  /// No description provided for @tutArticle.
+  ///
+  /// In en, this message translates to:
+  /// **'Article'**
+  String get tutArticle;
+
+  /// No description provided for @tutVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get tutVideo;
+
+  /// No description provided for @tutAllKinds.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get tutAllKinds;
+
+  /// No description provided for @tutLevelBeginner.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner'**
+  String get tutLevelBeginner;
+
+  /// No description provided for @tutLevelIntermediate.
+  ///
+  /// In en, this message translates to:
+  /// **'Intermediate'**
+  String get tutLevelIntermediate;
+
+  /// No description provided for @tutLevelAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get tutLevelAdvanced;
+
+  /// No description provided for @tutAnyLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Any level'**
+  String get tutAnyLevel;
+
+  /// No description provided for @tutAnyLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Any language'**
+  String get tutAnyLanguage;
+
+  /// No description provided for @tutMinRead.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min read'**
+  String tutMinRead(int count);
+
+  /// No description provided for @tutWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the video'**
+  String get tutWatch;
+
+  /// No description provided for @tutOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official'**
+  String get tutOfficial;
+
+  /// No description provided for @tutLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocks on the account that has it'**
+  String get tutLocked;
+
+  /// No description provided for @tutLockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This tutorial opens when you sign in with the account that has it.'**
+  String get tutLockedBody;
+
+  /// No description provided for @tutEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No tutorials here yet.'**
+  String get tutEmpty;
+
+  /// No description provided for @tutCannotOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'The video could not be opened.'**
+  String get tutCannotOpen;
 }
 
 class _AppLocalizationsDelegate
