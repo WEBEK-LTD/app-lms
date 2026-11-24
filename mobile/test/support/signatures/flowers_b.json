@@ -81,7 +81,18 @@
    "cards": "outlined",
    "secondary_color": "#E8A486",
    "dark_background": "#0A120E",
-   "dark_surface": "#121E18"
+   "dark_surface": "#121E18",
+   "page_fonts": [
+    {
+     "family": "JetBrains Mono",
+     "files": [
+      {
+       "url": "http://localhost:3000/api/v1/fonts/ofl/jetbrainsmono/JetBrainsMono%5Bwght%5D.ttf",
+       "weight": null
+      }
+     ]
+    }
+   ]
   },
   "languages": {
    "default": "en",

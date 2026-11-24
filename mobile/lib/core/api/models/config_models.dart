@@ -846,6 +846,20 @@ enum CornerStyle { sharp, soft, round }
 
 enum CardStyle { flat, outlined, elevated }
 
+/// 224.10 One of the faces the Studio pages name (`Appearance.page_fonts`):
+/// its family and its files.
+class PageFont {
+  const PageFont({required this.family, this.files = const []});
+
+  factory PageFont.fromJson(Json json) => PageFont(
+    family: reqString(json, 'family'),
+    files: listOf(json, 'files', FontFileRef.fromJson),
+  );
+
+  final String family;
+  final List<FontFileRef> files;
+}
+
 /// `Config.appearance`. Every value is optional here: a missing or unknown
 /// value means "use the build's default", so newer dashboards never break
 /// older apps.
@@ -860,6 +874,7 @@ class Appearance {
     this.fontFiles = const [],
     this.arabicFont,
     this.arabicFontFiles = const [],
+    this.pageFonts = const [],
     this.corners,
     this.cards,
     this.primaryColor,
@@ -879,6 +894,7 @@ class Appearance {
     fontFiles: listOf(json, 'font_files', FontFileRef.fromJson),
     arabicFont: optString(json, 'arabic_font'),
     arabicFontFiles: listOf(json, 'arabic_font_files', FontFileRef.fromJson),
+    pageFonts: listOf(json, 'page_fonts', PageFont.fromJson),
     corners: enumOrNull(CornerStyle.values, json['corners']),
     cards: enumOrNull(CardStyle.values, json['cards']),
     primaryColor: optString(json, 'primary_color'),
@@ -914,6 +930,12 @@ class Appearance {
   /// 97.1 The font of Arabic text; missing: Readex Pro, bundled.
   final String? arabicFont;
   final List<FontFileRef> arabicFontFiles;
+
+  /// 224.10 The other free fonts the Studio pages name on their elements (a
+  /// heading's own face), each downloaded once from its files as
+  /// [fontFamily] is; an element naming a font not on the phone shows in the
+  /// app's font.
+  final List<PageFont> pageFonts;
   final CornerStyle? corners;
   final CardStyle? cards;
 

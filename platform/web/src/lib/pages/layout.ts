@@ -2,7 +2,7 @@ import { sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { App, AppLayoutRecord } from "../data/types";
 import { foreignFigmaImages } from "../figma/images";
-import { servedAppearance, shownAppearance, withLook } from "../fonts/look";
+import { pageFontFamilies, servedAppearance, shownAppearance, withLook } from "../fonts/look";
 import { platformSetting } from "../settings/platform";
 import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defaults";
 import { applyDesign, blockTexts, contactFacts, missingScreens, sampleTexts, socialProfilesOf, type Design } from "./designs";
@@ -492,7 +492,8 @@ export async function lookAndLanguages(
     packs ? withLanguageList(languages, layout?.strings, { platformUrl: packs.platformUrl, appId: app.id, draft: packs.draft }) : languages;
   // 97.1 With the files of the look's free fonts, on Yallapp.
   const own = packs ? await store.listOwnFonts(app.id) : [];
-  const served = (appearance: Appearance): Appearance => (packs ? servedAppearance(appearance, packs.platformUrl, own) : appearance);
+  // 224.10 With the files of the other faces its Studio pages name too.
+  const served = (appearance: Appearance): Appearance => (packs ? servedAppearance(appearance, packs.platformUrl, own, layout ? pageFontFamilies(layout.pages, appearance, own.map((f) => f.family)) : []) : appearance);
   // 97.3 The Figma look when it's the one shown.
   const shown = (l: Layout) => shownAppearance(l, (id) => `${packs?.platformUrl ?? ""}/api/v1/assets/${id}`, own.map((f) => f.family));
   if (layout) return { appearance: served(shown(layout)), languages: withList(languagesForPlan(layout.languages, plan)) };

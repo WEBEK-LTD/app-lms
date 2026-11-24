@@ -657,6 +657,13 @@ export interface Appearance {
   /** 97.1 Added when served, never stored: the files of `font_family` and `arabic_font`. */
   font_files?: FontFile[];
   arabic_font_files?: FontFile[];
+  /**
+   * 224.10 Added when served, never stored: the other free fonts the
+   * project's Studio pages name on their elements (a heading's display face),
+   * each with its files, at most `PAGE_FONTS_MAX`, in the order the pages
+   * first use them. The app downloads them as it does `font_family`.
+   */
+  page_fonts?: { family: string; files: FontFile[] }[];
   /** 97.3 Served only, in the Figma look: the file's main color and logo, over Config.branding's. */
   primary_color?: string;
   logo_url?: string;
