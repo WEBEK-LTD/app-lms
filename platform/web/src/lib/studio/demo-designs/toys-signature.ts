@@ -1188,7 +1188,8 @@ export const TOOT_A: SignatureDesign = {
   chrome: { header: "glass", system: "glass" },
   isNew: true,
   project: {
-    // Look A is the demo: its main colour the demo's (lib/demo/content.ts).
+    // 226 Its own plum (the demo is look C now, lib/demo/content.ts).
+    primary: A.fill,
     appearance: { secondary_color: "#C08A3E", font: "Lexend", font_family: BALOO, dark_background: A.darkPage, dark_surface: A.darkSurface },
     screens: TOOT_SCREENS,
   },

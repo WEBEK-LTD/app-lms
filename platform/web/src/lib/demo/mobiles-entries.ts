@@ -1,3 +1,4 @@
+import { MOBILES_PRODUCT_NAMES, namedTranslations } from "./product-names";
 import { catalogSettings } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import type { App, TechSettings } from "../data/types";
@@ -74,6 +75,8 @@ export async function demoMobilesProducts(deps: EntryDeps, app: App): Promise<vo
       addon: false,
       addonFor: null,
       specs: seed.specs.map((s) => ({ ...s })),
+      // 226 Its name in Arabic and Turkish too.
+      translations: namedTranslations(MOBILES_PRODUCT_NAMES, seed.sku),
       ...marked,
     };
     if (deps.sample) {

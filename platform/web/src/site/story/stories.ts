@@ -438,17 +438,17 @@ export const STORIES: Record<StoryId, StoryShape> = {
   toys: {
     id: "toys",
     icon: "toys",
-    // Toot's plum, lighter on its night.
-    accent: "#EAA9C5",
+    // 226 Toot's main look C: its sun yellow on the night.
+    accent: "#FFC629",
     demos: ["toys"],
     solutions: [],
-    hero: { photo: "toys-hero", screens: ["toot-home", "toot-product"] },
+    hero: { photo: "toys-hero", screens: ["toys-sig-c-home", "toot-product"] },
     chapters: [
-      { screen: "toot-home", icon: "home" },
+      { screen: "toys-sig-c-home", icon: "home" },
       { screen: "toot-menu", icon: "child_care" },
       { photo: "toys-bear", screen: "toot-product", icon: "verified_user" },
-      { photo: "toys-gift", screen: "toot-home", icon: "redeem" },
-      { screen: "toys-sig-a-home-dark", icon: "bolt" },
+      { photo: "toys-gift", screen: "toys-sig-c-home", icon: "redeem" },
+      { screen: "toys-sig-c-home-dark", icon: "bolt" },
       { photo: "toys-blocks", screen: "toot-menu", icon: "inventory_2" },
     ],
     interlude: { photo: "toys-play" },
@@ -457,11 +457,11 @@ export const STORIES: Record<StoryId, StoryShape> = {
       { icon: "child_care", screens: ["toot-menu"], features: ["child_care", "menu_open", "view_list", "search", "quiz", "dashboard_customize"] },
       { icon: "verified_user", screens: ["toot-product"], features: ["verified_user", "format_paint", "fact_check", "child_care", "translate"] },
       { icon: "redeem", screens: [], features: ["quiz", "redeem", "edit_note", "sell", "bolt", "confirmation_number"] },
-      { icon: "palette", screens: ["toys-sig-b-home", "toys-sig-b-home-dark"], features: ["toys", "school", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "palette", screens: ["toys-sig-d-home", "toys-sig-d-home-dark"], features: ["toys", "school", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
       { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
     ],
     bundle: ["smartphone", "dashboard_customize", "web"],
-    finale: { photo: "toys-finale", screen: "toot-home" },
+    finale: { photo: "toys-finale", screen: "toys-sig-c-home" },
   },
   // 210 Sakan, the home decor shop: a new flat in Riyadh furnished from one styled corner, a gift wrapped with a card, in its look A (the decor magazine) by day and by night; look B (Teen) in its section.
   decor: {
@@ -587,10 +587,10 @@ export const STORIES: Record<StoryId, StoryShape> = {
     accent: "#8FA8FF",
     demos: ["mobiles"],
     solutions: [],
-    hero: { photo: "mobiles-hero", screens: ["nova-home", "nova-product"] },
+    hero: { photo: "mobiles-hero", screens: ["mobiles-sig-c-home", "nova-product"] },
     chapters: [
-      { screen: "nova-home", icon: "home" },
-      { photo: "mobiles-box", screen: "nova-home", icon: "sync" },
+      { screen: "mobiles-sig-c-home", icon: "home" },
+      { photo: "mobiles-box", screen: "mobiles-sig-c-home-dark", icon: "sync" },
       { photo: "mobiles-camera", screen: "nova-product", icon: "table_chart" },
       { screen: "nova-product", icon: "compare" },
       { screen: "mobiles-sig-a-home-dark", icon: "verified" },
@@ -602,11 +602,11 @@ export const STORIES: Record<StoryId, StoryShape> = {
       { icon: "sync", screens: ["nova-home"], features: ["devices", "table_chart", "fact_check", "payments", "notifications", "dashboard_customize"] },
       { icon: "table_chart", screens: ["nova-product"], features: ["palette", "verified", "table_chart", "compare", "translate", "check"] },
       { icon: "verified", screens: [], features: ["verified", "star", "schedule", "sell", "local_offer"] },
-      { icon: "palette", screens: ["mobiles-sig-b-home", "mobiles-sig-b-home-dark"], features: ["smartphone", "trending_up", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
+      { icon: "palette", screens: ["mobiles-sig-d-home", "mobiles-sig-d-home-dark"], features: ["smartphone", "trending_up", "dark_mode", "view_carousel", "tab", "dashboard_customize", "translate"] },
       { icon: "cloud_sync", screens: [], features: ["inventory_2", "web", "schedule"] },
     ],
     bundle: ["smartphone", "dashboard_customize", "web"],
-    finale: { photo: "mobiles-earbuds", screen: "nova-home" },
+    finale: { photo: "mobiles-earbuds", screen: "mobiles-sig-c-home" },
   },
   // 211 Nawah, computers and gaming: a gaming PC built part by part in Jeddah, in its look A (NAWAH) by day and by night; look B (SILICA) in its section.
   computers: {

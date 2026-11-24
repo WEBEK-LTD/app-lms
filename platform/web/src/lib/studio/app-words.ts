@@ -25,6 +25,9 @@ import { DECOR_CD_WORDS } from "./words/decor-cd";
 import { CLOTHES_CD_WORDS } from "./words/clothes-cd";
 // 223 Toota's templates C (the story world, `stw`) and D (the nursery, `nrs`).
 import { KIDS_CD_WORDS } from "./words/kids-cd";
+// 226 Toot's and Nova's looks C and D (`tyMap`, `tyMo`, `mbKey`, `mbHub`).
+import { TOYS_CD_WORDS } from "./words/toys-cd";
+import { MOBILES_CD_WORDS } from "./words/mobiles-cd";
 import { BEAUTY_CD_WORDS } from "./words/beauty-cd";
 import { CROCHET_CD_WORDS } from "./words/crochet-cd";
 // 227 Madar's and Nawah's looks C and D (electronics `eb` `es`, computers `pb` `pw`).
@@ -1567,6 +1570,8 @@ export const en = {
   ...CLOTHES_CD_WORDS.en,
   ...KIDS_CD_WORDS.en,
   ...CROCHET_WORDS.en,
+  ...TOYS_CD_WORDS.en,
+  ...MOBILES_CD_WORDS.en,
   ...FURNITURE_WORDS.en,
   ...FURNITURE_CD_WORDS.en,
   ...DECOR_CD_WORDS.en,
@@ -3347,6 +3352,8 @@ export const ar: Record<AppWord, string> = {
   ...CLOTHES_CD_WORDS.ar,
   ...KIDS_CD_WORDS.ar,
   ...CROCHET_WORDS.ar,
+  ...TOYS_CD_WORDS.ar,
+  ...MOBILES_CD_WORDS.ar,
   ...FURNITURE_WORDS.ar,
   ...FURNITURE_CD_WORDS.ar,
   ...DECOR_CD_WORDS.ar,
@@ -5122,6 +5129,8 @@ export const tr: Record<AppWord, string> = {
   ...CLOTHES_CD_WORDS.tr,
   ...KIDS_CD_WORDS.tr,
   ...CROCHET_WORDS.tr,
+  ...TOYS_CD_WORDS.tr,
+  ...MOBILES_CD_WORDS.tr,
   ...FURNITURE_WORDS.tr,
   ...FURNITURE_CD_WORDS.tr,
   ...DECOR_CD_WORDS.tr,

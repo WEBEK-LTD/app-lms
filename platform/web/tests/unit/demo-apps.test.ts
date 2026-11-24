@@ -123,8 +123,8 @@ describe("creating the demo apps", { timeout: 40_000 }, () => {
     expect(apps.at(-9)?.design).toBe("beauty_signature_c");
     // 209 Toota, the kids' clothes shop: its look A (TOOTA).
     expect(apps.at(-8)?.design).toBe(mainTemplateOf("kids"));
-    // 209 Toot, the toy shop: a shop that keeps its look A (Toot).
-    expect(apps.at(-7)?.design).toBe("toys_signature_a");
+    // 209 Toot, the toy shop; 226 its main look (C, the adventure map).
+    expect(apps.at(-7)?.design).toBe(mainTemplateOf("toys"));
     // 210 Sakan, Ghurza and Rukn, 211 Madar, Nova and Nawah: each keeps its look A.
     expect(apps.slice(-6).map((a) => a.design)).toEqual((["decor", "crochet", "furniture", "electronics", "mobiles", "computers"] as const).map(mainTemplateOf));
     expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(30);

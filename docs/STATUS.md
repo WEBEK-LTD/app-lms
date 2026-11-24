@@ -30,6 +30,25 @@ resemblance at all between one app and another. A new template's header,
 hero, navigation, card shape, section order, bar and type scale must differ
 from every other template's, it draws nothing with the kit's visual parts,
 and its home is compared beside every other template's before it ships.
+
+Roadmap 226 (Studio shop types, round 3: toys and mobiles): Toot and Nova
+each have two new templates on their own archetypes, C (now the demo) and
+D: Toot C the adventure map (categories as islands, chunky pressed-out
+cards, stickers, the treasure chest, the ages as a ladder of hero levels, a notch bar with the bag in the
+middle), Toot D Montessori (a sage opening by skill and by age, quiet rows,
+how-to-play cards, a names-only bar), Nova C the keynote (one phone on a
+black stage, its colours, specs one per row, compare, the trade-in on a dark
+card, a small dock) and Nova D the deals hub (category chips, today's deals
+on hot pink, a dense grid of three with "Installments coming soon", the
+compare tray and page, a bar whose open tab rises in a pink circle). Light and dark, Arabic, English and
+Turkish, built only from Studio's elements; A and B stay as extra templates.
+Not yet: the app draws a node's own font family only when it is the
+project's main or Arabic font (Toot C's Lalezar headings show in Rubik).
+
+Distinct templates (226, the owner's standing rule): each of these four was
+compared side by side with every other template's home before it shipped;
+toys D's opening was changed because it was too close to kids' clothes D.
+
 Roadmap 225 (Studio shop types, round 3: furniture and home decor): Rukn
 and Sakan each have two new whole templates, first in Studio's order, each
 from its own parts file and in light and dark, English, Arabic and Turkish:
@@ -49,25 +68,6 @@ Distinct templates (225): the owner's standing rule holds for these four
 and every template after them. Each new home was put beside every other
 template's home before it shipped; none shares another's header, hero,
 navigation, card shape, section order, bar or type scale.
-
-Roadmap 223 (Studio shop types, round 3, the shared base): Studio offers
-every demo's looks in one order, C, D, A, B, its main look first (C for a
-shop type that has one, else A), on /start, Studio's new project, the
-editor's whole designs, Studio Market and the website; the demo app opens
-on the main look. Templates C and D themselves come per type: the clothes
-type's C RUNWAY (an edge-to-edge lookbook, Reem Kufi) and D the outfit
-builder (Tajawal, a dock and a round bag button), and the kids' clothes
-type's C the story world (Tooti the mascot, age bubbles, wavy edges,
-Lemonada) and D the nursery (linen and sage, a size ruler, the baby gift
-list, Vazirmatn); Lujain's and Toota's demos are now their C. Their
-products are named in Arabic and Turkish too, so the demos read in Arabic
-show Arabic names.
-
-Distinct templates (the owner's standing rule, 23 November 2026): no app,
-type or template may resemble another. Every new template is compared side
-by side with every other template's home (header, hero, card shape, section
-order, tab bar, type scale) before it ships; one that could be made by
-recolouring another has failed.
 
 Roadmap 224 (cosmetics and crochet, templates C and D): Velours and Ghurza
 each have two new whole templates that share no skeleton with A and B or
@@ -105,6 +105,25 @@ done: upload the key set to the Google provider (`jwksJson`) so Google
 needs no call to the site, at the cost of uploading it again on every
 key rotation.
 
+
+Roadmap 223 (Studio shop types, round 3, the shared base): Studio offers
+every demo's looks in one order, C, D, A, B, its main look first (C for a
+shop type that has one, else A), on /start, Studio's new project, the
+editor's whole designs, Studio Market and the website; the demo app opens
+on the main look. Templates C and D themselves come per type: the clothes
+type's C RUNWAY (an edge-to-edge lookbook, Reem Kufi) and D the outfit
+builder (Tajawal, a dock and a round bag button), and the kids' clothes
+type's C the story world (Tooti the mascot, age bubbles, wavy edges,
+Lemonada) and D the nursery (linen and sage, a size ruler, the baby gift
+list, Vazirmatn); Lujain's and Toota's demos are now their C. Their
+products are named in Arabic and Turkish too, so the demos read in Arabic
+show Arabic names.
+
+Distinct templates (the owner's standing rule, 23 November 2026): no app,
+type or template may resemble another. Every new template is compared side
+by side with every other template's home (header, hero, card shape, section
+order, tab bar, type scale) before it ships; one that could be made by
+recolouring another has failed.
 
 Roadmap 222 (the plugin's follow-ups): plugin 0.4.54 (after 0.4.53, #496)
 serves WordPress apps' Studio pages without an empty section, as hosted
