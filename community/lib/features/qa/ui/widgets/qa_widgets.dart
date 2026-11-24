@@ -69,9 +69,12 @@ class QaChip extends StatelessWidget {
 
 /// A member's rank beside their name (`.lvl`: "Expert").
 class RankChip extends StatelessWidget {
-  const RankChip(this.rank, {super.key});
+  const RankChip(this.rank, {super.key, this.label});
 
   final MemberRank rank;
+
+  /// The server's words for it; missing, the app's.
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +86,7 @@ class RankChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        rankLabel(context, rank),
+        label ?? rankLabel(context, rank),
         style: TextStyle(
           fontSize: 10.5,
           fontWeight: FontWeight.w600,
@@ -258,7 +261,7 @@ class AuthorName extends StatelessWidget {
     final Widget? beside = team
         ? const OfficialBadge()
         : showsRank(author.rank)
-        ? RankChip(author.rank!)
+        ? RankChip(author.rank!, label: author.rankLabel)
         : null;
     if (beside == null && badge == null) return name;
     return Row(

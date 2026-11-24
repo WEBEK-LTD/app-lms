@@ -67,15 +67,19 @@ List<Tag> _tags(Json json) {
 
 /// A member as shown beside what they wrote, with their rank ("Expert").
 class Author {
-  const Author({required this.member, this.rank});
+  const Author({required this.member, this.rank, this.rankLabel});
 
   factory Author.fromJson(Json json) => Author(
     member: MemberSummary.fromJson(json),
     rank: MemberRank.parse(optStr(json, 'rank') ?? optStr(json, 'level')),
+    rankLabel: optStr(json, 'rank_label'),
   );
 
   final MemberSummary member;
   final MemberRank? rank;
+
+  /// The rank in the reader's language, as the server words it ("Expert").
+  final String? rankLabel;
 }
 
 /// A member's standing in points.

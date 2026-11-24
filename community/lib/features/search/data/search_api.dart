@@ -11,7 +11,7 @@ import '../../tutorials/data/tutorial_models.dart';
 import '../../tutorials/data/tutorials_api.dart';
 
 /// Area E: the header's search (`/search`) and the Saved page
-/// (`/me/bookmarks`), across questions, tutorials and members.
+/// (`/qa/saved`), across questions, tutorials and members.
 
 class SearchResults {
   const SearchResults({
@@ -56,7 +56,7 @@ class HttpSearchApi implements SearchApi {
 
   @override
   Future<SearchResults> saved() async =>
-      SearchResults.fromJson(await _client.get('/me/bookmarks'));
+      SearchResults.fromJson(await _client.get('/qa/saved'));
 }
 
 /// [SearchApi] over the fake Q&A and tutorials (tests, the demo).

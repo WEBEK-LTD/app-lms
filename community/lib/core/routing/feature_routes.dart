@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../auth/session.dart';
+
 import '../../features/badges/ui/verification_screen.dart';
 import '../../features/notifications/ui/notifications_screen.dart';
 import '../../features/qa/state/questions_controller.dart';
@@ -100,7 +102,11 @@ List<RouteBase> featureRoutes() => [
 /// notifications) and the Q&A tab's dot and menu badge (new questions since
 /// the member last looked). Zero until E fills them in.
 final unreadNotificationsProvider = Provider<int>(
-  (ref) => ref.watch(notificationsProvider).value?.unreadCount ?? 0,
+  (ref) =>
+      ref.watch(notificationsProvider).value?.unreadCount ??
+      // Until the list loads: the count that came with the member.
+      ref.watch(meProvider)?.account?.unreadNotifications ??
+      0,
 );
 final newQuestionsProvider = Provider<int>(
   (ref) => ref.watch(newQuestionsCountProvider),
