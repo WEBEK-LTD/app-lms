@@ -1,4 +1,5 @@
 import { handleCommunity } from "@/lib/community/api/service";
+import { communityOrigins, cookieRequestAllowed } from "@/lib/community/csrf";
 import { communityDeps } from "@/lib/community/deps";
 import { errorResponse, ipFromHeaders, json, noContent } from "@/lib/http";
 
@@ -21,14 +22,21 @@ async function handle(request: Request, { params }: RouteContext<"/api/community
   let body: unknown;
   let form: FormData | null = null;
   if (request.method !== "GET" && request.method !== "HEAD") {
+    // The size is checked before the body is read: a body without its length isn't taken.
+    const length = request.headers.get("content-length");
+    const size = Number(length);
+    if (request.body && (length === null || !Number.isFinite(size))) return errorResponse(411, "invalid_request", "The request needs its Content-Length.");
     if (type.startsWith("multipart/form-data")) {
-      if (Number(request.headers.get("content-length") ?? 0) > MAX_FORM) return errorResponse(413, "too_large", "The file is too large.");
+      if (size > MAX_FORM) return errorResponse(413, "too_large", "The file is too large.");
       try {
         form = await request.formData();
       } catch {
         return errorResponse(400, "invalid_request", "The form could not be read.");
       }
     } else {
+      if (size > MAX_JSON) return errorResponse(413, "invalid_request", "The request is too large.");
+      // A body is JSON, said so: a cross-site form (text/plain, urlencoded) can't pass for one.
+      if (size > 0 && !type.toLowerCase().startsWith("application/json")) return errorResponse(415, "invalid_request", "The request body must be JSON.");
       const raw = await request.text();
       if (raw.length > MAX_JSON) return errorResponse(413, "invalid_request", "The request is too large.");
       if (raw.trim() !== "") {
@@ -40,9 +48,11 @@ async function handle(request: Request, { params }: RouteContext<"/api/community
       }
     }
   }
+  const deps = await communityDeps({ ip: ipFromHeaders(request.headers) });
   const bearer = /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") ?? "")?.[1]?.trim();
-  const cookie = ACCESS_COOKIE.exec(request.headers.get("cookie") ?? "")?.[1];
-  const result = await handleCommunity(await communityDeps({ ip: ipFromHeaders(request.headers) }), {
+  // 231 The cookie signs in a change only from the community's own pages (lib/community/csrf.ts).
+  const cookie = cookieRequestAllowed(request.method, request.headers, communityOrigins(deps.siteUrl, deps.yallappUrl)) ? ACCESS_COOKIE.exec(request.headers.get("cookie") ?? "")?.[1] : undefined;
+  const result = await handleCommunity(deps, {
     method: request.method,
     path,
     query: new URL(request.url).searchParams,

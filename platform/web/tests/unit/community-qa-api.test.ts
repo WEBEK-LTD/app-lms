@@ -17,8 +17,9 @@ async function setup() {
   const c = await testCommunity({ providers: false });
   const asker = await joinWithEmail(c, "Karim Asker");
   const helper = await joinWithEmail(c, "Nour Helper");
-  const team = await joinWithEmail(c, "Yallapp Team One");
-  await c.deps.store.base.updateMember(team.id, { role: "team" });
+  // 231 Yallapp's names are the team's: a team member gets theirs in the admin, not at sign-up.
+  const team = await joinWithEmail(c, "Team One");
+  await c.deps.store.base.updateMember(team.id, { role: "team", displayName: "Yallapp Team One" });
   return { c, asker, helper, team };
 }
 
