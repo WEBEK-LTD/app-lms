@@ -8,6 +8,11 @@ Last updated: 24 November 2026.
 
 ## Current release
 
+Roadmap 231, area D (the Yallapp Community app, `community/`): the opening,
+welcome and signing in (Apple, Google, email), the shell, Home, the side
+menu, profiles with follow, friends, block and report, and settings, on area
+A's contract; no payments in the app (a test guards it); not yet released.
+
 Roadmap 229.4 (prices that read cleanly everywhere else): the dashboard,
 the emails, the owner's pushes and the web checkout drop ".00" on a whole
 amount as the app does ("₺450", "Pay ₺750"), a fraction kept; receipts,
