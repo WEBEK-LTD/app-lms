@@ -10,6 +10,7 @@ import '../../../core/l10n.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/badge_mark.dart';
 import '../../../core/widgets/glass.dart';
+import '../../../core/widgets/images.dart';
 import '../../../core/widgets/sym.dart';
 import '../../profile/profile_page.dart' show linkYallapp;
 import '../data/verification_api.dart';
@@ -349,24 +350,7 @@ class _AppsList extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(
               children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(11),
-                    gradient: const LinearGradient(
-                      colors: [Brand.lilac, Brand.violet],
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    a.name.isEmpty ? '?' : a.name.characters.first,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
+                _AppIcon(app: a),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -634,6 +618,47 @@ class _FormState extends ConsumerState<_Form> {
         const SizedBox(height: 18),
         _Primary(label: l.verifySend, onTap: _send, busy: _sending),
       ],
+    );
+  }
+}
+
+/// An app's icon from the linked Yallapp account; its first letter on a
+/// violet tile while it has none.
+class _AppIcon extends StatelessWidget {
+  const _AppIcon({required this.app});
+
+  final LinkedApp app;
+
+  @override
+  Widget build(BuildContext context) {
+    final tile = Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(11),
+        gradient: const LinearGradient(colors: [Brand.lilac, Brand.violet]),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        app.name.isEmpty ? '?' : app.name.characters.first,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+    final url = app.iconUrl;
+    if (url == null) return tile;
+    return ClipRRect(
+      key: ValueKey('app-icon-${app.id}'),
+      borderRadius: BorderRadius.circular(11),
+      child: Image(
+        image: imageOf(url),
+        width: 36,
+        height: 36,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => tile,
+      ),
     );
   }
 }

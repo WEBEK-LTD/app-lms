@@ -49,6 +49,8 @@ void main() {
     await _scrollTo(tester, find.text('Send my request'));
     expect(find.text('From your linked Yallapp account'), findsOneWidget);
     expect(find.text('Lujain'), findsOneWidget);
+    // Each app's own icon from the linked account.
+    expect(find.byKey(const ValueKey('app-icon-app-0')), findsOneWidget);
     await shot(tester, 'verify-form-light-en');
   });
 

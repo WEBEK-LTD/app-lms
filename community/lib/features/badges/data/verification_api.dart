@@ -160,11 +160,22 @@ class FakeVerificationApi implements VerificationApi {
     'Masar',
   ];
 
+  static const _icons = [
+    'abaya-desert.jpg',
+    'bunny-knit.jpg',
+    'bath-set.jpg',
+    'bed-bright.jpg',
+    'beanie-girl.jpg',
+    'crochet-home.jpg',
+  ];
+
   List<LinkedApp> get _apps => [
     for (var i = 0; i < appCount; i++)
       LinkedApp(
         id: 'app-$i',
         name: _names[i % _names.length],
+        // The demo's own pictures stand in for the apps' icons.
+        iconUrl: 'asset:assets/images/${_icons[i % _icons.length]}',
         fromTemplate: i.isOdd,
       ),
   ];
