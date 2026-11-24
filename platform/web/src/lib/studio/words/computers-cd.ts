@@ -9,6 +9,11 @@ import { typeWords } from "./words";
  */
 export const COMPUTERS_CD_WORDS = typeWords({
   en: {
+    pbSpecsTitle: "Under the hood",
+    pbSpecsCode: "// SPECS",
+    pbFitTitle: "Build with it",
+    pwSheet: "Spec sheet",
+    pwBulkKicker: "10 devices or more",
     pbCart: "Cart",
     pwCart: "Cart",
     pwMenuButton: "Catalogue",
@@ -104,6 +109,11 @@ export const COMPUTERS_CD_WORDS = typeWords({
     pwSignIn: "Sign in for your orders, invoices and quotes.",
   },
   ar: {
+    pbSpecsTitle: "تحت الغطاء",
+    pbSpecsCode: "// المواصفات",
+    pbFitTitle: "جمّع معه",
+    pwSheet: "ورقة المواصفات",
+    pwBulkKicker: "عشرة أجهزة أو أكثر",
     pbCart: "السلة",
     pwCart: "السلة",
     pwMenuButton: "الكتالوج",
@@ -197,6 +207,11 @@ export const COMPUTERS_CD_WORDS = typeWords({
     pwSignIn: "سجّل الدخول لطلباتك وفواتيرك وعروض الأسعار.",
   },
   tr: {
+    pbSpecsTitle: "Kaputun altında",
+    pbSpecsCode: "// SPECS",
+    pbFitTitle: "Onunla topla",
+    pwSheet: "Teknik özellikler",
+    pwBulkKicker: "10 cihaz ve üzeri",
     pbCart: "Sepet",
     pwCart: "Sepet",
     pwMenuButton: "Katalog",

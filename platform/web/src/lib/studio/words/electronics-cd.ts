@@ -9,6 +9,8 @@ import { typeWords } from "./words";
  */
 export const ELECTRONICS_CD_WORDS = typeWords({
   en: {
+    ebPpKicker: "In the grid",
+    esPpKicker: "On stage",
     ebHeadLine: "Electronics, all in one grid",
     ebBag: "Bag",
     esBag: "Bag",
@@ -98,6 +100,8 @@ export const ELECTRONICS_CD_WORDS = typeWords({
     esSignInTitle: "Colour your tech",
   },
   ar: {
+    ebPpKicker: "في الشبكة",
+    esPpKicker: "على المسرح",
     ebHeadLine: "الإلكترونيات كلها في شبكة واحدة",
     ebBag: "الحقيبة",
     esBag: "الحقيبة",
@@ -185,6 +189,8 @@ export const ELECTRONICS_CD_WORDS = typeWords({
     esSignInTitle: "لوّن أجهزتك",
   },
   tr: {
+    ebPpKicker: "Izgarada",
+    esPpKicker: "Sahnede",
     ebHeadLine: "Tüm elektronik tek ızgarada",
     ebBag: "Sepet",
     esBag: "Sepet",

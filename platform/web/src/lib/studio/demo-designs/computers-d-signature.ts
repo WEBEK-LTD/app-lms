@@ -1,6 +1,7 @@
-import type { Action, FormField, LayoutTab, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
+import { STUDIO_PRODUCT_SCREEN, type Action, FormField, LayoutTab, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
 import type { SectionContext, SectionWord } from "../sections";
 import { installmentsTag } from "../installments";
+import { PRODUCT_PAGE_SLUG, productPart, type ProductPagePart } from "../product-page";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigTexts, signatureBar, signatureHeader, type SignatureInk } from "./food-signature-parts";
@@ -450,6 +451,74 @@ export function deskTabs(tabs: readonly LayoutTab[]): LayoutTab[] {
   });
 }
 
+function deskProductPage(ctx: SectionContext): { slug: string; title: SectionWord; studio: StudioPage } {
+  const id = idOf(ctx);
+  const part = (p: ProductPagePart): StudioNode => productPart(ctx, p);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const steel = { accent: K.fill, dark_accent: K.darkAccent } as const;
+  return {
+    slug: PRODUCT_PAGE_SLUG,
+    title: "pProductPage" as SectionWord,
+    studio: {
+      background: K.page,
+      dark_background: K.darkPage,
+      show_tabs: false,
+      screen: STUDIO_PRODUCT_SCREEN,
+      body: {
+        id: id(),
+        type: "column",
+        gap: 0,
+        padding: sides(56, 0, 24, 0),
+        children: [
+          // 227 Dense, a sheet under another: the photo and its thumbnails beside nothing else, the name and price in one sheet, the spec sheet next, then the business quote.
+          { id: id(), type: "column", gap: 0, ...sheet(), padding: sides(8, 8, 8, 8), margin: sides(0, 16, 0, 16), children: [part({ type: "product_gallery", look: "thumbs", radius: 6, node: { aspect_ratio: 16 / 10 } })] },
+          {
+            id: id(),
+            type: "column",
+            gap: 6,
+            ...sheet(),
+            padding: sides(12, 14, 12, 14),
+            margin: sides(8, 16, 0, 16),
+            children: [
+              part({ type: "product_title", look: "rating", ...steel, node: { ...ink, font: face(17, { weight: 600 }) } }),
+              part({ type: "product_price", look: "from", node: { color: K.accent, dark_color: K.darkAccent, font: face(17, { weight: 600 }) } }),
+              part({ type: "product_variants", look: "chips", ...steel, node: { ...ink, margin: sides(4, 0, 0, 0) } }),
+              part({ type: "product_quantity", look: "stepper", node: { ...ink } }),
+            ],
+          },
+          head(ctx, "pwSheet", null),
+          { id: id(), type: "column", gap: 0, ...sheet(), padding: sides(4, 12, 4, 12), margin: sides(0, 16, 0, 16), children: [part({ type: "product_specs", look: "table", rows: 16, node: { ...ink, font: { family: ALEX, size: 12.5, weight: 400 } } })] },
+          // The business quote, a steel line at its start.
+          {
+            id: id(),
+            type: "row",
+            name: ctx.w("pwQuoteTitle"),
+            gap: 10,
+            cross: "center",
+            ...sheet(),
+            corners: { top_start: 4, bottom_start: 4, top_end: R, bottom_end: R },
+            border_color: K.fill,
+            dark_border_color: K.darkFill,
+            padding: sides(12, 12, 12, 12),
+            margin: sides(12, 16, 0, 16),
+            action: ownPage(ctx, DESK_QUOTE_PAGE),
+            children: [
+              { id: id(), type: "icon", icon: "description", icon_size: 22, color: K.accent, dark_color: K.darkAccent },
+              { id: id(), type: "column", width: "fill", gap: 1, children: [say(ctx, "pwBulkKicker", { family: ALEX, size: 11, weight: 500 }, { accent: true, max_lines: 1 }), say(ctx, "pwQuoteTitle", face(13.5), { max_lines: 2 })] },
+              { id: id(), type: "icon", icon: "chevron_right", icon_size: 20, color: K.muted, dark_color: K.darkMuted },
+            ],
+          },
+          { id: id(), type: "column", gap: 0, ...sheet(), padding: sides(10, 12, 10, 12), margin: sides(12, 16, 0, 16), children: [part({ type: "product_delivery", look: "rows", ...steel, node: { ...ink } })] },
+          { id: id(), type: "column", gap: 0, ...sheet(), padding: sides(4, 12, 4, 12), margin: sides(12, 16, 0, 16), children: [part({ type: "product_description", look: "accordion", node: { ...ink } })] },
+          part({ type: "product_reviews", look: "summary", ...steel, node: { ...ink, margin: sides(14, 16, 0, 16) } }),
+          part({ type: "product_related", look: "grid", rows: 2, node: { ...ink, margin: sides(14, 10, 80, 10) } }),
+          part({ type: "product_buy", look: "cart", ...steel, node: { pin: "bottom", ...ink, radius: 0, padding: sides(10, 16, 12, 16), background: K.surface, dark_background: K.darkSurface, border_color: K.line, dark_border_color: K.darkLine, border_width: 1 } }),
+        ],
+      },
+    },
+  };
+}
+
 const DESK_SCREENS = signatureScreens({
   style: "minimal",
   photo: P("desk-coder"),
@@ -470,6 +539,8 @@ export const DESK_D: SignatureDesign = {
   over: deskOver,
   tabs: deskTabs,
   pages: (ctx) => [
+    // 227 Its own product page (228.7): a dense spec sheet and the business quote.
+    deskProductPage(ctx),
     { slug: DESK_MENU_PAGE, title: "pwMenu", studio: deskMenuPage(ctx) },
     { slug: DESK_QUOTE_PAGE, title: "pwQuotePage", studio: deskQuotePage(ctx) },
     { slug: DESK_COMPARE_PAGE, title: "pwComparePage", studio: deskComparePage(ctx) },

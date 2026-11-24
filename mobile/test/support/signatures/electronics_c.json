@@ -1766,11 +1766,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-106",
+      "id": "sig-128",
       "type": "column",
       "children": [
        {
-        "id": "sig-107",
+        "id": "sig-129",
         "type": "categories",
         "name": "Categories",
         "source": "products",
@@ -1785,7 +1785,7 @@
         }
        },
        {
-        "id": "sig-108",
+        "id": "sig-130",
         "type": "listing_filters",
         "name": "Every device, spec by spec",
         "color": "#0B1020",
@@ -1798,7 +1798,7 @@
         }
        },
        {
-        "id": "sig-109",
+        "id": "sig-131",
         "type": "photo_hero",
         "name": "Every device, spec by spec",
         "image_url": "http://localhost:3000/electronics-photos/w-laptop-chart.jpg",
@@ -1826,7 +1826,7 @@
         },
         "children": [
          {
-          "id": "sig-110",
+          "id": "sig-132",
           "type": "text",
           "text": "In the shop",
           "font": {
@@ -1847,7 +1847,7 @@
           }
          },
          {
-          "id": "sig-111",
+          "id": "sig-133",
           "type": "text",
           "text": "Every device, spec by spec",
           "font": {
@@ -1925,11 +1925,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-112",
+      "id": "sig-134",
       "type": "column",
       "children": [
        {
-        "id": "sig-113",
+        "id": "sig-135",
         "type": "coupon",
         "name": "Your code",
         "code": "MADAR10",
@@ -1947,7 +1947,7 @@
         }
        },
        {
-        "id": "sig-114",
+        "id": "sig-136",
         "type": "column",
         "name": "[Your returns and warranty in a line]",
         "gap": 10,
@@ -1971,13 +1971,13 @@
         "border_width": 1,
         "children": [
          {
-          "id": "sig-115",
+          "id": "sig-137",
           "type": "row",
           "gap": 10,
           "cross": "center",
           "children": [
            {
-            "id": "sig-116",
+            "id": "sig-138",
             "type": "icon",
             "icon": "verified",
             "icon_size": 22,
@@ -1985,7 +1985,7 @@
             "dark_color": "#5CB8FF"
            },
            {
-            "id": "sig-117",
+            "id": "sig-139",
             "type": "text",
             "text": "Returns within 14 days in the original box; the maker's warranty through us.",
             "font": {
@@ -2009,7 +2009,7 @@
           ]
          },
          {
-          "id": "sig-118",
+          "id": "sig-140",
           "type": "row",
           "name": "Installments coming soon",
           "width": "hug",
@@ -2027,7 +2027,7 @@
           "dark_background": "#1A2030",
           "children": [
            {
-            "id": "sig-119",
+            "id": "sig-141",
             "type": "icon",
             "icon": "schedule",
             "icon_size": 16,
@@ -2035,7 +2035,7 @@
             "dark_color": "#A0AABB"
            },
            {
-            "id": "sig-120",
+            "id": "sig-142",
             "type": "text",
             "text": "Installments coming soon",
             "max_lines": 2,
@@ -2102,11 +2102,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-121",
+      "id": "sig-143",
       "type": "column",
       "children": [
        {
-        "id": "sig-122",
+        "id": "sig-144",
         "type": "row",
         "name": "Your order's journey",
         "cross": "end",
@@ -2119,13 +2119,13 @@
         },
         "children": [
          {
-          "id": "sig-123",
+          "id": "sig-145",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-124",
+            "id": "sig-146",
             "type": "text",
             "text": "Your order's journey",
             "font": {
@@ -2151,7 +2151,7 @@
         ]
        },
        {
-        "id": "sig-125",
+        "id": "sig-147",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -2281,11 +2281,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-127",
+      "id": "sig-149",
       "type": "column",
       "children": [
        {
-        "id": "sig-126",
+        "id": "sig-148",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -2332,6 +2332,413 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#C9CFD9",
+     "dark_background": "#05070B",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-78",
+      "type": "column",
+      "gap": 10,
+      "padding": {
+       "top": 56,
+       "end": 16,
+       "bottom": 24,
+       "start": 16
+      },
+      "children": [
+       {
+        "id": "sig-80",
+        "type": "column",
+        "gap": 8,
+        "padding": {
+         "top": 8,
+         "end": 8,
+         "bottom": 8,
+         "start": 8
+        },
+        "radius": 22,
+        "background": "#161C27",
+        "dark_background": "#10141C",
+        "border_color": "#2A3242",
+        "dark_border_color": "#232A37",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-79",
+          "type": "product_gallery",
+          "aspect_ratio": 1,
+          "product_part": {
+           "look": "card",
+           "radius": 18
+          }
+         }
+        ]
+       },
+       {
+        "id": "sig-81",
+        "type": "row",
+        "gap": 10,
+        "children": [
+         {
+          "id": "sig-85",
+          "type": "column",
+          "gap": 8,
+          "padding": {
+           "top": 14,
+           "end": 14,
+           "bottom": 14,
+           "start": 14
+          },
+          "radius": 22,
+          "background": "#161C27",
+          "dark_background": "#10141C",
+          "border_color": "#2A3242",
+          "dark_border_color": "#232A37",
+          "border_width": 1,
+          "width": "fill",
+          "children": [
+           {
+            "id": "sig-82",
+            "type": "text",
+            "text": "In the grid",
+            "font": {
+             "family": "IBM Plex Sans Arabic",
+             "size": 11,
+             "weight": 600,
+             "letter_spacing": 0.4
+            },
+            "color": "#5CB8FF",
+            "dark_color": "#5CB8FF",
+            "max_lines": 1,
+            "translations": {
+             "ar": {
+              "text": "في الشبكة"
+             },
+             "tr": {
+              "text": "Izgarada"
+             }
+            }
+           },
+           {
+            "id": "sig-83",
+            "type": "product_title",
+            "font": {
+             "family": "IBM Plex Sans Arabic",
+             "size": 19,
+             "weight": 700,
+             "line_height": 1.22
+            },
+            "margin": {
+             "top": 16,
+             "end": 16,
+             "bottom": 4,
+             "start": 16
+            },
+            "product_part": {
+             "look": "plain"
+            },
+            "color": "#F2F5FA",
+            "dark_color": "#F2F5FA"
+           },
+           {
+            "id": "sig-84",
+            "type": "product_price",
+            "font": {
+             "family": "IBM Plex Sans Arabic",
+             "size": 20,
+             "weight": 700,
+             "line_height": 1.22
+            },
+            "margin": {
+             "top": 4,
+             "end": 16,
+             "bottom": 4,
+             "start": 16
+            },
+            "product_part": {
+             "look": "from"
+            },
+            "color": "#F2F5FA",
+            "dark_color": "#F2F5FA"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "sig-88",
+        "type": "column",
+        "gap": 8,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "radius": 22,
+        "background": "#161C27",
+        "dark_background": "#10141C",
+        "border_color": "#2A3242",
+        "dark_border_color": "#232A37",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-86",
+          "type": "product_variants",
+          "margin": {
+           "top": 12,
+           "end": 16,
+           "bottom": 4,
+           "start": 16
+          },
+          "product_part": {
+           "look": "chips",
+           "accent": "#5CB8FF",
+           "dark_accent": "#5CB8FF"
+          },
+          "color": "#F2F5FA",
+          "dark_color": "#F2F5FA"
+         },
+         {
+          "id": "sig-87",
+          "type": "product_quantity",
+          "margin": {
+           "top": 6,
+           "end": 0,
+           "bottom": 0,
+           "start": 0
+          },
+          "product_part": {
+           "look": "pill"
+          },
+          "color": "#F2F5FA",
+          "dark_color": "#F2F5FA"
+         }
+        ]
+       },
+       {
+        "id": "sig-91",
+        "type": "column",
+        "gap": 8,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "radius": 22,
+        "background": "#EEF1F6",
+        "dark_background": "#10141C",
+        "border_color": "#AEB7C6",
+        "dark_border_color": "#232A37",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-89",
+          "type": "text",
+          "text": "Specifications",
+          "font": {
+           "family": "IBM Plex Sans Arabic",
+           "size": 15,
+           "weight": 700,
+           "line_height": 1.22
+          },
+          "color": "#0B1020",
+          "dark_color": "#F2F5FA",
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "المواصفات"
+           },
+           "tr": {
+            "text": "Özellikler"
+           }
+          }
+         },
+         {
+          "id": "sig-90",
+          "type": "product_specs",
+          "margin": {
+           "top": 12,
+           "end": 16,
+           "bottom": 4,
+           "start": 16
+          },
+          "product_part": {
+           "look": "table",
+           "rows": 10
+          },
+          "color": "#0B1020",
+          "dark_color": "#F2F5FA"
+         }
+        ]
+       },
+       {
+        "id": "sig-93",
+        "type": "column",
+        "gap": 8,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "radius": 22,
+        "background": "#EEF1F6",
+        "dark_background": "#10141C",
+        "border_color": "#AEB7C6",
+        "dark_border_color": "#232A37",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-92",
+          "type": "product_delivery",
+          "margin": {
+           "top": 12,
+           "end": 16,
+           "bottom": 4,
+           "start": 16
+          },
+          "product_part": {
+           "look": "rows",
+           "accent": "#1F6FD1",
+           "dark_accent": "#5CB8FF"
+          },
+          "color": "#0B1020",
+          "dark_color": "#F2F5FA"
+         }
+        ]
+       },
+       {
+        "id": "sig-95",
+        "type": "column",
+        "gap": 8,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "radius": 22,
+        "background": "#EEF1F6",
+        "dark_background": "#10141C",
+        "border_color": "#AEB7C6",
+        "dark_border_color": "#232A37",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-94",
+          "type": "product_reviews",
+          "margin": {
+           "top": 12,
+           "end": 16,
+           "bottom": 4,
+           "start": 16
+          },
+          "product_part": {
+           "look": "summary",
+           "accent": "#1F6FD1",
+           "dark_accent": "#5CB8FF"
+          },
+          "color": "#0B1020",
+          "dark_color": "#F2F5FA"
+         }
+        ]
+       },
+       {
+        "id": "sig-97",
+        "type": "column",
+        "gap": 8,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "radius": 22,
+        "background": "#EEF1F6",
+        "dark_background": "#10141C",
+        "border_color": "#AEB7C6",
+        "dark_border_color": "#232A37",
+        "border_width": 1,
+        "children": [
+         {
+          "id": "sig-96",
+          "type": "product_description",
+          "margin": {
+           "top": 12,
+           "end": 16,
+           "bottom": 4,
+           "start": 16
+          },
+          "product_part": {
+           "look": "accordion"
+          },
+          "color": "#0B1020",
+          "dark_color": "#F2F5FA"
+         }
+        ]
+       },
+       {
+        "id": "sig-98",
+        "type": "product_related",
+        "margin": {
+         "top": 10,
+         "end": 0,
+         "bottom": 80,
+         "start": 0
+        },
+        "product_part": {
+         "look": "carousel",
+         "rows": 8
+        },
+        "color": "#0B1020",
+        "dark_color": "#F2F5FA"
+       },
+       {
+        "id": "sig-99",
+        "type": "product_buy",
+        "pin": "bottom",
+        "radius": 20,
+        "padding": {
+         "top": 10,
+         "end": 14,
+         "bottom": 10,
+         "start": 14
+        },
+        "product_part": {
+         "look": "price",
+         "accent": "#5CB8FF",
+         "dark_accent": "#5CB8FF"
+        },
+        "color": "#0B1020",
+        "dark_color": "#F2F5FA",
+        "background": "#EEF1F6",
+        "dark_background": "#121823",
+        "border_color": "#AEB7C6",
+        "dark_border_color": "#232A37",
+        "border_width": 1
+       }
+      ]
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "menu",
     "title": "All categories",
     "translations": {
@@ -2346,7 +2753,7 @@
      "background": "#C9CFD9",
      "dark_background": "#05070B",
      "body": {
-      "id": "sig-78",
+      "id": "sig-100",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2356,7 +2763,7 @@
       },
       "children": [
        {
-        "id": "sig-79",
+        "id": "sig-101",
         "type": "search",
         "name": "Search every category…",
         "text": "Search every category…",
@@ -2386,7 +2793,7 @@
         }
        },
        {
-        "id": "sig-80",
+        "id": "sig-102",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -2406,7 +2813,7 @@
         }
        },
        {
-        "id": "sig-81",
+        "id": "sig-103",
         "type": "row",
         "gap": 10,
         "margin": {
@@ -2417,7 +2824,7 @@
         },
         "children": [
          {
-          "id": "sig-82",
+          "id": "sig-104",
           "type": "column",
           "name": "My account",
           "width": "fill",
@@ -2442,7 +2849,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-83",
+            "id": "sig-105",
             "type": "icon",
             "icon": "person",
             "icon_size": 22,
@@ -2450,7 +2857,7 @@
             "dark_color": "#5CB8FF"
            },
            {
-            "id": "sig-84",
+            "id": "sig-106",
             "type": "text",
             "text": "My account",
             "font": {
@@ -2472,7 +2879,7 @@
           ]
          },
          {
-          "id": "sig-85",
+          "id": "sig-107",
           "type": "column",
           "name": "My orders",
           "width": "fill",
@@ -2497,7 +2904,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-86",
+            "id": "sig-108",
             "type": "icon",
             "icon": "package_2",
             "icon_size": 22,
@@ -2505,7 +2912,7 @@
             "dark_color": "#5CB8FF"
            },
            {
-            "id": "sig-87",
+            "id": "sig-109",
             "type": "text",
             "text": "My orders",
             "font": {
@@ -2527,7 +2934,7 @@
           ]
          },
          {
-          "id": "sig-88",
+          "id": "sig-110",
           "type": "column",
           "name": "Wishlist",
           "width": "fill",
@@ -2552,7 +2959,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-89",
+            "id": "sig-111",
             "type": "icon",
             "icon": "favorite",
             "icon_size": 22,
@@ -2560,7 +2967,7 @@
             "dark_color": "#5CB8FF"
            },
            {
-            "id": "sig-90",
+            "id": "sig-112",
             "type": "text",
             "text": "Wishlist",
             "font": {
@@ -2584,7 +2991,7 @@
         ]
        },
        {
-        "id": "sig-91",
+        "id": "sig-113",
         "type": "row",
         "gap": 10,
         "margin": {
@@ -2595,7 +3002,7 @@
         },
         "children": [
          {
-          "id": "sig-92",
+          "id": "sig-114",
           "type": "column",
           "name": "Language",
           "width": "fill",
@@ -2620,7 +3027,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-93",
+            "id": "sig-115",
             "type": "icon",
             "icon": "language",
             "icon_size": 22,
@@ -2628,7 +3035,7 @@
             "dark_color": "#5CB8FF"
            },
            {
-            "id": "sig-94",
+            "id": "sig-116",
             "type": "text",
             "text": "Language",
             "font": {
@@ -2650,7 +3057,7 @@
           ]
          },
          {
-          "id": "sig-95",
+          "id": "sig-117",
           "type": "column",
           "name": "Contact us",
           "width": "fill",
@@ -2675,7 +3082,7 @@
           "border_width": 1,
           "children": [
            {
-            "id": "sig-96",
+            "id": "sig-118",
             "type": "icon",
             "icon": "support_agent",
             "icon_size": 22,
@@ -2683,7 +3090,7 @@
             "dark_color": "#5CB8FF"
            },
            {
-            "id": "sig-97",
+            "id": "sig-119",
             "type": "text",
             "text": "Contact us",
             "font": {
@@ -2707,7 +3114,7 @@
         ]
        },
        {
-        "id": "sig-98",
+        "id": "sig-120",
         "type": "text",
         "text": "Every day, 9 am to 11 pm",
         "font": {
@@ -2773,7 +3180,7 @@
      "background": "#C9CFD9",
      "dark_background": "#05070B",
      "body": {
-      "id": "sig-99",
+      "id": "sig-121",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2783,7 +3190,7 @@
       },
       "children": [
        {
-        "id": "sig-100",
+        "id": "sig-122",
         "type": "text",
         "text": "Spec by spec",
         "font": {
@@ -2807,7 +3214,7 @@
         }
        },
        {
-        "id": "sig-101",
+        "id": "sig-123",
         "type": "compare",
         "name": "Compare two devices",
         "tech": {
@@ -2836,7 +3243,7 @@
         }
        },
        {
-        "id": "sig-102",
+        "id": "sig-124",
         "type": "row",
         "name": "Specifications",
         "cross": "end",
@@ -2849,13 +3256,13 @@
         },
         "children": [
          {
-          "id": "sig-103",
+          "id": "sig-125",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-104",
+            "id": "sig-126",
             "type": "text",
             "text": "Specifications",
             "font": {
@@ -2881,7 +3288,7 @@
         ]
        },
        {
-        "id": "sig-105",
+        "id": "sig-127",
         "type": "spec_table",
         "name": "Specifications",
         "text": "Specifications",
@@ -2957,7 +3364,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-128",
+      "id": "sig-150",
       "type": "column",
       "children": []
      },
@@ -2999,7 +3406,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-129",
+      "id": "sig-151",
       "type": "column",
       "children": []
      },
@@ -3041,7 +3448,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-130",
+      "id": "sig-152",
       "type": "column",
       "children": []
      },
@@ -3083,7 +3490,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-131",
+      "id": "sig-153",
       "type": "column",
       "children": []
      },
@@ -3125,7 +3532,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-132",
+      "id": "sig-154",
       "type": "column",
       "children": []
      },
@@ -3159,7 +3566,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-133",
+      "id": "sig-155",
       "type": "column",
       "children": []
      },
@@ -3176,7 +3583,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-134",
+      "id": "sig-156",
       "type": "column",
       "children": []
      },

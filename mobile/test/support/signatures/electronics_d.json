@@ -1879,11 +1879,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-115",
+      "id": "sig-129",
       "type": "column",
       "children": [
        {
-        "id": "sig-116",
+        "id": "sig-130",
         "type": "categories",
         "name": "Categories",
         "source": "products",
@@ -1898,7 +1898,7 @@
         }
        },
        {
-        "id": "sig-117",
+        "id": "sig-131",
         "type": "row",
         "name": "Find your colour",
         "gap": 12,
@@ -1924,13 +1924,13 @@
         },
         "children": [
          {
-          "id": "sig-118",
+          "id": "sig-132",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-119",
+            "id": "sig-133",
             "type": "text",
             "text": "Fresh in",
             "font": {
@@ -1951,7 +1951,7 @@
             }
            },
            {
-            "id": "sig-120",
+            "id": "sig-134",
             "type": "text",
             "text": "Find your colour",
             "font": {
@@ -1975,7 +1975,7 @@
           ]
          },
          {
-          "id": "sig-121",
+          "id": "sig-135",
           "type": "icon",
           "icon": "sell",
           "icon_size": 26,
@@ -1994,7 +1994,7 @@
         ]
        },
        {
-        "id": "sig-122",
+        "id": "sig-136",
         "type": "listing_filters",
         "name": "Find your colour",
         "color": "#141218",
@@ -2049,11 +2049,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-123",
+      "id": "sig-137",
       "type": "column",
       "children": [
        {
-        "id": "sig-124",
+        "id": "sig-138",
         "type": "coupon",
         "name": "Your code",
         "code": "MADAR10",
@@ -2071,7 +2071,7 @@
         }
        },
        {
-        "id": "sig-125",
+        "id": "sig-139",
         "type": "column",
         "name": "[Your returns and warranty in a line]",
         "gap": 10,
@@ -2092,13 +2092,13 @@
         "dark_background": "#0C8C63",
         "children": [
          {
-          "id": "sig-126",
+          "id": "sig-140",
           "type": "row",
           "gap": 12,
           "cross": "center",
           "children": [
            {
-            "id": "sig-127",
+            "id": "sig-141",
             "type": "icon",
             "icon": "verified",
             "icon_size": 22,
@@ -2106,7 +2106,7 @@
             "dark_color": "#FFFFFF"
            },
            {
-            "id": "sig-128",
+            "id": "sig-142",
             "type": "text",
             "text": "Returns within 14 days in the original box; the maker's warranty through us.",
             "font": {
@@ -2130,7 +2130,7 @@
           ]
          },
          {
-          "id": "sig-129",
+          "id": "sig-143",
           "type": "row",
           "name": "Installments coming soon",
           "width": "hug",
@@ -2148,7 +2148,7 @@
           "dark_background": "#096B4C",
           "children": [
            {
-            "id": "sig-130",
+            "id": "sig-144",
             "type": "icon",
             "icon": "schedule",
             "icon_size": 16,
@@ -2156,7 +2156,7 @@
             "dark_color": "#FFFFFF"
            },
            {
-            "id": "sig-131",
+            "id": "sig-145",
             "type": "text",
             "text": "Installments coming soon",
             "max_lines": 2,
@@ -2223,11 +2223,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-132",
+      "id": "sig-146",
       "type": "column",
       "children": [
        {
-        "id": "sig-133",
+        "id": "sig-147",
         "type": "row",
         "name": "Your order's journey",
         "cross": "end",
@@ -2240,13 +2240,13 @@
         },
         "children": [
          {
-          "id": "sig-134",
+          "id": "sig-148",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-135",
+            "id": "sig-149",
             "type": "text",
             "text": "Your order's journey",
             "font": {
@@ -2272,7 +2272,7 @@
         ]
        },
        {
-        "id": "sig-136",
+        "id": "sig-150",
         "type": "timeline",
         "name": "Your order's journey",
         "timeline": {
@@ -2402,11 +2402,11 @@
     },
     "studio": {
      "body": {
-      "id": "sig-138",
+      "id": "sig-152",
       "type": "column",
       "children": [
        {
-        "id": "sig-137",
+        "id": "sig-151",
         "type": "button",
         "name": "Sign out",
         "text": "Sign out",
@@ -2453,6 +2453,280 @@
     "blocks": []
    },
    {
+    "slug": "product",
+    "title": "Product page",
+    "translations": {
+     "ar": {
+      "title": "صفحة المنتج"
+     },
+     "tr": {
+      "title": "Ürün sayfası"
+     }
+    },
+    "studio": {
+     "background": "#FBF8F3",
+     "dark_background": "#110F13",
+     "show_tabs": false,
+     "screen": "product",
+     "body": {
+      "id": "sig-89",
+      "type": "column",
+      "gap": 0,
+      "padding": {
+       "top": 0,
+       "end": 0,
+       "bottom": 24,
+       "start": 0
+      },
+      "children": [
+       {
+        "id": "sig-90",
+        "type": "column",
+        "gap": 10,
+        "padding": {
+         "top": 64,
+         "end": 20,
+         "bottom": 26,
+         "start": 20
+        },
+        "corners": {
+         "top_start": 0,
+         "top_end": 0,
+         "bottom_start": 40,
+         "bottom_end": 40
+        },
+        "background": "#3B5BFF",
+        "dark_background": "#3350E8",
+        "children": [
+         {
+          "id": "sig-91",
+          "type": "text",
+          "text": "On stage",
+          "font": {
+           "family": "El Messiri",
+           "size": 13.5,
+           "weight": 600
+          },
+          "color": "#FFFFFF",
+          "dark_color": "#FFFFFF",
+          "opacity": 0.86,
+          "max_lines": 1,
+          "translations": {
+           "ar": {
+            "text": "على المسرح"
+           },
+           "tr": {
+            "text": "Sahnede"
+           }
+          }
+         },
+         {
+          "id": "sig-92",
+          "type": "product_gallery",
+          "aspect_ratio": 1,
+          "product_part": {
+           "look": "card",
+           "radius": 28
+          },
+          "shadow": "strong"
+         }
+        ]
+       },
+       {
+        "id": "sig-93",
+        "type": "product_variants",
+        "margin": {
+         "top": 18,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "swatches",
+         "accent": "#FF5A36",
+         "dark_accent": "#FF5A36"
+        },
+        "color": "#141218",
+        "dark_color": "#F7F3EE"
+       },
+       {
+        "id": "sig-94",
+        "type": "product_title",
+        "font": {
+         "family": "El Messiri",
+         "size": 30,
+         "weight": 700,
+         "line_height": 1.15
+        },
+        "margin": {
+         "top": 14,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "rating",
+         "accent": "#FF5A36",
+         "dark_accent": "#FF5A36"
+        },
+        "color": "#141218",
+        "dark_color": "#F7F3EE"
+       },
+       {
+        "id": "sig-95",
+        "type": "product_price",
+        "font": {
+         "family": "El Messiri",
+         "size": 24,
+         "weight": 700,
+         "line_height": 1.15
+        },
+        "margin": {
+         "top": 6,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "sale"
+        },
+        "color": "#141218",
+        "dark_color": "#F7F3EE"
+       },
+       {
+        "id": "sig-96",
+        "type": "product_quantity",
+        "margin": {
+         "top": 16,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "stepper"
+        },
+        "color": "#141218",
+        "dark_color": "#F7F3EE"
+       },
+       {
+        "id": "sig-97",
+        "type": "product_delivery",
+        "margin": {
+         "top": 20,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "card",
+         "accent": "#141218",
+         "dark_accent": "#141218"
+        },
+        "color": "#141218",
+        "dark_color": "#141218",
+        "background": "#FFC531",
+        "dark_background": "#F0B51D",
+        "radius": 28,
+        "padding": {
+         "top": 16,
+         "end": 18,
+         "bottom": 16,
+         "start": 18
+        }
+       },
+       {
+        "id": "sig-98",
+        "type": "product_description",
+        "margin": {
+         "top": 20,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "plain"
+        },
+        "color": "#141218",
+        "dark_color": "#F7F3EE"
+       },
+       {
+        "id": "sig-99",
+        "type": "product_specs",
+        "margin": {
+         "top": 18,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "list",
+         "rows": 8
+        },
+        "color": "#141218",
+        "dark_color": "#F7F3EE"
+       },
+       {
+        "id": "sig-100",
+        "type": "product_reviews",
+        "margin": {
+         "top": 22,
+         "end": 20,
+         "bottom": 0,
+         "start": 20
+        },
+        "product_part": {
+         "look": "bars",
+         "accent": "#FF5A36",
+         "dark_accent": "#FF5A36"
+        },
+        "color": "#141218",
+        "dark_color": "#F7F3EE"
+       },
+       {
+        "id": "sig-101",
+        "type": "product_related",
+        "margin": {
+         "top": 22,
+         "end": 12,
+         "bottom": 90,
+         "start": 12
+        },
+        "product_part": {
+         "look": "grid",
+         "rows": 4
+        },
+        "color": "#141218",
+        "dark_color": "#F7F3EE"
+       },
+       {
+        "id": "sig-102",
+        "type": "product_buy",
+        "pin": "bottom",
+        "radius": 30,
+        "padding": {
+         "top": 10,
+         "end": 16,
+         "bottom": 14,
+         "start": 16
+        },
+        "product_part": {
+         "look": "cart",
+         "accent": "#FF5A36",
+         "dark_accent": "#FF5A36"
+        },
+        "background": "#FBF8F3",
+        "dark_background": "#110F13",
+        "color": "#141218",
+        "dark_color": "#F7F3EE"
+       }
+      ]
+     }
+    },
+    "show_title": false,
+    "updated_at": "2026-11-13T18:00:00.000Z",
+    "blocks": []
+   },
+   {
     "slug": "menu",
     "title": "All categories",
     "translations": {
@@ -2467,7 +2741,7 @@
      "background": "#FBF8F3",
      "dark_background": "#110F13",
      "body": {
-      "id": "sig-89",
+      "id": "sig-103",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2477,7 +2751,7 @@
       },
       "children": [
        {
-        "id": "sig-90",
+        "id": "sig-104",
         "type": "search",
         "name": "What are you looking for?",
         "text": "What are you looking for?",
@@ -2507,7 +2781,7 @@
         }
        },
        {
-        "id": "sig-91",
+        "id": "sig-105",
         "type": "categories",
         "name": "All categories",
         "source": "products",
@@ -2527,7 +2801,7 @@
         }
        },
        {
-        "id": "sig-92",
+        "id": "sig-106",
         "type": "row",
         "gap": 10,
         "margin": {
@@ -2538,7 +2812,7 @@
         },
         "children": [
          {
-          "id": "sig-93",
+          "id": "sig-107",
           "type": "row",
           "name": "My account",
           "width": "fill",
@@ -2560,7 +2834,7 @@
           "dark_background": "#E4482A",
           "children": [
            {
-            "id": "sig-94",
+            "id": "sig-108",
             "type": "icon",
             "icon": "person",
             "icon_size": 20,
@@ -2568,7 +2842,7 @@
             "dark_color": "#FFFFFF"
            },
            {
-            "id": "sig-95",
+            "id": "sig-109",
             "type": "text",
             "text": "My account",
             "font": {
@@ -2591,7 +2865,7 @@
           ]
          },
          {
-          "id": "sig-96",
+          "id": "sig-110",
           "type": "row",
           "name": "My orders",
           "width": "fill",
@@ -2613,7 +2887,7 @@
           "dark_background": "#3350E8",
           "children": [
            {
-            "id": "sig-97",
+            "id": "sig-111",
             "type": "icon",
             "icon": "package_2",
             "icon_size": 20,
@@ -2621,7 +2895,7 @@
             "dark_color": "#FFFFFF"
            },
            {
-            "id": "sig-98",
+            "id": "sig-112",
             "type": "text",
             "text": "My orders",
             "font": {
@@ -2646,7 +2920,7 @@
         ]
        },
        {
-        "id": "sig-99",
+        "id": "sig-113",
         "type": "row",
         "gap": 10,
         "margin": {
@@ -2657,7 +2931,7 @@
         },
         "children": [
          {
-          "id": "sig-100",
+          "id": "sig-114",
           "type": "row",
           "name": "Wishlist",
           "width": "fill",
@@ -2679,7 +2953,7 @@
           "dark_background": "#0C8C63",
           "children": [
            {
-            "id": "sig-101",
+            "id": "sig-115",
             "type": "icon",
             "icon": "favorite",
             "icon_size": 20,
@@ -2687,7 +2961,7 @@
             "dark_color": "#FFFFFF"
            },
            {
-            "id": "sig-102",
+            "id": "sig-116",
             "type": "text",
             "text": "Wishlist",
             "font": {
@@ -2710,7 +2984,7 @@
           ]
          },
          {
-          "id": "sig-103",
+          "id": "sig-117",
           "type": "row",
           "name": "Language",
           "width": "fill",
@@ -2732,7 +3006,7 @@
           "dark_background": "#F0B51D",
           "children": [
            {
-            "id": "sig-104",
+            "id": "sig-118",
             "type": "icon",
             "icon": "language",
             "icon_size": 20,
@@ -2740,7 +3014,7 @@
             "dark_color": "#141218"
            },
            {
-            "id": "sig-105",
+            "id": "sig-119",
             "type": "text",
             "text": "Language",
             "font": {
@@ -2765,7 +3039,7 @@
         ]
        },
        {
-        "id": "sig-106",
+        "id": "sig-120",
         "type": "row",
         "name": "Talk to us",
         "gap": 12,
@@ -2791,7 +3065,7 @@
         },
         "children": [
          {
-          "id": "sig-107",
+          "id": "sig-121",
           "type": "icon",
           "icon": "support_agent",
           "icon_size": 22,
@@ -2799,13 +3073,13 @@
           "dark_color": "#FFFFFF"
          },
          {
-          "id": "sig-108",
+          "id": "sig-122",
           "type": "column",
           "width": "fill",
           "gap": 2,
           "children": [
            {
-            "id": "sig-109",
+            "id": "sig-123",
             "type": "text",
             "text": "Talk to us",
             "font": {
@@ -2825,7 +3099,7 @@
             }
            },
            {
-            "id": "sig-110",
+            "id": "sig-124",
             "type": "text",
             "text": "Every day, 9 am to 11 pm",
             "font": {
@@ -2890,7 +3164,7 @@
      "background": "#FBF8F3",
      "dark_background": "#110F13",
      "body": {
-      "id": "sig-111",
+      "id": "sig-125",
       "type": "column",
       "padding": {
        "top": 0,
@@ -2900,7 +3174,7 @@
       },
       "children": [
        {
-        "id": "sig-112",
+        "id": "sig-126",
         "type": "text",
         "text": "Two devices, every spec",
         "font": {
@@ -2925,7 +3199,7 @@
         }
        },
        {
-        "id": "sig-113",
+        "id": "sig-127",
         "type": "compare",
         "name": "Side by side",
         "tech": {
@@ -2954,7 +3228,7 @@
         }
        },
        {
-        "id": "sig-114",
+        "id": "sig-128",
         "type": "spec_table",
         "name": "Side by side",
         "text": "Side by side",
@@ -3027,7 +3301,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-139",
+      "id": "sig-153",
       "type": "column",
       "children": []
      },
@@ -3069,7 +3343,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-140",
+      "id": "sig-154",
       "type": "column",
       "children": []
      },
@@ -3111,7 +3385,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-141",
+      "id": "sig-155",
       "type": "column",
       "children": []
      },
@@ -3153,7 +3427,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-142",
+      "id": "sig-156",
       "type": "column",
       "children": []
      },
@@ -3195,7 +3469,7 @@
     },
     "studio": {
      "body": {
-      "id": "sig-143",
+      "id": "sig-157",
       "type": "column",
       "children": []
      },
@@ -3229,7 +3503,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "sig-144",
+      "id": "sig-158",
       "type": "column",
       "children": []
      },
@@ -3246,7 +3520,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "sig-145",
+      "id": "sig-159",
       "type": "column",
       "children": []
      },

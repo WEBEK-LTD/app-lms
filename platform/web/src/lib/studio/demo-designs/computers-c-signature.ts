@@ -1,6 +1,7 @@
-import type { Action, LayoutTab, StudioCorners, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
+import { STUDIO_PRODUCT_SCREEN, type Action, LayoutTab, StudioCorners, StudioFont, StudioNode, StudioPage, StudioSides } from "../../pages/types";
 import type { SectionContext, SectionWord } from "../sections";
 import { installmentsTag } from "../installments";
+import { PRODUCT_PAGE_SLUG, productPart, type ProductPagePart } from "../product-page";
 import { idOf, screen } from "./parts";
 import { signatureScreens, type SignatureDesign } from "./signature";
 import { inked, sides, sigEntry, sigPhoto, sigTexts, signatureBar, signatureHeader, type SignatureInk } from "./food-signature-parts";
@@ -467,6 +468,67 @@ export function battleTabs(tabs: readonly LayoutTab[]): LayoutTab[] {
   });
 }
 
+function battleProductPage(ctx: SectionContext): { slug: string; title: SectionWord; studio: StudioPage } {
+  const id = idOf(ctx);
+  const part = (p: ProductPagePart): StudioNode => productPart(ctx, p);
+  const ink = { color: K.ink, dark_color: K.darkInk } as const;
+  const neonInk = on("#F1F3FA");
+  const magenta = { accent: NEON.magenta, dark_accent: NEON.magenta } as const;
+  // The spec block is white by day: the app draws a table's stripes and labels in its own day colours.
+  const blackCard = (children: StudioNode[], edge: string = NEON.magenta, day: string = BLACK): StudioNode => ({
+    id: id(),
+    type: "column",
+    gap: 10,
+    corners: CUT(22),
+    padding: sides(16, 16, 16, 16),
+    background: day,
+    dark_background: BLACK,
+    border_color: edge,
+    dark_border_color: edge,
+    border_width: 1.5,
+    surface: { glow: edge },
+    children,
+  });
+  return {
+    slug: PRODUCT_PAGE_SLUG,
+    title: "pProductPage" as SectionWord,
+    studio: {
+      background: K.page,
+      dark_background: K.darkPage,
+      show_tabs: false,
+      screen: STUDIO_PRODUCT_SCREEN,
+      body: {
+        id: id(),
+        type: "column",
+        gap: 12,
+        padding: sides(56, 16, 24, 16),
+        children: [
+          // 227 The part in a black cut-corner frame that glows, its photos with their thumbnails.
+          blackCard([part({ type: "product_gallery", look: "thumbs", radius: 0, node: { aspect_ratio: 4 / 3 } })]),
+          part({ type: "product_title", look: "rating", ...magenta, node: { ...ink, font: face(25), margin: sides(4, 2, 0, 2) } }),
+          part({ type: "product_price", look: "from", node: { color: "#B80F86", dark_color: NEON.magenta, font: face(24), margin: sides(0, 2, 0, 2) } }),
+          part({ type: "product_variants", look: "grid", ...magenta, node: { ...ink } }),
+          // The spec block: black, a cyan edge, its code and title, the table in light words.
+          blackCard(
+            [
+              { id: id(), type: "row", gap: 8, cross: "end", children: [say(ctx, "pbSpecsTitle", face(18), { color: K.ink, dark_color: "#F1F3FA", max_lines: 1 }), say(ctx, "pbSpecsCode", { family: CHANGA, size: 12, weight: 800, letter_spacing: 1 }, { color: "#0A7F94", dark_color: NEON.cyan, max_lines: 1 })] },
+              part({ type: "product_specs", look: "table", rows: 12, node: { color: K.ink, dark_color: "#F1F3FA" } }),
+            ],
+            NEON.cyan,
+            "#FFFFFF",
+          ),
+          part({ type: "product_quantity", look: "stepper", node: { ...ink } }),
+          part({ type: "product_delivery", look: "rows", ...magenta, node: { ...ink, ...card({ corners: CUT(16) }), padding: sides(12, 14, 12, 14) } }),
+          part({ type: "product_reviews", look: "bars", ...magenta, node: { ...ink } }),
+          part({ type: "product_description", look: "accordion", node: { ...ink } }),
+          part({ type: "product_related", look: "carousel", related: "related", text: "pbFitTitle", rows: 8, node: { ...ink, margin: sides(0, 0, 84, 0) } }),
+          part({ type: "product_buy", look: "buy_now", ...magenta, node: { pin: "bottom", ...neonInk, corners: CUT(18), padding: sides(10, 14, 10, 14), background: BLACK, dark_background: BLACK, border_color: NEON.cyan, dark_border_color: NEON.cyan, border_width: 1 } }),
+        ],
+      },
+    },
+  };
+}
+
 const BATTLE_SCREENS = signatureScreens({
   style: "photo",
   photo: P("setup-purple"),
@@ -488,6 +550,8 @@ export const BATTLE_C: SignatureDesign = {
   over: battleOver,
   tabs: battleTabs,
   pages: (ctx) => [
+    // 227 Its own product page (228.7): the part in neon cut-corner frames.
+    battleProductPage(ctx),
     { slug: BATTLE_MENU_PAGE, title: "pbMenu", studio: battleMenuPage(ctx) },
     { slug: BATTLE_BUILD_PAGE, title: "pbBuildPage", studio: battleBuildPage(ctx) },
   ],
