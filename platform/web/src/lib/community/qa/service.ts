@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { qaHooks } from "./hooks";
+import { qaHooks, type ModeratedKind } from "./hooks";
 import { MemoryQaStore } from "./memory";
-import type { AnswerRecord, QaStore, QuestionFilter, QuestionRecord, ReplyRecord, SectionRecord, TagRecord, TutorialRecord } from "./store";
-import { LIMITS, POINTS, SIMILAR_MIN, cursorOf, excerpt, links, offsetOf, rankOf, similarity, slugify, tagOf, words } from "./text";
+import type { AnswerRecord, QaStore, QuestionFilter, QuestionOrder, QuestionRecord, ReplyRecord, SectionRecord, TagRecord, TutorialRecord } from "./store";
+import { LIMITS, POINTS, SIMILAR_MIN, cursorOf, excerpt, offsetOf, rankOf, similarity, slugify, tagOf, words } from "./text";
 import {
   QaError,
   type Answer,
@@ -10,16 +10,17 @@ import {
   type CommunityLang,
   type ContentStatus,
   type MemberQaStats,
-  type MemberRef,
+  type MemberSummary,
   type Page,
-  type QuestionDetail,
+  type Question,
+  type QuestionFilterName,
+  type QuestionSort,
   type QuestionSummary,
-  type QuestionTab,
   type Reply,
   type Section,
-  type SectionRef,
+  type SectionKind,
   type Tag,
-  type TutorialDetail,
+  type Tutorial,
   type TutorialKind,
   type TutorialLevel,
   type TutorialSummary,
@@ -28,18 +29,20 @@ import {
 } from "./types";
 
 /**
- * 231 Yallapp Community's Q&A and official tutorials (area B): asking,
- * answering, voting, accepting, official answers, sections and tags,
- * search and similar questions; the tutorials, articles and videos. The
- * site calls these directly; the API (/api/community/v1) and the app
- * through it.
+ * 231 Yallapp Community's Q&A and official tutorials (area B): asking with
+ * the similar questions first, answering (official answers from Yallapp's
+ * team), replies, votes and their points, accepting, editing and deleting
+ * one's own, sections and tags, the filters and sorts, search, saved posts
+ * and the team's tutorials (articles and videos by section, level and
+ * language). The site calls these directly; the app through the API
+ * (lib/community/api/qa-routes.ts, docs/api/community.yaml).
  */
 
 // ——— The store ———
 
 let store: QaStore | null = null;
 
-/** The Q&A's storage: memory until the database's is set (./sql.ts sets it at start-up; tests set their own). */
+/** The Q&A's storage: memory until the database's is set (lib/community/store sets it); tests set their own. */
 export function qaStore(): QaStore {
   return (store ??= new MemoryQaStore());
 }
@@ -48,184 +51,230 @@ export function setQaStore(next: QaStore | null): void {
   seeded = null;
 }
 
-// ——— Sections: the ones the community starts with ———
+const SHOWN: readonly ContentStatus[] = ["published"];
 
-/** The sections the community starts with (desktop mockup's "My sections" and the questions' chips). */
-export const DEFAULT_SECTIONS: readonly Omit<SectionRecord, "id">[] = [
-  { slug: "stores", icon: "storefront", sort: 10, names: { en: "Stores", ar: "المتاجر", tr: "Mağazalar" } },
-  { slug: "studio", icon: "design_services", sort: 20, names: { en: "Studio", ar: "Studio", tr: "Studio" } },
-  { slug: "restaurants", icon: "restaurant", sort: 30, names: { en: "Restaurants & delivery", ar: "المطاعم والتوصيل", tr: "Restoranlar ve teslimat" } },
-  { slug: "publishing", icon: "rocket_launch", sort: 40, names: { en: "Publishing to the stores", ar: "النشر على المتاجر", tr: "Mağazalarda yayınlama" } },
-  { slug: "payments", icon: "payments", sort: 50, names: { en: "Payments", ar: "الدفع", tr: "Ödemeler" } },
-  { slug: "courses", icon: "school", sort: 60, names: { en: "Courses & academies", ar: "الدورات والأكاديميات", tr: "Kurslar ve akademiler" } },
-  { slug: "design", icon: "palette", sort: 70, names: { en: "Design", ar: "التصميم", tr: "Tasarım" } },
-  { slug: "general", icon: "forum", sort: 80, names: { en: "General", ar: "عام", tr: "Genel" } },
+// ——— Sections ———
+
+/** The sections the community starts with, for questions and for tutorials (the desktop mockup's "My sections" and the questions' chips). */
+export const DEFAULT_SECTIONS: readonly Omit<SectionRecord, "id" | "kind">[] = [
+  { slug: "stores", icon: "storefront", position: 10, names: { en: "Stores", ar: "المتاجر", tr: "Mağazalar" } },
+  { slug: "studio", icon: "design_services", position: 20, names: { en: "Studio", ar: "Studio", tr: "Studio" } },
+  { slug: "restaurants", icon: "restaurant", position: 30, names: { en: "Restaurants & delivery", ar: "المطاعم والتوصيل", tr: "Restoranlar ve teslimat" } },
+  { slug: "publishing", icon: "rocket_launch", position: 40, names: { en: "Publishing to the stores", ar: "النشر على المتاجر", tr: "Mağazalarda yayınlama" } },
+  { slug: "payments", icon: "payments", position: 50, names: { en: "Payments", ar: "الدفع", tr: "Ödemeler" } },
+  { slug: "courses", icon: "school", position: 60, names: { en: "Courses & academies", ar: "الدورات والأكاديميات", tr: "Kurslar ve akademiler" } },
+  { slug: "design", icon: "palette", position: 70, names: { en: "Design", ar: "التصميم", tr: "Tasarım" } },
+  { slug: "general", icon: "forum", position: 80, names: { en: "General", ar: "عام", tr: "Genel" } },
 ];
 
 let seeded: Promise<void> | null = null;
 function ensureSections(): Promise<void> {
   return (seeded ??= (async () => {
-    const had = new Set((await qaStore().listSections()).map((s) => s.slug));
-    for (const s of DEFAULT_SECTIONS) if (!had.has(s.slug)) await qaStore().upsertSection({ ...s, id: randomUUID() });
-  })());
+    for (const kind of ["qa", "tutorial"] as const) {
+      const had = new Set((await qaStore().listSections(kind)).map((s) => s.slug));
+      for (const s of DEFAULT_SECTIONS) if (!had.has(s.slug)) await qaStore().upsertSection({ ...s, kind, id: randomUUID() });
+    }
+  })().catch((e) => {
+    seeded = null;
+    throw e;
+  }));
 }
 
-async function sectionsBy(): Promise<{ byId: Map<string, SectionRecord>; bySlug: Map<string, SectionRecord> }> {
+async function sectionsOf(kind: SectionKind): Promise<{ byId: Map<string, SectionRecord>; bySlug: Map<string, SectionRecord> }> {
   await ensureSections();
-  const all = await qaStore().listSections();
+  const all = await qaStore().listSections(kind);
   return { byId: new Map(all.map((s) => [s.id, s])), bySlug: new Map(all.map((s) => [s.slug, s])) };
 }
 
-const sectionRef = (s: SectionRecord | undefined, lang: CommunityLang): SectionRef => (s ? { slug: s.slug, name: s.names[lang] || s.names.en } : { slug: "general", name: "General" });
+const sectionOf = (s: SectionRecord | undefined, lang: CommunityLang, count = 0, followed = false): Section =>
+  s ? { slug: s.slug, name: s.names[lang] || s.names.en, icon: s.icon, count, comingSoon: false, followed } : { slug: "general", name: "General", icon: "forum", count, comingSoon: false, followed };
 
-export async function listSections(viewerId: string | null, lang: CommunityLang): Promise<Section[]> {
-  const { byId } = await sectionsBy();
-  const counts = await qaStore().countQuestionsBy();
-  const followed = new Set(viewerId ? await qaStore().followedSectionIds(viewerId) : []);
-  return [...byId.values()].map((s) => ({ ...sectionRef(s, lang), icon: s.icon, sort: s.sort, questionCount: counts.sections[s.id] ?? 0, followed: followed.has(s.id) }));
+/** The Q&A's or the tutorials' sections in order, each with its count and (for questions) whether the viewer follows it. */
+export async function listSections(input: { kind?: SectionKind; viewerId: string | null; lang: CommunityLang }): Promise<Section[]> {
+  const kind = input.kind ?? "qa";
+  const { byId } = await sectionsOf(kind);
+  const counts = await qaStore().counts();
+  const followed = new Set(input.viewerId && kind === "qa" ? await qaStore().followedSectionIds(input.viewerId) : []);
+  return [...byId.values()].map((s) => sectionOf(s, input.lang, (kind === "qa" ? counts.questionSections : counts.tutorialSections)[s.id] ?? 0, followed.has(s.id)));
 }
 
-/** The sections the member follows ("My sections" in the nav). */
-export async function mySections(viewerId: string, lang: CommunityLang): Promise<Section[]> {
-  return (await listSections(viewerId, lang)).filter((s) => s.followed);
+/** The Q&A sections the member follows ("My sections" in the nav). */
+export async function mySections(input: { viewerId: string; lang: CommunityLang }): Promise<Section[]> {
+  return (await listSections({ ...input, kind: "qa" })).filter((s) => s.followed);
 }
 
 export async function followSection(viewerId: string | null, slug: string, on: boolean, now = new Date()): Promise<void> {
   const member = signedIn(viewerId);
-  const { bySlug } = await sectionsBy();
-  const section = bySlug.get(slug);
+  const section = (await sectionsOf("qa")).bySlug.get(slug);
   if (!section) throw new QaError("not_found", "There's no such section.");
   await qaStore().setSectionFollow(member, section.id, on, now);
 }
 
-export async function listTags(filter: { section?: string; q?: string; limit?: number } = {}): Promise<Tag[]> {
-  const counts = await qaStore().countQuestionsBy();
-  const prefix = filter.q ? tagOf(filter.q).slug : undefined;
+/** Tags, most used first, or those starting with `q`. */
+export async function listTags(input: { q?: string; section?: string; limit?: number } = {}): Promise<Tag[]> {
+  const counts = await qaStore().counts();
+  const prefix = input.q ? tagOf(input.q).slug : undefined;
   let tags = await qaStore().listTags({ prefix: prefix || undefined });
-  if (filter.section) {
-    const { bySlug } = await sectionsBy();
-    const section = bySlug.get(filter.section);
-    const inSection = new Set((await qaStore().listQuestions({ statuses: ["published"], sectionIds: section ? [section.id] : [] }, "latest", { offset: 0, limit: 500 })).flatMap((q) => q.tagIds));
+  if (input.section) {
+    const section = (await sectionsOf("qa")).bySlug.get(input.section);
+    const inSection = new Set((await qaStore().listQuestions({ statuses: SHOWN, sectionIds: section ? [section.id] : [] }, "newest", { offset: 0, limit: 500 })).flatMap((q) => q.tagIds));
     tags = tags.filter((t) => inSection.has(t.id));
   }
   return tags
-    .map((t) => ({ slug: t.slug, name: t.name, questionCount: counts.tags[t.id] ?? 0 }))
-    .sort((a, b) => b.questionCount - a.questionCount || a.slug.localeCompare(b.slug))
-    .slice(0, Math.min(filter.limit ?? 30, 100));
+    .map((t) => ({ slug: t.slug, name: t.name, count: counts.tags[t.id] ?? 0 }))
+    .sort((a, b) => b.count - a.count || a.slug.localeCompare(b.slug))
+    .slice(0, Math.min(input.limit ?? 30, 100));
 }
 
 // ——— Members ———
 
 function signedIn(viewerId: string | null): string {
-  if (!viewerId) throw new QaError("signed_out", "Sign in first.");
+  if (!viewerId) throw new QaError("invalid_token", "Sign in first.");
   return viewerId;
 }
 
-async function membersOf(ids: readonly string[]): Promise<Record<string, MemberRef>> {
+const DELETED = (id: string): Omit<MemberSummary, "rank"> => ({ id, username: "", displayName: "Deleted member", avatarUrl: null, topBadge: null, team: false, deleted: true });
+
+async function membersOf(ids: readonly string[]): Promise<Record<string, MemberSummary>> {
   const unique = [...new Set(ids)];
   if (!unique.length) return {};
   const [people, points] = await Promise.all([qaHooks().members(unique), qaStore().pointsOf(unique)]);
-  const out: Record<string, MemberRef> = {};
-  for (const id of unique) {
-    const p = people[id] ?? { id, name: "Member", handle: null, avatarUrl: null, badge: null, staff: false };
-    out[id] = { ...p, rank: rankOf(points[id] ?? 0) };
-  }
-  return out;
+  return Object.fromEntries(unique.map((id) => [id, { ...(people[id] ?? DELETED(id)), rank: rankOf(points[id] ?? 0) }]));
 }
 
-const SHOWN: readonly ContentStatus[] = ["published"];
+async function isTeam(memberId: string): Promise<boolean> {
+  return (await qaHooks().members([memberId]))[memberId]?.team === true;
+}
+
+// ——— Links (notices, reports, the moderation queue) ———
+
+export const questionLink = (q: Pick<QuestionRecord, "slug">) => `/questions/${encodeURIComponent(q.slug)}`;
+export const answerLink = (q: Pick<QuestionRecord, "slug">, answerId: string) => `${questionLink(q)}#a${answerId}`;
+export const tutorialLink = (t: Pick<TutorialRecord, "slug">) => `/tutorials/${encodeURIComponent(t.slug)}`;
 
 // ——— Questions ———
 
-function pageOf(limit?: number): number {
-  return Math.min(Math.max(1, Math.floor(limit ?? 20)), LIMITS.pageMax);
-}
+const pageOf = (limit?: number) => Math.min(Math.max(1, Math.floor(limit ?? 20)), LIMITS.pageMax);
 
 async function summaries(records: QuestionRecord[], viewerId: string | null, lang: CommunityLang): Promise<QuestionSummary[]> {
-  const { byId } = await sectionsBy();
+  if (!records.length) return [];
+  const { byId } = await sectionsOf("qa");
   const tagIds = [...new Set(records.flatMap((q) => q.tagIds))];
-  const tags = new Map((tagIds.length ? await qaStore().listTags({ ids: tagIds }) : []).map((t) => [t.id, t]));
-  const members = await membersOf(records.map((q) => q.authorId));
-  const saved = new Set(viewerId && records.length ? await qaStore().bookmarksOf(viewerId, "question", records.map((q) => q.id)) : []);
+  const [tags, members, saved, official] = await Promise.all([
+    tagIds.length ? qaStore().listTags({ ids: tagIds }) : Promise.resolve([] as TagRecord[]),
+    membersOf(records.map((q) => q.authorId)),
+    viewerId ? qaStore().bookmarksOf(viewerId, "question", records.map((q) => q.id)) : Promise.resolve([] as string[]),
+    qaStore().withOfficialAnswer(records.map((q) => q.id)),
+  ]);
+  const tagById = new Map(tags.map((t) => [t.id, t]));
+  const savedSet = new Set(saved);
+  const officialSet = new Set(official);
   return records.map((q) => ({
     id: q.id,
     slug: q.slug,
     title: q.title,
     excerpt: excerpt(q.body),
-    section: sectionRef(byId.get(q.sectionId), lang),
-    tags: q.tagIds.map((id) => tags.get(id)).filter((t): t is TagRecord => !!t).map((t) => ({ slug: t.slug, name: t.name, questionCount: 0 })),
     author: members[q.authorId]!,
+    section: sectionOf(byId.get(q.sectionId), lang),
+    tags: q.tagIds.map((id) => tagById.get(id)).filter((t): t is TagRecord => !!t).map((t) => ({ slug: t.slug, name: t.name, count: 0 })),
+    language: q.language,
+    score: q.score,
+    answerCount: q.answerCount,
+    viewCount: q.viewCount,
+    accepted: q.acceptedAnswerId !== null,
+    hasOfficialAnswer: officialSet.has(q.id),
     status: q.status,
     createdAt: q.createdAt.toISOString(),
     lastActivityAt: q.lastActivityAt.toISOString(),
-    views: q.views,
-    answerCount: q.answerCount,
-    hasAccepted: q.acceptedAnswerId !== null,
-    score: q.score,
-    bookmarked: saved.has(q.id),
+    bookmarked: savedSet.has(q.id),
   }));
 }
 
+export interface ListQuestionsInput {
+  viewerId: string | null;
+  lang: CommunityLang;
+  /** all; unanswered; answered (with an accepted answer); official; following (members the viewer follows); for_you (the viewer's sections first). */
+  filter?: QuestionFilterName;
+  /** active (answered or replied to last), newest, votes. */
+  sort?: QuestionSort;
+  section?: string;
+  tag?: string;
+  author?: string;
+  language?: CommunityLang;
+  cursor?: string | null;
+  limit?: number;
+}
+
 /**
- * The questions on a tab: Latest (newest asked), Most active (answered or
- * replied to last), Unanswered (none yet, newest first), For you (the
- * member's sections first, then the rest, by activity; Latest's order
- * without a viewer or sections). By section and tag; blocked members' left
- * out.
+ * A page of questions: by filter, sort, section, tag, author and language;
+ * blocked members' left out. The site's tabs: For you (`for_you`), Latest
+ * (`sort: newest`), Most active (`sort: active`), Unanswered
+ * (`filter: unanswered`).
  */
-export async function listQuestions(input: { viewerId: string | null; lang: CommunityLang; tab?: QuestionTab; section?: string; tag?: string; cursor?: string | null; limit?: number }): Promise<Page<QuestionSummary>> {
+export async function listQuestions(input: ListQuestionsInput): Promise<Page<QuestionSummary>> {
   const limit = pageOf(input.limit);
   const offset = offsetOf(input.cursor);
-  const { bySlug } = await sectionsBy();
-  const filter: QuestionFilter = { statuses: SHOWN, excludeAuthorIds: input.viewerId ? await qaHooks().hiddenFor(input.viewerId) : undefined };
+  const empty = { items: [], nextCursor: null };
+  const filter: QuestionFilter = { statuses: SHOWN, language: input.language, excludeAuthorIds: input.viewerId ? await qaHooks().hiddenFor(input.viewerId) : undefined };
   if (input.section) {
-    const s = bySlug.get(input.section);
-    if (!s) return { items: [], next: null };
+    const s = (await sectionsOf("qa")).bySlug.get(input.section);
+    if (!s) return empty;
     filter.sectionIds = [s.id];
   }
   if (input.tag) {
-    const [t] = await qaStore().listTags({ slugs: [input.tag] });
-    if (!t) return { items: [], next: null };
+    const [t] = await qaStore().listTags({ slugs: [tagOf(input.tag).slug] });
+    if (!t) return empty;
     filter.tagId = t.id;
   }
-  const tab = input.tab ?? "latest";
-  let records: QuestionRecord[];
-  if (tab === "for_you" && input.viewerId && !input.section) {
-    const mine = await qaStore().followedSectionIds(input.viewerId);
-    if (mine.length) {
-      // The member's sections first, then everything else, each by activity.
-      const inMine = await qaStore().countQuestions({ ...filter, sectionIds: mine });
-      const first = offset < inMine ? await qaStore().listQuestions({ ...filter, sectionIds: mine }, "active", { offset, limit: limit + 1 }) : [];
-      const rest =
-        first.length > limit
-          ? []
-          : (await qaStore().listQuestions(filter, "active", { offset: Math.max(0, offset - inMine), limit: limit + 1 + inMine })).filter((q) => !mine.includes(q.sectionId)).slice(0, limit + 1 - first.length);
-      records = [...first, ...rest];
-    } else records = await qaStore().listQuestions(filter, "active", { offset, limit: limit + 1 });
-  } else {
-    const order = tab === "active" || tab === "for_you" ? "active" : "latest";
-    records = await qaStore().listQuestions({ ...filter, unanswered: tab === "unanswered" || undefined }, order, { offset, limit: limit + 1 });
+  if (input.author) filter.authorIds = [input.author];
+  const name = input.filter ?? "all";
+  if (name === "unanswered") filter.unanswered = true;
+  if (name === "answered") filter.answered = true;
+  if (name === "official") filter.official = true;
+  if (name === "following") {
+    if (!input.viewerId) return empty;
+    const following = await qaHooks().followingIds(input.viewerId);
+    if (!following.length) return empty;
+    filter.authorIds = filter.authorIds ? filter.authorIds.filter((a) => following.includes(a)) : following;
   }
-  const more = records.length > limit;
-  return { items: await summaries(records.slice(0, limit), input.viewerId, input.lang), next: more ? cursorOf(offset + limit) : null };
+  const order: QuestionOrder = input.sort === "newest" ? "newest" : input.sort === "votes" ? "votes" : "active";
+  let records: QuestionRecord[];
+  const mine = name === "for_you" && input.viewerId && !input.section ? await qaStore().followedSectionIds(input.viewerId) : [];
+  if (mine.length) {
+    // The viewer's sections first, then the others, each in the sort's order.
+    const inMine = await qaStore().countQuestions({ ...filter, sectionIds: mine });
+    const first = offset < inMine ? await qaStore().listQuestions({ ...filter, sectionIds: mine }, order, { offset, limit: limit + 1 }) : [];
+    const others = (await qaStore().listSections("qa")).map((s) => s.id).filter((id) => !mine.includes(id));
+    const rest = first.length > limit || !others.length ? [] : await qaStore().listQuestions({ ...filter, sectionIds: others }, order, { offset: Math.max(0, offset - inMine), limit: limit + 1 - first.length });
+    records = [...first, ...rest];
+  } else records = await qaStore().listQuestions(filter, order, { offset, limit: limit + 1 });
+  return { items: await summaries(records.slice(0, limit), input.viewerId, input.lang), nextCursor: records.length > limit ? cursorOf(offset + limit) : null };
 }
 
 async function findQuestion(idOrSlug: string): Promise<QuestionRecord | null> {
   return (await qaStore().getQuestion(idOrSlug)) ?? (await qaStore().getQuestionBySlug(idOrSlug));
 }
 
-/** One asked question with its answers, each with its replies; one more view when `countView`. Not found when not shown to the viewer. */
-export async function getQuestion(idOrSlug: string, input: { viewerId: string | null; lang: CommunityLang; countView?: boolean }): Promise<QuestionDetail> {
+/** How many of an answer's replies come with it (the newest few); the rest with `listReplies`. */
+const INLINE_REPLIES = 3;
+
+function replyOf(r: ReplyRecord, members: Record<string, MemberSummary>, viewerId: string | null): Reply {
+  return { id: r.id, answerId: r.answerId, body: r.body, author: members[r.authorId]!, status: r.status, createdAt: r.createdAt.toISOString(), canEdit: viewerId === r.authorId };
+}
+
+/** One question with its answers (each with its newest replies); one more view when `countView`. Not found when not shown to the viewer. */
+export async function getQuestion(idOrSlug: string, input: { viewerId: string | null; lang: CommunityLang; countView?: boolean }): Promise<Question> {
   const q = await findQuestion(idOrSlug);
   const hidden = input.viewerId ? await qaHooks().hiddenFor(input.viewerId) : [];
-  if (!q || (q.status !== "published" && q.authorId !== input.viewerId) || hidden.includes(q.authorId)) throw new QaError("not_found", "There's no such question.");
+  // Removed is gone for everyone; pending only for its author.
+  if (!q || q.status === "removed" || (q.status !== "published" && q.authorId !== input.viewerId) || hidden.includes(q.authorId)) throw new QaError("not_found", "There's no such question.");
   if (input.countView && q.status === "published") {
     await qaStore().addQuestionView(q.id);
-    q.views += 1;
+    q.viewCount += 1;
   }
   const [summary] = await summaries([q], input.viewerId, input.lang);
-  const answers = (await qaStore().listAnswers([q.id], { statuses: SHOWN, orAuthorId: input.viewerId })).filter((a) => !hidden.includes(a.authorId));
-  const replies = (await qaStore().listReplies(answers.map((a) => a.id), { statuses: SHOWN, orAuthorId: input.viewerId })).filter((r) => !hidden.includes(r.authorId));
+  const answers = (await qaStore().listAnswers([q.id], { statuses: SHOWN, orAuthorId: input.viewerId })).filter((a) => !hidden.includes(a.authorId) && a.status !== "removed");
+  const replies = (await qaStore().listReplies(answers.map((a) => a.id), { statuses: SHOWN, orAuthorId: input.viewerId })).filter((r) => !hidden.includes(r.authorId) && r.status !== "removed");
   const members = await membersOf([...answers.map((a) => a.authorId), ...replies.map((r) => r.authorId)]);
   const myVotes = input.viewerId ? await qaStore().votesOf(input.viewerId, "answer", answers.map((a) => a.id)) : {};
   const shown: Answer[] = answers.map((a) => ({
@@ -233,21 +282,28 @@ export async function getQuestion(idOrSlug: string, input: { viewerId: string | 
     questionId: a.questionId,
     body: a.body,
     author: members[a.authorId]!,
-    status: a.status,
     official: a.official,
     accepted: q.acceptedAnswerId === a.id,
     score: a.score,
     myVote: myVotes[a.id] ?? 0,
+    status: a.status,
     replyCount: a.replyCount,
-    replies: replies.filter((r) => r.answerId === a.id).map((r): Reply => ({ id: r.id, body: r.body, author: members[r.authorId]!, status: r.status, createdAt: r.createdAt.toISOString() })),
+    replies: replies
+      .filter((r) => r.answerId === a.id)
+      .slice(-INLINE_REPLIES)
+      .map((r) => replyOf(r, members, input.viewerId)),
+    canEdit: input.viewerId === a.authorId,
     createdAt: a.createdAt.toISOString(),
+    updatedAt: a.updatedAt.toISOString(),
   }));
   shown.sort((a, b) => Number(b.accepted) - Number(a.accepted) || Number(b.official) - Number(a.official) || b.score - a.score || a.createdAt.localeCompare(b.createdAt));
   return {
     ...summary!,
     body: q.body,
     myVote: input.viewerId ? await qaStore().getVote(input.viewerId, "question", q.id) : 0,
-    mine: input.viewerId === q.authorId,
+    canEdit: input.viewerId === q.authorId,
+    canAccept: input.viewerId === q.authorId && q.status === "published",
+    acceptedAnswerId: q.acceptedAnswerId,
     answers: shown,
   };
 }
@@ -255,15 +311,15 @@ export async function getQuestion(idOrSlug: string, input: { viewerId: string | 
 /** Questions like the one being asked, most alike first: shown before it is posted, so a member finds the answer that's there. */
 export async function similarQuestions(input: { title: string; body?: string; section?: string; viewerId: string | null; lang: CommunityLang; limit?: number }): Promise<QuestionSummary[]> {
   const wanted = words(`${input.title} ${input.body ?? ""}`);
-  if (wanted.length === 0) return [];
-  // The published questions that share at least one of the title's words, then the most alike.
+  if (!wanted.length) return [];
   const titleWords = words(input.title).slice(0, 8);
+  const hidden = input.viewerId ? await qaHooks().hiddenFor(input.viewerId) : [];
   const seen = new Map<string, QuestionRecord>();
   for (const w of titleWords.length ? titleWords : wanted.slice(0, 8)) {
-    for (const q of await qaStore().listQuestions({ statuses: SHOWN, words: [w] }, "score", { offset: 0, limit: 60 })) seen.set(q.id, q);
+    for (const q of await qaStore().listQuestions({ statuses: SHOWN, words: [w], excludeAuthorIds: hidden }, "votes", { offset: 0, limit: 60 })) seen.set(q.id, q);
   }
   const ranked = [...seen.values()]
-    .map((q) => ({ q, s: similarity(input, q) + (input.section && q.acceptedAnswerId ? 0.02 : 0) }))
+    .map((q) => ({ q, s: similarity(input, q) }))
     .filter((x) => x.s >= SIMILAR_MIN)
     .sort((a, b) => b.s - a.s || Number(b.q.acceptedAnswerId !== null) - Number(a.q.acceptedAnswerId !== null) || b.q.score - a.q.score)
     .slice(0, Math.min(input.limit ?? 5, 10))
@@ -271,37 +327,40 @@ export async function similarQuestions(input: { title: string; body?: string; se
   return summaries(ranked, input.viewerId, input.lang);
 }
 
-function check(text: string, min: number, max: number, field: string, what: string): string {
+function check(text: unknown, min: number, max: number, field: string, what: string): string {
+  if (typeof text !== "string") throw new QaError("invalid_request", `${what} is required.`, field);
   const clean = text.replace(/\r\n/g, "\n").trim();
-  if (clean.length < min) throw new QaError("invalid", `${what} is too short: at least ${min} characters.`, field);
-  if (clean.length > max) throw new QaError("invalid", `${what} is too long: at most ${max} characters.`, field);
+  if (clean.length < min) throw new QaError("invalid_request", `${what} is too short: at least ${min} characters.`, field);
+  if (clean.length > max) throw new QaError("invalid_request", `${what} is too long: at most ${max} characters.`, field);
   return clean;
 }
 
-async function moderated(memberId: string, kind: "question" | "answer" | "reply" | "tutorial", text: string): Promise<ContentStatus> {
-  const verdict = await qaHooks().moderate({ memberId, kind, text, links: links(text) });
-  if (verdict === "rejected") throw new QaError("invalid", "This can't be posted: it looks like spam or links to a site we don't allow.", "body");
-  return verdict;
+/** Stored as pending first, then moderation (area C) says whether it shows now; its status. */
+async function moderated(memberId: string, kind: ModeratedKind, contentId: string, text: string, skip: boolean): Promise<ContentStatus> {
+  if (skip) return "published";
+  return qaHooks().moderate({ memberId, kind, contentId, text });
 }
 
-/** Asks a question in a section with up to five tags; shown at once, or once a moderator approves it (a new member's first posts). */
+async function tagsFor(input: readonly string[] | undefined, now: Date): Promise<TagRecord[]> {
+  const names: { slug: string; name: string }[] = [];
+  for (const t of (input ?? []).map(tagOf)) if (t.slug && !names.some((n) => n.slug === t.slug)) names.push(t);
+  if (names.length > LIMITS.tagsMax) throw new QaError("invalid_request", `At most ${LIMITS.tagsMax} tags.`, "tags");
+  return Promise.all(names.map((t) => qaStore().ensureTag(t.slug, t.name, now)));
+}
+
+/** Asks a question in a section with up to five tags: shown at once, or once a moderator approves it (a new member's first posts). */
 export async function askQuestion(
   viewerId: string | null,
-  input: { section: string; title: string; body: string; tags?: readonly string[]; lang: CommunityLang },
+  input: { section: string; title: string; body: string; tags?: readonly string[]; language?: CommunityLang; lang: CommunityLang },
   now = new Date(),
-): Promise<{ question: QuestionDetail; status: ContentStatus }> {
+): Promise<Question> {
   const member = signedIn(viewerId);
-  const title = check(input.title.replace(/\s+/g, " "), LIMITS.titleMin, LIMITS.titleMax, "title", "The title");
+  const title = check(typeof input.title === "string" ? input.title.replace(/\s+/g, " ") : input.title, LIMITS.titleMin, LIMITS.titleMax, "title", "The title");
   const body = check(input.body, LIMITS.bodyMin, LIMITS.bodyMax, "body", "The question");
-  const { bySlug } = await sectionsBy();
-  const section = bySlug.get(input.section);
-  if (!section) throw new QaError("invalid", "Choose a section.", "section");
-  // Each tag once, as it was first written.
-  const names: { slug: string; name: string }[] = [];
-  for (const t of (input.tags ?? []).map(tagOf)) if (t.slug && !names.some((n) => n.slug === t.slug)) names.push(t);
-  if (names.length > LIMITS.tagsMax) throw new QaError("invalid", `At most ${LIMITS.tagsMax} tags.`, "tags");
-  const tags = await Promise.all(names.map((t) => qaStore().ensureTag(t.slug, t.name)));
-  const status = await moderated(member, "question", `${title}\n${body}`);
+  const section = (await sectionsOf("qa")).bySlug.get(input.section);
+  if (!section) throw new QaError("invalid_request", "Choose a section.", "section");
+  const tags = await tagsFor(input.tags, now);
+  const team = await isTeam(member);
   const made = await qaStore().createQuestion({
     id: randomUUID(),
     slug: slugify(title, "question"),
@@ -310,116 +369,208 @@ export async function askQuestion(
     title,
     body,
     authorId: member,
-    status,
-    lang: input.lang,
-    views: 0,
+    status: "pending",
+    language: input.language ?? input.lang,
+    viewCount: 0,
     answerCount: 0,
     score: 0,
     acceptedAnswerId: null,
     createdAt: now,
+    updatedAt: now,
     lastActivityAt: now,
   });
-  return { question: await getQuestion(made.id, { viewerId: member, lang: input.lang }), status };
+  const status = await moderated(member, "question", made.id, `${title}\n${body}`, team);
+  if (status !== "pending") await qaStore().updateQuestion(made.id, { status });
+  return getQuestion(made.id, { viewerId: member, lang: input.lang });
 }
 
-/** Answers a question; official ("Yallapp Team") when the author is on the team. The asker is told, of an official one too. */
-export async function answerQuestion(viewerId: string | null, questionId: string, input: { body: string; lang: CommunityLang }, now = new Date()): Promise<Answer> {
+/** The asker edits their question: its title, text, section and tags. */
+export async function editQuestion(viewerId: string | null, idOrSlug: string, input: { title?: string; body?: string; section?: string; tags?: readonly string[]; lang: CommunityLang }, now = new Date()): Promise<Question> {
   const member = signedIn(viewerId);
-  const q = await findQuestion(questionId);
+  const q = await findQuestion(idOrSlug);
+  if (!q || q.status === "removed") throw new QaError("not_found", "There's no such question.");
+  if (q.authorId !== member) throw new QaError("not_allowed", "Only the member who asked can change the question.");
+  const patch: Partial<QuestionRecord> = { updatedAt: now };
+  if (input.title !== undefined) patch.title = check(input.title.replace(/\s+/g, " "), LIMITS.titleMin, LIMITS.titleMax, "title", "The title");
+  if (input.body !== undefined) patch.body = check(input.body, LIMITS.bodyMin, LIMITS.bodyMax, "body", "The question");
+  if (input.section !== undefined) {
+    const section = (await sectionsOf("qa")).bySlug.get(input.section);
+    if (!section) throw new QaError("invalid_request", "Choose a section.", "section");
+    patch.sectionId = section.id;
+  }
+  if (input.tags !== undefined) patch.tagIds = (await tagsFor(input.tags, now)).map((t) => t.id);
+  await qaStore().updateQuestion(q.id, patch);
+  return getQuestion(q.id, { viewerId: member, lang: input.lang });
+}
+
+/** The asker deletes their question (a moderator removes it with `setContentStatus`). */
+export async function deleteQuestion(viewerId: string | null, idOrSlug: string, now = new Date()): Promise<void> {
+  const member = signedIn(viewerId);
+  const q = await findQuestion(idOrSlug);
+  if (!q || q.status === "removed") throw new QaError("not_found", "There's no such question.");
+  if (q.authorId !== member) throw new QaError("not_allowed", "Only the member who asked can delete the question.");
+  await setContentStatus("question", q.id, "removed", now);
+}
+
+/**
+ * Answers a question. Yallapp's team answers officially ("Yallapp Team"),
+ * unless they send `official: false`; anyone else asking for it is refused.
+ * The asker is told.
+ */
+export async function answerQuestion(viewerId: string | null, idOrSlug: string, input: { body: string; official?: boolean; lang: CommunityLang }, now = new Date()): Promise<Answer> {
+  const member = signedIn(viewerId);
+  const q = await findQuestion(idOrSlug);
   if (!q || q.status !== "published") throw new QaError("not_found", "There's no such question.");
-  if ((await qaHooks().hiddenFor(member)).includes(q.authorId)) throw new QaError("forbidden", "You can't answer this member.");
+  if ((await qaHooks().hiddenFor(member)).includes(q.authorId)) throw new QaError("not_allowed", "You can't answer this member.");
   const body = check(input.body, LIMITS.answerMin, LIMITS.answerMax, "body", "The answer");
-  const author = (await qaHooks().members([member]))[member];
-  const official = author?.staff === true;
-  const status = official ? "published" : await moderated(member, "answer", body);
-  const answer: AnswerRecord = { id: randomUUID(), questionId: q.id, body, authorId: member, status, official, score: 0, replyCount: 0, createdAt: now };
+  const team = await isTeam(member);
+  if (input.official === true && !team) throw new QaError("not_allowed", "Only Yallapp's team answers officially.", "official");
+  const official = team && input.official !== false;
+  const answer: AnswerRecord = { id: randomUUID(), questionId: q.id, body, authorId: member, status: "pending", official, score: 0, replyCount: 0, createdAt: now, updatedAt: now };
   await qaStore().createAnswer(answer);
-  if (status === "published") await answerShown(q, answer, now);
+  const status = await moderated(member, "answer", answer.id, body, team);
+  if (status === "published") await publishAnswer({ ...answer, status }, q, now);
   return (await getQuestion(q.id, { viewerId: member, lang: input.lang })).answers.find((a) => a.id === answer.id)!;
 }
 
-async function answerShown(q: QuestionRecord, a: AnswerRecord, now: Date): Promise<void> {
-  const fresh = (await qaStore().getQuestion(q.id))!;
-  await qaStore().updateQuestion(q.id, { answerCount: fresh.answerCount + 1, lastActivityAt: now });
-  if (a.authorId !== q.authorId) await qaHooks().notify(q.authorId, a.official ? "official_answer" : "answer_posted", { question_id: q.id, question_slug: q.slug, question_title: q.title, answer_id: a.id });
+async function publishAnswer(a: AnswerRecord, q: QuestionRecord, now: Date): Promise<void> {
+  await qaStore().updateAnswer(a.id, { status: "published" });
+  await qaStore().addAnswerCount(q.id, 1, now);
+  if (a.authorId !== q.authorId) {
+    const actor = (await membersOf([a.authorId]))[a.authorId]!;
+    await qaHooks().notify({ memberId: q.authorId, kind: a.official ? "official_answer" : "answer_posted", actorId: a.authorId, data: { actor: actor.displayName, title: q.title }, link: answerLink(q, a.id) });
+  }
 }
 
-/** A reply under an answer; its author is told. */
+export async function editAnswer(viewerId: string | null, answerId: string, input: { body: string; lang: CommunityLang }, now = new Date()): Promise<Answer> {
+  const member = signedIn(viewerId);
+  const a = await qaStore().getAnswer(answerId);
+  if (!a || a.status === "removed") throw new QaError("not_found", "There's no such answer.");
+  if (a.authorId !== member) throw new QaError("not_allowed", "Only its author can change an answer.");
+  await qaStore().updateAnswer(a.id, { body: check(input.body, LIMITS.answerMin, LIMITS.answerMax, "body", "The answer"), updatedAt: now });
+  return (await getQuestion(a.questionId, { viewerId: member, lang: input.lang })).answers.find((x) => x.id === a.id)!;
+}
+
+export async function deleteAnswer(viewerId: string | null, answerId: string, now = new Date()): Promise<void> {
+  const member = signedIn(viewerId);
+  const a = await qaStore().getAnswer(answerId);
+  if (!a || a.status === "removed") throw new QaError("not_found", "There's no such answer.");
+  if (a.authorId !== member) throw new QaError("not_allowed", "Only its author can delete an answer.");
+  await setContentStatus("answer", a.id, "removed", now);
+}
+
+/** An answer's replies, oldest first (the question's page shows the newest few). */
+export async function listReplies(answerId: string, input: { viewerId: string | null; cursor?: string | null; limit?: number }): Promise<Page<Reply>> {
+  const a = await qaStore().getAnswer(answerId);
+  const q = a ? await qaStore().getQuestion(a.questionId) : null;
+  if (!a || !q || a.status !== "published" || q.status !== "published") throw new QaError("not_found", "There's no such answer.");
+  const hidden = input.viewerId ? await qaHooks().hiddenFor(input.viewerId) : [];
+  const all = (await qaStore().listReplies([a.id], { statuses: SHOWN, orAuthorId: input.viewerId })).filter((r) => !hidden.includes(r.authorId) && r.status !== "removed");
+  const offset = offsetOf(input.cursor);
+  const limit = pageOf(input.limit);
+  const page = all.slice(offset, offset + limit);
+  const members = await membersOf(page.map((r) => r.authorId));
+  return { items: page.map((r) => replyOf(r, members, input.viewerId)), nextCursor: all.length > offset + limit ? cursorOf(offset + limit) : null };
+}
+
+/** A reply under an answer ("💬 5 replies"); the answer's author is told. */
 export async function replyToAnswer(viewerId: string | null, answerId: string, input: { body: string; lang: CommunityLang }, now = new Date()): Promise<Reply> {
   const member = signedIn(viewerId);
   const a = await qaStore().getAnswer(answerId);
   const q = a ? await qaStore().getQuestion(a.questionId) : null;
   if (!a || !q || a.status !== "published" || q.status !== "published") throw new QaError("not_found", "There's no such answer.");
-  if ((await qaHooks().hiddenFor(member)).includes(a.authorId)) throw new QaError("forbidden", "You can't reply to this member.");
+  if ((await qaHooks().hiddenFor(member)).includes(a.authorId)) throw new QaError("not_allowed", "You can't reply to this member.");
   const body = check(input.body, 1, LIMITS.replyMax, "body", "The reply");
-  const status = await moderated(member, "reply", body);
-  const reply: ReplyRecord = { id: randomUUID(), answerId: a.id, body, authorId: member, status, createdAt: now };
+  const reply: ReplyRecord = { id: randomUUID(), answerId: a.id, body, authorId: member, status: "pending", createdAt: now };
   await qaStore().createReply(reply);
-  if (status === "published") await replyShown(q, a, reply, now);
-  const author = (await membersOf([member]))[member]!;
-  return { id: reply.id, body, author, status, createdAt: now.toISOString() };
+  const status = await moderated(member, "reply", reply.id, body, await isTeam(member));
+  if (status === "published") await publishReply({ ...reply, status }, a, q, now);
+  const members = await membersOf([member]);
+  return replyOf({ ...reply, status }, members, member);
 }
 
-async function replyShown(q: QuestionRecord, a: AnswerRecord, r: ReplyRecord, now: Date): Promise<void> {
-  const fresh = (await qaStore().getAnswer(a.id))!;
-  await qaStore().updateAnswer(a.id, { replyCount: fresh.replyCount + 1 });
+async function publishReply(r: ReplyRecord, a: AnswerRecord, q: QuestionRecord, now: Date): Promise<void> {
+  await qaStore().updateReply(r.id, { status: "published" });
+  await qaStore().addReplyCount(a.id, 1);
   await qaStore().updateQuestion(q.id, { lastActivityAt: now });
-  if (r.authorId !== a.authorId) await qaHooks().notify(a.authorId, "reply_posted", { question_id: q.id, question_slug: q.slug, question_title: q.title, answer_id: a.id, reply_id: r.id });
+  if (r.authorId !== a.authorId) {
+    const actor = (await membersOf([r.authorId]))[r.authorId]!;
+    await qaHooks().notify({ memberId: a.authorId, kind: "reply_posted", actorId: r.authorId, data: { actor: actor.displayName, title: q.title }, link: answerLink(q, a.id) });
+  }
 }
+
+export async function deleteReply(viewerId: string | null, replyId: string, now = new Date()): Promise<void> {
+  const member = signedIn(viewerId);
+  const r = await qaStore().getReply(replyId);
+  if (!r || r.status === "removed") throw new QaError("not_found", "There's no such reply.");
+  if (r.authorId !== member) throw new QaError("not_allowed", "Only its author can delete a reply.");
+  await setContentStatus("reply", r.id, "removed", now);
+}
+
+/** Scores at which the author is told their question or answer was voted up (not every vote). */
+const VOTE_MILESTONES = [1, 10, 50, 100] as const;
 
 /**
- * The member's vote on a question or answer: up, down, or taken back (0).
- * Never on their own. The author earns or loses its points; the score
- * changes by the difference.
+ * The member's vote on a question or answer: up, down, or taken back (0);
+ * never on their own. The author earns or loses its points; at 1, 10, 50
+ * and 100 they are told.
  */
 export async function vote(viewerId: string | null, input: { kind: VoteKind; id: string; value: VoteValue }, now = new Date()): Promise<{ score: number; myVote: VoteValue }> {
   const member = signedIn(viewerId);
-  if (![1, -1, 0].includes(input.value)) throw new QaError("invalid", "A vote is 1, -1 or 0.", "value");
-  const target = input.kind === "question" ? await qaStore().getQuestion(input.id) : await qaStore().getAnswer(input.id);
+  if (![1, -1, 0].includes(input.value)) throw new QaError("invalid_request", "A vote is 1, -1 or 0.", "value");
+  const target = input.kind === "question" ? await findQuestion(input.id) : await qaStore().getAnswer(input.id);
   if (!target || target.status !== "published") throw new QaError("not_found", `There's no such ${input.kind}.`);
-  if (target.authorId === member) throw new QaError("forbidden", "You can't vote on your own post.");
+  if (target.authorId === member) throw new QaError("not_allowed", "You can't vote on your own post.");
+  if ((await qaHooks().hiddenFor(member)).includes(target.authorId)) throw new QaError("not_allowed", "You can't vote on this member's posts.");
   const before = await qaStore().setVote(member, input.kind, target.id, input.value, now);
   const score = target.score + input.value - before;
   if (input.kind === "question") await qaStore().updateQuestion(target.id, { score });
   else await qaStore().updateAnswer(target.id, { score });
-  // Points: the vote's reason is taken back, then given again for the new one.
+  // Points: the vote's reason taken back, then given again for the new one.
   const ref = `${input.kind}:${target.id}:${member}`;
-  for (const r of input.kind === "question" ? (["question_upvoted", "question_downvoted"] as const) : (["answer_upvoted", "answer_downvoted"] as const)) await qaStore().removePoints(target.authorId, r, ref);
+  const [up, down] = input.kind === "question" ? (["question_upvoted", "question_downvoted"] as const) : (["answer_upvoted", "answer_downvoted"] as const);
+  await qaStore().removePoints(target.authorId, up, ref);
+  await qaStore().removePoints(target.authorId, down, ref);
   if (input.value !== 0) {
-    const reason = input.kind === "question" ? (input.value > 0 ? "question_upvoted" : "question_downvoted") : input.value > 0 ? "answer_upvoted" : "answer_downvoted";
+    const reason = input.value > 0 ? up : down;
     await qaStore().addPoints({ id: randomUUID(), memberId: target.authorId, reason, points: POINTS[reason], ref, createdAt: now });
+  }
+  if (input.value === 1 && score > target.score && (VOTE_MILESTONES as readonly number[]).includes(score)) {
+    const q = input.kind === "question" ? (target as QuestionRecord) : await qaStore().getQuestion((target as AnswerRecord).questionId);
+    if (q) await qaHooks().notify({ memberId: target.authorId, kind: input.kind === "question" ? "question_voted" : "answer_voted", actorId: member, data: { title: q.title, count: score }, link: input.kind === "question" ? questionLink(q) : answerLink(q, target.id) });
   }
   return { score, myVote: input.value };
 }
 
-/** The asker accepts one answer (another taken back) or takes theirs back. The answerer earns 25 points and is told. */
-export async function acceptAnswer(viewerId: string | null, answerId: string, on: boolean, now = new Date()): Promise<{ acceptedAnswerId: string | null }> {
+/** The asker accepts one answer (another taken back) or takes theirs back; the answerer earns 25 points and is told. The question as it is now. */
+export async function acceptAnswer(viewerId: string | null, answerId: string, on: boolean, lang: CommunityLang, now = new Date()): Promise<Question> {
   const member = signedIn(viewerId);
   const a = await qaStore().getAnswer(answerId);
   const q = a ? await qaStore().getQuestion(a.questionId) : null;
-  if (!a || !q || a.status !== "published") throw new QaError("not_found", "There's no such answer.");
-  if (q.authorId !== member) throw new QaError("forbidden", "Only the member who asked can accept an answer.");
+  if (!a || !q || a.status !== "published" || q.status !== "published") throw new QaError("not_found", "There's no such answer.");
+  if (q.authorId !== member) throw new QaError("not_allowed", "Only the member who asked can accept an answer.");
   const previous = q.acceptedAnswerId;
   if (!on) {
-    if (previous !== a.id) return { acceptedAnswerId: previous };
-    await qaStore().updateQuestion(q.id, { acceptedAnswerId: null });
-    await qaStore().removePoints(a.authorId, "answer_accepted", a.id);
+    if (previous === a.id) {
+      await qaStore().updateQuestion(q.id, { acceptedAnswerId: null });
+      await qaStore().removePoints(a.authorId, "answer_accepted", a.id);
+      await qaStore().removePoints(member, "accepted_an_answer", q.id);
+    }
+  } else if (previous !== a.id) {
+    if (previous) {
+      const old = await qaStore().getAnswer(previous);
+      if (old) await qaStore().removePoints(old.authorId, "answer_accepted", old.id);
+    }
+    await qaStore().updateQuestion(q.id, { acceptedAnswerId: a.id, lastActivityAt: now });
     await qaStore().removePoints(member, "accepted_an_answer", q.id);
-    return { acceptedAnswerId: null };
+    if (a.authorId !== member) {
+      await qaStore().addPoints({ id: randomUUID(), memberId: a.authorId, reason: "answer_accepted", points: POINTS.answer_accepted, ref: a.id, createdAt: now });
+      await qaStore().addPoints({ id: randomUUID(), memberId: member, reason: "accepted_an_answer", points: POINTS.accepted_an_answer, ref: q.id, createdAt: now });
+      const actor = (await membersOf([member]))[member]!;
+      await qaHooks().notify({ memberId: a.authorId, kind: "answer_accepted", actorId: member, data: { actor: actor.displayName, title: q.title, count: POINTS.answer_accepted }, link: answerLink(q, a.id) });
+    }
   }
-  if (previous === a.id) return { acceptedAnswerId: a.id };
-  if (previous) {
-    const old = await qaStore().getAnswer(previous);
-    if (old) await qaStore().removePoints(old.authorId, "answer_accepted", old.id);
-  }
-  await qaStore().updateQuestion(q.id, { acceptedAnswerId: a.id, lastActivityAt: now });
-  if (a.authorId !== member) {
-    await qaStore().addPoints({ id: randomUUID(), memberId: a.authorId, reason: "answer_accepted", points: POINTS.answer_accepted, ref: a.id, createdAt: now });
-    await qaStore().removePoints(member, "accepted_an_answer", q.id);
-    await qaStore().addPoints({ id: randomUUID(), memberId: member, reason: "accepted_an_answer", points: POINTS.accepted_an_answer, ref: q.id, createdAt: now });
-    await qaHooks().notify(a.authorId, "answer_accepted", { question_id: q.id, question_slug: q.slug, question_title: q.title, answer_id: a.id, points: String(POINTS.answer_accepted) });
-  }
-  return { acceptedAnswerId: a.id };
+  return getQuestion(q.id, { viewerId: member, lang });
 }
 
 /** Saves a question or tutorial for later (the side menu's Saved), or takes it out. */
@@ -433,46 +584,54 @@ export async function bookmark(viewerId: string | null, input: { kind: BookmarkK
 /** The member's saved questions and tutorials, the last saved first. */
 export async function saved(viewerId: string | null, lang: CommunityLang): Promise<{ questions: QuestionSummary[]; tutorials: TutorialSummary[] }> {
   const member = signedIn(viewerId);
-  const qIds = await qaStore().bookmarksOf(member, "question");
-  const tIds = await qaStore().bookmarksOf(member, "tutorial");
-  const qs = qIds.length ? await qaStore().listQuestions({ statuses: SHOWN, ids: qIds }, "latest", { offset: 0, limit: 200 }) : [];
-  const ts = (await Promise.all(tIds.map((id) => qaStore().getTutorial(id)))).filter((t): t is TutorialRecord => !!t && t.status === "published");
+  const [qIds, tIds] = await Promise.all([qaStore().bookmarksOf(member, "question"), qaStore().bookmarksOf(member, "tutorial")]);
+  const qs = qIds.length ? await qaStore().listQuestions({ statuses: SHOWN, ids: qIds }, "newest", { offset: 0, limit: 500 }) : [];
+  const ts = tIds.length ? await qaStore().listTutorials({ statuses: SHOWN, ids: tIds }, { offset: 0, limit: 500 }) : [];
   const order = (ids: string[]) => (a: { id: string }, b: { id: string }) => ids.indexOf(a.id) - ids.indexOf(b.id);
   return { questions: (await summaries(qs, member, lang)).sort(order(qIds)), tutorials: (await tutorialSummaries(ts, member, lang)).sort(order(tIds)) };
 }
 
-// ——— Moderation (area C's queue) ———
+// ——— Moderation (area C's queue, reports and notices) ———
+
+export type QaContentKind = "question" | "answer" | "reply" | "tutorial";
 
 /**
- * A moderator shows, hides or removes a question, answer, reply or
- * tutorial (area C's queue and reports). Counts follow: a hidden answer no
- * longer counts on its question.
+ * Shows, holds or removes a question, answer, reply or tutorial: area C's
+ * queue approving ("published") or rejecting ("hidden" or "removed"), a
+ * moderator's removal, an author deleting their own. Counts follow: an
+ * answer no longer shown no longer counts on its question, nor stays
+ * accepted. False when there's no such post.
  */
-export async function setContentStatus(kind: "question" | "answer" | "reply" | "tutorial", id: string, status: ContentStatus, now = new Date()): Promise<boolean> {
+export async function setContentStatus(kind: QaContentKind, id: string, status: ContentStatus | "hidden", now = new Date()): Promise<boolean> {
+  const next: ContentStatus = status === "hidden" ? "removed" : status;
   if (kind === "question") {
     const q = await qaStore().getQuestion(id);
     if (!q) return false;
-    await qaStore().updateQuestion(id, { status });
+    if (q.status !== next) await qaStore().updateQuestion(id, { status: next, updatedAt: now });
     return true;
   }
   if (kind === "tutorial") {
     const t = await qaStore().getTutorial(id);
     if (!t) return false;
-    await qaStore().updateTutorial(id, { status, updatedAt: now });
-    if (status === "published" && t.status !== "published") await qaStore().addPoints({ id: randomUUID(), memberId: t.authorId, reason: "tutorial_published", points: POINTS.tutorial_published, ref: t.id, createdAt: now });
-    if (status !== "published" && t.status === "published") await qaStore().removePoints(t.authorId, "tutorial_published", t.id);
+    if (t.status === next) return true;
+    await qaStore().updateTutorial(id, { status: next, updatedAt: now, ...(next === "published" && !t.publishedAt ? { publishedAt: now } : {}) });
+    if (next === "published") await qaStore().addPoints({ id: randomUUID(), memberId: t.authorId, reason: "tutorial_published", points: POINTS.tutorial_published, ref: t.id, createdAt: now });
+    else if (t.status === "published") await qaStore().removePoints(t.authorId, "tutorial_published", t.id);
     return true;
   }
   if (kind === "answer") {
     const a = await qaStore().getAnswer(id);
     const q = a ? await qaStore().getQuestion(a.questionId) : null;
     if (!a || !q) return false;
-    if (a.status === status) return true;
-    await qaStore().updateAnswer(id, { status });
-    if (status === "published") await answerShown(q, a, now);
-    else if (a.status === "published") {
-      await qaStore().updateQuestion(q.id, { answerCount: Math.max(0, q.answerCount - 1), ...(q.acceptedAnswerId === a.id ? { acceptedAnswerId: null } : {}) });
-      if (q.acceptedAnswerId === a.id) await qaStore().removePoints(a.authorId, "answer_accepted", a.id);
+    if (a.status === next) return true;
+    if (next === "published") return publishAnswer(a, q, now).then(() => true);
+    await qaStore().updateAnswer(id, { status: next });
+    if (a.status === "published") {
+      await qaStore().addAnswerCount(q.id, -1, null);
+      if (q.acceptedAnswerId === a.id) {
+        await qaStore().updateQuestion(q.id, { acceptedAnswerId: null });
+        await qaStore().removePoints(a.authorId, "answer_accepted", a.id);
+      }
     }
     return true;
   }
@@ -480,124 +639,137 @@ export async function setContentStatus(kind: "question" | "answer" | "reply" | "
   const a = r ? await qaStore().getAnswer(r.answerId) : null;
   const q = a ? await qaStore().getQuestion(a.questionId) : null;
   if (!r || !a || !q) return false;
-  if (r.status === status) return true;
-  await qaStore().updateReply(id, { status });
-  if (status === "published") await replyShown(q, a, r, now);
-  else if (r.status === "published") await qaStore().updateAnswer(a.id, { replyCount: Math.max(0, a.replyCount - 1) });
+  if (r.status === next) return true;
+  if (next === "published") return publishReply(r, a, q, now).then(() => true);
+  await qaStore().updateReply(id, { status: next });
+  if (r.status === "published") await qaStore().addReplyCount(a.id, -1);
   return true;
 }
 
-/** What a moderator reviews of one post (area C's queue): its text, author and where it is. */
-export async function contentOf(kind: "question" | "answer" | "reply" | "tutorial", id: string): Promise<{ authorId: string; title: string | null; body: string; status: ContentStatus; questionId: string | null } | null> {
+/** What notices, reports and the moderation queue show of a post (area C): its author, a title and its address; null when there's none. */
+export async function contentInfo(kind: QaContentKind, id: string): Promise<{ memberId: string; title: string; link: string; status: ContentStatus; text: string } | null> {
   if (kind === "question") {
     const q = await qaStore().getQuestion(id);
-    return q && { authorId: q.authorId, title: q.title, body: q.body, status: q.status, questionId: q.id };
+    return q && { memberId: q.authorId, title: q.title, link: questionLink(q), status: q.status, text: q.body };
   }
   if (kind === "answer") {
     const a = await qaStore().getAnswer(id);
-    return a && { authorId: a.authorId, title: null, body: a.body, status: a.status, questionId: a.questionId };
+    const q = a ? await qaStore().getQuestion(a.questionId) : null;
+    return a && q && { memberId: a.authorId, title: q.title, link: answerLink(q, a.id), status: a.status, text: a.body };
   }
   if (kind === "reply") {
     const r = await qaStore().getReply(id);
     const a = r ? await qaStore().getAnswer(r.answerId) : null;
-    return r && { authorId: r.authorId, title: null, body: r.body, status: r.status, questionId: a?.questionId ?? null };
+    const q = a ? await qaStore().getQuestion(a.questionId) : null;
+    return r && a && q && { memberId: r.authorId, title: q.title, link: answerLink(q, a.id), status: r.status, text: r.body };
   }
   const t = await qaStore().getTutorial(id);
-  return t && { authorId: t.authorId, title: t.title, body: t.body, status: t.status, questionId: null };
+  return t && { memberId: t.authorId, title: t.title, link: tutorialLink(t), status: t.status, text: t.body };
 }
 
 // ——— Search ———
 
-/** Questions and tutorials with every word searched (title or text), questions with an accepted answer and more votes first. */
-export async function search(input: { q: string; viewerId: string | null; lang: CommunityLang; section?: string; kinds?: readonly ("question" | "tutorial")[]; limit?: number }): Promise<{ questions: QuestionSummary[]; tutorials: TutorialSummary[] }> {
-  const wanted = words(input.q).slice(0, 8);
-  if (input.q.trim().length < LIMITS.searchMin || wanted.length === 0) return { questions: [], tutorials: [] };
+export type SearchType = "all" | "questions" | "tutorials" | "members" | "tags";
+
+/**
+ * Questions, tutorials, members and tags: those with every word searched,
+ * or (when none has all) with some, the most first; questions with an
+ * accepted answer and more votes first.
+ */
+export async function search(input: { q: string; type?: SearchType; viewerId: string | null; lang: CommunityLang; section?: string; limit?: number }): Promise<{ questions: QuestionSummary[]; tutorials: TutorialSummary[]; members: MemberSummary[]; tags: Tag[] }> {
+  const none = { questions: [], tutorials: [], members: [], tags: [] };
+  const text = input.q.trim();
+  const wanted = words(text).slice(0, 8);
+  if (text.length < LIMITS.searchMin) return none;
   const limit = Math.min(input.limit ?? 10, LIMITS.pageMax);
-  const kinds = input.kinds?.length ? input.kinds : ["question", "tutorial"];
-  const { bySlug } = await sectionsBy();
-  const section = input.section ? bySlug.get(input.section) : undefined;
-  if (input.section && !section) return { questions: [], tutorials: [] };
+  const type = input.type ?? "all";
+  const want = (t: SearchType) => type === "all" || type === t;
   const hidden = input.viewerId ? await qaHooks().hiddenFor(input.viewerId) : [];
-  // Those with every word; without any, those with some, the most words first.
-  const matched = <T extends { id: string; title: string }>(lists: T[][], text: (x: T) => string): { x: T; n: number }[] => {
-    const all = new Map<string, T>();
-    for (const list of lists) for (const x of list) all.set(x.id, x);
-    return [...all.values()].map((x) => {
-      const hay = text(x).normalize("NFKC").toLocaleLowerCase("en");
-      return { x, n: wanted.filter((w) => hay.includes(w)).length };
-    });
-  };
-  let qs: QuestionRecord[] = [];
-  if (kinds.includes("question")) {
+  const section = input.section ? (await sectionsOf("qa")).bySlug.get(input.section) : undefined;
+  if (input.section && !section) return none;
+  const hits = (hay: string) => wanted.filter((w) => hay.normalize("NFKC").toLocaleLowerCase("en").includes(w)).length;
+
+  let questions: QuestionRecord[] = [];
+  if (want("questions") && wanted.length) {
     const base: QuestionFilter = { statuses: SHOWN, sectionIds: section ? [section.id] : undefined, excludeAuthorIds: hidden };
-    let found = await qaStore().listQuestions({ ...base, words: wanted }, "score", { offset: 0, limit: 100 });
-    if (!found.length && wanted.length > 1) found = matched(await Promise.all(wanted.map((w) => qaStore().listQuestions({ ...base, words: [w] }, "score", { offset: 0, limit: 50 }))), (q) => `${q.title} ${q.body}`).map((m) => m.x);
-    qs = found
-      .map((q) => ({ q, s: similarity({ title: input.q }, q) + (q.acceptedAnswerId ? 0.1 : 0) + Math.min(q.score, 50) / 500 }))
+    let found = await qaStore().listQuestions({ ...base, words: wanted }, "votes", { offset: 0, limit: 100 });
+    if (!found.length && wanted.length > 1) {
+      const any = new Map<string, QuestionRecord>();
+      for (const w of wanted) for (const q of await qaStore().listQuestions({ ...base, words: [w] }, "votes", { offset: 0, limit: 50 })) any.set(q.id, q);
+      found = [...any.values()];
+    }
+    questions = found
+      .map((q) => ({ q, s: hits(`${q.title} ${q.body}`) + similarity({ title: text }, q) + (q.acceptedAnswerId ? 0.1 : 0) + Math.min(q.score, 50) / 500 }))
       .sort((a, b) => b.s - a.s)
       .slice(0, limit)
       .map((x) => x.q);
   }
-  let ts: TutorialRecord[] = [];
-  if (kinds.includes("tutorial")) {
-    const base = { statuses: SHOWN, sectionId: section?.id };
-    ts = await qaStore().listTutorials({ ...base, words: wanted }, { offset: 0, limit });
-    if (!ts.length && wanted.length > 1)
-      ts = matched(await Promise.all(wanted.map((w) => qaStore().listTutorials({ ...base, words: [w] }, { offset: 0, limit: 50 }))), (t) => `${t.title} ${t.summary} ${t.body}`)
-        .sort((a, b) => b.n - a.n || b.x.createdAt.getTime() - a.x.createdAt.getTime())
-        .slice(0, limit)
-        .map((m) => m.x);
+  let tutorials: TutorialRecord[] = [];
+  if (want("tutorials") && wanted.length) {
+    const tutorialSection = input.section ? (await sectionsOf("tutorial")).bySlug.get(input.section) : undefined;
+    const base = { statuses: SHOWN, sectionId: tutorialSection?.id };
+    tutorials = await qaStore().listTutorials({ ...base, words: wanted }, { offset: 0, limit });
+    if (!tutorials.length && wanted.length > 1) {
+      const any = new Map<string, TutorialRecord>();
+      for (const w of wanted) for (const t of await qaStore().listTutorials({ ...base, words: [w] }, { offset: 0, limit: 50 })) any.set(t.id, t);
+      tutorials = [...any.values()].sort((a, b) => hits(`${b.title} ${b.summary} ${b.body}`) - hits(`${a.title} ${a.summary} ${a.body}`)).slice(0, limit);
+    }
   }
-  return { questions: await summaries(qs, input.viewerId, input.lang), tutorials: await tutorialSummaries(ts, input.viewerId, input.lang) };
+  const members = want("members") ? (await qaHooks().searchMembers(text, limit)).filter((m) => !hidden.includes(m.id)) : [];
+  const ranked = members.length ? await membersOf(members.map((m) => m.id)) : {};
+  return {
+    questions: await summaries(questions, input.viewerId, input.lang),
+    tutorials: await tutorialSummaries(tutorials, input.viewerId, input.lang),
+    members: members.map((m) => ({ ...m, rank: ranked[m.id]?.rank ?? "newcomer" })),
+    tags: want("tags") ? await listTags({ q: text, limit }) : [],
+  };
 }
 
 // ——— The home page and the side rail ———
 
 /** Unanswered questions in the member's sections (all sections without them), newest first, never their own: "Questions waiting for your answer". */
-export async function waitingForAnswer(input: { viewerId: string | null; lang: CommunityLang; limit?: number }): Promise<{ items: QuestionSummary[]; total: number; inMySections: number }> {
+export async function waitingForAnswer(input: { viewerId: string | null; lang: CommunityLang; limit?: number }): Promise<{ items: QuestionSummary[]; total: number; inMySections: boolean }> {
   const mine = input.viewerId ? await qaStore().followedSectionIds(input.viewerId) : [];
   const hidden = input.viewerId ? await qaHooks().hiddenFor(input.viewerId) : [];
   const filter: QuestionFilter = { statuses: SHOWN, unanswered: true, sectionIds: mine.length ? mine : undefined, excludeAuthorIds: [...hidden, ...(input.viewerId ? [input.viewerId] : [])] };
-  const records = await qaStore().listQuestions(filter, "latest", { offset: 0, limit: Math.min(input.limit ?? 3, 20) });
-  const total = await qaStore().countQuestions(filter);
-  return { items: await summaries(records, input.viewerId, input.lang), total, inMySections: mine.length ? total : 0 };
+  const [records, total] = await Promise.all([qaStore().listQuestions(filter, "newest", { offset: 0, limit: Math.min(input.limit ?? 3, 20) }), qaStore().countQuestions(filter)]);
+  return { items: await summaries(records, input.viewerId, input.lang), total, inMySections: mine.length > 0 };
 }
 
-/** The home page's figures: the share of questions with an answer, and questions asked since a date ("12 new"). */
+/** The home page's figures: the questions, the share with an answer, those asked since a date ("12 new"). */
 export async function qaStats(input: { since: Date }): Promise<{ questions: number; answeredRate: number; newCount: number }> {
-  const all = await qaStore().countQuestions({ statuses: SHOWN });
-  const unanswered = await qaStore().countQuestions({ statuses: SHOWN, unanswered: true });
-  const newCount = await qaStore().countQuestions({ statuses: SHOWN, since: input.since });
+  const [all, unanswered, newCount] = await Promise.all([
+    qaStore().countQuestions({ statuses: SHOWN }),
+    qaStore().countQuestions({ statuses: SHOWN, unanswered: true }),
+    qaStore().countQuestions({ statuses: SHOWN, since: input.since }),
+  ]);
   return { questions: all, answeredRate: all ? Math.round(((all - unanswered) / all) * 100) : 0, newCount };
 }
 
-/** "Most active this week": the members who earned the most points since `days` ago, with their accepted answers. */
-export async function activeMembers(input: { days?: number; limit?: number; now?: Date }): Promise<{ member: MemberRef; points: number; acceptedAnswers: number }[]> {
+/** "Most active this week": the members who earned the most points in the last `days`, with their accepted answers. */
+export async function activeMembers(input: { days?: number; limit?: number; now?: Date } = {}): Promise<{ member: MemberSummary; points: number; acceptedAnswers: number }[]> {
   const since = new Date((input.now ?? new Date()).getTime() - (input.days ?? 7) * 86_400_000);
   const top = await qaStore().topEarners(since, Math.min(input.limit ?? 3, 20));
   const members = await membersOf(top.map((t) => t.memberId));
   return Promise.all(top.map(async (t) => ({ member: members[t.memberId]!, points: t.points, acceptedAnswers: await qaStore().countAnswers({ authorId: t.memberId, statuses: SHOWN, accepted: true }) })));
 }
 
-/** What badges (area C) and profiles (area A) read of a member's Q&A. */
+/** What badges (area C's Blue badge) and profiles (area A's "1,240 pts") read of a member's Q&A. */
 export async function memberStats(memberId: string): Promise<MemberQaStats> {
   const [points, questions, answers, accepted, tutorials, last] = await Promise.all([
     qaStore().pointsOf([memberId]),
-    qaStore().countQuestions({ statuses: SHOWN, authorId: memberId }),
+    qaStore().countQuestions({ statuses: SHOWN, authorIds: [memberId] }),
     qaStore().countAnswers({ authorId: memberId, statuses: SHOWN }),
     qaStore().countAnswers({ authorId: memberId, statuses: SHOWN, accepted: true }),
-    qaStore().listTutorials({ statuses: SHOWN, authorId: memberId }, { offset: 0, limit: 1000 }),
+    qaStore().countTutorials({ statuses: SHOWN, authorId: memberId }),
     qaStore().lastActivityOf(memberId),
   ]);
-  return { points: points[memberId] ?? 0, questions, answers, acceptedAnswers: accepted, approvedTutorials: tutorials.length, lastActiveAt: last?.toISOString() ?? null };
+  return { points: points[memberId] ?? 0, questions, answers, acceptedAnswers: accepted, approvedTutorials: tutorials, lastActiveAt: last?.toISOString() ?? null };
 }
 
-/** A member's own questions and answers on their profile. */
-export async function memberQuestions(memberId: string, input: { viewerId: string | null; lang: CommunityLang; cursor?: string | null; limit?: number }): Promise<Page<QuestionSummary>> {
-  const limit = pageOf(input.limit);
-  const offset = offsetOf(input.cursor);
-  const records = await qaStore().listQuestions({ statuses: SHOWN, authorId: memberId }, "latest", { offset, limit: limit + 1 });
-  return { items: await summaries(records.slice(0, limit), input.viewerId, input.lang), next: records.length > limit ? cursorOf(offset + limit) : null };
+/** The points of several members at once (their rank beside their name). */
+export async function pointsOf(memberIds: readonly string[]): Promise<Record<string, number>> {
+  return qaStore().pointsOf(memberIds);
 }
 
 // ——— Tutorials ———
@@ -607,26 +779,30 @@ async function findTutorial(idOrSlug: string): Promise<TutorialRecord | null> {
 }
 
 async function tutorialSummaries(records: TutorialRecord[], viewerId: string | null, lang: CommunityLang): Promise<TutorialSummary[]> {
-  const { byId } = await sectionsBy();
-  const members = await membersOf(records.map((t) => t.authorId));
-  const saved = new Set(viewerId && records.length ? await qaStore().bookmarksOf(viewerId, "tutorial", records.map((t) => t.id)) : []);
+  if (!records.length) return [];
+  const { byId } = await sectionsOf("tutorial");
+  const [members, saved] = await Promise.all([membersOf(records.map((t) => t.authorId)), viewerId ? qaStore().bookmarksOf(viewerId, "tutorial", records.map((t) => t.id)) : Promise.resolve([] as string[])]);
+  const savedSet = new Set(saved);
   return records.map((t) => ({
     id: t.id,
     slug: t.slug,
     title: t.title,
     summary: t.summary,
     kind: t.kind,
-    section: sectionRef(byId.get(t.sectionId), lang),
     level: t.level,
     language: t.language,
-    durationSec: t.durationSec,
+    section: sectionOf(byId.get(t.sectionId), lang),
     coverUrl: t.coverUrl,
-    author: members[t.authorId]!,
+    durationSeconds: t.durationSeconds,
+    durationMinutes: Math.max(1, Math.ceil(t.durationSeconds / 60)),
     official: t.official,
-    status: t.status,
-    createdAt: t.createdAt.toISOString(),
-    views: t.views,
-    bookmarked: saved.has(t.id),
+    // Phase 1 sells nothing: no tutorial is locked. Paid ones (bought on the website) come later, shown with a lock and never a price.
+    locked: false,
+    tags: t.tags,
+    author: members[t.authorId]!,
+    viewCount: t.viewCount,
+    bookmarked: savedSet.has(t.id),
+    publishedAt: (t.publishedAt ?? t.createdAt).toISOString(),
   }));
 }
 
@@ -634,61 +810,61 @@ async function tutorialSummaries(records: TutorialRecord[], viewerId: string | n
 export async function listTutorials(input: { viewerId: string | null; lang: CommunityLang; section?: string; level?: TutorialLevel; language?: CommunityLang; kind?: TutorialKind; cursor?: string | null; limit?: number }): Promise<Page<TutorialSummary>> {
   const limit = pageOf(input.limit);
   const offset = offsetOf(input.cursor);
-  const { bySlug } = await sectionsBy();
-  const section = input.section ? bySlug.get(input.section) : undefined;
-  if (input.section && !section) return { items: [], next: null };
+  const section = input.section ? (await sectionsOf("tutorial")).bySlug.get(input.section) : undefined;
+  if (input.section && !section) return { items: [], nextCursor: null };
   const records = await qaStore().listTutorials({ statuses: SHOWN, sectionId: section?.id, level: input.level, language: input.language, kind: input.kind }, { offset, limit: limit + 1 });
-  return { items: await tutorialSummaries(records.slice(0, limit), input.viewerId, input.lang), next: records.length > limit ? cursorOf(offset + limit) : null };
+  return { items: await tutorialSummaries(records.slice(0, limit), input.viewerId, input.lang), nextCursor: records.length > limit ? cursorOf(offset + limit) : null };
 }
 
-export async function getTutorial(idOrSlug: string, input: { viewerId: string | null; lang: CommunityLang; countView?: boolean }): Promise<TutorialDetail> {
+/** One tutorial by id or address; one more view when `countView`. */
+export async function getTutorial(idOrSlug: string, input: { viewerId: string | null; lang: CommunityLang; countView?: boolean }): Promise<Tutorial> {
   const t = await findTutorial(idOrSlug);
   if (!t || t.status !== "published") throw new QaError("not_found", "There's no such tutorial.");
   if (input.countView) {
     await qaStore().addTutorialView(t.id);
-    t.views += 1;
+    t.viewCount += 1;
   }
   const [summary] = await tutorialSummaries([t], input.viewerId, input.lang);
-  return { ...summary!, body: t.body, videoUrl: t.videoUrl };
+  return { ...summary!, body: summary!.locked ? "" : t.body, videoUrl: summary!.locked ? null : t.videoUrl };
 }
 
 const VIDEO_HOSTS = /^https:\/\/(www\.)?(youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com|yallapp\.com\.tr|[\w-]+\.yallapp\.com\.tr)\//i;
 
 /**
- * The Yallapp team publishes an official tutorial (phase 1: tutorials are
- * the team's): an article (Markdown, its reading time from its length) or
- * a video (its address on YouTube, Vimeo or Yallapp, and its length).
+ * Yallapp's team publishes an official tutorial (phase 1's are all the
+ * team's): an article (Markdown; its reading time from its length) or a
+ * video (its address on YouTube, Vimeo or Yallapp, and its length).
  */
 export async function publishTutorial(
   authorId: string | null,
-  input: { title: string; summary: string; kind: TutorialKind; section: string; level: TutorialLevel; language: CommunityLang; body: string; videoUrl?: string | null; durationSec?: number; coverUrl?: string | null },
+  input: { title: string; summary: string; kind: TutorialKind; section: string; level: TutorialLevel; language: CommunityLang; body: string; videoUrl?: string | null; durationSeconds?: number; coverUrl?: string | null; tags?: readonly string[] },
   now = new Date(),
-): Promise<TutorialDetail> {
+): Promise<Tutorial> {
   const author = signedIn(authorId);
-  const who = (await qaHooks().members([author]))[author];
-  if (!who?.staff) throw new QaError("forbidden", "Only the Yallapp team publishes tutorials.");
-  const title = check(input.title.replace(/\s+/g, " "), LIMITS.titleMin, LIMITS.titleMax, "title", "The title");
-  const summary = check(input.summary, 10, 300, "summary", "The summary");
-  if (!["article", "video"].includes(input.kind)) throw new QaError("invalid", "A tutorial is an article or a video.", "kind");
-  if (!["beginner", "intermediate", "advanced"].includes(input.level)) throw new QaError("invalid", "Choose a level.", "level");
-  if (!["en", "ar", "tr"].includes(input.language)) throw new QaError("invalid", "Choose its language.", "language");
-  const { bySlug } = await sectionsBy();
-  const section = bySlug.get(input.section);
-  if (!section) throw new QaError("invalid", "Choose a section.", "section");
+  if (!(await isTeam(author))) throw new QaError("not_allowed", "Only Yallapp's team publishes tutorials.");
+  const title = check(typeof input.title === "string" ? input.title.replace(/\s+/g, " ") : input.title, LIMITS.titleMin, LIMITS.titleMax, "title", "The title");
+  const summary = check(input.summary, 10, 400, "summary", "The summary");
+  if (input.kind !== "article" && input.kind !== "video") throw new QaError("invalid_request", "A tutorial is an article or a video.", "kind");
+  if (!["beginner", "intermediate", "advanced"].includes(input.level)) throw new QaError("invalid_request", "Choose a level.", "level");
+  if (!["en", "ar", "tr"].includes(input.language)) throw new QaError("invalid_request", "Choose its language.", "language");
+  const section = (await sectionsOf("tutorial")).bySlug.get(input.section);
+  if (!section) throw new QaError("invalid_request", "Choose a section.", "section");
+  if (input.coverUrl && !/^https:\/\//i.test(input.coverUrl)) throw new QaError("invalid_request", "The cover is an https address.", "coverUrl");
   let body: string;
   let videoUrl: string | null = null;
-  let durationSec: number;
+  let durationSeconds: number;
   if (input.kind === "video") {
-    if (!input.videoUrl || !VIDEO_HOSTS.test(input.videoUrl)) throw new QaError("invalid", "Give the video's address on YouTube, Vimeo or Yallapp.", "videoUrl");
+    if (!input.videoUrl || !VIDEO_HOSTS.test(input.videoUrl)) throw new QaError("invalid_request", "Give the video's address on YouTube, Vimeo or Yallapp.", "videoUrl");
     videoUrl = input.videoUrl;
-    durationSec = Math.round(input.durationSec ?? 0);
-    if (durationSec < 1 || durationSec > 6 * 3600) throw new QaError("invalid", "Give the video's length.", "durationSec");
-    body = input.body.trim().slice(0, LIMITS.bodyMax);
+    durationSeconds = Math.round(input.durationSeconds ?? 0);
+    if (durationSeconds < 1 || durationSeconds > 6 * 3600) throw new QaError("invalid_request", "Give the video's length.", "durationSeconds");
+    body = (input.body ?? "").trim().slice(0, LIMITS.bodyMax);
   } else {
     body = check(input.body, LIMITS.bodyMin, LIMITS.bodyMax * 5, "body", "The article");
     // About 200 words a minute.
-    durationSec = Math.max(60, Math.round((body.split(/\s+/).length / 200) * 60));
+    durationSeconds = Math.max(60, Math.round((body.split(/\s+/).length / 200) * 60));
   }
+  const tags = (await tagsFor(input.tags, now)).map((t) => t.slug);
   const t = await qaStore().createTutorial({
     id: randomUUID(),
     slug: slugify(title, "tutorial"),
@@ -700,14 +876,16 @@ export async function publishTutorial(
     language: input.language,
     body,
     videoUrl,
-    durationSec,
+    durationSeconds,
     coverUrl: input.coverUrl ?? null,
+    tags,
     authorId: author,
     official: true,
     status: "published",
-    views: 0,
+    viewCount: 0,
     createdAt: now,
     updatedAt: now,
+    publishedAt: now,
   });
   await qaStore().addPoints({ id: randomUUID(), memberId: author, reason: "tutorial_published", points: POINTS.tutorial_published, ref: t.id, createdAt: now });
   return getTutorial(t.id, { viewerId: author, lang: input.language });
