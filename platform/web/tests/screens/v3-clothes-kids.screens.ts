@@ -7,6 +7,7 @@ import { DEMO_BRANDS } from "../../src/lib/demo/content";
 import { LIVE_PHONE } from "../../src/lib/demo/live";
 import { CLOTHES_PRODUCTS } from "../../src/lib/demo/clothes";
 import { KIDS_PRODUCTS } from "../../src/lib/demo/kids";
+import { CLOTHES_PRODUCT_NAMES, KIDS_PRODUCT_NAMES } from "../../src/lib/demo/product-names";
 import { createPreviewToken, previewAppPath, previewKey } from "../../src/lib/preview/token";
 
 /**
@@ -180,12 +181,26 @@ async function shoot(browser: Browser, t: (typeof TYPES)[number], look: "c" | "d
     const arShop = await phone(browser, appId, address, "ar", dark);
     const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     await semantics(arShop);
-    expect(arShopTab, "the Shop tab's Arabic name").not.toBe("");
-    expect(await tapNamed(arShop, new RegExp(`^${escape(arShopTab)}`)), "the Arabic Shop tab").toBe(true);
+    // The tab's Arabic name from the app's pages, else Studio's ("Shop", RUNWAY's "Discover") for a project's draft.
+    const shopTab = arShopTab ? new RegExp(`^${escape(arShopTab)}`) : /^(المتجر|اكتشفي)$/;
+    expect(await tapNamed(arShop, shopTab), "the Arabic Shop tab").toBe(true);
     await arShop.waitForTimeout(3500);
     await semantics(arShop);
     let opened = false;
-    for (const name of arNames) if ((opened = await tapNamed(arShop, new RegExp(`^${escape(name)}`)))) break;
+    // The listing's Arabic names; for a project's draft, the demo's in Arabic, then in English (a project may keep them so).
+    const demoNames = t.id === "clothes" ? CLOTHES_PRODUCT_NAMES : KIDS_PRODUCT_NAMES;
+    const names = [...arNames, ...Object.values(demoNames).map((n) => n.ar), ...(t.id === "clothes" ? CLOTHES_PRODUCTS : KIDS_PRODUCTS).map((p) => p.name)];
+    // Opened when the bar is gone (the product page draws no tabs); else the next name.
+    const barShows = () => arShop.evaluate((source) => [...document.querySelectorAll("flt-semantics")].some((x) => new RegExp(source).test((x.getAttribute("aria-label") ?? x.textContent ?? "").trim()) && x.getBoundingClientRect().width > 0), shopTab.source);
+    for (const name of names) {
+      if (!(await tapNamed(arShop, new RegExp(`^${escape(name)}`)))) continue;
+      await arShop.waitForTimeout(3000);
+      await semantics(arShop);
+      if (!(await barShows())) {
+        opened = true;
+        break;
+      }
+    }
     expect(opened, "a product of the Arabic listing").toBe(true);
     await arShop.waitForTimeout(4500);
     await arShop.screenshot({ path: shot(`product-ar${dark ? "-dark" : ""}`) });

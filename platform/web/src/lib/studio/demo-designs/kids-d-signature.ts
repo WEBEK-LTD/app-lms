@@ -439,7 +439,7 @@ const NURSERY_SCREENS = signatureScreens({
 
 /**
  * 228.7 The nursery's own product page, calm and editorial: the shop's name
- * in a quiet header, the photo with its thumbnails under it, square, then
+ * small and spaced over a hairline, the photo with its thumbnails under it, square, then
  * the name in large light Vazirmatn and the price in grey between
  * hairlines; the signature, the size by age as the ruler of ticks over the
  * sizes; Add to basket in the page, outlined in ink, never pinned; the
@@ -451,13 +451,16 @@ function nurseryProductPage(ctx: SectionContext) {
   const ink = { color: K.ink, dark_color: K.darkInk } as const;
   const sage = { accent: K.accent, dark_accent: K.darkAccent } as const;
   const gap = (top: number, bottom = 0) => sides(top, 20, bottom, 20);
-  const t = sigTexts(ctx, { title: "nrsWordmark" });
   const ruler = sizeRuler(ctx);
+  // The shop's name, small and spaced, over the photo (an app header would show the page's own title there).
+  const wordmark = say(ctx, "nrsWordmark", { family: FACE, size: 13, weight: 500, letter_spacing: 1.6 }, { text_align: "center", max_lines: 1, padding: sides(62, 56, 0, 56) });
   return mixedProductPage(
     ctx,
-    { background: K.page, dark_background: K.darkPage, header: { type: "title", title: t.title, translations: t.translations, buttons: ["cart"], background: K.page, color: K.ink, dark_background: K.darkPage, dark_color: K.darkInk } },
+    { background: K.page, dark_background: K.darkPage },
     [
-      { type: "product_gallery", look: "thumbs", radius: 0, node: { aspect_ratio: 1, margin: gap(6) } },
+      wordmark,
+      hairline(ctx, gap(14)),
+      { type: "product_gallery", look: "thumbs", radius: 0, node: { aspect_ratio: 1, margin: gap(18) } },
       hairline(ctx, gap(26)),
       { type: "product_title", look: "plain", node: { ...ink, font: face(27, { line_height: 1.3 }), margin: gap(20) } },
       { type: "product_price", look: "single", node: { color: K.muted, dark_color: K.darkMuted, font: { family: FACE, size: 15, weight: 400, letter_spacing: 0.3 }, margin: gap(8) } },
