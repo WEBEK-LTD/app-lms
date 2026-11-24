@@ -133,7 +133,7 @@ describe("149 a shop in Egyptian pounds", () => {
     expect(dollars.body).toMatchObject({ charge: { currency: "USD", in_customer_currency: true } });
     const dinars = await call("POST", "/store/checkout-link", { currency: "KWD", query: "platform=android", body: { lines } });
     expectContract("POST", "/store/checkout-link", dinars);
-    expect(dinars.body).toMatchObject({ charge: { currency: "EGP", total: "E£600.00", in_customer_currency: false, reason: null } });
+    expect(dinars.body).toMatchObject({ charge: { currency: "EGP", total: "E£600", in_customer_currency: false, reason: null } });
     const cart = await call("POST", "/store/cart", { currency: "KWD", body: { lines } });
     expect(cart.body).not.toHaveProperty("display");
     const [last, first] = (await store.listCatalogOrders({ appId: app.id, limit: 5, offset: 0 })).items;

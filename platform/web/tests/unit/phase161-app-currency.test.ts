@@ -127,7 +127,7 @@ describe("161 GET /pages: a MAD shop's Leqaa home in the customer's currency", (
       expect(card.price!.display).toMatchObject({ currency: "USD" });
     }
     const coupon = nodesOf(home).find((n) => n.type === "coupon") as StudioNode & { coupon_offer: Record<string, unknown> };
-    expect(coupon.coupon_offer).toMatchObject({ currency: "MAD", amount_off: "50.00", min_order: "300.00", display: { currency: "USD", amount_off_formatted: "$5.00", min_order_formatted: "$30.00" } });
+    expect(coupon.coupon_offer).toMatchObject({ currency: "MAD", amount_off: "50.00", min_order: "300.00", display: { currency: "USD", amount_off_formatted: "$5", min_order_formatted: "$30" } });
   });
 
   it("the owner's switch off, or a currency outside their list: no display anywhere, the amounts and words as they are", async () => {
@@ -149,9 +149,9 @@ describe("161 GET /pages: a MAD shop's Leqaa home in the customer's currency", (
     expect(cart.body).toMatchObject({
       currency: "MAD",
       discount_amount: "50.00",
-      display: { currency: "USD", subtotal: "$36.00", discount: "$5.00", total: "$31.00" },
+      display: { currency: "USD", subtotal: "$36", discount: "$5", total: "$31" },
       charge: { currency: "MAD", in_customer_currency: false },
-      lines: [{ currency: "MAD", unit_price_amount: "180.00", display: { currency: "USD", unit_price: "$18.00", line_total: "$36.00" } }],
+      lines: [{ currency: "MAD", unit_price_amount: "180.00", display: { currency: "USD", unit_price: "$18", line_total: "$36" } }],
     });
   });
 
@@ -161,10 +161,10 @@ describe("161 GET /pages: a MAD shop's Leqaa home in the customer's currency", (
     const config = await call("/config", "USD", { app_version: "1.0.0" });
     expectContract("GET", "/config", config);
     const slots = (config.body as { store: { delivery_date: { slots: Record<string, unknown>[] } } }).store.delivery_date.slots;
-    expect(slots[0]).toMatchObject({ currency: "MAD", fee: "20.00", display: { currency: "USD", fee_formatted: "$2.00" } });
+    expect(slots[0]).toMatchObject({ currency: "MAD", fee: "20.00", display: { currency: "USD", fee_formatted: "$2" } });
     // And the day's slots, asked on their own.
     const day = await call("/store/delivery-slots", "USD", { date: "2026-11-21" });
-    expect((day.body as { slots: Record<string, unknown>[] }).slots[0]).toMatchObject({ display: { currency: "USD", fee_formatted: "$2.00" } });
+    expect((day.body as { slots: Record<string, unknown>[] }).slots[0]).toMatchObject({ display: { currency: "USD", fee_formatted: "$2" } });
   });
 
   it("an order: its lines and total at the rate of its own day when the customer still shows prices in its currency", async () => {

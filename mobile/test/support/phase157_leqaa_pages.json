@@ -1538,11 +1538,11 @@
         "title": "Trio Luxury Box",
         "subtitle": null,
         "image_url": null,
-        "price_label": "₺2,199.00",
+        "price_label": "₺2,199",
         "price": {
          "amount": "2199.00",
          "currency": "TRY",
-         "formatted": "₺2,199.00",
+         "formatted": "₺2,199",
          "range": false,
          "on_sale": false
         },
@@ -1561,11 +1561,11 @@
         "title": "Red & White Roses in a 24 Luxury Box",
         "subtitle": null,
         "image_url": null,
-        "price_label": "₺599.00",
+        "price_label": "₺599",
         "price": {
          "amount": "599.00",
          "currency": "TRY",
-         "formatted": "₺599.00",
+         "formatted": "₺599",
          "range": false,
          "on_sale": false
         },

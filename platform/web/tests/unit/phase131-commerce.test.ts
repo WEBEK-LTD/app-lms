@@ -436,7 +436,7 @@ describe("131 the shop's own products on the hosted API", () => {
     // At 11:00 the 10:00 slot has started.
     expect(slots.open).toBe(true);
     expect(slots.slots.map((s) => [s.id, s.available])).toEqual([["s1", false], ["s2", true]]);
-    expect(slots.slots[1]!.fee_formatted).toBe("₺25.00");
+    expect(slots.slots[1]!.fee_formatted).toBe("₺25");
     expect((await call("GET", "/store/delivery-slots", { query: { date: "nope" } })).status).toBe(400);
   });
 
@@ -460,7 +460,7 @@ describe("131 the shop's own products on the hosted API", () => {
   it("quotes the slot's fee and shipping by weight with its breakdown, before the people are given", async () => {
     const quote = (await call("POST", "/store/cart", { body: { lines: [{ product_id: ids.roses, quantity: 2 }], delivery_date: "2026-11-20", delivery_slot: "s2", recipient: { country: "TR", city: "İstanbul" } } })).body as Record<string, unknown>;
     // Two roses at the flash price, 3 kg (1 included): 2 kg × ₺10, and the slot's ₺25.
-    expect(quote).toMatchObject({ subtotal: "₺800.00", shipping: "₺95.00", delivery_fee: "₺25.00", delivery_zone: "İstanbul", total: "₺895.00", delivery_problem: null });
+    expect(quote).toMatchObject({ subtotal: "₺800", shipping: "₺95", delivery_fee: "₺25", delivery_zone: "İstanbul", total: "₺895", delivery_problem: null });
     expect((quote.shipping_breakdown as { rule: string }[]).map((l) => l.rule)).toEqual(["flat", "weight", "slot"]);
     const outside = (await call("POST", "/store/cart", { body: { lines: [{ product_id: ids.roses, quantity: 1 }], recipient: { country: "TR", city: "Ankara" } } })).body as Record<string, unknown>;
     expect(outside.delivery_problem).toMatchObject({ code: "outside_delivery_area" });
@@ -494,7 +494,7 @@ describe("131 the shop's own products on the hosted API", () => {
     await deliverPaidOrder(store, app, (await store.getCatalogOrder(app.id, order.id))!, now);
     expect((await store.getFlashSale(app.id, 1))!.sold).toBe(2);
     const after = (await call("POST", "/store/cart", { body: { lines: [{ product_id: ids.roses, quantity: 2 }] } })).body as { subtotal: string };
-    expect(after.subtotal).toBe("₺1,000.00");
+    expect(after.subtotal).toBe("₺1,000");
   });
 });
 

@@ -152,7 +152,7 @@ describe("courses on the hosted API", () => {
     const all = (await call("GET", "/courses")).body as { items: { id: number; title: string }[] };
     expect(all.items.map((c) => c.title)).toEqual(["Business English", "Turkish for Beginners"]);
     expect((await call("GET", "/courses", { query: { price: "free" } })).body).toMatchObject({ total: 1, items: [{ title: "Turkish for Beginners", price: { is_free: true } }] });
-    expect((await call("GET", "/courses", { query: { price: "paid" } })).body).toMatchObject({ items: [{ price: { is_free: false, formatted: "₺450.00", amount: "450.00" } }] });
+    expect((await call("GET", "/courses", { query: { price: "paid" } })).body).toMatchObject({ items: [{ price: { is_free: false, formatted: "₺450", amount: "450.00" } }] });
     expect((await call("GET", "/courses", { query: { orderby: "title" } })).body).toMatchObject({ items: [{ title: "Business English" }, { title: "Turkish for Beginners" }] });
     // 123 Each course's badge: one of the three with the most students, or published lately.
     expect(all.items.map((c) => (c as unknown as { badge: unknown }).badge).every((b) => b === null || b === "new" || b === "bestseller")).toBe(true);

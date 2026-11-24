@@ -249,7 +249,7 @@ void main() {
         expect(
           find.descendant(
             of: find.byKey(const ValueKey('bouquet-total')),
-            matching: find.text('₺245.00'),
+            matching: find.text('₺245'),
           ),
           findsOneWidget,
         );
@@ -287,7 +287,7 @@ void main() {
         expect(
           find.descendant(
             of: find.byKey(const ValueKey('bouquet-total')),
-            matching: find.text('₺395.00'),
+            matching: find.text('₺395'),
           ),
           findsOneWidget,
         );
@@ -426,7 +426,7 @@ void main() {
         d.chooseCard(31);
         d.message = '  For you  ';
         expect(d.stemCount, 6);
-        expect(d.totalFormatted, '₺390.00');
+        expect(d.totalFormatted, '₺390');
         expect(d.displayTotal, r'$11.70');
         final lines = d.cartLines('b-1');
         expect(

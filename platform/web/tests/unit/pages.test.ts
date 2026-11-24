@@ -1060,7 +1060,7 @@ describe("pages on the hosted API", () => {
       layout: "carousel",
       see_all: { type: "screen", screen: "courses" },
       items: [
-        { source: "courses", id: "20", title: "Business English", price_label: "₺450.00", action: { type: "course", course_id: 20 } },
+        { source: "courses", id: "20", title: "Business English", price_label: "₺450", action: { type: "course", course_id: 20 } },
         { source: "courses", id: "10", title: "Turkish for Beginners", subtitle: "Selin Arslan", image_url: assetUrl("img-tr"), price_label: "Free" },
       ],
     });

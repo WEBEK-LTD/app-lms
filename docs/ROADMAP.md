@@ -5011,3 +5011,14 @@ The owner (23 November): the ten shop types' looks A and B all look like one tem
 | [x] | 228.6 `lib/studio/product-page.ts`: a look declares its product page in a few lines (`productPageOf`); Lujain's look A is the pilot (look B keeps the app's screen); its project fixture regenerated (`test/support/signatures/clothes_a.json`) | `phase228-product-page`, `phase208-clothes`, `signature-looks` |
 | [ ] | 228.7 The round-3 looks (C and D) declare their own product pages, each different from the others | the round-3 phases |
 | [ ] | 228.8 Ships with the next app release (no `CLIENT_APP_RELEASE` change here) | — |
+## Phase 229: Prices that read cleanly
+
+The owner (24 November 2026): a product whose variations cost differently shows its cheapest price, "from" it, not the whole range; a whole amount shows without ".00". Every price the app shows comes from the hosted API, so the change is made once, where the API answers (`lib/money/clean.ts` `cleanPrices`), and in the one place the app writes a total it adds up itself (`formatMoney`).
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 229.1 A price range as its cheapest end, in the app's language: "From SAR 4,899" (English), "من SAR 4,899" (Arabic), "SAR 4,899 ve üzeri" (Turkish: "…'den başlayan" would need its suffix to agree with how each amount is read, "ve üzeri" never does); its price in the customer's currency (`display`, 161) the same way. Amounts never change: the app still has both ends | `phase229-price-format.test.ts` |
+| [x] | 229.2 A whole amount without its zeros after the point, in its text's own style ("₺1.450,00" → "₺1.450", "+E£20.00" → "+E£20", Arabic texts too, "KWD 5.000" → "KWD 5"), only when what is left is the amount itself digit for digit; a real fraction keeps its currency's digits ("€12.50", "KWD 1.250"), never rounded; a text without a fraction ("EGP 4,250,000") and a currency without digits (yen) as they are. Every money object in every answer: product lists, cards and pages, sales and their price before, search, the wishlist, the cart, its lines and totals, shipping, coupons, fees, orders, bookings, courses, donations, food, delivery and travel; a connected platform's prices too (Shopify, WooCommerce, …) | `phase229-price-format.test.ts`, the hosted suites |
+| [x] | 229.3 The totals the app adds up itself (a dish with its options, a bouquet with its extras): `formatMoney` writes a whole amount without its zeros, as the server does | `currency_test.dart` |
+| [ ] | 229.4 Emails, invoices and the dashboard still write every amount with its digits (`formatCents`): left as they are, the owner to decide | — |
+

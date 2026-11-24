@@ -396,7 +396,7 @@ describe("Teachable on the hosted API", () => {
     });
     expect((await call("GET", "/courses", { query: { price: "paid" } })).body).toMatchObject({
       total: 1,
-      items: [{ id: 1002, price: { is_free: false, amount: "450.00", currency: "USD", formatted: "$450.00" }, lesson_count: 2 }],
+      items: [{ id: 1002, price: { is_free: false, amount: "450.00", currency: "USD", formatted: "$450" }, lesson_count: 2 }],
     });
     expect((await call("GET", "/courses", { query: { orderby: "title" } })).body).toMatchObject({
       items: [{ title: "Business English" }, { title: "Free Starter" }, { title: "Turkish for Beginners" }],
@@ -425,7 +425,7 @@ describe("Teachable on the hosted API", () => {
       categories: [],
     });
     const paid = await call("GET", "/courses/{course_id}", { params: ["1002"], query: { platform: "android" } });
-    expect(paid.body).toMatchObject({ purchase: { action: "none" }, price: { is_free: false, formatted: "$450.00" }, description_html: "<p>Plain text.</p><p>Two paragraphs.</p>", instructor: { name: "Mark Lee" } });
+    expect(paid.body).toMatchObject({ purchase: { action: "none" }, price: { is_free: false, formatted: "$450" }, description_html: "<p>Plain text.</p><p>Two paragraphs.</p>", instructor: { name: "Mark Lee" } });
     expect((await call("GET", "/courses/{course_id}", { params: ["1002"], query: { platform: "ios" } })).body).toMatchObject({ purchase: { action: "none" } });
     // No plans at all counts as free.
     expect((await call("GET", "/courses/{course_id}", { params: ["1004"], query: { platform: "ios" } })).body).toMatchObject({ purchase: { action: "enroll_free" } });

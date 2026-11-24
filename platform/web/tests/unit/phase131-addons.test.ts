@@ -212,7 +212,7 @@ describe("131 add-ons and a one-product flash sale on the shop's own products", 
     // The roses at the flash sale's 1087.50, the vase 350 and two cards 100; the vase's 2 kg priced.
     expect(cart.subtotal_amount).toBe("1537.50");
     expect(cart.item_count).toBe(4);
-    expect(cart.shipping).toBe("₺20.00");
+    expect(cart.shipping).toBe("₺20");
 
     const ok = await call("POST", "/store/checkout-link", { body: { lines: [{ product_id: ids.roses, quantity: 1 }, { product_id: ids.vase, quantity: 1, addon_of: ids.roses }] }, query: { platform: "android" } });
     expect(ok.status).toBe(200);

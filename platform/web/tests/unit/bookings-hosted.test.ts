@@ -185,7 +185,7 @@ describe("bookings on the hosted API", () => {
     });
     const all = (await call("GET", "/bookings/services")).body as { items: { name: string }[]; total: number };
     expect(all.items.map((s) => s.name)).toEqual(["Haircut", "Hair colouring", "Massage"]);
-    expect(all.items[0]).toMatchObject({ duration_minutes: 30, price: { amount: "300.00", formatted: "₺300.00", free: false }, image_url: "https://yallapp.test/api/v1/assets/img-cut" });
+    expect(all.items[0]).toMatchObject({ duration_minutes: 30, price: { amount: "300.00", formatted: "₺300", free: false }, image_url: "https://yallapp.test/api/v1/assets/img-cut" });
     expect((await call("GET", "/bookings/services", { query: { category: "2" } })).body).toMatchObject({ total: 1, items: [{ name: "Massage" }] });
     expect((await call("GET", "/bookings/services", { query: { search: "hair" } })).body).toMatchObject({ total: 2 });
     const cut = (await call("GET", "/bookings/services/{service_id}", { params: ["10"] })).body;

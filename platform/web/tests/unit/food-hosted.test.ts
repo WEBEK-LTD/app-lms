@@ -269,7 +269,7 @@ describe("105.1 food delivery apps on the hosted API", () => {
     expect(search.items.map((r) => r.name)).toEqual(["Abou Tarek"]);
     const menu = (await call("GET", "/food/restaurants/{restaurant_id}", { params: [String(abou)] })).body as { menu: { dishes: Record<string, unknown>[] }[]; hours: unknown[] };
     expect(menu.hours).toHaveLength(7);
-    expect(menu.menu[0]!.dishes[0]).toMatchObject({ name: "Koshari", price: "50.00", image_url: ASSETS("dish-1"), choice_groups: [{ name: "Size", choices: [{ name: "Regular", extra_formatted: null }, { name: "Large", extra: "15.00", extra_formatted: "+E£15.00" }] }, { name: "Extras" }] });
+    expect(menu.menu[0]!.dishes[0]).toMatchObject({ name: "Koshari", price: "50.00", image_url: ASSETS("dish-1"), choice_groups: [{ name: "Size", choices: [{ name: "Regular", extra_formatted: null }, { name: "Large", extra: "15.00", extra_formatted: "+E£15" }] }, { name: "Extras" }] });
     expect(menu.menu[0]!.dishes[1]).toMatchObject({ name: "Om Ali", available: false });
     const paused = (await store.listRestaurants(app.id)).find((r) => r.name === "Paused")!;
     expect((await call("GET", "/food/restaurants/{restaurant_id}", { params: [String(paused.id)] })).status).toBe(404);
@@ -278,13 +278,13 @@ describe("105.1 food delivery apps on the hosted API", () => {
   it("quotes a cart, and refuses one under the smallest order, from a closed restaurant or too far", async () => {
     const quote = await call("POST", "/food/quote", { body: cart(abou) });
     expect(quote.body).toEqual({
-      lines: [{ dish_id: 2, name: "Koshari", quantity: 2, choices: ["Size: Large", "Extras: Crispy onions"], note: "No garlic", unit_price: "70.00", total: "140.00", total_formatted: "E£140.00" }],
+      lines: [{ dish_id: 2, name: "Koshari", quantity: 2, choices: ["Size: Large", "Extras: Crispy onions"], note: "No garlic", unit_price: "70.00", total: "140.00", total_formatted: "E£140" }],
       subtotal: "140.00",
-      subtotal_formatted: "E£140.00",
+      subtotal_formatted: "E£140",
       delivery_fee: "32.00",
-      delivery_fee_formatted: "E£32.00",
+      delivery_fee_formatted: "E£32",
       total: "172.00",
-      total_formatted: "E£172.00",
+      total_formatted: "E£172",
       currency: "EGP",
       distance_km: 1.2,
       delivery_minutes: 33,

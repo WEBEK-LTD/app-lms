@@ -48,8 +48,13 @@ String _symbolOf(String currency) {
 
 /// "₺1,234.50", "KWD 1.250", "¥1,250", like the hosted API's prices. Latin
 /// digits in every language, as the server writes them.
+///
+/// 229 A whole amount without its zeros after the point ("₺1,234", not
+/// "₺1,234.00"), as the server now sends its prices
+/// (platform/web/src/lib/money/clean.ts); a real fraction keeps its
+/// currency's digits, never rounded.
 String formatMoney(int cents, String currency) {
-  final digits = currencyDigits(currency);
+  final digits = cents % 100 == 0 ? 0 : currencyDigits(currency);
   final symbol = _symbolOf(currency);
   try {
     return NumberFormat.currency(

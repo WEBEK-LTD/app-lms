@@ -4,9 +4,18 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 23 November 2026.
+Last updated: 24 November 2026.
 
 ## Current release
+
+Roadmap 229 (prices that read cleanly): a product whose variations cost
+differently shows "From SAR 4,899" (Arabic "من SAR 4,899", Turkish
+"SAR 4,899 ve üzeri") instead of the whole range, and every whole amount
+the app shows reads without ".00" ("₺450", "E£600"), a real fraction with
+its digits ("€12.50"). Made once where the hosted API answers
+(`cleanPrices`), so lists, product pages, the cart and its totals, orders
+and every other type's prices change together; the app's own totals
+(`formatMoney`) the same. Emails, invoices and the dashboard unchanged.
 
 Roadmap 228 (a look's own product page): `product` is a Studio page
 screen (a shop's); a look's page for it is drawn for every product in place

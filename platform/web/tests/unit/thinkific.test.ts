@@ -317,7 +317,7 @@ describe("Thinkific on the hosted API", () => {
       enrolled: false,
       wishlisted: false,
     });
-    expect(all.items[0]).toMatchObject({ price: { is_free: false, amount: "49.00", currency: "USD", formatted: "$49.00" }, lesson_count: 1 });
+    expect(all.items[0]).toMatchObject({ price: { is_free: false, amount: "49.00", currency: "USD", formatted: "$49" }, lesson_count: 1 });
     expect((await call("GET", "/courses", { query: { price: "free" } })).body).toMatchObject({ total: 1, items: [{ id: 10 }] });
     expect((await call("GET", "/courses", { query: { price: "paid" } })).body).toMatchObject({ total: 1, items: [{ id: 20 }] });
     expect((await call("GET", "/courses", { query: { orderby: "title" } })).body).toMatchObject({ items: [{ id: 20 }, { id: 10 }] });
@@ -348,7 +348,7 @@ describe("Thinkific on the hosted API", () => {
       instructor: { name: "Selin Arslan" },
     });
     const paid = await call("GET", "/courses/{course_id}", { params: ["20"], query: { platform: "android" } });
-    expect(paid.body).toMatchObject({ purchase: { action: "none" }, price: { is_free: false, formatted: "$49.00" }, description_html: "<p>Meetings and e-mails.</p><p>In English.</p>", duration_minutes: null });
+    expect(paid.body).toMatchObject({ purchase: { action: "none" }, price: { is_free: false, formatted: "$49" }, description_html: "<p>Meetings and e-mails.</p><p>In English.</p>", duration_minutes: null });
     expect((await call("GET", "/courses/{course_id}", { params: ["20"], query: { platform: "ios" } })).body).toMatchObject({ purchase: { action: "none" } });
   });
 
