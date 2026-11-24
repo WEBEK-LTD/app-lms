@@ -1439,7 +1439,6 @@ components:
         rank: { type: string, enum: [newcomer, member, contributor, expert, pro], description: "Their standing by points (newcomer, member from 25, contributor from 250, expert from 1,000, pro from 5,000)." }
         rank_label: { type: string, description: "The rank's name in the reader's language (\"Expert\")." }
         relationship: { $ref: "#/components/schemas/Relationship" }
-        rank: { type: string, enum: [newcomer, member, contributor, expert, pro], description: "In the Q&A and tutorials: the member's standing by their points (25, 250, 1000 and 5000 points)." }
     Relationship:
       type: object
       description: How the signed-in member stands with this member (absent when signed out).
