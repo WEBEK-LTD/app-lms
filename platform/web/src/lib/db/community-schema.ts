@@ -1,4 +1,4 @@
-import { boolean, customType, datetime, index, int, mysqlTable, primaryKey, text, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { boolean, customType, datetime, foreignKey, index, int, mysqlTable, primaryKey, text, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 import type {
   CommunityEmailTokenPurpose,
   CommunityFriendshipStatus,
@@ -395,9 +395,8 @@ export const communityVerificationRequests = mysqlTable(
   "community_verification_requests",
   {
     id: id("id").primaryKey(),
-    memberId: id("member_id")
-      .notNull()
-      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    // Its foreign key is named below: the generated name is longer than MySQL's 64 characters.
+    memberId: id("member_id").notNull(),
     fullName: varchar("full_name", { length: 120 }).notNull(),
     // The ID proof's file in private storage: never public.
     idProofKey: varchar("id_proof_key", { length: 255 }).notNull(),
@@ -410,7 +409,11 @@ export const communityVerificationRequests = mysqlTable(
     reviewedAt: time("reviewed_at"),
     createdAt: time("created_at").notNull(),
   },
-  (t) => [index("community_verification_member").on(t.memberId), index("community_verification_status").on(t.status, t.createdAt)],
+  (t) => [
+    foreignKey({ name: "community_verification_member_fk", columns: [t.memberId], foreignColumns: [communityMembers.id] }).onDelete("cascade"),
+    index("community_verification_member").on(t.memberId),
+    index("community_verification_status").on(t.status, t.createdAt),
+  ],
 );
 
 /** Every grant and revoke of a badge, and the admins' other decisions: who, when, why. */
