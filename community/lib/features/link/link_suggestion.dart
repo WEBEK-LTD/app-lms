@@ -7,11 +7,9 @@ import '../../core/l10n.dart';
 import '../../core/providers.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/brand_marks.dart';
-import '../profile/profile_page.dart' show linkYallapp;
 
 /// "We found your Yallapp account. Link it?" on Home and in Settings while
-/// `/me`'s `link_suggestion.available`: Link in one tap (the browser's
-/// confirmation when the server asks for it), or Dismiss.
+/// `/me`'s `link_suggestion.available`: Link in one tap, or Dismiss.
 class LinkSuggestionBanner extends ConsumerStatefulWidget {
   const LinkSuggestionBanner({super.key, this.margin = EdgeInsets.zero});
 
@@ -40,20 +38,20 @@ class _LinkSuggestionBannerState extends ConsumerState<LinkSuggestionBanner> {
       }
       await ref.read(sessionProvider.notifier).refresh();
     } on ApiException catch (e) {
-      if (e.code == ApiException.confirmNeeded && mounted) {
-        // The server wants it confirmed on yallapp.com.tr.
-        await linkYallapp(context, ref);
-      } else {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(
-              e.offline
-                  ? l.commonOffline
-                  : (e.message.isEmpty ? l.commonError : e.message),
-            ),
-          ),
-        );
+      if (e.code == ApiException.notEligible) {
+        // It went meanwhile (linked elsewhere, or no longer offered).
+        await ref.read(sessionProvider.notifier).refresh();
+        return;
       }
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            e.offline
+                ? l.commonOffline
+                : (e.message.isEmpty ? l.commonError : e.message),
+          ),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _busy = false);
     }

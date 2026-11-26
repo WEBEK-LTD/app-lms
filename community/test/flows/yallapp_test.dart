@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp_community/core/api/fake_community_api.dart';
 import 'package:yallapp_community/core/auth/session.dart';
@@ -71,7 +72,7 @@ void main() {
       tester,
       api: api,
       session: FakeYallappAuthSession(
-        (_) => Uri.parse('yallappcommunity://signed-in?code=x&state=forged'),
+        (_) => Uri.parse('yallappcommunity://auth/yallapp?code=x&state=forged'),
       ),
     );
     await tap(tester, 'auth-yallapp');
@@ -92,7 +93,7 @@ void main() {
           (page) => back == null
               ? null
               : Uri.parse(
-                  'yallappcommunity://signed-in?$back'
+                  'yallappcommunity://auth/yallapp?$back'
                   '&state=${page.queryParameters['state']}',
                 ),
         ),
@@ -104,7 +105,7 @@ void main() {
   }
 
   group('link suggestion', () {
-    FakeCommunityApi suggesting() => FakeCommunityApi()..suggestLink('Lujain');
+    FakeCommunityApi suggesting() => FakeCommunityApi()..suggestLink();
 
     testWidgets('Link links in one tap, on Home', (tester) async {
       final api = suggesting();
@@ -115,7 +116,6 @@ void main() {
         signedIn: true,
       );
       expect(key('link-suggestion'), findsOneWidget);
-      expect(find.textContaining('Lujain'), findsWidgets);
       await tap(tester, 'link-suggestion-link');
       expect(api.calls, contains('suggestion-accept'));
       expect(key('link-suggestion'), findsNothing);
@@ -137,10 +137,8 @@ void main() {
       expect(key('link-suggestion'), findsNothing);
     });
 
-    testWidgets('when the server asks, it is confirmed in the browser', (
-      tester,
-    ) async {
-      final api = suggesting()..suggestionNeedsConfirm = true;
+    testWidgets('a suggestion that went meanwhile just goes', (tester) async {
+      final api = suggesting()..suggestionGone = true;
       await start(
         tester,
         api: api,
@@ -148,7 +146,9 @@ void main() {
         signedIn: true,
       );
       await tap(tester, 'link-suggestion-link');
-      expect(api.calls, containsAllInOrder(['suggestion-accept', 'link']));
+      expect(api.calls, contains('suggestion-accept'));
+      expect(key('link-suggestion'), findsNothing);
+      expect(find.byType(SnackBar), findsNothing);
     });
 
     testWidgets('none without a suggestion', (tester) async {

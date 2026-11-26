@@ -308,7 +308,8 @@ class LinkSuggestion {
 
   final bool available;
 
-  /// The Yallapp account's name, when the server gives it.
+  /// The Yallapp account's name; area B's server doesn't send it, so the
+  /// banner names no one.
   final String? accountName;
 }
 

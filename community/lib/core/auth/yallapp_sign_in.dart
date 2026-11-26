@@ -64,7 +64,8 @@ class YallappSignIn {
     : _random = random ?? Random.secure();
 
   static const callbackScheme = 'yallappcommunity';
-  static const redirectUri = '$callbackScheme://signed-in';
+  // The address area B's server accepts for the app (exactly).
+  static const redirectUri = '$callbackScheme://auth/yallapp';
 
   final CommunityApi api;
   final YallappAuthSession session;
@@ -98,12 +99,12 @@ class YallappSignIn {
     final q = back.queryParameters;
     // Not the answer to this request: refused, as a forged one would be.
     if (q['state'] != state) {
-      throw const ApiException(code: ApiException.invalidGrant);
+      throw const ApiException(code: ApiException.stateMismatch);
     }
     if (q['error'] == 'access_denied') return null;
     final code = q['code'];
     if (code == null || code.isEmpty) {
-      throw const ApiException(code: ApiException.invalidGrant);
+      throw const ApiException(code: ApiException.invalidToken);
     }
     return api.signInWithYallapp(
       code: code,

@@ -1,3 +1,4 @@
+import '../auth/yallapp_sign_in.dart';
 import 'api_client.dart';
 import 'json.dart';
 import 'models.dart';
@@ -95,8 +96,8 @@ abstract class CommunityApi {
   Future<Uri> startYallappLink();
   Future<void> unlinkYallapp();
 
-  /// Links the Yallapp account `link_suggestion` found, in one tap; a 409
-  /// `confirm_needed` asks for the browser's confirmation instead.
+  /// Links the Yallapp account `link_suggestion` found, in one tap (409
+  /// `not_eligible` when it no longer can be).
   Future<void> acceptLinkSuggestion();
 
   /// Stops suggesting it.
@@ -223,11 +224,10 @@ class HttpCommunityApi implements CommunityApi {
       await client.post(
         '/auth/yallapp/start',
         body: {
+          'redirect_uri': redirectUri,
           'code_challenge': codeChallenge,
           'code_challenge_method': 'S256',
           'state': state,
-          'redirect_uri': redirectUri,
-          'language': language,
         },
         renew: false,
       ),
@@ -247,6 +247,7 @@ class HttpCommunityApi implements CommunityApi {
       body: {
         'code': code,
         'code_verifier': codeVerifier,
+        'redirect_uri': YallappSignIn.redirectUri,
         'language': language,
         'device': ?device,
       },
@@ -339,11 +340,11 @@ class HttpCommunityApi implements CommunityApi {
 
   @override
   Future<void> acceptLinkSuggestion() async =>
-      client.post('/me/yallapp-link/suggestion/accept');
+      client.post('/me/yallapp-link/suggested');
 
   @override
-  Future<void> dismissLinkSuggestion() async =>
-      client.post('/me/yallapp-link/suggestion/dismiss');
+  Future<void> dismissLinkSuggestion() =>
+      client.delete('/me/yallapp-link/suggested');
 
   @override
   Future<Profile> member(String id) async =>
