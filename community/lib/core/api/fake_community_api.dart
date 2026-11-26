@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+
 import 'api_exception.dart';
 import 'community_api.dart';
 import 'json.dart';
@@ -217,6 +221,50 @@ class FakeCommunityApi implements CommunityApi {
     return _wait(_signedIn());
   }
 
+  /// The challenge and state the last Yallapp sign-in started with.
+  String? yallappChallenge, yallappState;
+
+  /// The page the demo's Yallapp sign-in opens.
+  Uri yallappPage = Uri.parse('https://yallapp.com.tr/community/sign-in');
+
+  @override
+  Future<Uri> startYallappSignIn({
+    required String codeChallenge,
+    required String state,
+    required String redirectUri,
+    required String language,
+  }) {
+    calls.add('yallapp-start');
+    yallappChallenge = codeChallenge;
+    yallappState = state;
+    return _wait(
+      yallappPage.replace(
+        queryParameters: {
+          'state': state,
+          'code_challenge': codeChallenge,
+          'redirect_uri': redirectUri,
+        },
+      ),
+    );
+  }
+
+  @override
+  Future<SignedIn> signInWithYallapp({
+    required String code,
+    required String codeVerifier,
+    required String language,
+    Json? device,
+  }) {
+    calls.add('yallapp:$code');
+    final challenge = base64Url
+        .encode(sha256.convert(utf8.encode(codeVerifier)).bytes)
+        .replaceAll('=', '');
+    if (challenge != yallappChallenge) {
+      throw const ApiException(code: ApiException.invalidToken);
+    }
+    return _wait(_signedIn());
+  }
+
   @override
   Future<SignedIn> refresh(String refreshToken) {
     calls.add('refresh:$refreshToken');
@@ -293,6 +341,57 @@ class FakeCommunityApi implements CommunityApi {
   Future<Uri> startYallappLink() {
     calls.add('link');
     return _wait(linkPage);
+  }
+
+  /// Accepting the suggestion answers `not_eligible` (it went meanwhile).
+  bool suggestionGone = false;
+
+  @override
+  Future<void> acceptLinkSuggestion() async {
+    calls.add('suggestion-accept');
+    if (suggestionGone) {
+      _me = _me.copyWith(account: _withSuggestion(null));
+      throw const ApiException(code: ApiException.notEligible);
+    }
+    _me = _me.copyWith(
+      yallappLinked: true,
+      apps: _apps,
+      account: _withSuggestion(null),
+    );
+  }
+
+  @override
+  Future<void> dismissLinkSuggestion() async {
+    calls.add('suggestion-dismiss');
+    _me = _me.copyWith(account: _withSuggestion(null));
+  }
+
+  /// Shows the suggestion (a member whose Yallapp account isn't linked).
+  void suggestLink([String? accountName]) {
+    _me = _me.copyWith(
+      yallappLinked: false,
+      apps: const [],
+      account: _withSuggestion(
+        LinkSuggestion(available: true, accountName: accountName),
+      ),
+    );
+  }
+
+  Account _withSuggestion(LinkSuggestion? s) {
+    final a = _me.account ?? const Account();
+    return Account(
+      email: a.email,
+      emailVerified: a.emailVerified,
+      hasPassword: a.hasPassword,
+      providers: a.providers,
+      language: a.language,
+      theme: a.theme,
+      role: a.role,
+      unreadNotifications: a.unreadNotifications,
+      pendingFriendRequests: a.pendingFriendRequests,
+      communityRole: a.communityRole,
+      linkSuggestion: s,
+    );
   }
 
   @override

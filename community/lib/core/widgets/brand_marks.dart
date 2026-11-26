@@ -66,6 +66,49 @@ class GoogleMark extends StatelessWidget {
   );
 }
 
+/// Yallapp's mark (brand/icon/yallapp-icon-dark-rounded.svg): the cream
+/// "y" and the Ember dot on Midnight, its corners at 22.5%.
+class YallappMark extends StatelessWidget {
+  const YallappMark({super.key, this.size = 22});
+
+  final double size;
+
+  static final _y = svgPath(
+    'M224.0 153.0Q190.0 153.0 153.5 146.5Q117.0 140.0 83.0 125.5Q49.0 111.0 22.0 89.0L63.0 -30.0Q95.0 6.0 137.5 20.5Q180.0 35.0 219.0 35.0Q276.0 35.0 311.0 11.0Q346.0 -13.0 362.5 -56.0Q379.0 -99.0 379.0 -156.0L384.0 -262.0H375.0Q370.0 -187.0 347.0 -140.5Q324.0 -94.0 287.5 -73.0Q251.0 -52.0 204.0 -52.0Q146.0 -52.0 108.5 -81.5Q71.0 -111.0 53.0 -168.0Q35.0 -225.0 35.0 -306.0V-522.0H161.0V-336.0Q161.0 -247.0 182.5 -205.0Q204.0 -163.0 252.0 -163.0Q278.0 -163.0 298.5 -176.0Q319.0 -189.0 333.5 -214.5Q348.0 -240.0 355.5 -279.0Q363.0 -318.0 363.0 -369.0V-522.0H489.0V-152.0Q489.0 -109.0 481.0 -65.0Q473.0 -21.0 454.5 18.0Q436.0 57.0 406.0 87.5Q376.0 118.0 331.0 135.5Q286.0 153.0 224.0 153.0Z',
+  );
+  static final _dot = svgPath(
+    'M576.0 12.0Q535.0 12.0 514.5 -6.0Q494.0 -24.0 494.0 -61.0Q494.0 -98.0 514.5 -116.0Q535.0 -134.0 576.0 -134.0Q617.0 -134.0 638.0 -116.0Q659.0 -98.0 659.0 -61.0Q659.0 12.0 576.0 12.0Z',
+  );
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: size,
+    height: size,
+    child: CustomPaint(painter: _YallappPainter()),
+  );
+}
+
+class _YallappPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / 1024);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        const Rect.fromLTWH(0, 0, 1024, 1024),
+        const Radius.circular(230.4),
+      ),
+      Paint()..color = const Color(0xFF0E0D24),
+    );
+    canvas.translate(191.738, 685.534);
+    canvas.scale(0.940563);
+    canvas.drawPath(YallappMark._y, Paint()..color = const Color(0xFFF4EFE6));
+    canvas.drawPath(YallappMark._dot, Paint()..color = const Color(0xFFFF5A1F));
+  }
+
+  @override
+  bool shouldRepaint(_YallappPainter old) => false;
+}
+
 class _MarkPainter extends CustomPainter {
   _MarkPainter(this.paths, this.box);
 

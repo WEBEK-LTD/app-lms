@@ -22,10 +22,15 @@ const TEAM: readonly AdminRole[] = ["owner", "admin", "support"];
 /** Lookups made in one request, so a page of authors asks once per account. */
 const cache = new WeakMap<object, Map<string, Promise<AdminRole | null>>>();
 
-/** The member's role on Yallapp's own team through their linked account; null for none (or no link). */
-export function yallappStaffRole(scope: object, platform: DataStore, member: Pick<CommunityMember, "yallappUserId">): Promise<AdminRole | null> {
+/**
+ * The member's role on Yallapp's own team through their linked account; null
+ * for none, no link, or a link not made by the full flow: joining or signing
+ * in with "Continue with Yallapp", or the one-tap suggested link, never makes
+ * anyone run the community, whatever the account is.
+ */
+export function yallappStaffRole(scope: object, platform: DataStore, member: Pick<CommunityMember, "yallappUserId" | "yallappLinkVia">): Promise<AdminRole | null> {
   const userId = member.yallappUserId;
-  if (!userId) return Promise.resolve(null);
+  if (!userId || member.yallappLinkVia !== "link") return Promise.resolve(null);
   let roles = cache.get(scope);
   if (!roles) cache.set(scope, (roles = new Map()));
   let role = roles.get(userId);
@@ -36,13 +41,13 @@ export function yallappStaffRole(scope: object, platform: DataStore, member: Pic
   return role;
 }
 
-export async function isCommunityAdmin(scope: object, platform: DataStore, member: Pick<CommunityMember, "yallappUserId" | "status">): Promise<boolean> {
+export async function isCommunityAdmin(scope: object, platform: DataStore, member: Pick<CommunityMember, "yallappUserId" | "yallappLinkVia" | "status">): Promise<boolean> {
   if (member.status !== "active") return false;
   const role = await yallappStaffRole(scope, platform, member);
   return role !== null && ADMINS.includes(role);
 }
 
-export async function isYallappTeam(scope: object, platform: DataStore, member: Pick<CommunityMember, "yallappUserId" | "role">): Promise<boolean> {
+export async function isYallappTeam(scope: object, platform: DataStore, member: Pick<CommunityMember, "yallappUserId" | "yallappLinkVia" | "role">): Promise<boolean> {
   if (member.role === "team") return true;
   const role = await yallappStaffRole(scope, platform, member);
   return role !== null && TEAM.includes(role);

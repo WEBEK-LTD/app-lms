@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { confirmCommunityLinkAction } from "@/app/actions/community-link";
+import { sendEmailConfirmationAction } from "@/app/actions/email-confirm";
 import { AuthShell } from "@/components/auth-shell";
 import { btn } from "@/components/ui";
 import { getCurrentUser } from "@/lib/auth/session";
 import { APP_RETURN_URL, pendingLink } from "@/lib/community/base/linking";
+import { pendingYallappSignin } from "@/lib/community/base/yallapp-signin";
 import { communitySiteUrl } from "@/lib/community/deps";
 import { isCommunityLanguage, isRtl, t } from "@/lib/community/i18n";
 import { getCommunityStore } from "@/lib/community/store/server";
@@ -24,6 +26,52 @@ export default async function LinkCommunityPage({ searchParams }: PageProps<"/li
   const back = one("return") === "app" ? "app" : "web";
   const done = one("done");
   const error = one("error");
+
+  // 231 "Continue with Yallapp": the person lets the community sign them in with this account.
+  if (one("mode") === "signin") {
+    const request = one("request");
+    const user = await getCurrentUser();
+    if (!user && !error) redirect(`/api/community-link/sign-in?mode=signin&request=${encodeURIComponent(request)}`);
+    const lang: CommunityLanguage = isCommunityLanguage(user?.language) ? (user!.language as CommunityLanguage) : "en";
+    const pending = error || !user ? { ok: false as const } : await pendingYallappSignin(await getCommunityStore(), request, new Date());
+    if (!pending.ok || !user) {
+      return (
+        <Card lang={lang} title={t(lang, "signin.yallapp.title")}>
+          <p className="m-0 text-base leading-relaxed text-ink-4" role="alert">
+            {t(lang, "signin.yallapp.expired")}
+          </p>
+          <a href={communitySiteUrl()} className={`${btn.secondary} h-[50px]`}>
+            {t(lang, "link.back")}
+          </a>
+        </Card>
+      );
+    }
+    return (
+      <Card lang={lang} title={t(lang, "signin.yallapp.title")}>
+        <p className="m-0 text-base leading-relaxed text-ink-4">{t(lang, "signin.yallapp.body")}</p>
+        <p className="m-0 text-sm text-ink-4">{t(lang, "link.signedInAs", { name: user.name, email: user.email })}</p>
+        {user.emailVerifiedAt ? null : one("sent") ? (
+          <p className="m-0 text-sm font-semibold" role="status">{t(lang, "signin.yallapp.sent")}</p>
+        ) : (
+          <form action={sendEmailConfirmationAction} className="flex flex-col gap-2">
+            <p className="m-0 text-sm text-ink-4">{t(lang, "signin.yallapp.unconfirmed")}</p>
+            <input type="hidden" name="back" value={`/link-community?mode=signin&request=${encodeURIComponent(request)}`} />
+            <button type="submit" className={`${btn.secondary} h-[44px] w-full cursor-pointer`}>{t(lang, "signin.yallapp.sendConfirm")}</button>
+          </form>
+        )}
+        {/* A plain post (api/community-link/signin): its 303 takes the browser to the app's or the site's address itself. */}
+        <form action="/api/community-link/signin" method="post" className="flex flex-col gap-3">
+          <input type="hidden" name="request" value={request} />
+          <button type="submit" name="decision" value="continue" className={`${btn.primary} h-[50px] w-full cursor-pointer`}>
+            {t(lang, "signin.yallapp.continue")}
+          </button>
+          <button type="submit" name="decision" value="cancel" className={`${btn.secondary} h-[50px] w-full cursor-pointer`}>
+            {t(lang, "signin.yallapp.cancel")}
+          </button>
+        </form>
+      </Card>
+    );
+  }
 
   if (done || error) {
     const lang: CommunityLanguage = isCommunityLanguage(one("lang")) ? (one("lang") as CommunityLanguage) : "en";

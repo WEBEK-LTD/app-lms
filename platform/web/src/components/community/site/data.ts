@@ -89,6 +89,8 @@ export type Viewer = MemberRef & {
   role: "admin" | "moderator" | null;
   lang: CmLang;
   unread: number;
+  /** 231 A Yallapp account with the same verified email may be linked in one tap. */
+  linkSuggestion: boolean;
 };
 
 export type FeedTab = "for_you" | "latest" | "active" | "unanswered";

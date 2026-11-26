@@ -14,6 +14,7 @@ import 'api/json.dart';
 import 'api/models.dart';
 import 'auth/session.dart';
 import 'auth/social_sign_in.dart';
+import 'auth/yallapp_sign_in.dart';
 import 'config.dart';
 
 /// The app's wiring. `main.dart` overrides [sharedPreferencesProvider]; the
@@ -195,6 +196,13 @@ final googleSignInProvider = Provider<SocialSignIn>(
   (ref) => ref.watch(configProvider).demo
       ? const FakeSocialSignIn('demo-google')
       : GoogleSignIn(ref.watch(configProvider)),
+);
+
+/// Continue with Yallapp's auth session (the demo confirms at once).
+final yallappAuthSessionProvider = Provider<YallappAuthSession>(
+  (ref) => ref.watch(configProvider).demo
+      ? FakeYallappAuthSession.confirming()
+      : const WebYallappAuthSession(),
 );
 
 /// Opens a page outside the app (the website, a linked app).

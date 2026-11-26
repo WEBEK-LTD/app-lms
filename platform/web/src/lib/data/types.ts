@@ -75,6 +75,12 @@ export interface User {
    * when the `yallapp_lang` cookie, else English, decides (lib/dashboard-lang.ts).
    */
   language?: string | null;
+  /**
+   * 231 When the person proved this email is theirs: a completed password
+   * reset, an accepted team invitation, or "Confirm your email" (all sent
+   * to it). Null until then; Yallapp Community trusts the email only then.
+   */
+  emailVerifiedAt?: Date | null;
 }
 
 export interface Client {

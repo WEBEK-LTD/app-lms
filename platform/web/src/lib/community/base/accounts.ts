@@ -89,6 +89,8 @@ export function newMember(input: {
     approvedPosts: 0,
     yallappUserId: null,
     linkedAt: null,
+    yallappLinkVia: null,
+    linkSuggestionDismissedAt: null,
     sessionVersion: 1,
     createdAt: input.now,
     updatedAt: input.now,

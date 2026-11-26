@@ -27,6 +27,7 @@
   "authBubbleDays": "4 days left",
   "authContinueApple": "Continue with Apple",
   "authContinueGoogle": "Continue with Google",
+  "authContinueYallapp": "Continue with Yallapp",
   "authSignUpEmail": "Sign up with email",
   "authAlreadyMember": "Already a member?",
   "authLogIn": "Log in",
@@ -205,6 +206,19 @@
   "settingsLink": "Link",
   "settingsUnlink": "Unlink",
   "settingsUnlinkConfirm": "Unlink your Yallapp account? Your apps leave your profile, and badges that need them go.",
+  "linkSuggestTitle": "We found your Yallapp account. Link it?",
+  "linkSuggestNamed": "We found your Yallapp account, {name}. Link it?",
+  "@linkSuggestNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkSuggestLine": "Your apps will show on your profile.",
+  "linkSuggestLink": "Link",
+  "linkSuggestDismiss": "Dismiss",
+  "linkSuggestDone": "Linked to Yallapp.",
   "settingsAbout": "About",
   "settingsPrivacy": "Privacy policy",
   "settingsVersion": "Version {version}",

@@ -253,6 +253,7 @@ class Account {
     this.unreadNotifications = 0,
     this.pendingFriendRequests = 0,
     this.communityRole,
+    this.linkSuggestion,
   });
 
   factory Account.fromJson(Json json) => Account(
@@ -266,6 +267,9 @@ class Account {
     unreadNotifications: integer(json, 'unread_notifications'),
     pendingFriendRequests: integer(json, 'pending_friend_requests'),
     communityRole: optStr(json, 'community_role'),
+    linkSuggestion: optObject(json, 'link_suggestion') == null
+        ? null
+        : LinkSuggestion.fromJson(optObject(json, 'link_suggestion')!),
   );
 
   final String? email;
@@ -287,6 +291,26 @@ class Account {
   /// `admin` or `moderator` for those who run the community (the website
   /// has their tools), else null.
   final String? communityRole;
+
+  /// A Yallapp account with the member's email, not linked yet (`null`: none,
+  /// or dismissed).
+  final LinkSuggestion? linkSuggestion;
+}
+
+/// "We found your Yallapp account. Link it?" (`Me.link_suggestion`).
+class LinkSuggestion {
+  const LinkSuggestion({this.available = false, this.accountName});
+
+  factory LinkSuggestion.fromJson(Json json) => LinkSuggestion(
+    available: boolean(json, 'available'),
+    accountName: optStr(json, 'account_name'),
+  );
+
+  final bool available;
+
+  /// The Yallapp account's name; area B's server doesn't send it, so the
+  /// banner names no one.
+  final String? accountName;
 }
 
 /// A member's profile (the contract's `Profile`; with [account], `Me`).

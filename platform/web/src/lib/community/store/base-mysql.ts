@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gt, inArray, isNull, like, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, inArray, isNotNull, isNull, like, or, sql } from "drizzle-orm";
 import {
   communityBlocks,
   communityEmailTokens,
@@ -6,6 +6,7 @@ import {
   communityFriendships,
   communityIdentities,
   communityLinkRequests,
+  communityYallappSignins,
   communityMembers,
   communityReports,
   communitySessions,
@@ -19,6 +20,7 @@ import type {
   CommunityFriendship,
   CommunityIdentity,
   CommunityLinkRequest,
+  CommunityYallappSignin,
   CommunityMember,
   CommunityReport,
   CommunityReportStatus,
@@ -361,6 +363,38 @@ export class MysqlCommunityBaseStore implements CommunityBaseStore {
 
   async confirmLinkRequest(stateHash: string, now: Date): Promise<void> {
     await this.db.update(communityLinkRequests).set({ confirmedAt: now }).where(eq(communityLinkRequests.stateHash, stateHash));
+  }
+
+  // ---------------------------------------------------------------- "Continue with Yallapp"
+
+  async createYallappSignin(signin: CommunityYallappSignin): Promise<void> {
+    await this.db.insert(communityYallappSignins).values(signin);
+  }
+
+  async getYallappSignin(requestHash: string): Promise<CommunityYallappSignin | null> {
+    const [row] = await this.db.select().from(communityYallappSignins).where(eq(communityYallappSignins.requestHash, requestHash)).limit(1);
+    return row ?? null;
+  }
+
+  async approveYallappSignin(requestHash: string, approval: { yallappUserId: string; codeHash: string; expiresAt: Date }, now: Date): Promise<boolean> {
+    const s = communityYallappSignins;
+    const [result] = await this.db
+      .update(s)
+      .set({ ...approval, approvedAt: now })
+      .where(and(eq(s.requestHash, requestHash), isNull(s.approvedAt), gt(s.expiresAt, now)));
+    return (result as { affectedRows?: number }).affectedRows === 1;
+  }
+
+  async useYallappSignin(codeHash: string, now: Date): Promise<CommunityYallappSignin | null> {
+    const s = communityYallappSignins;
+    // Marked used in the one statement that checks it: two exchanges of one code can't both win.
+    const [result] = await this.db
+      .update(s)
+      .set({ usedAt: now })
+      .where(and(eq(s.codeHash, codeHash), isNull(s.usedAt), isNotNull(s.approvedAt), gt(s.expiresAt, now)));
+    if ((result as { affectedRows?: number }).affectedRows !== 1) return null;
+    const [row] = await this.db.select().from(s).where(eq(s.codeHash, codeHash)).limit(1);
+    return row ?? null;
   }
 
   // ---------------------------------------------------------------- reports

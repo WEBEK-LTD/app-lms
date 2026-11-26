@@ -229,6 +229,8 @@ export async function acceptInvitation(store: DataStore, token: string, user: Us
   if (check.client.userId === user.id) return { ok: false, reason: "owner" };
   if (await adminRoleOf(store, user)) return { ok: false, reason: "staff" };
   if (!(await store.acceptTeamInvitation(check.invitation.id, check.invitation.tokenHash, now))) return { ok: false, reason: "used" };
+  // 231 The invitation went to this email and they followed it: the email is theirs.
+  if (!user.emailVerifiedAt) await store.updateUser(user.id, { emailVerifiedAt: now }, now);
   const { invitation } = check;
   const current = await store.getTeamMember(invitation.clientId, user.id);
   await store.saveTeamMember({

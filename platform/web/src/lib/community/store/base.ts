@@ -4,6 +4,7 @@ import type {
   CommunityFriendship,
   CommunityIdentity,
   CommunityLinkRequest,
+  CommunityYallappSignin,
   CommunityMember,
   CommunityReport,
   CommunityReportStatus,
@@ -91,6 +92,14 @@ export interface CommunityBaseStore {
   createLinkRequest(request: CommunityLinkRequest): Promise<void>;
   getLinkRequest(stateHash: string): Promise<CommunityLinkRequest | null>;
   confirmLinkRequest(stateHash: string, now: Date): Promise<void>;
+
+  // "Continue with Yallapp"
+  createYallappSignin(signin: CommunityYallappSignin): Promise<void>;
+  getYallappSignin(requestHash: string): Promise<CommunityYallappSignin | null>;
+  /** Approved once, while in time: the user, the code's hash and its (shorter) expiry; false when already approved or expired. */
+  approveYallappSignin(requestHash: string, approval: { yallappUserId: string; codeHash: string; expiresAt: Date }, now: Date): Promise<boolean>;
+  /** The approved sign-in with this code, marked used in the same step; null when there's none, it was used, or it expired. */
+  useYallappSignin(codeHash: string, now: Date): Promise<CommunityYallappSignin | null>;
 
   // Reports (area C reads and closes them)
   /** Null when the member already reported this target. */

@@ -45,12 +45,13 @@ class WelcomePage extends ConsumerWidget {
           // under the collage.
           final extra = (h - 844).clamp(0, 400).toDouble();
           const buttonsBottom = 70.0;
-          const buttonsHeight = 54.0 * 3 + 10 * 2;
-          // The design's 476, up by the Google button and its gap (54 + 10).
+          const buttonsHeight = 54.0 * 4 + 10 * 3;
+          // The design's 476, up by the Google and Yallapp buttons and their
+          // gaps (2 × (54 + 10)).
           // A phone shorter than the design keeps the words the same height
           // above the buttons, and the collage above shrinks to fit.
           final short = (844 - h).clamp(0, 400).toDouble();
-          final wordsTop = 476.0 - 64 + extra - short;
+          final wordsTop = 476.0 - 128 + extra - short;
           // The collage under the status bar (the design's 96 under its 50).
           final collageTop = 46 + MediaQuery.paddingOf(context).top;
           // It reaches 44 points into the words' space, as in the design.

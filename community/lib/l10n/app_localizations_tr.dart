@@ -94,6 +94,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get authContinueGoogle => 'Google ile devam et';
 
   @override
+  String get authContinueYallapp => 'Yallapp ile devam et';
+
+  @override
   String get authSignUpEmail => 'E-postayla kaydol';
 
   @override
@@ -560,6 +563,26 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get settingsUnlinkConfirm =>
       'Yallapp hesabının bağlantısı kaldırılsın mı? Uygulamaların profilinden çıkar, onlara bağlı rozetler gider.';
+
+  @override
+  String get linkSuggestTitle => 'Yallapp hesabını bulduk. Bağlansın mı?';
+
+  @override
+  String linkSuggestNamed(String name) {
+    return 'Yallapp hesabını bulduk: $name. Bağlansın mı?';
+  }
+
+  @override
+  String get linkSuggestLine => 'Uygulamaların profilinde görünecek.';
+
+  @override
+  String get linkSuggestLink => 'Bağla';
+
+  @override
+  String get linkSuggestDismiss => 'Kapat';
+
+  @override
+  String get linkSuggestDone => 'Yallapp\'a bağlandı.';
 
   @override
   String get settingsAbout => 'Hakkında';

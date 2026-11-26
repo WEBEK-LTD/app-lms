@@ -15,10 +15,12 @@ const MOVE_PAGE = /^\/dashboard\/app-moves\/[0-9a-f-]{36}\?expires=\d{1,12}&sig=
 
 /** 231 Yallapp Community's page that links a Yallapp account to a member (lib/community/base/linking.ts). */
 const COMMUNITY_LINK_PAGE = /^\/link-community\?state=[\w-]{20,100}&return=(?:web|app)$/;
+/** 231 "Continue with Yallapp"'s approval page. */
+const COMMUNITY_SIGNIN_PAGE = /^\/link-community\?mode=signin&request=[\w-]{20,100}$/;
 
 /** A move's page (or 231 the community's link page) to go back to after signing in, or null. */
 export function safeNext(value: string | null | undefined): string | null {
-  return value && (MOVE_PAGE.test(value) || COMMUNITY_LINK_PAGE.test(value)) ? value : null;
+  return value && (MOVE_PAGE.test(value) || COMMUNITY_LINK_PAGE.test(value) || COMMUNITY_SIGNIN_PAGE.test(value)) ? value : null;
 }
 
 /** The link's signature for the request's page: valid, expired or invalid. */

@@ -1100,6 +1100,13 @@
       "when": 1795546661142,
       "tag": "0157_community_qa_votes",
       "breakpoints": true
+    },
+    {
+      "idx": 158,
+      "version": "5",
+      "when": 1795666620424,
+      "tag": "0158_community_yallapp_signin",
+      "breakpoints": true
     }
   ]
 }

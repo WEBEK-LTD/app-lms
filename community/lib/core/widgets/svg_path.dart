@@ -1,10 +1,11 @@
 import 'dart:ui';
 
-/// Reads an SVG path's `d` (M, L, H, V, C, S, Z, absolute or relative) into
-/// a [Path]: enough for the marks the design draws (Apple's, Google's "G").
+/// Reads an SVG path's `d` (M, L, H, V, C, S, Q, Z, absolute or relative)
+/// into a [Path]: enough for the marks the app draws (Apple's, Google's "G",
+/// Yallapp's "y.").
 Path svgPath(String d) {
   final path = Path();
-  final tokens = RegExp(r'[MmLlHhVvCcSsZz]|-?(?:\d+\.?\d*|\.\d+)(?:e-?\d+)?')
+  final tokens = RegExp(r'[MmLlHhVvCcSsQqZz]|-?(?:\d+\.?\d*|\.\d+)(?:e-?\d+)?')
       .allMatches(d)
       .map((m) => m.group(0)!)
       .toList();
@@ -64,6 +65,14 @@ Path svgPath(String d) {
         path.cubicTo(ax1, ay1, ax2, ay2, axe, aye);
         lastCx = ax2;
         lastCy = ay2;
+        x = axe;
+        y = aye;
+      case 'Q':
+        final x1 = n(), y1 = n(), ex = n(), ey = n();
+        final ax1 = rel ? x + x1 : x1, ay1 = rel ? y + y1 : y1;
+        final axe = rel ? x + ex : ex, aye = rel ? y + ey : ey;
+        path.quadraticBezierTo(ax1, ay1, axe, aye);
+        lastCx = null;
         x = axe;
         y = aye;
       case 'Z':

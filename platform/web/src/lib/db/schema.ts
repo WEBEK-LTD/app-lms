@@ -266,6 +266,8 @@ export const users = mysqlTable(
     lastSignInAt: time("last_sign_in_at"),
     // 56 The dashboard's language this person chose ("en", "ar", "tr"); null until they choose one.
     language: varchar("language", { length: 8 }),
+    // 231 When the person proved the email is theirs (lib/auth/email-confirm.ts); null until then.
+    emailVerifiedAt: time("email_verified_at"),
   },
   (t) => [uniqueIndex("users_email_unique").on(t.email)],
 );
