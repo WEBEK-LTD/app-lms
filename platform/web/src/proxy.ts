@@ -60,7 +60,9 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   headers.set("content-security-policy", policy);
   // 103R The page asked for, so the dashboard can send a Studio project's pages to Studio.
   headers.set("x-yallapp-path", `${request.nextUrl.pathname}${request.nextUrl.search}`);
-  const community = isCommunityRequest(request.headers);
+  // 231 The public folder's files (/brand/…, /favicon.svg) are the same on every host; only pages and the sitemap are the community's.
+  const file = /\.[a-z0-9]+$/i.test(request.nextUrl.pathname) && request.nextUrl.pathname !== "/sitemap.xml";
+  const community = !file && isCommunityRequest(request.headers);
   // A visitor's own X-Yallapp-Host goes no further than here.
   if (!community) headers.delete(FORWARDED_HOST);
   const response = community
@@ -88,7 +90,7 @@ export const config = {
     // 231 The same pages through our reverse proxy, which names the host in X-Yallapp-Host
     // (believed only with its secret; a visitor's own is dropped above).
     {
-      source: "/((?!api/|_next/|favicon\\.ico|robots\\.txt|sitemap\\.xml).*)",
+      source: "/((?!api/|_next/|favicon\\.ico|robots\\.txt).*)",
       has: [{ type: "header", key: "x-yallapp-host" }],
     },
   ],

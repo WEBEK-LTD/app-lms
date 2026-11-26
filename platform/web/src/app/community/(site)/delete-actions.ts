@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cmTarget } from "@/components/community/site/redirect";
 import { siteContext } from "@/components/community/site/context";
 import { checkDelete } from "@/components/community/site/delete-check";
 import { cmLinks } from "@/components/community/site/links";
@@ -12,7 +13,7 @@ import type { FormState } from "./actions";
 export async function deleteAccountAction(_prev: FormState, form: FormData): Promise<FormState> {
   const { lang, viewer } = await siteContext();
   const d = CM_DELETE[lang];
-  if (!viewer) redirect(cmLinks.signIn(cmLinks.deleteAccountForm()));
+  if (!viewer) redirect(await cmTarget(cmLinks.signIn(cmLinks.deleteAccountForm())));
   const info = await source.deletionInfo();
   if (!info) return { error: d.errorGeneric, at: Date.now() };
   const check = checkDelete({
@@ -25,11 +26,11 @@ export async function deleteAccountAction(_prev: FormState, form: FormData): Pro
   if (!check.ok) return { error: check.error === "confirm" ? d.errorConfirm : check.error === "password" ? d.errorPassword : d.errorFresh, at: Date.now() };
   const r = await source.deleteAccount(check.body);
   if (!r.ok) return { error: r.code === "invalid_credentials" ? d.errorPassword : d.errorGeneric, at: Date.now() };
-  redirect(cmLinks.deleteAccount(true));
+  redirect(await cmTarget(cmLinks.deleteAccount(true)));
 }
 
 /** An Apple or Google member signs in again, then comes back to the form. */
 export async function signInAgainAction(): Promise<void> {
   await source.signOut();
-  redirect(cmLinks.signIn(cmLinks.deleteAccountForm()));
+  redirect(await cmTarget(cmLinks.signIn(cmLinks.deleteAccountForm())));
 }

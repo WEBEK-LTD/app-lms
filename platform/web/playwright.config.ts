@@ -7,6 +7,10 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = Number(process.env.E2E_PORT ?? 3210);
 export const E2E = {
   baseURL: `http://localhost:${PORT}`,
+  /** 231 Our reverse proxy's shared secret (TRUSTED_PROXY_SECRET), for tests/e2e/community-proxy.spec.ts. */
+  proxySecret: "e2e-trusted-proxy-secret-0123456789abcdef",
+  /** 231 The port of that spec's stand-in for the Apache proxy in front of community.yallapp.com.tr. */
+  communityProxyPort: 3298,
   adminEmail: "admin@yallapp.test",
   /** A second super admin, so the specs stay under the sign-in limit per email. */
   settingsAdminEmail: "settings-admin@yallapp.test",
@@ -264,6 +268,7 @@ export default defineConfig({
       SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.languagesAdminEmail},${E2E.bellAdminEmail},${E2E.dashboardLanguagesAdminEmail},${E2E.ownerApiAdminEmail},${E2E.teamMembersAdminEmail},${E2E.accountDeletionAdminEmail},${E2E.twoStepAdminEmail},${E2E.phase73AdminEmail},${E2E.chatAdminEmail},${E2E.productAdminEmail},${E2E.watchingAdminEmail},${E2E.isolationAdminEmail},${E2E.integrationsAdminEmail},${E2E.siteStartAdminEmail},${E2E.importAdminEmail},${E2E.liveEditorAdminEmail},${E2E.starterAdminEmail},${E2E.invoicesAdminEmail},${E2E.gatewaysAdminEmail},${E2E.connectedPayAdminEmail},${E2E.manualPayAdminEmail},${E2E.inAppAdminEmail},${E2E.deliveryAdminEmail},${E2E.foodAdminEmail},${E2E.ridesAdminEmail},${E2E.teachersAdminEmail},${E2E.schoolAdminEmail},${E2E.universityAdminEmail},${E2E.schoolMessagesAdminEmail},${E2E.taxiAdminEmail},${E2E.travelAdminEmail},${E2E.samplesAdminEmail},${E2E.studioSetupAdminEmail},${E2E.mailAdminEmail},${E2E.marketAdminEmail},${E2E.marketMoneyAdminEmail},${E2E.appMovesAdminEmail},${E2E.plansAddonsAdminEmail},${E2E.currenciesAdminEmail},${E2E.firebaseAdminEmail},${E2E.autoShotsAdminEmail},${E2E.pricingAdminEmail},${E2E.bouquetAdminEmail},${E2E.categoriesAdminEmail},${E2E.autoSizeAdminEmail},${E2E.emptyListsAdminEmail},${E2E.storiesAdminEmail},${E2E.giftCheckoutAdminEmail},${E2E.legalUpdatesAdminEmail},${E2E.studioPublishAdminEmail},${E2E.payInAppAdminEmail},${E2E.studioQaAdminEmail},${E2E.marketPublicAdminEmail},${E2E.educationAdminEmail},${E2E.travelQaAdminEmail},${E2E.marketChoicesAdminEmail},${E2E.designerPageAdminEmail},${E2E.housePhotoAdminEmail},${E2E.communityQaAdminEmail},${E2E.communityJourneyAdminEmail},${E2E.communitySiteAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
+      TRUSTED_PROXY_SECRET: E2E.proxySecret,
       SIGNING_SECRET: E2E.signingSecret,
       ENCRYPTION_KEY: "1".repeat(64),
       BUILD_PIPELINE_TOKEN: E2E.pipelineToken,

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cmTarget } from "@/components/community/site/redirect";
 import { siteContext } from "@/components/community/site/context";
 import type { BadgeKind } from "@/components/community/site/data";
 import { cmLinks } from "@/components/community/site/links";
@@ -17,13 +18,13 @@ function text(form: FormData, name: string): string {
 
 async function member(back: string) {
   const ctx = await siteContext();
-  if (!ctx.viewer) redirect(cmLinks.signIn(back));
+  if (!ctx.viewer) redirect(await cmTarget(cmLinks.signIn(back)));
   return { ...ctx, viewer: ctx.viewer };
 }
 
 async function admin() {
   const ctx = await member(cmLinks.admin());
-  if (!ctx.viewer.admin) redirect(cmLinks.home());
+  if (!ctx.viewer.admin) redirect(await cmTarget(cmLinks.home()));
   return ctx;
 }
 
@@ -78,7 +79,7 @@ export async function prefsAction(_prev: FormState, form: FormData): Promise<For
 export async function linkAction(): Promise<void> {
   await member(cmLinks.settings());
   const to = await source.startLink();
-  redirect(to ?? `${cmLinks.settings()}?link=unavailable`);
+  redirect(await cmTarget(to ?? `${cmLinks.settings()}?link=unavailable`));
 }
 
 export async function unlinkAction(): Promise<void> {
@@ -93,7 +94,7 @@ export async function unlinkAction(): Promise<void> {
 export async function idProofAction(form: FormData): Promise<void> {
   await admin();
   const url = await source.idProofLink(text(form, "id"));
-  redirect(url ?? cmLinks.admin("verifications"));
+  redirect(await cmTarget(url ?? cmLinks.admin("verifications")));
 }
 
 export async function decideVerificationAction(_prev: FormState, form: FormData): Promise<FormState> {

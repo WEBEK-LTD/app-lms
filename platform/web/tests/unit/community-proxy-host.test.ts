@@ -56,3 +56,14 @@ describe("231 the community's host through our proxy", () => {
     expect(communitySiteUrl()).toBe("https://community.yallapp.com.tr");
   });
 });
+
+describe("231 the community host's own addresses", () => {
+  it("drops the internal /community prefix, keeping the query", async () => {
+    const { hostPath } = await import("@/components/community/site/redirect");
+    expect(hostPath("/community")).toBe("/");
+    expect(hostPath("/community?x=1")).toBe("/?x=1");
+    expect(hostPath("/community/sign-in?next=%2Fcommunity%2Fask")).toBe("/sign-in?next=%2Fcommunity%2Fask");
+    expect(hostPath("/communityx")).toBe("/communityx");
+    expect(hostPath("/questions")).toBe("/questions");
+  });
+});
