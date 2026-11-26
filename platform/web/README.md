@@ -258,6 +258,15 @@ ever see host.webek.org.
   the same secret in it. Copy `deploy/apache-https-redirect.conf` to
   `/etc/apache2/conf.d/userdata/std/2_4/CPANEL_USER/yallapp.com.tr/`. Then run
   `/scripts/rebuildhttpdconf && /scripts/restartsrv_httpd`.
+- **IPv4 to Netlify (required):** the server must reach `yallapp.netlify.app`
+  over IPv4. The name can resolve to IPv6 only, and when the server's IPv6
+  egress is dead every proxied request times out after about 15 seconds and
+  the site answers 503 (the incident of 25 November 2026). Put
+  `precedence ::ffff:0:0/96  100` in `/etc/gai.conf` (prefer IPv4), then
+  restart the web server (`lswsctrl restart`). Check from the server:
+  `curl -4 -sI https://yallapp.netlify.app/` must answer at once;
+  `curl -6 -sI --max-time 10 https://yallapp.netlify.app/` timing out is fine
+  then. The community's proxy below needs the same.
 - **TLS:** AutoSSL issues the certificate for yallapp.com.tr on host.webek.org;
   `/.well-known/` is not proxied so renewals keep working.
 - **One address (67):** both files send `www.yallapp.com.tr` to
@@ -284,6 +293,7 @@ with `X-Yallapp-Proxy-Secret` equal to `TRUSTED_PROXY_SECRET` (`src/proxy.ts`
   emails, previews; a netlify.app address is never used) and the same
   `TRUSTED_PROXY_SECRET`. `next.config.ts` allows server actions from
   community.yallapp.com.tr.
+- **IPv4 to Netlify:** the same `/etc/gai.conf` setting as above.
 - **Apache:** copy `deploy/apache-proxy-community.conf` to
   `/etc/apache2/conf.d/userdata/ssl/2_4/CPANEL_USER/community.yallapp.com.tr/`,
   put the same secret in it, then run
