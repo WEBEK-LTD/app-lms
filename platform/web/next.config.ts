@@ -33,7 +33,8 @@ const nextConfig: NextConfig = {
     serverActions: {
       // yallapp.com.tr is served through a reverse proxy on host.webek.org, so the
       // browser's origin differs from the host Netlify sees (deploy/apache-proxy.conf).
-      allowedOrigins: ["yallapp.com.tr", "www.yallapp.com.tr"],
+      // 231 So is Yallapp Community's site (deploy/apache-proxy-community.conf).
+      allowedOrigins: ["yallapp.com.tr", "www.yallapp.com.tr", "community.yallapp.com.tr"],
       // Plugin release uploads go through a server action. Netlify functions accept up to 6 MB.
       bodySizeLimit: "6mb",
     },

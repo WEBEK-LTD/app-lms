@@ -33,10 +33,11 @@ export const GOOGLE_JWKS = "https://www.googleapis.com/oauth2/v3/certs";
 const truthy = (value: unknown) => value === true || value === "true";
 
 /** A verifier for one provider: its keys, issuers and our audiences. */
-export function jwtVerifier(keys: JWTVerifyGetKey, issuer: string | string[], audience: string[]): IdTokenVerifier {
+export function jwtVerifier(keys: JWTVerifyGetKey, issuer: string | string[], audience: string[], clock?: () => Date): IdTokenVerifier {
   return async (idToken) => {
     try {
-      const { payload } = await jwtVerify(idToken, keys, { issuer, audience, clockTolerance: 60 });
+      // `clock`: tests' own time (a token's expiry is checked against it); the real time otherwise.
+      const { payload } = await jwtVerify(idToken, keys, { issuer, audience, clockTolerance: 60, ...(clock ? { currentDate: clock() } : {}) });
       if (typeof payload.sub !== "string" || payload.sub === "") return null;
       const email = typeof payload.email === "string" ? payload.email.toLowerCase() : null;
       return {

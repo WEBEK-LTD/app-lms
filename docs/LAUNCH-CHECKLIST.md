@@ -177,6 +177,19 @@ These are the parts on our servers and consoles.
       default is in the United States) makes every screen of the dashboard,
       Yallapp Business and the hosted apps several times slower. Deploy again
       after changing it.
+- [ ] The reverse proxy on host.webek.org reaches Netlify over IPv4: from the
+      server, `curl -4 -sI https://yallapp.netlify.app/` answers at once and
+      `curl -6 -sI --max-time 10 https://yallapp.netlify.app/` may time out.
+      `/etc/gai.conf` must have `precedence ::ffff:0:0/96  100` (prefer IPv4),
+      then restart the web server (`lswsctrl restart`). Without it,
+      yallapp.netlify.app can resolve to IPv6 only, and with dead IPv6 egress
+      every page times out after about 15 seconds as a 503 (the incident of
+      25 November 2026). `platform/web/README.md` › "yallapp.com.tr through
+      host.webek.org".
+- [ ] 231 community.yallapp.com.tr: the cPanel domain, `COMMUNITY_SITE_URL`
+      in Netlify and `deploy/apache-proxy-community.conf` installed with the
+      same secret, then the curl checks in `platform/web/README.md` ›
+      "community.yallapp.com.tr through host.webek.org".
 - [ ] `files.yallapp.com.tr`, GitHub secrets and variables: `build/README.md`
       › One-time setup.
 - [ ] GitHub › Settings › Billing: keep the Actions budget (USD 20) and watch
