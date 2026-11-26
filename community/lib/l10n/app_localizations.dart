@@ -262,6 +262,12 @@ abstract class AppLocalizations {
   /// **'Continue with Google'**
   String get authContinueGoogle;
 
+  /// No description provided for @authContinueYallapp.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Yallapp'**
+  String get authContinueYallapp;
+
   /// No description provided for @authSignUpEmail.
   ///
   /// In en, this message translates to:
@@ -1155,6 +1161,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlink your Yallapp account? Your apps leave your profile, and badges that need them go.'**
   String get settingsUnlinkConfirm;
+
+  /// No description provided for @linkSuggestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We found your Yallapp account. Link it?'**
+  String get linkSuggestTitle;
+
+  /// No description provided for @linkSuggestNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'We found your Yallapp account, {name}. Link it?'**
+  String linkSuggestNamed(String name);
+
+  /// No description provided for @linkSuggestLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Your apps will show on your profile.'**
+  String get linkSuggestLine;
+
+  /// No description provided for @linkSuggestLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get linkSuggestLink;
+
+  /// No description provided for @linkSuggestDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get linkSuggestDismiss;
+
+  /// No description provided for @linkSuggestDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked to Yallapp.'**
+  String get linkSuggestDone;
 
   /// No description provided for @settingsAbout.
   ///

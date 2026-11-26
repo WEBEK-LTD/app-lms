@@ -79,6 +79,8 @@ class ApiException implements Exception {
   static const notConfigured = 'provider_not_configured';
   static const alreadyReported = 'already_reported';
   static const alreadyLinked = 'already_linked';
+  static const invalidGrant = 'invalid_grant';
+  static const confirmNeeded = 'confirm_needed';
 
   /// A 409 the server gave no code for.
   static const conflict = 'conflict';

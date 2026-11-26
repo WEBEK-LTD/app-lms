@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '../../core/api/api_exception.dart';
 import '../../core/auth/session.dart';
+import '../../core/auth/yallapp_sign_in.dart';
 import '../../core/l10n.dart';
 import '../../core/providers.dart';
 import '../../core/routing/paths.dart';
@@ -13,7 +14,8 @@ import '../../core/widgets/brand_marks.dart';
 import '../../core/widgets/sym.dart';
 
 /// The welcome screen's ways in (`.btns`): Continue with Apple, Continue
-/// with Google (white, Apple's size), Sign up with email (orange).
+/// with Google and Continue with Yallapp (white, Apple's size), Sign up with
+/// email (orange).
 class SocialButtons extends ConsumerStatefulWidget {
   const SocialButtons({super.key});
 
@@ -30,6 +32,20 @@ class _SocialButtonsState extends ConsumerState<SocialButtons> {
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _busy = which);
     try {
+      if (which == 'yallapp') {
+        final result =
+            await YallappSignIn(
+              ref.read(communityApiProvider),
+              ref.read(yallappAuthSessionProvider),
+            ).run(
+              language: ref.read(languageProvider),
+              device: ref.read(deviceProvider),
+            );
+        if (result != null) {
+          await ref.read(sessionProvider.notifier).signedIn(result);
+        }
+        return;
+      }
       final provider = ref.read(
         which == 'apple' ? appleSignInProvider : googleSignInProvider,
       );
@@ -89,6 +105,14 @@ class _SocialButtonsState extends ConsumerState<SocialButtons> {
           lead: const GoogleMark(size: 19),
           busy: _busy == 'google',
           onTap: () => _with('google'),
+        ),
+        const SizedBox(height: 10),
+        _WelcomeButton(
+          key: const ValueKey('auth-yallapp'),
+          label: l.authContinueYallapp,
+          lead: const YallappMark(size: 21),
+          busy: _busy == 'yallapp',
+          onTap: () => _with('yallapp'),
         ),
         const SizedBox(height: 10),
         _WelcomeButton(
