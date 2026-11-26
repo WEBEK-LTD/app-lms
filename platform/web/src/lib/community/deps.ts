@@ -16,8 +16,12 @@ import { getCommunityStore } from "./store/server";
 
 /** The community's website (COMMUNITY_SITE_URL), https://community.yallapp.com.tr by default. */
 export function communitySiteUrl(): string {
-  return (process.env.COMMUNITY_SITE_URL?.trim() || "https://community.yallapp.com.tr").replace(/\/+$/, "");
+  const url = (process.env.COMMUNITY_SITE_URL?.trim() || "").replace(/\/+$/, "");
+  // Never Netlify's own address: links and emails go to the host visitors use (through our proxy).
+  return url && !/\.netlify\.app$/i.test(new URL(url).hostname) ? url : COMMUNITY_SITE;
 }
+
+export const COMMUNITY_SITE = "https://community.yallapp.com.tr";
 
 /** Public files of the community (profile pictures) are served under this path on Yallapp's host. */
 export const COMMUNITY_FILES_PATH = "/api/community/files";

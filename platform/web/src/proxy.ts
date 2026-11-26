@@ -15,6 +15,31 @@ export function isCommunityHost(host: string | null): boolean {
   return COMMUNITY_HOSTS.includes(name);
 }
 
+/**
+ * 231 Behind our own reverse proxy (deploy/apache-proxy-community.conf) the
+ * platform sees Netlify's host, not the visitor's: the proxy names it in
+ * X-Yallapp-Host, believed only with the proxy's shared secret
+ * (TRUSTED_PROXY_SECRET, as for the visitor's IP).
+ */
+export const FORWARDED_HOST = "x-yallapp-host";
+const PROXY_SECRET = "x-yallapp-proxy-secret";
+
+/** Constant time for equal lengths, so a guessed secret learns nothing from the timing. */
+function sameSecret(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+/** Whether the request is for the community's host: its own Host, or our proxy's X-Yallapp-Host with the shared secret. */
+export function isCommunityRequest(headers: Headers, secret: string | undefined = process.env.TRUSTED_PROXY_SECRET): boolean {
+  if (isCommunityHost(headers.get("host"))) return true;
+  const named = headers.get(FORWARDED_HOST);
+  const sent = headers.get(PROXY_SECRET);
+  return Boolean(named && secret && secret.length >= 32 && sent && isCommunityHost(named) && sameSecret(sent, secret));
+}
+
 /** The page under src/app/community/ that serves a path on the community's host. */
 export function communityPath(pathname: string): string {
   if (pathname === "/community" || pathname.startsWith("/community/")) return pathname;
@@ -35,7 +60,9 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   headers.set("content-security-policy", policy);
   // 103R The page asked for, so the dashboard can send a Studio project's pages to Studio.
   headers.set("x-yallapp-path", `${request.nextUrl.pathname}${request.nextUrl.search}`);
-  const community = isCommunityHost(request.headers.get("host"));
+  const community = isCommunityRequest(request.headers);
+  // A visitor's own X-Yallapp-Host goes no further than here.
+  if (!community) headers.delete(FORWARDED_HOST);
   const response = community
     ? NextResponse.rewrite(new URL(`${communityPath(request.nextUrl.pathname)}${request.nextUrl.search}`, request.url), { request: { headers } })
     : NextResponse.next({ request: { headers } });
@@ -57,6 +84,12 @@ export const config = {
     {
       source: "/((?!api/|_next/|favicon\\.ico|robots\\.txt|sitemap\\.xml).*)",
       has: [{ type: "host", value: "community\\.(?:yallapp\\.com\\.tr|localhost)" }],
+    },
+    // 231 The same pages through our reverse proxy, which names the host in X-Yallapp-Host
+    // (believed only with its secret; a visitor's own is dropped above).
+    {
+      source: "/((?!api/|_next/|favicon\\.ico|robots\\.txt|sitemap\\.xml).*)",
+      has: [{ type: "header", key: "x-yallapp-host" }],
     },
   ],
 };
