@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cmTarget } from "@/components/community/site/redirect";
 import { siteContext } from "@/components/community/site/context";
 import { cmLinks } from "@/components/community/site/links";
 import * as source from "@/components/community/site/source";
@@ -16,7 +17,7 @@ function text(form: FormData, name: string): string {
 
 async function member(back: string) {
   const { viewer, w } = await siteContext();
-  if (!viewer) redirect(cmLinks.signIn(back));
+  if (!viewer) redirect(await cmTarget(cmLinks.signIn(back)));
   return { viewer, w };
 }
 

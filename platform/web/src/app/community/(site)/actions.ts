@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cmTarget } from "@/components/community/site/redirect";
 import { siteContext } from "@/components/community/site/context";
 import { cmLinks } from "@/components/community/site/links";
 import * as source from "@/components/community/site/source";
@@ -17,7 +18,7 @@ export type FormState = { error?: string; ok?: string; at?: number } | undefined
 
 async function member(next: string) {
   const { viewer, w, lang } = await siteContext();
-  if (!viewer) redirect(cmLinks.signIn(next));
+  if (!viewer) redirect(await cmTarget(cmLinks.signIn(next)));
   return { viewer, w, lang };
 }
 
@@ -59,7 +60,7 @@ export async function askAction(_prev: FormState, form: FormData): Promise<FormS
   } catch (e) {
     return failed(w, e);
   }
-  redirect(`${cmLinks.question(result.slug)}${result.status === "pending" ? "?pending=1" : ""}`);
+  redirect(await cmTarget(`${cmLinks.question(result.slug)}${result.status === "pending" ? "?pending=1" : ""}`));
 }
 
 export async function similarAction(title: string, section: string): Promise<{ slug: string; title: string; answers: number; accepted: boolean }[]> {

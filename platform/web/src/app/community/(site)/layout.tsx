@@ -25,6 +25,15 @@ export const metadata: Metadata = {
   metadataBase: new URL(communitySiteUrl()),
   title: { default: "Yallapp Community", template: "%s · Yallapp Community" },
   description: "Learn, ask and show the apps you build with Yallapp.",
+  // The Community's own icons and manifest, not Yallapp's (public/community/).
+  manifest: "/community/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/community/logo.svg", type: "image/svg+xml" },
+      { url: "/community/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/community/icon-192.png", sizes: "192x192" }],
+  },
 };
 
 export default async function CommunityLayout({ children }: { children: React.ReactNode }) {

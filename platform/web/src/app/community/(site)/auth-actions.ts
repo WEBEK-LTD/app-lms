@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cmTarget } from "@/components/community/site/redirect";
 import { siteContext } from "@/components/community/site/context";
 import { cmLinks } from "@/components/community/site/links";
 import * as source from "@/components/community/site/source";
@@ -42,7 +43,7 @@ export async function signUpAction(_prev: FormState, form: FormData): Promise<Fo
   if (password.length < 8) return { error: w.errorPassword, at: Date.now() };
   const r = await source.signUpEmail({ email, password, name, lang });
   if (!r.ok) return authError(w, r.code);
-  redirect(safeNext(text(form, "next")));
+  redirect(await cmTarget(safeNext(text(form, "next"))));
 }
 
 export async function logInAction(_prev: FormState, form: FormData): Promise<FormState> {
@@ -52,7 +53,7 @@ export async function logInAction(_prev: FormState, form: FormData): Promise<For
   if (!email || !password) return { error: w.errorCredentials, at: Date.now() };
   const r = await source.logInEmail({ email, password });
   if (!r.ok) return authError(w, r.code);
-  redirect(safeNext(text(form, "next")));
+  redirect(await cmTarget(safeNext(text(form, "next"))));
 }
 
 /** Apple's or Google's identity token, from their sign-in on this page. */
@@ -61,12 +62,12 @@ export async function continueAction(provider: "apple" | "google", input: { idTo
   if (!input.idToken) return { error: w.errorProvider, at: Date.now() };
   const r = await source.continueWith(provider, { idToken: input.idToken, nonce: input.nonce, name: input.name?.slice(0, 80), lang });
   if (!r.ok) return authError(w, r.code);
-  redirect(safeNext(input.next));
+  redirect(await cmTarget(safeNext(input.next)));
 }
 
 export async function signOutAction(): Promise<void> {
   await source.signOut();
-  redirect(cmLinks.home());
+  redirect(await cmTarget(cmLinks.welcome()));
 }
 
 export async function newPasswordAction(_prev: FormState, form: FormData): Promise<FormState> {
@@ -75,7 +76,7 @@ export async function newPasswordAction(_prev: FormState, form: FormData): Promi
   if (password.length < 8) return { error: w.errorPassword, at: Date.now() };
   const r = await source.confirmPasswordReset(text(form, "token"), password);
   if (!r.ok) return { error: r.code === "invalid_token" ? w.errorResetLink : w.errorGeneric, at: Date.now() };
-  redirect(`${cmLinks.signIn()}?reset=1`);
+  redirect(await cmTarget(`${cmLinks.signIn()}?reset=1`));
 }
 
 export async function resetAction(_prev: FormState, form: FormData): Promise<FormState> {

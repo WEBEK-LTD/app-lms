@@ -1,0 +1,15 @@
+{
+  "name": "Yallapp Community",
+  "short_name": "Community",
+  "description": "Learn, ask and show the apps you build with Yallapp.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff5a1f",
+  "icons": [
+    { "src": "/community/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/community/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/community/logo.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

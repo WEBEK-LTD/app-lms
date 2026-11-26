@@ -454,7 +454,9 @@ describe("67 Google: the favicon, and every public page indexed", () => {
     }
     const sources = (dir: string): string[] =>
       readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? sources(path.join(dir, e.name)) : /\.tsx?$/.test(e.name) ? [path.join(dir, e.name)] : []));
-    expect(sources(APP).filter((f) => f !== path.join(APP, "layout.tsx") && /\bicons:/.test(readFileSync(f, "utf8")))).toEqual([]);
+    // 231 Yallapp Community (app/community, its own host) has its own icons and manifest.
+    const community = path.join(APP, "community") + path.sep;
+    expect(sources(APP).filter((f) => f !== path.join(APP, "layout.tsx") && !f.startsWith(community) && /\bicons:/.test(readFileSync(f, "utf8")))).toEqual([]);
   });
 
   it("lets crawlers fetch the icons, the logo, the manifest and the share images, and names the sitemap on yallapp.com.tr", () => {
