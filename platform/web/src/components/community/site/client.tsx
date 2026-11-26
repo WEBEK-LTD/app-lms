@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useSiteDark } from "@/components/theme-switch";
 import { THEME_KEY } from "@/components/theme-script";
 import { setDocumentLang } from "@/components/html-shell";
@@ -127,4 +127,59 @@ export function SearchKey() {
     return () => window.removeEventListener("keydown", key);
   }, []);
   return <span className="k" aria-hidden="true">{mac ? "⌘ K" : "Ctrl K"}</span>;
+}
+
+/**
+ * 231 The header's avatar: a menu of the member's own places (a dropdown on
+ * wide screens, a sheet from the bottom on phones). Arrow keys move between
+ * its items, Esc or a click outside closes it and gives focus back.
+ */
+export function AvatarMenu({ label, avatar, head, children }: { label: string; avatar: ReactNode; head: ReactNode; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const button = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const items = () => Array.from(panel.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled]), select") ?? []);
+  const close = (refocus = true) => {
+    setOpen(false);
+    if (refocus) button.current?.focus();
+  };
+  useEffect(() => {
+    if (!open) return;
+    items()[0]?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") return close();
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+      const list = items();
+      const at = list.indexOf(document.activeElement as HTMLElement);
+      if (at < 0 || list[at]?.tagName === "SELECT") return;
+      e.preventDefault();
+      list[(at + (e.key === "ArrowDown" ? 1 : list.length - 1)) % list.length]?.focus();
+    };
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!panel.current?.contains(t) && !button.current?.contains(t)) close(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onDown);
+    };
+  }, [open]);
+  return (
+    <div className="cm-am">
+      <button ref={button} type="button" className="cm-am-btn" aria-label={label} aria-haspopup="menu" aria-expanded={open} data-testid="cm-avatar-trigger" onClick={() => setOpen((o) => !o)}>
+        {avatar}
+      </button>
+      {open ? (
+        <>
+          <div className="cm-am-dim" aria-hidden="true" />
+          <div ref={panel} className="cm-am-panel" role="menu" aria-label={label} data-testid="cm-avatar-menu" onClick={(e) => (e.target as HTMLElement).closest("a") && setOpen(false)}>
+            <div className="cm-am-head">{head}</div>
+            {children}
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
 }

@@ -470,3 +470,95 @@
   .cm-answer.accepted { margin-top: 18px; }
   .cm-card { padding: 18px 16px; }
 }
+
+/*
+ * 231 Polish (the owner, 26 November): premium, not "generated". Restrained
+ * colour (navy and cream, orange only as the accent), Readex Pro headings
+ * with tight tracking over Inter, an 8 px rhythm, 1 px lines instead of soft
+ * shadows, small radii (8-12 px) on controls and cards, no glows or
+ * gradients on everyday controls. Later rules here win over the ones above.
+ */
+.cm { --cm-shadow: none; --cm-r: 12px; --cm-rc: 10px; }
+.cm :is(h1, h2, h3), .cm-hero h2, .cm-card h1 { font-family: var(--font-cm-readex), var(--font-cm-inter), var(--font-arabic), sans-serif; letter-spacing: -0.02em; font-weight: 600; }
+.cm[dir="rtl"] :is(h1, h2, h3) { letter-spacing: 0; }
+.cm :is(.cm-post, .cm-box, .cm-card, .cm-empty, .cm-comp, .cm-mecard) { border-radius: var(--cm-r); box-shadow: none; border: 1px solid var(--cm-line); }
+.cm-answer.accepted { box-shadow: 0 0 0 1px var(--cm-green); border-color: var(--cm-green); }
+.cm-answer.official { background: var(--cm-card); border-inline-start: 3px solid var(--cm-orange); }
+.cm-hero { border-radius: 16px; background: radial-gradient(420px 220px at 90% 0%, rgba(255, 90, 31, 0.28), transparent 70%), var(--cm-navy); }
+.cm-stat { border-radius: var(--cm-rc); backdrop-filter: none; }
+.cm-hero .btn { border-radius: var(--cm-rc); }
+.cm-ch { border-radius: var(--cm-r); background: var(--cm-navy); }
+.cm-ch .soon { border-radius: 6px; background: rgba(255, 255, 255, 0.1); }
+.cm :is(.cm-btn, .cm-icb, .cm-login, .cm-search, .cm-mk, .cm-nav a, .cm-nav .soon, .cm-votes button, .cm-votes a, .cm-themes .tg) { border-radius: var(--cm-rc); }
+.cm .cm-field :is(input, textarea, select), .cm-inline input { border-radius: 8px; }
+.cm .cm-comp .t > *, .cm .cm-tabs a, .cm-themes .tg button { border-radius: 8px; }
+.cm .pill, .cm .lvl, .cm .badge-team, .cm-nav .cnt, .cm-nav .soon em { border-radius: 6px; }
+.cm-ask, .cm-btn.o { background: var(--cm-orange); box-shadow: none; border-radius: var(--cm-rc); }
+.cm-ask:hover, .cm-btn.o:hover { background: #e84f17; }
+.cm-tabs a.on { box-shadow: none; border: 1px solid var(--cm-line); }
+.cm-themes .tg button.on { box-shadow: 0 0 0 1px var(--cm-line); }
+:root[data-theme="dark"] .cm-nav a.on { background: var(--cm-orange); }
+.cm-pts i, .cm-meter i { background: var(--cm-orange); }
+.cm .a1 { background: #e2541c; }
+.cm .a2 { background: #5b4bd6; }
+.cm .a3 { background: #138a5c; }
+.cm .a4 { background: #c98512; }
+.cm .a5 { background: #cf3f6c; }
+.cm .a6 { background: #2d74c8; }
+.cm-me-btn { border: 0; box-shadow: 0 0 0 1px var(--cm-line); }
+.cm-gal div, .cm-vid, .cm-player { border-radius: var(--cm-rc); }
+.cm-profile .cover { background: radial-gradient(360px 160px at 85% 0%, rgba(255, 90, 31, 0.3), transparent 70%), var(--cm-navy); }
+
+/* The header's avatar menu: a dropdown here, a sheet on phones. */
+.cm-am { position: relative; display: flex; }
+.cm-am-btn { padding: 0; border: 0; background: none; border-radius: 50%; display: flex; cursor: pointer; }
+.cm-am-btn:focus-visible { outline: 2px solid var(--cm-orange); outline-offset: 2px; }
+.cm-am-dim { display: none; }
+.cm-am-panel { position: absolute; top: calc(100% + 8px); inset-inline-end: 0; z-index: 60; width: 296px; padding: 8px; background: var(--cm-card); border: 1px solid var(--cm-line); border-radius: var(--cm-r); box-shadow: 0 16px 40px rgba(20, 19, 39, 0.12); }
+.cm-am-head { display: flex; align-items: center; gap: 12px; padding: 8px 8px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--cm-line); }
+.cm-am-head b { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cm-am-head .m { display: block; font-size: 13px; color: var(--cm-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cm-am-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 0 8px; border: 0; border-radius: 8px; background: none; font: inherit; font-size: 14.5px; font-weight: 500; color: var(--cm-text2) !important; text-align: start; cursor: pointer; }
+.cm-am-row .ms { font-size: 20px; color: var(--cm-icon); }
+.cm-am-row:hover, .cm-am-row:focus-visible, .cm-am-row:focus-within { background: var(--cm-soft); color: var(--cm-ink) !important; outline: 0; }
+.cm-am-pref { cursor: default; }
+.cm-am-pref .cm-lang { display: flex !important; width: 100%; gap: 12px; font-size: 14.5px; font-weight: 500; color: inherit; }
+.cm-am-pref .cm-lang .ms { font-size: 20px !important; color: var(--cm-icon); }
+.cm-am-pref .cm-lang select { flex: 1; min-height: 40px; }
+.cm-am-pref .cm-themes { margin-inline-start: auto; }
+.cm-am-pref .cm-themes .tg { padding: 3px; gap: 2px; }
+.cm-am-pref .cm-themes .tg button { width: 36px; height: 30px; }
+.cm-am-panel hr { border: 0; border-top: 1px solid var(--cm-line); margin: 8px 0; }
+.cm-am-panel form { margin: 0; }
+.cm-quiet { width: auto; padding-inline: 8px 12px; margin-inline-start: -8px; }
+
+@media (max-width: 900px) {
+  /* A blurred header would hold the sheet inside it (backdrop-filter makes it a containing block). */
+  .cm-hdr { backdrop-filter: none; background: var(--cm-paper); }
+  /* The header is its own layer: open, its sheet goes over the tab bar. */
+  .cm-hdr:has(.cm-am-panel) { z-index: 70; }
+  .cm-am-dim { display: block; position: fixed; inset: 0; z-index: 59; background: rgba(14, 13, 36, 0.4); }
+  .cm-am-panel { position: fixed; top: auto; bottom: 0; inset-inline: 0; width: auto; border-radius: 16px 16px 0 0; border-bottom: 0; padding: 8px 16px calc(16px + env(safe-area-inset-bottom)); max-height: 85vh; overflow-y: auto; }
+  .cm-am-panel::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 4px; background: var(--cm-line); margin: 0 auto 8px; }
+  .cm-am-row { min-height: 48px; font-size: 15px; }
+  /* Tap targets of 44 px at least, an 8 px rhythm, and a quieter tab bar. */
+  .cm-icb { width: 44px; height: 44px; border-radius: var(--cm-rc); }
+  .cm-hdr { gap: 8px; }
+  .cm-main, .cm-main.wide { padding: 16px 16px 112px; gap: 16px; }
+  .cm :is(.cm-post, .cm-box, .cm-card) { padding: 16px; }
+  .cm-hero { border-radius: var(--cm-r); padding: 24px 20px; }
+  .cm-hero h2 { font-size: 24px; }
+  .cm-comp { padding: 12px; gap: 8px; }
+  .cm-comp .t { gap: 8px; scrollbar-width: none; }
+  .cm-comp .t > * { flex: none; min-height: 40px; padding: 0 12px; }
+  .cm-tabs a { min-height: 40px; display: inline-flex; align-items: center; padding: 0 14px; }
+  .cm-votes button, .cm-votes a { width: 40px; height: 40px; }
+  .cm-tb { inset-inline: 12px; bottom: 12px; height: 64px; border-radius: 16px; background: var(--cm-card); backdrop-filter: none; box-shadow: 0 8px 24px rgba(20, 19, 39, 0.1); border: 1px solid var(--cm-line); }
+  .cm-tb .t { border-radius: var(--cm-rc); }
+  .cm-tb .t.on { background: var(--cm-navy); box-shadow: none; }
+  .cm-tb .cr { width: 52px; height: 52px; border-radius: 14px; background: var(--cm-orange); box-shadow: 0 6px 16px rgba(255, 90, 31, 0.28); transform: translateY(-10px); border: 3px solid var(--cm-paper); }
+  :root[data-theme="dark"] .cm-tb { background: var(--cm-card); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+  :root[data-theme="dark"] .cm-tb .t.on { background: var(--cm-orange); }
+  .cm-adm, .cm-admin table { font-size: 14px; }
+  .cm-admin { overflow-x: auto; }
+}

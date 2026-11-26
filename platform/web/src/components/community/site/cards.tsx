@@ -158,7 +158,7 @@ export function ChallengeBox({ w }: { w: CmWords }) {
     <section className="cm-box">
       <div className="cm-ch">
         <small>{w.challengeKicker}</small>
-        <h3>{w.challengeTitle} <span aria-hidden="true">❄️</span></h3>
+        <h3>{w.challengeTitle}</h3>
         <span className="soon"><span className="ms f" style={{ fontSize: 16 }} aria-hidden="true">schedule</span>{w.comingSoon}</span>
       </div>
     </section>
