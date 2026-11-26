@@ -3,6 +3,7 @@ import { getConfig } from "../base/config";
 import { getLink, startLink, unlink } from "../base/linking";
 import * as profile from "../base/profile";
 import * as social from "../base/social";
+import { dismissSuggested, exchangeYallappCode, linkSuggested, startYallappSignin } from "../base/yallapp-signin";
 import type { CommunityContext, CommunityResult, CommunityRoute, MemberContext } from "./http";
 
 /** 231 Area A's routes (docs/api/community.yaml: Auth, Me, Members, Social, Reports, Config). */
@@ -14,6 +15,8 @@ export const BASE_ROUTES: CommunityRoute[] = [
   { method: "POST", path: "/auth/email/log-in", auth: "public", handler: accounts.logIn },
   { method: "POST", path: "/auth/apple", auth: "public", handler: accounts.withApple },
   { method: "POST", path: "/auth/google", auth: "public", handler: accounts.withGoogle },
+  { method: "POST", path: "/auth/yallapp/start", auth: "public", handler: startYallappSignin },
+  { method: "POST", path: "/auth/yallapp", auth: "public", handler: exchangeYallappCode },
   { method: "POST", path: "/auth/refresh", auth: "public", handler: accounts.refresh },
   { method: "POST", path: "/auth/log-out", handler: member(accounts.logOut) },
   { method: "POST", path: "/auth/email/verify", auth: "public", handler: accounts.verifyEmail },
@@ -36,6 +39,8 @@ export const BASE_ROUTES: CommunityRoute[] = [
   { method: "GET", path: "/me/yallapp-link", handler: member(getLink) },
   { method: "DELETE", path: "/me/yallapp-link", handler: member(unlink) },
   { method: "POST", path: "/me/yallapp-link/start", handler: member(startLink) },
+  { method: "POST", path: "/me/yallapp-link/suggested", handler: member(linkSuggested) },
+  { method: "DELETE", path: "/me/yallapp-link/suggested", handler: member(dismissSuggested) },
   // Members
   { method: "GET", path: "/members/:member", auth: "public", handler: social.getProfile },
   { method: "GET", path: "/members/:member/followers", auth: "public", handler: social.listFollowers },

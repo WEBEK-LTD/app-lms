@@ -5,7 +5,7 @@ import { useState } from "react";
 import { continueAction } from "@/app/community/(site)/auth-actions";
 import type { FormState } from "@/app/community/(site)/actions";
 import { Note } from "./forms";
-import { cmLinks } from "./links";
+import { cmHref, cmLinks } from "./links";
 import type { CmWords } from "./words";
 
 /**
@@ -69,6 +69,12 @@ export function AppleMark() {
   );
 }
 
+/** Yallapp's own mark (its rounded app icon). */
+export function YallappMark() {
+  // eslint-disable-next-line @next/next/no-img-element -- a tiny SVG
+  return <img src="/brand/yallapp-icon-dark-rounded.svg" alt="" width={20} height={20} aria-hidden="true" />;
+}
+
 export function ProviderButtons({ w, providers, next, emailHref, emailLabel }: { w: CmWords; providers: Providers; next: string; emailHref?: string; emailLabel?: string }) {
   const [state, setState] = useState<FormState>(undefined);
   const [busy, setBusy] = useState(false);
@@ -123,6 +129,11 @@ export function ProviderButtons({ w, providers, next, emailHref, emailLabel }: {
         <GoogleMark />
         {w.continueGoogle}
       </button>
+      {/* 231 A link, not a script: the site's own route keeps the PKCE verifier and sends the browser to Yallapp. */}
+      <a href={`${cmHref("/auth/yallapp")}?${new URLSearchParams({ next })}`} className="cm-abtn w">
+        <YallappMark />
+        {w.continueYallapp}
+      </a>
       {emailHref ? (
         <Link href={emailHref} className="cm-abtn o">
           <span className="ms" aria-hidden="true">mail</span>

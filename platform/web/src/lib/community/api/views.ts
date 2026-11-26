@@ -1,3 +1,4 @@
+import { linkSuggestion } from "../base/yallapp-signin";
 import { t } from "../i18n";
 import { levelOf, type CommunityLevel } from "../levels";
 import { isYallappTeam } from "../staff";
@@ -158,7 +159,8 @@ export async function profileView(ctx: CommunityContext, member: CommunityMember
 export async function meView(ctx: CommunityContext, member: CommunityMember) {
   const base = ctx.store.base;
   const [profile, identities, pendingFriends] = await Promise.all([profileView(ctx, member), base.listIdentities(member.id), base.countIncomingFriendRequests(member.id)]);
-  const providers = [...(member.passwordHash ? ["email"] : []), ...new Set(identities.map((i) => i.provider))];
+  // A linked Yallapp account also signs them in ("Continue with Yallapp").
+  const providers = [...(member.passwordHash ? ["email"] : []), ...new Set(identities.map((i) => i.provider)), ...(member.yallappUserId ? ["yallapp"] : [])];
   return {
     ...profile,
     email: member.email,
@@ -172,6 +174,8 @@ export async function meView(ctx: CommunityContext, member: CommunityMember) {
     community_role: await communityRoleOf(ctx, member),
     status: member.status === "suspended" ? "suspended" : "active",
     unread_notifications: await unreadNotifications(ctx, member.id),
+    // The one-tap link to a Yallapp account with the same verified email: only whether there is one.
+    link_suggestion: await linkSuggestion(ctx, member),
     pending_friend_requests: pendingFriends,
   };
 }

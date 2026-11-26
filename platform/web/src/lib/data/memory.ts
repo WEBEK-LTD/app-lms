@@ -377,6 +377,7 @@ export class MemoryStore implements DataStore {
       updatedAt: input.now,
       lastSignInAt: null,
       language: null,
+      emailVerifiedAt: null,
     };
     this.users.set(user.id, clone(user));
     return clone(user);

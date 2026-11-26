@@ -125,5 +125,5 @@ export async function makeYallappStaff(community: TestCommunity, memberId: strin
   const platform = community.deps.platform;
   const user = await platform.createUser({ email: `staff-${memberId}@yallapp.test`, name: "Yallapp staff", passwordHash: null, now: community.deps.now });
   await platform.saveAdminMember({ userId: user.id, role, addedBy: "owner@yallapp.test", addedAt: community.deps.now, updatedAt: community.deps.now });
-  await community.deps.store.base.updateMember(memberId, { yallappUserId: user.id, linkedAt: community.deps.now });
+  await community.deps.store.base.updateMember(memberId, { yallappUserId: user.id, linkedAt: community.deps.now, yallappLinkVia: "link" });
 }

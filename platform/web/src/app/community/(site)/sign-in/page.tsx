@@ -15,7 +15,7 @@ function nextOf(v: string | undefined): string {
 }
 
 /** 231 Log in: Apple, Google, then email and password. */
-export default async function SignInPage({ searchParams }: { searchParams: Promise<{ next?: string; reset?: string }> }) {
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ next?: string; reset?: string; error?: string }> }) {
   const sp = await searchParams;
   const next = nextOf(sp.next);
   const { lang, w, viewer } = await siteContext();
@@ -23,6 +23,13 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   return (
     <AuthShell w={w} lang={lang}>
       <h1>{w.logIn}</h1>
+      {/* 231 Back from "Continue with Yallapp" without a session. */}
+      {sp.error?.startsWith("yallapp") ? (
+        <div className="cm-note err" role="alert" style={{ marginBottom: 14 }}>
+          <span className="ms f" aria-hidden="true">error</span>
+          {sp.error === "yallapp_email_taken" ? w.errorYallappEmailTaken : w.errorProvider}
+        </div>
+      ) : null}
       {sp.reset ? <div className="cm-note ok" role="status" style={{ marginBottom: 14 }}><span className="ms f" aria-hidden="true">check_circle</span>{w.passwordChanged}</div> : null}
       <ProviderButtons w={w} providers={authProviders()} next={next} />
       <div className="cm-or"><span>{w.or}</span></div>

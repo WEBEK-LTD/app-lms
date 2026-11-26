@@ -10,6 +10,7 @@ import type {
   CommunityRole,
   CommunityTargetType,
   CommunityTheme,
+  CommunityYallappLinkVia,
 } from "../community/types";
 
 /**
@@ -61,6 +62,8 @@ export const communityMembers = mysqlTable(
     approvedPosts: int("approved_posts").notNull().default(0),
     yallappUserId: id("yallapp_user_id"),
     linkedAt: time("linked_at"),
+    yallappLinkVia: varchar("yallapp_link_via", { length: 10 }).$type<CommunityYallappLinkVia>(),
+    linkSuggestionDismissedAt: time("link_suggestion_dismissed_at"),
     sessionVersion: int("session_version").notNull().default(1),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
@@ -190,6 +193,24 @@ export const communityLinkRequests = mysqlTable(
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("community_link_requests_member").on(t.memberId)],
+);
+
+/** "Continue with Yallapp": a sign-in request, approved on yallapp.com.tr, its one-time code exchanged once (migration 0158). */
+export const communityYallappSignins = mysqlTable(
+  "community_yallapp_signins",
+  {
+    requestHash: varchar("request_hash", { length: 64 }).primaryKey(),
+    redirectUri: varchar("redirect_uri", { length: 200 }).notNull(),
+    codeChallenge: varchar("code_challenge", { length: 64 }).notNull(),
+    clientState: varchar("client_state", { length: 128 }).notNull(),
+    yallappUserId: id("yallapp_user_id"),
+    codeHash: varchar("code_hash", { length: 64 }),
+    expiresAt: time("expires_at").notNull(),
+    approvedAt: time("approved_at"),
+    usedAt: time("used_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [uniqueIndex("community_yallapp_signins_code").on(t.codeHash), index("community_yallapp_signins_time").on(t.expiresAt)],
 );
 
 export const communityReports = mysqlTable(

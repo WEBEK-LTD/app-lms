@@ -339,7 +339,7 @@ export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" |
 
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 
-export type UserPatch = Partial<Pick<User, "name" | "passwordHash" | "sessionVersion" | "lastSignInAt" | "language">>;
+export type UserPatch = Partial<Pick<User, "name" | "passwordHash" | "sessionVersion" | "lastSignInAt" | "language" | "emailVerifiedAt">>;
 export type ClientPatch = Partial<Pick<Client, "whatsapp" | "siteUrl" | "status" | "paymentNote" | "activatedAt" | "country" | "accountManagerId">>;
 export type LicensePatch = Partial<Pick<License, "plan" | "expiresAt" | "keyHash" | "keyEncrypted" | "keyLast4" | "nextPlan" | "nextPlanAt">>;
 export type AppPatch = Partial<Omit<App, "id" | "clientId" | "createdAt" | SigningKeyColumn>>;

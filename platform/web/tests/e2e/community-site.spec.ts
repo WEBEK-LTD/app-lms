@@ -59,10 +59,10 @@ async function approve(text: string): Promise<void> {
   await expect(adminPage.locator("article.cm-adm", { hasText: text })).toBeVisible();
 }
 
-test("the welcome offers Apple, then Google, then email, and Log in", async ({ page }) => {
+test("the welcome offers Apple, then Google, then Yallapp, then email, and Log in", async ({ page }) => {
   await page.goto("/community/welcome");
   const buttons = page.locator(".cm-auth-btns > button, .cm-auth-btns > a");
-  await expect(buttons).toHaveText(["Continue with Apple", "Continue with Google", "mailSign up with email"]);
+  await expect(buttons).toHaveText(["Continue with Apple", "Continue with Google", "Continue with Yallapp", "mailSign up with email"]);
   await expect(page.getByRole("link", { name: "Log in" })).toHaveAttribute("href", "/community/sign-in");
 });
 

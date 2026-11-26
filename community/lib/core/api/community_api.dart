@@ -1,3 +1,4 @@
+import '../auth/yallapp_sign_in.dart';
 import 'api_client.dart';
 import 'json.dart';
 import 'models.dart';
@@ -50,6 +51,23 @@ abstract class CommunityApi {
     Json? device,
   });
 
+  /// Continue with Yallapp: the yallapp.com.tr page where the member
+  /// confirms, for this PKCE [codeChallenge] (S256) and [state].
+  Future<Uri> startYallappSignIn({
+    required String codeChallenge,
+    required String state,
+    required String redirectUri,
+    required String language,
+  });
+
+  /// The [code] that page returned, with the verifier of its challenge.
+  Future<SignedIn> signInWithYallapp({
+    required String code,
+    required String codeVerifier,
+    required String language,
+    Json? device,
+  });
+
   /// New tokens for [refreshToken]; the old one stops working.
   Future<SignedIn> refresh(String refreshToken);
   Future<void> requestPasswordReset(String email);
@@ -77,6 +95,13 @@ abstract class CommunityApi {
   /// member confirms it.
   Future<Uri> startYallappLink();
   Future<void> unlinkYallapp();
+
+  /// Links the Yallapp account `link_suggestion` found, in one tap (409
+  /// `not_eligible` when it no longer can be).
+  Future<void> acceptLinkSuggestion();
+
+  /// Stops suggesting it.
+  Future<void> dismissLinkSuggestion();
 
   // Other members (`id` or `@username`).
   Future<Profile> member(String id);
@@ -189,6 +214,48 @@ class HttpCommunityApi implements CommunityApi {
   );
 
   @override
+  Future<Uri> startYallappSignIn({
+    required String codeChallenge,
+    required String state,
+    required String redirectUri,
+    required String language,
+  }) async => Uri.parse(
+    str(
+      await client.post(
+        '/auth/yallapp/start',
+        body: {
+          'redirect_uri': redirectUri,
+          'code_challenge': codeChallenge,
+          'code_challenge_method': 'S256',
+          'state': state,
+        },
+        renew: false,
+      ),
+      'authorize_url',
+    ),
+  );
+
+  @override
+  Future<SignedIn> signInWithYallapp({
+    required String code,
+    required String codeVerifier,
+    required String language,
+    Json? device,
+  }) async => SignedIn.fromJson(
+    await client.post(
+      '/auth/yallapp',
+      body: {
+        'code': code,
+        'code_verifier': codeVerifier,
+        'redirect_uri': YallappSignIn.redirectUri,
+        'language': language,
+        'device': ?device,
+      },
+      renew: false,
+    ),
+  );
+
+  @override
   Future<SignedIn> refresh(String refreshToken) async => SignedIn.fromJson(
     await client.post(
       '/auth/refresh',
@@ -270,6 +337,14 @@ class HttpCommunityApi implements CommunityApi {
 
   @override
   Future<void> unlinkYallapp() => client.delete('/me/yallapp-link');
+
+  @override
+  Future<void> acceptLinkSuggestion() async =>
+      client.post('/me/yallapp-link/suggested');
+
+  @override
+  Future<void> dismissLinkSuggestion() =>
+      client.delete('/me/yallapp-link/suggested');
 
   @override
   Future<Profile> member(String id) async =>

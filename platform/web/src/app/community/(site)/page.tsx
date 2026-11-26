@@ -1,6 +1,7 @@
 import { siteContext } from "@/components/community/site/context";
 import { Composer, Feed, FeedTabs, feedTab, Hero, Rail } from "@/components/community/site/feed";
 import { cmLinks } from "@/components/community/site/links";
+import { LinkSuggestion } from "@/components/community/site/link-suggest";
 import { SitePage } from "@/components/community/site/page";
 import { questions, sections, siteStats, tutorials, waiting } from "@/components/community/site/source";
 
@@ -25,6 +26,7 @@ export default async function CommunityHome({ searchParams }: { searchParams: Pr
   return (
     <SitePage active="home" rail={<Rail w={w} lang={lang} viewer={viewer} />}>
       <Hero w={w} viewer={viewer} waitingCount={top?.n ?? wq.total} topSection={top?.name ?? null} stats={stats} />
+      <LinkSuggestion w={w} viewer={viewer} back={cmLinks.home()} />
       <Composer w={w} viewer={viewer} />
       <FeedTabs w={w} tab={tab} section={sp.section} sections={all} base={(q) => (q.tab || q.section ? `${cmLinks.home()}?${new URLSearchParams(Object.entries(q).filter((e): e is [string, string] => !!e[1])).toString()}` : cmLinks.home())} />
       <Feed w={w} questions={feed.items} tutorials={tab === "unanswered" ? [] : tuts.items} />

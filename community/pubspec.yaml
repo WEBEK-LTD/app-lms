@@ -19,6 +19,9 @@ dependencies:
   go_router: ^17.5.0
   # The Apple sign-in nonce's SHA-256 (already in the lockfile).
   crypto: 3.0.7
+  # Continue with Yallapp: the yallapp.com.tr confirm page in an auth
+  # session (ASWebAuthenticationSession, Custom Tabs), back with a code.
+  flutter_web_auth_2: 5.1.0
   # Continue with Google: the account's ID token, checked by the server.
   google_sign_in: 7.2.0
   image_picker: 1.2.3

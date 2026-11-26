@@ -13,6 +13,7 @@ import '../../core/widgets/sym.dart';
 import '../profile/profile_page.dart' show linkYallapp;
 import '../social/data/social.dart';
 import '../social/member_list_page.dart';
+import '../link/link_suggestion.dart';
 import 'language_sheet.dart';
 
 /// The app's version, shown in About.
@@ -49,6 +50,7 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
         children: [
+          const LinkSuggestionBanner(margin: EdgeInsets.only(top: 12)),
           _Group(
             title: l.settingsAccount,
             children: [

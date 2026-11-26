@@ -187,6 +187,81 @@ paths:
         "401": { description: "`invalid_token`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
         "403": { description: "`account_suspended`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
         "503": { description: "`provider_not_configured`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+  /auth/yallapp/start:
+    post:
+      tags: [Auth]
+      summary: Start "Continue with Yallapp"
+      description: |
+        OAuth-style with PKCE (RFC 7636, S256). The client makes a random
+        `state` and a `code_verifier`, sends `code_challenge` =
+        BASE64URL(SHA-256(code_verifier)), and opens `authorize_url` in the
+        browser (the app: the system's web authentication session). On
+        yallapp.com.tr the person signs in to Yallapp and approves; the
+        browser then goes to `redirect_uri?code=…&state=…` (or
+        `?error=access_denied&state=…`). The request waits 10 minutes; its
+        code lasts 2 and works once. `redirect_uri` is exactly the site's
+        `{site}/auth/yallapp/callback` or the app's `yallappcommunity://auth/yallapp`.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [redirect_uri, code_challenge, code_challenge_method, state]
+              properties:
+                redirect_uri: { type: string }
+                code_challenge: { type: string, pattern: "^[A-Za-z0-9_-]{43}$" }
+                code_challenge_method: { type: string, enum: [S256] }
+                state: { type: string, minLength: 8, maxLength: 128 }
+      responses:
+        "200":
+          description: Yallapp's approval page.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [authorize_url, expires_at]
+                properties:
+                  authorize_url: { type: string, format: uri, examples: ["https://yallapp.com.tr/link-community?mode=signin&request=…"] }
+                  expires_at: { type: string, format: date-time }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /auth/yallapp:
+    post:
+      tags: [Auth]
+      summary: Continue with Yallapp (the code for a session)
+      description: |
+        The code from the redirect, with the verifier and the same
+        `redirect_uri`. Signs in the member linked to that Yallapp account,
+        or makes one linked to it with the account's name and email (201,
+        `created`); its email is confirmed in the community unless Yallapp
+        has confirmed it. An unlinked member who already has that email is
+        409 `email_taken`: they log in their own way, then link. A link made
+        this way never makes anyone a Community admin or "Yallapp Team".
+        Every failing code (unknown, expired, used, another redirect, the
+        wrong verifier) is the same 401, and the code is spent at the first try.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, code_verifier, redirect_uri]
+              properties:
+                code: { type: string }
+                code_verifier: { type: string, minLength: 43, maxLength: 128 }
+                redirect_uri: { type: string }
+                language: { $ref: "#/components/schemas/Language" }
+                device: { $ref: "#/components/schemas/DeviceInput" }
+      responses:
+        "200": { $ref: "#/components/responses/Session" }
+        "201": { $ref: "#/components/responses/Session" }
+        "401": { description: "`invalid_token`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+        "403": { description: "`account_suspended`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+        "409": { description: "`email_taken`.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+        "429": { $ref: "#/components/responses/TooMany" }
   /auth/refresh:
     post:
       tags: [Auth]
@@ -443,6 +518,25 @@ paths:
                 properties:
                   confirm_url: { type: string, format: uri, examples: ["https://yallapp.com.tr/community/link?state=…"] }
                   expires_at: { type: string, format: date-time }
+  /me/yallapp-link/suggested:
+    post:
+      tags: [Me]
+      summary: Link the suggested Yallapp account in one tap
+      description: |
+        Offered (`Me.link_suggestion.available`) when the member's email is
+        verified and is the verified email of a Yallapp account that isn't
+        linked to anyone, isn't on Yallapp's own team, and the member hasn't
+        said no. Checked again now; never automatic. Linked this way, it
+        never makes anyone a Community admin.
+      responses:
+        "200": { description: The link., content: { application/json: { schema: { $ref: "#/components/schemas/YallappLink" } } } }
+        "409": { description: "`not_eligible`: no longer offered.", content: { application/json: { schema: { $ref: "#/components/schemas/ErrorBody" } } } }
+        "429": { $ref: "#/components/responses/TooMany" }
+    delete:
+      tags: [Me]
+      summary: Say no to the suggested link (not offered again)
+      responses:
+        "204": { description: Dismissed. }
 
   # ------------------------------------------------------------ Area A: Members
   /members/{member}:
@@ -1541,7 +1635,7 @@ components:
             email: { type: [string, "null"] }
             email_verified: { type: boolean }
             has_password: { type: boolean }
-            providers: { type: array, items: { type: string, enum: [email, apple, google] } }
+            providers: { type: array, items: { type: string, enum: [email, apple, google, yallapp] } }
             language: { $ref: "#/components/schemas/Language" }
             theme: { $ref: "#/components/schemas/Theme" }
             role: { type: string, enum: [member, team, admin], description: "Stored role: \"team\" gives official answers. It never makes an admin." }
@@ -1549,6 +1643,12 @@ components:
             status: { type: string, enum: [active, suspended] }
             unread_notifications: { type: integer }
             pending_friend_requests: { type: integer }
+            link_suggestion:
+              type: object
+              description: "A Yallapp account with the member's verified email may be linked in one tap (POST /me/yallapp-link/suggested). Nothing about the account is shown before they agree."
+              required: [available]
+              properties:
+                available: { type: boolean }
     MePatch:
       type: object
       properties:

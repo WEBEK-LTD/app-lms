@@ -65,6 +65,8 @@ export async function completePasswordReset(
   const user = await store.getUserById(check.userId);
   if (!user) return { ok: false, reason: "invalid" };
   const sessionVersion = user.sessionVersion + 1;
-  await store.updateUser(user.id, { passwordHash, sessionVersion }, now);
-  return { ok: true, user: { ...user, passwordHash, sessionVersion, updatedAt: now } };
+  // 231 The link reached this email's inbox: it is theirs.
+  const emailVerifiedAt = user.emailVerifiedAt ?? now;
+  await store.updateUser(user.id, { passwordHash, sessionVersion, emailVerifiedAt }, now);
+  return { ok: true, user: { ...user, passwordHash, sessionVersion, emailVerifiedAt, updatedAt: now } };
 }

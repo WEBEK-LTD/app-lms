@@ -94,6 +94,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authContinueGoogle => 'Continue with Google';
 
   @override
+  String get authContinueYallapp => 'Continue with Yallapp';
+
+  @override
   String get authSignUpEmail => 'Sign up with email';
 
   @override
@@ -567,6 +570,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsUnlinkConfirm =>
       'Unlink your Yallapp account? Your apps leave your profile, and badges that need them go.';
+
+  @override
+  String get linkSuggestTitle => 'We found your Yallapp account. Link it?';
+
+  @override
+  String linkSuggestNamed(String name) {
+    return 'We found your Yallapp account, $name. Link it?';
+  }
+
+  @override
+  String get linkSuggestLine => 'Your apps will show on your profile.';
+
+  @override
+  String get linkSuggestLink => 'Link';
+
+  @override
+  String get linkSuggestDismiss => 'Dismiss';
+
+  @override
+  String get linkSuggestDone => 'Linked to Yallapp.';
 
   @override
   String get settingsAbout => 'About';

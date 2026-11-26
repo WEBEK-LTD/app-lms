@@ -44,7 +44,7 @@ export async function getLink(ctx: MemberContext): Promise<CommunityResult> {
 
 export async function unlink(ctx: MemberContext): Promise<CommunityResult> {
   if (ctx.member.yallappUserId) {
-    await ctx.store.base.updateMember(ctx.member.id, { yallappUserId: null, linkedAt: null, updatedAt: ctx.now });
+    await ctx.store.base.updateMember(ctx.member.id, { yallappUserId: null, linkedAt: null, yallappLinkVia: null, updatedAt: ctx.now });
     await onYallappLinkChanged(ctx, ctx.member.id);
   }
   return noContent();
@@ -76,7 +76,7 @@ export async function confirmLink(
   if (holder && holder.id !== pending.member.id) return { ok: false, code: "already_linked" };
   let member: CommunityMember | null;
   try {
-    member = await deps.store.base.updateMember(pending.member.id, { yallappUserId, linkedAt: deps.now, updatedAt: deps.now });
+    member = await deps.store.base.updateMember(pending.member.id, { yallappUserId, linkedAt: deps.now, yallappLinkVia: "link", updatedAt: deps.now });
   } catch (error) {
     if (isDuplicate(error)) return { ok: false, code: "already_linked" };
     throw error;
