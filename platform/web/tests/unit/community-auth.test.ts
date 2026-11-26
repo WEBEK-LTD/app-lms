@@ -162,6 +162,13 @@ describe("231 community auth: Apple and Google", () => {
     expect(other.body.member).toMatchObject({ display_name: "Xu", email_verified: false });
   });
 
+  it("signs in with Google on any day: tokens and their check follow the community's clock", async () => {
+    const c = await testCommunity();
+    c.at(new Date(NOW.getTime() + 30 * 24 * 60 * 60 * 1000));
+    const r = await api(c, "POST", "/auth/google", { body: { id_token: await c.idToken("google", { sub: "g-later", email: "later@members.test", email_verified: true, name: "Later" }) } });
+    expect(r.status).toBe(201);
+  });
+
   it("without the provider's settings, answers 503 provider_not_configured", async () => {
     const c = await testCommunity({ providers: false });
     const r = await api<ErrorBody>(c, "POST", "/auth/google", { body: { id_token: "x" } });

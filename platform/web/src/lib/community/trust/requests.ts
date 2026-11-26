@@ -34,9 +34,9 @@ export interface VerificationRequest {
 }
 
 export const PORTFOLIO_MAX = 5;
-/** The ID proof: a photo or a PDF, at most 10 MB. */
+/** The ID proof: a photo or a PDF, at most 5 MB (Netlify functions take at most 6 MB per request: platform/web/README.md, "Limits to know"). */
 export const ID_PROOF_TYPES: Readonly<Record<string, string>> = { "image/jpeg": "jpg", "image/png": "png", "application/pdf": "pdf" };
-export const ID_PROOF_MAX_BYTES = 10 * 1024 * 1024;
+export const ID_PROOF_MAX_BYTES = 5 * 1024 * 1024;
 /** The ID proof file is deleted this many days after the admin's decision (approve or reject); the name, links and decision stay. */
 export const ID_PROOF_KEEP_DAYS = 30;
 
@@ -62,11 +62,11 @@ export function fileTypeOf(bytes: Uint8Array): "image/jpeg" | "image/png" | "app
   return null;
 }
 
-/** Whether the uploaded ID proof is one the form takes: a JPEG, PNG or PDF of at most 10 MB (its bytes are checked too: `fileTypeOf`). */
+/** Whether the uploaded ID proof is one the form takes: a JPEG, PNG or PDF of at most 5 MB (its bytes are checked too: `fileTypeOf`). */
 export function idProofProblem(file: { type: string; size: number } | null): string | null {
   if (!file || file.size === 0) return "Upload a photo of your ID.";
   if (!ID_PROOF_TYPES[file.type]) return "Upload a JPEG, PNG or PDF.";
-  if (file.size > ID_PROOF_MAX_BYTES) return "The file is larger than 10 MB.";
+  if (file.size > ID_PROOF_MAX_BYTES) return "The file is larger than 5 MB.";
   return null;
 }
 

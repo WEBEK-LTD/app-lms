@@ -60,15 +60,15 @@ describe("231 Gold: apply only with 5 or more apps from the linked Yallapp accou
     expect(verificationBlocked({ linked: { apps: 9, paid: null } }, { holdsGold: false, pending: false })).toBeNull();
   });
 
-  it("takes a full name and up to 5 links; the ID proof a JPEG, PNG or PDF up to 10 MB", () => {
+  it("takes a full name and up to 5 links; the ID proof a JPEG, PNG or PDF up to 5 MB", () => {
     expect(parseVerificationForm({ full_name: "  Nour   El Hoda ", portfolio_links: ["https://nour.dev", "https://nour.dev"] })).toEqual({ ok: true, value: { fullName: "Nour El Hoda", portfolioLinks: ["https://nour.dev"] } });
     const bad = parseVerificationForm({ full_name: "Nour", portfolio_links: ["ftp://x.com", "a", "b", "c", "d", "e"] });
     expect(bad.ok).toBe(false);
     expect(Object.keys((bad as { errors: object }).errors).sort()).toEqual(["full_name", "portfolio_links"]);
     expect(idProofProblem({ type: "image/jpeg", size: 300_000 })).toBeNull();
-    expect(idProofProblem({ type: "application/pdf", size: 10 * 1024 * 1024 })).toBeNull();
+    expect(idProofProblem({ type: "application/pdf", size: 5 * 1024 * 1024 })).toBeNull();
     expect(idProofProblem({ type: "image/gif", size: 300 })).toMatch(/JPEG/);
-    expect(idProofProblem({ type: "image/png", size: 10 * 1024 * 1024 + 1 })).toMatch(/10 MB/);
+    expect(idProofProblem({ type: "image/png", size: 5 * 1024 * 1024 + 1 })).toMatch(/5 MB/);
     expect(idProofProblem(null)).toMatch(/Upload/);
   });
 
