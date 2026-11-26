@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { cmLinks } from "@/components/community/site/links";
+import { cmTarget } from "@/components/community/site/redirect";
 import { communityApi } from "@/lib/community/site-client";
 
 /** 231 The one-tap link to the Yallapp account with the member's verified email, and saying no to it. */
@@ -14,10 +15,10 @@ function back(form: FormData): string {
 
 export async function linkSuggestedAction(): Promise<void> {
   const r = await communityApi("POST", "/me/yallapp-link/suggested");
-  redirect(`${cmLinks.settings()}?link=${r.status === 200 ? "suggested" : "unavailable"}`);
+  redirect(await cmTarget(`${cmLinks.settings()}?link=${r.status === 200 ? "suggested" : "unavailable"}`));
 }
 
 export async function dismissSuggestionAction(form: FormData): Promise<void> {
   await communityApi("DELETE", "/me/yallapp-link/suggested");
-  redirect(back(form));
+  redirect(await cmTarget(back(form)));
 }

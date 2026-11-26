@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cmLinks } from "@/components/community/site/links";
+import { cmTarget } from "@/components/community/site/redirect";
 import { safeNext, YALLAPP_COOKIE } from "@/lib/community/site-yallapp";
 import { randomToken } from "@/lib/crypto/tokens";
 import { pkceChallenge, SITE_SIGNIN_PATH } from "@/lib/community/base/yallapp-signin";
@@ -19,7 +20,7 @@ export async function GET(request: Request): Promise<Response> {
   const r = await communityApi<{ authorize_url?: string }>("POST", "/auth/yallapp/start", {
     body: { redirect_uri: `${communitySiteUrl()}${SITE_SIGNIN_PATH}`, code_challenge: pkceChallenge(verifier), code_challenge_method: "S256", state },
   });
-  if (r.status !== 200 || !r.body.authorize_url) return NextResponse.redirect(new URL(`${cmLinks.signIn()}?error=yallapp`, url), 303);
+  if (r.status !== 200 || !r.body.authorize_url) return NextResponse.redirect(new URL(await cmTarget(`${cmLinks.signIn()}?error=yallapp`), url), 303);
   const response = NextResponse.redirect(r.body.authorize_url, 303);
   response.cookies.set(YALLAPP_COOKIE, JSON.stringify({ state, verifier, next: safeNext(url.searchParams.get("next")) }), {
     httpOnly: true,
