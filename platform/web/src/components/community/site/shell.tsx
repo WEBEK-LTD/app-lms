@@ -85,6 +85,11 @@ export function SideNav({ w, active, viewer, mySections, newCount }: { w: CmWord
         </>
       ) : null}
       {viewer ? <MeCard viewer={viewer} w={w} /> : null}
+      {viewer ? (
+        <form action={signOutAction}>
+          <button type="submit" className="cm-btn g" data-testid="cm-nav-logout"><span className="ms" aria-hidden="true">logout</span>{w.logOut}</button>
+        </form>
+      ) : null}
       <Link href={cmLinks.privacy()} className="cm-muted cm-fine" data-testid="cm-footer-privacy">{w.privacyPolicy}</Link>
     </nav>
   );

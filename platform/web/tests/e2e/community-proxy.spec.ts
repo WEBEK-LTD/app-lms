@@ -20,30 +20,30 @@ test.use({ proxy: { server: `http://127.0.0.1:${E2E.communityProxyPort}` } });
 test.beforeAll(async () => {
   server = http.createServer((req, res) => {
     const url = new URL(req.url ?? "/", COMMUNITY);
-    if (url.host !== "community.yallapp.com.tr") {
-      res.writeHead(502).end();
-      return;
-    }
     const headers = { ...req.headers };
     delete headers["proxy-connection"];
+    // Other hosts (Yallapp itself, here at localhost) are passed on as they are.
+    const community = url.host === "community.yallapp.com.tr";
     const upstream = http.request(
       {
-        host: backend.hostname,
-        port: backend.port,
+        host: community ? backend.hostname : url.hostname,
+        port: community ? backend.port : url.port || 80,
         method: req.method,
         path: `${url.pathname}${url.search}`,
-        headers: {
-          ...headers,
-          host: backend.host,
-          "x-yallapp-host": "community.yallapp.com.tr",
-          "x-yallapp-proxy-secret": E2E.proxySecret,
-          "x-yallapp-client-ip": "203.0.113.235",
-          "x-forwarded-proto": "http",
-        },
+        headers: community
+          ? {
+              ...headers,
+              host: backend.host,
+              "x-yallapp-host": "community.yallapp.com.tr",
+              "x-yallapp-proxy-secret": E2E.proxySecret,
+              "x-yallapp-client-ip": "203.0.113.235",
+              "x-forwarded-proto": "http",
+            }
+          : headers,
       },
       (answer) => {
         const out = { ...answer.headers };
-        if (typeof out.location === "string") out.location = out.location.replace(E2E.baseURL, COMMUNITY);
+        if (community && typeof out.location === "string") out.location = out.location.replace(E2E.baseURL, COMMUNITY);
         res.writeHead(answer.statusCode ?? 502, out);
         answer.pipe(res);
       },
@@ -78,6 +78,28 @@ test("through the reverse proxy: join with email, land signed in on the communit
   await expect(page.getByText("This page couldn’t load")).toHaveCount(0);
 
   // The public files (logo, icon) are found on the community's host too, and so is its own sitemap.
+  // The Community's own manifest and icons, found through the proxy.
+  await expect(page.locator("link[rel='manifest']")).toHaveAttribute("href", "/community/site.webmanifest");
+  const manifest = await page.evaluate(async () => (await fetch("/community/site.webmanifest")).json());
+  expect(manifest.name).toBe("Yallapp Community");
+
+  // Settings → Link account starts the link on Yallapp's own /link-community (signed out there, its sign-in follows).
+  const visited: string[] = [];
+  page.on("request", (r) => {
+    if (r.isNavigationRequest()) visited.push(r.url());
+  });
+  await page.goto(`${COMMUNITY}/settings`);
+  await page.getByRole("button", { name: "Link account" }).click();
+  await page.waitForURL((url) => url.origin === E2E.baseURL);
+  expect(visited.some((u) => u.startsWith(`${E2E.baseURL}/link-community?state=`))).toBe(true);
+
+  // Log out from the side menu: signed out, on the welcome.
+  await page.goto(`${COMMUNITY}/`);
+  await page.getByTestId("cm-nav-logout").click();
+  await page.waitForURL((url) => url.origin === COMMUNITY && url.pathname === "/welcome");
+  await page.goto(`${COMMUNITY}/settings`);
+  await page.waitForURL((url) => url.pathname === "/community/sign-in" || url.pathname === "/sign-in");
+
   expect(problems).toEqual([]);
   const sitemap = await page.goto(`${COMMUNITY}/sitemap.xml`);
   expect(await sitemap!.text()).toContain("/delete-account");

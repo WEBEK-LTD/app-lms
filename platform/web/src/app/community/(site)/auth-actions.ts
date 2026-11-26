@@ -67,7 +67,7 @@ export async function continueAction(provider: "apple" | "google", input: { idTo
 
 export async function signOutAction(): Promise<void> {
   await source.signOut();
-  redirect(await cmTarget(cmLinks.home()));
+  redirect(await cmTarget(cmLinks.welcome()));
 }
 
 export async function newPasswordAction(_prev: FormState, form: FormData): Promise<FormState> {
