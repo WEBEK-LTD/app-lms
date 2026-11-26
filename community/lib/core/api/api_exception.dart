@@ -79,8 +79,11 @@ class ApiException implements Exception {
   static const notConfigured = 'provider_not_configured';
   static const alreadyReported = 'already_reported';
   static const alreadyLinked = 'already_linked';
-  static const invalidGrant = 'invalid_grant';
-  static const confirmNeeded = 'confirm_needed';
+  static const notEligible = 'not_eligible';
+
+  /// The app's own: the confirm page answered another request (a forged or
+  /// stale state); the server's code for a bad code is `invalid_token`.
+  static const stateMismatch = 'state_mismatch';
 
   /// A 409 the server gave no code for.
   static const conflict = 'conflict';

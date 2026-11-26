@@ -260,7 +260,7 @@ class FakeCommunityApi implements CommunityApi {
         .encode(sha256.convert(utf8.encode(codeVerifier)).bytes)
         .replaceAll('=', '');
     if (challenge != yallappChallenge) {
-      throw const ApiException(code: ApiException.invalidGrant);
+      throw const ApiException(code: ApiException.invalidToken);
     }
     return _wait(_signedIn());
   }
@@ -343,14 +343,15 @@ class FakeCommunityApi implements CommunityApi {
     return _wait(linkPage);
   }
 
-  /// What accepting the suggestion answers (`confirm_needed`: the browser).
-  bool suggestionNeedsConfirm = false;
+  /// Accepting the suggestion answers `not_eligible` (it went meanwhile).
+  bool suggestionGone = false;
 
   @override
   Future<void> acceptLinkSuggestion() async {
     calls.add('suggestion-accept');
-    if (suggestionNeedsConfirm) {
-      throw const ApiException(code: ApiException.confirmNeeded);
+    if (suggestionGone) {
+      _me = _me.copyWith(account: _withSuggestion(null));
+      throw const ApiException(code: ApiException.notEligible);
     }
     _me = _me.copyWith(
       yallappLinked: true,
@@ -366,7 +367,7 @@ class FakeCommunityApi implements CommunityApi {
   }
 
   /// Shows the suggestion (a member whose Yallapp account isn't linked).
-  void suggestLink(String accountName) {
+  void suggestLink([String? accountName]) {
     _me = _me.copyWith(
       yallappLinked: false,
       apps: const [],
