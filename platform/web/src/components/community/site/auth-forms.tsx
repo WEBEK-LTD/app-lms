@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, type ReactNode } from "react";
 import { logInAction, newPasswordAction, resetAction, signUpAction } from "@/app/community/(site)/auth-actions";
 import { Note } from "./forms";
 import { cmLinks } from "./links";
 import type { CmWords } from "./words";
 
-export function SignUpForm({ w, next }: { w: CmWords; next: string }) {
+export function SignUpForm({ w, next, agree }: { w: CmWords; next: string; agree?: ReactNode }) {
   const [state, action, pending] = useActionState(signUpAction, undefined);
   return (
     <form action={action} id="email">
@@ -17,7 +17,7 @@ export function SignUpForm({ w, next }: { w: CmWords; next: string }) {
       <label className="cm-field">{w.password}<input name="password" type="password" required minLength={8} maxLength={200} autoComplete="new-password" /><small>{w.passwordHint}</small></label>
       <Note state={state} />
       <button type="submit" className="cm-btn o cm-wide" disabled={pending} style={{ marginTop: 16 }}>{w.signUp}</button>
-      <p className="cm-muted cm-fine">{w.agree}</p>
+      <p className="cm-muted cm-fine" data-testid="cm-agree">{agree ?? w.agree}</p>
     </form>
   );
 }

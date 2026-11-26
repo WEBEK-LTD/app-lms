@@ -7,6 +7,7 @@ import { siteContext } from "@/components/community/site/context";
 import { cmLinks } from "@/components/community/site/links";
 import { SitePage } from "@/components/community/site/page";
 import { linkedAccount, noticePrefs } from "@/components/community/site/source";
+import { CM_DELETE } from "@/components/community/site/privacy-words";
 import { fill, type CmWords } from "@/components/community/site/words";
 import { linkAction, prefsAction, unlinkAction } from "../trust-actions";
 import { signOutAction } from "../auth-actions";
@@ -25,6 +26,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   if (!viewer) redirect(cmLinks.signIn(cmLinks.settings()));
   const [link, prefs] = await Promise.all([linkedAccount(), noticePrefs()]);
   const kinds = Object.keys(prefs);
+  const d = CM_DELETE[lang];
   return (
     <SitePage active="none">
       <div style={{ maxWidth: 760 }}>
@@ -73,6 +75,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <div className="cm-row" style={{ gap: 18 }}>
             <LangSelect lang={lang} label={w.language} />
             <div className="cm-themes"><ThemeButtons light={w.themeLight} dark={w.themeDark} /></div>
+          </div>
+        </section>
+        <section className="cm-card cm-set">
+          <h2>{d.formTitle}</h2>
+          <p className="cm-muted">{d.formIntro}</p>
+          <div className="cm-row">
+            <Link href={cmLinks.deleteAccountForm()} className="cm-btn g" data-testid="cm-settings-delete"><span className="ms" aria-hidden="true">delete</span>{d.formTitle}</Link>
+            <Link href={cmLinks.privacy()} className="cm-btn g"><span className="ms" aria-hidden="true">shield</span>{d.privacy}</Link>
           </div>
         </section>
         <section className="cm-card cm-set">

@@ -177,6 +177,7 @@
   "settingsUnlink": "Bağlantıyı kaldır",
   "settingsUnlinkConfirm": "Yallapp hesabının bağlantısı kaldırılsın mı? Uygulamaların profilinden çıkar, onlara bağlı rozetler gider.",
   "settingsAbout": "Hakkında",
+  "settingsPrivacy": "Gizlilik politikası",
   "settingsVersion": "Sürüm {version}",
   "settingsLogOutConfirm": "Bu telefonda Yallapp Topluluk’tan çıkış yapılsın mı?",
   "savedEmpty": "Kaydettiğin sorular ve eğitimler burada görünür.",

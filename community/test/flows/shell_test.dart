@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp_community/core/api/fake_community_api.dart';
+import 'package:yallapp_community/core/providers.dart';
 import 'package:yallapp_community/core/routing/feature_routes.dart';
 import 'package:yallapp_community/core/routing/paths.dart';
 
@@ -58,7 +59,17 @@ void main() {
     tester,
   ) async {
     final api = FakeCommunityApi();
-    final app = await TestApp.start(tester, api: api);
+    final opened = <Uri>[];
+    final app = await TestApp.start(
+      tester,
+      api: api,
+      overrides: [
+        openExternalProvider.overrideWithValue((uri) async {
+          opened.add(uri);
+          return true;
+        }),
+      ],
+    );
     await tap(tester, 'header-menu');
     expect(key('side-menu'), findsOneWidget);
     for (final s in [
@@ -84,6 +95,10 @@ void main() {
     await tap(tester, 'header-menu');
     await tap(tester, 'menu-settings');
     expect(find.byKey(const ValueKey('settings-logout')), findsOneWidget);
+    // The privacy policy opens on the website.
+    await tester.scrollUntilVisible(key('settings-privacy'), 200);
+    await tap(tester, 'settings-privacy');
+    expect(opened.single.path, '/privacy');
 
     app.go(Paths.home);
     await TestApp.settle(tester);

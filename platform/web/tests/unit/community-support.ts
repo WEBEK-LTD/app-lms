@@ -54,12 +54,14 @@ export async function testCommunity(options: { providers?: boolean } = {}): Prom
     mail,
     uploads,
     async idToken(provider, claims) {
+      // Apple's and Google's tokens are checked against the real clock (jose), not the test's fixed one.
+      const issued = Math.floor(Date.now() / 1000);
       return new SignJWT(claims)
         .setProtectedHeader({ alg: "RS256", kid: "test" })
         .setIssuer(provider === "apple" ? "https://appleid.apple.com" : "https://accounts.google.com")
         .setAudience(provider === "apple" ? APPLE_AUDIENCE : GOOGLE_AUDIENCE)
-        .setIssuedAt(Math.floor(deps.now.getTime() / 1000) - 10)
-        .setExpirationTime(Math.floor(deps.now.getTime() / 1000) + 600)
+        .setIssuedAt(issued - 10)
+        .setExpirationTime(issued + 600)
         .sign(privateKey);
     },
     at(now) {
