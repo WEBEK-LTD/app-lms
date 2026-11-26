@@ -594,6 +594,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsAbout => 'حول التطبيق';
 
   @override
+  String get settingsPrivacy => 'سياسة الخصوصية';
+
+  @override
   String settingsVersion(String version) {
     return 'الإصدار $version';
   }

@@ -588,6 +588,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsAbout => 'Hakkında';
 
   @override
+  String get settingsPrivacy => 'Gizlilik politikası';
+
+  @override
   String settingsVersion(String version) {
     return 'Sürüm $version';
   }

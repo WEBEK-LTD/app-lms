@@ -85,6 +85,7 @@ export function SideNav({ w, active, viewer, mySections, newCount }: { w: CmWord
         </>
       ) : null}
       {viewer ? <MeCard viewer={viewer} w={w} /> : null}
+      <Link href={cmLinks.privacy()} className="cm-muted cm-fine" data-testid="cm-footer-privacy">{w.privacyPolicy}</Link>
     </nav>
   );
 }
@@ -131,6 +132,7 @@ export function Header({ w, lang, viewer, unread, active, mySections, newCount, 
         <div className="dl"><LangSelect lang={lang} label={w.language} /></div>
         <div className="foot">
           <ThemeButtons light={w.themeLight} dark={w.themeDark} />
+          <Link href={cmLinks.privacy()} className="cm-muted" data-testid="cm-footer-privacy">{w.privacyPolicy}</Link>
           {viewer ? (
             <div className="fi">
               <Link href={cmLinks.saved()} aria-label={w.saved}><span className="ms" aria-hidden="true">bookmark</span></Link>

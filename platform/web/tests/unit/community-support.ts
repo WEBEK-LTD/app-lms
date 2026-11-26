@@ -41,26 +41,33 @@ export async function testCommunity(options: { providers?: boolean } = {}): Prom
     ip: "203.0.113.7",
     siteUrl: "https://community.yallapp.test",
     yallappUrl: "https://yallapp.test",
-    apple: providers ? jwtVerifier(keys, "https://appleid.apple.com", [APPLE_AUDIENCE]) : null,
-    google: providers ? jwtVerifier(keys, ["https://accounts.google.com"], [GOOGLE_AUDIENCE]) : null,
+    apple: null,
+    google: null,
     mail,
     upload: async (key, bytes, contentType) => {
       uploads.set(key, { bytes, contentType });
       return `https://yallapp.test/api/community/files/${key.split("/").pop()}`;
     },
   };
+  // The tokens are signed for the community's clock (deps.now), so the verifiers read the same clock, not today's.
+  if (providers) {
+    deps.apple = jwtVerifier(keys, "https://appleid.apple.com", [APPLE_AUDIENCE], () => deps.now);
+    deps.google = jwtVerifier(keys, ["https://accounts.google.com"], [GOOGLE_AUDIENCE], () => deps.now);
+  }
   return {
     deps,
     mail,
     uploads,
     async idToken(provider, claims) {
+      // Signed for the community's clock (deps.now), the one the verifiers read above: never today's,
+      // so the tests give the same answer on any day.
+      const issued = Math.floor(deps.now.getTime() / 1000);
       return new SignJWT(claims)
         .setProtectedHeader({ alg: "RS256", kid: "test" })
         .setIssuer(provider === "apple" ? "https://appleid.apple.com" : "https://accounts.google.com")
         .setAudience(provider === "apple" ? APPLE_AUDIENCE : GOOGLE_AUDIENCE)
-        // Apple's and Google's tokens are checked against the real clock (jose), not the test's: signed now, so they don't expire once NOW is past.
-        .setIssuedAt(Math.floor(Date.now() / 1000) - 10)
-        .setExpirationTime(Math.floor(Date.now() / 1000) + 600)
+        .setIssuedAt(issued - 10)
+        .setExpirationTime(issued + 600)
         .sign(privateKey);
     },
     at(now) {

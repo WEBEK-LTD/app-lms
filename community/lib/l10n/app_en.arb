@@ -220,6 +220,7 @@
   "linkSuggestDismiss": "Dismiss",
   "linkSuggestDone": "Linked to Yallapp.",
   "settingsAbout": "About",
+  "settingsPrivacy": "Privacy policy",
   "settingsVersion": "Version {version}",
   "@settingsVersion": {
     "placeholders": {

@@ -1117,7 +1117,7 @@ paths:
               required: [full_name, id_proof]
               properties:
                 full_name: { type: string, maxLength: 120 }
-                id_proof: { type: string, format: binary, description: "JPEG, PNG or PDF, at most 10 MB; private." }
+                id_proof: { type: string, format: binary, description: "JPEG, PNG or PDF, at most 5 MB; private." }
                 portfolio_links: { type: array, maxItems: 5, items: { type: string, format: uri } }
       responses:
         "201": { description: Sent., content: { application/json: { schema: { $ref: "#/components/schemas/VerificationState" } } } }

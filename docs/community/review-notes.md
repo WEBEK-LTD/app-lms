@@ -34,12 +34,20 @@ repository.
 >   {community rules URL}. Contact: info@yallapp.com.tr.
 >
 > Account deletion (5.1.1(v)): Settings → Delete account. It deletes the
-> account at once.
+> account at once. It can also be deleted on the website, signed in, at
+> https://community.yallapp.com.tr/settings/delete-account; how to delete,
+> with or without the app, is at https://community.yallapp.com.tr/delete-account.
+>
+> Privacy policy: https://community.yallapp.com.tr/privacy (also in the
+> app's Settings → About).
 >
 > Sign in with Apple is offered beside Google (4.8).
 >
 > Linking a Yallapp account (optional) opens yallapp.com.tr in the browser
 > and comes back to the app; the demo account is already linked.
+
+For Google Play's Data safety form, the account deletion URL is
+https://community.yallapp.com.tr/delete-account.
 
 For Google Play's "App access": the same account under "All or some
 functionality is restricted", with "Sign in with email" as the

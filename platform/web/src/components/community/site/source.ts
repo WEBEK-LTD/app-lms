@@ -647,3 +647,30 @@ export async function adminReports(q: { status: "open" | "actioned" | "dismissed
 export async function resolveReport(id: string, input: { status: "actioned" | "dismissed"; note: string }): Promise<SeamResult> {
   return done(await communityApi("POST", `/admin/reports/${encodeURIComponent(id)}`, { body: { status: input.status, ...(input.note ? { note: input.note } : {}) } }));
 }
+
+// ----- Deleting the account (area A's DELETE /me) -----
+
+export type DeletionInfo = { hasPassword: boolean; providers: string[]; signedInAt: Date | null };
+
+/** What the delete form needs: whether the member has a password, how they sign in, and when this browser signed in. */
+export async function deletionInfo(): Promise<DeletionInfo | null> {
+  const [me, devices] = await Promise.all([
+    communityApi<{ has_password?: boolean; providers?: string[] }>("GET", "/me"),
+    communityApi<{ items?: { current?: boolean; created_at?: string }[] }>("GET", "/me/sessions"),
+  ]);
+  if (me.status !== 200 || !me.body) return null;
+  const current = devices.status === 200 ? devices.body?.items?.find((d) => d.current) : undefined;
+  return {
+    hasPassword: me.body.has_password === true,
+    providers: me.body.providers ?? [],
+    signedInAt: current?.created_at ? new Date(current.created_at) : null,
+  };
+}
+
+/** Deletes the signed-in member's account, then this browser's sign-in cookies. */
+export async function deleteAccount(body: { password: string } | { confirm: "DELETE" }): Promise<SeamResult> {
+  const r = await communityApi("DELETE", "/me", { body });
+  if (r.status !== 204 && r.status !== 200) return { ok: false, code: errorCode(r.body) };
+  await clearCommunityCookies();
+  return { ok: true };
+}
