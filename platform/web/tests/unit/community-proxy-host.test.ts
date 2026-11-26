@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { communitySiteUrl } from "@/lib/community/deps";
-import { config, isCommunityRequest, proxy } from "@/proxy";
+import { config, isCommunityRequest, isPublicFile, proxy } from "@/proxy";
 
 /**
  * 231 community.yallapp.com.tr through our reverse proxy
@@ -38,6 +38,19 @@ describe("231 the community's host through our proxy", () => {
     expect(new URL(rewrite(trusted)!).pathname).toBe("/community/qa");
     expect(new URL(rewrite(trusted)!).search).toBe("?tab=new");
     expect(new URL(rewrite(await proxy(at("/", { "x-yallapp-host": "community.yallapp.com.tr", "x-yallapp-proxy-secret": SECRET })))!).pathname).toBe("/community");
+  });
+
+  it("serves a member's profile with a dot in the username as a page, the public folder's files as files", async () => {
+    vi.stubEnv("TRUSTED_PROXY_SECRET", SECRET);
+    const proxied = { "x-yallapp-host": "community.yallapp.com.tr", "x-yallapp-proxy-secret": SECRET };
+    // Usernames made from a name have dots ("mohamed.ali"): before, ".ali" passed for a file's extension and the profile was the main site's 404.
+    expect(new URL(rewrite(await proxy(at("/u/mohamed.ali", proxied)))!).pathname).toBe("/community/u/mohamed.ali");
+    expect(new URL(rewrite(await proxy(at("/u/nour.png", proxied)))!).pathname).toBe("/community/u/nour.png");
+    expect(rewrite(await proxy(at("/brand/logo.svg", proxied)))).toBeNull();
+    expect(rewrite(await proxy(at("/favicon-48x48.png", proxied)))).toBeNull();
+    expect(new URL(rewrite(await proxy(at("/sitemap.xml", proxied)))!).pathname).toBe("/community/sitemap.xml");
+    expect(isPublicFile("/community/site.webmanifest")).toBe(true);
+    expect(isPublicFile("/qa/how-to.publish")).toBe(false);
   });
 
   it("sends the proxy's requests through the middleware (a header matcher), not the API or Next's files", () => {

@@ -143,7 +143,7 @@ export default async function MemberPage({ params }: Props) {
             })}
           </div>
         ) : (
-          <p className="cm-muted" style={{ marginTop: 8 }}>{p.relation.self ? w.noAppsSelf : w.noApps}</p>
+          <p className="cm-muted" style={{ marginTop: 8 }}>{p.relation.self ? (p.linked ? w.noAppsLinked : w.noAppsSelf) : w.noApps}</p>
         )}
       </section>
       {p.questions.length ? (

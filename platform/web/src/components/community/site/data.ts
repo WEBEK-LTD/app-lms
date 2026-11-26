@@ -114,6 +114,8 @@ export type Profile = {
   following: number;
   friends: number;
   linkedApps: LinkedApp[];
+  /** Whether a Yallapp account is linked (the member themself sees "no apps yet" rather than "link your account"). */
+  linked: boolean;
   /** How the viewer stands with this member. */
   relation: { self: boolean; following: boolean; friend: "none" | "requested" | "incoming" | "friends"; friendRequestId: string | null; blocked: boolean };
   questions: QuestionSummary[];

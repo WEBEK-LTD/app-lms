@@ -43,7 +43,12 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <h2>{w.yallappAccount}</h2>
           {link.linked ? (
             <>
-              <p className="cm-muted">{fill(w.linkedHint, { n: link.apps })}</p>
+              {link.name && link.email ? <p data-testid="cm-linked-account">{fill(w.linkedAs, { name: link.name, email: link.email })}</p> : null}
+              {link.apps > 0 ? (
+                <p className="cm-muted">{fill(w.linkedHint, { n: link.apps })}</p>
+              ) : (
+                <div className="cm-note" role="status"><span className="ms f" aria-hidden="true">info</span>{w.linkedNoApps}</div>
+              )}
               <div className="cm-row">
                 <Link href={cmLinks.verify()} className="cm-btn n"><span className="ms" aria-hidden="true">workspace_premium</span>{w.badgeGold}</Link>
                 <form action={unlinkAction}><button type="submit" className="cm-btn g"><span className="ms" aria-hidden="true">link_off</span>{w.unlinkAccount}</button></form>

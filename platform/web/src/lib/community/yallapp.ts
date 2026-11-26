@@ -55,3 +55,13 @@ export async function yallappAccountName(platform: DataStore, yallappUserId: str
   const user = await platform.getUserById(yallappUserId);
   return user?.name ?? null;
 }
+
+/**
+ * The linked Yallapp account's name and email, for the member themself: a
+ * person with two Yallapp accounts (one for the business, one for
+ * Yallapp's admin) sees which one is linked.
+ */
+export async function yallappAccount(platform: DataStore, yallappUserId: string): Promise<{ name: string; email: string } | null> {
+  const user = await platform.getUserById(yallappUserId);
+  return user ? { name: user.name, email: user.email } : null;
+}

@@ -40,6 +40,18 @@ export function isCommunityRequest(headers: Headers, secret: string | undefined 
   return Boolean(named && secret && secret.length >= 32 && sent && isCommunityHost(named) && sameSecret(sent, secret));
 }
 
+/**
+ * 231 A file of the public folder (/brand/…, /favicon.svg), the same on
+ * every host, by its kind of file. Not any path with a dot: a member's
+ * address is /u/{username}, and usernames have dots ("mohamed.ali"), so
+ * /u/… is always a page.
+ */
+const PUBLIC_FILE = /\.(?:png|jpe?g|gif|webp|avif|svg|ico|css|js|mjs|map|json|txt|xml|webmanifest|woff2?|ttf|otf|pdf|mp4|webm|mp3|wav|zip)$/i;
+
+export function isPublicFile(pathname: string): boolean {
+  return PUBLIC_FILE.test(pathname) && !pathname.startsWith("/u/") && pathname !== "/sitemap.xml";
+}
+
 /** The page under src/app/community/ that serves a path on the community's host. */
 export function communityPath(pathname: string): string {
   if (pathname === "/community" || pathname.startsWith("/community/")) return pathname;
@@ -61,8 +73,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // 103R The page asked for, so the dashboard can send a Studio project's pages to Studio.
   headers.set("x-yallapp-path", `${request.nextUrl.pathname}${request.nextUrl.search}`);
   // 231 The public folder's files (/brand/…, /favicon.svg) are the same on every host; only pages and the sitemap are the community's.
-  const file = /\.[a-z0-9]+$/i.test(request.nextUrl.pathname) && request.nextUrl.pathname !== "/sitemap.xml";
-  const community = !file && isCommunityRequest(request.headers);
+  const community = !isPublicFile(request.nextUrl.pathname) && isCommunityRequest(request.headers);
   // A visitor's own X-Yallapp-Host goes no further than here.
   if (!community) headers.delete(FORWARDED_HOST);
   const response = community
