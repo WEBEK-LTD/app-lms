@@ -90,7 +90,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         </section>
         <section className="cm-card cm-set">
           <form action={signOutAction}>
-            <button type="submit" className="cm-btn g"><span className="ms" aria-hidden="true">logout</span>{w.logOut}</button>
+            <button type="submit" className="cm-am-row cm-quiet"><span className="ms" aria-hidden="true">logout</span>{w.logOut}</button>
           </form>
         </section>
       </div>

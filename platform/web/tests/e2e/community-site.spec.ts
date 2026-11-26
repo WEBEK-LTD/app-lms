@@ -38,12 +38,15 @@ async function join(browser: Browser, who: Who): Promise<Page> {
   await page.getByLabel("Password").fill(who.password);
   await page.getByRole("button", { name: "Sign up", exact: true }).click();
   await page.waitForURL((url) => url.pathname === "/community");
-  await expect(page.getByRole("heading", { name: `Hi ${who.name.split(" ")[0]} 👋` })).toBeVisible();
+  await expect(page.getByRole("heading", { name: `Hi ${who.name.split(" ")[0]}`, exact: true })).toBeVisible();
   return page;
 }
 
 async function profileOf(page: Page): Promise<string> {
-  const href = await page.locator(".cm-hdr a[aria-label='Your profile']").getAttribute("href");
+  // The header's avatar opens a menu whose first item is the profile.
+  await page.getByTestId("cm-avatar-trigger").click();
+  const href = await page.getByTestId("cm-avatar-menu").getByRole("menuitem", { name: "Your profile" }).getAttribute("href");
+  await page.keyboard.press("Escape");
   expect(href).toMatch(/^\/community\/u\//);
   return href!;
 }

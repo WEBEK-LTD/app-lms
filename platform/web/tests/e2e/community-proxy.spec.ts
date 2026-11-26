@@ -74,7 +74,7 @@ test("through the reverse proxy: join with email, land signed in on the communit
   await page.getByRole("button", { name: "Sign up", exact: true }).click();
   // Sent on by the browser, through the proxy, to the host's own address of the home.
   await page.waitForURL((url) => url.origin === COMMUNITY && url.pathname === "/");
-  await expect(page.getByRole("heading", { name: "Hi Proxy 👋" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Hi Proxy", exact: true })).toBeVisible();
   await expect(page.getByText("This page couldn’t load")).toHaveCount(0);
 
   // The public files (logo, icon) are found on the community's host too, and so is its own sitemap.
@@ -93,9 +93,11 @@ test("through the reverse proxy: join with email, land signed in on the communit
   await page.waitForURL((url) => url.origin === E2E.baseURL);
   expect(visited.some((u) => u.startsWith(`${E2E.baseURL}/link-community?state=`))).toBe(true);
 
-  // Log out from the side menu: signed out, on the welcome.
+  // Log out from the avatar menu: signed out, on the welcome.
   await page.goto(`${COMMUNITY}/`);
-  await page.getByTestId("cm-nav-logout").click();
+  await page.getByTestId("cm-avatar-trigger").click();
+  await expect(page.getByTestId("cm-avatar-menu")).toBeVisible();
+  await page.getByTestId("cm-menu-logout").click();
   await page.waitForURL((url) => url.origin === COMMUNITY && url.pathname === "/welcome");
   await page.goto(`${COMMUNITY}/settings`);
   await page.waitForURL((url) => url.pathname === "/community/sign-in" || url.pathname === "/sign-in");

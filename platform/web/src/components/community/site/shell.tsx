@@ -2,7 +2,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Avatar } from "./avatar";
-import { Drawer, LangSelect, SearchKey, ThemeButtons } from "./client";
+import { BadgeMark } from "./badge";
+import { AvatarMenu, Drawer, LangSelect, SearchKey, ThemeButtons } from "./client";
 import type { Section, Viewer } from "./data";
 import { cmLinks } from "./links";
 import { sectionColor } from "./source";
@@ -85,11 +86,6 @@ export function SideNav({ w, active, viewer, mySections, newCount }: { w: CmWord
         </>
       ) : null}
       {viewer ? <MeCard viewer={viewer} w={w} /> : null}
-      {viewer ? (
-        <form action={signOutAction}>
-          <button type="submit" className="cm-btn g" data-testid="cm-nav-logout"><span className="ms" aria-hidden="true">logout</span>{w.logOut}</button>
-        </form>
-      ) : null}
       <Link href={cmLinks.privacy()} className="cm-muted cm-fine" data-testid="cm-footer-privacy">{w.privacyPolicy}</Link>
     </nav>
   );
@@ -176,9 +172,29 @@ export function Header({ w, lang, viewer, unread, active, mySections, newCount, 
         <span className="label">{w.ask}</span>
       </Link>
       {viewer ? (
-        <Link href={cmLinks.member(viewer.handle)} aria-label={w.profile}>
-          <Avatar member={viewer} size={46} className="cm-me-btn" />
-        </Link>
+        <AvatarMenu
+          label={w.profile}
+          avatar={<Avatar member={viewer} size={40} className="cm-me-btn" />}
+          head={
+            <>
+              <Avatar member={viewer} size={40} />
+              <div style={{ minWidth: 0 }}>
+                <b>{viewer.name} <BadgeMark kind={viewer.badge} w={w} /></b>
+                <span className="m">@{viewer.handle} · <span className="num">{fill(w.points, { n: viewer.points.toLocaleString("en-US") })}</span></span>
+              </div>
+            </>
+          }
+        >
+          <Link href={cmLinks.member(viewer.handle)} role="menuitem" className="cm-am-row"><span className="ms" aria-hidden="true">person</span>{w.profile}</Link>
+          <Link href={cmLinks.settings()} role="menuitem" className="cm-am-row"><span className="ms" aria-hidden="true">settings</span>{w.settings}</Link>
+          <Link href={cmLinks.saved()} role="menuitem" className="cm-am-row"><span className="ms" aria-hidden="true">bookmark</span>{w.saved}</Link>
+          <div className="cm-am-row cm-am-pref"><LangSelect lang={lang} label={w.language} /></div>
+          <div className="cm-am-row cm-am-pref"><span className="ms" aria-hidden="true">dark_mode</span><span>{w.theme}</span><span className="cm-themes"><ThemeButtons light={w.themeLight} dark={w.themeDark} /></span></div>
+          <hr />
+          <form action={signOutAction}>
+            <button type="submit" role="menuitem" className="cm-am-row" data-testid="cm-menu-logout"><span className="ms" aria-hidden="true">logout</span>{w.logOut}</button>
+          </form>
+        </AvatarMenu>
       ) : (
         <Link href={cmLinks.signIn()} className="cm-login">{w.logIn}</Link>
       )}
