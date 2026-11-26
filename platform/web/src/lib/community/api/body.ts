@@ -1,6 +1,7 @@
 /**
  * 231 Reading a Community API request's body (app/api/community/v1/[...path]/route.ts):
- * a JSON body (128 KB) or a multipart form (a picture or an ID proof, 11 MB).
+ * a JSON body (128 KB) or a multipart form (a picture or an ID proof), at most
+ * 6 MB, what Netlify's functions accept at all.
  * - A body is taken only with its size known: one sent in chunks without a
  *   Content-Length is refused (411). A request with no body at all (a
  *   DELETE, a POST with nothing to say) is fine without one.
@@ -10,7 +11,7 @@
  *   urlencoded) can't pass for one (415).
  */
 export const MAX_JSON = 131_072;
-export const MAX_FORM = 11 * 1024 * 1024;
+export const MAX_FORM = 6 * 1024 * 1024;
 
 export type BodyRead = { ok: true; body: unknown; form: FormData | null } | { ok: false; status: number; code: string; message: string };
 
