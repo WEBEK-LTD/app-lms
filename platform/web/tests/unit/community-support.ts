@@ -41,14 +41,19 @@ export async function testCommunity(options: { providers?: boolean } = {}): Prom
     ip: "203.0.113.7",
     siteUrl: "https://community.yallapp.test",
     yallappUrl: "https://yallapp.test",
-    apple: providers ? jwtVerifier(keys, "https://appleid.apple.com", [APPLE_AUDIENCE]) : null,
-    google: providers ? jwtVerifier(keys, ["https://accounts.google.com"], [GOOGLE_AUDIENCE]) : null,
+    apple: null,
+    google: null,
     mail,
     upload: async (key, bytes, contentType) => {
       uploads.set(key, { bytes, contentType });
       return `https://yallapp.test/api/community/files/${key.split("/").pop()}`;
     },
   };
+  // The tokens are signed for the community's clock (deps.now), so the verifiers read the same clock, not today's.
+  if (providers) {
+    deps.apple = jwtVerifier(keys, "https://appleid.apple.com", [APPLE_AUDIENCE], () => deps.now);
+    deps.google = jwtVerifier(keys, ["https://accounts.google.com"], [GOOGLE_AUDIENCE], () => deps.now);
+  }
   return {
     deps,
     mail,
