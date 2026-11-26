@@ -59,8 +59,9 @@ export async function testCommunity(options: { providers?: boolean } = {}): Prom
     mail,
     uploads,
     async idToken(provider, claims) {
-      // Apple's and Google's tokens are checked against the real clock (jose), not the test's fixed one.
-      const issued = Math.floor(Date.now() / 1000);
+      // Signed for the community's clock (deps.now), the one the verifiers read above: never today's,
+      // so the tests give the same answer on any day.
+      const issued = Math.floor(deps.now.getTime() / 1000);
       return new SignJWT(claims)
         .setProtectedHeader({ alg: "RS256", kid: "test" })
         .setIssuer(provider === "apple" ? "https://appleid.apple.com" : "https://accounts.google.com")
