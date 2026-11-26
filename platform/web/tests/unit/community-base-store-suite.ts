@@ -121,6 +121,27 @@ export function communityBaseStoreSuite(make: () => CommunityStore) {
     expect((await s.blockedEitherWay(a.id)).size).toBe(0);
   });
 
+  it("231 keeps Continue with Yallapp's requests: approved once in time, its code used once", async () => {
+    const s = make().base;
+    const hash = (x: string) => `${x}-${randomUUID()}`.padEnd(64, "0").slice(0, 64);
+    const requestHash = hash("request");
+    const codeHash = hash("code");
+    await s.createYallappSignin({ requestHash, redirectUri: "yallappcommunity://auth/yallapp", codeChallenge: "c".repeat(43), clientState: "state-1234", yallappUserId: null, codeHash: null, expiresAt: later(600_000), approvedAt: null, usedAt: null, createdAt: NOW });
+    expect(await s.getYallappSignin(requestHash)).toMatchObject({ redirectUri: "yallappcommunity://auth/yallapp", clientState: "state-1234", approvedAt: null });
+    expect(await s.useYallappSignin(codeHash, NOW)).toBeNull();
+    const userId = randomUUID();
+    expect(await s.approveYallappSignin(requestHash, { yallappUserId: userId, codeHash, expiresAt: later(120_000) }, later(1000))).toBe(true);
+    expect(await s.approveYallappSignin(requestHash, { yallappUserId: userId, codeHash: hash("again"), expiresAt: later(120_000) }, later(2000))).toBe(false);
+    // Two exchanges at once: one wins.
+    const both = await Promise.all([s.useYallappSignin(codeHash, later(3000)), s.useYallappSignin(codeHash, later(3000))]);
+    expect(both.filter(Boolean)).toHaveLength(1);
+    expect(both.find(Boolean)).toMatchObject({ yallappUserId: userId });
+    // Past its time, a request isn't approved and a code isn't used.
+    const late = hash("late");
+    await s.createYallappSignin({ requestHash: late, redirectUri: "yallappcommunity://auth/yallapp", codeChallenge: "c".repeat(43), clientState: "state-1234", yallappUserId: null, codeHash: null, expiresAt: later(1000), approvedAt: null, usedAt: null, createdAt: NOW });
+    expect(await s.approveYallappSignin(late, { yallappUserId: userId, codeHash: hash("late-code"), expiresAt: later(120_000) }, later(5000))).toBe(false);
+  });
+
   it("231 keeps link requests and reports (once per member and target); a deleted member takes theirs along", async () => {
     const s = make().base;
     const [a, b] = await Promise.all([s.createMember(member("Dina")), s.createMember(member("Ece"))]);

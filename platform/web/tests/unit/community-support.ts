@@ -58,8 +58,9 @@ export async function testCommunity(options: { providers?: boolean } = {}): Prom
         .setProtectedHeader({ alg: "RS256", kid: "test" })
         .setIssuer(provider === "apple" ? "https://appleid.apple.com" : "https://accounts.google.com")
         .setAudience(provider === "apple" ? APPLE_AUDIENCE : GOOGLE_AUDIENCE)
-        .setIssuedAt(Math.floor(deps.now.getTime() / 1000) - 10)
-        .setExpirationTime(Math.floor(deps.now.getTime() / 1000) + 600)
+        // Apple's and Google's tokens are checked against the real clock (jose), not the test's: signed now, so they don't expire once NOW is past.
+        .setIssuedAt(Math.floor(Date.now() / 1000) - 10)
+        .setExpirationTime(Math.floor(Date.now() / 1000) + 600)
         .sign(privateKey);
     },
     at(now) {
@@ -117,5 +118,5 @@ export async function makeYallappStaff(community: TestCommunity, memberId: strin
   const platform = community.deps.platform;
   const user = await platform.createUser({ email: `staff-${memberId}@yallapp.test`, name: "Yallapp staff", passwordHash: null, now: community.deps.now });
   await platform.saveAdminMember({ userId: user.id, role, addedBy: "owner@yallapp.test", addedAt: community.deps.now, updatedAt: community.deps.now });
-  await community.deps.store.base.updateMember(memberId, { yallappUserId: user.id, linkedAt: community.deps.now });
+  await community.deps.store.base.updateMember(memberId, { yallappUserId: user.id, linkedAt: community.deps.now, yallappLinkVia: "link" });
 }

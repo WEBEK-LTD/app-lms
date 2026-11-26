@@ -263,7 +263,7 @@ type ApiProfile = ApiMember & {
   joined_at: string;
   yallapp_linked: boolean;
 };
-type ApiMe = ApiProfile & { email: string | null; community_role?: "admin" | "moderator" | null; language: CmLang; unread_notifications: number; pending_friend_requests: number };
+type ApiMe = ApiProfile & { email: string | null; community_role?: "admin" | "moderator" | null; language: CmLang; unread_notifications: number; pending_friend_requests: number; link_suggestion?: { available: boolean } };
 type ApiApp = { id: string; name: string; icon_url: string | null; app_store_url: string | null; play_store_url: string | null; from_template: boolean; paid_plan: boolean };
 
 /** A member in the API's paths: "@username", or their id. */
@@ -283,7 +283,7 @@ export async function communityViewer(): Promise<Viewer | null> {
   if (r.status !== 200) return null;
   const me = r.body;
   return { ...apiMember(me), handle: me.username, points: me.points, email: me.email, admin: me.community_role === "admin" || me.community_role === "moderator",
-    role: me.community_role ?? null, lang: me.language, unread: me.unread_notifications };
+    role: me.community_role ?? null, lang: me.language, unread: me.unread_notifications, linkSuggestion: me.link_suggestion?.available === true };
 }
 
 export async function profile(handle: string, o: { viewerId: string | null; lang: CmLang }): Promise<Profile | null> {

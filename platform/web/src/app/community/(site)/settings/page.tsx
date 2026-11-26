@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LinkSuggestion } from "@/components/community/site/link-suggest";
 import { redirect } from "next/navigation";
 import { ActionForm } from "@/components/community/site/action-form";
 import { LangSelect, ThemeButtons } from "@/components/community/site/client";
@@ -29,6 +30,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     <SitePage active="none">
       <div style={{ maxWidth: 760 }}>
         <div className="cm-card"><h1>{w.settings}</h1></div>
+        <LinkSuggestion w={w} viewer={viewer} back={cmLinks.settings()} />
+        {sp.link === "suggested" ? <div className="cm-note ok" role="status"><span className="ms f" aria-hidden="true">check_circle</span>{w.linkSuggestDone}</div> : null}
         <section className="cm-card cm-set">
           <h2>{w.profile}</h2>
           <p className="cm-muted">{w.profileHint}</p>

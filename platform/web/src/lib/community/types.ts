@@ -46,6 +46,15 @@ export interface CommunityMember {
   /** The Yallapp account linked (users.id); null when none. */
   yallappUserId: string | null;
   linkedAt: Date | null;
+  /**
+   * How it was linked: "link", the full flow confirmed on yallapp.com.tr (the
+   * only one that lets a Yallapp admin run the community, lib/community/staff.ts);
+   * "signin", joined or signed in with "Continue with Yallapp"; "suggested",
+   * the one-tap link offered for the same verified email. Null when not linked.
+   */
+  yallappLinkVia: CommunityYallappLinkVia | null;
+  /** When the member said no to the one-tap link; it isn't offered again. */
+  linkSuggestionDismissedAt: Date | null;
   /** Bumped to sign every device out (password change, suspension). */
   sessionVersion: number;
   createdAt: Date;
@@ -115,6 +124,28 @@ export interface CommunityFriendship {
 export interface CommunityBlock {
   blockerId: string;
   blockedId: string;
+  createdAt: Date;
+}
+
+export type CommunityYallappLinkVia = "link" | "signin" | "suggested";
+
+/**
+ * "Continue with Yallapp": a sign-in asked for by the app or the site (its
+ * PKCE challenge, where to send the code and the client's state), approved
+ * on yallapp.com.tr by a signed-in Yallapp user, then its one-time code
+ * exchanged once. Secrets are kept only as their SHA-256.
+ */
+export interface CommunityYallappSignin {
+  requestHash: string;
+  redirectUri: string;
+  /** BASE64URL(SHA-256(code_verifier)). */
+  codeChallenge: string;
+  clientState: string;
+  yallappUserId: string | null;
+  codeHash: string | null;
+  expiresAt: Date;
+  approvedAt: Date | null;
+  usedAt: Date | null;
   createdAt: Date;
 }
 

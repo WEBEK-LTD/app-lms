@@ -9,7 +9,11 @@ import { appUrl, secureCookies } from "@/lib/env";
  */
 export async function GET(request: Request): Promise<Response> {
   const params = new URL(request.url).searchParams;
-  const page = `/link-community?state=${params.get("state") ?? ""}&return=${params.get("return") === "app" ? "app" : "web"}`;
+  // 231 "Continue with Yallapp" comes here too, with its sign-in request instead of a link's state.
+  const page =
+    params.get("mode") === "signin"
+      ? `/link-community?mode=signin&request=${encodeURIComponent(params.get("request") ?? "")}`
+      : `/link-community?state=${params.get("state") ?? ""}&return=${params.get("return") === "app" ? "app" : "web"}`;
   const to = safeNext(page);
   const response = NextResponse.redirect(new URL("/sign-in", appUrl()), 303);
   if (to) response.cookies.set(NEXT_COOKIE, to, { httpOnly: true, secure: secureCookies(), sameSite: "lax", path: "/", maxAge: NEXT_TTL_SECONDS });

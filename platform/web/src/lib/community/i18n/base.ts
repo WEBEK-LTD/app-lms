@@ -70,6 +70,14 @@ export const BASE_WORDS: CommunityDictionary = {
     "link.done": "Your Yallapp account is linked. You can go back to Yallapp Community.",
     "link.back": "Back to Yallapp Community",
     "link.signedInAs": "Signed in to Yallapp as {name} ({email}).",
+    "signin.yallapp.title": "Continue to Yallapp Community",
+    "signin.yallapp.body": "Yallapp Community will sign you in with this Yallapp account and receive its name and email. Nothing else is shared.",
+    "signin.yallapp.continue": "Continue",
+    "signin.yallapp.cancel": "Cancel",
+    "signin.yallapp.expired": "This sign-in has expired. Start again from Yallapp Community.",
+    "signin.yallapp.unconfirmed": "Your Yallapp email isn't confirmed yet. Confirm it so Yallapp Community can trust it.",
+    "signin.yallapp.sendConfirm": "Send me a confirmation email",
+    "signin.yallapp.sent": "We sent a confirmation link to your email."
   },
   ar: {
     "error.generic": "حدث خطأ. يُرجى المحاولة مرة أخرى.",
@@ -136,6 +144,14 @@ export const BASE_WORDS: CommunityDictionary = {
     "link.done": "تم ربط حسابك في Yallapp. يمكنك العودة إلى مجتمع Yallapp.",
     "link.back": "العودة إلى مجتمع Yallapp",
     "link.signedInAs": "تم تسجيل الدخول إلى Yallapp باسم {name} ({email}).",
+    "signin.yallapp.title": "المتابعة إلى مجتمع Yallapp",
+    "signin.yallapp.body": "سيُسجّل مجتمع Yallapp دخولك بحساب Yallapp هذا، ويتلقى اسمه وبريده الإلكتروني فقط، دون مشاركة أي شيء آخر.",
+    "signin.yallapp.continue": "متابعة",
+    "signin.yallapp.cancel": "إلغاء",
+    "signin.yallapp.expired": "انتهت صلاحية تسجيل الدخول هذا. ابدأ من جديد من مجتمع Yallapp.",
+    "signin.yallapp.unconfirmed": "لم يُؤكَّد بريدك الإلكتروني في Yallapp بعد. أكّده ليثق به مجتمع Yallapp.",
+    "signin.yallapp.sendConfirm": "أرسل إليّ رسالة التأكيد",
+    "signin.yallapp.sent": "أرسلنا رابط التأكيد إلى بريدك الإلكتروني."
   },
   tr: {
     "error.generic": "Bir sorun oluştu. Lütfen tekrar deneyin.",
@@ -202,5 +218,13 @@ export const BASE_WORDS: CommunityDictionary = {
     "link.done": "Yallapp hesabınız bağlandı. Yallapp Topluluğu'na dönebilirsiniz.",
     "link.back": "Yallapp Topluluğu'na dön",
     "link.signedInAs": "Yallapp'a {name} ({email}) olarak giriş yapıldı.",
+    "signin.yallapp.title": "Yallapp Topluluğu'na devam et",
+    "signin.yallapp.body": "Yallapp Topluluğu bu Yallapp hesabıyla oturumunuzu açacak ve yalnızca adını ve e-postasını alacak. Başka hiçbir şey paylaşılmaz.",
+    "signin.yallapp.continue": "Devam et",
+    "signin.yallapp.cancel": "Vazgeç",
+    "signin.yallapp.expired": "Bu oturum açma isteğinin süresi doldu. Yallapp Topluluğu'ndan yeniden başlayın.",
+    "signin.yallapp.unconfirmed": "Yallapp e-postanız henüz onaylanmadı. Yallapp Topluluğu'nun güvenebilmesi için onaylayın.",
+    "signin.yallapp.sendConfirm": "Bana onay e-postası gönder",
+    "signin.yallapp.sent": "E-postanıza bir onay bağlantısı gönderdik."
   },
 };

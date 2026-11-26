@@ -6,6 +6,7 @@ import type {
   CommunityFriendship,
   CommunityIdentity,
   CommunityLinkRequest,
+  CommunityYallappSignin,
   CommunityMember,
   CommunityReport,
   CommunityReportStatus,
@@ -33,6 +34,7 @@ export class MemoryCommunityBaseStore implements CommunityBaseStore {
   private friendships = new Map<string, CommunityFriendship>();
   private blocks = new Map<string, { blockerId: string; blockedId: string; createdAt: Date }>();
   private linkRequests = new Map<string, CommunityLinkRequest>();
+  private yallappSignins = new Map<string, CommunityYallappSignin>();
   private reports = new Map<string, CommunityReport>();
 
   // ---------------------------------------------------------------- members
@@ -332,6 +334,34 @@ export class MemoryCommunityBaseStore implements CommunityBaseStore {
   async confirmLinkRequest(stateHash: string, now: Date): Promise<void> {
     const request = this.linkRequests.get(stateHash);
     if (request) request.confirmedAt = now;
+  }
+
+  // ---------------------------------------------------------------- "Continue with Yallapp"
+
+  async createYallappSignin(signin: CommunityYallappSignin): Promise<void> {
+    this.yallappSignins.set(signin.requestHash, copy(signin));
+  }
+
+  async getYallappSignin(requestHash: string): Promise<CommunityYallappSignin | null> {
+    const signin = this.yallappSignins.get(requestHash);
+    return signin ? copy(signin) : null;
+  }
+
+  async approveYallappSignin(requestHash: string, approval: { yallappUserId: string; codeHash: string; expiresAt: Date }, now: Date): Promise<boolean> {
+    const signin = this.yallappSignins.get(requestHash);
+    if (!signin || signin.approvedAt || signin.expiresAt.getTime() <= now.getTime()) return false;
+    Object.assign(signin, approval, { approvedAt: now });
+    return true;
+  }
+
+  async useYallappSignin(codeHash: string, now: Date): Promise<CommunityYallappSignin | null> {
+    for (const signin of this.yallappSignins.values()) {
+      if (signin.codeHash !== codeHash) continue;
+      if (signin.usedAt || !signin.approvedAt || signin.expiresAt.getTime() <= now.getTime()) return null;
+      signin.usedAt = now;
+      return copy(signin);
+    }
+    return null;
   }
 
   // ---------------------------------------------------------------- reports
