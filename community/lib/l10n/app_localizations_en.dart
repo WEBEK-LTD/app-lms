@@ -572,6 +572,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAbout => 'About';
 
   @override
+  String get settingsPrivacy => 'Privacy policy';
+
+  @override
   String settingsVersion(String version) {
     return 'Version $version';
   }

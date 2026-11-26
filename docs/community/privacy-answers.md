@@ -69,8 +69,10 @@ used only to check a Gold applicant.
   Signing in with Apple or Google is the member's own action, not sharing.
 - Is all of the user data encrypted in transit? **Yes** (HTTPS only).
 - Can users ask for their data to be deleted? **Yes.** In the app: Settings →
-  Delete account. On the website: the same, once area F's page has it (to
-  confirm).
+  Delete account. On the website: Settings → Delete account
+  (`https://community.yallapp.com.tr/settings/delete-account`). The deletion
+  URL Google asks for is `https://community.yallapp.com.tr/delete-account`,
+  which explains how, with or without the app.
 
 Collected (all for **App functionality** and **Account management**; none
 processed ephemerally; none shared):
@@ -95,11 +97,13 @@ Security practices to declare:
 - Not independently validated.
 - Committed to Play's Families policy: no. The app is not for children.
 
-## To confirm before submitting
+## Before submitting (done)
 
-1. The privacy policy at `https://community.yallapp.com.tr/privacy` exists
-   (area F) and lists the same data.
-2. The website offers account deletion too, or the deletion URL that Google
-   asks for points to a page that explains how.
-3. How long the proof of identity is kept after the decision (area C): the
-   policy should say.
+1. The privacy policy is at `https://community.yallapp.com.tr/privacy`, in
+   English, Arabic and Turkish, and lists the same data as this page. The
+   app's Settings → About → Privacy policy opens it; sign-up links it.
+2. The website deletes accounts (`/settings/delete-account`: the password,
+   or a fresh Apple or Google sign-in, and a typed DELETE), and
+   `/delete-account` explains how, with or without the app.
+3. The proof of identity is deleted 30 days after the decision (area C); the
+   policy says so.

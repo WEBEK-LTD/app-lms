@@ -197,6 +197,14 @@ class SettingsPage extends ConsumerWidget {
                 title: l.appName,
                 value: l.settingsVersion(appVersion),
               ),
+              _Row(
+                key: const ValueKey('settings-privacy'),
+                icon: Symbols.shield_rounded,
+                title: l.settingsPrivacy,
+                onTap: () => ref.read(openExternalProvider)(
+                  Uri.parse('${ref.read(configProvider).websiteUrl}/privacy'),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 18),

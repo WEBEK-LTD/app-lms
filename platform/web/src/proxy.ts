@@ -53,9 +53,9 @@ export const config = {
         { type: "header", key: "purpose", value: "prefetch" },
       ],
     },
-    // 231 Every page on the community's host (not its API, nor Next's files).
+    // 231 Every page on the community's host (not its API, nor Next's files); its sitemap.xml is its own (app/community/sitemap.ts).
     {
-      source: "/((?!api/|_next/|favicon\\.ico|robots\\.txt|sitemap\\.xml).*)",
+      source: "/((?!api/|_next/|favicon\\.ico|robots\\.txt).*)",
       has: [{ type: "host", value: "community\\.(?:yallapp\\.com\\.tr|localhost)" }],
     },
   ],

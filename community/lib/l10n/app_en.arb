@@ -206,6 +206,7 @@
   "settingsUnlink": "Unlink",
   "settingsUnlinkConfirm": "Unlink your Yallapp account? Your apps leave your profile, and badges that need them go.",
   "settingsAbout": "About",
+  "settingsPrivacy": "Privacy policy",
   "settingsVersion": "Version {version}",
   "@settingsVersion": {
     "placeholders": {

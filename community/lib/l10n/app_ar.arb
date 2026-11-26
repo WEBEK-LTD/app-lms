@@ -177,6 +177,7 @@
   "settingsUnlink": "إلغاء الربط",
   "settingsUnlinkConfirm": "هل تريد إلغاء ربط حساب يلا آب؟ ستُزال تطبيقاتك من ملفك، وتسقط الشارات التي تتطلبها.",
   "settingsAbout": "حول التطبيق",
+  "settingsPrivacy": "سياسة الخصوصية",
   "settingsVersion": "الإصدار {version}",
   "settingsLogOutConfirm": "هل تريد تسجيل الخروج من مجتمع يلا آب على هذا الهاتف؟",
   "savedEmpty": "تظهر هنا الأسئلة والدروس التي تحفظها.",
