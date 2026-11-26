@@ -22,6 +22,7 @@ import '../../core/widgets/floating_tab_bar.dart';
 import '../../core/widgets/glass.dart';
 import '../../core/widgets/images.dart';
 import '../../core/widgets/sym.dart';
+import '../link/link_suggestion.dart';
 import '../shell/side_menu.dart';
 import '../social/data/social.dart';
 import 'data/home_api.dart';
@@ -73,6 +74,10 @@ class HomePage extends ConsumerWidget {
                     onProfile: () => context.push(Paths.me),
                   ),
                 if (me != null) _Hello(name: me.member.name),
+                // Shows only while /me suggests a Yallapp account to link.
+                const LinkSuggestionBanner(
+                  margin: EdgeInsets.fromLTRB(16, 0, 16, 14),
+                ),
                 ...switch (feed) {
                   AsyncData(:final value) => [
                     if (value.featured != null)

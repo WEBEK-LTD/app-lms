@@ -93,6 +93,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authContinueGoogle => 'المتابعة باستخدام Google';
 
   @override
+  String get authContinueYallapp => 'المتابعة باستخدام Yallapp';
+
+  @override
   String get authSignUpEmail => 'التسجيل بالبريد الإلكتروني';
 
   @override
@@ -566,6 +569,26 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get settingsUnlinkConfirm =>
       'هل تريد إلغاء ربط حساب يلا آب؟ ستُزال تطبيقاتك من ملفك، وتسقط الشارات التي تتطلبها.';
+
+  @override
+  String get linkSuggestTitle => 'وجدنا حسابك في Yallapp. هل تربطه؟';
+
+  @override
+  String linkSuggestNamed(String name) {
+    return 'وجدنا حسابك في Yallapp، $name. هل تربطه؟';
+  }
+
+  @override
+  String get linkSuggestLine => 'ستظهر تطبيقاتك في ملفك الشخصي.';
+
+  @override
+  String get linkSuggestLink => 'ربط';
+
+  @override
+  String get linkSuggestDismiss => 'تجاهل';
+
+  @override
+  String get linkSuggestDone => 'تم الربط بـ Yallapp.';
 
   @override
   String get settingsAbout => 'حول التطبيق';
