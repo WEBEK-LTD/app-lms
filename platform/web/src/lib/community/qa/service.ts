@@ -223,6 +223,8 @@ export interface ListQuestionsInput {
   section?: string;
   tag?: string;
   author?: string;
+  /** Questions this member has a published answer on. */
+  answeredBy?: string;
   language?: CommunityLang;
   cursor?: string | null;
   limit?: number;
@@ -250,6 +252,7 @@ export async function listQuestions(input: ListQuestionsInput): Promise<Page<Que
     filter.tagId = t.id;
   }
   if (input.author) filter.authorIds = [input.author];
+  if (input.answeredBy) filter.answeredBy = input.answeredBy;
   const name = input.filter ?? "all";
   if (name === "unanswered") filter.unanswered = true;
   if (name === "answered") filter.answered = true;
@@ -857,12 +860,12 @@ async function tutorialSummaries(records: TutorialRecord[], viewerId: string | n
 }
 
 /** The published tutorials, newest first: by section, level, language and kind. */
-export async function listTutorials(input: { viewerId: string | null; lang: CommunityLang; section?: string; level?: TutorialLevel; language?: CommunityLang; kind?: TutorialKind; cursor?: string | null; limit?: number }): Promise<Page<TutorialSummary>> {
+export async function listTutorials(input: { viewerId: string | null; lang: CommunityLang; section?: string; level?: TutorialLevel; language?: CommunityLang; kind?: TutorialKind; author?: string; cursor?: string | null; limit?: number }): Promise<Page<TutorialSummary>> {
   const limit = pageOf(input.limit);
   const offset = offsetOf(input.cursor);
   const section = input.section ? (await sectionsOf("tutorial")).bySlug.get(input.section) : undefined;
   if (input.section && !section) return { items: [], nextCursor: null };
-  const records = await qaStore().listTutorials({ statuses: SHOWN, sectionId: section?.id, level: input.level, language: input.language, kind: input.kind }, { offset, limit: limit + 1 });
+  const records = await qaStore().listTutorials({ statuses: SHOWN, sectionId: section?.id, level: input.level, language: input.language, kind: input.kind, authorId: input.author }, { offset, limit: limit + 1 });
   return { items: await tutorialSummaries(records.slice(0, limit), input.viewerId, input.lang), nextCursor: records.length > limit ? cursorOf(offset + limit) : null };
 }
 

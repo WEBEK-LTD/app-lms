@@ -7,8 +7,8 @@ import { Note } from "./forms";
 import { safeImageSrc } from "./safe-url";
 import type { CmWords } from "./words";
 
-/** The member's own profile: picture, name, username, bio and skills. */
-export function ProfileForm({ w, initial }: { w: CmWords; initial: { name: string; handle: string; bio: string; skills: string[]; avatarUrl: string | null } }) {
+/** The member's own profile: picture, name, username, bio, skills and links. */
+export function ProfileForm({ w, initial }: { w: CmWords; initial: { name: string; handle: string; bio: string; skills: string[]; links: { label: string; url: string }[]; avatarUrl: string | null } }) {
   const [state, action, pending] = useActionState(profileAction, undefined);
   // The current picture comes from the server (props); a newly chosen one is drawn on a canvas, never turned into an address.
   const current = safeImageSrc(initial.avatarUrl);
@@ -75,6 +75,11 @@ export function ProfileForm({ w, initial }: { w: CmWords; initial: { name: strin
       <label className="cm-field">
         {w.skills}
         <input name="skills" maxLength={400} defaultValue={initial.skills.join(", ")} placeholder={w.skillsHint} />
+      </label>
+      <label className="cm-field">
+        {w.profileLinks}
+        <textarea name="links" maxLength={1600} rows={3} defaultValue={initial.links.map((l) => l.url).join("\n")} placeholder="https://" style={{ minHeight: 72 }} />
+        <small>{w.linksHint}</small>
       </label>
       <Note state={state} />
       <div className="cm-row" style={{ marginTop: 18 }}>

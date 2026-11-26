@@ -342,6 +342,10 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       expect(await ids({ section: "stores" })).toEqual([a.id]);
       expect(await ids({ tag: "Shopify" })).toEqual([a.id]);
       expect(await ids({ author: "omar" })).toEqual([b.id]);
+      // A profile's Answers: the questions the member has a published answer on.
+      expect(await ids({ answeredBy: "nour", sort: "newest" })).toEqual([b.id]);
+      expect(await ids({ answeredBy: TEAM, sort: "newest" })).toEqual([c.id]);
+      expect(await ids({ answeredBy: "karim" })).toEqual([]);
       expect(await ids({ language: "ar" })).toEqual([]);
       const first = await listQuestions({ viewerId: null, lang: "en", sort: "newest", limit: 2 });
       expect(first.items).toHaveLength(2);
@@ -407,6 +411,8 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
       // Never a price on a tutorial.
       expect(JSON.stringify(video)).not.toMatch(/price|checkout|payment|currency/i);
       const titles = async (f: object) => (await listTutorials({ viewerId: null, lang: "en", ...f })).items.map((t) => t.title);
+      expect(await titles({ author: TEAM })).toHaveLength(2);
+      expect(await titles({ author: "karim" })).toEqual([]);
       expect(await titles({})).toEqual([video.title, article.title]);
       expect(await titles({ level: "beginner" })).toEqual([article.title]);
       expect(await titles({ language: "ar" })).toEqual([video.title]);

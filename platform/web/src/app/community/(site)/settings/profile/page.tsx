@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Edit profile", robots: { index: fals
 export default async function EditProfilePage() {
   const { w, viewer } = await siteContext();
   if (!viewer) redirect(cmLinks.signIn(cmLinks.editProfile()));
-  const mine = (await myProfile()) ?? { name: viewer.name, handle: viewer.handle, bio: "", skills: [], avatarUrl: viewer.avatarUrl };
+  const mine = (await myProfile()) ?? { name: viewer.name, handle: viewer.handle, bio: "", skills: [], links: [], avatarUrl: viewer.avatarUrl };
   return (
     <SitePage active="none">
       <div style={{ maxWidth: 720 }}>

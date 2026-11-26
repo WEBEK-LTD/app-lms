@@ -111,6 +111,8 @@ export interface QuestionFilter {
   sectionIds?: readonly string[];
   tagId?: string;
   authorIds?: readonly string[];
+  /** 231 Questions this member has a published answer on (their profile's Answers). */
+  answeredBy?: string;
   language?: CommunityLang;
   unanswered?: boolean;
   /** With an accepted answer. */

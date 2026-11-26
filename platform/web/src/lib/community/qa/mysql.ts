@@ -209,6 +209,8 @@ export class MysqlQaStore implements QaStore {
     if (f.sectionIds) where.push(f.sectionIds.length ? inArray(q.sectionId, [...f.sectionIds]) : sql`false`);
     if (f.tagId) where.push(exists(this.db.select({ one: sql`1` }).from(communityQuestionTags).where(and(eq(communityQuestionTags.questionId, q.id), eq(communityQuestionTags.tagId, f.tagId)))));
     if (f.authorIds) where.push(f.authorIds.length ? inArray(q.authorId, [...f.authorIds]) : sql`false`);
+    if (f.answeredBy)
+      where.push(exists(this.db.select({ one: sql`1` }).from(communityAnswers).where(and(eq(communityAnswers.questionId, q.id), eq(communityAnswers.authorId, f.answeredBy), eq(communityAnswers.status, "published")))));
     if (f.language) where.push(eq(q.language, f.language));
     if (f.unanswered) where.push(eq(q.answerCount, 0));
     if (f.answered) where.push(isNotNull(q.acceptedAnswerId));

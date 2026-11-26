@@ -33,3 +33,14 @@ export function BadgePill({ kind, w }: { kind: BadgeKind; w: CmWords }) {
     </span>
   );
 }
+
+/** The highest badge as a chip beside the name (read as one picture: its name). */
+export function BadgeChip({ kind, w }: { kind: BadgeKind | null; w: CmWords }) {
+  if (!kind) return null;
+  return (
+    <span className={`cm-chip b-${kind}`} role="img" aria-label={badgeName(w, kind)} title={badgeName(w, kind)}>
+      <span className="ms f" aria-hidden="true">verified</span>
+      <span aria-hidden="true">{badgeName(w, kind)}</span>
+    </span>
+  );
+}
