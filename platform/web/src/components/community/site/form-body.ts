@@ -1,7 +1,7 @@
 /**
  * 232–234 How the website's API forms become a JSON body (the server action
  * in app/community/(site)/next-actions.ts): `n:x` a number, `b:x` yes/no,
- * `l:x` a list (one a line or comma-separated), `d:x` a datetime-local in
+ * `l:x` a list (one a line or comma-separated), `z:x` text or null when empty, `d:x` a datetime-local in
  * the form's `time_zone` (or `_tz`) as UTC; a repeated name an array
  * (a yes/no box follows a hidden "0" so an unticked box still says no); an empty `…_url` null.
  * Fields starting with `_` are the form's own.
@@ -47,6 +47,7 @@ export function jsonBody(form: FormData): Record<string, unknown> {
     else if (kind === "n") out[name] = all[0] === "" || all[0] === undefined ? null : Number(all[0]);
     else if (kind === "b") out[name] = all.includes("1");
     else if (kind === "l") out[name] = all.flatMap(list);
+    else if (kind === "z") out[name] = all[0] ? all[0] : null;
     // An optional link left empty is "no link" (null): the API takes an https address or nothing.
     else if (name.endsWith("_url") && all.length === 1 && all[0] === "") out[name] = null;
     else out[name] = all.length > 1 ? all : (all[0] ?? "");

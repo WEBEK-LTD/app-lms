@@ -4,13 +4,14 @@ import { AdminPage, adminContext } from "@/components/community/site/admin";
 import { cmLinks } from "@/components/community/site/links";
 import { challenge, challengeEntries, challenges, type Challenge } from "@/components/community/site/next";
 import { ApiButton, ApiForm, PageNote } from "@/components/community/site/next-ui";
+import type { CmWords } from "@/components/community/site/words";
 import { CM_WORDS2, type CmWords2 } from "@/components/community/site/words2";
 
 export const metadata: Metadata = { title: "Challenges", robots: { index: false } };
 
 const local = (iso: string | undefined) => (iso ? iso.slice(0, 16) : "");
 
-function ChallengeFields({ w2, c }: { w2: CmWords2; c?: Challenge }) {
+function ChallengeFields({ w, w2, c }: { w: CmWords; w2: CmWords2; c?: Challenge }) {
   return (
     <>
       <input type="hidden" name="_tz" value="UTC" />
@@ -23,7 +24,7 @@ function ChallengeFields({ w2, c }: { w2: CmWords2; c?: Challenge }) {
       </div>
       <div className="cm-row" style={{ gap: 14 }}>
         <label className="cm-field" style={{ flex: 1 }}>{w2.rewardPoints}<input type="number" name="n:reward_points" min={0} defaultValue={c?.reward_points ?? 100} /></label>
-        <label className="cm-field" style={{ flex: 1 }}>{w2.rewardBadge}<input name="reward_badge" maxLength={40} defaultValue={c?.reward_badge ?? ""} /></label>
+        <label className="cm-field" style={{ flex: 1 }}>{w2.rewardBadge}<select name="z:reward_badge" defaultValue={c?.reward_badge ?? ""}><option value="">—</option><option value="gold">{w.badgeGold}</option><option value="green">{w.badgeGreen}</option><option value="blue">{w.badgeBlue}</option></select></label>
         <label className="cm-field" style={{ flex: 2 }}>{w2.cover}<input type="url" name="cover_url" defaultValue={c?.cover_url ?? ""} placeholder="https://" /></label>
       </div>
     </>
@@ -45,7 +46,7 @@ export default async function AdminChallengesPage({ searchParams }: { searchPara
         <>
           <ApiForm call={{ m: "PATCH", p: `/admin/challenges/${encodeURIComponent(open.id)}`, back: `${back}?id=${encodeURIComponent(open.id)}`, done: "saved" }} className="cm-card">
             <h2>{open.title}</h2>
-            <ChallengeFields w2={w2} c={open} />
+            <ChallengeFields w={w} w2={w2} c={open} />
             <div className="cm-row" style={{ marginTop: 18 }}>
               <button type="submit" className="cm-btn o">{w2.saveChanges}</button>
               <Link href={back} className="cm-btn g">{w2.cancel}</Link>
@@ -63,7 +64,7 @@ export default async function AdminChallengesPage({ searchParams }: { searchPara
         <details className="cm-card">
           <summary className="cm-btn o" style={{ display: "inline-flex" }}><span className="ms" aria-hidden="true">add</span>{w2.newChallenge}</summary>
           <ApiForm call={{ m: "POST", p: "/admin/challenges", back, done: "saved" }}>
-            <ChallengeFields w2={w2} />
+            <ChallengeFields w={w} w2={w2} />
             <div className="cm-row" style={{ marginTop: 18 }}><button type="submit" className="cm-btn o">{w2.newChallenge}</button></div>
           </ApiForm>
         </details>

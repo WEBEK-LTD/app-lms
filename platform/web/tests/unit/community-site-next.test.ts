@@ -28,7 +28,9 @@ describe("232 a form's fields as the API's JSON body", () => {
     f.set("cover_url", "");
     f.set("embed_url", " https://www.youtube.com/live/x ");
     f.set("summary", "");
-    expect(jsonBody(f)).toEqual({ cover_url: null, embed_url: "https://www.youtube.com/live/x", summary: "" });
+    f.set("z:reward_badge", "");
+    f.set("z:other_badge", "gold");
+    expect(jsonBody(f)).toEqual({ cover_url: null, embed_url: "https://www.youtube.com/live/x", summary: "", reward_badge: null, other_badge: "gold" });
   });
 
   it("turns a datetime-local into UTC in the event's time zone", () => {
