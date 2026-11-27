@@ -78,7 +78,7 @@ export default async function ConversationPage({ params, searchParams }: { param
           {c.blocked ? (
             <p className="cm-note">{w2.blockedChat}</p>
           ) : (
-            <ApiForm call={{ m: "POST", p: `${p}/messages`, back, multipart: true }} className="cm-compose" id="cm-compose">
+            <ApiForm call={{ m: "POST", p: `${p}/messages`, back }} className="cm-compose" id="cm-compose">
               {replyTo ? (
                 <div className="cm-replying">
                   <span>{fill(w2.replyingTo, { name: replyTo.author.name })}: {replyTo.body.slice(0, 80)}</span>

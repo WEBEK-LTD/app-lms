@@ -39,6 +39,8 @@ export function jsonBody(form: FormData): Record<string, unknown> {
   for (const [k] of form.entries()) if (!k.startsWith("_") && !k.startsWith("$ACTION")) names.add(k);
   for (const k of names) {
     const all = form.getAll(k).filter((v): v is string => typeof v === "string").map((v) => v.trim());
+    // A file field with no file chosen sends nothing in a JSON body.
+    if (!all.length) continue;
     const [kind, name] = k.includes(":") ? (k.split(":", 2) as [string, string]) : ["s", k];
     if (kind === "d") out[name] = all[0] ? zonedToUtc(all[0], field(form, "time_zone") || field(form, "_tz") || "UTC") : null;
     else if (kind === "n") out[name] = all[0] === "" || all[0] === undefined ? null : Number(all[0]);
