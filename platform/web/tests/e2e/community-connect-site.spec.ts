@@ -63,22 +63,20 @@ test("messages: from a profile to the inbox, and a reply", async () => {
   await expect(omarP.getByTestId("cm-messages")).toBeVisible();
 });
 
-test("groups: create a public group, another member joins and posts", async () => {
+test("groups: a new member's group waits for a moderator; only its creator sees it meanwhile", async () => {
   await ayseP.goto("/community/groups/new");
   await ayseP.getByLabel("Group name").fill(`Restaurant apps ${s}`);
   await ayseP.getByLabel("Description").fill("For people building restaurant and café apps.");
   await ayseP.getByRole("button", { name: "Create a group" }).click();
-  await ayseP.waitForURL(/\/community\/groups\/[^/]+$/);
+  await ayseP.waitForURL(/\/community\/groups\/[^/?]+(\?.*)?$/);
   const groupUrl = new URL(ayseP.url()).pathname;
   await expect(ayseP.getByRole("heading", { level: 1 })).toContainText(`Restaurant apps ${s}`);
+  await expect(ayseP.getByRole("status")).toContainText("once a moderator has checked it");
+  await ayseP.goto(`${groupUrl}/members`);
+  await expect(ayseP.locator(".cm-people-list")).toContainText(ayse.name);
 
   await omarP.goto(groupUrl);
-  await omarP.getByRole("button", { name: "Join" }).click();
-  await expect(omarP.getByRole("button", { name: "Leave" })).toBeVisible();
-  await omarP.goto("/community/groups?mine=1");
-  await expect(omarP.locator(".cm-grp", { hasText: `Restaurant apps ${s}` })).toBeVisible();
-  await omarP.goto(`${groupUrl}/members`);
-  await expect(omarP.locator(".cm-people-list")).toContainText(ayse.name);
+  await expect(omarP.getByRole("heading", { name: `Restaurant apps ${s}` })).toHaveCount(0);
 });
 
 test("pros: open a pro profile; a client hires, which opens a message thread", async () => {
@@ -106,23 +104,16 @@ test("pros: open a pro profile; a client hires, which opens a message thread", a
   await expect(omarP.locator(".cm-msgs")).toContainText("café's menu screens");
 });
 
-test("jobs: post a job, apply, and the poster sees the applicant", async () => {
+test("jobs: a new member's job waits for a moderator before others can apply", async () => {
   await ayseP.goto("/community/jobs/new");
   await ayseP.getByLabel("Job title").fill(`Build our bakery app ${s}`);
   await ayseP.getByLabel("Budget (text)").fill("to agree");
   await ayseP.getByLabel("Skills").fill("Studio, payments");
   await ayseP.getByLabel("Description").fill("We sell bread and cakes in Istanbul and want an app with ordering and pickup.");
   await ayseP.getByRole("button", { name: "Post a job" }).click();
-  await ayseP.waitForURL(/\/community\/jobs\/[^/]+(\?.*)?$/);
-  const jobUrl = new URL(ayseP.url()).pathname;
-
-  await omarP.goto(jobUrl);
-  await omarP.getByLabel("Your message").fill("I've built three bakery apps in Studio. Happy to help.");
-  await omarP.getByRole("button", { name: "Apply" }).click();
-  await expect(omarP.locator(".cm-note.ok")).toContainText("Applied");
-
-  await ayseP.goto(jobUrl);
-  await expect(ayseP.locator(".cm-app-row")).toContainText("three bakery apps");
-  await ayseP.locator(".cm-app-row").getByRole("button", { name: "Shortlist" }).click();
-  await expect(ayseP.locator(".cm-app-row")).toContainText("Shortlisted");
+  await ayseP.waitForURL(/\/community\/jobs\/[^/?]+(\?.*)?$/);
+  await expect(ayseP.getByRole("status")).toContainText("once a moderator has checked it");
+  await expect(ayseP.getByRole("heading", { level: 1 })).toHaveText(`Build our bakery app ${s}`);
+  await ayseP.goto("/community/jobs/mine");
+  await expect(ayseP.locator(".cm-hist")).toContainText(`Build our bakery app ${s}`);
 });

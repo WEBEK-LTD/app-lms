@@ -34,6 +34,7 @@ export function GroupHead({ g, w2, viewer, tab }: { g: Group; w2: CmWords2; view
         </div>
       </div>
       {g.description ? <p className="bio">{g.description}</p> : null}
+      {g.status === "pending" ? <p className="cm-note" style={{ margin: "12px 24px 0" }} role="status"><span className="ms" aria-hidden="true">schedule</span>{w2.groupPending}</p> : null}
       <nav className="cm-pf-tabs" aria-label={g.name}>
         <Link href={cmLinks.group(g.slug)} className={tab === "feed" ? "on" : undefined} aria-current={tab === "feed" ? "page" : undefined}>{w2.feedLatest}</Link>
         <Link href={cmLinks.group(g.slug, "members")} className={tab === "members" ? "on" : undefined} aria-current={tab === "members" ? "page" : undefined}>{w2.members}</Link>

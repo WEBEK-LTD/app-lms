@@ -31,7 +31,7 @@ export default async function GroupPage({ params, searchParams }: Props) {
   return (
     <SitePage active="groups">
       <GroupHead g={g} w2={w2} viewer={viewer} tab="feed" />
-      <PageNote sp={sp} w2={w2} />
+      <PageNote sp={sp.pending && g.status === "pending" ? {} : sp} w2={w2} />
       {!canRead ? (
         <Empty icon="lock" text={w2.privateGroupNote} />
       ) : (
