@@ -11,17 +11,19 @@ import type { CommunityContext } from "./http";
  */
 export interface CommunityNotice {
   memberId: string;
-  kind: "follow" | "friend_request" | "friend_accepted" | "yallapp_linked";
+  kind: "follow" | "friend_request" | "friend_accepted" | "yallapp_linked" | "group_request" | "group_joined" | "hire_request" | "hire_update" | "pro_review" | "job_application";
   actorId: string | null;
   targetType?: string | null;
   targetId?: string | null;
   data?: Record<string, unknown>;
+  /** 232–234 Where it opens; by default from its kind (a profile, the friends list). */
+  link?: string;
 }
 
 /** Tells a member: in their list, and by email for the kinds that email (lib/community/trust/notifications.ts). */
 export async function notify(ctx: CommunityContext, notice: CommunityNotice): Promise<void> {
   const actor = notice.actorId ? await ctx.store.base.getMember(notice.actorId) : null;
-  const link = notice.kind === "friend_request" ? "/me/friends" : notice.kind === "yallapp_linked" ? "/me" : actor ? `/u/${actor.username}` : "/";
+  const link = notice.link ?? (notice.kind === "friend_request" ? "/me/friends" : notice.kind === "yallapp_linked" ? "/me" : actor ? `/u/${actor.username}` : "/");
   await trustNotify(trustDepsOf(ctx), {
     memberId: notice.memberId,
     kind: notice.kind,
