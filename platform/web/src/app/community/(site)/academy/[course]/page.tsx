@@ -8,7 +8,8 @@ import { coursePriceForCheckout } from "@/lib/community/academy/service";
 import { getCommunityStore } from "@/lib/community/store/server";
 import { YALLAPP_TENANT } from "@/lib/community/types";
 import { Poll } from "@/components/community/site/next-client";
-import { ApiForm, PageNote } from "@/components/community/site/next-ui";
+import { PageNote } from "@/components/community/site/next-ui";
+import { courseCheckoutAction } from "../../next-actions";
 import { SitePage } from "@/components/community/site/page";
 import { fill } from "@/components/community/site/words";
 import { ACADEMY_WORDS } from "@/components/community/site/academy-words";
@@ -34,7 +35,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
   // The price, on the website only (never in the API the app reads): read here, as the checkout does.
   const price = open ? null : await coursePriceForCheckout((await getCommunityStore(YALLAPP_TENANT)).qa.academy, YALLAPP_TENANT, c.id).catch(() => null);
   const priceLabel = price ? new Intl.NumberFormat(lang === "ar" ? "ar-EG-u-nu-latn" : lang, { style: "currency", currency: price.currency }).format(price.priceMinor / 100) : null;
-  const pending = sp.checkout === "done" && !open;
+  const pending = (sp.checkout === "done" || sp.checkout === "pending") && !open;
   const back = cmLinks.course(c.slug);
   const first = c.lessons.find((l) => !l.done) ?? c.lessons[0];
   const pct = Math.round((c.progress ?? 0) * 100);
@@ -50,7 +51,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
         <h1>{c.title}</h1>
         <p className="cm-body">{c.description || c.summary}</p>
         {pending ? <div className="cm-note" role="status"><span className="ms" aria-hidden="true">hourglass_top</span>{w2.paymentPending}</div> : null}
-        {sp.checkout === "cancelled" ? <div className="cm-note" role="status">{w2.paymentCancelled}</div> : null}
+        {sp.checkout === "cancelled" ? <div className="cm-note" role="status">{w2.paymentCancelled}</div> : sp.checkout === "failed" ? <div className="cm-note err" role="alert">{w2.paymentFailed}</div> : null}
         <PageNote sp={{ error: sp.error }} w2={w2} />
         {open ? (
           <>
@@ -60,9 +61,11 @@ export default async function CoursePage({ params, searchParams }: Props) {
         ) : !viewer ? (
           <Link href={cmLinks.signIn(back)} className="cm-btn o">{wa.signInToBuy}</Link>
         ) : (
-          <ApiForm call={{ m: "POST", p: `/academy/courses/${encodeURIComponent(c.id)}/checkout`, back }}>
+          <form action={courseCheckoutAction}>
+            <input type="hidden" name="course_id" value={c.id} />
+            <input type="hidden" name="slug" value={c.slug} />
             <button type="submit" className="cm-btn o"><span className="ms" aria-hidden="true">lock_open</span>{priceLabel ? fill(wa.buyCourse, { price: priceLabel }) : w2.startCourse}</button>
-          </ApiForm>
+          </form>
         )}
         {c.certificate ? (
           <div className="cm-note ok" style={{ marginTop: 14 }}>

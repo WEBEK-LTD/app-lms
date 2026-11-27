@@ -80,7 +80,7 @@ export function socialEnvFor(ctx: CommunityContext): SocialEnv {
       canRead: async (_viewer, groupId) => (await groupRights(ctx, groupId))?.canRead ?? false,
       canPost: async (_member, groupId) => (await groupRights(ctx, groupId))?.canPost ?? false,
     },
-    // 233 Area C's points ledger (engage/points.ts) decides each reason's points and daily cap.
+    // 233 Area C's points ledger (engage/points.ts) decides each reason's points and daily cap; `undo` takes them back.
     onEvent: async ({ kind, memberId, refId, undo }) => {
       if (undo) await takeBackPoints(ctx, { memberId, reason: kind, ref: refId });
       else await awardPoints(ctx, { memberId, reason: kind, ref: refId });
