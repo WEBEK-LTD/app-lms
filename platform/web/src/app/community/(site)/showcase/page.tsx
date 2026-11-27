@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: "Showcase" };
 /** 232 The showcase gallery: apps members built, by type, newest or most liked. */
 export default async function ShowcasePage({ searchParams }: { searchParams: Promise<{ type?: string; sort?: string; cursor?: string }> }) {
   const sp = await searchParams;
-  const { lang, w, viewer } = await siteContext();
+  const { lang, viewer } = await siteContext();
   const w2 = CM_WORDS2[lang];
   const sort = sp.sort === "most_liked" ? "most_liked" : "newest";
   const type = TYPES.find((t) => t === sp.type);
@@ -35,7 +35,7 @@ export default async function ShowcasePage({ searchParams }: { searchParams: Pro
         {TYPES.map((t) => chip({ type: t, sort: sort === "newest" ? undefined : sort }, w2[`st_${t}`], type === t))}
       </div>
       {list.items.length ? (
-        <div className="cm-grid3">{list.items.map((it) => <ShowcaseCard key={it.id} item={it} w={w} w2={w2} />)}</div>
+        <div className="cm-grid3">{list.items.map((it) => <ShowcaseCard key={it.id} item={it} w2={w2} />)}</div>
       ) : (
         <Empty icon="apps" text={w2.noShowcase} />
       )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 /** 232–234 The few pieces of the new pages that run in the browser. */
 
@@ -25,14 +25,13 @@ export function CopyLink({ url, label, copied }: { url: string; label: string; c
   );
 }
 
-/** A time shown in the viewer's own time zone; the server renders UTC until the browser takes over. */
+/** A time shown in the viewer's own time zone; the server (which can't know it) renders UTC. */
+const noop = () => () => undefined;
 export function LocalTime({ at, lang, withDate = true }: { at: string; lang: string; withDate?: boolean }) {
-  const d = new Date(at);
+  const inBrowser = useSyncExternalStore(noop, () => true, () => false);
   const locale = lang === "ar" ? "ar-EG-u-nu-latn" : lang;
-  const fmt = (tz?: string) => d.toLocaleString(locale, { ...(withDate ? { dateStyle: "medium" } : {}), timeStyle: "short", timeZone: tz });
-  const [text, setText] = useState(() => `${fmt("UTC")} UTC`);
-  useEffect(() => setText(fmt()), [at]); // eslint-disable-line react-hooks/exhaustive-deps -- formatting depends on `at` only.
-  return <time dateTime={at} suppressHydrationWarning>{text}</time>;
+  const text = new Date(at).toLocaleString(locale, { ...(withDate ? { dateStyle: "medium" } : {}), timeStyle: "short", timeZone: inBrowser ? undefined : "UTC" });
+  return <time dateTime={at} suppressHydrationWarning>{inBrowser ? text : `${text} UTC`}</time>;
 }
 
 /** Fetch the page again every few seconds while it is visible (an inbox, a chat, a live's comments, a pending payment). */

@@ -21,7 +21,7 @@ function Entry({ e, w, w2, back, p, voting, mine }: { e: ChallengeEntry; w: CmWo
   return (
     <article className="cm-card cm-entry">
       <Who member={e.member} w={w} size={32} />
-      {e.showcase ? <ShowcaseCard item={e.showcase} w={w} w2={w2} /> : null}
+      {e.showcase ? <ShowcaseCard item={e.showcase} w2={w2} /> : null}
       {e.url ? <a href={e.url} target="_blank" rel="noopener nofollow ugc" className="cm-link"><span className="ms" aria-hidden="true">link</span>{e.url}</a> : null}
       {e.note ? <p className="cm-muted">{e.note}</p> : null}
       <div className="cm-acts">

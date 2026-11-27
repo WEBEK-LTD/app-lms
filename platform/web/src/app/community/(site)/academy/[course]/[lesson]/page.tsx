@@ -28,7 +28,7 @@ export default async function LessonPage({ params, searchParams }: { params: Pro
   const slug = decodeURIComponent(rawSlug);
   const lessonId = decodeURIComponent(rawLesson);
   const sp = await searchParams;
-  const { lang, w, viewer } = await siteContext();
+  const { lang, viewer } = await siteContext();
   if (!viewer) redirect(await cmTarget(cmLinks.signIn(cmLinks.lesson(slug, lessonId))));
   const w2 = CM_WORDS2[lang];
   const c = await course(slug);

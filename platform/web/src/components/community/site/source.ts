@@ -493,6 +493,11 @@ const done = (r: { status: number; body: unknown }): SeamResult => (r.status >= 
 function targetLink(type: string, id: string): string | null {
   if (type === "question") return cmLinks.question(id);
   if (type === "tutorial") return cmLinks.tutorial(id);
+  // 232–234
+  if (type === "post") return cmLinks.post(id);
+  if (type === "showcase") return cmLinks.showcaseItem(id);
+  if (type === "group") return cmLinks.group(id);
+  if (type === "job") return cmLinks.job(id);
   return null;
 }
 

@@ -24,7 +24,6 @@ export default async function StoriesPage({ params, searchParams }: { params: Pr
   const story = ring.stories[i]!;
   const mine = viewer?.id === ring.member.id;
   const viewers = mine ? await storyViewers(story.id) : null;
-  const back = `${cmLinks.stories(handle)}${i ? `?i=${i}` : ""}`;
   const nextRing = rings[at + 1];
   const next = i + 1 < ring.stories.length ? `${cmLinks.stories(handle)}?i=${i + 1}` : nextRing ? cmLinks.stories(nextRing.member.handle ?? nextRing.member.id) : cmLinks.home();
   const prev = i > 0 ? `${cmLinks.stories(handle)}?i=${i - 1}` : null;

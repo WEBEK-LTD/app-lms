@@ -52,16 +52,18 @@ function Relation({ p, w, back }: { p: Profile; w: CmWords; back: string }) {
         </>
       ) : null}
       {r.friend === "friends" ? <Act action={friendAction} fields={{ ...base, act: "remove" }} className="g" icon="diversity_3" label={w.friendsNow} /> : null}
-      <Message w={w} />
+      <Message w={w} handle={p.member.handle} signedIn />
     </>
   );
 }
 
-function Message({ w }: { w: CmWords }) {
+/** 232 Message a member: a new conversation with them (signed out, log in first). */
+function Message({ w, handle, signedIn }: { w: CmWords; handle: string; signedIn: boolean }) {
+  const to = `${cmLinks.messages()}?to=${encodeURIComponent(handle)}`;
   return (
-    <button type="button" className="cm-btn g" disabled aria-disabled="true" title={w.messagesSoon}>
+    <Link href={signedIn ? to : cmLinks.signIn(to)} className="cm-btn g" data-testid="cm-message-member">
       <span className="ms" aria-hidden="true">chat_bubble</span>{w.messageMember}
-    </button>
+    </Link>
   );
 }
 
@@ -114,7 +116,7 @@ export default async function MemberPage({ params, searchParams }: Props) {
             ) : (
               <>
                 <Link href={cmLinks.signIn(back)} className="cm-btn o"><span className="ms" aria-hidden="true">person_add</span>{w.follow}</Link>
-                <Message w={w} />
+                <Message w={w} handle={p.member.handle} signedIn={false} />
               </>
             )}
           </div>

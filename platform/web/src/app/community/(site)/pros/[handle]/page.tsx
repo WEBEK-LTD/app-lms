@@ -56,7 +56,7 @@ export default async function ProPage({ params, searchParams }: Props) {
         {p.skills.length ? <div className="skills" style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>{p.skills.map((s) => <span key={s} className="cm-tag">{s}</span>)}</div> : null}
       </section>
       {p.portfolio.length ? (
-        <section className="cm-card"><h2>{w2.portfolio}</h2><div className="cm-grid3" style={{ marginTop: 12 }}>{p.portfolio.map((it) => <ShowcaseCard key={it.id} item={it} w={w} w2={w2} />)}</div></section>
+        <section className="cm-card"><h2>{w2.portfolio}</h2><div className="cm-grid3" style={{ marginTop: 12 }}>{p.portfolio.map((it) => <ShowcaseCard key={it.id} item={it} w2={w2} />)}</div></section>
       ) : null}
       {!self ? (
         viewer ? (

@@ -164,7 +164,7 @@ export function PostCard({ post, w, w2, back, full = false }: { post: Post; w: C
   );
 }
 
-export function ShowcaseCard({ item, w, w2 }: { item: ShowcaseSummary; w: CmWords; w2: CmWords2 }) {
+export function ShowcaseCard({ item, w2 }: { item: ShowcaseSummary; w2: CmWords2 }) {
   return (
     <Link href={cmLinks.showcaseItem(item.id)} className="cm-sc">
       <span className="pic">{item.cover_url ? <img src={item.cover_url} alt="" loading="lazy" /> : <span className="ms" aria-hidden="true">apps</span>}</span>
@@ -191,7 +191,7 @@ export function FeedList({ items, w, w2, back }: { items: FeedItem[]; w: CmWords
           return (
             <article key={`s-${it.id}`} className="cm-post">
               <Who member={it.showcase.author} w={w} sub={<><span className="pill p-gy">{w2.showcaseLabel}</span> {ago(w, it.created_at)}</>} />
-              <div style={{ marginTop: 12 }}><ShowcaseCard item={it.showcase} w={w} w2={w2} /></div>
+              <div style={{ marginTop: 12 }}><ShowcaseCard item={it.showcase} w2={w2} /></div>
             </article>
           );
         }
