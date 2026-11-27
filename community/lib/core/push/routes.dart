@@ -60,6 +60,9 @@ String? routeForLink(String link) {
     'showcase' => FeatureLinks.showcase,
     'academy' when id != null => FeatureLinks.course(id),
     'academy' => FeatureLinks.academy,
+    // A review of one's own pro profile: E's screen takes a member, not
+    // `me`, so the pros list.
+    'pros' when id == 'me' => FeatureLinks.pros,
     'pros' when id != null => FeatureLinks.pro(id),
     'jobs' when id != null => FeatureLinks.job(id),
     'me' => Paths.me,

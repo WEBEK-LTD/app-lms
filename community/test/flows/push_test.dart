@@ -39,6 +39,19 @@ void main() {
     expect(routeForPush({'link': '/u/nour'}), '/members/@nour');
     expect(routeForPush({'link': '/events/e-1'}), FeatureLinks.event('e-1'));
     expect(routeForPush({'link': '/academy'}), FeatureLinks.academy);
+    expect(
+      routeForPush({'kind': 'message', 'link': '/messages/c-1'}),
+      '/messages/c-1',
+    );
+    expect(
+      routeForPush({'link': '/groups/studio/requests'}),
+      '/groups/studio/members',
+    );
+    expect(
+      routeForPush({'link': '/jobs/j-1/applicants'}),
+      FeatureLinks.job('j-1'),
+    );
+    expect(routeForPush({'link': '/pros/me'}), FeatureLinks.pros);
   });
 
   testWidgets('signed in, the token goes to the server, and again when it '
