@@ -163,6 +163,8 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   },
   rides: { vehicle_types: vehicleTypes(false) },
   // 126 Safra's hotels, rooms and flights.
+  // 235 Lamma's posts are its members' (the community engine), not sample entries.
+  community: {},
   travel: {
     hotels: async (m) => {
       const made = await makeTravelSamples({ store: m.deps.store, app: m.app, now: m.deps.now, sample: true, photo: (name) => saveTravelPhoto(m.deps, { clientId: m.app.clientId, appId: m.app.id }, name, "product_image") });

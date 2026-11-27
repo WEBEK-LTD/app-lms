@@ -1093,6 +1093,13 @@ export const PICTURES = {
     to: "#C9A063",
     shapes: [c(116, 30, 16, "#FFFFFF", 0.7), r(-80, 74, 260, 30, 0, "#0E1424", 0.85), ...[0, 1, 2, 3].map((i) => r(-40 + i * 52, 84, 30, 2.5, 1.2, "#C9A063", 0.8)), ...plane("#0E1424", -26, -14)],
   },
+  // 235 Lamma, the community demo: two speech bubbles in navy and orange, flat.
+  "icon-community": { from: "#141327", to: "#141327", shapes: [r(-34, -26, 52, 38, 12, "#FBF8F3"), r(-6, -4, 44, 32, 10, "#FF5A1F")] },
+  "banner-community": {
+    from: "#FBF8F3",
+    to: "#FBF8F3",
+    shapes: [c(90, -10, 48, "#ECE6DC"), c(130, 30, 22, "#FF5A1F"), r(-120, -20, 120, 44, 14, "#141327"), r(-90, 34, 90, 30, 12, "#ECE6DC")],
+  },
 } satisfies Record<string, Art>;
 
 /** 126 A plane seen from above, nose to the top right. */

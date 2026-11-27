@@ -44,6 +44,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   // 126 Safra's Explore: travel's own template (128 in the same registry, lib/studio/demo-designs/safra-travel.ts).
   // 130.12 Safra is its Signature look A, the cover story (lib/studio/demo-designs/safra-signature.ts).
   travel: "travel_signature_a",
+  // 235 Lamma: the community's own template (lib/studio/sections.ts `community`).
+  community: "community",
   // 123 The premium academy's home is its template's; 130.17 its Signature look A, night cinema (lib/studio/demo-designs/ufuq-signature.ts).
   premium_academy: "premium_academy_signature_a",
   // 131.20 Leqaa, the flower shop, is its Signature look A, rose hour (lib/studio/demo-designs/leqaa-signature.ts).
@@ -131,6 +133,8 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   premium_academy: { surface: "#FFFFFF", nightSurface: "#161C33", line: "#E3DFD6", nightLine: "#262D48", muted: "#5A5F73", nightMuted: "#A8AEC4" },
   // 126 Safra's, its pages' (lib/studio/demo-designs/safra-travel.ts SAFRA_INK).
   travel: { surface: "#FFFFFF", nightSurface: "#1B2338", line: "#E6DFD2", nightLine: "#2A3350", muted: "#5F6472", nightMuted: "#B4B8C6" },
+  // 235 Lamma: the flat community look, cream by day and navy by night.
+  community: { surface: "#FFFFFF", nightSurface: "#161530", line: "#ECE6DC", nightLine: "#2C2A49", muted: "#6E6B80", nightMuted: "#A9A4BB" },
   // 131.20 Leqaa's, its look A's (lib/studio/demo-designs/leqaa-signature.ts LEQAA_A_INK).
   flowers: { surface: "#FFFFFF", nightSurface: "#21121A", line: "#F0DDD9", nightLine: "#3A2530", muted: "#7B5E67", nightMuted: "#C9AEB6" },
   // 208 Lujain's, its look A's (lib/studio/demo-designs/clothes-signature.ts LUJAIN_INK).
@@ -276,6 +280,7 @@ export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy" | "flowe
   school: "school",
   instructors: "groups",
   travel: "travel_explore",
+  community: "groups",
 };
 
 /** The Studio template id of a demo: `demo_<demo>`. */
@@ -284,7 +289,7 @@ export function demoTemplateId(id: StudioDemoId): string {
 }
 
 const DEMO_VERTICALS: readonly string[] = ["taxi", "instructors", "marketplace"];
-const DEMO_TYPES: readonly string[] = ["delivery", "food", "rides", "school", "travel"];
+const DEMO_TYPES: readonly string[] = ["delivery", "food", "rides", "school", "travel", "community"];
 
 /** The Studio demo of a project's kind: its vertical's, else its type's; none for a kind without one. */
 export function studioDemoOf(kind: { type: string; vertical?: string | null } | null): StudioDemoId | null {

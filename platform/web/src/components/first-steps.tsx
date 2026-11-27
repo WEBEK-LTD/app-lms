@@ -33,7 +33,8 @@ export async function FirstSteps({ app, editor }: { app: App; editor: "/dashboar
   const studio = editor === "/studio/editor";
   const inSection = (path: string) => (studio ? (studioPathFor(path) ?? path) : path);
   const demo = DEMO_BRANDS[view.demo].appName;
-  const items = demoItems(view.demo);
+  // 235 A demo without entries (the community's): its items step is done from the start, so these words never show.
+  const items = demoItems(view.demo) ?? { list: "articles" as const, noun: "articles" as const, count: 0 };
   const done = FIRST_STEPS.filter((s) => view.done[s]).length;
   const current = FIRST_STEPS.find((s) => !view.done[s]) ?? null;
   const left = await sampleTotal(store, app);

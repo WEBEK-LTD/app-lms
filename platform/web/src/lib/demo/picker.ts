@@ -164,7 +164,7 @@ export interface DemoItems {
 }
 
 /** The entries each demo brings to its main list, counted from the demo's own definitions (lib/samples/demo.ts makes them). */
-const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
+const DEMO_ITEMS: Record<DemoId, () => DemoItems | null> = {
   lms: () => ({ list: "courses", noun: "courses", count: demoCourseSeeds(false).courses.length }),
   premium_academy: () => ({ list: "courses", noun: "courses", count: demoCourseSeeds(false, true).courses.length }),
   instructors: () => ({ list: "courses", noun: "courses", count: demoCourseSeeds(true).courses.length }),
@@ -185,6 +185,8 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   school: () => ({ list: "school", noun: "schoolClasses", count: SCHOOL_CLASSES.length }),
   // 126 Safra: its hotels (each with its rooms; its flights come with them).
   travel: () => ({ list: "hotels", noun: "hotels", count: TRAVEL_HOTELS.length }),
+  // 235 Lamma: a community's posts are its members', not a list the dashboard fills.
+  community: () => null,
   // 131.20 Leqaa: its bouquets and add-ons.
   flowers: () => ({ list: "products", noun: "products", count: FLOWER_PRODUCTS.length }),
   // 208 Lujain: its clothes, shoes, bags and accessories.
@@ -208,7 +210,8 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   electronics: () => ({ list: "products", noun: "products", count: ELECTRONICS_PRODUCTS.length }),
 };
 
-export function demoItems(id: DemoId): DemoItems {
+/** 235 Null for a demo that brings no entries to a list (the community's). */
+export function demoItems(id: DemoId): DemoItems | null {
   return DEMO_ITEMS[id]();
 }
 
@@ -258,7 +261,7 @@ export function demoPageCount(id: DemoId): number {
 
 export interface DemoFacts {
   pages: number;
-  items: DemoItems;
+  items: DemoItems | null;
   languages: LanguageCode[];
 }
 

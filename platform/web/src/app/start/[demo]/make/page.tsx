@@ -59,7 +59,7 @@ export default async function MakePage({ params, searchParams }: PageProps<"/sta
         error={error ? t(`start.errors.${error}` as DashKey) : null}
         comes={[
           t("start.comesPages", { count: facts.pages }),
-          t(`start.items.${facts.items.noun}.count` as DashKey, { count: facts.items.count }),
+          ...(facts.items ? [t(`start.items.${facts.items.noun}.count` as DashKey, { count: facts.items.count })] : []),
           t("start.comesPhotos"),
           t("start.comesSignIn"),
           // 132.40 The app's languages as it gets them: an Arabic or Turkish dashboard's first.

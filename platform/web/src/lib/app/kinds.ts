@@ -1007,7 +1007,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       iphone: null,
       cardPayments: null,
     },
-    demo: null,
+    // 235 Lamma, on /demo/studio.
+    demo: { slug: "community" },
   },
 };
 

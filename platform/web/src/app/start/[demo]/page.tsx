@@ -87,7 +87,7 @@ export default async function PickPage({ params, searchParams }: PageProps<"/sta
             {(
               [
                 [facts.pages, t("start.pages", { count: facts.pages }), "pages"],
-                [facts.items.count, t(`start.items.${facts.items.noun}.inside` as DashKey, { count: facts.items.count }), "items"],
+                ...(facts.items ? ([[facts.items.count, t(`start.items.${facts.items.noun}.inside` as DashKey, { count: facts.items.count }), "items"]] as const) : []),
                 [facts.languages.length, t("start.languages", { count: facts.languages.length }), "languages"],
               ] as const
             ).map(([n, label, key]) => (

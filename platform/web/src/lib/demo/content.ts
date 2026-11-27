@@ -366,6 +366,16 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["safra-explore", "safra-hotel", "safra-trip"],
   },
+  // 235 Lamma: a home bakers' community, the Community app type.
+  community: {
+    summary: "A community app for a brand's customers: members post, ask and answer, join groups and message each other, and the brand moderates it from its dashboard.",
+    tryThis: [
+      "Open the feed: posts and questions together, with their comments and answers",
+      "Open Q&A, read a question and its accepted answer, and answer it yourself",
+      "Open Groups, join a public group, then switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["lamma-feed", "lamma-question", "lamma-groups"],
+  },
   // 131.20 Leqaa, the flower shop: a store in Studio, its two Signature looks, the gift checkout.
   flowers: {
     summary: "A flower shop in Cairo: bouquets for every occasion in three sizes, a vase, chocolates or a card with them, delivered today or on the day you pick. Its photos are CC0 or public domain, from Wikimedia Commons.",
@@ -850,6 +860,26 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Hotels and flights, booked together for one price.",
     fullDescription: `Safra brings its hotels and its own flights to your phone.\n\nSearch a stay by place and dates, on a list or the map, choose a room with breakfast and free cancellation, and pay now or at the hotel. Find a flight on the month's price calendar, choose your fare and your seat, and keep your boarding pass in the app. Book a stay and a flight together for one price, follow the whole trip in one place and watch a route's price.\n\n${PRIVACY_NOTE}`,
     welcome: "Hotels and flights, together for one price.",
+  },
+  // 235 Lamma (لمّة, "a get-together"): the flat community look, navy and orange.
+  community: {
+    appName: "Lamma",
+    shortName: "Lamma",
+    primaryColor: "#141327",
+    splashColor: "#FBF8F3",
+    secondaryColor: "#FF5A1F",
+    template: "minimal",
+    font: "Plus Jakarta Sans",
+    corners: "soft",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-community",
+    banner: { picture: "banner-community", heading: "Bake together", subheading: "Questions, tips and groups for home bakers." },
+    androidPackage: "com.yallapp.demo.community",
+    storeTitle: "Lamma Community",
+    shortDescription: "Questions, tips and groups for home bakers.",
+    fullDescription: `Lamma brings home bakers together.\n\nRead what members share in the feed, ask a question and get answers from people who bake every day, join groups for sourdough, cakes or bread, and message other members. Report anything that breaks the house rules, and block anyone you don't want to hear from.\n\n${PRIVACY_NOTE}`,
+    welcome: "Questions, tips and groups for home bakers.",
   },
   // 131.20 Leqaa (لقاء, "a meeting"), the flower shop: its look A's garnet rose and champagne.
   flowers: {

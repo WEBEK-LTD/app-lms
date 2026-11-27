@@ -12,7 +12,9 @@ import 'package:yallapp/modules/shared/pages/content_blocks.dart'
     show pageClockProvider;
 import 'package:yallapp/modules/store/data/cart_controller.dart';
 
+import '../../support/community_fixtures.dart';
 import '../../support/fake_api.dart';
+import '../../support/fixtures.dart' show configJson, languagesJson;
 import '../../support/test_app.dart';
 import 'demo_api.dart';
 import 'premium_academy.dart';
@@ -1235,6 +1237,33 @@ final websiteShots = <Shot>[
     prepare: (tester) => StudioDemo.rawaq.prepare(tester, rawaqPhotos),
     after: (tester, router) async => router.go('/teacher-desk'),
   ),
+  // 235 Lamma, Studio's community demo: the feed, a question, the groups by night.
+  Shot(
+    'lamma-feed',
+    api: _lammaApi,
+    appName: 'Lamma',
+    appType: AppType.community,
+  ),
+  Shot(
+    'lamma-question',
+    api: _lammaApi,
+    appName: 'Lamma',
+    appType: AppType.community,
+    location: '/community/question/q1',
+  ),
+  Shot(
+    'lamma-groups',
+    api: _lammaApi,
+    appName: 'Lamma',
+    appType: AppType.community,
+    dark: true,
+    after: (tester, router) async {
+      router.go('/community/groups');
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+    },
+  ),
   // 126 Safra, Studio's travel demo: its home, a hotel and the trip.
   Shot(
     'safra-explore',
@@ -1269,3 +1298,8 @@ final _nakhlaMorning = <Override>[
     return DateTime(now.year, now.month, now.day, 8, 10);
   }),
 ];
+
+/// 235 Lamma's community (test/support/community_fixtures.dart).
+FakeApi _lammaApi() =>
+    FakeApi(config: configJson(lms: null, languages: languagesJson()))
+      ..communityHandler = communityAnswer;

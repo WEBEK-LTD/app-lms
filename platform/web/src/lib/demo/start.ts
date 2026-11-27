@@ -172,8 +172,9 @@ export async function firstStepsView(store: DataStore, app: App): Promise<FirstS
   const steps = firstStepsOf(app);
   const demo = startedFromDemo(app);
   if (!steps || !demo || steps.hiddenAt) return null;
-  const { list } = demoItems(demo);
-  const counted = await countList(store, app, list);
+  // 235 A demo without entries of its own (the community's) has nothing to replace.
+  const list = demoItems(demo)?.list;
+  const counted = list ? await countList(store, app, list) : { own: 0, samples: 0 };
   const done: Record<FirstStep, boolean> = {
     brand: Boolean(app.appName && app.iconAssetId),
     items: counted.own > 0 || counted.samples === 0,
