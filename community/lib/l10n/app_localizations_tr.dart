@@ -73,7 +73,7 @@ class AppLocalizationsTr extends AppLocalizations {
       '18.000+ uygulama yapıcısına katıl. Öğren, sor\nve yaptığını göster.';
 
   @override
-  String get authBubbleNour => 'Bugün mağazamı açtım 🎉';
+  String get authBubbleNour => 'Bugün mağazamı açtım';
 
   @override
   String get authBubbleAccepted => 'Cevap kabul edildi';
@@ -197,13 +197,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get headerProfile => 'Profilin';
 
   @override
-  String get homeMorning => 'Günaydın ☀️';
+  String get homeMorning => 'Günaydın';
 
   @override
-  String get homeAfternoon => 'Tünaydın 🌤️';
+  String get homeAfternoon => 'Tünaydın';
 
   @override
-  String get homeEvening => 'İyi akşamlar 🌙';
+  String get homeEvening => 'İyi akşamlar';
 
   @override
   String get homeRead => 'Oku';

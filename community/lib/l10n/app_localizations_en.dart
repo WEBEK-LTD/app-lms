@@ -73,7 +73,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Join 18,000+ app makers. Learn, ask,\nand show what you built.';
 
   @override
-  String get authBubbleNour => 'Launched my store today 🎉';
+  String get authBubbleNour => 'Launched my store today';
 
   @override
   String get authBubbleAccepted => 'Answer accepted';
@@ -197,13 +197,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerProfile => 'Your profile';
 
   @override
-  String get homeMorning => 'Good morning ☀️';
+  String get homeMorning => 'Good morning';
 
   @override
-  String get homeAfternoon => 'Good afternoon 🌤️';
+  String get homeAfternoon => 'Good afternoon';
 
   @override
-  String get homeEvening => 'Good evening 🌙';
+  String get homeEvening => 'Good evening';
 
   @override
   String get homeRead => 'Read';
