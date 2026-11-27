@@ -32,37 +32,37 @@
   -webkit-font-smoothing: antialiased;
   font-size: 15px;
 }
-/* Dark: by the visitor's choice (the site's `data-theme`), else the system's. */
+/* Dark: by the visitor's choice (the site's `data-theme`), else the system's, in Yallapp's own dark colours (app/globals.css). */
 :root[data-theme="dark"] .cm {
-  --cm-paper: #0e0e10;
-  --cm-card: #161618;
-  --cm-ink: #ededef;
-  --cm-muted: #a0a0a8;
-  --cm-line: #2a2a2e;
-  --cm-soft: #1e1e21;
-  --cm-text2: #d4d4d8;
-  --cm-icon: #9a9aa2;
-  --cm-faint: #74747c;
-  --cm-header: #0e0e10;
-  --cm-navy: #232326;
-  --cm-cover: #1b1b1e;
+  --cm-paper: #0e0d24;
+  --cm-card: #161530;
+  --cm-ink: #f4efe6;
+  --cm-muted: #a9a4bb;
+  --cm-line: #2c2a49;
+  --cm-soft: #1c1b38;
+  --cm-text2: #ebe6f2;
+  --cm-icon: #a9a4bb;
+  --cm-faint: #827d96;
+  --cm-header: #0e0d24;
+  --cm-navy: #24223f;
+  --cm-cover: #1c1b38;
   --cm-dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Ccircle cx='1' cy='1' r='1' fill='%23fff' fill-opacity='.06'/%3E%3C/svg%3E");
   --cm-shadow: none;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .cm {
-    --cm-paper: #0e0e10;
-    --cm-card: #161618;
-    --cm-ink: #ededef;
-    --cm-muted: #a0a0a8;
-    --cm-line: #2a2a2e;
-    --cm-soft: #1e1e21;
-    --cm-text2: #d4d4d8;
-    --cm-icon: #9a9aa2;
-    --cm-faint: #74747c;
-    --cm-header: #0e0e10;
-    --cm-navy: #232326;
-    --cm-cover: #1b1b1e;
+    --cm-paper: #0e0d24;
+    --cm-card: #161530;
+    --cm-ink: #f4efe6;
+    --cm-muted: #a9a4bb;
+    --cm-line: #2c2a49;
+    --cm-soft: #1c1b38;
+    --cm-text2: #ebe6f2;
+    --cm-icon: #a9a4bb;
+    --cm-faint: #827d96;
+    --cm-header: #0e0d24;
+    --cm-navy: #24223f;
+    --cm-cover: #1c1b38;
     --cm-dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Ccircle cx='1' cy='1' r='1' fill='%23fff' fill-opacity='.06'/%3E%3C/svg%3E");
     --cm-shadow: none;
   }
@@ -377,7 +377,7 @@ a.cm-appcard:hover { border-color: var(--cm-faint); }
 .cm-grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 16px; }
 
 /* ===== Welcome and signing in (the app design's first screen) ===== */
-.cm-land { min-height: 100vh; color: #fff; background: #111113; padding: 18px 16px 40px; display: flex; flex-direction: column; align-items: center; }
+.cm-land { min-height: 100vh; color: #fff; background: #0e0d24; padding: 18px 16px 40px; display: flex; flex-direction: column; align-items: center; }
 .cm-land-top { width: 100%; max-width: 1100px; display: flex; justify-content: space-between; align-items: center; }
 .cm-land-brand { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 18px; }
 .cm-land-brand img { width: 38px; height: 38px; border-radius: 11px; }
@@ -415,7 +415,7 @@ a.cm-appcard:hover { border-color: var(--cm-faint); }
 .cm-menu, .cm-only-phone, .cm-tb { display: none; }
 .cm-icb.soon { opacity: 0.55; cursor: default; }
 .cm-dim { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, 0.55); }
-.cm-drawer { position: absolute; inset-block: 0; inset-inline-start: 0; width: min(320px, 86vw); overflow-y: auto; padding: 18px 16px 24px; color: #e4e4e7; background: #111113; border-inline-end: 1px solid #2a2a2e; border-start-end-radius: 16px; border-end-end-radius: 16px; }
+.cm-drawer { position: absolute; inset-block: 0; inset-inline-start: 0; width: min(320px, 86vw); overflow-y: auto; padding: 18px 16px 24px; color: #ebe6f2; background: #0e0d24; border-inline-end: 1px solid #2c2a49; border-start-end-radius: 16px; border-end-end-radius: 16px; }
 .cm-drawer .x { position: absolute; top: 16px; inset-inline-end: 14px; width: 40px; height: 40px; border-radius: 13px; background: rgba(255, 255, 255, 0.08); color: #fff; display: flex; align-items: center; justify-content: center; }
 .cm-drawer .dr-top .l { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; height: 40px; }
 .cm-drawer .dr-top img { width: 34px; height: 34px; border-radius: 10px; }
