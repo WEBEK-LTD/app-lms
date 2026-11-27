@@ -113,17 +113,6 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
     menu: "night",
     accent: "#C9A063",
   },
-  // 235 Lamma: flat, cream and navy.
-  community: {
-    style: "minimal",
-    title: { en: "Bake together", ar: "لنخبز معًا", tr: "Birlikte pişirelim" },
-    subtitle: {
-      en: "Sign in to ask, answer and join the groups.",
-      ar: "سجّل الدخول لتسأل وتجيب وتنضم إلى المجموعات.",
-      tr: "Sormak, yanıtlamak ve gruplara katılmak için giriş yapın.",
-    },
-    menu: "plain",
-  },
   instructors: {
     // 128 In the approved home's language: the welcome large over the library, the student's card in the account.
     style: "premium",
@@ -194,8 +183,6 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   instructors: demoDesignBar("instructors"),
   // 126 Safra's: the dot under the open tab, as the travel designs have it (128 from its design, lib/studio/demo-designs).
   travel: demoDesignBar("travel"),
-  // 235 Lamma's: the classic bar, flat, the open tab in orange.
-  community: { design: "classic", active: "#FF5A1F" },
   // 130.17 The premium academy's is its look A's (lib/studio/demo-designs/ufuq-signature.ts).
   premium_academy: demoDesignBar("premium_academy"),
   // 131.22 Leqaa's is its look A's petal bar (lib/studio/demo-designs/leqaa-signature.ts).

@@ -122,7 +122,7 @@ export const ELECTRONICS_DEMO = "electronics" as const satisfies ShopTypeDemo;
 export const MOBILES_DEMO = "mobiles" as const satisfies ShopTypeDemo;
 export const COMPUTERS_DEMO = "computers" as const satisfies ShopTypeDemo;
 
-export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school" | "travel" | "community"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO | ShopTypeDemo;
+export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school" | "travel"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO | typeof FLOWER_SHOP_DEMO | ShopTypeDemo;
 
 /** 208 The Studio demos of a template rather than a kind (a store told apart by its look A, 223 or its main look C): Leqaa and the shop types', their look A by their id. */
 export const STORE_TEMPLATE_DEMOS: Readonly<Record<typeof FLOWER_SHOP_DEMO | ShopTypeDemo, string>> = { [FLOWER_SHOP_DEMO]: FLOWER_SHOP_TEMPLATE, ...SHOP_TYPE_DEMOS };
@@ -134,10 +134,11 @@ export const STORE_TEMPLATE_LABELS: Readonly<Record<typeof FLOWER_SHOP_DEMO | Sh
 export function isStoreTemplateDemo(id: string): id is typeof FLOWER_SHOP_DEMO | ShopTypeDemo {
   return Object.hasOwn(STORE_TEMPLATE_DEMOS, id);
 }
-export type DemoId = Exclude<AppType, StudioDemoId> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
+// 235 The community engine has no demo app of its own yet (its demo is the Studio template's).
+export type DemoId = Exclude<AppType, StudioDemoId | "community"> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
 
 /** The kinds only Studio offers (lib/studio/section.ts STUDIO_ONLY_KINDS). */
-const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors", "marketplace", "travel", "community", PREMIUM_ACADEMY_DEMO, FLOWER_SHOP_DEMO, ...Object.keys(SHOP_TYPE_DEMOS)];
+const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors", "marketplace", "travel", PREMIUM_ACADEMY_DEMO, FLOWER_SHOP_DEMO, ...Object.keys(SHOP_TYPE_DEMOS)];
 
 export function isStudioDemo(id: DemoId): id is StudioDemoId {
   return STUDIO_DEMO_KINDS.includes(id);

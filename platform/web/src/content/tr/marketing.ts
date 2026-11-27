@@ -100,9 +100,6 @@ export const TR_MARKETING: MarketingTranslation = {
     "safra-explore": "Yallapp Studio'da tasarlanmış bir seyahat uygulamasının ana sayfası: tatil köyünün fotoğrafı, biniş kartı olarak sıradaki seyahat ve gecelik fiyatlarıyla şirketin otelleri",
     "safra-hotel": "Bir otelin sayfası: fotoğrafları, misafirlerin personel, temizlik, konum ve fiyat puanları, olanakları ve gecelik fiyatı",
     "safra-trip": "Tek yerde seyahat: kapısı ve koltuklarıyla uçuş, transfer, otelde giriş ve biniş kartları",
-    "lamma-feed": "Bir topluluk uygulamasının akışı: üyelerin gönderileri ve soruları bir arada, yorumları ve yanıtlarıyla",
-    "lamma-question": "Kabul edilen yanıtıyla bir soru ve onu yanıtlama kutusu",
-    "lamma-groups": "Gece gruplar: katılınacak herkese açık bir grup ve üyenin içinde olduğu özel bir grup",
     // 130 The Studio demos' second Signature looks (each demo's look A is its home above).
     "food-delivery-sig-b-home": "Sofra Eats ikinci görünümüyle: altın bir halkada yoldaki sipariş, fotoğraf bentosu olarak mutfaklar, kayan bir yemek şeridi ve yakındaki restoranlar",
     "multi-vendor-sig-b-home": "Zad ikinci görünümüyle: reyon fotoğrafının üstünde ince bir kapsülde sipariş, kapıya kalan dakikalar, hikâye halkalarında reyonlar ve bir deste kart halinde yerler",
@@ -1915,14 +1912,6 @@ export const TR_MARKETING: MarketingTranslation = {
         "Uçuşlar'ı açın, ayın fiyatlarını görün, paketinizi ve koltuklarınızı seçip rezervasyon yapın: demo ödeme kart istemez",
         "Seyahatler'i açın: kapısıyla uçuş, transfer, otel ve biniş kartınız",
         "Bulunan uçuşlarda Takip et'i açıp hattın fiyatını izleyin, uygulamayı hesaptan Arapçaya ya da koyu moda geçirin",
-      ],
-    },
-    community: {
-      summary: "Bir markanın müşterileri için topluluk uygulaması: üyeler paylaşır, soru sorar ve yanıtlar, gruplara katılır ve birbirine mesaj gönderir; marka da paneli üzerinden yönetir.",
-      tryThis: [
-        "Akışı açın: gönderiler ve sorular bir arada, yorumları ve yanıtlarıyla",
-        "Soru-Cevap'ı açın, bir soruyu ve kabul edilen yanıtını okuyun, kendiniz de yanıtlayın",
-        "Gruplar'ı açın, herkese açık bir gruba katılın, ardından hesaptan uygulamayı Arapçaya ya da koyu moda geçirin",
       ],
     },
     flowers: {

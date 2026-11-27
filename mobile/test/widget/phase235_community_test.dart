@@ -5,15 +5,108 @@ import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/modules/community/community_paths.dart';
 
 import '../support/fake_api.dart';
-import '../support/community_fixtures.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
 
 /// 235 A Community app: the client's own community on the hosted API's
 /// /community endpoints, in its five tabs.
+Map<String, dynamic> _member(String id, String name) => {
+  'id': id,
+  'display_name': name,
+  'username': name.toLowerCase(),
+};
+
+dynamic _answer(
+  String method,
+  String path,
+  Map<String, dynamic>? q,
+  Object? b,
+) => switch ((method, path)) {
+  ('POST', '/community/v1/auth/app') => {
+    'access_token': 'community-token',
+    'refresh_token': 'r',
+  },
+  ('GET', '/community/v1/feed') => {
+    'items': [
+      {
+        'kind': 'post',
+        'id': 'p1',
+        'post': {
+          'id': 'p1',
+          'author': _member('m1', 'Selin'),
+          'body': 'Our new spring menu is out',
+          'comment_count': 3,
+        },
+      },
+      {
+        'kind': 'question',
+        'id': 'q1',
+        'question': {
+          'id': 'q1',
+          'author': _member('m2', 'Omar'),
+          'title': 'Do you deliver on Sundays?',
+          'excerpt': 'Asking for a party',
+          'answer_count': 1,
+        },
+      },
+    ],
+    'next_cursor': null,
+  },
+  ('GET', '/community/v1/qa/questions') => {
+    'items': [
+      {
+        'id': 'q1',
+        'author': _member('m2', 'Omar'),
+        'title': 'Do you deliver on Sundays?',
+        'answer_count': 1,
+      },
+    ],
+  },
+  ('GET', '/community/v1/qa/questions/q1') => {
+    'id': 'q1',
+    'author': _member('m2', 'Omar'),
+    'title': 'Do you deliver on Sundays?',
+    'body': 'Asking for a party',
+    'answers': [
+      {
+        'id': 'a1',
+        'author': _member('m1', 'Selin'),
+        'body': 'Yes, until 8 pm.',
+        'accepted': true,
+      },
+    ],
+  },
+  ('GET', '/community/v1/groups') => {
+    'items': [
+      {
+        'id': 'g1',
+        'name': 'Home bakers',
+        'description': 'Recipes and tips',
+        'member_count': 12,
+        'visibility': 'public',
+        'standing': {'role': null, 'requested': false},
+      },
+    ],
+  },
+  ('GET', '/community/v1/me') => _member('me', 'Deniz'),
+  ('GET', '/community/v1/messages/conversations') => {
+    'items': [
+      {
+        'id': 'c1',
+        'kind': 'direct',
+        'title': null,
+        'members': [_member('m1', 'Selin')],
+        'last_message': {'body': 'See you there'},
+        'unread': 1,
+      },
+    ],
+  },
+  _ => const <String, dynamic>{},
+};
+
 TestApp _app({String lang = 'en', bool signedIn = true}) => TestApp(
   api: FakeApi(config: configJson(lms: null, languages: languagesJson()))
-    ..communityHandler = communityAnswer,
+    ..communityHandler = _answer,
   appType: AppType.community,
   signedIn: signedIn,
   preferences: {'settings.language': lang},

@@ -126,10 +126,6 @@ export const APP_SCREENS = [
   "safra-explore",
   "safra-hotel",
   "safra-trip",
-  // 235 Lamma, the community demo.
-  "lamma-feed",
-  "lamma-question",
-  "lamma-groups",
   // 130 The Studio demos' second Signature looks (public/screens/<demo's address>-sig-b-home.png).
   "food-delivery-sig-b-home",
   "multi-vendor-sig-b-home",
@@ -389,9 +385,6 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "safra-explore": "A travel app's home designed in Yallapp Studio: the resort's photo, the next trip as a boarding pass and the company's hotels with their price a night",
   "safra-hotel": "A hotel's page: its photos, the guests' scores by staff, cleanliness, location and value, its amenities and the price per night",
   "safra-trip": "The trip in one place: the flight with its gate and seats, the transfer, the hotel's check-in and the boarding passes",
-  "lamma-feed": "A community app's feed: members' posts and questions together, with their comments and answers",
-  "lamma-question": "A question with its accepted answer, and the box to answer it",
-  "lamma-groups": "The groups by night: a public one to join and a private one the member is in",
   // 130 The Studio demos' second Signature looks (each demo's look A is its home above).
   "food-delivery-sig-b-home": "Sofra Eats in its second look, Bento table: the order on its way in a gold ring, the cuisines as a photo bento, a band of dishes and the restaurants near you",
   "multi-vendor-sig-b-home": "Zad in its second look, Night aisle: the order as a slim pill over the aisle's photo, the minutes to the door, the departments as stories and the places as a deck",

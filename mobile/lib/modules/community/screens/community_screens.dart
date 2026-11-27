@@ -104,13 +104,7 @@ class _CountLine extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: muted),
         const SizedBox(width: 4),
-        Flexible(
-          child: Text(
-            text,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 12.5, color: muted),
-          ),
-        ),
+        Text(text, style: TextStyle(fontSize: 12.5, color: muted)),
       ],
     );
   }
@@ -130,11 +124,7 @@ ListView _list(BuildContext context, List<Widget> children) =>
     );
 
 Scaffold _screen(BuildContext context, String title, Widget body) => Scaffold(
-  appBar: AppBar(
-    title: Text(title),
-    // A tab's own screen has no back button: its title keeps the margin.
-    titleSpacing: ModalRoute.of(context)?.canPop == true ? null : 20,
-  ),
+  appBar: AppBar(title: Text(title)),
   body: body,
 );
 

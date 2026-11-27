@@ -133,12 +133,11 @@ describe("a demo's facts", () => {
       const store = new MemoryStore();
       const made = await makeFromDemo(store, maker("Selin's"), { demo: id, name: "Selin's", colour: "#1F5C4A", logoAssetId: null, iconAssetId: null }, NOW);
       const app = (await store.getAppById(made.app.id))!;
-      // 235 Lamma brings no entries: a community's posts are its members'.
-      const items = demoItems(id) ?? { list: "articles" as const, noun: "articles" as const, count: 0 };
+      const items = demoItems(id);
       const counted =
         id === "school" ? { samples: (await store.listSchoolClasses(app.id)).length } : await countList(store, app, items.list);
       expect(counted.samples, id).toBe(items.count);
-      if (id !== "community") expect(items.count, id).toBeGreaterThan(0);
+      expect(items.count, id).toBeGreaterThan(0);
       // And its pages: as many as the page says.
       const slugs = (await store.getAppLayout(app.id))!.draft.pages.map((p) => p.slug);
       expect(isStudioDemo(id) ? slugs.length : regularPageCount(app.appType, slugs), id).toBe(demoFacts(id).pages);
@@ -219,7 +218,7 @@ describe("starting from a demo", () => {
     const { app } = await makeFromDemo(store, maker("Lale"), { demo: "store", name: "Lale", colour: "#B03A5B", logoAssetId: null, iconAssetId: "icon-1" }, NOW);
     const view = (await firstStepsView(store, app))!;
     expect(view).toMatchObject({ demo: "store", done: { brand: true, items: false, photos: false, stores: false }, own: 0 });
-    expect(view.samples).toBe(demoItems("store")!.count);
+    expect(view.samples).toBe(demoItems("store").count);
     // Hidden: not shown again.
     await store.updateApp(app.id, { hostedSettings: { ...app.hostedSettings!, firstSteps: { ...app.hostedSettings!.firstSteps!, hiddenAt: NOW.toISOString() } } }, NOW);
     expect(await firstStepsView(store, (await store.getAppById(app.id))!)).toBeNull();

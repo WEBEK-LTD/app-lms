@@ -150,11 +150,6 @@ export type SectionWord =
   | "schoolStepTwo"
   | "schoolStepThree"
   | "ctaSchool"
-  // 235 A community's steps and its main button.
-  | "communityStepOne"
-  | "communityStepTwo"
-  | "communityStepThree"
-  | "ctaCommunity"
   // 126 A travel app's welcome and its stays.
   | "travelTitle"
   | "travelText"
@@ -1267,11 +1262,6 @@ const SCHOOL: Fits = { types: ["school"] };
 const SCHOOL_BUTTON: SectionContext["button"] = { word: "ctaSchool", action: screen("school") };
 const SCHOOL_STEPS: SectionContext["steps"] = ["schoolStepOne", "schoolStepTwo", "schoolStepThree"];
 
-// 235 A community: the main buttons open the feed; the steps say how a member takes part.
-const COMMUNITY: Fits = { types: ["community"] };
-const COMMUNITY_BUTTON: SectionContext["button"] = { word: "ctaCommunity", action: screen("community_feed") };
-const COMMUNITY_STEPS: SectionContext["steps"] = ["communityStepOne", "communityStepTwo", "communityStepThree"];
-
 const STORE: Fits = { types: ["store"] };
 const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["menu", "notifications", "cart", "account"] };
 
@@ -1353,8 +1343,6 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("school", "school", SCHOOL, ["school", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
   typed("school_news", "campaign", SCHOOL, ["hero", "products", "review", "contact"], { type: "logo_center", buttons: ["menu", "notifications"] }, SCHOOL_BUTTON),
   typed("school_brand", "workspace_premium", SCHOOL, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
-  // 235 A community's home (Lamma's, the demo's): the welcome, how to take part, the numbers and the contact.
-  typed("community", "groups", COMMUNITY, ["hero", "steps", "stats", "features", "contact"], { type: "logo_center", buttons: ["menu", "notifications"] }, COMMUNITY_BUTTON, COMMUNITY_STEPS),
   // 128 The school's home approved for Nakhla School: the photo, the family's greeting, the children, today's card, this week in photos.
   demoDesignTemplate("school"),
   // A university's own: its welcome, its news and how students follow it.

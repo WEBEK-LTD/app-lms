@@ -196,8 +196,6 @@ const SIGNATURE_DESIGNS: Record<StudioDemoId, Partial<Record<SignatureLook, Sign
   taxi: { a: LAMHA_A, b: LAMHA_B },
   // 130.12 Safra, ink and gold: A a cover story, B a bento atlas.
   travel: { a: SAFRA_A, b: SAFRA_B },
-  // 235 Lamma has its one look, its template's.
-  community: {},
   // 130.13 130.14 Nakhla School: A the morning edition, B the family passes.
   school: { a: NAKHLA_A, b: NAKHLA_B },
   // 130.15 130.16 Rawaq Academy: A the faculty index, B on air.
