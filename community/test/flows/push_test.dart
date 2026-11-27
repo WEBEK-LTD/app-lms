@@ -19,6 +19,10 @@ void main() {
       '/groups/g-1/members',
     );
     expect(
+      routeForPush({'kind': 'group_joined', 'group_id': 'g-1'}),
+      '/groups/g-1',
+    );
+    expect(
       routeForPush({'kind': 'something_new', 'question_id': 'q-1'}),
       FeatureLinks.question('q-1'),
     );

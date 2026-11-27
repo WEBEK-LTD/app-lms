@@ -21,7 +21,7 @@ final Map<String, PushRoute> pushRoutes = {
   'post_like': (d) => _id(d, 'post_id', PostLinks.post),
   'comment_reply': (d) => _id(d, 'post_id', PostLinks.post),
   'group_request': (d) => _id(d, 'group_id', (id) => GroupLinks.members(id)),
-  'group_accepted': (d) => _id(d, 'group_id', GroupLinks.group),
+  'group_joined': (d) => _id(d, 'group_id', GroupLinks.group),
   'follow': (d) => _id(d, 'member_id', Paths.member),
   'friend_request': (d) => Paths.friendRequests,
 };
