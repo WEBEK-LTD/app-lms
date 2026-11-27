@@ -6,9 +6,9 @@ import type { CommunityStore } from "../store";
  * for the queue, where it opens, and the moderators' decision applied
  * (published, or hidden: a group or a job removed, a review hidden).
  */
-export type ConnectKind = "group" | "job" | "review" | "conversation";
+export type ConnectKind = "group" | "job" | "pro_review" | "conversation";
 
-export const isConnectKind = (kind: string): kind is ConnectKind => kind === "group" || kind === "job" || kind === "review" || kind === "conversation";
+export const isConnectKind = (kind: string): kind is ConnectKind => kind === "group" || kind === "job" || kind === "pro_review" || kind === "conversation";
 
 export async function connectContentInfo(store: CommunityStore, kind: ConnectKind, id: string): Promise<{ authorId: string; title: string; link: string; removed: boolean } | null> {
   const c = store.connect;
@@ -20,7 +20,7 @@ export async function connectContentInfo(store: CommunityStore, kind: ConnectKin
     const j = await c.getJob(id);
     return j ? { authorId: j.posterId, title: j.title, link: `/jobs/${j.id}`, removed: j.status === "removed" } : null;
   }
-  if (kind === "review") {
+  if (kind === "pro_review") {
     const r = await c.getReview(id);
     return r ? { authorId: r.authorId, title: r.text.slice(0, 140) || `${r.rating}/5`, link: `/pros/${r.proId}`, removed: r.status === "hidden" } : null;
   }
@@ -38,7 +38,7 @@ export async function setConnectStatus(store: CommunityStore, kind: ConnectKind,
   } else if (kind === "job") {
     const j = await c.getJob(id);
     if (j) await c.updateJob(id, { status: status === "published" ? (j.status === "closed" ? "closed" : "open") : "removed", updatedAt: now });
-  } else if (kind === "review") {
+  } else if (kind === "pro_review") {
     const r = await c.getReview(id);
     if (r) {
       await c.saveReview({ ...r, status: status === "published" ? "published" : "hidden", updatedAt: now });

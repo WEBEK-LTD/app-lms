@@ -73,6 +73,7 @@ export async function handleCommunity(deps: CommunityDeps, req: CommunityRequest
   const signedIn = req.token ? await authenticate(deps.store.base, req.token, deps.now) : null;
   const ctx: CommunityContext = {
     deps,
+    tenant: deps.tenant,
     req,
     store: deps.store,
     now: deps.now,

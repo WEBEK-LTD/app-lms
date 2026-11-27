@@ -38,6 +38,8 @@ export interface CommunityDeps {
   privateFiles?: { put(key: string, bytes: Uint8Array, contentType: string): Promise<void>; get(key: string): Promise<{ bytes: Uint8Array; contentType: string } | null>; delete?(key: string): Promise<void> };
   /** Signs short-lived links to private files; none: SIGNING_SECRET. */
   fileSecret?: string;
+  /** 235 The hosted API's token secret (a client app's customers sign in to its community with theirs); none: from SIGNING_SECRET. */
+  hostedSecret?: string;
 }
 
 export type CommunityMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -63,6 +65,8 @@ export interface CommunityRequest {
 
 export interface CommunityContext {
   deps: CommunityDeps;
+  /** 232–235 Whose community (deps.tenant): "yallapp" or a client app's id. */
+  tenant: CommunityTenant;
   req: CommunityRequest;
   store: CommunityStore;
   now: Date;
