@@ -626,3 +626,210 @@ export const communityNotificationPrefs = mysqlTable("community_notification_pre
   email: jsonText<Record<string, boolean>>("email").notNull(),
   updatedAt: time("updated_at").notNull(),
 });
+
+// ---------------------------------------------------------------- Area A, phases 2–4 (migration 0160)
+// Messages (232.4), groups (232.5), pros (234.1), jobs (234.2): lib/community/connect.
+
+/** A one-to-one conversation, a small group chat, or the thread a hire request opened. */
+export const communityConversations = mysqlTable(
+  "community_conversations",
+  {
+    tenantId: tenantColumn(),
+    id: id("id").primaryKey(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<"direct" | "group" | "hire">(),
+    title: varchar("title", { length: 80 }),
+    createdBy: id("created_by").notNull(),
+    // A one-to-one conversation's pair ("a:b", sorted): one per pair.
+    directKey: varchar("direct_key", { length: 80 }),
+    hireRequestId: id("hire_request_id"),
+    lastMessageAt: time("last_message_at").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("community_conversations_direct").on(t.tenantId, t.directKey)],
+);
+
+export const communityConversationMembers = mysqlTable(
+  "community_conversation_members",
+  {
+    // Its foreign key is named below: the generated name is longer than MySQL's 64 characters.
+    conversationId: id("conversation_id").notNull(),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    joinedAt: time("joined_at").notNull(),
+    leftAt: time("left_at"),
+    hiddenAt: time("hidden_at"),
+    lastReadMessageId: id("last_read_message_id"),
+    lastReadAt: time("last_read_at"),
+    muted: boolean("muted").notNull().default(false),
+  },
+  (t) => [
+    primaryKey({ columns: [t.conversationId, t.memberId] }),
+    foreignKey({ name: "community_conversation_members_conversation_fk", columns: [t.conversationId], foreignColumns: [communityConversations.id] }).onDelete("cascade"),
+    index("community_conversation_members_member").on(t.memberId),
+  ],
+);
+
+export const communityMessages = mysqlTable(
+  "community_messages",
+  {
+    id: id("id").primaryKey(),
+    conversationId: id("conversation_id")
+      .notNull()
+      .references(() => communityConversations.id, { onDelete: "cascade" }),
+    authorId: id("author_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    body: text("body").notNull(),
+    photos: jsonText<string[]>("photos").notNull(),
+    replyToId: id("reply_to_id"),
+    deletedAt: time("deleted_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("community_messages_time").on(t.conversationId, t.createdAt, t.id)],
+);
+
+export const communityGroups = mysqlTable(
+  "community_groups",
+  {
+    tenantId: tenantColumn(),
+    id: id("id").primaryKey(),
+    slug: varchar("slug", { length: 80 }).notNull(),
+    name: varchar("name", { length: 80 }).notNull(),
+    description: text("description").notNull(),
+    visibility: varchar("visibility", { length: 8 }).notNull().$type<"public" | "private">(),
+    coverUrl: varchar("cover_url", { length: 512 }),
+    ownerId: id("owner_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    status: varchar("status", { length: 8 }).notNull().$type<"active" | "pending" | "removed">(),
+    memberCount: int("member_count").notNull().default(1),
+    postCount: int("post_count").notNull().default(0),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    lastActiveAt: time("last_active_at").notNull(),
+  },
+  (t) => [uniqueIndex("community_groups_slug").on(t.tenantId, t.slug), index("community_groups_active").on(t.tenantId, t.status, t.lastActiveAt)],
+);
+
+export const communityGroupMembers = mysqlTable(
+  "community_group_members",
+  {
+    groupId: id("group_id")
+      .notNull()
+      .references(() => communityGroups.id, { onDelete: "cascade" }),
+    memberId: id("member_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    role: varchar("role", { length: 10 }).notNull().$type<"owner" | "moderator" | "member">(),
+    status: varchar("status", { length: 10 }).notNull().$type<"active" | "requested">(),
+    joinedAt: time("joined_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.groupId, t.memberId] }), index("community_group_members_member").on(t.memberId, t.status)],
+);
+
+export const communityPros = mysqlTable(
+  "community_pros",
+  {
+    tenantId: tenantColumn(),
+    memberId: id("member_id")
+      .primaryKey()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    headline: varchar("headline", { length: 120 }).notNull(),
+    about: text("about").notNull(),
+    services: jsonText<{ title: string; description: string; rate: string }[]>("services").notNull(),
+    skills: jsonText<string[]>("skills").notNull(),
+    availability: varchar("availability", { length: 12 }).notNull().$type<"available" | "busy" | "unavailable">(),
+    showcaseIds: jsonText<string[]>("showcase_ids").notNull(),
+    open: boolean("open").notNull().default(true),
+    ratingSum: int("rating_sum").notNull().default(0),
+    reviewCount: int("review_count").notNull().default(0),
+    doneCount: int("done_count").notNull().default(0),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("community_pros_open").on(t.tenantId, t.open, t.updatedAt)],
+);
+
+export const communityHireRequests = mysqlTable(
+  "community_hire_requests",
+  {
+    tenantId: tenantColumn(),
+    id: id("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    proId: id("pro_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    service: varchar("service", { length: 120 }),
+    message: text("message").notNull(),
+    status: varchar("status", { length: 10 }).notNull().$type<"pending" | "accepted" | "declined" | "done" | "cancelled">(),
+    conversationId: id("conversation_id").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("community_hire_requests_client").on(t.clientId, t.createdAt), index("community_hire_requests_pro").on(t.proId, t.createdAt)],
+);
+
+export const communityProReviews = mysqlTable(
+  "community_pro_reviews",
+  {
+    requestId: id("request_id")
+      .primaryKey()
+      .references(() => communityHireRequests.id, { onDelete: "cascade" }),
+    proId: id("pro_id").notNull(),
+    authorId: id("author_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    rating: int("rating").notNull(),
+    text: text("text").notNull(),
+    status: varchar("status", { length: 10 }).notNull().$type<"published" | "hidden">(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("community_pro_reviews_pro").on(t.proId, t.status, t.createdAt)],
+);
+
+export const communityJobs = mysqlTable(
+  "community_jobs",
+  {
+    tenantId: tenantColumn(),
+    id: id("id").primaryKey(),
+    posterId: id("poster_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 120 }).notNull(),
+    description: text("description").notNull(),
+    type: varchar("type", { length: 12 }).notNull().$type<"full_time" | "part_time" | "contract" | "freelance" | "internship">(),
+    remote: boolean("remote").notNull().default(true),
+    location: varchar("location", { length: 120 }).notNull().default(""),
+    skills: jsonText<string[]>("skills").notNull(),
+    budget: varchar("budget", { length: 80 }).notNull().default(""),
+    status: varchar("status", { length: 8 }).notNull().$type<"pending" | "open" | "closed" | "removed">(),
+    applicationCount: int("application_count").notNull().default(0),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("community_jobs_open").on(t.tenantId, t.status, t.createdAt), index("community_jobs_poster").on(t.posterId)],
+);
+
+export const communityJobApplications = mysqlTable(
+  "community_job_applications",
+  {
+    id: id("id").primaryKey(),
+    jobId: id("job_id")
+      .notNull()
+      .references(() => communityJobs.id, { onDelete: "cascade" }),
+    applicantId: id("applicant_id")
+      .notNull()
+      .references(() => communityMembers.id, { onDelete: "cascade" }),
+    message: text("message").notNull(),
+    links: jsonText<string[]>("links").notNull(),
+    status: varchar("status", { length: 12 }).notNull().$type<"sent" | "shortlisted" | "declined" | "withdrawn">(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("community_job_applications_once").on(t.jobId, t.applicantId), index("community_job_applications_applicant").on(t.applicantId, t.createdAt)],
+);

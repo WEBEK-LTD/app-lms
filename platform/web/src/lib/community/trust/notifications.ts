@@ -34,6 +34,13 @@ export const NOTIFICATION_KINDS = [
   "report_resolved",
   // Area A sends this when the member links their Yallapp account.
   "yallapp_linked",
+  // 232–234 Area A: groups, hire requests, jobs.
+  "group_request",
+  "group_joined",
+  "hire_request",
+  "hire_update",
+  "pro_review",
+  "job_application",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
@@ -48,6 +55,8 @@ export const EMAILED_BY_DEFAULT: ReadonlySet<NotificationKind> = new Set<Notific
   "verification_approved",
   "verification_rejected",
   "post_removed",
+  "hire_request",
+  "job_application",
 ]);
 
 /** A member's email choices (`NotificationSettings.email`): each kind on or off; a kind missing takes its default. */
@@ -118,6 +127,12 @@ const WORDS: Record<CommunityLang, Words> = {
     post_removed: (d) => `Your post "${d.title}" was not approved.${d.reason ? ` Reason: ${d.reason}` : ""}`,
     report_resolved: () => "Thanks for your report. Our team has reviewed it.",
     yallapp_linked: () => "Your Yallapp account is now linked. Your apps show on your profile.",
+    group_request: (d) => `${d.actor} asked to join your group "${d.title}".`,
+    group_joined: (d) => `You're now a member of the group "${d.title}".`,
+    hire_request: (d) => `${d.actor} sent you a hire request.`,
+    hire_update: (d) => `Your hire request with ${d.actor} is now ${d.title}.`,
+    pro_review: (d) => `${d.actor} reviewed your work.`,
+    job_application: (d) => `${d.actor} applied to your job "${d.title}".`,
   },
   ar: {
     answer: (d) => `أجاب ${d.actor} عن سؤالك «${d.title}».`,
@@ -137,6 +152,12 @@ const WORDS: Record<CommunityLang, Words> = {
     post_removed: (d) => `لم تُقبل مشاركتك «${d.title}».${d.reason ? ` السبب: ${d.reason}` : ""}`,
     report_resolved: () => "شكرًا على بلاغك، فقد راجعه فريقنا.",
     yallapp_linked: () => "رُبط حسابك في Yallapp، وتظهر تطبيقاتك الآن في ملفك الشخصي.",
+    group_request: (d) => `طلب ${d.actor} الانضمام إلى مجموعتك «${d.title}».`,
+    group_joined: (d) => `أصبحت عضوًا في مجموعة «${d.title}».`,
+    hire_request: (d) => `أرسل إليك ${d.actor} طلب توظيف.`,
+    hire_update: (d) => `تغيّرت حالة طلب التوظيف مع ${d.actor} إلى: ${d.title}.`,
+    pro_review: (d) => `كتب ${d.actor} تقييمًا لعملك.`,
+    job_application: (d) => `تقدّم ${d.actor} إلى وظيفتك «${d.title}».`,
   },
   tr: {
     answer: (d) => `${d.actor}, "${d.title}" sorunuzu yanıtladı.`,
@@ -156,6 +177,12 @@ const WORDS: Record<CommunityLang, Words> = {
     post_removed: (d) => `"${d.title}" gönderiniz onaylanmadı.${d.reason ? ` Neden: ${d.reason}` : ""}`,
     report_resolved: () => "Bildiriminiz için teşekkürler. Ekibimiz inceledi.",
     yallapp_linked: () => "Yallapp hesabınız bağlandı. Uygulamalarınız artık profilinizde görünüyor.",
+    group_request: (d) => `${d.actor}, "${d.title}" grubunuza katılmak istiyor.`,
+    group_joined: (d) => `Artık "${d.title}" grubunun üyesisiniz.`,
+    hire_request: (d) => `${d.actor} size bir iş teklifi gönderdi.`,
+    hire_update: (d) => `${d.actor} ile iş teklifinizin durumu: ${d.title}.`,
+    pro_review: (d) => `${d.actor} çalışmanızı değerlendirdi.`,
+    job_application: (d) => `${d.actor}, "${d.title}" ilanınıza başvurdu.`,
   },
 };
 

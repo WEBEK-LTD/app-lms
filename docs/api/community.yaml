@@ -1476,7 +1476,6 @@ paths:
   # ------------------------------------------------------------ Area A: Messages (232.4)
   /messages/conversations:
     get:
-      x-building: true
       tags: [Messages]
       summary: The member's conversations, latest message first
       description: Polled by the website (every 15 s while open) and the app (with push). Blocked members' one-to-one conversations are left out.
@@ -1484,7 +1483,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/ConversationPage" } } } }
     post:
-      x-building: true
       tags: [Messages]
       summary: Start a conversation
       description: |
@@ -1512,7 +1510,6 @@ paths:
         "429": { $ref: "#/components/responses/TooMany" }
   /messages/unread:
     get:
-      x-building: true
       tags: [Messages]
       summary: How many conversations have unread messages (the inbox badge; cheap to poll)
       responses:
@@ -1520,14 +1517,12 @@ paths:
   /messages/conversations/{conversation_id}:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     get:
-      x-building: true
       tags: [Messages]
       summary: One conversation (its people and read state)
       responses:
         "200": { description: The conversation., content: { application/json: { schema: { $ref: "#/components/schemas/Conversation" } } } }
         "404": { $ref: "#/components/responses/NotFound" }
     patch:
-      x-building: true
       tags: [Messages]
       summary: Rename a group chat (any of its members)
       requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { title: { type: string, maxLength: 80 }, muted: { type: boolean, description: "For oneself only: no push for it." } } } } } }
@@ -1536,7 +1531,6 @@ paths:
   /messages/conversations/{conversation_id}/members:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     post:
-      x-building: true
       tags: [Messages]
       summary: Add people to a group chat (up to 10 in all)
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [member_ids], properties: { member_ids: { type: array, minItems: 1, maxItems: 9, items: { type: string } } } } } } }
@@ -1546,7 +1540,6 @@ paths:
   /messages/conversations/{conversation_id}/members/me:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     delete:
-      x-building: true
       tags: [Messages]
       summary: Leave a group chat, or hide a one-to-one conversation until its next message
       responses:
@@ -1554,7 +1547,6 @@ paths:
   /messages/conversations/{conversation_id}/messages:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     get:
-      x-building: true
       tags: [Messages]
       summary: Messages, newest first; with `after`, only those newer than it (polling)
       parameters:
@@ -1564,7 +1556,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/MessagePage" } } } }
     post:
-      x-building: true
       tags: [Messages]
       summary: Send a message (text, up to 4 photos, a reply to one message)
       description: JSON for text only; multipart (`body`, `reply_to_id`, `photos` up to 4, JPEG/PNG/WebP, 5 MB each) with photos. Refused (400 `not_allowed`) when the other member of a one-to-one conversation blocked or was blocked. 60 messages a minute.
@@ -1582,7 +1573,6 @@ paths:
   /messages/conversations/{conversation_id}/messages/{message_id}:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }, { name: message_id, in: path, required: true, schema: { type: string } }]
     delete:
-      x-building: true
       tags: [Messages]
       summary: Delete one's own message (shows as deleted for everyone)
       responses:
@@ -1590,7 +1580,6 @@ paths:
   /messages/conversations/{conversation_id}/read:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     post:
-      x-building: true
       tags: [Messages]
       summary: Mark read up to a message (the newest when none is given)
       requestBody: { content: { application/json: { schema: { type: object, properties: { message_id: { type: string } } } } } }
@@ -1599,7 +1588,6 @@ paths:
   /messages/conversations/{conversation_id}/report:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     post:
-      x-building: true
       tags: [Messages]
       summary: Report a conversation to the moderators (they see its last 50 messages)
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [reason], properties: { reason: { $ref: "#/components/schemas/ReportReason" }, note: { type: string, maxLength: 500 } } } } } }
@@ -1610,7 +1598,6 @@ paths:
   # ------------------------------------------------------------ Area A: Groups (232.5)
   /groups:
     get:
-      x-building: true
       tags: [Groups]
       summary: Groups, most active first; `mine` for the member's own ("My groups" in the side menu)
       security: [{ bearerAuth: [] }, {}]
@@ -1622,7 +1609,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/GroupPage" } } } }
     post:
-      x-building: true
       tags: [Groups]
       summary: Create a group
       description: Who may follows the admin setting `groups_create_policy` (everyone, badge holders, or chosen members; 403 `not_allowed` otherwise). The creator is its owner. A new member's group waits for review like their first posts.
@@ -1638,7 +1624,6 @@ paths:
   /groups/{group}:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     get:
-      x-building: true
       tags: [Groups]
       summary: A group's page (a private group shows its name, description and counts to everyone; its posts to members)
       security: [{ bearerAuth: [] }, {}]
@@ -1646,7 +1631,6 @@ paths:
         "200": { description: The group., content: { application/json: { schema: { $ref: "#/components/schemas/Group" } } } }
         "404": { $ref: "#/components/responses/NotFound" }
     patch:
-      x-building: true
       tags: [Groups]
       summary: Change a group (its owner or moderators)
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/GroupInput" } } } }
@@ -1654,7 +1638,6 @@ paths:
         "200": { description: The group., content: { application/json: { schema: { $ref: "#/components/schemas/Group" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
     delete:
-      x-building: true
       tags: [Groups]
       summary: Delete a group (its owner, or a community admin)
       responses:
@@ -1662,14 +1645,12 @@ paths:
   /groups/{group}/cover:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     put:
-      x-building: true
       tags: [Groups]
       summary: The group's cover picture (owner or moderators; JPEG/PNG/WebP, 5 MB)
       requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, required: [file], properties: { file: { type: string, format: binary } } } } } }
       responses:
         "200": { description: The group., content: { application/json: { schema: { $ref: "#/components/schemas/Group" } } } }
     delete:
-      x-building: true
       tags: [Groups]
       summary: Remove the cover picture
       responses:
@@ -1677,13 +1658,11 @@ paths:
   /groups/{group}/membership:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     put:
-      x-building: true
       tags: [Groups]
       summary: Join (a public group at once; a private one asks, and its moderators accept)
       responses:
         "200": { description: The member's standing now., content: { application/json: { schema: { $ref: "#/components/schemas/GroupStanding" } } } }
     delete:
-      x-building: true
       tags: [Groups]
       summary: Leave, or take back a request to join (an owner hands the group over first)
       responses:
@@ -1692,7 +1671,6 @@ paths:
   /groups/{group}/members:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     get:
-      x-building: true
       tags: [Groups]
       summary: The group's members, owner and moderators first (a private group's, to its members only)
       security: [{ bearerAuth: [] }, {}]
@@ -1702,7 +1680,6 @@ paths:
   /groups/{group}/members/{member}:
     parameters: [{ $ref: "#/components/parameters/Group" }, { $ref: "#/components/parameters/Member" }]
     patch:
-      x-building: true
       tags: [Groups]
       summary: Make a member a moderator or a member again, or hand the group over (`owner`; by its owner)
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [role], properties: { role: { $ref: "#/components/schemas/GroupRole" } } } } } }
@@ -1710,7 +1687,6 @@ paths:
         "200": { description: The member in the group., content: { application/json: { schema: { $ref: "#/components/schemas/GroupMember" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
     delete:
-      x-building: true
       tags: [Groups]
       summary: Remove a member (owner or moderators; never the owner)
       responses:
@@ -1718,7 +1694,6 @@ paths:
   /groups/{group}/requests:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     get:
-      x-building: true
       tags: [Groups]
       summary: Requests to join a private group, oldest first (owner or moderators)
       parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
@@ -1727,7 +1702,6 @@ paths:
   /groups/{group}/requests/{member}/accept:
     parameters: [{ $ref: "#/components/parameters/Group" }, { $ref: "#/components/parameters/Member" }]
     post:
-      x-building: true
       tags: [Groups]
       summary: Accept a request to join
       responses:
@@ -1735,7 +1709,6 @@ paths:
   /groups/{group}/requests/{member}/decline:
     parameters: [{ $ref: "#/components/parameters/Group" }, { $ref: "#/components/parameters/Member" }]
     post:
-      x-building: true
       tags: [Groups]
       summary: Decline a request to join
       responses:
@@ -1755,7 +1728,6 @@ paths:
   # ------------------------------------------------------------ Area A: Pros (234.1)
   /pros:
     get:
-      x-building: true
       tags: [Pros]
       summary: Pro profiles, best rated first
       security: [{ bearerAuth: [] }, {}]
@@ -1770,7 +1742,6 @@ paths:
   /pros/{member}:
     parameters: [{ $ref: "#/components/parameters/Member" }]
     get:
-      x-building: true
       tags: [Pros]
       summary: A member's pro profile
       security: [{ bearerAuth: [] }, {}]
@@ -1780,7 +1751,6 @@ paths:
   /pros/{member}/reviews:
     parameters: [{ $ref: "#/components/parameters/Member" }]
     get:
-      x-building: true
       tags: [Pros]
       summary: Reviews from finished hire requests, newest first
       security: [{ bearerAuth: [] }, {}]
@@ -1790,7 +1760,6 @@ paths:
   /pros/{member}/hire:
     parameters: [{ $ref: "#/components/parameters/Member" }]
     post:
-      x-building: true
       tags: [Pros]
       summary: Send a hire request; it opens a message thread with the pro
       description: No money moves on the platform; rates are text the pro writes. 10 requests a day.
@@ -1800,7 +1769,6 @@ paths:
         "400": { $ref: "#/components/responses/NotAllowed" }
   /pros/requests:
     get:
-      x-building: true
       tags: [Pros]
       summary: The member's hire requests, as the client (`sent`) or as the pro (`received`)
       parameters: [{ name: box, in: query, schema: { type: string, enum: [sent, received], default: received } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
@@ -1809,7 +1777,6 @@ paths:
   /pros/requests/{request_id}:
     parameters: [{ $ref: "#/components/parameters/RequestId" }]
     patch:
-      x-building: true
       tags: [Pros]
       summary: "Move a request on: the pro accepts or declines; either marks it done; the client cancels"
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [accepted, declined, done, cancelled] } } } } } }
@@ -1819,7 +1786,6 @@ paths:
   /pros/requests/{request_id}/review:
     parameters: [{ $ref: "#/components/parameters/RequestId" }]
     put:
-      x-building: true
       tags: [Pros]
       summary: The client reviews the pro once the request is done (once; changeable)
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [rating], properties: { rating: { type: integer, minimum: 1, maximum: 5 }, text: { type: string, maxLength: 2000 } } } } } }
@@ -1827,13 +1793,11 @@ paths:
         "200": { description: The review., content: { application/json: { schema: { $ref: "#/components/schemas/ProReview" } } } }
   /me/pro:
     get:
-      x-building: true
       tags: [Pros]
       summary: The member's own pro profile (404 when they have none)
       responses:
         "200": { description: The profile., content: { application/json: { schema: { $ref: "#/components/schemas/ProProfile" } } } }
     put:
-      x-building: true
       tags: [Pros]
       summary: Open or change one's pro profile
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ProInput" } } } }
@@ -1841,7 +1805,6 @@ paths:
         "200": { description: The profile., content: { application/json: { schema: { $ref: "#/components/schemas/ProProfile" } } } }
         "400": { $ref: "#/components/responses/Invalid" }
     delete:
-      x-building: true
       tags: [Pros]
       summary: Close one's pro profile (reviews are kept for when it opens again)
       responses:
@@ -1850,7 +1813,6 @@ paths:
   # ------------------------------------------------------------ Area A: Jobs (234.2)
   /jobs:
     get:
-      x-building: true
       tags: [Jobs]
       summary: Open jobs, newest first
       security: [{ bearerAuth: [] }, {}]
@@ -1865,7 +1827,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/JobPage" } } } }
     post:
-      x-building: true
       tags: [Jobs]
       summary: Post a job (a new member's first ones, and any the spam filter holds, wait for review)
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/JobInput" } } } }
@@ -1876,7 +1837,6 @@ paths:
   /jobs/{job_id}:
     parameters: [{ $ref: "#/components/parameters/JobId" }]
     get:
-      x-building: true
       tags: [Jobs]
       summary: A job
       security: [{ bearerAuth: [] }, {}]
@@ -1884,14 +1844,12 @@ paths:
         "200": { description: The job., content: { application/json: { schema: { $ref: "#/components/schemas/Job" } } } }
         "404": { $ref: "#/components/responses/NotFound" }
     patch:
-      x-building: true
       tags: [Jobs]
       summary: "Change or close one's job (`status`: open or closed)"
       requestBody: { required: true, content: { application/json: { schema: { allOf: [{ $ref: "#/components/schemas/JobInput" }, { type: object, properties: { status: { type: string, enum: [open, closed] } } }] } } } }
       responses:
         "200": { description: The job., content: { application/json: { schema: { $ref: "#/components/schemas/Job" } } } }
     delete:
-      x-building: true
       tags: [Jobs]
       summary: Delete one's job (its poster, or a moderator)
       responses:
@@ -1899,14 +1857,12 @@ paths:
   /jobs/{job_id}/applications:
     parameters: [{ $ref: "#/components/parameters/JobId" }]
     get:
-      x-building: true
       tags: [Jobs]
       summary: The applicants (the job's poster only), newest first
       parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/JobApplicationPage" } } } }
     post:
-      x-building: true
       tags: [Jobs]
       summary: Apply (once per job; never to one's own)
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [message], properties: { message: { type: string, minLength: 10, maxLength: 4000 }, links: { type: array, maxItems: 5, items: { type: string, format: uri } } } } } } }
@@ -1916,7 +1872,6 @@ paths:
   /jobs/{job_id}/applications/{application_id}:
     parameters: [{ $ref: "#/components/parameters/JobId" }, { name: application_id, in: path, required: true, schema: { type: string } }]
     patch:
-      x-building: true
       tags: [Jobs]
       summary: The poster shortlists or declines an applicant; the applicant withdraws
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [shortlisted, declined, withdrawn] } } } } } }
@@ -1924,7 +1879,6 @@ paths:
         "200": { description: The application., content: { application/json: { schema: { $ref: "#/components/schemas/JobApplication" } } } }
   /me/job-applications:
     get:
-      x-building: true
       tags: [Jobs]
       summary: The member's own applications, newest first
       parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
