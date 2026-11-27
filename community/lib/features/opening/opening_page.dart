@@ -1,11 +1,11 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/l10n.dart';
 import '../../core/theme/theme.dart';
+import '../../core/theme/tokens.dart';
 import '../../core/widgets/logo.dart';
 
 /// Whether the opening's motion has played (the router waits for it, as
@@ -137,13 +137,6 @@ class _Frame extends StatelessWidget {
                               height: 112,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(27),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0x73FF5A1F),
-                                    blurRadius: 40,
-                                    offset: Offset(0, 18),
-                                  ),
-                                ],
                               ),
                               child: const CommunityLogo(size: 112),
                             ),
@@ -243,9 +236,7 @@ class _Frame extends StatelessWidget {
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(2),
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFFF8A3D), Color(0xFFFF4A1A)],
-                            ),
+                            color: Brand.orange,
                           ),
                         ),
                       ),
@@ -285,71 +276,8 @@ class _Sky extends StatelessWidget {
 class _SkyPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final r = Offset.zero & size;
-    canvas.drawRect(
-      r,
-      Paint()
-        ..shader = const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF121133), Color(0xFF0B0A22), Color(0xFF06061A)],
-          stops: [0, .55, 1],
-        ).createShader(r),
-    );
-    void glow(Offset c, double w, double h, Color color, double stop) {
-      canvas.save();
-      canvas.translate(c.dx, c.dy);
-      canvas.scale(1, h / w);
-      canvas.drawCircle(
-        Offset.zero,
-        w,
-        Paint()
-          ..shader = RadialGradient(
-            colors: [color, color.withValues(alpha: 0)],
-            stops: [0, stop],
-          ).createShader(Rect.fromCircle(center: Offset.zero, radius: w)),
-      );
-      canvas.restore();
-    }
-
-    // radial-gradient(120% 60% at 50% 18%, #1E1B4B, transparent 60%) …
-    glow(
-      Offset(size.width * .5, size.height * .18),
-      size.width * 1.2,
-      size.height * .6,
-      const Color(0xFF1E1B4B),
-      .6,
-    );
-    glow(
-      Offset(size.width * .5, size.height * .52),
-      size.width * .7,
-      size.height * .4,
-      const Color(0x33FF5A1F),
-      .7,
-    );
-    glow(
-      Offset(size.width * .85, size.height * .85),
-      size.width * .6,
-      size.height * .35,
-      const Color(0x296B5BFF),
-      .7,
-    );
-    // The grain: faint white specks, the same every time.
-    final random = math.Random(3);
-    final specks = <Offset>[
-      for (var i = 0; i < 7000; i++)
-        Offset(
-          random.nextDouble() * size.width,
-          random.nextDouble() * size.height,
-        ),
-    ];
-    canvas.drawPoints(
-      PointMode.points,
-      specks,
-      Paint()
-        ..color = const Color(0x12FFFFFF)
-        ..strokeWidth = 1,
-    );
+    // #527: Yallapp's own navy, flat (no glow, gradient or grain).
+    canvas.drawRect(Offset.zero & size, Paint()..color = Brand.darkPaper);
   }
 
   @override
@@ -390,17 +318,6 @@ class _MotionPainter extends CustomPainter {
       const c = Offset(195, 421);
       canvas.drawCircle(
         c,
-        11 + 60,
-        Paint()
-          ..shader = RadialGradient(
-            colors: [
-              orange.withValues(alpha: .45 * dot),
-              orange.withValues(alpha: 0),
-            ],
-          ).createShader(Rect.fromCircle(center: c, radius: 71)),
-      );
-      canvas.drawCircle(
-        c,
         21,
         Paint()..color = orange.withValues(alpha: .15 * dot),
       );
@@ -428,17 +345,6 @@ class _MotionPainter extends CustomPainter {
       final fill = Paint()..color = cream.withValues(alpha: members);
       canvas.drawCircle(a, 8, fill);
       canvas.drawCircle(b, 8, fill);
-      canvas.drawCircle(
-        c,
-        9 + 14,
-        Paint()
-          ..shader = RadialGradient(
-            colors: [
-              orange.withValues(alpha: .6 * members),
-              orange.withValues(alpha: 0),
-            ],
-          ).createShader(Rect.fromCircle(center: c, radius: 23)),
-      );
       canvas.drawCircle(
         c,
         9,

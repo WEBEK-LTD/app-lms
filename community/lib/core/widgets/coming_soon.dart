@@ -29,14 +29,7 @@ class ComingSoonSheet extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(22, 24, 22, 18),
         decoration: BoxDecoration(
           color: p.dark ? Brand.navy2 : Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x29141327),
-              blurRadius: 44,
-              offset: Offset(0, 20),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -77,7 +70,7 @@ class ComingSoonSheet extends StatelessWidget {
                   backgroundColor: p.dark ? Colors.white : Brand.navy,
                   foregroundColor: p.dark ? Brand.navy : Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   textStyle: const TextStyle(
                     fontWeight: FontWeight.w700,
@@ -103,14 +96,7 @@ class _Spark extends StatelessWidget {
     height: 56,
     decoration: BoxDecoration(
       gradient: Brand.sunrise,
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x73FF5A1F),
-          blurRadius: 24,
-          offset: Offset(0, 10),
-        ),
-      ],
+      borderRadius: BorderRadius.circular(12),
     ),
     child: const Sym(
       Symbols.rocket_launch_rounded,

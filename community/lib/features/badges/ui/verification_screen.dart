@@ -310,7 +310,7 @@ class _Progress extends StatelessWidget {
                   alignment: AlignmentDirectional.centerStart,
                   widthFactor: share,
                   child: const DecoratedBox(
-                    decoration: BoxDecoration(gradient: Brand.sunrise),
+                    decoration: BoxDecoration(color: Brand.orange),
                   ),
                 ),
               ],

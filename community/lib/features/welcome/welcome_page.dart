@@ -79,17 +79,6 @@ class WelcomePage extends ConsumerWidget {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(26),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0x8CFF5A1F),
-                                blurRadius: 50,
-                                offset: Offset(0, 20),
-                              ),
-                              BoxShadow(
-                                color: Color(0x0FFFFFFF),
-                                spreadRadius: 8,
-                              ),
-                            ],
                           ),
                           child: const CommunityLogo(size: 92, radius: 26),
                         ),
@@ -116,22 +105,17 @@ class WelcomePage extends ConsumerWidget {
                         height: 1.1,
                       ),
                     ),
-                    ShaderMask(
-                      blendMode: BlendMode.srcIn,
-                      shaderCallback: (r) => const LinearGradient(
-                        colors: [Brand.amber, Brand.orange],
-                      ).createShader(r),
-                      child: Text(
-                        l.authHeadline2,
-                        key: const ValueKey('welcome-headline'),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 34,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -1,
-                          height: 1.1,
-                        ),
+                    // The accent line in solid orange (#527: no gradient).
+                    Text(
+                      l.authHeadline2,
+                      key: const ValueKey('welcome-headline'),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Brand.orange,
+                        fontSize: 34,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -1,
+                        height: 1.1,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -195,7 +179,7 @@ class WelcomePage extends ConsumerWidget {
                   key: const ValueKey('welcome-language'),
                   onTap: () => showLanguageSheet(context),
                   child: Glass(
-                    radius: 13,
+                    radius: 10,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 11,
                       vertical: 7,
@@ -241,59 +225,10 @@ class WelcomePage extends ConsumerWidget {
 class _Backdrop extends StatelessWidget {
   const _Backdrop();
 
+  // #527: Yallapp's own navy, flat.
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, box) {
-      final w = box.maxWidth;
-      final h = box.maxHeight;
-      return Stack(
-        children: [
-          const Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Brand.indigo, Brand.night],
-                  stops: [0, .7],
-                ),
-              ),
-            ),
-          ),
-          // radial-gradient(320px 300px at 100% 0%, orange .65, transparent 70%)
-          Positioned(
-            left: w - 320,
-            top: -300,
-            width: 640,
-            height: 600,
-            child: const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [Color(0xA6FF8A3D), Color(0x00FF8A3D)],
-                  stops: [0, .7],
-                ),
-              ),
-            ),
-          ),
-          // radial-gradient(320px 300px at 0% 45%, violet .55, transparent 70%)
-          Positioned(
-            left: -320,
-            top: h * .45 - 300,
-            width: 640,
-            height: 600,
-            child: const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [Color(0x8C7C6BFF), Color(0x007C6BFF)],
-                  stops: [0, .7],
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
+  Widget build(BuildContext context) =>
+      const ColoredBox(color: Brand.darkPaper);
 }
 
 /// The collage (`.collage`): two members' apps on tilted phones and three
@@ -385,19 +320,12 @@ class _Phone extends StatelessWidget {
       width: 118,
       height: 236,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xE6FFFFFF), width: 4),
         color: Colors.white,
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x66000000),
-            blurRadius: 40,
-            offset: Offset(0, 20),
-          ),
-        ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         child: Image.asset(
           image,
           fit: BoxFit.cover,
@@ -417,18 +345,9 @@ class _Bubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(22),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x66000000),
-          blurRadius: 40,
-          offset: Offset(0, 20),
-        ),
-      ],
-    ),
+    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
     child: Glass(
-      radius: 22,
+      radius: 10,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 176),

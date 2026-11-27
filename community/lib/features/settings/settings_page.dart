@@ -253,7 +253,7 @@ class SettingsPage extends ConsumerWidget {
                   color: p.dark ? const Color(0x1AFFFFFF) : Brand.line,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
@@ -390,17 +390,10 @@ class _Group extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: p.dark ? const Color(0x0BFFFFFF) : Colors.white,
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(12),
               border: p.dark
                   ? Border.all(color: const Color(0x12FFFFFF))
                   : null,
-              boxShadow: [
-                BoxShadow(
-                  color: p.cardShadow,
-                  blurRadius: 24,
-                  offset: const Offset(0, 10),
-                ),
-              ],
             ),
             // Ink of the rows above the card's colour.
             child: Material(
@@ -433,14 +426,14 @@ class _Row extends StatelessWidget {
     final p = context.palette;
     final rtl = Directionality.of(context) == TextDirection.rtl;
     return ListTile(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onTap: onTap,
       leading: Container(
         width: 36,
         height: 36,
         decoration: BoxDecoration(
           color: p.dark ? const Color(0x14FFFFFF) : Brand.paper,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Sym(icon, size: 20, color: p.ink),
       ),

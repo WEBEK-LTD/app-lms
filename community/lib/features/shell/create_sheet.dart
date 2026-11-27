@@ -35,14 +35,7 @@ class _CreateSheet extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
         decoration: BoxDecoration(
           color: p.dark ? Brand.navy2 : Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x29141327),
-              blurRadius: 44,
-              offset: Offset(0, 20),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -77,9 +70,7 @@ class _CreateSheet extends StatelessWidget {
               icon: Symbols.apps_rounded,
               title: l.createShowcase,
               line: l.createShowcaseLine,
-              gradient: const LinearGradient(
-                colors: [Brand.lilac, Color(0xFF4B3BE0)],
-              ),
+              gradient: Brand.solid(Brand.violet),
               soon: true,
               onTap: () {
                 close();
@@ -92,9 +83,7 @@ class _CreateSheet extends StatelessWidget {
               icon: Symbols.emoji_events_rounded,
               title: l.createChallenge,
               line: l.createChallengeLine,
-              gradient: const LinearGradient(
-                colors: [Color(0xFFF2B544), Color(0xFFE08A12)],
-              ),
+              gradient: Brand.solid(const Color(0xFFE08A12)),
               soon: true,
               onTap: () {
                 close();
@@ -131,9 +120,9 @@ class _Choice extends StatelessWidget {
     final p = context.palette;
     return Material(
       color: p.dark ? const Color(0x0AFFFFFF) : Brand.paper,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -144,7 +133,7 @@ class _Choice extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   gradient: gradient,
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Sym(icon, size: 22, fill: true, color: Colors.white),
               ),
@@ -174,7 +163,7 @@ class _Choice extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: const Color(0x1FFF5A1F),
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               context.l10n.commonComingSoon,
