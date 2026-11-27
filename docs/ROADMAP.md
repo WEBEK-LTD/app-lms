@@ -5117,3 +5117,36 @@ The owner approved a new product (25 November 2026): Yallapp Community, a public
 | [x] | 231.Y3 Yallapp's "Confirm your email" (`users.email_verified_at`, never backfilled): set by a completed password reset, an accepted team invitation, or a signed link good for 24 hours, used once, 3 an hour, confirmed only by pressing Confirm (`lib/auth/email-confirm.ts`, /confirm-email); the community trusts a Yallapp email only then | `community-yallapp-signin.test.ts` |
 | [x] | 231.Y4 The one-tap link: `/me` `link_suggestion.available` when the member's verified email is a Yallapp account's verified email, the account is unlinked and not on Yallapp's team, and the member hasn't said no; nothing about the account before they agree; `POST`/`DELETE /me/yallapp-link/suggested`; never automatic | `community-yallapp-signin.test.ts` |
 | [x] | 231.Y5 The website: "Continue with Yallapp" (the Yallapp mark) on the welcome, Log in and Sign up, the PKCE verifier kept in an httpOnly cookie; the suggestion's banner on Home and Settings; in English, Arabic and Turkish. The app's side is area D's (`wip-community-app-yallapp`) | `e2e/community-yallapp.spec.ts`, `e2e/community-site.spec.ts` |
+
+## Phase 232: Yallapp Community, phase 2 (members connect)
+
+The owner asked for phases 2 to 5 at once, landed as one PR (brief: `design/BRIEF-phase2-5.md` on `wip-community-design`). Area C's part of phase 2: push for the Community app, and moderation for everything new.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 232.C1 Push for the Community app: the phone's Firebase Cloud Messaging token per session (`PUT`/`DELETE /me/push-tokens`; signing out, signing out everywhere or a session running out forgets it, and a token signed in again under someone else moves to them); every notice also goes to the member's phones in their language (title "Yallapp Community", `data`: kind, notification id, link) through Yallapp's keyless sender (Workload Identity Federation, no key, no Firebase file in the code) for the app's project (`COMMUNITY_FIREBASE_PROJECT_ID`, not a secret), and only to the Community app (`restricted_package_name`); tokens Firebase no longer knows are dropped; without push set up nothing is sent and nothing fails | `community-engage-api`, `community-engage-wiring`, `community-engage-store` |
+| [x] | 232.C2 Every notification kind on or off for push, beside email (`/notifications/settings`: `email` and `push`, every kind listed; push on until turned off); the new kinds' words in English, Arabic and Turkish (posts' and showcase comments, likes, certificates, challenge wins, event reminders and cancellations) | `community-engage-api`, `community-trust-rules` |
+| [x] | 232.C3 Moderation and reports for everything phases 2 to 5 add: one table of kinds (`lib/community/content-kinds.ts`: who wrote it, what the moderator reads, how to hide it) read by phase 1's queue, reports, report weighting and violations; `target_type` widened to 24 characters (0179); one list of report targets for the API and the base | `community-engage-api`, `community-trust-api`, `community-trust-rules` |
+
+## Phase 233: Yallapp Community, phase 3 (learn and grow)
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 233.C1 Points in full: one ledger (`community_points`, 0179; phase 1's points copied in), each action's points and daily cap from a table the admins edit (`GET`/`PUT /admin/points`, logged with before and after; caps count only gains), each point given once per thing done and taken back with it, the member's total and Blue's rules following; `/me/points` (total, this week, level, history newest first) | `community-engage-api`, `community-engage-store` |
+| [x] | 233.C2 Levels with names (en, ar, tr) and the leaderboard: this week's (from Monday 00:00 UTC) and all time, with the reader's own place (`/leaderboard`) | `community-engage-api`, `community-engage-store` |
+| [x] | 233.C3 Challenges: the admins post one with its dates, rules and prize (points, and a badge or none); members enter once while it is open (one of their showcase items or a link, through phase 1's moderation), vote for others' entries; the admins pick the winners in order once entries close: each gets the points (the ledger) and the badge (an audited grant) and is told; the home card reads the open one | `community-engage-api`, `community-engage-store` |
+| [x] | 233.C4 The academy's checkout, on the website only: Yallapp's existing website checkout (as Studio Market's templates: the gateway the team chose for Yallapp's payments, prices in dollars, pounds at the team's rate where the gateway charges pounds), the payment read back on the return and the webhook and settled once, the course unlocked (area B's access) and a receipt in the buyer's language; the gateways' routes gained the kind `course` (`/api/pay/<gateway>/course/<token>`, iyzico `/api/pay/course/<token>`) and send the buyer back to the course's page on the Community's site; nothing of it in the app's API | `community-engage-api`, `community-engage-wiring` |
+
+## Phase 234: Yallapp Community, phase 4 (work and events)
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 234.C1 Events, free only: online (the join link shown only to those going) or in person, times in UTC with the organiser's zone; going and not going (up to its places, refused at once when full, even when many ask together), who's going, an `.ics` file for any calendar; the admins make, change and cancel them (those going are told) | `community-engage-api`, `community-engage-store` |
+| [x] | 234.C2 Live sessions: an event with an embed URL (YouTube's links become its own player's; a meeting's embed is kept) or a meeting link, no streaming of our own; comments during the live, polled after the last one seen (never missing one made in the same instant), through phase 1's spam rules; the replay link after | `community-engage-api`, `community-engage-store` |
+| [x] | 234.C3 Reminders the day before and the hour before, to those going, by push and email, once each, on the frequent job | `community-engage-api` |
+
+## Phase 235: Yallapp Community, phase 5 ("Community" app type in Studio)
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 235.C1 Area C keeps to each community (area A's tenant key): every new table has its tenant; the verification requests, audit log, moderation queue and reports list only the community's own; a client app's community is run by its client (the dashboard's in-process `tenantAdmin`), not by Yallapp's staff | `community-trust-store`, `community-engage-store` |

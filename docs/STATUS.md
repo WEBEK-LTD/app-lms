@@ -19,6 +19,8 @@ reports, linking a Yallapp account, its three languages and its own host
 
 Roadmap 231 area B (Yallapp Community's Q&A and tutorials): questions and answers with the similar questions before asking, official answers from Yallapp's team, replies, votes and points, accepting, sections and tags, saving, search and the team's tutorials (articles and videos by section, level and language) through `/api/community/v1`, held for review and noticed through area C.
 
+Roadmap 232–235 area C (Yallapp Community, phases 2 to 5): push to the Community app through Yallapp's keyless Firebase sender (each kind on or off), points with an admin-edited table and daily caps, levels and the weekly and all-time leaderboard, challenges with winners' points and badges, free events and live sessions (RSVP with places, `.ics`, live comments, reminders by push and email), moderation and reports for every new kind, and the academy's checkout on Yallapp's existing website checkout (`community-engage-*`; migration 0179; `COMMUNITY_FIREBASE_PROJECT_ID` turns push on).
+
 Roadmap 231 area C (Yallapp Community's trust, area C): badges (Gold by the
 verification form and an admin's review, Blue and Green by their rules),
 the admins' tools and audit log, settings, moderation, reports and
