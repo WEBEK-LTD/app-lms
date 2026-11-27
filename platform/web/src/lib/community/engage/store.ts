@@ -77,9 +77,10 @@ export function challengeStage(c: Pick<Challenge, "startsAt" | "submitUntil" | "
   return "voting";
 }
 
+/** What a winner got: points, and one of the badges (granted as an admin's grant, phase 1's rules) or none. */
 export interface ChallengeReward {
   points: number;
-  badge: boolean;
+  badge: "gold" | "green" | "blue" | null;
 }
 
 export interface ChallengeSubmission {

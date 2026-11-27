@@ -91,7 +91,7 @@ export const communityChallengeSubmissions = mysqlTable(
     note: text("note").notNull(),
     votes: int("votes").notNull().default(0),
     place: int("place"),
-    reward: jsonText<{ points: number; badge: boolean } | null>("reward"),
+    reward: jsonText<{ points: number; badge: "gold" | "green" | "blue" | null } | null>("reward"),
     status: varchar("status", { length: 10 }).notNull().$type<"published" | "pending" | "hidden">(),
     createdAt: time("created_at").notNull(),
   },

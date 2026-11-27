@@ -159,7 +159,27 @@ export interface CommunityLinkRequest {
 }
 
 /** What can be reported, liked, voted on or moderated. */
-export type CommunityTargetType = "member" | "question" | "answer" | "reply" | "tutorial" | "comment";
+export type CommunityTargetType =
+  | "member"
+  | "question"
+  | "answer"
+  | "reply"
+  | "tutorial"
+  | "comment"
+  // 232–235: what phases 2 to 5 add, reported and moderated as in phase 1 (lib/community/content-kinds.ts).
+  | "post"
+  | "post_comment"
+  | "story"
+  | "showcase"
+  | "showcase_comment"
+  | "conversation"
+  | "group"
+  | "job"
+  | "pro"
+  | "pro_review"
+  | "event"
+  | "event_comment"
+  | "challenge_submission";
 
 export type CommunityReportReason = "spam" | "harassment" | "hate" | "inappropriate" | "misinformation" | "impersonation" | "other";
 export type CommunityReportStatus = "open" | "actioned" | "dismissed";

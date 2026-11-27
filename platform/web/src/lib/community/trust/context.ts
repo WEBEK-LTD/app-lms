@@ -2,6 +2,8 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { isCommunityAdmin } from "../staff";
 import type { CommunityContext } from "../api/http";
 import { withQaFor } from "../api/qa-hooks";
+import { pushToMember } from "../engage/push";
+import { CONTENT_KINDS } from "../content-kinds";
 import { contentInfo, memberStats, recentTexts, setContentStatus, type QaContentKind } from "../qa/service";
 import type { CommunityMember } from "../types";
 import { linkedApps, yallappAccountName } from "../yallapp";
@@ -86,6 +88,12 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
     return m ? trustMemberOf(m) : null;
   };
   const info = async (kind: ContentKind, id: string): Promise<ContentInfo | null> => {
+    // 232–235 The kinds phases 2 to 5 add, from their areas' table.
+    const adapter = CONTENT_KINDS[kind];
+    if (adapter) {
+      const got = await adapter.info(ctx, id);
+      return got ? { authorId: got.authorId ?? "", title: got.title.slice(0, 140), link: got.link } : null;
+    }
     const k = qaKind(kind);
     const got = k ? await inQa(() => contentInfo(k, id)) : null;
     if (!got) return null;
@@ -131,6 +139,8 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
     content: {
       info,
       setStatus: async (kind, id, status) => {
+        const adapter = CONTENT_KINDS[kind];
+        if (adapter) return adapter.setStatus(ctx, id, status);
         const k = qaKind(kind);
         if (k) await inQa(() => setContentStatus(k, id, status, ctx.now));
       },
@@ -152,6 +162,8 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
         await f.delete(key);
       },
     },
+    // 232 Through the engage store's devices (lib/community/engage/push.ts).
+    push: ctx.deps.push ? (memberId, message) => pushToMember(ctx, memberId, message).then(() => undefined) : undefined,
     sendMail: (mail) => ctx.deps.mail(mail),
     siteUrl: ctx.deps.siteUrl,
     logoUrl: null,

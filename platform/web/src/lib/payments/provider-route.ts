@@ -8,6 +8,7 @@ import { noteWebhook } from "./webhooks";
 import { PAYMENT_KINDS, type PaymentKind } from "./routes";
 import { settleDonationPayment, settleOrderPayment, settlePlanPayment, type Settled, type Trigger } from "./settle";
 import { settleTemplatePayment } from "../studio-market/payment";
+import { settleCoursePayment } from "../community/engage/course-payment";
 
 /**
  * 37 /api/pay/kashier/<kind>/<token> and /api/pay/fawaterk/<kind>/<token>;
@@ -32,6 +33,8 @@ function settle(kind: PaymentKind, token: string, trigger: Trigger): Promise<Set
   if (kind === "order") return settleOrderPayment(token, trigger);
   // 106.2 A Studio Market template (Yallapp's own account).
   if (kind === "template") return settleTemplatePayment(token, trigger);
+  // 233 A Yallapp Community course (Yallapp's own account); it sends the buyer back to the Community's site.
+  if (kind === "course") return settleCoursePayment(token, trigger);
   return settleDonationPayment(token, trigger);
 }
 
@@ -42,7 +45,12 @@ export async function providerReturn(provider: ReturnOnly, kind: string, token: 
   if (!isKind(kind)) return new Response("Not found", { status: 404 });
   const settled = await settle(kind, token, { provider });
   if (kind === "plan" && settled.paidApp) await chooseApp(settled.paidApp);
-  return new Response(null, { status: 303, headers: { location: `${appUrl()}${settled.path}`, "cache-control": "no-store" } });
+  return new Response(null, { status: 303, headers: { location: settledLocation(settled.path), "cache-control": "no-store" } });
+}
+
+/** Where the buyer goes next: a path on this site, or 233 the Community's own site (a full address). */
+export function settledLocation(path: string): string {
+  return /^https:\/\//.test(path) ? path : `${appUrl()}${path}`;
 }
 
 async function readBody(request: Request): Promise<Record<string, unknown> | null> {

@@ -359,6 +359,21 @@ export function yallappFirebaseEnv(): YallappFirebaseEnv | null {
   return { provider, pushAccount, appsAccount, parent: parent && PROJECT_PARENT.test(parent) ? parent : null };
 }
 
+/**
+ * 232 The Community app's Firebase project (COMMUNITY_FIREBASE_PROJECT_ID,
+ * not a secret): its pushes go out through Yallapp's keyless sender
+ * (yallappFirebaseEnv). Unset: the Community sends no pushes.
+ */
+export function communityFirebaseProject(): string | null {
+  const id = read("COMMUNITY_FIREBASE_PROJECT_ID");
+  if (!id) return null;
+  if (!/^[a-z][a-z0-9-]{4,28}[a-z0-9]$/.test(id)) {
+    console.error("[community] COMMUNITY_FIREBASE_PROJECT_ID is not a Firebase project ID: the Community sends no pushes.");
+    return null;
+  }
+  return id;
+}
+
 /** 136 Local tests only (refused on Netlify): Google's APIs for Yallapp's Firebase (STS, IAM credentials, Firebase, FCM, Cloud projects) are this fake server. */
 export function googleApiTestUrl(): string | null {
   return testOnlyUrl("GOOGLE_API_TEST_URL");

@@ -34,6 +34,17 @@ export const NOTIFICATION_KINDS = [
   "report_resolved",
   // Area A sends this when the member links their Yallapp account.
   "yallapp_linked",
+  // 232–233 Posts, showcase and the academy (area B sends these)
+  "post_comment",
+  "comment_reply",
+  "post_liked",
+  "showcase_comment",
+  "course_certificate",
+  // 233–234 Challenges and events (this area)
+  "challenge_won",
+  "event_tomorrow",
+  "event_soon",
+  "event_cancelled",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
@@ -48,10 +59,16 @@ export const EMAILED_BY_DEFAULT: ReadonlySet<NotificationKind> = new Set<Notific
   "verification_approved",
   "verification_rejected",
   "post_removed",
+  "course_certificate",
+  "challenge_won",
+  "event_tomorrow",
+  "event_soon",
+  "event_cancelled",
 ]);
 
 /** A member's email choices (`NotificationSettings.email`): each kind on or off; a kind missing takes its default. */
-export type NotificationPrefs = Partial<Record<NotificationKind, boolean>>;
+/** The member's choices: a kind's key for email, `push.<kind>` for push (232). Missing: the default. */
+export type NotificationPrefs = Partial<Record<NotificationKind | `push.${NotificationKind}`, boolean>>;
 
 export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {};
 
@@ -60,20 +77,35 @@ export function emails(kind: NotificationKind, prefs: NotificationPrefs): boolea
   return prefs[kind] ?? EMAILED_BY_DEFAULT.has(kind);
 }
 
+/** 232 Whether a notification of this kind is pushed to the member's phones: on for every kind until they turn it off. */
+export function pushes(kind: NotificationKind, prefs: NotificationPrefs): boolean {
+  return prefs[`push.${kind}`] ?? true;
+}
+
+/** 232 Every kind with whether it is pushed. */
+export function pushPrefsView(prefs: NotificationPrefs): Record<NotificationKind, boolean> {
+  return Object.fromEntries(NOTIFICATION_KINDS.map((k) => [k, pushes(k, prefs)])) as Record<NotificationKind, boolean>;
+}
+
 /** Every kind with whether it emails, as `GET /notifications/settings` gives them. */
 export function prefsView(prefs: NotificationPrefs): Record<NotificationKind, boolean> {
   return Object.fromEntries(NOTIFICATION_KINDS.map((k) => [k, emails(k, prefs)])) as Record<NotificationKind, boolean>;
 }
 
-/** The member's choices as sent (`{ email: { kind: true|false } }`, only the kinds sent change), checked. */
+/** The member's choices as sent (`{ email: { kind: true|false }, push: { kind: true|false } }`, only the kinds sent change), checked. */
 export function parsePrefs(input: unknown, current: NotificationPrefs): { ok: true; value: NotificationPrefs } | { ok: false; error: string } {
-  const email = (input as { email?: unknown } | null)?.email;
-  if (!email || typeof email !== "object" || Array.isArray(email)) return { ok: false, error: "email must be an object of kinds." };
+  const v = (input ?? {}) as { email?: unknown; push?: unknown };
+  if (v.email === undefined && v.push === undefined) return { ok: false, error: "email must be an object of kinds." };
   const out: NotificationPrefs = { ...current };
-  for (const [k, on] of Object.entries(email as Record<string, unknown>)) {
-    if (!(NOTIFICATION_KINDS as readonly string[]).includes(k)) return { ok: false, error: `Unknown kind ${k}.` };
-    if (typeof on !== "boolean") return { ok: false, error: `${k} must be true or false.` };
-    out[k as NotificationKind] = on;
+  for (const channel of ["email", "push"] as const) {
+    const given = v[channel];
+    if (given === undefined) continue;
+    if (!given || typeof given !== "object" || Array.isArray(given)) return { ok: false, error: `${channel} must be an object of kinds.` };
+    for (const [k, on] of Object.entries(given as Record<string, unknown>)) {
+      if (!(NOTIFICATION_KINDS as readonly string[]).includes(k)) return { ok: false, error: `Unknown kind ${k}.` };
+      if (typeof on !== "boolean") return { ok: false, error: `${k} must be true or false.` };
+      out[channel === "email" ? (k as NotificationKind) : (`push.${k}` as `push.${NotificationKind}`)] = on;
+    }
   }
   return { ok: true, value: out };
 }
@@ -106,7 +138,7 @@ const WORDS: Record<CommunityLang, Words> = {
     official_answer: (d) => `The Yallapp Team answered "${d.title}".`,
     reply: (d) => `${d.actor} replied to you in "${d.title}".`,
     vote_milestone: (d) => `Your post "${d.title}" reached ${d.count} votes.`,
-    mention: (d) => `${d.actor} mention you in "${d.title}".`,
+    mention: (d) => `${d.actor} mentioned you in "${d.title}".`,
     follow: (d) => `${d.actor} started following you.`,
     friend_request: (d) => `${d.actor} sent you a friend request.`,
     friend_accepted: (d) => `${d.actor} accepted your friend request.`,
@@ -118,6 +150,15 @@ const WORDS: Record<CommunityLang, Words> = {
     post_removed: (d) => `Your post "${d.title}" was not approved.${d.reason ? ` Reason: ${d.reason}` : ""}`,
     report_resolved: () => "Thanks for your report. Our team has reviewed it.",
     yallapp_linked: () => "Your Yallapp account is now linked. Your apps show on your profile.",
+    post_comment: (d) => `${d.actor} commented on your post "${d.title}".`,
+    comment_reply: (d) => `${d.actor} replied to your comment on "${d.title}".`,
+    post_liked: (d) => `Your post "${d.title}" reached ${d.count} likes.`,
+    showcase_comment: (d) => `${d.actor} commented on your app "${d.title}".`,
+    course_certificate: (d) => `You completed "${d.title}". Your certificate is ready.`,
+    challenge_won: (d) => `You placed ${d.count} in the challenge "${d.title}".`,
+    event_tomorrow: (d) => `Tomorrow: "${d.title}". You're going.`,
+    event_soon: (d) => `"${d.title}" starts in an hour.`,
+    event_cancelled: (d) => `"${d.title}" was cancelled.`,
   },
   ar: {
     answer: (d) => `أجاب ${d.actor} عن سؤالك «${d.title}».`,
@@ -137,6 +178,15 @@ const WORDS: Record<CommunityLang, Words> = {
     post_removed: (d) => `لم تُقبل مشاركتك «${d.title}».${d.reason ? ` السبب: ${d.reason}` : ""}`,
     report_resolved: () => "شكرًا على بلاغك، فقد راجعه فريقنا.",
     yallapp_linked: () => "رُبط حسابك في Yallapp، وتظهر تطبيقاتك الآن في ملفك الشخصي.",
+    post_comment: (d) => `علّق ${d.actor} على منشورك «${d.title}».`,
+    comment_reply: (d) => `ردّ ${d.actor} على تعليقك في «${d.title}».`,
+    post_liked: (d) => `حصل منشورك «${d.title}» على ${d.count} إعجابًا.`,
+    showcase_comment: (d) => `علّق ${d.actor} على تطبيقك «${d.title}».`,
+    course_certificate: (d) => `أتممت «${d.title}»، وشهادتك جاهزة.`,
+    challenge_won: (d) => `حصلت على المركز ${d.count} في تحدّي «${d.title}».`,
+    event_tomorrow: (d) => `غدًا: «${d.title}». أنت من الحاضرين.`,
+    event_soon: (d) => `تبدأ «${d.title}» بعد ساعة.`,
+    event_cancelled: (d) => `أُلغيت «${d.title}».`,
   },
   tr: {
     answer: (d) => `${d.actor}, "${d.title}" sorunuzu yanıtladı.`,
@@ -156,6 +206,15 @@ const WORDS: Record<CommunityLang, Words> = {
     post_removed: (d) => `"${d.title}" gönderiniz onaylanmadı.${d.reason ? ` Neden: ${d.reason}` : ""}`,
     report_resolved: () => "Bildiriminiz için teşekkürler. Ekibimiz inceledi.",
     yallapp_linked: () => "Yallapp hesabınız bağlandı. Uygulamalarınız artık profilinizde görünüyor.",
+    post_comment: (d) => `${d.actor}, "${d.title}" gönderinize yorum yaptı.`,
+    comment_reply: (d) => `${d.actor}, "${d.title}" içindeki yorumunuza yanıt verdi.`,
+    post_liked: (d) => `"${d.title}" gönderiniz ${d.count} beğeniye ulaştı.`,
+    showcase_comment: (d) => `${d.actor}, "${d.title}" uygulamanıza yorum yaptı.`,
+    course_certificate: (d) => `"${d.title}" kursunu tamamladınız. Sertifikanız hazır.`,
+    challenge_won: (d) => `"${d.title}" yarışmasında ${d.count}. oldunuz.`,
+    event_tomorrow: (d) => `Yarın: "${d.title}". Katılıyorsunuz.`,
+    event_soon: (d) => `"${d.title}" bir saat sonra başlıyor.`,
+    event_cancelled: (d) => `"${d.title}" iptal edildi.`,
   },
 };
 
