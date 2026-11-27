@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../push/push_settings.dart';
 import '../../features/auth/email_pages.dart';
 import '../../features/home/home_page.dart';
 import '../../features/opening/opening_page.dart';
@@ -147,6 +148,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Paths.settings,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: Paths.pushSettings,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const PushSettingsPage(),
       ),
       GoRoute(
         path: Paths.blocked,

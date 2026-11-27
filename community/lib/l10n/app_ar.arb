@@ -399,5 +399,13 @@
   "groupMakeModerator": "تعيين مشرفًا",
   "groupMakeMember": "إعادته عضوًا",
   "groupHandOver": "تسليم المجموعة",
-  "groupRemove": "إزالة من المجموعة"
+  "groupRemove": "إزالة من المجموعة",
+  "pushTitle": "الإشعارات الفورية",
+  "pushBody": "اختر ما يصل إلى هاتفك. تبقى قائمة التطبيق وخيارات البريد كما هي.",
+  "pushOpen": "فتح",
+  "pushKindMessage": "الرسائل",
+  "pushKindComment": "التعليقات على منشوراتي",
+  "pushKindReply": "الردود على تعليقاتي",
+  "pushKindLike": "الإعجابات بمنشوراتي",
+  "pushKindGroup": "طلبات ودعوات المجموعات"
 }

@@ -10,6 +10,9 @@ import 'package:yallapp_community/core/api/models.dart';
 import 'package:yallapp_community/core/auth/social_sign_in.dart';
 import 'package:yallapp_community/core/providers.dart';
 import 'package:yallapp_community/features/home/data/home_api.dart';
+import 'package:yallapp_community/core/push/push.dart';
+import 'package:yallapp_community/core/push/push_settings.dart';
+import 'package:yallapp_community/core/push/push_wiring.dart';
 import 'package:yallapp_community/features/groups/data/groups_api.dart';
 import 'package:yallapp_community/features/messages/data/messages_api.dart';
 import 'package:yallapp_community/features/messages/links.dart';
@@ -27,6 +30,8 @@ class TestApp {
     this.posts,
     this.messages,
     this.groups,
+    this.pushSettings,
+    this.pushTokens,
   );
 
   final ProviderContainer container;
@@ -42,6 +47,10 @@ class TestApp {
   /// Groups (232.5).
   final FakeGroupsApi groups;
 
+  /// Push (232.6): the tokens sent to the server, and the per-kind choices.
+  final List<String> pushTokens;
+  final FakePushSettingsApi pushSettings;
+
   static Future<TestApp> start(
     WidgetTester tester, {
     bool signedIn = true,
@@ -52,6 +61,7 @@ class TestApp {
     FakePostsApi? posts,
     FakeMessagesApi? messages,
     FakeGroupsApi? groups,
+    PushService? push,
     MediaPicker? picker,
     SocialSignIn apple = const FakeSocialSignIn('apple-token'),
     SocialSignIn google = const FakeSocialSignIn('google-token'),
@@ -75,6 +85,8 @@ class TestApp {
     final postsApi = posts ?? FakePostsApi();
     final messagesApi = messages ?? FakeMessagesApi();
     final groupsApi = groups ?? FakeGroupsApi();
+    final pushSettings = FakePushSettingsApi();
+    final pushTokens = <String>[];
     final tokens = MemoryTokenStore(
       signedIn ? const Session(accessToken: 'test-token') : null,
     );
@@ -91,6 +103,13 @@ class TestApp {
         postsApiProvider.overrideWithValue(postsApi),
         messagesApiProvider.overrideWithValue(messagesApi),
         groupsApiProvider.overrideWithValue(groupsApi),
+        pushServiceProvider.overrideWithValue(
+          push ?? FakePushService(deviceToken: null),
+        ),
+        pushTokenSenderProvider.overrideWithValue(
+          (token) async => pushTokens.add(token),
+        ),
+        pushSettingsApiProvider.overrideWithValue(pushSettings),
         messagePollProvider.overrideWithValue((
           inbox: Duration.zero,
           thread: Duration.zero,
@@ -109,7 +128,16 @@ class TestApp {
       ),
     );
     await settle(tester);
-    return TestApp._(container, fake, tokens, postsApi, messagesApi, groupsApi);
+    return TestApp._(
+      container,
+      fake,
+      tokens,
+      postsApi,
+      messagesApi,
+      groupsApi,
+      pushSettings,
+      pushTokens,
+    );
   }
 
   /// Pumps frames for a while (the design's blurs and gradients animate

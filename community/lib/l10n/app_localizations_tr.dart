@@ -1309,4 +1309,29 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get groupRemove => 'Gruptan çıkar';
+
+  @override
+  String get pushTitle => 'Anlık bildirimler';
+
+  @override
+  String get pushBody =>
+      'Telefonuna ne geleceğini seç. Uygulamadaki liste ve e-posta seçimlerin aynı kalır.';
+
+  @override
+  String get pushOpen => 'Aç';
+
+  @override
+  String get pushKindMessage => 'Mesajlar';
+
+  @override
+  String get pushKindComment => 'Gönderilerime yorumlar';
+
+  @override
+  String get pushKindReply => 'Yorumlarıma yanıtlar';
+
+  @override
+  String get pushKindLike => 'Gönderilerime beğeniler';
+
+  @override
+  String get pushKindGroup => 'Grup istekleri ve davetleri';
 }

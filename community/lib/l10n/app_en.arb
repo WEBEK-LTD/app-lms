@@ -584,5 +584,13 @@
   "groupMakeModerator": "Make moderator",
   "groupMakeMember": "Make a member again",
   "groupHandOver": "Hand the group over",
-  "groupRemove": "Remove from the group"
+  "groupRemove": "Remove from the group",
+  "pushTitle": "Push notifications",
+  "pushBody": "Choose what reaches your phone. The app's list and your email choices stay as they are.",
+  "pushOpen": "Open",
+  "pushKindMessage": "Messages",
+  "pushKindComment": "Comments on my posts",
+  "pushKindReply": "Replies to my comments",
+  "pushKindLike": "Likes on my posts",
+  "pushKindGroup": "Group requests and invitations"
 }

@@ -2499,6 +2499,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove from the group'**
   String get groupRemove;
+
+  /// No description provided for @pushTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications'**
+  String get pushTitle;
+
+  /// No description provided for @pushBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what reaches your phone. The app\'s list and your email choices stay as they are.'**
+  String get pushBody;
+
+  /// No description provided for @pushOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get pushOpen;
+
+  /// No description provided for @pushKindMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get pushKindMessage;
+
+  /// No description provided for @pushKindComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments on my posts'**
+  String get pushKindComment;
+
+  /// No description provided for @pushKindReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies to my comments'**
+  String get pushKindReply;
+
+  /// No description provided for @pushKindLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes on my posts'**
+  String get pushKindLike;
+
+  /// No description provided for @pushKindGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group requests and invitations'**
+  String get pushKindGroup;
 }
 
 class _AppLocalizationsDelegate

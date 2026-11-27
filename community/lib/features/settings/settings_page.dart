@@ -124,6 +124,12 @@ class SettingsPage extends ConsumerWidget {
                 },
               ),
               _Row(
+                key: const ValueKey('settings-push'),
+                icon: Symbols.notifications_active_rounded,
+                title: l.pushTitle,
+                onTap: () => context.push(Paths.pushSettings),
+              ),
+              _Row(
                 key: const ValueKey('settings-blocked'),
                 icon: Symbols.block_rounded,
                 title: l.settingsBlocked,

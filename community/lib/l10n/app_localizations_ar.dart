@@ -1336,4 +1336,29 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get groupRemove => 'إزالة من المجموعة';
+
+  @override
+  String get pushTitle => 'الإشعارات الفورية';
+
+  @override
+  String get pushBody =>
+      'اختر ما يصل إلى هاتفك. تبقى قائمة التطبيق وخيارات البريد كما هي.';
+
+  @override
+  String get pushOpen => 'فتح';
+
+  @override
+  String get pushKindMessage => 'الرسائل';
+
+  @override
+  String get pushKindComment => 'التعليقات على منشوراتي';
+
+  @override
+  String get pushKindReply => 'الردود على تعليقاتي';
+
+  @override
+  String get pushKindLike => 'الإعجابات بمنشوراتي';
+
+  @override
+  String get pushKindGroup => 'طلبات ودعوات المجموعات';
 }

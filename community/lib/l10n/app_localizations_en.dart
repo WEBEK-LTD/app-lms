@@ -1332,4 +1332,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupRemove => 'Remove from the group';
+
+  @override
+  String get pushTitle => 'Push notifications';
+
+  @override
+  String get pushBody =>
+      'Choose what reaches your phone. The app\'s list and your email choices stay as they are.';
+
+  @override
+  String get pushOpen => 'Open';
+
+  @override
+  String get pushKindMessage => 'Messages';
+
+  @override
+  String get pushKindComment => 'Comments on my posts';
+
+  @override
+  String get pushKindReply => 'Replies to my comments';
+
+  @override
+  String get pushKindLike => 'Likes on my posts';
+
+  @override
+  String get pushKindGroup => 'Group requests and invitations';
 }

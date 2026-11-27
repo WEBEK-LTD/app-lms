@@ -399,5 +399,13 @@
   "groupMakeModerator": "Moderatör yap",
   "groupMakeMember": "Yeniden üye yap",
   "groupHandOver": "Grubu devret",
-  "groupRemove": "Gruptan çıkar"
+  "groupRemove": "Gruptan çıkar",
+  "pushTitle": "Anlık bildirimler",
+  "pushBody": "Telefonuna ne geleceğini seç. Uygulamadaki liste ve e-posta seçimlerin aynı kalır.",
+  "pushOpen": "Aç",
+  "pushKindMessage": "Mesajlar",
+  "pushKindComment": "Gönderilerime yorumlar",
+  "pushKindReply": "Yorumlarıma yanıtlar",
+  "pushKindLike": "Gönderilerime beğeniler",
+  "pushKindGroup": "Grup istekleri ve davetleri"
 }
