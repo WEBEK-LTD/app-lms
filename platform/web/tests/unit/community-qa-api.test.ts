@@ -136,6 +136,19 @@ describe("231 Community Q&A API", () => {
     expect((await api<Json>(c, "GET", "/search?q=nour&type=members")).body.members.map((m: Json) => m.id)).toEqual([helper.id]);
   });
 
+  it("233 lets a member write, list, change and delete their own tutorials (never Official)", async () => {
+    const { c, helper } = await setup();
+    const draft = await api<Json>(c, "POST", "/tutorials/drafts", { token: helper.token, body: { title: "Publish without stress", kind: "article", section: "publishing", body: "Open Studio, then Publish, then follow each step to the end." } });
+    expect(draft.status, JSON.stringify(draft.body)).toBe(201);
+    expect(draft.body).toMatchObject({ official: false, level: "beginner" });
+    expect((await api<Json>(c, "GET", "/tutorials/mine", { token: helper.token })).body.items.map((t: Json) => t.id)).toEqual([draft.body.id]);
+    const edited = await api<Json>(c, "PATCH", `/tutorials/drafts/${draft.body.id}`, { token: helper.token, body: { title: "Publish without any stress" } });
+    expect(edited.body.title).toBe("Publish without any stress");
+    expect((await api(c, "DELETE", `/tutorials/drafts/${draft.body.id}`, { token: helper.token })).status).toBe(204);
+    expect((await api<Json>(c, "GET", "/tutorials/mine", { token: helper.token })).body.items).toEqual([]);
+    expect((await api(c, "GET", "/tutorials/mine")).status).toBe(401);
+  });
+
   it("publishes tutorials, Official for the team only, and filters them", async () => {
     const { c, helper, team } = await setup();
     const video = { title: "Publish your app to the stores", summary: "From build to review.", kind: "video", section: "publishing", level: "intermediate", language: "ar", body: "", video_url: "https://www.youtube.com/watch?v=abc123", duration_seconds: 540 };

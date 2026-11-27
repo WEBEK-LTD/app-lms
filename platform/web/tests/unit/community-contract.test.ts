@@ -47,13 +47,25 @@ describe("231 the community contract", () => {
     for (const word of ["checkout", "\"price", "payment_url", "buy_url", "purchase"]) expect(text, word).not.toContain(word);
   });
 
-  it("233 shows the Academy's courses free, owned or locked, never with a price", () => {
+  it("233 shows the Academy's courses open or locked, and no field of it sells anything", () => {
     const schemas = contract.components.schemas as Record<string, unknown>;
-    const academy = ["Course", "CourseDetail", "LessonSummary", "Lesson", "LessonDone", "Certificate", "CourseInput", "LessonInput", "AdminCourse"];
+    const academy = ["CourseSummary", "Course", "Lesson", "CourseProgress", "QuizResult", "Certificate", "CourseInput", "LessonInput", "QuizQuestion", "AdminCourse"];
     for (const name of academy) expect(schemas[name], name).toBeDefined();
-    const text = JSON.stringify(academy.map((n) => schemas[n])).toLowerCase();
-    for (const word of ["price", "currency", "checkout", "payment", "purchase", "buy"]) expect(text, word).not.toContain(word);
-    expect(JSON.stringify(schemas.Course)).toContain('"enum":["free","owned","locked"]');
+    const keys = (node: unknown, out: string[] = []): string[] => {
+      if (Array.isArray(node)) for (const v of node) keys(v, out);
+      else if (node && typeof node === "object")
+        for (const [k, v] of Object.entries(node)) {
+          if (k === "properties" && v && typeof v === "object") out.push(...Object.keys(v));
+          keys(v, out);
+        }
+      return out;
+    };
+    const fields = keys(academy.map((n) => schemas[n]));
+    expect(fields.length).toBeGreaterThan(20);
+    expect(fields.filter((f) => /price|currency|checkout|payment|purchase|buy|amount/i.test(f))).toEqual([]);
+    expect(JSON.stringify(schemas.CourseSummary)).toContain('"enum":["open","locked"]');
+    const academyPaths = JSON.stringify(Object.entries(contract.paths).filter(([p]) => p.startsWith("/academy/") || p.startsWith("/admin/academy/")));
+    expect(keys(JSON.parse(academyPaths)).filter((f) => /price|currency|checkout|payment|purchase|buy|amount/i.test(f))).toEqual([]);
   });
 
   it("names nothing in the community's migrations longer than MySQL's 64 characters", () => {
