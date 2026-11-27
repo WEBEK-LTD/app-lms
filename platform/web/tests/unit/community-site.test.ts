@@ -94,10 +94,19 @@ describe("no payments in the community, ever", () => {
     /\bfiyat|satın al|şimdi öde/i,
   ];
 
-  it("the website's code has none", () => {
+  // 233 The one exception: the academy's courses are bought on the website (never in the app), in these files only.
+  const ACADEMY_CHECKOUT = new Set([
+    "src/app/community/(site)/academy/[course]/page.tsx",
+    "src/app/community/(site)/next-actions.ts",
+    "src/components/community/site/academy-words.ts",
+    "src/app/community/(site)/admin/academy/amount.tsx",
+  ]);
+
+  it("the website's code has none (but the academy's checkout)", () => {
     const hits: string[] = [];
     for (const dir of SITE_DIRS) {
       for (const file of files(path.join(ROOT, dir))) {
+        if (ACADEMY_CHECKOUT.has(path.relative(ROOT, file).split(path.sep).join("/"))) continue;
         const text = readFileSync(file, "utf8");
         for (const re of FORBIDDEN) if (re.test(text)) hits.push(`${path.relative(ROOT, file)}: ${re}`);
       }

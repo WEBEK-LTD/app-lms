@@ -16,15 +16,20 @@ import '../../core/routing/paths.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/avatar.dart';
 import '../../core/widgets/badge_mark.dart';
-import '../../core/widgets/coming_soon.dart';
 import '../../core/widgets/community_header.dart';
 import '../../core/widgets/floating_tab_bar.dart';
 import '../../core/widgets/glass.dart';
 import '../../core/widgets/images.dart';
 import '../../core/widgets/sym.dart';
+import '../challenges/home_card.dart';
 import '../link/link_suggestion.dart';
 import '../shell/side_menu.dart';
 import '../social/data/social.dart';
+import '../messages/links.dart';
+import '../posts/data/posts_api.dart';
+import '../posts/posts_state.dart';
+import '../posts/ui/post_card.dart';
+import '../stories/stories.dart';
 import 'data/home_api.dart';
 
 /// Home (mobile.html "Home · header with menu + profile"): the header, the
@@ -38,15 +43,21 @@ class HomePage extends ConsumerWidget {
     final p = context.palette;
     final me = ref.watch(meProvider);
     final feed = ref.watch(homeFeedProvider);
+    final tab = ref.watch(_homeTab);
+    final entries = ref.watch(feedProvider(tab));
     final top = MediaQuery.paddingOf(context).top;
     return Scaffold(
       backgroundColor: p.screen,
       body: Stack(
         children: [
-          _Glow(height: (p.dark ? 360 : 330) + top),
           RefreshIndicator(
             color: Brand.orange,
-            onRefresh: () async => ref.refresh(homeFeedProvider.future),
+            onRefresh: () async {
+              ref
+                ..invalidate(homeFeedProvider)
+                ..invalidate(storyRingsProvider);
+              return ref.refresh(feedProvider(tab).future);
+            },
             child: ListView(
               key: const ValueKey('home-list'),
               padding: EdgeInsets.only(
@@ -67,8 +78,8 @@ class HomePage extends ConsumerWidget {
                     onMenu: () =>
                         openSideMenu(context, current: MenuSection.home),
                     onSearch: () => context.push(FeatureLinks.search),
-                    onMessages: () =>
-                        showComingSoon(context, context.l10n.headerMessages),
+                    onMessages: () => context.push(MessagesLinks.inbox),
+                    messages: ref.watch(unreadMessagesProvider).value ?? 0,
                     onNotifications: () =>
                         context.push(FeatureLinks.notifications),
                     onProfile: () => context.push(Paths.me),
@@ -78,19 +89,37 @@ class HomePage extends ConsumerWidget {
                 const LinkSuggestionBanner(
                   margin: EdgeInsets.fromLTRB(16, 0, 16, 14),
                 ),
-                ...switch (feed) {
+                if (feed.value?.featured case final featured?)
+                  _Featured(item: featured),
+                if (ref.watch(featuredChallengeProvider).value
+                    case final challenge?)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                    child: ChallengeCard(challenge: challenge),
+                  ),
+                const StoryRow(),
+                _FeedTabs(
+                  tab: tab,
+                  onTab: (t) => ref.read(_homeTab.notifier).set(t),
+                ),
+                ...switch (entries) {
                   AsyncData(:final value) => [
-                    if (value.featured != null)
-                      _Featured(item: value.featured!),
-                    _Stories(feed: value),
-                    if (value.items.isEmpty)
-                      _Empty(text: context.l10n.homeFeedEmpty),
-                    for (final item in value.items) _Post(item: item),
+                    if (value.isEmpty)
+                      _Empty(
+                        text: tab == FeedTab.following
+                            ? context.l10n.feedFollowingEmpty
+                            : context.l10n.homeFeedEmpty,
+                      ),
+                    for (final e in value)
+                      if (e.post case final post?)
+                        PostCard(post: post)
+                      else if (e.question case final q?)
+                        FeedQuestionCard(item: q),
                   ],
                   AsyncError() => [
                     _Empty(
                       text: context.l10n.commonError,
-                      retry: () => ref.invalidate(homeFeedProvider),
+                      retry: () => ref.invalidate(feedProvider(tab)),
                     ),
                   ],
                   _ => [
@@ -106,70 +135,6 @@ class HomePage extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// The glow behind the top of Home (`.home-bg`; the question's by night).
-class _Glow extends StatelessWidget {
-  const _Glow({required this.height});
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final dark = context.palette.dark;
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      height: height,
-      child: IgnorePointer(
-        child: LayoutBuilder(
-          builder: (context, box) => Stack(
-            children: [
-              Positioned(
-                left: box.maxWidth * (dark ? .9 : .85) - 260,
-                top: height * (dark ? 0 : .1) - 200,
-                width: 520,
-                height: 400,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      colors: [
-                        dark
-                            ? const Color(0x59FF5A1F)
-                            : const Color(0x52FF8A3D),
-                        const Color(0x00FF8A3D),
-                      ],
-                      stops: const [0, .7],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: -300,
-                top: height * (dark ? .3 : .4) - 220,
-                width: 600,
-                height: 440,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      colors: [
-                        dark
-                            ? const Color(0x4D6B5BFF)
-                            : const Color(0x387C6BFF),
-                        const Color(0x007C6BFF),
-                      ],
-                      stops: const [0, .7],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -231,14 +196,7 @@ class _Featured extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
         height: 168,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x2E141327),
-              blurRadius: 36,
-              offset: Offset(0, 18),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(12),
           color: Brand.indigo,
           image: image == null
               ? null
@@ -253,12 +211,8 @@ class _Featured extends StatelessWidget {
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0x0D0E0D24), Color(0xD90E0D24)],
-                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0x800E0D24),
                 ),
               ),
             ),
@@ -271,7 +225,7 @@ class _Featured extends StatelessWidget {
                 children: [
                   if (item.label != null)
                     Glass(
-                      radius: 20,
+                      radius: 10,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 5,
@@ -334,7 +288,7 @@ class _Featured extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(13),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             // Any kind of item fits the slot (phase 3's
@@ -438,170 +392,74 @@ class _CountdownState extends State<_Countdown> {
   }
 }
 
-/// The shortcuts (`.stories`): rings in the brand's colours for what is new,
-/// grey once seen; a later phase's open "Coming soon".
-class _Stories extends StatelessWidget {
-  const _Stories({required this.feed});
+class _HomeTab extends Notifier<FeedTab> {
+  @override
+  FeedTab build() => FeedTab.forYou;
 
-  final HomeFeed feed;
+  void set(FeedTab tab) => state = tab;
+}
+
+final _homeTab = NotifierProvider<_HomeTab, FeedTab>(_HomeTab.new);
+
+/// For you, Latest, Following: the 1px line under them, orange on the one
+/// shown.
+class _FeedTabs extends StatelessWidget {
+  const _FeedTabs({required this.tab, required this.onTab});
+
+  final FeedTab tab;
+  final ValueChanged<FeedTab> onTab;
 
   @override
   Widget build(BuildContext context) {
+    final p = context.palette;
     final l = context.l10n;
-    FeedItem? newestTutorial;
-    for (final i in feed.items) {
-      if (i.kind == FeedKind.tutorial) {
-        newestTutorial = i;
-        break;
-      }
-    }
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: p.line)),
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        // One-line labels sit under their ring, as two-line ones.
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Story(
-            key: const ValueKey('story-live'),
-            label: l.homeStoryLive,
-            fill: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Brand.lilac, Color(0xFF3B2BD0)],
+          for (final t in FeedTab.values)
+            InkWell(
+              key: ValueKey('feed-tab-${t.wire}'),
+              onTap: () => onTab(t),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(4, 10, 4, 9),
+                margin: const EdgeInsetsDirectional.only(end: 18),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: t == tab ? Brand.orange : Colors.transparent,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  switch (t) {
+                    FeedTab.forYou => l.feedForYou,
+                    FeedTab.latest => l.feedLatest,
+                    FeedTab.following => l.feedFollowing,
+                  },
+                  style: TextStyle(
+                    color: t == tab ? p.ink : p.muted,
+                    fontSize: 14,
+                    fontWeight: t == tab ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ),
             ),
-            icon: Symbols.live_tv_rounded,
-            onTap: () => showComingSoon(context, l.homeStoryLive),
-          ),
-          _Story(
-            key: const ValueKey('story-tutorial'),
-            label: l.homeStoryTutorial,
-            image: 'asset:assets/images/bunny-knit.jpg',
-            seen: !feed.newTutorial,
-            onTap: () => context.push(
-              newestTutorial == null
-                  ? FeatureLinks.learn
-                  : FeatureLinks.tutorial(newestTutorial.id),
-            ),
-          ),
-          _Story(
-            key: const ValueKey('story-showcase'),
-            label: l.homeStoryShowcase,
-            image: 'asset:assets/images/bath-set.jpg',
-            onTap: () => showComingSoon(context, l.homeStoryShowcase),
-          ),
-          _Story(
-            key: const ValueKey('story-tip'),
-            label: l.homeStoryTip,
-            image: 'asset:assets/images/bed-bright.jpg',
-            seen: true,
-            onTap: () => showComingSoon(context, l.homeStoryTip),
-          ),
-          _Story(
-            key: const ValueKey('story-news'),
-            label: l.homeStoryNews,
-            fill: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF1FC08A), Color(0xFF0E8F63)],
-            ),
-            icon: Symbols.campaign_rounded,
-            seen: !feed.news,
-            onTap: () => context.push(FeatureLinks.learn),
-          ),
         ],
       ),
     );
   }
 }
 
-class _Story extends StatelessWidget {
-  const _Story({
-    super.key,
-    required this.label,
-    required this.onTap,
-    this.image,
-    this.fill,
-    this.icon,
-    this.seen = false,
-  });
-
-  final String label;
-  final VoidCallback onTap;
-  final String? image;
-  final Gradient? fill;
-  final IconData? icon;
-  final bool seen;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    return Semantics(
-      button: true,
-      label: label,
-      excludeSemantics: true,
-      child: GestureDetector(
-        onTap: onTap,
-        child: SizedBox(
-          width: 62,
-          child: Column(
-            children: [
-              Container(
-                width: 58,
-                height: 58,
-                padding: const EdgeInsets.all(2.5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: seen ? null : Brand.storyRing,
-                  color: seen
-                      ? (p.dark
-                            ? const Color(0xFF2A2848)
-                            : const Color(0xFFDDD6CB))
-                      : null,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(17),
-                    border: Border.all(color: p.screen, width: 2.5),
-                    gradient: fill,
-                    image: image == null
-                        ? null
-                        : DecorationImage(
-                            image: imageOf(image!),
-                            fit: BoxFit.cover,
-                          ),
-                  ),
-                  alignment: Alignment.center,
-                  child: icon == null
-                      ? null
-                      : Sym(icon!, size: 26, fill: true, color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  height: 1.15,
-                  color: p.dark ? p.soft : const Color(0xFF3C3A50),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A question or a tutorial as the design's post (`.post`): its photo (a
+/// A question or a tutorial as the design's post (groups' feeds too) (`.post`): its photo (a
 /// gradient when it has none) under the author, Follow, its label and its
 /// score, then its words.
-class _Post extends ConsumerWidget {
-  const _Post({required this.item});
+class FeedQuestionCard extends ConsumerWidget {
+  const FeedQuestionCard({super.key, required this.item});
 
   final FeedItem item;
 
@@ -628,15 +486,8 @@ class _Post extends ConsumerWidget {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: p.dark ? const Color(0x0BFFFFFF) : Colors.white,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(12),
           border: p.dark ? Border.all(color: const Color(0x12FFFFFF)) : null,
-          boxShadow: [
-            BoxShadow(
-              color: p.cardShadow,
-              blurRadius: 34,
-              offset: const Offset(0, 14),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -649,15 +500,7 @@ class _Post extends ConsumerWidget {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: image == null
-                            ? const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Brand.indigoDeep,
-                                  Brand.lilac,
-                                  Brand.orange2,
-                                ],
-                              )
+                            ? Brand.solid(Brand.darkNavy)
                             : null,
                         image: image == null
                             ? null
@@ -671,19 +514,7 @@ class _Post extends ConsumerWidget {
                   ),
                   const Positioned.fill(
                     child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Color(0x8C0E0D24),
-                            Color(0x000E0D24),
-                            Color(0x000E0D24),
-                            Color(0x800E0D24),
-                          ],
-                          stops: [0, .4, .6, 1],
-                        ),
-                      ),
+                      decoration: BoxDecoration(color: Color(0x660E0D24)),
                     ),
                   ),
                   if (image == null)
@@ -796,7 +627,7 @@ class _Post extends ConsumerWidget {
                       child: Align(
                         alignment: AlignmentDirectional.centerStart,
                         child: Glass(
-                          radius: 14,
+                          radius: 10,
                           padding: const EdgeInsetsDirectional.fromSTEB(
                             10,
                             6,
@@ -846,7 +677,7 @@ class _Post extends ConsumerWidget {
                     bottom: 12,
                     end: 12,
                     child: Glass(
-                      radius: 14,
+                      radius: 10,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 6,

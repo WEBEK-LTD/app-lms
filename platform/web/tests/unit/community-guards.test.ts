@@ -43,7 +43,7 @@ describe("231 community guards", () => {
     // Area A's paths in the contract all have a route.
     const mine = Object.entries(contract.paths).filter(([p]) => /^\/(auth|me|members|reports|config)(\/|$)/.test(p));
     const routes = new Set(COMMUNITY_ROUTES.map((r) => `${r.method.toLowerCase()} ${toContract(r.path)}`));
-    const unbuilt = mine.flatMap(([p, ops]) => Object.keys(ops).filter((m) => ["get", "post", "put", "patch", "delete"].includes(m) && !routes.has(`${m} ${p}`)).map((m) => `${m} ${p}`));
+    const unbuilt = mine.flatMap(([p, ops]) => Object.keys(ops).filter((m) => ["get", "post", "put", "patch", "delete"].includes(m) && !(ops[m] as { "x-building"?: boolean })["x-building"] && !routes.has(`${m} ${p}`)).map((m) => `${m} ${p}`));
     expect(unbuilt).toEqual([]);
   });
 

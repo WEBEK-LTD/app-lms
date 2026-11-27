@@ -341,6 +341,16 @@ export const ICON_NAMES = [
   "save",
   "search_off",
   "alternate_email",
+  // 232–234 The Community website's new pages (stories, groups, pros, jobs, challenges, events).
+  "business_center",
+  "calendar_add_on",
+  "dynamic_feed",
+  "edit_square",
+  "how_to_vote",
+  "leaderboard",
+  "lock_open",
+  "more_vert",
+  "photo_frame",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

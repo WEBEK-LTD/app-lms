@@ -11,6 +11,8 @@ import { fetchWaitingPhotos } from "@/lib/market/photos";
 import { safeFetcher } from "@/lib/net/safe-fetch";
 import { errorResponse, hasBearerToken, json } from "@/lib/http";
 import { runFrequentJobs } from "@/lib/jobs/frequent";
+import { communityDeps } from "@/lib/community/deps";
+import { runEventReminders } from "@/lib/community/engage/events";
 import { runRekey } from "@/lib/jobs/rekey";
 import { ownerPushDeps } from "@/lib/owner/push-env";
 import { recordJobRun } from "@/lib/watch/runs";
@@ -89,7 +91,12 @@ export async function POST(request: Request): Promise<Response> {
       console.error("[photos]", error instanceof Error ? error.message : String(error));
       return null;
     });
-    return { ...jobs, watch, rekey: rekey && { moved: rekey.moved, failed: rekey.failed, done: rekey.done }, integrations, pendingPayments, productPhotos };
+    // 234 Yallapp Community's events: the day-before and hour-before reminders to those going (push and email).
+    const communityEvents = await communityEventReminders(now).catch((error: unknown) => {
+      console.error("[community] event reminders", error instanceof Error ? error.message : String(error));
+      return null;
+    });
+    return { ...jobs, watch, rekey: rekey && { moved: rekey.moved, failed: rekey.failed, done: rekey.done }, integrations, pendingPayments, productPhotos, communityEvents };
   });
   return json(report);
 }
@@ -109,4 +116,10 @@ async function mailDeps(store: Awaited<ReturnType<typeof getStore>>) {
     return undefined;
   }
   return { now: () => new Date(), baseUrl: appUrl(), secret, mailer: () => openMailer(store), plans: await getPlans(store) };
+}
+
+/** 234 The Community's event reminders, on its own store. */
+async function communityEventReminders(now: Date) {
+  const deps = await communityDeps({ ip: "frequent-job", now });
+  return runEventReminders({ deps, store: deps.store, now });
 }

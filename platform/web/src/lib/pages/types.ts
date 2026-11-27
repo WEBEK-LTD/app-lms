@@ -519,6 +519,12 @@ export const SCREENS = [
   "trips",
   "saved",
   "price_alerts",
+  // 235 A community in the client's app: the feed, Q&A, groups, the member's profile and member-to-member messages ("messages" is the business chat).
+  "community_feed",
+  "community_questions",
+  "community_groups",
+  "community_profile",
+  "community_messages",
 ] as const;
 /**
  * 120 The app's screens a Studio page can be drawn around (`StudioPage.screen`):

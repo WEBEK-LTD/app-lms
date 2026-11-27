@@ -2,9 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../push/push_settings.dart';
 import '../../features/auth/email_pages.dart';
 import '../../features/home/home_page.dart';
 import '../../features/opening/opening_page.dart';
+import '../../features/groups/links.dart';
+import '../../features/groups/ui/group_page.dart';
+import '../../features/groups/ui/groups_page.dart';
+import '../../features/messages/links.dart';
+import '../../features/messages/ui/inbox_page.dart';
+import '../../features/messages/ui/thread_page.dart';
+import '../../features/posts/posts_state.dart';
+import '../../features/posts/ui/composer_screen.dart';
+import '../../features/posts/ui/post_screen.dart';
+import '../../features/posts/ui/saved_page.dart';
 import '../../features/profile/edit_profile_page.dart';
 import '../../features/profile/profile_page.dart';
 import '../../features/settings/settings_page.dart';
@@ -13,7 +24,6 @@ import '../../features/social/data/social.dart';
 import '../../features/social/member_list_page.dart';
 import '../../features/welcome/welcome_page.dart';
 import '../auth/session.dart';
-import '../widgets/coming_soon.dart';
 import 'feature_routes.dart';
 import 'paths.dart';
 
@@ -89,7 +99,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: Paths.groups,
-            builder: (context, state) => const ComingSoonPage(title: 'Groups'),
+            builder: (context, state) => const GroupsPage(),
           ),
           GoRoute(
             path: Paths.me,
@@ -140,9 +150,63 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SettingsPage(),
       ),
       GoRoute(
+        path: Paths.pushSettings,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const PushSettingsPage(),
+      ),
+      GoRoute(
         path: Paths.blocked,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const BlockedPage(),
+      ),
+      GoRoute(
+        path: GroupLinks.create,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const CreateGroupPage(),
+      ),
+      GoRoute(
+        path: '/groups/:id',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => GroupPage(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/groups/:id/members',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            GroupMembersPage(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: MessagesLinks.inbox,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const InboxPage(),
+      ),
+      GoRoute(
+        path: MessagesLinks.start,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const NewChatPage(),
+      ),
+      GoRoute(
+        path: '/messages/:id',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            ThreadPage(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: PostLinks.compose,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            ComposerScreen(groupId: state.uri.queryParameters['group']),
+      ),
+      GoRoute(
+        path: '/posts/:id',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            PostScreen(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: PostLinks.saved,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const SavedPostsPage(),
       ),
       ...featureRoutes(),
     ],

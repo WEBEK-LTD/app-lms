@@ -35,7 +35,9 @@ describe("231 the community contract", () => {
   });
 
   it("keeps every path in one of the areas' groups", () => {
-    const groups = ["/auth/", "/me", "/members/", "/reports", "/config", "/qa/", "/tutorials", "/search", "/badges/", "/notifications", "/admin/"];
+    const groups = ["/auth/", "/me", "/members/", "/reports", "/config", "/qa/", "/tutorials", "/search", "/badges/", "/notifications", "/admin/",
+      // 232–235
+      "/messages/", "/groups", "/pros", "/jobs", "/feed", "/media", "/posts", "/comments/", "/stories", "/showcase", "/academy/", "/leaderboard", "/challenges", "/events"];
     const stray = Object.keys(contract.paths).filter((p) => !groups.some((g) => p.startsWith(g)));
     expect(stray).toEqual([]);
   });
@@ -43,6 +45,27 @@ describe("231 the community contract", () => {
   it("sells nothing: no price, checkout or payment anywhere in it", () => {
     const text = JSON.stringify(contract.paths).toLowerCase();
     for (const word of ["checkout", "\"price", "payment_url", "buy_url", "purchase"]) expect(text, word).not.toContain(word);
+  });
+
+  it("233 shows the Academy's courses open or locked, and no field of it sells anything", () => {
+    const schemas = contract.components.schemas as Record<string, unknown>;
+    const academy = ["CourseSummary", "Course", "Lesson", "CourseProgress", "QuizResult", "Certificate", "CourseInput", "LessonInput", "QuizQuestion", "AdminCourse"];
+    for (const name of academy) expect(schemas[name], name).toBeDefined();
+    const keys = (node: unknown, out: string[] = []): string[] => {
+      if (Array.isArray(node)) for (const v of node) keys(v, out);
+      else if (node && typeof node === "object")
+        for (const [k, v] of Object.entries(node)) {
+          if (k === "properties" && v && typeof v === "object") out.push(...Object.keys(v));
+          keys(v, out);
+        }
+      return out;
+    };
+    const fields = keys(academy.map((n) => schemas[n]));
+    expect(fields.length).toBeGreaterThan(20);
+    expect(fields.filter((f) => /price|currency|checkout|payment|purchase|buy|amount/i.test(f))).toEqual([]);
+    expect(JSON.stringify(schemas.CourseSummary)).toContain('"enum":["open","locked"]');
+    const academyPaths = JSON.stringify(Object.entries(contract.paths).filter(([p]) => p.startsWith("/academy/") || p.startsWith("/admin/academy/")));
+    expect(keys(JSON.parse(academyPaths)).filter((f) => /price|currency|checkout|payment|purchase|buy|amount/i.test(f))).toEqual([]);
   });
 
   it("names nothing in the community's migrations longer than MySQL's 64 characters", () => {

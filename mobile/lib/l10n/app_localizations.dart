@@ -20797,6 +20797,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delivery & returns'**
   String get productDeliveryReturns;
+
+  /// 235 The Community app's feed tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Community'**
+  String get communityTabFeed;
+
+  /// 235 The Community app's questions tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Q&A'**
+  String get communityTabQuestions;
+
+  /// 235 The Community app's groups tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get communityTabGroups;
+
+  /// 235 The Community app's member messages tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get communityTabMessages;
+
+  /// 235 The Community app's own profile tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get communityTabProfile;
+
+  /// 235 The feed with nothing in it.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts yet'**
+  String get communityFeedEmpty;
+
+  /// 235 Q&A with no questions.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions yet'**
+  String get communityQuestionsEmpty;
+
+  /// 235 No groups.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups yet'**
+  String get communityGroupsEmpty;
+
+  /// 235 No conversations.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get communityMessagesEmpty;
+
+  /// 235 A private group (join by request).
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get communityPrivate;
+
+  /// 235 Join a group.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get communityJoin;
+
+  /// 235 A group the member is in.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined'**
+  String get communityJoined;
+
+  /// 235 Screen reader label of an accepted answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted answer'**
+  String get communityAccepted;
+
+  /// 235 Screen reader label of an unread conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get communityUnread;
+
+  /// 235 The answer box under a question.
+  ///
+  /// In en, this message translates to:
+  /// **'Write an answer'**
+  String get communityAnswerHint;
+
+  /// 235 The message box in a conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a message'**
+  String get communityMessageHint;
+
+  /// 235 Send an answer or a message.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get communitySend;
+
+  /// 235 Profile and messages, signed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to take part'**
+  String get communitySignInTitle;
+
+  /// 235 Under the sign-in title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile and messages are here once you sign in.'**
+  String get communitySignInMessage;
+
+  /// 235 The profile's link to the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account and settings'**
+  String get communityAccount;
+
+  /// 235 The notifications' empty state in a Community app.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies, answers, messages and news from the community will show up here.'**
+  String get noNotificationsMessageCommunity;
+
+  /// 235 A question's answers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No answers} =1{1 answer} other{{count} answers}}'**
+  String communityAnswers(int count);
+
+  /// 235 A post's comments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No comments} =1{1 comment} other{{count} comments}}'**
+  String communityComments(int count);
+
+  /// 235 A group's members.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member} other{{count} members}}'**
+  String communityMembers(int count);
 }
 
 class _AppLocalizationsDelegate

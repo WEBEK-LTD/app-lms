@@ -202,17 +202,20 @@ describe("231 the daily trust run", () => {
 });
 
 describe("231 area C's routes are exactly the contract's", () => {
-  it("serves every /badges, /notifications and /admin path of docs/api/community.yaml, and no other", async () => {
+  it("serves every /badges, /notifications, /admin and (232–235) points, challenges and events path of docs/api/community.yaml, and no other", async () => {
     const { readFileSync } = await import("node:fs");
     const { parse } = await import("yaml");
-    const { TRUST_ROUTES } = await import("@/lib/community/api/trust-routes");
+    const { COMMUNITY_ROUTES } = await import("@/lib/community/api/service");
+    const MINE = /^\/(badges|notifications|admin|me\/push-tokens|me\/points|leaderboard|challenges|events)(\/|$)/;
     const contract = parse(readFileSync(new URL("../../../../docs/api/community.yaml", import.meta.url), "utf8")) as { paths: Record<string, Record<string, unknown>> };
     const METHODS = ["get", "post", "put", "patch", "delete"];
     const documented = Object.entries(contract.paths)
-      .filter(([path]) => /^\/(badges|notifications|admin)(\/|$)/.test(path))
-      .flatMap(([path, ops]) => Object.keys(ops).filter((m) => METHODS.includes(m)).map((m) => `${m.toUpperCase()} ${path.replace(/\{(\w+)\}/g, ":$1")}`))
+      .filter(([path]) => MINE.test(path))
+      // 232–235 An operation marked `x-building` is in the contract and not served yet.
+      .flatMap(([path, ops]) => Object.keys(ops).filter((m) => METHODS.includes(m) && !(ops[m] as { "x-building"?: boolean })["x-building"]).map((m) => `${m.toUpperCase()} ${path.replace(/\{(\w+)\}/g, ":$1")}`))
       .sort();
-    expect(TRUST_ROUTES.map((r) => `${r.method} ${r.path}`).sort()).toEqual(documented);
+    // Every area's routes under these paths (the admin's tools for phases 2–5 are A's and B's too).
+    expect(COMMUNITY_ROUTES.filter((r) => MINE.test(r.path)).map((r) => `${r.method} ${r.path}`).sort()).toEqual(documented);
   });
 });
 

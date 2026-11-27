@@ -70,15 +70,8 @@ class _LinkSuggestionBannerState extends ConsumerState<LinkSuggestionBanner> {
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
       decoration: BoxDecoration(
         color: p.dark ? const Color(0x0FFFFFFF) : Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0x4DFF5A1F)),
-        boxShadow: [
-          BoxShadow(
-            color: p.cardShadow,
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +123,7 @@ class _LinkSuggestionBannerState extends ConsumerState<LinkSuggestionBanner> {
                 style: FilledButton.styleFrom(
                   backgroundColor: Brand.orange,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   textStyle: const TextStyle(fontWeight: FontWeight.w700),
                 ),

@@ -18,7 +18,8 @@ export type CommunityRole = "member" | "team" | "admin";
 export type CommunityMemberStatus = "active" | "suspended" | "deleted";
 
 /** How a member signs in: email and password, Sign in with Apple, Google. */
-export type CommunityAuthProvider = "email" | "apple" | "google";
+/** 235 "app": a client app's customer, in that app's own community (lib/community/base/app-signin.ts). */
+export type CommunityAuthProvider = "email" | "apple" | "google" | "app";
 
 export interface CommunityMember {
   id: string;
@@ -159,7 +160,26 @@ export interface CommunityLinkRequest {
 }
 
 /** What can be reported, liked, voted on or moderated. */
-export type CommunityTargetType = "member" | "question" | "answer" | "reply" | "tutorial" | "comment";
+export type CommunityTargetType =
+  | "member"
+  | "question"
+  | "answer"
+  | "reply"
+  | "tutorial"
+  | "comment"
+  // 232–234 (the moderation and report kinds agreed with areas B and C)
+  | "post"
+  | "post_comment"
+  | "story"
+  | "showcase"
+  | "showcase_comment"
+  | "group"
+  | "job"
+  | "conversation"
+  | "pro_review"
+  | "event"
+  | "event_comment"
+  | "challenge_submission";
 
 export type CommunityReportReason = "spam" | "harassment" | "hate" | "inappropriate" | "misinformation" | "impersonation" | "other";
 export type CommunityReportStatus = "open" | "actioned" | "dismissed";
@@ -190,3 +210,11 @@ export interface CommunityLinkedApp {
   /** On a paid plan now (the Green badge). */
   paidPlan: boolean;
 }
+
+/**
+ * 232–235 The tenant key: whose community this is. Yallapp Community is
+ * "yallapp"; a client app's own community (Studio's "Community" app type)
+ * is its app id. One engine, and nothing is ever read across tenants.
+ */
+export type CommunityTenant = string;
+export const YALLAPP_TENANT: CommunityTenant = "yallapp";

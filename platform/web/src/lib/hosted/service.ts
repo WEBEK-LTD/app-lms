@@ -705,6 +705,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.rides ? { rides: extra.rides } : {}),
     // 126 Travel: hotels and flights
     ...(extra.travel ? { travel: extra.travel } : {}),
+    // 235 A community app: its community is the Community API under this app (/api/app/{app_id}/community/v1).
+    ...(app.appType === "community" ? { community: {} } : {}),
     // 105.9 Live taxi on the map
     ...(extra.taxi ? { taxi: extra.taxi } : {}),
     // 105.3 Academies with many teachers

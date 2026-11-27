@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/l10n.dart';
+import '../../core/providers.dart';
 import '../../core/routing/feature_routes.dart';
 import '../../core/routing/paths.dart';
 import '../../core/widgets/coming_soon.dart';
@@ -51,8 +52,10 @@ class ShellScaffold extends ConsumerWidget {
               ShellTab.home => context.go(Paths.home),
               ShellTab.qa => context.go(FeatureLinks.qa),
               ShellTab.learn => context.go(FeatureLinks.learn),
-              // Groups come in phase 2.
-              ShellTab.groups => showComingSoon(context, l.tabGroups),
+              ShellTab.groups =>
+                ref.read(sectionsProvider).value?.comingSoon('groups') ?? false
+                    ? showComingSoon(context, l.tabGroups)
+                    : context.go(Paths.groups),
             },
           ),
         ),

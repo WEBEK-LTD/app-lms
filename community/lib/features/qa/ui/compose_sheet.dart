@@ -93,7 +93,7 @@ class _ComposeSheetState extends State<ComposeSheet> {
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
         decoration: BoxDecoration(
           color: p.dark ? Brand.navy2 : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

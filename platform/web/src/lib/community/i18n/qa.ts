@@ -7,6 +7,7 @@ import type { CommunityDictionary } from ".";
  */
 export const QA_WORDS: CommunityDictionary = {
   en: {
+    "error.course_locked": "This course is locked.",
     "qa.invalid.title": "Write a title of 10 to 200 characters.",
     "qa.invalid.body": "Write at least 20 characters for a question and 10 for an answer.",
     "qa.invalid.summary": "Write a summary of 10 to 400 characters.",
@@ -21,6 +22,7 @@ export const QA_WORDS: CommunityDictionary = {
     "qa.invalid.duration_seconds": "Give the video's length.",
   },
   ar: {
+    "error.course_locked": "هذه الدورة مقفلة.",
     "qa.invalid.title": "اكتب عنوانًا من 10 إلى 200 حرف.",
     "qa.invalid.body": "اكتب 20 حرفًا على الأقل للسؤال و10 أحرف على الأقل للإجابة.",
     "qa.invalid.summary": "اكتب ملخصًا من 10 إلى 400 حرف.",
@@ -35,6 +37,7 @@ export const QA_WORDS: CommunityDictionary = {
     "qa.invalid.duration_seconds": "أدخل مدة الفيديو.",
   },
   tr: {
+    "error.course_locked": "Bu kurs kilitli.",
     "qa.invalid.title": "10 ile 200 karakter arasında bir başlık yazın.",
     "qa.invalid.body": "Soru için en az 20, yanıt için en az 10 karakter yazın.",
     "qa.invalid.summary": "10 ile 400 karakter arasında bir özet yazın.",

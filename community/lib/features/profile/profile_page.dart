@@ -20,7 +20,9 @@ import '../../core/widgets/floating_tab_bar.dart';
 import '../../core/widgets/glass.dart';
 import '../../core/widgets/images.dart';
 import '../../core/widgets/sym.dart';
+import '../messages/links.dart';
 import '../social/data/social.dart';
+import 'profile_hooks.dart';
 import '../social/report_sheet.dart';
 
 /// The badges a member needs apps for: the Gold badge's form opens at 5.
@@ -88,13 +90,6 @@ class _ProfileView extends ConsumerWidget {
       backgroundColor: p.screen,
       body: Stack(
         children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 320 + top,
-            child: const IgnorePointer(child: _ProfileGlow()),
-          ),
           RefreshIndicator(
             color: Brand.orange,
             onRefresh: onRefresh,
@@ -275,6 +270,7 @@ class _ProfileView extends ConsumerWidget {
                     ],
                   ),
                 ),
+                for (final section in profileSections()) section(m.id),
                 if (profile.joinedAt != null)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
@@ -310,7 +306,7 @@ class _ProfileView extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
               color: p.dark ? Brand.navy2 : Colors.white,
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Material(
               type: MaterialType.transparency,
@@ -443,55 +439,6 @@ Future<void> linkYallapp(BuildContext context, WidgetRef ref) async {
   }
 }
 
-class _ProfileGlow extends StatelessWidget {
-  const _ProfileGlow();
-
-  @override
-  Widget build(BuildContext context) {
-    final dark = context.palette.dark;
-    return LayoutBuilder(
-      builder: (context, box) => Stack(
-        children: [
-          Positioned(
-            left: box.maxWidth * .85 - 260,
-            top: -170,
-            width: 520,
-            height: 400,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [
-                    dark ? const Color(0x59FF5A1F) : const Color(0x52FF8A3D),
-                    const Color(0x00FF8A3D),
-                  ],
-                  stops: const [0, .7],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: -300,
-            top: box.maxHeight * .4 - 220,
-            width: 600,
-            height: 440,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [
-                    dark ? const Color(0x4D6B5BFF) : const Color(0x387C6BFF),
-                    const Color(0x007C6BFF),
-                  ],
-                  stops: const [0, .7],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// Followers, following, friends and points, the first three opening their
 /// lists.
 class _Counts extends StatelessWidget {
@@ -535,15 +482,8 @@ class _Counts extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
         color: p.dark ? const Color(0x0BFFFFFF) : Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(12),
         border: p.dark ? Border.all(color: const Color(0x12FFFFFF)) : null,
-        boxShadow: [
-          BoxShadow(
-            color: p.cardShadow,
-            blurRadius: 34,
-            offset: const Offset(0, 14),
-          ),
-        ],
       ),
       child: Row(
         children: [
@@ -675,6 +615,13 @@ class _Actions extends ConsumerWidget {
             ),
           },
         ),
+        const SizedBox(width: 10),
+        IconBtn(
+          key: const ValueKey('profile-message'),
+          icon: Symbols.chat_bubble_rounded,
+          label: l.msgMessage,
+          onTap: () => openConversationWith(context, ref, m.id),
+        ),
       ],
     );
   }
@@ -745,7 +692,7 @@ class _Button extends StatelessWidget {
             color: filled
                 ? null
                 : (p.dark ? const Color(0x12FFFFFF) : Colors.white),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(10),
             border: filled
                 ? null
                 : Border.all(
@@ -836,7 +783,7 @@ class _Chip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
       decoration: BoxDecoration(
         color: p.dark ? const Color(0x14FFFFFF) : const Color(0x14FF5A1F),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         text,
@@ -871,7 +818,7 @@ class _BadgeRow extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: p.dark ? const Color(0x0BFFFFFF) : Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: .45)),
       ),
       child: Row(
@@ -881,7 +828,7 @@ class _BadgeRow extends StatelessWidget {
             height: 38,
             decoration: BoxDecoration(
               color: color.withValues(alpha: .16),
-              borderRadius: BorderRadius.circular(13),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: BadgeMark(badge.kind, size: 22),
           ),
@@ -931,21 +878,14 @@ class _AppRow extends ConsumerWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: p.dark ? const Color(0x0BFFFFFF) : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: p.cardShadow,
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
             // The app's own icon, the letter tile when it has none or it
             // fails to load.
             ClipRRect(
-              borderRadius: BorderRadius.circular(13),
+              borderRadius: BorderRadius.circular(10),
               child: SizedBox(
                 width: 40,
                 height: 40,
@@ -1037,13 +977,8 @@ class _Cta extends StatelessWidget {
       margin: const EdgeInsets.only(top: 6),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0x24FF8A3D),
-            p.dark ? const Color(0x0AFFFFFF) : const Color(0x0DFFFFFF),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
+        color: p.dark ? Brand.darkSoft : Brand.lightSoft,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0x4DFF5A1F)),
       ),
       child: Row(
@@ -1053,7 +988,7 @@ class _Cta extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               gradient: Brand.sunrise,
-              borderRadius: BorderRadius.circular(13),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Sym(icon, size: 21, fill: true, color: Colors.white),
           ),

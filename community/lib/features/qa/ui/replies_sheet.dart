@@ -74,7 +74,7 @@ class _RepliesSheetState extends ConsumerState<RepliesSheet> {
       builder: (context, scroll) => Container(
         decoration: BoxDecoration(
           color: p.dark ? Brand.navy2 : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
         ),
         child: FutureBuilder<List<Reply>>(
           future: _replies,

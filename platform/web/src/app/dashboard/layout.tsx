@@ -105,6 +105,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         ...(app ? [{ href: "/dashboard/stories", label: t("stories.nav"), icon: "auto_stories" as const }] : []),
         // 51 The app's videos, pictures and PDFs, kept by Yallapp.
         ...(app ? [{ href: "/dashboard/media", label: t("nav.media"), icon: "photo_library" as const }] : []),
+        // 235 A Community app's own community: its moderation, reports, members and settings.
+        ...(app && (app.appType as string) === "community" ? [{ href: "/dashboard/community", label: t("appCommunity.nav"), icon: "forum" as const }] : []),
         // 77 The people using the app write to the business (apps whose people Yallapp knows).
         ...(app && chatSessionKind(app) ? [{ href: "/dashboard/chat", label: t("chat.nav"), icon: "forum" as const }] : []),
         // 43 The app's languages and every text in them.

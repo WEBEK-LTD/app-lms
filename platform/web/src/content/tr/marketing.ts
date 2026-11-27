@@ -272,6 +272,7 @@ export const TR_MARKETING: MarketingTranslation = {
     "Flower shop": "Çiçekçi",
     // 154 The travel kind, as Studio names it (i18n/dashboard/studio.ts kindTravel).
     "Travel: hotels and flights": "Seyahat: oteller ve uçuşlar",
+    Community: "Topluluk",
   },
   solutions: {
     food: {

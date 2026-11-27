@@ -14,6 +14,7 @@ import {
 import type { CommunityBaseStore } from "./base";
 import { pairKey } from "./base";
 import { isDuplicate, type CommunityDb } from "./db";
+import { YALLAPP_TENANT, type CommunityTenant } from "../types";
 import type {
   CommunityEmailToken,
   CommunityEmailTokenPurpose,
@@ -40,20 +41,40 @@ const friendshipOf = (row: FriendshipRow): CommunityFriendship => ({
 /** `%` and `_` in a search typed by a member are letters, not wildcards. */
 const likeText = (q: string) => `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
 
-/** 231 Area A's data on MySQL or MariaDB (migration 0155). */
+/** A row without its tenant (the store is one tenant's). */
+function untenanted<T extends { tenantId?: string }>(row: T): Omit<T, "tenantId"> {
+  const rest = { ...row };
+  delete rest.tenantId;
+  return rest;
+}
+
+/**
+ * 231 Area A's data on MySQL or MariaDB (migration 0155). 232–235 One
+ * tenant's (migration 0159): members, identities and reports are looked up
+ * within it, so a token, an email or a username of another tenant finds
+ * nothing here.
+ */
 export class MysqlCommunityBaseStore implements CommunityBaseStore {
-  constructor(protected readonly db: CommunityDb) {}
+  constructor(
+    protected readonly db: CommunityDb,
+    readonly tenant: CommunityTenant = YALLAPP_TENANT,
+  ) {}
+
+  /** The member table, within this tenant. */
+  private inTenant(...conditions: Parameters<typeof and>) {
+    return and(eq(communityMembers.tenantId, this.tenant), ...conditions);
+  }
 
   // ---------------------------------------------------------------- members
 
   async createMember(member: CommunityMember): Promise<CommunityMember> {
-    await this.db.insert(communityMembers).values(member);
+    await this.db.insert(communityMembers).values({ ...member, tenantId: this.tenant });
     return member;
   }
 
   async getMember(id: string): Promise<CommunityMember | null> {
-    const [row] = await this.db.select().from(communityMembers).where(eq(communityMembers.id, id)).limit(1);
-    return row ?? null;
+    const [row] = await this.db.select().from(communityMembers).where(this.inTenant(eq(communityMembers.id, id))).limit(1);
+    return row ? untenanted(row) : null;
   }
 
   async getMembers(ids: readonly string[]): Promise<CommunityMember[]> {
@@ -61,28 +82,28 @@ export class MysqlCommunityBaseStore implements CommunityBaseStore {
     const rows = await this.db
       .select()
       .from(communityMembers)
-      .where(inArray(communityMembers.id, [...new Set(ids)]));
-    const byId = new Map(rows.map((r) => [r.id, r]));
+      .where(this.inTenant(inArray(communityMembers.id, [...new Set(ids)])));
+    const byId = new Map(rows.map((r) => [r.id, untenanted(r)]));
     return ids.flatMap((id) => (byId.has(id) ? [byId.get(id)!] : []));
   }
 
   async getMemberByEmail(email: string): Promise<CommunityMember | null> {
-    const [row] = await this.db.select().from(communityMembers).where(eq(communityMembers.email, email.toLowerCase())).limit(1);
-    return row ?? null;
+    const [row] = await this.db.select().from(communityMembers).where(this.inTenant(eq(communityMembers.email, email.toLowerCase()))).limit(1);
+    return row ? untenanted(row) : null;
   }
 
   async getMemberByUsername(username: string): Promise<CommunityMember | null> {
-    const [row] = await this.db.select().from(communityMembers).where(eq(communityMembers.username, username.toLowerCase())).limit(1);
-    return row ?? null;
+    const [row] = await this.db.select().from(communityMembers).where(this.inTenant(eq(communityMembers.username, username.toLowerCase()))).limit(1);
+    return row ? untenanted(row) : null;
   }
 
   async getMemberByYallappUser(userId: string): Promise<CommunityMember | null> {
-    const [row] = await this.db.select().from(communityMembers).where(eq(communityMembers.yallappUserId, userId)).limit(1);
-    return row ?? null;
+    const [row] = await this.db.select().from(communityMembers).where(this.inTenant(eq(communityMembers.yallappUserId, userId))).limit(1);
+    return row ? untenanted(row) : null;
   }
 
   async updateMember(id: string, patch: Partial<Omit<CommunityMember, "id" | "createdAt">>): Promise<CommunityMember | null> {
-    if (Object.keys(patch).length > 0) await this.db.update(communityMembers).set(patch).where(eq(communityMembers.id, id));
+    if (Object.keys(patch).length > 0) await this.db.update(communityMembers).set(patch).where(this.inTenant(eq(communityMembers.id, id)));
     return this.getMember(id);
   }
 
@@ -90,24 +111,24 @@ export class MysqlCommunityBaseStore implements CommunityBaseStore {
     await this.db
       .update(communityMembers)
       .set({ points: sql`${communityMembers.points} + ${points}` })
-      .where(eq(communityMembers.id, id));
-    const [row] = await this.db.select({ points: communityMembers.points }).from(communityMembers).where(eq(communityMembers.id, id)).limit(1);
+      .where(this.inTenant(eq(communityMembers.id, id)));
+    const [row] = await this.db.select({ points: communityMembers.points }).from(communityMembers).where(this.inTenant(eq(communityMembers.id, id))).limit(1);
     return row?.points ?? 0;
   }
 
   async deleteMember(id: string): Promise<void> {
     // The community_* rows that reference the member go with it (ON DELETE CASCADE).
-    await this.db.delete(communityMembers).where(eq(communityMembers.id, id));
+    await this.db.delete(communityMembers).where(this.inTenant(eq(communityMembers.id, id)));
   }
 
   async searchMembers(q: string, offset: number, limit: number): Promise<CommunityMember[]> {
     const wanted = q.trim().toLowerCase().replace(/^@/, "");
     const m = communityMembers;
     const match = wanted ? or(like(m.username, likeText(wanted)), like(m.displayName, likeText(wanted))) : undefined;
-    return this.db
+    const rows = await this.db
       .select()
       .from(m)
-      .where(and(eq(m.status, "active"), match))
+      .where(this.inTenant(eq(m.status, "active"), match))
       .orderBy(
         sql`case when ${m.username} = ${wanted} then 0 when ${m.username} like ${`${wanted}%`} or ${m.displayName} like ${`${wanted}%`} then 1 else 2 end`,
         desc(m.points),
@@ -115,6 +136,7 @@ export class MysqlCommunityBaseStore implements CommunityBaseStore {
       )
       .limit(limit + 1)
       .offset(offset);
+    return rows.map(untenanted);
   }
 
   // ---------------------------------------------------------------- identities
@@ -124,17 +146,17 @@ export class MysqlCommunityBaseStore implements CommunityBaseStore {
     const [row] = await this.db
       .select()
       .from(t)
-      .where(and(eq(t.provider, provider), eq(t.subject, subject)))
+      .where(and(eq(t.tenantId, this.tenant), eq(t.provider, provider), eq(t.subject, subject)))
       .limit(1);
-    return row ?? null;
+    return row ? untenanted(row) : null;
   }
 
   async addIdentity(identity: CommunityIdentity): Promise<void> {
-    await this.db.insert(communityIdentities).values(identity);
+    await this.db.insert(communityIdentities).values({ ...identity, tenantId: this.tenant });
   }
 
   async listIdentities(memberId: string): Promise<CommunityIdentity[]> {
-    return this.db.select().from(communityIdentities).where(eq(communityIdentities.memberId, memberId));
+    return (await this.db.select().from(communityIdentities).where(eq(communityIdentities.memberId, memberId))).map(untenanted);
   }
 
   // ---------------------------------------------------------------- sessions
@@ -401,7 +423,7 @@ export class MysqlCommunityBaseStore implements CommunityBaseStore {
 
   async createReport(report: CommunityReport): Promise<CommunityReport | null> {
     try {
-      await this.db.insert(communityReports).values(report);
+      await this.db.insert(communityReports).values({ ...report, tenantId: this.tenant });
       return report;
     } catch (error) {
       if (isDuplicate(error)) return null;
@@ -410,18 +432,19 @@ export class MysqlCommunityBaseStore implements CommunityBaseStore {
   }
 
   async getReport(id: string): Promise<CommunityReport | null> {
-    const [row] = await this.db.select().from(communityReports).where(eq(communityReports.id, id)).limit(1);
-    return row ?? null;
+    const [row] = await this.db.select().from(communityReports).where(and(eq(communityReports.tenantId, this.tenant), eq(communityReports.id, id))).limit(1);
+    return row ? untenanted(row) : null;
   }
 
   async listReports(status: CommunityReportStatus, offset: number, limit: number): Promise<CommunityReport[]> {
-    return this.db
+    const rows = await this.db
       .select()
       .from(communityReports)
-      .where(eq(communityReports.status, status))
+      .where(and(eq(communityReports.tenantId, this.tenant), eq(communityReports.status, status)))
       .orderBy(asc(communityReports.createdAt))
       .limit(limit + 1)
       .offset(offset);
+    return rows.map(untenanted);
   }
 
   async countReportsOn(targetType: CommunityReport["targetType"], targetId: string): Promise<number> {

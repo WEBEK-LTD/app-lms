@@ -27,15 +27,17 @@ export interface TestCommunity {
 export const APPLE_AUDIENCE = "tr.com.yallapp.community";
 export const GOOGLE_AUDIENCE = "community-web.apps.googleusercontent.com";
 
-export async function testCommunity(options: { providers?: boolean } = {}): Promise<TestCommunity> {
+export async function testCommunity(options: { providers?: boolean; tenant?: string } = {}): Promise<TestCommunity> {
   const mail = memoryMailer();
   const uploads = new Map<string, { bytes: Uint8Array; contentType: string }>();
   const { publicKey, privateKey } = await generateKeyPair("RS256");
   const jwk: JWK = { ...(await exportJWK(publicKey)), kid: "test", alg: "RS256" };
   const keys = createLocalJWKSet({ keys: [jwk] });
   const providers = options.providers ?? true;
+  const tenant = options.tenant ?? "yallapp";
   const deps: CommunityDeps = {
-    store: memoryCommunityStore(),
+    tenant,
+    store: memoryCommunityStore(tenant),
     platform: new MemoryStore(),
     now: NOW,
     ip: "203.0.113.7",

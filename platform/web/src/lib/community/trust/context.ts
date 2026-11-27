@@ -2,11 +2,14 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { isCommunityAdmin } from "../staff";
 import type { CommunityContext } from "../api/http";
 import { withQaFor } from "../api/qa-hooks";
+import { pushToMember } from "../engage/push";
+import { CONTENT_KINDS } from "../content-kinds";
 import { contentInfo, memberStats, recentTexts, setContentStatus, type QaContentKind } from "../qa/service";
-import type { CommunityMember } from "../types";
+import { YALLAPP_TENANT, type CommunityMember } from "../types";
 import { linkedApps, yallappAccountName } from "../yallapp";
 import type { ContentInfo, LinkedAccount, TrustDeps, TrustMember } from "./service";
 import type { ContentKind, TrustStore } from "./store";
+import { connectContentInfo, isConnectKind, setConnectStatus } from "../connect/content";
 
 /**
  * 231 Area C's service (./service.ts) inside the Community API: its deps
@@ -86,6 +89,17 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
     return m ? trustMemberOf(m) : null;
   };
   const info = async (kind: ContentKind, id: string): Promise<ContentInfo | null> => {
+    // 232–235 The kinds phases 2 to 5 add, from their areas' table.
+    const adapter = CONTENT_KINDS[kind];
+    if (adapter) {
+      const got = await adapter.info(ctx, id);
+      return got ? { authorId: got.authorId ?? "", title: got.title.slice(0, 140), link: got.link } : null;
+    }
+    // 232–234 Area A's groups, jobs, reviews and reported conversations.
+    if (isConnectKind(kind)) {
+      const got = await connectContentInfo(ctx.store, kind, id);
+      return got ? { authorId: got.authorId, title: got.title, link: got.link } : null;
+    }
     const k = qaKind(kind);
     const got = k ? await inQa(() => contentInfo(k, id)) : null;
     if (!got) return null;
@@ -99,6 +113,8 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
     member,
     blockedEitherWay: (id) => base.blockedEitherWay(id),
     platformAdmin: async (id) => {
+      // 232–235 A client app's community is run by the client, from their dashboard (CommunityRequest.tenantAdmin, set in-process only).
+      if (ctx.store.tenant !== YALLAPP_TENANT) return ctx.req?.tenantAdmin === true && ctx.member?.id === id;
       const m = await base.getMember(id);
       // A's check (lib/community/staff.ts): an active member whose linked Yallapp account is an owner or admin of Yallapp's admin, asked now.
       return m ? isCommunityAdmin(ctx.req ?? ctx, ctx.deps.platform, m) : false;
@@ -131,6 +147,9 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
     content: {
       info,
       setStatus: async (kind, id, status) => {
+        const adapter = CONTENT_KINDS[kind];
+        if (adapter) return adapter.setStatus(ctx, id, status);
+        if (isConnectKind(kind)) return setConnectStatus(ctx.store, kind, id, status, ctx.now);
         const k = qaKind(kind);
         if (k) await inQa(() => setContentStatus(k, id, status, ctx.now));
       },
@@ -152,6 +171,8 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
         await f.delete(key);
       },
     },
+    // 232 Through the engage store's devices (lib/community/engage/push.ts).
+    push: ctx.deps.push ? (memberId, message) => pushToMember(ctx, memberId, message).then(() => undefined) : undefined,
     sendMail: (mail) => ctx.deps.mail(mail),
     siteUrl: ctx.deps.siteUrl,
     logoUrl: null,

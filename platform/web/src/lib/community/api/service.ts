@@ -1,10 +1,15 @@
+import { YALLAPP_TENANT } from "../types";
 import { authenticate } from "../auth/sessions";
 import { isCommunityAdmin } from "../staff";
 import { errorMessage, languageFromHeader, t } from "../i18n";
 import { BASE_ROUTES } from "./base-routes";
+import { CONNECT_ROUTES } from "./connect-routes";
 import { CommunityError, type CommunityContext, type CommunityDeps, type CommunityRequest, type CommunityResult, type CommunityRoute } from "./http";
 import { QA_ROUTES } from "./qa-routes";
+import { ACADEMY_ROUTES } from "./academy-routes";
+import { SOCIAL_ROUTES } from "./social-routes";
 import { TRUST_ROUTES } from "./trust-routes";
+import { ENGAGE_ROUTES } from "./engage-routes";
 
 /**
  * 231 The Community API's dispatcher: finds the route for the method and
@@ -12,7 +17,7 @@ import { TRUST_ROUTES } from "./trust-routes";
  * the language, runs the handler, and turns errors into
  * `{ error: { code, message, fields? } }` in the reader's language.
  */
-export const COMMUNITY_ROUTES: readonly CommunityRoute[] = [...BASE_ROUTES, ...QA_ROUTES, ...TRUST_ROUTES];
+export const COMMUNITY_ROUTES: readonly CommunityRoute[] = [...BASE_ROUTES, ...QA_ROUTES, ...SOCIAL_ROUTES, ...ACADEMY_ROUTES, ...TRUST_ROUTES, ...CONNECT_ROUTES, ...ENGAGE_ROUTES];
 
 interface Compiled {
   route: CommunityRoute;
@@ -66,9 +71,12 @@ export async function handleCommunity(deps: CommunityDeps, req: CommunityRequest
   if (found === null) return errorBody({ lang: headerLang }, new CommunityError(404, "not_found"));
   if (found === "method") return errorBody({ lang: headerLang }, new CommunityError(405, "method_not_allowed"));
   const { route, params } = found;
+  // 232–235 Linking a Yallapp account is Yallapp Community's own; a client app's community hasn't it.
+  if (route.yallappOnly && deps.tenant !== YALLAPP_TENANT) return errorBody({ lang: headerLang }, new CommunityError(404, "not_found"));
   const signedIn = req.token ? await authenticate(deps.store.base, req.token, deps.now) : null;
   const ctx: CommunityContext = {
     deps,
+    tenant: deps.tenant,
     req,
     store: deps.store,
     now: deps.now,
@@ -87,7 +95,10 @@ export async function handleCommunity(deps: CommunityDeps, req: CommunityRequest
       const own = route.path === "/auth/log-out" || (route.path === "/me" && route.method === "GET");
       if (ctx.member.status === "suspended" && !own) throw new CommunityError(403, "account_suspended");
       // 231 A Community admin's linked Yallapp account is an owner or admin of Yallapp's admin, asked again now (lib/community/staff.ts).
-      if (auth === "admin" && !(await isCommunityAdmin(req, deps.platform, ctx.member))) throw new CommunityError(403, "not_admin");
+      // 232–235 A client app's community is run by the client, from their dashboard (CommunityRequest.tenantAdmin).
+      if (auth === "admin" && !(deps.tenant === YALLAPP_TENANT ? await isCommunityAdmin(req, deps.platform, ctx.member) : req.tenantAdmin === true)) {
+        throw new CommunityError(403, "not_admin");
+      }
     }
     return await route.handler(ctx);
   } catch (error) {

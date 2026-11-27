@@ -20,6 +20,7 @@ abstract final class Paths {
   static const settings = '/settings';
   static const blocked = '/settings/blocked';
   static const language = '/settings/language';
+  static const pushSettings = '/settings/push';
 
   /// The screens a signed-out visitor may open.
   static const public = {welcome, signUp, logIn, forgot};

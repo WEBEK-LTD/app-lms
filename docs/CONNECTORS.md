@@ -49,6 +49,7 @@ plugin's `AdapterVersionsTest.php` check them.
 | `rides` | Rides and drivers | 1.0.0 | Yallapp |
 | `school` | School: classes, people, homework, grades and fees | 1.0.0 | Yallapp |
 | `travel` | Travel: hotels, rooms, flights and bookings | 1.0.0 | Yallapp |
+| `community` | Community: posts, questions, groups and messages | 1.0.0 | Yallapp |
 | `shopify` | Shopify | 1.0.0 | Storefront API and Admin API (GraphQL) |
 | `ikas` | ikas | 1.0.0 | ikas Admin API (GraphQL, v1) |
 | `ticimax` | Ticimax | 1.0.0 | Ticimax web services (SOAP) |

@@ -14,6 +14,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   dio: ^5.11.1
+  # 232 Push for the Community app: Yallapp's Firebase project, its options
+  # from dart-defines (YC_FIREBASE_*); no config file in the repository.
+  firebase_core: 4.15.0
+  firebase_messaging: 16.7.0
   flutter_riverpod: ^3.4.3
   flutter_secure_storage: ^11.2.0
   go_router: ^17.5.0
@@ -70,6 +74,8 @@ flutter:
 # Transitive packages held back to releases that are at least two weeks old
 # (project rule), as in business/.
 dependency_overrides:
+  # 8.2.0 is younger than two weeks (16 November 2026).
+  firebase_core_platform_interface: 8.1.1
   file_selector_macos: 0.9.5+1
   google_sign_in_android: 7.2.18
   image_picker_ios: 0.8.13+9

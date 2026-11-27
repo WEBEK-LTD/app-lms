@@ -1,4 +1,5 @@
 import * as accounts from "../base/accounts";
+import { appSignIn } from "../base/app-signin";
 import { getConfig } from "../base/config";
 import { getLink, startLink, unlink } from "../base/linking";
 import * as profile from "../base/profile";
@@ -15,8 +16,10 @@ export const BASE_ROUTES: CommunityRoute[] = [
   { method: "POST", path: "/auth/email/log-in", auth: "public", handler: accounts.logIn },
   { method: "POST", path: "/auth/apple", auth: "public", handler: accounts.withApple },
   { method: "POST", path: "/auth/google", auth: "public", handler: accounts.withGoogle },
-  { method: "POST", path: "/auth/yallapp/start", auth: "public", handler: startYallappSignin },
-  { method: "POST", path: "/auth/yallapp", auth: "public", handler: exchangeYallappCode },
+  { method: "POST", path: "/auth/yallapp/start", yallappOnly: true, auth: "public", handler: startYallappSignin },
+  { method: "POST", path: "/auth/yallapp", yallappOnly: true, auth: "public", handler: exchangeYallappCode },
+  // 235 A client app's customer, in its own community (404 in Yallapp Community).
+  { method: "POST", path: "/auth/app", auth: "public", handler: appSignIn },
   { method: "POST", path: "/auth/refresh", auth: "public", handler: accounts.refresh },
   { method: "POST", path: "/auth/log-out", handler: member(accounts.logOut) },
   { method: "POST", path: "/auth/email/verify", auth: "public", handler: accounts.verifyEmail },
@@ -36,17 +39,17 @@ export const BASE_ROUTES: CommunityRoute[] = [
   { method: "GET", path: "/me/friend-requests", handler: member(social.listFriendRequests) },
   { method: "POST", path: "/me/friend-requests/:request_id/accept", handler: member(social.acceptFriendRequest) },
   { method: "POST", path: "/me/friend-requests/:request_id/decline", handler: member(social.declineFriendRequest) },
-  { method: "GET", path: "/me/yallapp-link", handler: member(getLink) },
-  { method: "DELETE", path: "/me/yallapp-link", handler: member(unlink) },
-  { method: "POST", path: "/me/yallapp-link/start", handler: member(startLink) },
-  { method: "POST", path: "/me/yallapp-link/suggested", handler: member(linkSuggested) },
-  { method: "DELETE", path: "/me/yallapp-link/suggested", handler: member(dismissSuggested) },
+  { method: "GET", path: "/me/yallapp-link", yallappOnly: true, handler: member(getLink) },
+  { method: "DELETE", path: "/me/yallapp-link", yallappOnly: true, handler: member(unlink) },
+  { method: "POST", path: "/me/yallapp-link/start", yallappOnly: true, handler: member(startLink) },
+  { method: "POST", path: "/me/yallapp-link/suggested", yallappOnly: true, handler: member(linkSuggested) },
+  { method: "DELETE", path: "/me/yallapp-link/suggested", yallappOnly: true, handler: member(dismissSuggested) },
   // Members
   { method: "GET", path: "/members/:member", auth: "public", handler: social.getProfile },
   { method: "GET", path: "/members/:member/followers", auth: "public", handler: social.listFollowers },
   { method: "GET", path: "/members/:member/following", auth: "public", handler: social.listFollowing },
   { method: "GET", path: "/members/:member/friends", auth: "public", handler: social.listFriends },
-  { method: "GET", path: "/members/:member/apps", auth: "public", handler: social.listApps },
+  { method: "GET", path: "/members/:member/apps", yallappOnly: true, auth: "public", handler: social.listApps },
   // Social
   { method: "PUT", path: "/members/:member/follow", handler: member(social.follow) },
   { method: "DELETE", path: "/members/:member/follow", handler: member(social.unfollow) },

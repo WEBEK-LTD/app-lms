@@ -12984,4 +12984,104 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productDeliveryReturns => 'Delivery & returns';
+
+  @override
+  String get communityTabFeed => 'Community';
+
+  @override
+  String get communityTabQuestions => 'Q&A';
+
+  @override
+  String get communityTabGroups => 'Groups';
+
+  @override
+  String get communityTabMessages => 'Messages';
+
+  @override
+  String get communityTabProfile => 'Profile';
+
+  @override
+  String get communityFeedEmpty => 'No posts yet';
+
+  @override
+  String get communityQuestionsEmpty => 'No questions yet';
+
+  @override
+  String get communityGroupsEmpty => 'No groups yet';
+
+  @override
+  String get communityMessagesEmpty => 'No messages yet';
+
+  @override
+  String get communityPrivate => 'Private';
+
+  @override
+  String get communityJoin => 'Join';
+
+  @override
+  String get communityJoined => 'Joined';
+
+  @override
+  String get communityAccepted => 'Accepted answer';
+
+  @override
+  String get communityUnread => 'Unread';
+
+  @override
+  String get communityAnswerHint => 'Write an answer';
+
+  @override
+  String get communityMessageHint => 'Write a message';
+
+  @override
+  String get communitySend => 'Send';
+
+  @override
+  String get communitySignInTitle => 'Sign in to take part';
+
+  @override
+  String get communitySignInMessage =>
+      'Your profile and messages are here once you sign in.';
+
+  @override
+  String get communityAccount => 'Account and settings';
+
+  @override
+  String get noNotificationsMessageCommunity =>
+      'Replies, answers, messages and news from the community will show up here.';
+
+  @override
+  String communityAnswers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count answers',
+      one: '1 answer',
+      zero: 'No answers',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String communityComments(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count comments',
+      one: '1 comment',
+      zero: 'No comments',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String communityMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count members',
+      one: '1 member',
+    );
+    return '$_temp0';
+  }
 }

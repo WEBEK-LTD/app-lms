@@ -30,7 +30,11 @@ enum AppType {
   school,
 
   /// 126 Travel: hotels and flights.
-  travel;
+  travel,
+
+  /// 235 Community: the client's own community (feed, Q&A, groups, profiles
+  /// and messages).
+  community;
 
   /// The value as the build config writes it (`app_type`).
   String get wire => this == realEstate ? 'real_estate' : name;

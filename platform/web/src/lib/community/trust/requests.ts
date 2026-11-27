@@ -92,7 +92,26 @@ export function parseDecision(input: unknown, options: { reasonRequired: "always
 
 // ——— Reports ———
 
-export const REPORT_TARGETS: readonly CommunityTargetType[] = ["member", "question", "answer", "reply", "tutorial", "comment"];
+/** What can be reported through POST /reports (a conversation is reported by its own path, as a whole; a pro by their member). */
+export const REPORT_TARGETS: readonly CommunityTargetType[] = [
+  "member",
+  "question",
+  "answer",
+  "reply",
+  "tutorial",
+  "comment",
+  "group",
+  "job",
+  "pro_review",
+  "post",
+  "post_comment",
+  "story",
+  "showcase",
+  "showcase_comment",
+  "event",
+  "event_comment",
+  "challenge_submission",
+];
 export type ReportTarget = CommunityTargetType;
 export const REPORT_REASONS: readonly CommunityReportReason[] = ["spam", "harassment", "hate", "inappropriate", "misinformation", "impersonation", "other"];
 export type ReportReason = CommunityReportReason;
@@ -130,6 +149,15 @@ export const AUDIT_ACTIONS = [
   "moderation.remove",
   "report.action",
   "report.dismiss",
+  // 233–234 (phases 2–5): the points table, challenges and their winners, events.
+  "points.update",
+  "challenge.create",
+  "challenge.update",
+  "challenge.delete",
+  "challenge.winners",
+  "event.create",
+  "event.update",
+  "event.delete",
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 

@@ -44,7 +44,6 @@ class QuestionsScreen extends ConsumerWidget {
       backgroundColor: p.screen,
       body: Stack(
         children: [
-          const _HomeGlow(),
           SafeArea(
             bottom: false,
             child: NotificationListener<ScrollNotification>(
@@ -200,56 +199,6 @@ String _filterLabel(BuildContext context, QuestionFilter f) {
   };
 }
 
-/// The Home's glows (mobile.html `.home-bg`): orange at the top end, violet
-/// at the start.
-class _HomeGlow extends StatelessWidget {
-  const _HomeGlow();
-
-  @override
-  Widget build(BuildContext context) {
-    final dark = context.palette.dark;
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      height: 330,
-      child: IgnorePointer(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: const Alignment(.7, -.8),
-                  radius: .8,
-                  colors: [
-                    Brand.orange2.withValues(alpha: dark ? .3 : .32),
-                    Brand.orange2.withValues(alpha: 0),
-                  ],
-                  stops: const [0, .7],
-                ),
-              ),
-            ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: const Alignment(-1, -.2),
-                  radius: .9,
-                  colors: [
-                    Brand.lilac.withValues(alpha: dark ? .26 : .22),
-                    Brand.lilac.withValues(alpha: 0),
-                  ],
-                  stops: const [0, .7],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _AskButton extends StatelessWidget {
   const _AskButton({required this.onTap});
 
@@ -260,13 +209,6 @@ class _AskButton extends StatelessWidget {
     decoration: BoxDecoration(
       gradient: Brand.signUp,
       borderRadius: BorderRadius.circular(14),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x59FF5A1F),
-          blurRadius: 18,
-          offset: Offset(0, 8),
-        ),
-      ],
     ),
     child: Material(
       type: MaterialType.transparency,
@@ -432,26 +374,15 @@ class QuestionCard extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: p.dark ? const Color(0x0BFFFFFF) : Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: q.accepted
-            ? Border.all(color: const Color(0x592FD392))
-            : p.dark
-            ? Border.all(color: const Color(0x12FFFFFF))
-            : null,
-        boxShadow: p.dark
-            ? null
-            : const [
-                BoxShadow(
-                  color: Color(0x14141327),
-                  blurRadius: 34,
-                  offset: Offset(0, 14),
-                ),
-              ],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: q.accepted ? const Color(0x592FD392) : p.line,
+        ),
       ),
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(12),
           onTap: () => context.push(FeatureLinks.question(q.id)),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),

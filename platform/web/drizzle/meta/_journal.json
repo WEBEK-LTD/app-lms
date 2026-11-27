@@ -1107,6 +1107,41 @@
       "when": 1795666620424,
       "tag": "0158_community_yallapp_signin",
       "breakpoints": true
+    },
+    {
+      "idx": 159,
+      "version": "5",
+      "when": 1795752723113,
+      "tag": "0159_community_tenant",
+      "breakpoints": true
+    },
+    {
+      "idx": 160,
+      "version": "5",
+      "when": 1795753828071,
+      "tag": "0160_community_connect",
+      "breakpoints": true
+    },
+    {
+      "idx": 161,
+      "version": "5",
+      "when": 1795753828072,
+      "tag": "0169_community_social",
+      "breakpoints": true
+    },
+    {
+      "idx": 162,
+      "version": "5",
+      "when": 1795754146247,
+      "tag": "0170_community_academy",
+      "breakpoints": true
+    },
+    {
+      "idx": 163,
+      "version": "5",
+      "when": 1795756399541,
+      "tag": "0179_community_engage",
+      "breakpoints": true
     }
   ]
 }
