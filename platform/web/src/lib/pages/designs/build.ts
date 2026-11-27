@@ -35,7 +35,7 @@ export interface Design {
   /** One line under the name. */
   description: string;
   /** The look: the app's main color stays the owner's; 110.3 with the header of the pages in the tabs (the app's name or logo on the home page). */
-  look: Pick<Appearance, "template" | "corners" | "cards" | "font" | "secondary_color"> & Partial<Pick<Appearance, "header">>;
+  look: Pick<Appearance, "template" | "corners" | "cards" | "font" | "secondary_color"> & Partial<Pick<Appearance, "header" | "theme_mode">>;
   tabs: LayoutTab[];
   pages: DesignPage[];
   /** 84.2 The side menu: every design gets its About us and Contact pages there (index.ts). */
