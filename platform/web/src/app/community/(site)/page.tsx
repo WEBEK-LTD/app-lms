@@ -41,8 +41,8 @@ export default async function CommunityHome({ searchParams }: { searchParams: Pr
       <LinkSuggestion w={w} viewer={viewer} back={cmLinks.home()} />
       <StoryRow rings={rings} viewer={viewer} w2={w2} back={back} />
       <PageNote sp={sp} w2={w2} />
-      {viewer ? <Composer w2={w2} back={back} viewer={viewer} /> : null}
-      <AskBox w={w} viewer={viewer} />
+      {/* One composer: a member's post box (with Question and Show your app); signed out, the bar that leads to sign-in. */}
+      {viewer ? <Composer w2={w2} back={back} viewer={viewer} more={{ question: w.question, showApp: w.showApp }} /> : <AskBox w={w} viewer={null} />}
       <div className="cm-tabs" role="tablist">
         {TABS.map((t) => (
           <Link key={t} href={t === "for_you" ? cmLinks.home() : `${cmLinks.home()}?tab=${t}`} className={t === tab ? "on" : ""} aria-current={t === tab ? "page" : undefined} role="tab" aria-selected={t === tab}>

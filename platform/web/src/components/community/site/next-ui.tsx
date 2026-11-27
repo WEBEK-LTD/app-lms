@@ -96,8 +96,8 @@ export function Who({ member, w, sub, size = 40 }: { member: MemberRef; w: CmWor
   );
 }
 
-/** The home's "share something" box: text, photos or one video (with its poster frame). */
-export function Composer({ w2, back, groupId, viewer }: { w2: CmWords2; back: string; groupId?: string; viewer: Viewer }) {
+/** The home's "share something" box: text, photos or one video (with its poster frame); on the home, Question and Show your app too. */
+export function Composer({ w2, back, groupId, viewer, more }: { w2: CmWords2; back: string; groupId?: string; viewer: Viewer; more?: { question: string; showApp: string } }) {
   return (
     <ApiForm call={{ m: "POST", p: "/posts", back, multipart: true }} className="cm-card cm-composer">
       {groupId ? <input type="hidden" name="group_id" value={groupId} /> : null}
@@ -110,6 +110,12 @@ export function Composer({ w2, back, groupId, viewer }: { w2: CmWords2; back: st
         <label className="cm-pick"><span className="ms" aria-hidden="true">image</span>{w2.addPhotos}<input type="file" name="photos" accept="image/png,image/jpeg,image/webp" multiple /></label>
         <label className="cm-pick"><span className="ms" aria-hidden="true">movie</span>{w2.addVideo}<input type="file" name="video" accept="video/mp4,video/quicktime,video/webm" /></label>
         <label className="cm-pick"><span className="ms" aria-hidden="true">photo_frame</span>{w2.posterFrame}<input type="file" name="poster" accept="image/png,image/jpeg,image/webp" /></label>
+        {more ? (
+          <>
+            <Link href={cmLinks.ask()} className="cm-pick"><span className="ms" aria-hidden="true">help</span>{more.question}</Link>
+            <Link href={cmLinks.showcaseNew()} className="cm-pick"><span className="ms" aria-hidden="true">apps</span>{more.showApp}</Link>
+          </>
+        ) : null}
         <span className="sp" />
         <button type="submit" className="cm-btn o">{w2.post}</button>
       </div>
