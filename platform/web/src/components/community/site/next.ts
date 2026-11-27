@@ -39,7 +39,7 @@ export type ShowcaseItem = {
 export type Conversation = {
   id: string; kind: "direct" | "group" | "hire"; title: string | null; members: MemberRef[]; last_message: Message | null; unread: number; blocked: boolean; hire_request_id: string | null; updated_at: string;
 };
-export type Message = { id: string; conversation_id: string; author: MemberRef; body: string; photos: string[]; reply_to: { id: string; body: string; author: MemberRef } | null; deleted: boolean; created_at: string };
+export type Message = { id: string; conversation_id: string; author: MemberRef; body: string; photos: string[]; reply_to: { id: string; author_name: string; excerpt: string } | null; deleted: boolean; created_at: string };
 export type GroupRole = "owner" | "moderator" | "member";
 export type Group = {
   id: string; slug: string; name: string; description: string; visibility: "public" | "private"; cover_url: string | null; owner: MemberRef;
