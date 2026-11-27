@@ -21,6 +21,8 @@ export interface AcademyEnv {
   now: Date;
   /** A member's name for their certificate. */
   memberName(memberId: string): Promise<string | null>;
+  /** 233 A lesson done the first time, a course completed (its certificate issued): area C's points and notices. */
+  onEvent?(event: { kind: "lesson_done" | "course_completed"; memberId: string; refId: string; title: string; link: string }): Promise<void>;
 }
 
 export const ACADEMY_LIMITS = { titleMin: 3, titleMax: 160, summaryMax: 2000, bodyMax: 100_000, quizMax: 30, optionsMin: 2, optionsMax: 6, passMark: 70 } as const;
@@ -233,7 +235,7 @@ async function finish(env: AcademyEnv, me: string, course: CourseRecord): Promis
   let certificate = await env.store.certificateFor(me, course.id);
   if (!certificate && lessons.length > 0 && completed === lessons.length) {
     const record: CertificateRecord = { id: randomUUID(), tenant: env.tenant, code: certificateCode(), memberId: me, courseId: course.id, memberName: ((await env.memberName(me)) ?? "").slice(0, 120) || "Yallapp member", courseTitle: course.title, issuedAt: env.now };
-    await env.store.createCertificate(record);
+    if (await env.store.createCertificate(record)) await env.onEvent?.({ kind: "course_completed", memberId: me, refId: course.id, title: course.title, link: `/academy/courses/${course.slug}` });
     certificate = await env.store.certificateFor(me, course.id);
   }
   return { completed: true, progress: { completed, total: lessons.length }, certificateCode: certificate?.code ?? null };
@@ -244,7 +246,10 @@ export async function completeLesson(env: AcademyEnv, viewerId: string | null, l
   const { me, course, progress } = await openFor(env, viewerId, lessonId);
   const quiz = await env.store.quizOf([lessonId]);
   if (quiz.length && (progress.quizScore ?? 0) < ACADEMY_LIMITS.passMark) throw new QaError("invalid_request", "Pass the lesson's quiz first.", "quiz");
-  if (!progress.completedAt) await env.store.saveProgress({ ...progress, completedAt: env.now });
+  if (!progress.completedAt) {
+    await env.store.saveProgress({ ...progress, completedAt: env.now });
+    await env.onEvent?.({ kind: "lesson_done", memberId: me, refId: lessonId, title: course.title, link: `/academy/courses/${course.slug}` });
+  }
   return finish(env, me, course);
 }
 
@@ -266,6 +271,7 @@ export async function submitQuiz(env: AcademyEnv, viewerId: string | null, lesso
   const score = Math.round((correct.filter(Boolean).length / quiz.length) * 100);
   const passed = score >= ACADEMY_LIMITS.passMark;
   await env.store.saveProgress({ ...progress, attempts: progress.attempts + 1, quizScore: Math.max(score, progress.quizScore ?? 0), completedAt: progress.completedAt ?? (passed ? env.now : null) });
+  if (passed && !progress.completedAt) await env.onEvent?.({ kind: "lesson_done", memberId: me, refId: lessonId, title: course.title, link: `/academy/courses/${course.slug}` });
   return { score, passed, correct, lesson: passed ? await finish(env, me, course) : null };
 }
 
@@ -472,3 +478,25 @@ export async function grantCourseAccess(store: AcademyStore, input: { tenant: st
   const record: AccessRecord = { tenant: input.tenant, memberId: input.memberId, courseId: c.id, source: input.source, ref: input.ref, grantedAt: now };
   return store.grantAccess(record);
 }
+
+/**
+ * 233 The Academy as area C's checkout sees it (engage/checkout.ts
+ * CourseShop, set as CommunityDeps.courses): what a course costs, whether a
+ * member owns it, and the grant once paid. Server-side only.
+ */
+export const academyShop = {
+  async price(ctx: { store: { tenant: string; qa: { academy: AcademyStore } } }, courseId: string) {
+    const store = ctx.store.qa.academy;
+    const c = (await store.getCourse(courseId)) ?? (await store.getCourseBySlug(ctx.store.tenant, courseId));
+    if (!c || c.tenant !== ctx.store.tenant || c.status !== "published") return null;
+    if (c.free) return { title: c.title, slug: c.slug, amountMinor: 0, currency: c.currency ?? "USD", free: true };
+    const priced = await coursePriceForCheckout(store, ctx.store.tenant, c.id);
+    return priced ? { title: priced.title, slug: priced.slug, amountMinor: priced.priceMinor, currency: priced.currency, free: false } : null;
+  },
+  async owned(ctx: { store: { qa: { academy: AcademyStore } } }, memberId: string, courseId: string) {
+    return (await ctx.store.qa.academy.accessOf(memberId, [courseId])).length > 0;
+  },
+  async grant(ctx: { store: { qa: { academy: AcademyStore } }; now?: Date }, input: { tenant: string; memberId: string; courseId: string; source: "purchase"; ref: string }) {
+    await grantCourseAccess(ctx.store.qa.academy, { tenant: input.tenant, memberId: input.memberId, courseId: input.courseId, source: "bought", ref: input.ref }, ctx.now ?? new Date());
+  },
+};

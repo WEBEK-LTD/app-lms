@@ -1,3 +1,4 @@
+import { academyShop } from "./academy/service";
 import "server-only";
 import { getBlobStore } from "../blobs";
 import { getStore } from "../data";
@@ -7,7 +8,6 @@ import { callbackUrls } from "../payments/routes";
 import { yallappBilling, yallappPlanAccount } from "../settings/platform";
 import type { DataStore } from "../data/store";
 import type { CourseCheckoutGateway } from "./engage/checkout";
-import { academyShop } from "./engage/academy-shop";
 import { sendPush } from "../hosted/push";
 import { COMMUNITY_APP_ID, type CommunityPusher } from "./engage/push";
 import { sendMail } from "../mail";
@@ -104,6 +104,7 @@ export async function communityDeps(input: { ip: string; now?: Date; tenant?: Co
     mail: (mail) => sendMail(mail, { fromName: "Yallapp Community" }),
     push: communityPusher(),
     courseCheckout: courseCheckoutGateway(platform),
+    // 233 Area B's Academy for the course checkout: price, ownership, the grant.
     courses: academyShop,
     upload: async (key, bytes, contentType) => {
       const url = publicCommunityUrl(yallappUrl, key);

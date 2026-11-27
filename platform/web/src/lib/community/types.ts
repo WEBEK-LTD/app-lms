@@ -167,7 +167,7 @@ export type CommunityTargetType =
   | "reply"
   | "tutorial"
   | "comment"
-  // 232–234 (the moderation and report kinds agreed with areas B and C)
+  // 232–235: what phases 2 to 5 add, reported and moderated as in phase 1 (lib/community/content-kinds.ts).
   | "post"
   | "post_comment"
   | "story"

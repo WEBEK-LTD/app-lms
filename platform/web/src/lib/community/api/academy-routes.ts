@@ -1,5 +1,7 @@
 import { hitRateLimit } from "../../rate-limit";
 import * as academy from "../academy/service";
+import { awardPoints } from "../engage/points";
+import { qaHooksFor } from "./qa-hooks";
 import { QaError } from "../qa/types";
 import type { AcademyEnv } from "../academy/service";
 import { requireCommunityRole } from "../trust/roles";
@@ -25,6 +27,10 @@ export function academyEnvFor(ctx: CommunityContext): AcademyEnv {
     tenant: tenantOf(ctx),
     now: ctx.now,
     memberName: async (memberId) => (memberId === ctx.member?.id ? ctx.member : await ctx.store.base.getMember(memberId))?.displayName ?? null,
+    onEvent: async ({ kind, memberId, refId, title, link }) => {
+      await awardPoints(ctx, { memberId, reason: kind, ref: refId });
+      if (kind === "course_completed") await qaHooksFor(ctx).notify?.({ memberId, kind: "course_certificate" as never, actorId: null, targetType: "course" as never, targetId: refId, data: { title }, link });
+    },
   };
 }
 

@@ -55,6 +55,10 @@ describe("233 Community academy API", () => {
     expect((await api<Json>(c, "GET", "/academy/mine", { token: nour.token })).body.items).toMatchObject([{ id, progress: 1 }]);
     expect((await api<Json>(c, "GET", "/academy/certificates", { token: nour.token })).body.items.map((x: Json) => x.code)).toEqual([code]);
     expect((await api(c, "GET", "/academy/mine")).status).toBe(401);
+    // 233 Area C's ledger and notices: a lesson done, the course completed and its certificate.
+    expect((await c.deps.store.base.getMember(nour.id))!.points).toBe(22);
+    const notices = await api<Json>(c, "GET", "/notifications", { token: nour.token });
+    expect(JSON.stringify(notices.body)).toContain("course_certificate");
   });
 
   it("shows a paid course locked with no price, until the website's checkout grants it", async () => {

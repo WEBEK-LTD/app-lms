@@ -87,6 +87,19 @@ describe("232 Community social API", () => {
     expect((await api<Json>(c, "GET", `/groups/${gid}`, { token: karim.token })).body.post_count).toBe(1);
   });
 
+  it("233 gives points through area C's ledger: a post, a like (taken back with it)", async () => {
+    const { c, karim, nour } = await setup();
+    const points = async () => (await c.deps.store.base.getMember(karim.id))!.points;
+    const before = await points();
+    const post = (await api<Json>(c, "POST", "/posts", { token: karim.token, body: { body: "Points please" } })).body;
+    expect(await points()).toBe(before + 2);
+    await api(c, "PUT", `/posts/${post.id}/like`, { token: nour.token });
+    await api(c, "PUT", `/posts/${post.id}/like`, { token: nour.token });
+    expect(await points()).toBe(before + 3);
+    await api(c, "DELETE", `/posts/${post.id}/like`, { token: nour.token });
+    expect(await points()).toBe(before + 2);
+  });
+
   it("holds a new member's first post for review", async () => {
     const { c } = await setup();
     const fresh = await joinWithEmail(c, "Omar New");
