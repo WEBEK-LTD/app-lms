@@ -1,3 +1,4 @@
+import { YALLAPP_TENANT } from "../types";
 import { authenticate } from "../auth/sessions";
 import { isCommunityAdmin } from "../staff";
 import { errorMessage, languageFromHeader, t } from "../i18n";
@@ -68,6 +69,8 @@ export async function handleCommunity(deps: CommunityDeps, req: CommunityRequest
   if (found === null) return errorBody({ lang: headerLang }, new CommunityError(404, "not_found"));
   if (found === "method") return errorBody({ lang: headerLang }, new CommunityError(405, "method_not_allowed"));
   const { route, params } = found;
+  // 232–235 Linking a Yallapp account is Yallapp Community's own; a client app's community hasn't it.
+  if (route.yallappOnly && deps.tenant !== YALLAPP_TENANT) return errorBody({ lang: headerLang }, new CommunityError(404, "not_found"));
   const signedIn = req.token ? await authenticate(deps.store.base, req.token, deps.now) : null;
   const ctx: CommunityContext = {
     deps,
@@ -89,7 +92,10 @@ export async function handleCommunity(deps: CommunityDeps, req: CommunityRequest
       const own = route.path === "/auth/log-out" || (route.path === "/me" && route.method === "GET");
       if (ctx.member.status === "suspended" && !own) throw new CommunityError(403, "account_suspended");
       // 231 A Community admin's linked Yallapp account is an owner or admin of Yallapp's admin, asked again now (lib/community/staff.ts).
-      if (auth === "admin" && !(await isCommunityAdmin(req, deps.platform, ctx.member))) throw new CommunityError(403, "not_admin");
+      // 232–235 A client app's community is run by the client, from their dashboard (CommunityRequest.tenantAdmin).
+      if (auth === "admin" && !(deps.tenant === YALLAPP_TENANT ? await isCommunityAdmin(req, deps.platform, ctx.member) : req.tenantAdmin === true)) {
+        throw new CommunityError(403, "not_admin");
+      }
     }
     return await route.handler(ctx);
   } catch (error) {

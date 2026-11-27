@@ -123,7 +123,11 @@ function isDuplicate(error: unknown): boolean {
 }
 
 export class MysqlTrustStore implements TrustStore {
-  constructor(private readonly db: Db) {}
+  /** 232–235 The tenant this store keeps to (lib/community/types.ts CommunityTenant); its rows carry it. */
+  constructor(
+    private readonly db: Db,
+    readonly tenant: string = "yallapp",
+  ) {}
 
   async listMemberBadges(memberId: string) {
     const rows = await this.db.select().from(communityBadges).where(eq(communityBadges.memberId, memberId)).orderBy(asc(communityBadges.grantedAt));
@@ -146,7 +150,7 @@ export class MysqlTrustStore implements TrustStore {
   }
 
   async addVerification(input: Omit<VerificationRequest, "id" | "status" | "reason" | "reviewedBy" | "reviewedAt">) {
-    const row = { id: randomUUID(), ...input, status: "pending" as const, reason: null, reviewedBy: null, reviewedAt: null };
+    const row = { id: randomUUID(), tenantId: this.tenant, ...input, status: "pending" as const, reason: null, reviewedBy: null, reviewedAt: null };
     const t = communityVerificationRequests;
     // The member's row locked for the transaction: two requests sent at once wait for each other, and the second finds the first.
     const made = await this.db.transaction(async (tx) => {
@@ -189,7 +193,7 @@ export class MysqlTrustStore implements TrustStore {
   }
 
   async addAudit(input: Omit<AuditEntry, "id">) {
-    const row = { id: randomUUID(), ...input };
+    const row = { id: randomUUID(), tenantId: this.tenant, ...input };
     await this.db.insert(communityAuditLog).values(row);
     return auditOf(row);
   }
@@ -203,16 +207,16 @@ export class MysqlTrustStore implements TrustStore {
   }
 
   async getSettingsDoc(key = SETTINGS_KEY) {
-    const [row] = await this.db.select().from(communitySettings).where(eq(communitySettings.key, key));
+    const [row] = await this.db.select().from(communitySettings).where(and(eq(communitySettings.tenantId, this.tenant), eq(communitySettings.key, key)));
     return row?.value ?? null;
   }
   async saveSettingsDoc(doc: unknown, input: { at: Date; by: string | null }, key = SETTINGS_KEY) {
-    await this.db.insert(communitySettings).values({ key, value: doc, updatedBy: input.by, updatedAt: input.at }).onDuplicateKeyUpdate({ set: { value: doc, updatedBy: input.by, updatedAt: input.at } });
+    await this.db.insert(communitySettings).values({ tenantId: this.tenant, key, value: doc, updatedBy: input.by, updatedAt: input.at }).onDuplicateKeyUpdate({ set: { value: doc, updatedBy: input.by, updatedAt: input.at } });
   }
 
   async addModeration(input: Omit<ModerationItem, "id" | "status" | "handledBy" | "handledAt">) {
     const t = communityModerationItems;
-    const row = { id: randomUUID(), ...input, status: "open" as const, handledBy: null, handledAt: null };
+    const row = { id: randomUUID(), tenantId: this.tenant, ...input, status: "open" as const, handledBy: null, handledAt: null };
     try {
       await this.db.insert(t).values(row);
       return moderationOf(row);
@@ -255,7 +259,7 @@ export class MysqlTrustStore implements TrustStore {
   }
 
   async addReport(input: { id?: string; reporterId: string; targetType: CommunityTargetType; targetId: string; reason: ReportReason; note: string; createdAt: Date }) {
-    const row = { ...input, id: input.id ?? randomUUID(), status: "open" as const, handledBy: null, handledAt: null };
+    const row = { ...input, tenantId: this.tenant, id: input.id ?? randomUUID(), status: "open" as const, handledBy: null, handledAt: null };
     try {
       await this.db.insert(communityReports).values(row);
     } catch (error) {

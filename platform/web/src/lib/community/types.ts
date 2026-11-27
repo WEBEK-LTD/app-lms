@@ -190,3 +190,11 @@ export interface CommunityLinkedApp {
   /** On a paid plan now (the Green badge). */
   paidPlan: boolean;
 }
+
+/**
+ * 232–235 The tenant key: whose community this is. Yallapp Community is
+ * "yallapp"; a client app's own community (Studio's "Community" app type)
+ * is its app id. One engine, and nothing is ever read across tenants.
+ */
+export type CommunityTenant = string;
+export const YALLAPP_TENANT: CommunityTenant = "yallapp";

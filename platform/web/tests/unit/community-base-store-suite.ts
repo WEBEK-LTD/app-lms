@@ -19,7 +19,36 @@ function member(name: string, extra: Partial<ReturnType<typeof newMember>> = {})
   return { ...newMember({ email: `${name}-${suffix}@store.test`.toLowerCase(), emailVerified: false, passwordHash: null, displayName: name, username: `${name}.${suffix}`.toLowerCase(), language: "en", now: NOW }), ...extra };
 }
 
-export function communityBaseStoreSuite(make: () => CommunityStore) {
+export function communityBaseStoreSuite(make: (tenant?: string) => CommunityStore) {
+  it("232–235 keeps each tenant's members apart: the same email, username, Apple account and Yallapp account in two communities", async () => {
+    const yallapp = make().base;
+    const app = make(randomUUID()).base;
+    const one = member("Ayla");
+    const userId = randomUUID();
+    const subject = randomUUID();
+    await yallapp.createMember({ ...one, yallappUserId: userId });
+    await yallapp.addIdentity({ memberId: one.id, provider: "apple", subject, email: null, createdAt: NOW });
+    // The app's community knows none of them.
+    expect(await app.getMember(one.id)).toBeNull();
+    expect(await app.getMembers([one.id])).toEqual([]);
+    expect(await app.getMemberByEmail(one.email!)).toBeNull();
+    expect(await app.getMemberByUsername(one.username)).toBeNull();
+    expect(await app.getMemberByYallappUser(userId)).toBeNull();
+    expect(await app.getIdentity("apple", subject)).toBeNull();
+    expect(await app.searchMembers(one.username, 0, 10)).toEqual([]);
+    // And the same person can join it with the same email, username and Apple account.
+    const two = { ...member("Ayla"), email: one.email, username: one.username, yallappUserId: userId };
+    await app.createMember(two);
+    await app.addIdentity({ memberId: two.id, provider: "apple", subject, email: null, createdAt: NOW });
+    expect((await app.getMemberByEmail(one.email!))?.id).toBe(two.id);
+    expect((await app.getIdentity("apple", subject))?.memberId).toBe(two.id);
+    expect((await yallapp.getMemberByUsername(one.username))?.id).toBe(one.id);
+    // Neither changes the other's.
+    expect(await app.updateMember(one.id, { displayName: "Changed" })).toBeNull();
+    expect((await yallapp.getMember(one.id))?.displayName).toBe("Ayla");
+    expect(await yallapp.getMember(two.id)).toBeNull();
+  });
+
   it("231 keeps members with a unique email, username and Yallapp account", async () => {
     const s = make().base;
     const a = await s.createMember(member("Nour", { skills: ["Flutter", "Studio"], links: [{ label: "Site", url: "https://nour.test" }] }));
