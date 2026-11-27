@@ -351,6 +351,8 @@ export async function deletePost(env: SocialEnv, viewerId: string | null, id: st
   if (!p || p.tenant !== env.tenant || p.status === "removed") throw new QaError("not_found", "There's no such post.");
   if (p.authorId !== member && !(await env.isTeam(member))) throw new QaError("not_allowed", "Only its author can delete a post.");
   await env.store.updatePost(id, { status: "removed", updatedAt: env.now });
+  // Its points go with it (area C's ledger).
+  await env.onEvent?.({ kind: "post_created", memberId: p.authorId, refId: id, undo: true });
 }
 
 /** A member's posts, or a group's (area A asks for these with `groupId`), newest first. */

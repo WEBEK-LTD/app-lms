@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { beforeEach, describe, expect, it } from "vitest";
-import { academyShop } from "@/lib/community/academy/service";
+import { academyShop } from "@/lib/community/engage/academy-shop";
 import type { CourseCheckoutGateway } from "@/lib/community/engage/checkout";
 import { settleCourseOrder, startCourseCheckout } from "@/lib/community/engage/checkout";
 import type { CommunityPushMessage } from "@/lib/community/engage/push";
@@ -112,8 +112,7 @@ describe("233 the academy's checkout on area B's courses", () => {
     c.deps.courseCheckout = async () => gateway;
     const id = (x: unknown) => (x as { id: string }).id;
     expect(await startCourseCheckout(ctx(), member.id, id(free), { ip: "203.0.113.7" })).toMatchObject({ ok: false, code: "course_free" });
-    // No price yet: area B's academy says there is nothing to buy.
-    expect(await startCourseCheckout(ctx(), member.id, id(unpriced), { ip: "203.0.113.7" })).toMatchObject({ ok: false, status: 404 });
+    expect(await startCourseCheckout(ctx(), member.id, id(unpriced), { ip: "203.0.113.7" })).toMatchObject({ ok: false, code: "checkout_unavailable" });
     const started = await startCourseCheckout(ctx(), member.id, id(paid), { ip: "203.0.113.7" });
     expect(started.ok).toBe(true);
     paidRefs.add(`crs-${(started as { order: { id: string } }).order.id}`);

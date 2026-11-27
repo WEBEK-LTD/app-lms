@@ -462,11 +462,11 @@ export async function coursePriceForCheckout(store: AcademyStore, tenant: string
   return { courseId: c.id, slug: c.slug, title: c.title, priceMinor: c.priceMinor, currency: c.currency };
 }
 
-/** The admin sets a course's price (minor units and an ISO currency), or clears it. */
+/** The admin sets a course's price in US cents (Studio Market's rule: the gateway converts), or clears it. */
 export async function setCoursePrice(store: AcademyStore, tenant: string, courseId: string, price: { priceMinor: number; currency: string } | null, now = new Date()): Promise<boolean> {
   const c = await store.getCourse(courseId);
   if (!c || c.tenant !== tenant) return false;
-  if (price && (!Number.isInteger(price.priceMinor) || price.priceMinor < 0 || !/^[A-Z]{3}$/.test(price.currency))) throw new QaError("invalid_request", "A price is a whole number of minor units and a currency code.", "price");
+  if (price && (!Number.isInteger(price.priceMinor) || price.priceMinor < 0 || price.currency !== "USD")) throw new QaError("invalid_request", "A price is a whole number of US cents (the gateway converts).", "price");
   await store.updateCourse(c.id, { priceMinor: price?.priceMinor ?? null, currency: price?.currency ?? null, updatedAt: now });
   return true;
 }
@@ -479,24 +479,3 @@ export async function grantCourseAccess(store: AcademyStore, input: { tenant: st
   return store.grantAccess(record);
 }
 
-/**
- * 233 The Academy as area C's checkout sees it (engage/checkout.ts
- * CourseShop, set as CommunityDeps.courses): what a course costs, whether a
- * member owns it, and the grant once paid. Server-side only.
- */
-export const academyShop = {
-  async price(ctx: { store: { tenant: string; qa: { academy: AcademyStore } } }, courseId: string) {
-    const store = ctx.store.qa.academy;
-    const c = (await store.getCourse(courseId)) ?? (await store.getCourseBySlug(ctx.store.tenant, courseId));
-    if (!c || c.tenant !== ctx.store.tenant || c.status !== "published") return null;
-    if (c.free) return { title: c.title, slug: c.slug, amountMinor: 0, currency: c.currency ?? "USD", free: true };
-    const priced = await coursePriceForCheckout(store, ctx.store.tenant, c.id);
-    return priced ? { title: priced.title, slug: priced.slug, amountMinor: priced.priceMinor, currency: priced.currency, free: false } : null;
-  },
-  async owned(ctx: { store: { qa: { academy: AcademyStore } } }, memberId: string, courseId: string) {
-    return (await ctx.store.qa.academy.accessOf(memberId, [courseId])).length > 0;
-  },
-  async grant(ctx: { store: { qa: { academy: AcademyStore } }; now?: Date }, input: { tenant: string; memberId: string; courseId: string; source: "purchase"; ref: string }) {
-    await grantCourseAccess(ctx.store.qa.academy, { tenant: input.tenant, memberId: input.memberId, courseId: input.courseId, source: "bought", ref: input.ref }, ctx.now ?? new Date());
-  },
-};

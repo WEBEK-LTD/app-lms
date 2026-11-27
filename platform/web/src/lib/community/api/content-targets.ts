@@ -1,5 +1,5 @@
-import { connectContentInfo, isConnectKind } from "../connect/content";
 import { CONTENT_KINDS } from "../content-kinds";
+import { connectContentInfo, isConnectKind } from "../connect/content";
 import { withQa } from "../qa/hooks";
 import { contentInfo, type QaContentKind } from "../qa/service";
 import type { CommunityTargetType } from "../types";
