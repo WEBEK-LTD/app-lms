@@ -27,6 +27,18 @@ void main() {
       FeatureLinks.question('q-1'),
     );
     expect(routeForPush({}), FeatureLinks.notifications);
+    // Area C's payload: by its link.
+    expect(
+      routeForPush({
+        'kind': 'answer',
+        'notification_id': 'n-1',
+        'link': '/questions/how-to#answer-9',
+      }),
+      FeatureLinks.question('how-to'),
+    );
+    expect(routeForPush({'link': '/u/nour'}), '/members/@nour');
+    expect(routeForPush({'link': '/events/e-1'}), FeatureLinks.event('e-1'));
+    expect(routeForPush({'link': '/academy'}), FeatureLinks.academy);
   });
 
   testWidgets('signed in, the token goes to the server, and again when it '

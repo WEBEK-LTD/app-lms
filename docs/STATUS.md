@@ -45,7 +45,7 @@ welcome and signing in (Apple, Google, email), the shell, Home, the side
 menu, profiles with follow, friends, block and report, and settings, on area
 A's contract; no payments in the app (a test guards it); not yet released.
 
-Roadmap 232 area D (the Community app): the flat look; posts, the For you, Latest and Following feed, stories, messages, groups and push in the app, with the shell opening phases 2–4; push's per-kind choices wait on the server's `push` settings.
+Roadmap 232 area D (the Community app): the flat look; posts, the For you, Latest and Following feed, stories, messages, groups and push in the app, with the shell opening phases 2–4; push routes by area C's `link` and keeps its per-kind choices on the server.
 
 Roadmap 231 (area E, the Community app's features): the question screen
 as the approved dark question phone, the Q&A tab, asking with similar

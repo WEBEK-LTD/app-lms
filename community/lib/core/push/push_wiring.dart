@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/messages/links.dart';
+import '../../features/notifications/data/notifications_api.dart';
 import '../auth/session.dart';
 import '../l10n.dart';
 import '../providers.dart';
@@ -51,8 +52,16 @@ final pushWiringProvider = Provider<void>((ref) {
     }
   }
 
-  void open(Map<String, dynamic> data) =>
-      ref.read(routerProvider).push(routeForPush(data));
+  void open(Map<String, dynamic> data) {
+    ref.read(routerProvider).push(routeForPush(data));
+    // The notice it came from is read now.
+    final id = data['notification_id'];
+    if (id is String && id.isNotEmpty) {
+      unawaited(
+        ref.read(notificationsApiProvider).markRead([id]).catchError((_) {}),
+      );
+    }
+  }
 
   Future<void> start() async {
     if (started) return;
