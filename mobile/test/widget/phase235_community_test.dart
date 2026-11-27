@@ -22,26 +22,37 @@ dynamic _answer(
   Map<String, dynamic>? q,
   Object? b,
 ) => switch ((method, path)) {
-  ('GET', '/community/feed') => {
+  ('POST', '/community/v1/auth/app') => {
+    'access_token': 'community-token',
+    'refresh_token': 'r',
+  },
+  ('GET', '/community/v1/feed') => {
     'items': [
       {
         'kind': 'post',
         'id': 'p1',
-        'author': _member('m1', 'Selin'),
-        'body': 'Our new spring menu is out',
-        'comment_count': 3,
+        'post': {
+          'id': 'p1',
+          'author': _member('m1', 'Selin'),
+          'body': 'Our new spring menu is out',
+          'comment_count': 3,
+        },
       },
       {
         'kind': 'question',
         'id': 'q1',
-        'author': _member('m2', 'Omar'),
-        'title': 'Do you deliver on Sundays?',
-        'excerpt': 'Asking for a party',
-        'answer_count': 1,
+        'question': {
+          'id': 'q1',
+          'author': _member('m2', 'Omar'),
+          'title': 'Do you deliver on Sundays?',
+          'excerpt': 'Asking for a party',
+          'answer_count': 1,
+        },
       },
     ],
+    'next_cursor': null,
   },
-  ('GET', '/community/qa/questions') => {
+  ('GET', '/community/v1/qa/questions') => {
     'items': [
       {
         'id': 'q1',
@@ -51,7 +62,7 @@ dynamic _answer(
       },
     ],
   },
-  ('GET', '/community/qa/questions/q1') => {
+  ('GET', '/community/v1/qa/questions/q1') => {
     'id': 'q1',
     'author': _member('m2', 'Omar'),
     'title': 'Do you deliver on Sundays?',
@@ -65,7 +76,7 @@ dynamic _answer(
       },
     ],
   },
-  ('GET', '/community/groups') => {
+  ('GET', '/community/v1/groups') => {
     'items': [
       {
         'id': 'g1',
@@ -73,17 +84,20 @@ dynamic _answer(
         'description': 'Recipes and tips',
         'member_count': 12,
         'visibility': 'public',
+        'standing': {'role': null, 'requested': false},
       },
     ],
   },
-  ('GET', '/community/me') => _member('me', 'Deniz'),
-  ('GET', '/community/conversations') => {
+  ('GET', '/community/v1/me') => _member('me', 'Deniz'),
+  ('GET', '/community/v1/messages/conversations') => {
     'items': [
       {
         'id': 'c1',
+        'kind': 'direct',
+        'title': null,
         'members': [_member('m1', 'Selin')],
         'last_message': {'body': 'See you there'},
-        'unread_count': 1,
+        'unread': 1,
       },
     ],
   },
@@ -138,8 +152,10 @@ void main() {
     await tester.enterText(find.byType(TextField), 'Thanks!');
     await tester.tap(find.byTooltip('Send'));
     await TestApp.settle(tester, 20);
-    final sent = app.api.communityRequests.where((r) => r.method == 'POST');
-    expect(sent.single.path, '/community/qa/questions/q1/answers');
+    final sent = app.api.communityRequests.where(
+      (r) => r.method == 'POST' && r.path.endsWith('/answers'),
+    );
+    expect(sent.single.path, '/community/v1/qa/questions/q1/answers');
     expect(sent.single.body, {'body': 'Thanks!'});
   });
 
@@ -154,7 +170,8 @@ void main() {
     await TestApp.settle(tester, 20);
     expect(
       app.api.communityRequests.any(
-        (r) => r.method == 'POST' && r.path == '/community/groups/g1/join',
+        (r) =>
+            r.method == 'PUT' && r.path == '/community/v1/groups/g1/membership',
       ),
       isTrue,
     );

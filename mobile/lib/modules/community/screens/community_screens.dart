@@ -541,8 +541,8 @@ class CommunityConversationScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final scheme = Theme.of(context).colorScheme;
     final provider = communityMessagesProvider(id);
+    final myId = ref.watch(communityMeProvider).value?.id;
     return _screen(
       context,
       l.communityTabMessages,
@@ -557,31 +557,7 @@ class CommunityConversationScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(16),
                 children: [
                   for (final m in items)
-                    Align(
-                      alignment: m.mine
-                          ? AlignmentDirectional.centerEnd
-                          : AlignmentDirectional.centerStart,
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        constraints: const BoxConstraints(maxWidth: 300),
-                        decoration: BoxDecoration(
-                          color: m.mine
-                              ? scheme.primary
-                              : scheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          m.body,
-                          style: TextStyle(
-                            color: m.mine ? scheme.onPrimary : scheme.onSurface,
-                          ),
-                        ),
-                      ),
-                    ),
+                    _Bubble(m, mine: myId != null && m.author?.id == myId),
                 ],
               ),
             ),
@@ -662,4 +638,34 @@ class _ComposerState extends State<_Composer> {
       ),
     ],
   );
+}
+
+class _Bubble extends StatelessWidget {
+  const _Bubble(this.message, {required this.mine});
+
+  final CommunityMessage message;
+  final bool mine;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Align(
+      alignment: mine
+          ? AlignmentDirectional.centerEnd
+          : AlignmentDirectional.centerStart,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        constraints: const BoxConstraints(maxWidth: 300),
+        decoration: BoxDecoration(
+          color: mine ? scheme.primary : scheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          message.body,
+          style: TextStyle(color: mine ? scheme.onPrimary : scheme.onSurface),
+        ),
+      ),
+    );
+  }
 }

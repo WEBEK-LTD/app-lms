@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/json.dart';
 import '../../../core/api/yallapp_api.dart';
+import '../../../core/auth/auth_controller.dart';
 import '../../../core/providers.dart';
 
 /// 235 A member as the community shows them.
@@ -29,9 +30,9 @@ class CommunityMember {
   final String? headline;
 }
 
-enum FeedKind { post, question }
+enum FeedKind { post, question, showcase }
 
-/// One entry of the feed: a post or a question.
+/// One entry of the feed (`FeedItem`): a post, a question or a showcase.
 class FeedEntry {
   const FeedEntry({
     required this.kind,
@@ -44,20 +45,31 @@ class FeedEntry {
   });
 
   factory FeedEntry.fromJson(Json json) {
-    final kind = optString(json, 'kind') == 'question'
-        ? FeedKind.question
-        : FeedKind.post;
+    final kind = switch (optString(json, 'kind')) {
+      'question' => FeedKind.question,
+      'showcase' => FeedKind.showcase,
+      _ => FeedKind.post,
+    };
+    // Exactly the field named by `kind` is set.
+    final item =
+        optObject(json, kind.name, (j) => j) ?? const <String, dynamic>{};
     return FeedEntry(
       kind: kind,
-      id: optString(json, 'id') ?? '',
+      id: optString(json, 'id') ?? optString(item, 'id') ?? '',
       author: CommunityMember.fromJson(
-        optObject(json, 'author', (j) => j) ?? const {},
+        optObject(item, 'author', (j) => j) ??
+            optObject(item, 'member', (j) => j) ??
+            const {},
       ),
-      title: optString(json, 'title'),
-      text: optString(json, 'body') ?? optString(json, 'excerpt') ?? '',
+      title: optString(item, 'title'),
+      text:
+          optString(item, 'body') ??
+          optString(item, 'excerpt') ??
+          optString(item, 'description') ??
+          '',
       count: kind == FeedKind.question
-          ? intOr(json, 'answer_count', 0)
-          : intOr(json, 'comment_count', 0),
+          ? intOr(item, 'answer_count', 0)
+          : intOr(item, 'comment_count', 0),
       createdAt: optDate(json, 'created_at'),
     );
   }
@@ -68,7 +80,7 @@ class FeedEntry {
   final String? title;
   final String text;
 
-  /// A question's answers, a post's comments.
+  /// A question's answers, a post's or a showcase's comments.
   final int count;
   final DateTime? createdAt;
 }
@@ -133,6 +145,7 @@ class CommunityGroup {
     this.memberCount = 0,
     this.private = false,
     this.joined = false,
+    this.requested = false,
   });
 
   factory CommunityGroup.fromJson(Json json) => CommunityGroup(
@@ -141,7 +154,10 @@ class CommunityGroup {
     description: optString(json, 'description') ?? '',
     memberCount: intOr(json, 'member_count', 0),
     private: optString(json, 'visibility') == 'private',
-    joined: boolOr(json, 'joined', false) || boolOr(json, 'is_member', false),
+    joined: optObject(json, 'standing', (j) => optString(j, 'role')) != null,
+    requested:
+        optObject(json, 'standing', (j) => boolOr(j, 'requested', false)) ??
+        false,
   );
 
   final String id;
@@ -150,6 +166,9 @@ class CommunityGroup {
   final int memberCount;
   final bool private;
   final bool joined;
+
+  /// Asked to join a private group; waiting for its moderators.
+  final bool requested;
 }
 
 class CommunityConversation {
@@ -182,105 +201,128 @@ class CommunityConversation {
 }
 
 class CommunityMessage {
-  const CommunityMessage({
-    required this.id,
-    required this.body,
-    required this.mine,
-    this.author,
-  });
+  const CommunityMessage({required this.id, required this.body, this.author});
 
   factory CommunityMessage.fromJson(Json json) => CommunityMessage(
     id: optString(json, 'id') ?? '',
     body: optString(json, 'body') ?? '',
-    mine: boolOr(json, 'mine', false),
     author: optObject(json, 'author', CommunityMember.fromJson),
   );
 
   final String id;
   final String body;
-  final bool mine;
   final CommunityMember? author;
 }
 
-/// 235 The community endpoints of the hosted API (`/community/...`): the
-/// community engine's own paths, with this app as the tenant. Everything
-/// goes through [YallappApi.community], so sign-in, refresh and errors are
-/// the app's usual ones; the members are the app's customers.
+/// 235 The app's own community: the Community API with this app as its
+/// tenant (docs/api/community.yaml, /api/app/{app_id}/community/v1). Reading
+/// needs no account; the member's own things use the community's token,
+/// which the app's signed-in customer gets for their account.
 class CommunityApi {
-  const CommunityApi(this.api);
+  const CommunityApi(this.api, this.token);
 
   final YallappApi api;
 
-  Future<Json> _get(
-    String path, {
-    Map<String, dynamic>? query,
-    bool me = false,
-  }) async =>
-      asJson(await api.community('GET', path, query: query, signedIn: me));
+  /// The community token of the app's signed-in customer, or null.
+  final Future<String?> Function() token;
 
-  Future<Json> _send(String method, String path, {Object? body}) async =>
-      asJson(
-        await api.community(method, path, body: body, signedIn: true) ??
-            const <String, dynamic>{},
-      );
+  static const _base = '/community/v1';
 
-  Future<List<FeedEntry>> feed() async =>
-      listOf(await _get('/community/feed'), 'items', FeedEntry.fromJson);
-
-  Future<List<CommunityQuestion>> questions() async => listOf(
-    await _get('/community/qa/questions'),
-    'items',
-    CommunityQuestion.fromJson,
+  Future<Json> _get(String path, {Map<String, dynamic>? query}) async => asJson(
+    await api.community(
+      'GET',
+      '$_base$path',
+      query: query,
+      bearer: await token(),
+    ),
   );
 
+  Future<Json> _send(String method, String path, {Object? body}) async {
+    final bearer = await token();
+    if (bearer == null) throw const CommunitySignedOut();
+    return asJson(
+      await api.community(method, '$_base$path', body: body, bearer: bearer) ??
+          const <String, dynamic>{},
+    );
+  }
+
+  static String _id(String id) => Uri.encodeComponent(id);
+
+  Future<List<FeedEntry>> feed() async =>
+      listOf(await _get('/feed'), 'items', FeedEntry.fromJson);
+
+  Future<List<CommunityQuestion>> questions() async =>
+      listOf(await _get('/qa/questions'), 'items', CommunityQuestion.fromJson);
+
   Future<CommunityQuestion> question(String id) async =>
-      CommunityQuestion.fromJson(
-        await _get('/community/qa/questions/${Uri.encodeComponent(id)}'),
-      );
+      CommunityQuestion.fromJson(await _get('/qa/questions/${_id(id)}'));
 
   Future<void> answer(String questionId, String body) => _send(
     'POST',
-    '/community/qa/questions/${Uri.encodeComponent(questionId)}/answers',
+    '/qa/questions/${_id(questionId)}/answers',
     body: {'body': body},
   );
 
   Future<List<CommunityGroup>> groups() async =>
-      listOf(await _get('/community/groups'), 'items', CommunityGroup.fromJson);
+      listOf(await _get('/groups'), 'items', CommunityGroup.fromJson);
 
-  Future<void> join(String groupId) =>
-      _send('POST', '/community/groups/${Uri.encodeComponent(groupId)}/join');
+  Future<void> join(String group) =>
+      _send('PUT', '/groups/${_id(group)}/membership');
 
   Future<CommunityMember> me() async =>
-      CommunityMember.fromJson(await _get('/community/me', me: true));
+      CommunityMember.fromJson(await _get('/me'));
 
   Future<List<CommunityConversation>> conversations() async => listOf(
-    await _get('/community/conversations', me: true),
+    await _get('/messages/conversations'),
     'items',
     CommunityConversation.fromJson,
   );
 
-  Future<List<CommunityMessage>> messages(
-    String conversationId,
-  ) async => listOf(
-    await _get(
-      '/community/conversations/${Uri.encodeComponent(conversationId)}/messages',
-      me: true,
-    ),
-    'items',
-    CommunityMessage.fromJson,
-  );
+  Future<List<CommunityMessage>> messages(String conversationId) async =>
+      listOf(
+        await _get('/messages/conversations/${_id(conversationId)}/messages'),
+        'items',
+        CommunityMessage.fromJson,
+      );
 
   Future<void> send(String conversationId, String body) => _send(
     'POST',
-    '/community/conversations/${Uri.encodeComponent(conversationId)}/messages',
+    '/messages/conversations/${_id(conversationId)}/messages',
     body: {'body': body},
   );
 }
 
-final communityApiProvider = Provider<CommunityApi>(
-  (ref) => CommunityApi(ref.watch(yallappApiProvider)),
-);
+/// A write needs the member's community token, and there is none.
+class CommunitySignedOut implements Exception {
+  const CommunitySignedOut();
+}
 
+/// The community token for the app's signed-in customer: their app session,
+/// exchanged once per sign-in (POST /community/v1/auth/app), kept in memory
+/// only. Null when signed out.
+final communityTokenProvider = FutureProvider<String?>((ref) async {
+  final auth = ref.watch(authControllerProvider);
+  if (!auth.isSignedIn) return null;
+  final appToken = await ref.read(tokenManagerProvider).validAccessToken();
+  if (appToken == null) return null;
+  final session = asJson(
+    await ref
+        .read(yallappApiProvider)
+        .community(
+          'POST',
+          '/community/v1/auth/app',
+          body: {'access_token': appToken},
+        ),
+  );
+  return optString(session, 'access_token');
+});
+
+final communityApiProvider = Provider<CommunityApi>(
+  (ref) => CommunityApi(
+    ref.watch(yallappApiProvider),
+    () => ref.read(communityTokenProvider.future),
+  ),
+);
 final communityFeedProvider = FutureProvider.autoDispose<List<FeedEntry>>(
   (ref) => ref.watch(communityApiProvider).feed(),
 );

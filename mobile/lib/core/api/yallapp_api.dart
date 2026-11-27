@@ -1178,15 +1178,17 @@ abstract class YallappApi {
     bool signedIn = false,
   });
 
-  /// 235 Community apps: the hosted API's /community endpoints, the
-  /// community engine with this app as its tenant (members are the app's
-  /// customers). lib/modules/community/data/community_api.dart types them.
+  /// 235 Community apps: the app's own community, the community engine
+  /// with this app as its tenant (/api/app/{app_id}/community/v1, paths from
+  /// `/community/v1`). It signs in with its own token ([bearer]), which the
+  /// app's customer gets for their account (POST /community/v1/auth/app);
+  /// lib/modules/community/data/community_api.dart types it all.
   Future<dynamic> community(
     String method,
     String path, {
     Map<String, dynamic>? query,
     Object? body,
-    bool signedIn = false,
+    String? bearer,
   });
 
   // 105.2 Ride hailing.
@@ -3994,14 +3996,23 @@ class HttpYallappApi implements YallappApi {
     String path, {
     Map<String, dynamic>? query,
     Object? body,
-    bool signedIn = false,
-  }) => _send(
-    method,
-    path,
-    signedIn ? _required : _optional,
+    String? bearer,
+  }) => _call(
+    () => _dio.request<dynamic>(
+      path,
+      data: body,
+      queryParameters: query,
+      options: authOptions(
+        AuthMode.none,
+        Options(
+          method: method,
+          headers: {
+            'Authorization': ?(bearer == null ? null : 'Bearer $bearer'),
+          },
+        ),
+      ),
+    ),
     (data) => data,
-    body: body,
-    query: query,
   );
 
   // 105.2 Ride hailing.

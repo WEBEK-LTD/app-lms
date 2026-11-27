@@ -2957,7 +2957,14 @@ class FakeApi implements YallappApi {
 
   /// 235 Community requests, and what answers them.
   final communityRequests =
-      <({String method, String path, Map<String, dynamic>? query, Object? body})>[];
+      <
+        ({
+          String method,
+          String path,
+          Map<String, dynamic>? query,
+          Object? body,
+        })
+      >[];
   dynamic Function(
     String method,
     String path,
@@ -2972,9 +2979,14 @@ class FakeApi implements YallappApi {
     String path, {
     Map<String, dynamic>? query,
     Object? body,
-    bool signedIn = false,
+    String? bearer,
   }) {
-    communityRequests.add((method: method, path: path, query: query, body: body));
+    communityRequests.add((
+      method: method,
+      path: path,
+      query: query,
+      body: body,
+    ));
     return _answer(
       'community',
       () =>
