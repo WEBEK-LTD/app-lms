@@ -498,6 +498,7 @@ function targetLink(type: string, id: string): string | null {
   if (type === "showcase") return cmLinks.showcaseItem(id);
   if (type === "group") return cmLinks.group(id);
   if (type === "job") return cmLinks.job(id);
+  if (type === "conversation") return cmLinks.admin(`conversations/${encodeURIComponent(id)}`);
   return null;
 }
 
