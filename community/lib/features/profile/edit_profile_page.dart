@@ -253,7 +253,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                   onDeleted: () => setState(() => _skills.remove(s)),
                   deleteIcon: const Sym(Symbols.close_rounded, size: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
             ],

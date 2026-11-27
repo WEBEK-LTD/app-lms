@@ -73,7 +73,7 @@ class AppLocalizationsTr extends AppLocalizations {
       '18.000+ uygulama yapıcısına katıl. Öğren, sor\nve yaptığını göster.';
 
   @override
-  String get authBubbleNour => 'Bugün mağazamı açtım 🎉';
+  String get authBubbleNour => 'Bugün mağazamı açtım';
 
   @override
   String get authBubbleAccepted => 'Cevap kabul edildi';
@@ -197,13 +197,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get headerProfile => 'Profilin';
 
   @override
-  String get homeMorning => 'Günaydın ☀️';
+  String get homeMorning => 'Günaydın';
 
   @override
-  String get homeAfternoon => 'Tünaydın 🌤️';
+  String get homeAfternoon => 'Tünaydın';
 
   @override
-  String get homeEvening => 'İyi akşamlar 🌙';
+  String get homeEvening => 'İyi akşamlar';
 
   @override
   String get homeRead => 'Oku';
@@ -1035,4 +1035,667 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get qaAcceptShort => 'Kabul et';
+
+  @override
+  String get feedForYou => 'Senin için';
+
+  @override
+  String get feedLatest => 'En yeni';
+
+  @override
+  String get feedFollowing => 'Takip edilenler';
+
+  @override
+  String get feedFollowingEmpty =>
+      'Takip ettiğin üyelerin gönderileri burada görünür.';
+
+  @override
+  String get postTitle => 'Gönderi';
+
+  @override
+  String get postNew => 'Yeni gönderi';
+
+  @override
+  String get postHint => 'Toplulukla bir şey paylaş';
+
+  @override
+  String get postPublish => 'Paylaş';
+
+  @override
+  String postPhotos(int n, int max) {
+    return 'Fotoğraflar $n/$max';
+  }
+
+  @override
+  String get postVideo => 'Video';
+
+  @override
+  String get postPickPoster => 'Kapak fotoğrafı seç';
+
+  @override
+  String get postVideoReady => 'Video ve kapak hazır';
+
+  @override
+  String get postPending => 'İnceleme bekliyor';
+
+  @override
+  String get postMore => 'Daha fazla';
+
+  @override
+  String get postLike => 'Beğen';
+
+  @override
+  String get postComments => 'Yorumlar';
+
+  @override
+  String get postShare => 'Paylaş';
+
+  @override
+  String get postSave => 'Kaydet';
+
+  @override
+  String get postDelete => 'Sil';
+
+  @override
+  String get postDeleteConfirm => 'Bu gönderi silinsin mi?';
+
+  @override
+  String get postReport => 'Bildir';
+
+  @override
+  String get postLinkCopied => 'Bağlantı kopyalandı';
+
+  @override
+  String get postNoComments => 'Henüz yorum yok. İlk sen yaz.';
+
+  @override
+  String get postReply => 'Yanıtla';
+
+  @override
+  String postReplyingTo(String name) {
+    return '$name adlı üyeye yanıt';
+  }
+
+  @override
+  String get postCommentHint => 'Yorum yaz';
+
+  @override
+  String get postSend => 'Gönder';
+
+  @override
+  String get postSaved => 'Kaydedilen gönderiler';
+
+  @override
+  String get createPost => 'Gönderi yaz';
+
+  @override
+  String get createPostLine => 'Metin, en fazla 10 fotoğraf ya da bir video';
+
+  @override
+  String get createStory => 'Hikâye ekle';
+
+  @override
+  String get createStoryLine => '24 saatlik bir fotoğraf ya da kısa video';
+
+  @override
+  String get storyYours => 'Hikâyen';
+
+  @override
+  String get storyAddPhoto => 'Fotoğraf';
+
+  @override
+  String get storyAddVideo => 'Kısa video';
+
+  @override
+  String get storyAdded => 'Hikâyen 24 saat yayında';
+
+  @override
+  String storyViews(int n) {
+    return '$n görüntülenme';
+  }
+
+  @override
+  String get postSavedEmpty => 'Kaydettiğin gönderiler burada görünür.';
+
+  @override
+  String get msgNew => 'Yeni mesaj';
+
+  @override
+  String get msgEmpty =>
+      'Henüz sohbet yok. Bir üyeye profilinden yaz ya da buradan başlat.';
+
+  @override
+  String get msgDeleted => 'Mesaj silindi';
+
+  @override
+  String get msgPhoto => 'Fotoğraf';
+
+  @override
+  String get msgStart => 'Başlat';
+
+  @override
+  String get msgGroupTitle => 'Grup adı (isteğe bağlı)';
+
+  @override
+  String msgPickPeople(int n, int max) {
+    return '$max kişiden $n seçildi';
+  }
+
+  @override
+  String get msgNotAllowed => 'Bu üyeye mesaj gönderemezsin.';
+
+  @override
+  String get msgHint => 'Mesaj';
+
+  @override
+  String get msgSeen => 'Görüldü';
+
+  @override
+  String get msgMute => 'Bildirimleri sessize al';
+
+  @override
+  String get msgUnmute => 'Bildirimleri aç';
+
+  @override
+  String get msgRename => 'Grubu yeniden adlandır';
+
+  @override
+  String get msgReport => 'Sohbeti bildir';
+
+  @override
+  String get msgLeave => 'Gruptan ayrıl';
+
+  @override
+  String get msgHide => 'Sohbeti gizle';
+
+  @override
+  String get msgBlocked => 'Bu sohbete yanıt veremezsin.';
+
+  @override
+  String get msgMessage => 'Mesaj gönder';
+
+  @override
+  String get groupCreate => 'Yeni grup';
+
+  @override
+  String get groupDiscover => 'Keşfet';
+
+  @override
+  String get groupNoneYet => 'Henüz bir gruba katılmadın.';
+
+  @override
+  String get groupAll => 'Tüm gruplar';
+
+  @override
+  String groupMembers(int n) {
+    return '$n üye';
+  }
+
+  @override
+  String get groupMembersTitle => 'Üyeler';
+
+  @override
+  String get groupName => 'Ad';
+
+  @override
+  String get groupAbout => 'Grup ne hakkında';
+
+  @override
+  String get groupPrivate => 'Özel';
+
+  @override
+  String get groupPublic => 'Herkese açık';
+
+  @override
+  String get groupPrivateLine =>
+      'Üyeler istekle katılır; gönderileri yalnızca onlar görür.';
+
+  @override
+  String get groupPublicLine => 'Herkes katılabilir ve okuyabilir.';
+
+  @override
+  String get groupCreateNotAllowed =>
+      'Grup oluşturma henüz hesabına açık değil.';
+
+  @override
+  String get groupJoin => 'Katıl';
+
+  @override
+  String get groupAskToJoin => 'Katılma isteği gönder';
+
+  @override
+  String get groupRequested => 'İstek gönderildi';
+
+  @override
+  String get groupLeave => 'Ayrıl';
+
+  @override
+  String get groupOwnerMustTransfer =>
+      'Ayrılmadan önce grubu başka bir üyeye devret.';
+
+  @override
+  String get groupWrite => 'Gruba yaz';
+
+  @override
+  String get groupJoinToRead =>
+      'Bu grup özel. Gönderilerini okumak için katıl.';
+
+  @override
+  String get groupNoPosts => 'Henüz gönderi yok.';
+
+  @override
+  String get groupCover => 'Kapağı değiştir';
+
+  @override
+  String get groupRequests => 'Katılma istekleri';
+
+  @override
+  String get groupDecline => 'Reddet';
+
+  @override
+  String get groupOwner => 'Sahip';
+
+  @override
+  String get groupModerator => 'Moderatör';
+
+  @override
+  String get groupMakeModerator => 'Moderatör yap';
+
+  @override
+  String get groupMakeMember => 'Yeniden üye yap';
+
+  @override
+  String get groupHandOver => 'Grubu devret';
+
+  @override
+  String get groupRemove => 'Gruptan çıkar';
+
+  @override
+  String get pushTitle => 'Anlık bildirimler';
+
+  @override
+  String get pushBody =>
+      'Telefonuna ne geleceğini seç. Uygulamadaki liste ve e-posta seçimlerin aynı kalır.';
+
+  @override
+  String get pushOpen => 'Aç';
+
+  @override
+  String get pushKindMessage => 'Mesajlar';
+
+  @override
+  String get pushKindComment => 'Gönderilerime yorumlar';
+
+  @override
+  String get pushKindReply => 'Yorumlarıma yanıtlar';
+
+  @override
+  String get pushKindLike => 'Gönderilerime beğeniler';
+
+  @override
+  String get pushKindGroup => 'Grup istekleri ve davetleri';
+
+  @override
+  String get showcaseTitle => 'Vitrin';
+
+  @override
+  String get showcaseAll => 'Tümü';
+
+  @override
+  String get showcaseNewest => 'En yeni';
+
+  @override
+  String get showcaseMostLiked => 'En beğenilen';
+
+  @override
+  String get showcaseTypeStore => 'Mağazalar';
+
+  @override
+  String get showcaseTypeAcademy => 'Akademiler';
+
+  @override
+  String get showcaseTypeBooking => 'Randevular';
+
+  @override
+  String get showcaseMadeWith => 'Yallapp ile yapıldı';
+
+  @override
+  String get showcaseLike => 'Beğen';
+
+  @override
+  String get showcaseLiked => 'Beğenildi';
+
+  @override
+  String get showcaseAppStore => 'App Store';
+
+  @override
+  String get showcasePlay => 'Google Play';
+
+  @override
+  String get showcaseWebsite => 'Web sitesi';
+
+  @override
+  String get showcaseEmpty => 'Burada henüz uygulama yok.';
+
+  @override
+  String get academyTitle => 'Akademi';
+
+  @override
+  String get academyLocked => 'Kilitli';
+
+  @override
+  String get academyLockedNote => 'Bu kurs hesabınızda henüz açık değil.';
+
+  @override
+  String get academyFree => 'Açık';
+
+  @override
+  String get academyComplete => 'Tamamlandı olarak işaretle';
+
+  @override
+  String get academyDone => 'Tamamlandı';
+
+  @override
+  String get academyWatch => 'Dersi izle';
+
+  @override
+  String get academyCertificate => 'Sertifikanız';
+
+  @override
+  String get academyEmpty => 'Henüz kurs yok.';
+
+  @override
+  String get challengesTitle => 'Yarışmalar';
+
+  @override
+  String get challengeUpcoming => 'Yakında';
+
+  @override
+  String get challengeOpen => 'Açık';
+
+  @override
+  String get challengeVoting => 'Oylama';
+
+  @override
+  String get challengeClosed => 'Kapandı';
+
+  @override
+  String get challengeRules => 'Kurallar';
+
+  @override
+  String get challengeEntriesTitle => 'Katılımlar';
+
+  @override
+  String get challengeWinners => 'Kazananlar';
+
+  @override
+  String get challengeVote => 'Oy ver';
+
+  @override
+  String get challengeVoted => 'Oy verildi';
+
+  @override
+  String get challengeEnter => 'Bağlantıyla katıl';
+
+  @override
+  String get challengeEnterHint => 'Uygulamanızın bağlantısı';
+
+  @override
+  String get challengeEntered => 'Katıldınız';
+
+  @override
+  String get challengeSend => 'Gönder';
+
+  @override
+  String get challengeEmpty => 'Şu an yarışma yok.';
+
+  @override
+  String get challengeCardTitle => 'Bu haftanın yarışması';
+
+  @override
+  String get boardTitle => 'Liderlik tablosu';
+
+  @override
+  String get boardWeek => 'Bu hafta';
+
+  @override
+  String get boardAll => 'Tüm zamanlar';
+
+  @override
+  String get prosTitle => 'Uzmanlar';
+
+  @override
+  String get proAvailable => 'Müsait';
+
+  @override
+  String get proBusy => 'Meşgul';
+
+  @override
+  String get proUnavailable => 'İş almıyor';
+
+  @override
+  String get proAvailableOnly => 'Şimdi müsait';
+
+  @override
+  String get proServices => 'Hizmetler';
+
+  @override
+  String get proPortfolio => 'Portfolyo';
+
+  @override
+  String get proSkills => 'Beceriler';
+
+  @override
+  String get proHire => 'İş talebi gönder';
+
+  @override
+  String get proHireHint => 'Neye ihtiyacınız var? En az 10 karakter.';
+
+  @override
+  String get proHireSent => 'Gönderildi. Uzmanla konuşmanız açık.';
+
+  @override
+  String get proDirect =>
+      'İşi ve koşulları uzmanla aranızda kararlaştırırsınız.';
+
+  @override
+  String get prosEmpty => 'Henüz uzman yok.';
+
+  @override
+  String get jobsTitle => 'İşler';
+
+  @override
+  String get jobRemote => 'Uzaktan';
+
+  @override
+  String get jobFullTime => 'Tam zamanlı';
+
+  @override
+  String get jobPartTime => 'Yarı zamanlı';
+
+  @override
+  String get jobContract => 'Sözleşmeli';
+
+  @override
+  String get jobFreelance => 'Serbest';
+
+  @override
+  String get jobInternship => 'Staj';
+
+  @override
+  String get jobApply => 'Başvur';
+
+  @override
+  String get jobApplyHint => 'Mesajınız. En az 10 karakter.';
+
+  @override
+  String get jobApplied => 'Başvurdunuz';
+
+  @override
+  String get jobApplicantsTitle => 'Başvuranlar';
+
+  @override
+  String get jobsEmpty => 'Şu an iş yok.';
+
+  @override
+  String get eventsTitle => 'Etkinlikler';
+
+  @override
+  String get eventAll => 'Tümü';
+
+  @override
+  String get eventLive => 'Canlı';
+
+  @override
+  String get eventLiveNow => 'Şimdi canlı';
+
+  @override
+  String get eventOnline => 'Çevrim içi';
+
+  @override
+  String get eventInPerson => 'Yüz yüze';
+
+  @override
+  String get eventFree => 'Ücretsiz';
+
+  @override
+  String get eventRsvp => 'Katılıyorum';
+
+  @override
+  String get eventGoing => 'Katılıyorum';
+
+  @override
+  String get eventNotGoing => 'Katılmıyorum';
+
+  @override
+  String get eventCalendar => 'Takvime ekle';
+
+  @override
+  String get eventJoin => 'Katıl';
+
+  @override
+  String get eventWatch => 'İzle';
+
+  @override
+  String get eventReplay => 'Tekrarı izle';
+
+  @override
+  String get eventCancelled => 'İptal edildi';
+
+  @override
+  String get eventComments => 'Yorumlar';
+
+  @override
+  String get eventCommentHint => 'Bir şey yazın';
+
+  @override
+  String get eventsEmpty => 'Yaklaşan etkinlik yok.';
+
+  @override
+  String showcaseLikes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count beğeni',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String academyLessons(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ders',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String academyMinutes(int count) {
+    return '$count dk';
+  }
+
+  @override
+  String academyProgress(int count) {
+    return '%$count tamamlandı';
+  }
+
+  @override
+  String challengeEntries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count katılım',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String challengeReward(int count) {
+    return '$count puan';
+  }
+
+  @override
+  String challengeVotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count oy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String boardPoints(int count) {
+    return '$count puan';
+  }
+
+  @override
+  String proReviews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count değerlendirme',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String proDone(int count) {
+    return '$count tamamlandı';
+  }
+
+  @override
+  String jobApplicants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count başvuru',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String eventGoingCount(int count) {
+    return '$count katılıyor';
+  }
+
+  @override
+  String boardYou(int rank, int points) {
+    return 'Siz: #$rank · $points puan';
+  }
+
+  @override
+  String jobBudget(String budget) {
+    return 'Bütçe: $budget';
+  }
+
+  @override
+  String challengeEnds(String date) {
+    return 'Bitiş: $date';
+  }
+
+  @override
+  String get profilePosts => 'Gönderiler';
 }

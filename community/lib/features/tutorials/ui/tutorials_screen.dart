@@ -85,27 +85,6 @@ class TutorialsScreen extends ConsumerWidget {
       backgroundColor: p.screen,
       body: Stack(
         children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 330,
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: const Alignment(-.8, -.9),
-                    radius: .9,
-                    colors: [
-                      Brand.lilac.withValues(alpha: p.dark ? .3 : .24),
-                      Brand.lilac.withValues(alpha: 0),
-                    ],
-                    stops: const [0, .7],
-                  ),
-                ),
-              ),
-            ),
-          ),
           SafeArea(
             bottom: false,
             child: RefreshIndicator(

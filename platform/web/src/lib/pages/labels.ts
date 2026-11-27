@@ -80,4 +80,9 @@ export const SCREEN_LABELS: Record<ScreenName, string> = {
   trips: "Trips",
   saved: "Saved hotels",
   price_alerts: "Price alerts",
+  community_feed: "Community feed",
+  community_questions: "Questions",
+  community_groups: "Groups",
+  community_profile: "Member profile",
+  community_messages: "Member messages",
 };

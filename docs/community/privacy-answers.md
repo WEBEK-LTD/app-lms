@@ -22,13 +22,16 @@ Checked against `community/` (the app, areas D and E) and A's schema
 | The linked Yallapp account and its apps | The member links it on yallapp.com.tr | Showing their apps; the Gold and Green badges | No |
 | Device name and platform ("iPhone", "Android phone"), last seen | Each sign-in | The member's list of signed-in devices, to sign one out | Yes |
 | Language and theme | Settings | The member's choices on every device | Yes |
+| Push device token (Firebase Cloud Messaging) | The phone, once the member allows notifications (phase 2) | Sending the notifications the member chose, per kind; forgotten on sign-out | No: only if notifications are allowed |
+| Posts, comments, stories, messages, groups | What the member does in the app (phase 2) | The community itself; stories last 24 hours | No |
 
 What the app does not collect:
 
 - No analytics, crash reporting or advertising SDK. The pubspec has none, in
   areas D and E alike.
-- No push device tokens: there are no push notifications in phase 1, and no
-  Firebase or APNs registration.
+- Firebase is used for push only (firebase_messaging), with no Analytics or
+  Crashlytics. The token identifies the device for notifications, nothing
+  else.
 - No purchases and no purchase history: nothing in the app is paid, and
   every tutorial is free (the owner, 24 November 2026).
 - No location, contacts, calendar, health or financial details. No IP
@@ -56,6 +59,8 @@ analytics or third-party purposes):
 | User Content | Other User Content | Questions, answers, replies, the profile's bio and links, reports |
 | Identifiers | User ID | The member's id; their Apple or Google sign-in id |
 | Other Data | Other Data Types | Device name and platform for the signed-in devices list |
+| Identifiers | Device ID | The push token, for notifications (phase 2) |
+| User Content | Emails or Text Messages | Direct and group messages (phase 2) |
 
 Data not linked to you: **None**.
 
@@ -86,9 +91,10 @@ processed ephemerally; none shared):
 | Photos and videos | Photos | Optional |
 | App activity | Other user-generated content (questions, answers, replies, profile text) | Optional |
 | App activity | Other actions (follows, friends, votes, bookmarks, blocks, reports) | Optional |
-| Device or other IDs | None | – |
+| Device or other IDs | Device or other IDs (the push token) | Optional |
+| Messages | Other in-app messages | Optional |
 | App info and performance | None (no crash logs or diagnostics) | – |
-| Location, contacts, messages, audio, files, calendar, health, web browsing | None | – |
+| Location, contacts, audio, files, calendar, health, web browsing | None | – |
 
 Security practices to declare:
 

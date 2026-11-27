@@ -49,24 +49,24 @@ ThemeData communityTheme({required bool dark}) {
         color: Colors.white,
         fontWeight: FontWeight.w500,
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: dark ? const Color(0x12FFFFFF) : Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(color: p.line),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(
           color: dark ? const Color(0x1AFFFFFF) : Brand.line,
         ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(color: Brand.orange, width: 1.5),
       ),
       labelStyle: TextStyle(color: p.muted),

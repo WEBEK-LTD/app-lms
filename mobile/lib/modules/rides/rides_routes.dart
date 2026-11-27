@@ -64,7 +64,12 @@ final ridesModule = AppModule(
     BuiltInScreen.flights ||
     BuiltInScreen.trips ||
     BuiltInScreen.saved ||
-    BuiltInScreen.priceAlerts => null,
+    BuiltInScreen.priceAlerts ||
+    BuiltInScreen.communityFeed ||
+    BuiltInScreen.communityQuestions ||
+    BuiltInScreen.communityGroups ||
+    BuiltInScreen.communityProfile ||
+    BuiltInScreen.communityMessages => null,
   },
   routes: _pushedRoutes,
 );

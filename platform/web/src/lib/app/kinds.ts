@@ -21,7 +21,7 @@ import type { Action, BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName 
 export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services", "instructors", "taxi", "marketplace"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
-export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants" | "rides" | "school" | "travel">;
+export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants" | "rides" | "school" | "travel" | "community">;
 
 /** The Website step's choices: where the app's content comes from. */
 export type WebsiteChoice = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog" | "platform";
@@ -961,6 +961,54 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     // On /demo/studio.
     demo: { slug: "travel" },
   },
+  // 235 Community: the client's own community in their app (feed, Q&A, groups, profiles, messages), on the community engine with the app id as its tenant key. Admin › Switches app_type:community is off until the team turns it on.
+  community: {
+    id: "community",
+    name: "Community",
+    icon: "groups",
+    homePath: "/community/v1/feed",
+    configCheck: { label: "Config has the community settings", fix: "Add `community` to /config.", key: "community", in: "root", type: "object" },
+    websites: ["catalog"],
+    sitePlaceholder: "https://your-community.com",
+    platformChoice: { title: "Another platform", text: "Your community lives on another platform." },
+    platformPhoneNote: null,
+    ownContent: {
+      kind: "community",
+      choice: {
+        title: "A community run in Yallapp",
+        text: "Your customers post, ask and answer, join groups and message each other in your app. You moderate it and set it up here in the dashboard.",
+      },
+      next: "After this step, set your community's sections and rules on the **Community** page, where reports and members are too. Members sign in to the app with",
+      switchLabel: "No website: a community run in the dashboard",
+      adminLabel: "Community: posts, questions and groups in the dashboard",
+      nav: {
+        label: "Your community",
+        items: [{ href: "/dashboard/community", label: "Community", icon: "groups" }],
+      },
+    },
+    pages: {
+      source: "posts",
+      read: null,
+      blocks: [],
+      screens: ["community_feed", "community_questions", "community_groups", "community_messages", "community_profile", "notifications", "settings"],
+      aliases: { messages: "community_messages", account: "community_profile" },
+      tabs: [
+        tab("questions", "Q&A", "forum", "community_questions"),
+        tab("groups", "Groups", "groups", "community_groups"),
+        tab("messages", "Messages", "chat", "community_messages"),
+      ],
+      home: [],
+    },
+    categories: { play: "Social", appStore: "Social Networking" },
+    words: {
+      items: "posts and questions",
+      storeDescription: "Describe your community: who it is for, what members post and ask about, and its groups.",
+      ratingExample: "For example: a community for a brand's customers. Members post, comment and message each other, and can report and block. No violence, gambling or dating. No ads.",
+      iphone: null,
+      cardPayments: null,
+    },
+    demo: null,
+  },
 };
 
 /** What the app type picker offers, in its order. The first kind of each engine is its default (vertical null). */
@@ -1349,6 +1397,20 @@ export const KINDS: readonly KindInfo[] = [
     reviewNote:
       "People search the company's hotels and flights, book a stay, a flight or both and pay on the company's payment page or at the hotel. The review account sees the sample hotels and flights, and can book and cancel a stay; its trips show under Trips. No account is needed to search.",
   },
+  {
+    // 235 The community engine's one kind.
+    id: "community",
+    engine: "community",
+    vertical: null,
+    name: "Community",
+    description: "Your customers post, ask and answer, join groups and message each other in your app. You moderate it here.",
+    requires: "No website needed: the community runs on Yallapp",
+    icon: "groups",
+    tile: "bg-tile-1 text-[#24476B]",
+    marketing: { slug: "community", icon: "groups" },
+    reviewNote:
+      "Members post, ask and answer questions, join groups and message each other. Every post, comment, message and member can be reported, and members can block each other; the app's owner moderates reports. The review account is a member of the sample community.",
+  },
 ];
 
 /** Every engine id, in order. */
@@ -1440,6 +1502,7 @@ const MAIN_SCREENS: Readonly<Record<string, ScreenName>> = {
   news: "articles",
   charity: "campaigns",
   travel: "explore",
+  community: "community_feed",
   rides: "ride",
   taxi: "ride",
   school: "school",

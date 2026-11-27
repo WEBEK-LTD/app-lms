@@ -80,7 +80,12 @@ final lmsModule = AppModule(
     BuiltInScreen.flights ||
     BuiltInScreen.trips ||
     BuiltInScreen.saved ||
-    BuiltInScreen.priceAlerts => null,
+    BuiltInScreen.priceAlerts ||
+    BuiltInScreen.communityFeed ||
+    BuiltInScreen.communityQuestions ||
+    BuiltInScreen.communityGroups ||
+    BuiltInScreen.communityProfile ||
+    BuiltInScreen.communityMessages => null,
     BuiltInScreen.sendParcel ||
     BuiltInScreen.shipments ||
     BuiltInScreen.courier ||

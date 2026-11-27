@@ -155,18 +155,9 @@ class _WelcomeButton extends StatelessWidget {
       child: Container(
         height: 54,
         decoration: BoxDecoration(
-          color: orange ? null : Colors.white,
-          gradient: orange ? Brand.signUp : null,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: orange
-              ? const [
-                  BoxShadow(
-                    color: Color(0x73FF5A1F),
-                    blurRadius: 26,
-                    offset: Offset(0, 12),
-                  ),
-                ]
-              : null,
+          // #527: solid, no glow; controls' corners at 10.
+          color: orange ? Brand.orange : Colors.white,
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
