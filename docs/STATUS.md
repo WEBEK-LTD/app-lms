@@ -25,6 +25,8 @@ reports, linking a Yallapp account, its three languages and its own host
 
 Roadmap 231 area B (Yallapp Community's Q&A and tutorials): questions and answers with the similar questions before asking, official answers from Yallapp's team, replies, votes and points, accepting, sections and tags, saving, search and the team's tutorials (articles and videos by section, level and language) through `/api/community/v1`, held for review and noticed through area C.
 
+Roadmap 232–233 area B (on `wip-community-b2`, for the integration): posts with photos and video, link previews, likes, comments with replies, saving and the mixed home feed; 24-hour stories; the showcase with "Made with Yallapp" verified; member tutorials reviewed at first; the Academy (courses, lessons, quizzes, progress, certificates with a PDF), open or locked in the API and never priced there (migrations 0169–0170). Needs: the website's checkout (area C) and pages (area F), and the app's screens (areas D and E).
+
 Roadmap 231 area C (Yallapp Community's trust, area C): badges (Gold by the
 verification form and an admin's review, Blue and Green by their rules),
 the admins' tools and audit log, settings, moderation, reports and
