@@ -122,7 +122,7 @@ class MeAvatar extends StatelessWidget {
     padding: const EdgeInsets.all(2),
     decoration: const BoxDecoration(
       shape: BoxShape.circle,
-      gradient: Brand.meRing,
+      color: Brand.orange,
     ),
     child: Avatar(
       id: id,

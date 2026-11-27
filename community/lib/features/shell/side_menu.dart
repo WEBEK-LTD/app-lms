@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -176,17 +174,14 @@ class SideMenu extends ConsumerWidget {
 
     return Stack(
       children: [
-        // The page behind, dimmed and blurred.
+        // The page behind, dimmed (no blur).
         Positioned.fill(
           child: GestureDetector(
             key: const ValueKey('menu-dim'),
             onTap: close,
             child: FadeTransition(
               opacity: curve,
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
-                child: const ColoredBox(color: Color(0x730A091E)),
-              ),
+              child: const ColoredBox(color: Color(0x730A091E)),
             ),
           ),
         ),
@@ -208,18 +203,7 @@ class SideMenu extends ConsumerWidget {
                   borderRadius: BorderRadiusDirectional.horizontal(
                     end: const Radius.circular(34),
                   ).resolve(Directionality.of(context)),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x73000000),
-                      blurRadius: 60,
-                      offset: Offset(20, 0),
-                    ),
-                  ],
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Brand.indigo, Brand.navy],
-                  ),
+                  color: Brand.darkPaper,
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadiusDirectional.horizontal(
@@ -234,12 +218,7 @@ class SideMenu extends ConsumerWidget {
                         child: Container(
                           width: 480,
                           height: 400,
-                          decoration: const BoxDecoration(
-                            gradient: RadialGradient(
-                              colors: [Color(0x59FF5A1F), Color(0x00FF5A1F)],
-                              stops: [0, .7],
-                            ),
-                          ),
+                          decoration: const BoxDecoration(),
                         ),
                       ),
                       Padding(
@@ -376,7 +355,7 @@ class _ProfileCard extends ConsumerWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: const Color(0x0FFFFFFF),
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0x17FFFFFF)),
         ),
         child: Row(
@@ -431,9 +410,7 @@ class _ProfileCard extends ConsumerWidget {
                             widthFactor: me.progress,
                             child: Container(
                               decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Brand.amber, Brand.orange],
-                                ),
+                                color: Brand.orange,
                               ),
                             ),
                           ),
@@ -513,7 +490,7 @@ class _NavItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: on ? null : const Color(0x0AFFFFFF),
             gradient: on ? Brand.sunrise : null,
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             children: [
@@ -609,7 +586,7 @@ class _ThemeToggle extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               color: on ? Colors.white : null,
-              borderRadius: BorderRadius.circular(11),
+              borderRadius: BorderRadius.circular(10),
             ),
             alignment: Alignment.center,
             child: Sym(
@@ -627,7 +604,7 @@ class _ThemeToggle extends StatelessWidget {
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: const Color(0x14FFFFFF),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

@@ -43,7 +43,6 @@ class HomePage extends ConsumerWidget {
       backgroundColor: p.screen,
       body: Stack(
         children: [
-          _Glow(height: (p.dark ? 360 : 330) + top),
           RefreshIndicator(
             color: Brand.orange,
             onRefresh: () async => ref.refresh(homeFeedProvider.future),
@@ -111,70 +110,6 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-/// The glow behind the top of Home (`.home-bg`; the question's by night).
-class _Glow extends StatelessWidget {
-  const _Glow({required this.height});
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final dark = context.palette.dark;
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      height: height,
-      child: IgnorePointer(
-        child: LayoutBuilder(
-          builder: (context, box) => Stack(
-            children: [
-              Positioned(
-                left: box.maxWidth * (dark ? .9 : .85) - 260,
-                top: height * (dark ? 0 : .1) - 200,
-                width: 520,
-                height: 400,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      colors: [
-                        dark
-                            ? const Color(0x59FF5A1F)
-                            : const Color(0x52FF8A3D),
-                        const Color(0x00FF8A3D),
-                      ],
-                      stops: const [0, .7],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: -300,
-                top: height * (dark ? .3 : .4) - 220,
-                width: 600,
-                height: 440,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      colors: [
-                        dark
-                            ? const Color(0x4D6B5BFF)
-                            : const Color(0x387C6BFF),
-                        const Color(0x007C6BFF),
-                      ],
-                      stops: const [0, .7],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _Hello extends StatelessWidget {
   const _Hello({required this.name});
 
@@ -231,14 +166,7 @@ class _Featured extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
         height: 168,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x2E141327),
-              blurRadius: 36,
-              offset: Offset(0, 18),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(12),
           color: Brand.indigo,
           image: image == null
               ? null
@@ -253,12 +181,8 @@ class _Featured extends StatelessWidget {
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0x0D0E0D24), Color(0xD90E0D24)],
-                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0x800E0D24),
                 ),
               ),
             ),
@@ -271,7 +195,7 @@ class _Featured extends StatelessWidget {
                 children: [
                   if (item.label != null)
                     Glass(
-                      radius: 20,
+                      radius: 10,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 5,
@@ -334,7 +258,7 @@ class _Featured extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(13),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             // Any kind of item fits the slot (phase 3's
@@ -465,11 +389,7 @@ class _Stories extends StatelessWidget {
           _Story(
             key: const ValueKey('story-live'),
             label: l.homeStoryLive,
-            fill: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Brand.lilac, Color(0xFF3B2BD0)],
-            ),
+            fill: Brand.solid(Brand.violet),
             icon: Symbols.live_tv_rounded,
             onTap: () => showComingSoon(context, l.homeStoryLive),
           ),
@@ -500,11 +420,7 @@ class _Stories extends StatelessWidget {
           _Story(
             key: const ValueKey('story-news'),
             label: l.homeStoryNews,
-            fill: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF1FC08A), Color(0xFF0E8F63)],
-            ),
+            fill: Brand.solid(Brand.green),
             icon: Symbols.campaign_rounded,
             seen: !feed.news,
             onTap: () => context.push(FeatureLinks.learn),
@@ -551,7 +467,7 @@ class _Story extends StatelessWidget {
                 height: 58,
                 padding: const EdgeInsets.all(2.5),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(12),
                   gradient: seen ? null : Brand.storyRing,
                   color: seen
                       ? (p.dark
@@ -561,7 +477,7 @@ class _Story extends StatelessWidget {
                 ),
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(17),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: p.screen, width: 2.5),
                     gradient: fill,
                     image: image == null
@@ -628,15 +544,8 @@ class _Post extends ConsumerWidget {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: p.dark ? const Color(0x0BFFFFFF) : Colors.white,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(12),
           border: p.dark ? Border.all(color: const Color(0x12FFFFFF)) : null,
-          boxShadow: [
-            BoxShadow(
-              color: p.cardShadow,
-              blurRadius: 34,
-              offset: const Offset(0, 14),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -649,15 +558,7 @@ class _Post extends ConsumerWidget {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: image == null
-                            ? const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Brand.indigoDeep,
-                                  Brand.lilac,
-                                  Brand.orange2,
-                                ],
-                              )
+                            ? Brand.solid(Brand.darkNavy)
                             : null,
                         image: image == null
                             ? null
@@ -671,19 +572,7 @@ class _Post extends ConsumerWidget {
                   ),
                   const Positioned.fill(
                     child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Color(0x8C0E0D24),
-                            Color(0x000E0D24),
-                            Color(0x000E0D24),
-                            Color(0x800E0D24),
-                          ],
-                          stops: [0, .4, .6, 1],
-                        ),
-                      ),
+                      decoration: BoxDecoration(color: Color(0x660E0D24)),
                     ),
                   ),
                   if (image == null)
@@ -796,7 +685,7 @@ class _Post extends ConsumerWidget {
                       child: Align(
                         alignment: AlignmentDirectional.centerStart,
                         child: Glass(
-                          radius: 14,
+                          radius: 10,
                           padding: const EdgeInsetsDirectional.fromSTEB(
                             10,
                             6,
@@ -846,7 +735,7 @@ class _Post extends ConsumerWidget {
                     bottom: 12,
                     end: 12,
                     child: Glass(
-                      radius: 14,
+                      radius: 10,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 6,

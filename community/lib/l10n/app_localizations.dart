@@ -223,7 +223,7 @@ abstract class AppLocalizations {
   /// No description provided for @authBubbleNour.
   ///
   /// In en, this message translates to:
-  /// **'Launched my store today 🎉'**
+  /// **'Launched my store today'**
   String get authBubbleNour;
 
   /// No description provided for @authBubbleAccepted.
@@ -463,19 +463,19 @@ abstract class AppLocalizations {
   /// No description provided for @homeMorning.
   ///
   /// In en, this message translates to:
-  /// **'Good morning ☀️'**
+  /// **'Good morning'**
   String get homeMorning;
 
   /// No description provided for @homeAfternoon.
   ///
   /// In en, this message translates to:
-  /// **'Good afternoon 🌤️'**
+  /// **'Good afternoon'**
   String get homeAfternoon;
 
   /// No description provided for @homeEvening.
   ///
   /// In en, this message translates to:
-  /// **'Good evening 🌙'**
+  /// **'Good evening'**
   String get homeEvening;
 
   /// No description provided for @homeRead.

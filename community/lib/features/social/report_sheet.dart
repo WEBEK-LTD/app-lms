@@ -101,7 +101,7 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
           padding: const EdgeInsets.fromLTRB(14, 18, 14, 14),
           decoration: BoxDecoration(
             color: p.dark ? Brand.navy2 : Colors.white,
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Material(
             type: MaterialType.transparency,
@@ -124,7 +124,7 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
                   ListTile(
                     key: ValueKey('report-${reason.name}'),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     title: Text(
                       label,
@@ -161,7 +161,7 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
                     style: FilledButton.styleFrom(
                       backgroundColor: Brand.orange,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       textStyle: const TextStyle(
                         fontWeight: FontWeight.w700,

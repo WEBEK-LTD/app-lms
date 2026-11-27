@@ -100,21 +100,14 @@ class MemberRow extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: p.dark ? const Color(0x0BFFFFFF) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: p.cardShadow,
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Material(
         type: MaterialType.transparency,
         child: ListTile(
           contentPadding: const EdgeInsetsDirectional.fromSTEB(12, 4, 10, 4),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(12),
           ),
           onTap: () => context.push(Paths.member(member.id)),
           leading: Avatar(
@@ -166,7 +159,7 @@ class MemberRow extends ConsumerWidget {
                             : (p.dark ? Brand.orange : Brand.navy),
                         foregroundColor: following ? p.ink : Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                           side: following
                               ? BorderSide(
                                   color: p.dark
@@ -278,7 +271,7 @@ class FriendRequestsPage extends ConsumerWidget {
                       style: FilledButton.styleFrom(
                         backgroundColor: Brand.orange,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         textStyle: const TextStyle(fontWeight: FontWeight.w700),
                       ),
