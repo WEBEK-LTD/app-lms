@@ -6,6 +6,7 @@ import {
   allSwitchKeys,
   appTypeOn,
   cleanSwitches,
+  DEFAULT_OFF_SWITCHES,
   featureOn,
   isOn,
   noWebsiteFor,
@@ -104,5 +105,30 @@ describe("switches", () => {
       off: ["website:ikas"],
       offByPlan: { pro: ["feature:push"] },
     });
+  });
+});
+
+describe("235 the Community app type is off until the team turns it on", () => {
+  it("is off with no setting, with an empty one, and with every other switch on", () => {
+    expect(DEFAULT_OFF_SWITCHES.has("app_type:community")).toBe(true);
+    expect(appTypeOn(null, "community")).toBe(false);
+    expect(appTypeOn({ off: [], offByPlan: {} }, "community")).toBe(false);
+    // The other app types stay on by default.
+    expect(appTypeOn(null, "travel")).toBe(true);
+  });
+
+  it("is on once the switch's `on` list has it, and a plan can still turn it off", () => {
+    const on = cleanSwitches([], {}, ["app_type:community"]);
+    expect(on.on).toEqual(["app_type:community"]);
+    expect(on.off).not.toContain("app_type:community");
+    expect(appTypeOn(on, "community")).toBe(true);
+    expect(appTypeOn({ ...on, off: ["app_type:community"] }, "community")).toBe(false);
+  });
+
+  it("keeps a default-off switch out of `off`, and unknown keys out of `on`", () => {
+    const s = cleanSwitches(["app_type:community"], {}, ["nope:nothing"]);
+    expect(s.off).not.toContain("app_type:community");
+    expect(s.on).toBeUndefined();
+    expect(appTypeOn(s, "community")).toBe(false);
   });
 });

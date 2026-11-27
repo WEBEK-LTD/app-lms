@@ -13651,6 +13651,7 @@ components:
         rides: { $ref: '#/components/schemas/RidesConfig' }
         school: { $ref: '#/components/schemas/SchoolConfig' }
         travel: { $ref: '#/components/schemas/TravelConfig' }
+        community: { type: object, description: "Roadmap 235. Present (empty for now) for Community apps: the app's own community is the Community API under this app, https://yallapp.com.tr/api/app/{app_id}/community/v1 (docs/api/community.yaml); a customer gets its token with POST /auth/app there." }
         taxi:
           description: Roadmap 105.9. Ride apps' map (live taxi apps, and 112.1 ride hailing apps too); null or missing for other apps.
           oneOf:

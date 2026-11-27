@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -42,7 +40,6 @@ class QuestionScreen extends ConsumerWidget {
       backgroundColor: p.screen,
       body: Stack(
         children: [
-          const _Glow(),
           SafeArea(
             bottom: false,
             child: Column(
@@ -110,56 +107,6 @@ Future<void> _run(BuildContext context, Future<void> Function() action) async {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(text)));
-  }
-}
-
-/// The two glows over the top of the screen (orange at the top end, violet
-/// at the start), as the design's question by night; softer by day.
-class _Glow extends StatelessWidget {
-  const _Glow();
-
-  @override
-  Widget build(BuildContext context) {
-    final dark = context.palette.dark;
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      height: 360,
-      child: IgnorePointer(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: const Alignment(.8, -1),
-                  radius: .85,
-                  colors: [
-                    Brand.orange.withValues(alpha: dark ? .35 : .22),
-                    Brand.orange.withValues(alpha: 0),
-                  ],
-                  stops: const [0, .7],
-                ),
-              ),
-            ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: const Alignment(-1, -.4),
-                  radius: .85,
-                  colors: [
-                    Brand.violet.withValues(alpha: dark ? .30 : .16),
-                    Brand.violet.withValues(alpha: 0),
-                  ],
-                  stops: const [0, .7],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -458,54 +405,42 @@ class _AnswerBar extends StatelessWidget {
         key: const ValueKey('answer-bar'),
         onTap: onTap,
         child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            boxShadow: [
-              BoxShadow(
-                color: p.tabShadow,
-                blurRadius: 44,
-                offset: const Offset(0, 20),
-              ),
-            ],
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(22),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 11, sigmaY: 11),
-              child: Container(
-                height: 50,
-                padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 6, 0),
-                decoration: BoxDecoration(
-                  color: p.tabBar,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: p.tabRim),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        context.l10n.qaAnswerHint,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 14, color: p.tabIcon),
-                      ),
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              height: 50,
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 6, 0),
+              decoration: BoxDecoration(
+                color: p.tabBar,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: p.tabRim),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      context.l10n.qaAnswerHint,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 14, color: p.tabIcon),
                     ),
-                    Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        gradient: Brand.sunrise,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Sym(
-                        Symbols.send_rounded,
-                        size: 20,
-                        fill: true,
-                        color: Colors.white,
-                      ),
+                  ),
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      gradient: Brand.sunrise,
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                  ],
-                ),
+                    child: const Sym(
+                      Symbols.send_rounded,
+                      size: 20,
+                      fill: true,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

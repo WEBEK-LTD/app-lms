@@ -95,6 +95,11 @@ String studioActionLabel(
       BuiltInScreen.trips => l10n.travelTabTrips,
       BuiltInScreen.saved => l10n.travelTabSaved,
       BuiltInScreen.priceAlerts => l10n.travelPriceAlerts,
+      BuiltInScreen.communityFeed => l10n.communityTabFeed,
+      BuiltInScreen.communityQuestions => l10n.communityTabQuestions,
+      BuiltInScreen.communityGroups => l10n.communityTabGroups,
+      BuiltInScreen.communityMessages => l10n.communityTabMessages,
+      BuiltInScreen.communityProfile => l10n.communityTabProfile,
     };
   }
   if (action.type == PageActionType.page) {

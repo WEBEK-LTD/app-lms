@@ -223,7 +223,7 @@ abstract class AppLocalizations {
   /// No description provided for @authBubbleNour.
   ///
   /// In en, this message translates to:
-  /// **'Launched my store today 🎉'**
+  /// **'Launched my store today'**
   String get authBubbleNour;
 
   /// No description provided for @authBubbleAccepted.
@@ -463,19 +463,19 @@ abstract class AppLocalizations {
   /// No description provided for @homeMorning.
   ///
   /// In en, this message translates to:
-  /// **'Good morning ☀️'**
+  /// **'Good morning'**
   String get homeMorning;
 
   /// No description provided for @homeAfternoon.
   ///
   /// In en, this message translates to:
-  /// **'Good afternoon 🌤️'**
+  /// **'Good afternoon'**
   String get homeAfternoon;
 
   /// No description provided for @homeEvening.
   ///
   /// In en, this message translates to:
-  /// **'Good evening 🌙'**
+  /// **'Good evening'**
   String get homeEvening;
 
   /// No description provided for @homeRead.
@@ -1983,6 +1983,1176 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Accept'**
   String get qaAcceptShort;
+
+  /// No description provided for @feedForYou.
+  ///
+  /// In en, this message translates to:
+  /// **'For you'**
+  String get feedForYou;
+
+  /// No description provided for @feedLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get feedLatest;
+
+  /// No description provided for @feedFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get feedFollowing;
+
+  /// No description provided for @feedFollowingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts from the members you follow show here.'**
+  String get feedFollowingEmpty;
+
+  /// No description provided for @postTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postTitle;
+
+  /// No description provided for @postNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New post'**
+  String get postNew;
+
+  /// No description provided for @postHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share something with the community'**
+  String get postHint;
+
+  /// No description provided for @postPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postPublish;
+
+  /// No description provided for @postPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos {n}/{max}'**
+  String postPhotos(int n, int max);
+
+  /// No description provided for @postVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get postVideo;
+
+  /// No description provided for @postPickPoster.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a cover photo'**
+  String get postPickPoster;
+
+  /// No description provided for @postVideoReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Video and cover ready'**
+  String get postVideoReady;
+
+  /// No description provided for @postPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for review'**
+  String get postPending;
+
+  /// No description provided for @postMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get postMore;
+
+  /// No description provided for @postLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Like'**
+  String get postLike;
+
+  /// No description provided for @postComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get postComments;
+
+  /// No description provided for @postShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get postShare;
+
+  /// No description provided for @postSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get postSave;
+
+  /// No description provided for @postDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get postDelete;
+
+  /// No description provided for @postDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this post?'**
+  String get postDeleteConfirm;
+
+  /// No description provided for @postReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get postReport;
+
+  /// No description provided for @postLinkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get postLinkCopied;
+
+  /// No description provided for @postNoComments.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet. Be the first.'**
+  String get postNoComments;
+
+  /// No description provided for @postReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get postReply;
+
+  /// No description provided for @postReplyingTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to {name}'**
+  String postReplyingTo(String name);
+
+  /// No description provided for @postCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a comment'**
+  String get postCommentHint;
+
+  /// No description provided for @postSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get postSend;
+
+  /// No description provided for @postSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved posts'**
+  String get postSaved;
+
+  /// No description provided for @createPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a post'**
+  String get createPost;
+
+  /// No description provided for @createPostLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Words, up to 10 photos or a video'**
+  String get createPostLine;
+
+  /// No description provided for @createStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a story'**
+  String get createStory;
+
+  /// No description provided for @createStoryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'A photo or short video for 24 hours'**
+  String get createStoryLine;
+
+  /// No description provided for @storyYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your story'**
+  String get storyYours;
+
+  /// No description provided for @storyAddPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get storyAddPhoto;
+
+  /// No description provided for @storyAddVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Short video'**
+  String get storyAddVideo;
+
+  /// No description provided for @storyAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Your story is up for 24 hours'**
+  String get storyAdded;
+
+  /// No description provided for @storyViews.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 view} other{{n} views}}'**
+  String storyViews(int n);
+
+  /// No description provided for @postSavedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts you save show here.'**
+  String get postSavedEmpty;
+
+  /// No description provided for @msgNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New message'**
+  String get msgNew;
+
+  /// No description provided for @msgEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet. Write to a member from their profile, or start one here.'**
+  String get msgEmpty;
+
+  /// No description provided for @msgDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Message deleted'**
+  String get msgDeleted;
+
+  /// No description provided for @msgPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get msgPhoto;
+
+  /// No description provided for @msgStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get msgStart;
+
+  /// No description provided for @msgGroupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name (optional)'**
+  String get msgGroupTitle;
+
+  /// No description provided for @msgPickPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen {n} of {max}'**
+  String msgPickPeople(int n, int max);
+
+  /// No description provided for @msgNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t message this member.'**
+  String get msgNotAllowed;
+
+  /// No description provided for @msgHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get msgHint;
+
+  /// No description provided for @msgSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Seen'**
+  String get msgSeen;
+
+  /// No description provided for @msgMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute notifications'**
+  String get msgMute;
+
+  /// No description provided for @msgUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn notifications on'**
+  String get msgUnmute;
+
+  /// No description provided for @msgRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename the group'**
+  String get msgRename;
+
+  /// No description provided for @msgReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report the conversation'**
+  String get msgReport;
+
+  /// No description provided for @msgLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the group'**
+  String get msgLeave;
+
+  /// No description provided for @msgHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the conversation'**
+  String get msgHide;
+
+  /// No description provided for @msgBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t reply to this conversation.'**
+  String get msgBlocked;
+
+  /// No description provided for @msgMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get msgMessage;
+
+  /// No description provided for @groupCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'New group'**
+  String get groupCreate;
+
+  /// No description provided for @groupDiscover.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover'**
+  String get groupDiscover;
+
+  /// No description provided for @groupNoneYet.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t joined a group yet.'**
+  String get groupNoneYet;
+
+  /// No description provided for @groupAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All groups'**
+  String get groupAll;
+
+  /// No description provided for @groupMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 member} other{{n} members}}'**
+  String groupMembers(int n);
+
+  /// No description provided for @groupMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get groupMembersTitle;
+
+  /// No description provided for @groupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get groupName;
+
+  /// No description provided for @groupAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'What the group is about'**
+  String get groupAbout;
+
+  /// No description provided for @groupPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get groupPrivate;
+
+  /// No description provided for @groupPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get groupPublic;
+
+  /// No description provided for @groupPrivateLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Members join by request; only they see its posts.'**
+  String get groupPrivateLine;
+
+  /// No description provided for @groupPublicLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone can join and read it.'**
+  String get groupPublicLine;
+
+  /// No description provided for @groupCreateNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating groups isn\'t open to your account yet.'**
+  String get groupCreateNotAllowed;
+
+  /// No description provided for @groupJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get groupJoin;
+
+  /// No description provided for @groupAskToJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask to join'**
+  String get groupAskToJoin;
+
+  /// No description provided for @groupRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested'**
+  String get groupRequested;
+
+  /// No description provided for @groupLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get groupLeave;
+
+  /// No description provided for @groupOwnerMustTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand the group over to another member before you leave.'**
+  String get groupOwnerMustTransfer;
+
+  /// No description provided for @groupWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write in the group'**
+  String get groupWrite;
+
+  /// No description provided for @groupJoinToRead.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is private. Join to read its posts.'**
+  String get groupJoinToRead;
+
+  /// No description provided for @groupNoPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts yet.'**
+  String get groupNoPosts;
+
+  /// No description provided for @groupCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the cover'**
+  String get groupCover;
+
+  /// No description provided for @groupRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests to join'**
+  String get groupRequests;
+
+  /// No description provided for @groupDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get groupDecline;
+
+  /// No description provided for @groupOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get groupOwner;
+
+  /// No description provided for @groupModerator.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderator'**
+  String get groupModerator;
+
+  /// No description provided for @groupMakeModerator.
+  ///
+  /// In en, this message translates to:
+  /// **'Make moderator'**
+  String get groupMakeModerator;
+
+  /// No description provided for @groupMakeMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a member again'**
+  String get groupMakeMember;
+
+  /// No description provided for @groupHandOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand the group over'**
+  String get groupHandOver;
+
+  /// No description provided for @groupRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from the group'**
+  String get groupRemove;
+
+  /// No description provided for @pushTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications'**
+  String get pushTitle;
+
+  /// No description provided for @pushBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what reaches your phone. The app\'s list and your email choices stay as they are.'**
+  String get pushBody;
+
+  /// No description provided for @pushOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get pushOpen;
+
+  /// No description provided for @pushKindMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get pushKindMessage;
+
+  /// No description provided for @pushKindComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments on my posts'**
+  String get pushKindComment;
+
+  /// No description provided for @pushKindReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies to my comments'**
+  String get pushKindReply;
+
+  /// No description provided for @pushKindLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes on my posts'**
+  String get pushKindLike;
+
+  /// No description provided for @pushKindGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group requests and invitations'**
+  String get pushKindGroup;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Showcase'**
+  String get showcaseTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get showcaseAll;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get showcaseNewest;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Most liked'**
+  String get showcaseMostLiked;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Shops'**
+  String get showcaseTypeStore;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Academies'**
+  String get showcaseTypeAcademy;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get showcaseTypeBooking;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Made with Yallapp'**
+  String get showcaseMadeWith;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Like'**
+  String get showcaseLike;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Liked'**
+  String get showcaseLiked;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'App Store'**
+  String get showcaseAppStore;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play'**
+  String get showcasePlay;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get showcaseWebsite;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No apps here yet.'**
+  String get showcaseEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Academy'**
+  String get academyTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get academyLocked;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'This course isn\'t open on your account yet.'**
+  String get academyLockedNote;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get academyFree;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as done'**
+  String get academyComplete;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get academyDone;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the lesson'**
+  String get academyWatch;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Your certificate'**
+  String get academyCertificate;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No courses yet.'**
+  String get academyEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Challenges'**
+  String get challengesTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get challengeUpcoming;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get challengeOpen;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Voting'**
+  String get challengeVoting;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get challengeClosed;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Rules'**
+  String get challengeRules;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Entries'**
+  String get challengeEntriesTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Winners'**
+  String get challengeWinners;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Vote'**
+  String get challengeVote;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Voted'**
+  String get challengeVoted;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Enter with a link'**
+  String get challengeEnter;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Link to your app'**
+  String get challengeEnterHint;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve entered'**
+  String get challengeEntered;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get challengeSend;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No challenges right now.'**
+  String get challengeEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'This week\'s challenge'**
+  String get challengeCardTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get boardTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get boardWeek;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get boardAll;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Pros'**
+  String get prosTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get proAvailable;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Busy'**
+  String get proBusy;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Not taking work'**
+  String get proUnavailable;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Available now'**
+  String get proAvailableOnly;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get proServices;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio'**
+  String get proPortfolio;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Skills'**
+  String get proSkills;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Send a hire request'**
+  String get proHire;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'What do you need? At least 10 characters.'**
+  String get proHireHint;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. Your conversation with the pro is open.'**
+  String get proHireSent;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'You and the pro agree on the work and terms between you.'**
+  String get proDirect;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No pros yet.'**
+  String get prosEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Jobs'**
+  String get jobsTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Remote'**
+  String get jobRemote;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Full time'**
+  String get jobFullTime;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Part time'**
+  String get jobPartTime;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Contract'**
+  String get jobContract;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Freelance'**
+  String get jobFreelance;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Internship'**
+  String get jobInternship;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get jobApply;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Your message. At least 10 characters.'**
+  String get jobApplyHint;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'You applied'**
+  String get jobApplied;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Applicants'**
+  String get jobApplicantsTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No jobs right now.'**
+  String get jobsEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get eventsTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get eventAll;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get eventLive;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Live now'**
+  String get eventLiveNow;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get eventOnline;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'In person'**
+  String get eventInPerson;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get eventFree;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m going'**
+  String get eventRsvp;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Going'**
+  String get eventGoing;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Not going'**
+  String get eventNotGoing;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Add to calendar'**
+  String get eventCalendar;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get eventJoin;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Watch'**
+  String get eventWatch;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the replay'**
+  String get eventReplay;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get eventCancelled;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get eventComments;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Say something'**
+  String get eventCommentHint;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No events coming up.'**
+  String get eventsEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 like} other{{count} likes}}'**
+  String showcaseLikes(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 lesson} other{{count} lessons}}'**
+  String academyLessons(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String academyMinutes(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count}% done'**
+  String academyProgress(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 entry} other{{count} entries}}'**
+  String challengeEntries(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} points'**
+  String challengeReward(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 vote} other{{count} votes}}'**
+  String challengeVotes(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pts'**
+  String boardPoints(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 review} other{{count} reviews}}'**
+  String proReviews(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} done'**
+  String proDone(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 applicant} other{{count} applicants}}'**
+  String jobApplicants(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} going'**
+  String eventGoingCount(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'You: #{rank} · {points} pts'**
+  String boardYou(int rank, int points);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Budget: {budget}'**
+  String jobBudget(String budget);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Ends {date}'**
+  String challengeEnds(String date);
+
+  /// No description provided for @profilePosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get profilePosts;
 }
 
 class _AppLocalizationsDelegate

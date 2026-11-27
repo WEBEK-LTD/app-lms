@@ -46,6 +46,8 @@ export interface CommunityDeps {
   courses?: CourseShop | null;
   /** 233 Yallapp's own website checkout (Studio Market's); none: courses can't be bought. */
   courseCheckout?: (() => Promise<CourseCheckoutGateway>) | null;
+  /** 235 The hosted API's token secret (a client app's customers sign in to its community with theirs); none: from SIGNING_SECRET. */
+  hostedSecret?: string;
 }
 
 export type CommunityMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -71,6 +73,8 @@ export interface CommunityRequest {
 
 export interface CommunityContext {
   deps: CommunityDeps;
+  /** 232–235 Whose community (deps.tenant): "yallapp" or a client app's id. */
+  tenant: CommunityTenant;
   req: CommunityRequest;
   store: CommunityStore;
   now: Date;

@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +14,8 @@ import '../../core/widgets/avatar.dart';
 import '../../core/widgets/coming_soon.dart';
 import '../../core/widgets/logo.dart';
 import '../../core/widgets/sym.dart';
+import '../groups/data/groups_api.dart';
+import '../groups/links.dart';
 
 /// The menu's sections, in the design's order (two by two).
 enum MenuSection {
@@ -123,28 +123,40 @@ class SideMenu extends ConsumerWidget {
         MenuSection.academy,
         Symbols.school_rounded,
         l.menuAcademy,
-        open(MenuSection.academy, l.menuAcademy, null),
+        open(
+          MenuSection.academy,
+          l.menuAcademy,
+          () => go(FeatureLinks.academy),
+        ),
         0,
       ),
       (
         MenuSection.showcase,
         Symbols.apps_rounded,
         l.menuShowcase,
-        open(MenuSection.showcase, l.menuShowcase, null),
+        open(
+          MenuSection.showcase,
+          l.menuShowcase,
+          () => go(FeatureLinks.showcase),
+        ),
         0,
       ),
       (
         MenuSection.challenges,
         Symbols.emoji_events_rounded,
         l.menuChallenges,
-        open(MenuSection.challenges, l.menuChallenges, null),
+        open(
+          MenuSection.challenges,
+          l.menuChallenges,
+          () => go(FeatureLinks.challenges),
+        ),
         0,
       ),
       (
         MenuSection.groups,
         Symbols.groups_rounded,
         l.menuGroups,
-        open(MenuSection.groups, l.menuGroups, null),
+        open(MenuSection.groups, l.menuGroups, () => go(Paths.groups)),
         0,
       ),
       (
@@ -162,31 +174,28 @@ class SideMenu extends ConsumerWidget {
         MenuSection.pros,
         Symbols.work_rounded,
         l.menuPros,
-        open(MenuSection.pros, l.menuPros, null),
+        open(MenuSection.pros, l.menuPros, () => go(FeatureLinks.pros)),
         0,
       ),
       (
         MenuSection.events,
         Symbols.event_rounded,
         l.menuEvents,
-        open(MenuSection.events, l.menuEvents, null),
+        open(MenuSection.events, l.menuEvents, () => go(FeatureLinks.events)),
         0,
       ),
     ];
 
     return Stack(
       children: [
-        // The page behind, dimmed and blurred.
+        // The page behind, dimmed (no blur).
         Positioned.fill(
           child: GestureDetector(
             key: const ValueKey('menu-dim'),
             onTap: close,
             child: FadeTransition(
               opacity: curve,
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
-                child: const ColoredBox(color: Color(0x730A091E)),
-              ),
+              child: const ColoredBox(color: Color(0x730A091E)),
             ),
           ),
         ),
@@ -208,18 +217,7 @@ class SideMenu extends ConsumerWidget {
                   borderRadius: BorderRadiusDirectional.horizontal(
                     end: const Radius.circular(34),
                   ).resolve(Directionality.of(context)),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x73000000),
-                      blurRadius: 60,
-                      offset: Offset(20, 0),
-                    ),
-                  ],
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Brand.indigo, Brand.navy],
-                  ),
+                  color: Brand.darkPaper,
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadiusDirectional.horizontal(
@@ -234,12 +232,7 @@ class SideMenu extends ConsumerWidget {
                         child: Container(
                           width: 480,
                           height: 400,
-                          decoration: const BoxDecoration(
-                            gradient: RadialGradient(
-                              colors: [Color(0x59FF5A1F), Color(0x00FF5A1F)],
-                              stops: [0, .7],
-                            ),
-                          ),
+                          decoration: const BoxDecoration(),
                         ),
                       ),
                       Padding(
@@ -289,19 +282,25 @@ class SideMenu extends ConsumerWidget {
                             const SizedBox(height: 12),
                             _NavGrid(items: items, current: current),
                             _Heading(l.menuYourGroups),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                              ),
-                              child: Text(
-                                l.menuGroupsSoon,
-                                style: const TextStyle(
-                                  fontSize: 12.5,
-                                  color: Color(0xFF8F8BAE),
-                                  height: 1.45,
+                            if (config.comingSoon(MenuSection.groups.name))
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
                                 ),
+                                child: Text(
+                                  l.menuGroupsSoon,
+                                  style: const TextStyle(
+                                    fontSize: 12.5,
+                                    color: Color(0xFF8F8BAE),
+                                    height: 1.45,
+                                  ),
+                                ),
+                              )
+                            else
+                              _MyGroups(
+                                open: (id) => push(GroupLinks.group(id)),
+                                all: () => go(Paths.groups),
                               ),
-                            ),
                             const Spacer(),
                             Row(
                               children: [
@@ -376,7 +375,7 @@ class _ProfileCard extends ConsumerWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: const Color(0x0FFFFFFF),
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0x17FFFFFF)),
         ),
         child: Row(
@@ -431,9 +430,7 @@ class _ProfileCard extends ConsumerWidget {
                             widthFactor: me.progress,
                             child: Container(
                               decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Brand.amber, Brand.orange],
-                                ),
+                                color: Brand.orange,
                               ),
                             ),
                           ),
@@ -513,7 +510,7 @@ class _NavItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: on ? null : const Color(0x0AFFFFFF),
             gradient: on ? Brand.sunrise : null,
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             children: [
@@ -609,7 +606,7 @@ class _ThemeToggle extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               color: on ? Colors.white : null,
-              borderRadius: BorderRadius.circular(11),
+              borderRadius: BorderRadius.circular(10),
             ),
             alignment: Alignment.center,
             child: Sym(
@@ -627,7 +624,7 @@ class _ThemeToggle extends StatelessWidget {
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: const Color(0x14FFFFFF),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -675,4 +672,67 @@ class _Square extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// "Your groups": the first four of the member's groups, then All groups.
+class _MyGroups extends ConsumerWidget {
+  const _MyGroups({required this.open, required this.all});
+
+  final ValueChanged<String> open;
+  final VoidCallback all;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final groups = ref.watch(myGroupsProvider).value ?? const <Group>[];
+    const muted = TextStyle(fontSize: 12.5, color: Color(0xFF8F8BAE));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (groups.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(l.groupNoneYet, style: muted),
+          ),
+        for (final g in groups.take(4))
+          InkWell(
+            key: ValueKey('menu-group-${g.id}'),
+            borderRadius: BorderRadius.circular(10),
+            onTap: () => open(g.id),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
+              child: Row(
+                children: [
+                  GroupMark(group: g, size: 30),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      g.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Brand.darkInk,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton(
+            key: const ValueKey('menu-groups-all'),
+            onPressed: all,
+            child: Text(
+              l.groupAll,
+              style: const TextStyle(color: Brand.orange),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

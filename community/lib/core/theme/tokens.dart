@@ -10,13 +10,14 @@ abstract final class Brand {
   static const ember = Color(0xFFE8410E);
   static const peach = Color(0xFFFFA06E);
   static const navy = Color(0xFF0E0D24);
-  static const navy2 = Color(0xFF17163A);
+  // #527's dark card and dark paper (Yallapp's own dark colours).
+  static const navy2 = Color(0xFF161530);
   static const indigo = Color(0xFF1A1846);
   static const indigoDeep = Color(0xFF1E1C4E);
   static const cream = Color(0xFFF4EFE6);
   static const paper = Color(0xFFFBF8F3);
   static const screen = Color(0xFFF7F3EC);
-  static const night = Color(0xFF0B0A1F);
+  static const night = Color(0xFF0E0D24);
   static const ink = Color(0xFF141327);
   static const muted = Color(0xFF6E6B80);
   static const line = Color(0xFFECE6DC);
@@ -27,55 +28,46 @@ abstract final class Brand {
   static const sky = Color(0xFF7CC4FF);
   static const gold = Color(0xFFFFD27A);
 
-  /// The orange gradient of the primary button, the active tab by night and
-  /// the menu's current section (135°: amber to orange).
-  static const sunrise = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [amber, orange],
-  );
+  /// #527's flat look: one colour where the phase 1 design had a gradient
+  /// (no glow, gradient, blur or coloured shadow anywhere). The names stay
+  /// so every screen, area E's too, turns flat at once.
+  static LinearGradient solid(Color c) => LinearGradient(colors: [c, c]);
 
-  /// The welcome screen's "Sign up with email" (amber, then orange from 60%).
-  static const signUp = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [amber, orange],
-    stops: [0, .6],
-  );
+  /// The primary button, the active tab by night, the current section.
+  static final sunrise = solid(orange);
 
-  /// The create button's ring of oranges.
-  // CSS `conic-gradient(from 210deg, …)`: CSS starts at 12 o'clock,
-  // Flutter at 3 o'clock, so a full turn rotated by 210° − 90°.
-  static const createRing = SweepGradient(
-    colors: [amber, orange, ember, Color(0xFFFF7A3D), amber],
-    transform: GradientRotation((210 - 90) * 3.14159265 / 180),
-  );
+  /// The welcome screen's "Sign up with email".
+  static final signUp = solid(orange);
 
-  /// The member's own avatar ring and a story's ring.
-  static const meRing = SweepGradient(
-    colors: [orange, amber, lilac, orange],
-    transform: GradientRotation(-3.14159265 / 2),
-  );
-  static const storyRing = SweepGradient(
-    colors: [orange, amber, lilac, orange],
-    transform: GradientRotation(200 * 3.14159265 / 180 - 3.14159265 / 2),
-  );
+  /// The create button.
+  static final createRing = solid(orange);
 
-  /// The active tab by day: deep indigo to navy.
-  static const tabOnDay = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [indigoDeep, navy],
-  );
+  /// The member's own avatar ring and an unseen story's ring.
+  static final meRing = solid(orange);
+  static final storyRing = solid(orange);
 
-  /// The six avatar gradients (`.a1`–`.a6`), chosen by a member's id.
+  /// The active tab by day.
+  static final tabOnDay = solid(navy);
+
+  /// #527's surfaces (platform/web community.css), light and dark.
+  static const darkPaper = Color(0xFF0E0D24);
+  static const darkCard = Color(0xFF161530);
+  static const darkLine = Color(0xFF2C2A49);
+  static const darkSoft = Color(0xFF1C1B38);
+  static const darkNavy = Color(0xFF24223F);
+  static const darkInk = Color(0xFFF4EFE6);
+  static const darkMuted = Color(0xFFA9A4BB);
+  static const lightSoft = Color(0xFFF6F2EB);
+
+  /// The six avatar colours (`.a1`–`.a6`), one colour each, chosen by a
+  /// member's id.
   static const avatars = [
-    [Color(0xFFFF8A3D), Color(0xFFFF5A1F)],
-    [Color(0xFF7C6BFF), Color(0xFF4B3BE0)],
-    [Color(0xFF1FC08A), Color(0xFF0E8F63)],
-    [Color(0xFFF2B544), Color(0xFFE08A12)],
-    [Color(0xFFFF6E9A), Color(0xFFE23F72)],
-    [Color(0xFF3FA9F5), Color(0xFF1F6FD1)],
+    [Color(0xFFFF5A1F), Color(0xFFFF5A1F)],
+    [Color(0xFF6B5BFF), Color(0xFF6B5BFF)],
+    [Color(0xFF18A56B), Color(0xFF18A56B)],
+    [Color(0xFFE08A12), Color(0xFFE08A12)],
+    [Color(0xFFE23F72), Color(0xFFE23F72)],
+    [Color(0xFF1F6FD1), Color(0xFF1F6FD1)],
   ];
 }
 
@@ -129,46 +121,47 @@ class CommunityPalette extends ThemeExtension<CommunityPalette> {
   final Color tabRim;
   final Color cardShadow;
 
-  static const light = CommunityPalette(
+  // #527: flat surfaces with 1px lines; no shadow by day or night.
+  static final light = CommunityPalette(
     dark: false,
-    screen: Brand.screen,
+    screen: Brand.paper,
     card: Colors.white,
     ink: Brand.ink,
     muted: Brand.muted,
-    soft: Brand.ink,
+    soft: const Color(0xFF3C3A50),
     line: Brand.line,
-    iconButton: Color(0xCCFFFFFF),
-    iconButtonBorder: Color(0xF2FFFFFF),
-    iconButtonShadow: Color(0x12141327),
+    iconButton: Colors.white,
+    iconButtonBorder: Brand.line,
+    iconButtonShadow: const Color(0x00000000),
     iconButtonInk: Brand.ink,
-    tabBar: Color(0xD1FFFFFF),
-    tabIcon: Color(0xFF8B88A0),
+    tabBar: Colors.white,
+    tabIcon: const Color(0xFF7B788E),
     tabOn: Brand.tabOnDay,
-    tabOnIcon: Brand.peach,
-    tabShadow: Color(0x29141327),
-    tabRim: Color(0xE6FFFFFF),
-    cardShadow: Color(0x14141327),
+    tabOnIcon: Brand.orange,
+    tabShadow: const Color(0x00000000),
+    tabRim: Brand.line,
+    cardShadow: const Color(0x00000000),
   );
 
-  static const night = CommunityPalette(
+  static final night = CommunityPalette(
     dark: true,
-    screen: Brand.night,
-    card: Color(0x0BFFFFFF),
-    ink: Color(0xFFEDEAF5),
-    muted: Color(0xFF9C98B5),
-    soft: Color(0xFFDAD6EA),
-    line: Color(0x12FFFFFF),
-    iconButton: Color(0x12FFFFFF),
-    iconButtonBorder: Color(0x1AFFFFFF),
-    iconButtonShadow: Color(0x00000000),
-    iconButtonInk: Colors.white,
-    tabBar: Color(0xD118163A),
-    tabIcon: Color(0xFF8F8BAE),
-    tabOn: Brand.sunrise,
-    tabOnIcon: Colors.white,
-    tabShadow: Color(0x73000000),
-    tabRim: Color(0x14FFFFFF),
-    cardShadow: Color(0x00000000),
+    screen: Brand.darkPaper,
+    card: Brand.darkCard,
+    ink: Brand.darkInk,
+    muted: Brand.darkMuted,
+    soft: const Color(0xFFEBE6F2),
+    line: Brand.darkLine,
+    iconButton: Brand.darkCard,
+    iconButtonBorder: Brand.darkLine,
+    iconButtonShadow: const Color(0x00000000),
+    iconButtonInk: Brand.darkInk,
+    tabBar: Brand.darkCard,
+    tabIcon: Brand.darkMuted,
+    tabOn: LinearGradient(colors: [Brand.darkNavy, Brand.darkNavy]),
+    tabOnIcon: Brand.orange,
+    tabShadow: const Color(0x00000000),
+    tabRim: Brand.darkLine,
+    cardShadow: const Color(0x00000000),
   );
 
   static CommunityPalette of(BuildContext context) =>

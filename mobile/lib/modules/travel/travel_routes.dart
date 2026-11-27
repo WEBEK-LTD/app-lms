@@ -43,6 +43,11 @@ final travelModule = AppModule(
     BuiltInScreen.trips || BuiltInScreen.orders => TravelPaths.trips,
     BuiltInScreen.saved => _hotelsOn(config) ? TravelPaths.saved : null,
     BuiltInScreen.priceAlerts => _flightsOn(config) ? TravelPaths.alerts : null,
+    BuiltInScreen.communityFeed ||
+    BuiltInScreen.communityQuestions ||
+    BuiltInScreen.communityGroups ||
+    BuiltInScreen.communityProfile ||
+    BuiltInScreen.communityMessages => null,
     BuiltInScreen.messages => config?.chat == null ? null : Paths.chat,
     BuiltInScreen.account => Paths.account,
     BuiltInScreen.settings => Paths.settings,

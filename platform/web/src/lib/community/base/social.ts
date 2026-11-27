@@ -203,7 +203,7 @@ export async function listBlocks(ctx: MemberContext): Promise<CommunityResult> {
 // ------------------------------------------------------------ reports
 
 const REASONS: readonly CommunityReportReason[] = ["spam", "harassment", "hate", "inappropriate", "misinformation", "impersonation", "other"];
-// 232–235 The one list (lib/community/trust/requests.ts): what phases 2 to 5 add can be reported too.
+// 232–235 The one list (lib/community/trust/requests.ts): groups, jobs, pro reviews, posts, stories, showcase items, events and challenge entries are reported here too (a conversation by its own path).
 const TARGETS: readonly CommunityTargetType[] = REPORT_TARGETS;
 
 export async function report(ctx: CommunityContext): Promise<CommunityResult> {

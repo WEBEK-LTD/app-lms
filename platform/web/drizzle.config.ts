@@ -7,7 +7,7 @@ import { defineConfig } from "drizzle-kit";
 export default defineConfig({
   dialect: "mysql",
   // 231 Yallapp Community keeps its tables in their own file.
-  schema: ["./src/lib/db/schema.ts", "./src/lib/db/community-schema.ts", "./src/lib/db/community-engage-schema.ts"],
+  schema: ["./src/lib/db/schema.ts", "./src/lib/db/community-schema.ts", "./src/lib/db/community-b2-schema.ts", "./src/lib/db/community-engage-schema.ts"],
   out: "./drizzle",
   strict: true,
   verbose: true,

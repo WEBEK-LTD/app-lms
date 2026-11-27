@@ -4,12 +4,12 @@ import type { CommunityContext } from "../api/http";
 import { withQaFor } from "../api/qa-hooks";
 import { pushToMember } from "../engage/push";
 import { CONTENT_KINDS } from "../content-kinds";
-import { YALLAPP_TENANT } from "../types";
 import { contentInfo, memberStats, recentTexts, setContentStatus, type QaContentKind } from "../qa/service";
-import type { CommunityMember } from "../types";
+import { YALLAPP_TENANT, type CommunityMember } from "../types";
 import { linkedApps, yallappAccountName } from "../yallapp";
 import type { ContentInfo, LinkedAccount, TrustDeps, TrustMember } from "./service";
 import type { ContentKind, TrustStore } from "./store";
+import { connectContentInfo, isConnectKind, setConnectStatus } from "../connect/content";
 
 /**
  * 231 Area C's service (./service.ts) inside the Community API: its deps
@@ -95,6 +95,11 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
       const got = await adapter.info(ctx, id);
       return got ? { authorId: got.authorId ?? "", title: got.title.slice(0, 140), link: got.link } : null;
     }
+    // 232–234 Area A's groups, jobs, reviews and reported conversations.
+    if (isConnectKind(kind)) {
+      const got = await connectContentInfo(ctx.store, kind, id);
+      return got ? { authorId: got.authorId, title: got.title, link: got.link } : null;
+    }
     const k = qaKind(kind);
     const got = k ? await inQa(() => contentInfo(k, id)) : null;
     if (!got) return null;
@@ -144,6 +149,7 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
       setStatus: async (kind, id, status) => {
         const adapter = CONTENT_KINDS[kind];
         if (adapter) return adapter.setStatus(ctx, id, status);
+        if (isConnectKind(kind)) return setConnectStatus(ctx.store, kind, id, status, ctx.now);
         const k = qaKind(kind);
         if (k) await inQa(() => setContentStatus(k, id, status, ctx.now));
       },

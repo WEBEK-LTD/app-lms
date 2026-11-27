@@ -92,6 +92,7 @@ export function parseDecision(input: unknown, options: { reasonRequired: "always
 
 // ——— Reports ———
 
+/** What can be reported through POST /reports (a conversation is reported by its own path, as a whole; a pro by their member). */
 export const REPORT_TARGETS: readonly CommunityTargetType[] = [
   "member",
   "question",
@@ -99,16 +100,14 @@ export const REPORT_TARGETS: readonly CommunityTargetType[] = [
   "reply",
   "tutorial",
   "comment",
+  "group",
+  "job",
+  "pro_review",
   "post",
   "post_comment",
   "story",
   "showcase",
   "showcase_comment",
-  "conversation",
-  "group",
-  "job",
-  "pro",
-  "review",
   "event",
   "event_comment",
   "challenge_submission",

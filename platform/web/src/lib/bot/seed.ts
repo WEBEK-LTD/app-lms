@@ -257,6 +257,18 @@ const SEED: Record<string, Words> = {
     "ar-maghreb": "أوطيل|فندق|وكالة أسفار|سفر|طيارة|عمرة",
     "ar-sd": "فندق|وكالة سفر|طيران|تذاكر طيران|عمرة",
   },
+  // 235
+  "kind.community": {
+    en: "community|community app|forum|members|online community|social app|fan club|customer community",
+    tr: "topluluk|topluluk uygulaması|forum|üyeler|sosyal uygulama|hayran kulübü",
+    ar: "مجتمع|تطبيق مجتمع|منتدى|أعضاء|مجتمع إلكتروني|نادي معجبين",
+    "ar-eg": "مجتمع|منتدى|جروب|أعضاء",
+    "ar-gulf": "مجتمع|منتدى|قروب|أعضاء",
+    "ar-lev": "مجتمع|منتدى|غروب|أعضاء",
+    "ar-iq": "مجتمع|منتدى|كروب|أعضاء",
+    "ar-maghreb": "مجتمع|منتدى|مجموعة|أعضاء",
+    "ar-sd": "مجتمع|منتدى|قروب|أعضاء",
+  },
 
   // ——— Features ———
   "feature.chat": {

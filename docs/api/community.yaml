@@ -274,6 +274,32 @@ paths:
                   expires_at: { type: string, format: date-time }
         "400": { $ref: "#/components/responses/Invalid" }
         "429": { $ref: "#/components/responses/TooMany" }
+  /auth/app:
+    post:
+      tags: [Auth]
+      summary: "A client app's customer, in that app's own community (phase 5; 404 in Yallapp Community)"
+      description: |
+        Only under `/api/app/{app_id}/community/v1`. The app's customer is
+        already signed in to the app (the hosted API's access token); this
+        gives them a community session: the member tied to that customer, made
+        with their name and email the first time (201, `created`). No second
+        sign-up. A token that isn't a signed-in customer of this app is 401.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [access_token]
+              properties:
+                access_token: { type: string, description: "The app customer's hosted API access token." }
+                device: { $ref: "#/components/schemas/DeviceInput" }
+      responses:
+        "200": { $ref: "#/components/responses/Session" }
+        "201": { $ref: "#/components/responses/Session" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
   /auth/yallapp:
     post:
       tags: [Auth]
@@ -1476,7 +1502,6 @@ paths:
   # ------------------------------------------------------------ Area A: Messages (232.4)
   /messages/conversations:
     get:
-      x-building: true
       tags: [Messages]
       summary: The member's conversations, latest message first
       description: Polled by the website (every 15 s while open) and the app (with push). Blocked members' one-to-one conversations are left out.
@@ -1484,7 +1509,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/ConversationPage" } } } }
     post:
-      x-building: true
       tags: [Messages]
       summary: Start a conversation
       description: |
@@ -1512,7 +1536,6 @@ paths:
         "429": { $ref: "#/components/responses/TooMany" }
   /messages/unread:
     get:
-      x-building: true
       tags: [Messages]
       summary: How many conversations have unread messages (the inbox badge; cheap to poll)
       responses:
@@ -1520,14 +1543,12 @@ paths:
   /messages/conversations/{conversation_id}:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     get:
-      x-building: true
       tags: [Messages]
       summary: One conversation (its people and read state)
       responses:
         "200": { description: The conversation., content: { application/json: { schema: { $ref: "#/components/schemas/Conversation" } } } }
         "404": { $ref: "#/components/responses/NotFound" }
     patch:
-      x-building: true
       tags: [Messages]
       summary: Rename a group chat (any of its members)
       requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { title: { type: string, maxLength: 80 }, muted: { type: boolean, description: "For oneself only: no push for it." } } } } } }
@@ -1536,7 +1557,6 @@ paths:
   /messages/conversations/{conversation_id}/members:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     post:
-      x-building: true
       tags: [Messages]
       summary: Add people to a group chat (up to 10 in all)
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [member_ids], properties: { member_ids: { type: array, minItems: 1, maxItems: 9, items: { type: string } } } } } } }
@@ -1546,7 +1566,6 @@ paths:
   /messages/conversations/{conversation_id}/members/me:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     delete:
-      x-building: true
       tags: [Messages]
       summary: Leave a group chat, or hide a one-to-one conversation until its next message
       responses:
@@ -1554,7 +1573,6 @@ paths:
   /messages/conversations/{conversation_id}/messages:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     get:
-      x-building: true
       tags: [Messages]
       summary: Messages, newest first; with `after`, only those newer than it (polling)
       parameters:
@@ -1564,7 +1582,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/MessagePage" } } } }
     post:
-      x-building: true
       tags: [Messages]
       summary: Send a message (text, up to 4 photos, a reply to one message)
       description: JSON for text only; multipart (`body`, `reply_to_id`, `photos` up to 4, JPEG/PNG/WebP, 5 MB each) with photos. Refused (400 `not_allowed`) when the other member of a one-to-one conversation blocked or was blocked. 60 messages a minute.
@@ -1582,7 +1599,6 @@ paths:
   /messages/conversations/{conversation_id}/messages/{message_id}:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }, { name: message_id, in: path, required: true, schema: { type: string } }]
     delete:
-      x-building: true
       tags: [Messages]
       summary: Delete one's own message (shows as deleted for everyone)
       responses:
@@ -1590,7 +1606,6 @@ paths:
   /messages/conversations/{conversation_id}/read:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     post:
-      x-building: true
       tags: [Messages]
       summary: Mark read up to a message (the newest when none is given)
       requestBody: { content: { application/json: { schema: { type: object, properties: { message_id: { type: string } } } } } }
@@ -1599,7 +1614,6 @@ paths:
   /messages/conversations/{conversation_id}/report:
     parameters: [{ $ref: "#/components/parameters/ConversationId" }]
     post:
-      x-building: true
       tags: [Messages]
       summary: Report a conversation to the moderators (they see its last 50 messages)
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [reason], properties: { reason: { $ref: "#/components/schemas/ReportReason" }, note: { type: string, maxLength: 500 } } } } } }
@@ -1610,7 +1624,6 @@ paths:
   # ------------------------------------------------------------ Area A: Groups (232.5)
   /groups:
     get:
-      x-building: true
       tags: [Groups]
       summary: Groups, most active first; `mine` for the member's own ("My groups" in the side menu)
       security: [{ bearerAuth: [] }, {}]
@@ -1622,7 +1635,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/GroupPage" } } } }
     post:
-      x-building: true
       tags: [Groups]
       summary: Create a group
       description: Who may follows the admin setting `groups_create_policy` (everyone, badge holders, or chosen members; 403 `not_allowed` otherwise). The creator is its owner. A new member's group waits for review like their first posts.
@@ -1638,7 +1650,6 @@ paths:
   /groups/{group}:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     get:
-      x-building: true
       tags: [Groups]
       summary: A group's page (a private group shows its name, description and counts to everyone; its posts to members)
       security: [{ bearerAuth: [] }, {}]
@@ -1646,7 +1657,6 @@ paths:
         "200": { description: The group., content: { application/json: { schema: { $ref: "#/components/schemas/Group" } } } }
         "404": { $ref: "#/components/responses/NotFound" }
     patch:
-      x-building: true
       tags: [Groups]
       summary: Change a group (its owner or moderators)
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/GroupInput" } } } }
@@ -1654,7 +1664,6 @@ paths:
         "200": { description: The group., content: { application/json: { schema: { $ref: "#/components/schemas/Group" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
     delete:
-      x-building: true
       tags: [Groups]
       summary: Delete a group (its owner, or a community admin)
       responses:
@@ -1662,14 +1671,12 @@ paths:
   /groups/{group}/cover:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     put:
-      x-building: true
       tags: [Groups]
       summary: The group's cover picture (owner or moderators; JPEG/PNG/WebP, 5 MB)
       requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, required: [file], properties: { file: { type: string, format: binary } } } } } }
       responses:
         "200": { description: The group., content: { application/json: { schema: { $ref: "#/components/schemas/Group" } } } }
     delete:
-      x-building: true
       tags: [Groups]
       summary: Remove the cover picture
       responses:
@@ -1677,13 +1684,11 @@ paths:
   /groups/{group}/membership:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     put:
-      x-building: true
       tags: [Groups]
       summary: Join (a public group at once; a private one asks, and its moderators accept)
       responses:
         "200": { description: The member's standing now., content: { application/json: { schema: { $ref: "#/components/schemas/GroupStanding" } } } }
     delete:
-      x-building: true
       tags: [Groups]
       summary: Leave, or take back a request to join (an owner hands the group over first)
       responses:
@@ -1692,7 +1697,6 @@ paths:
   /groups/{group}/members:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     get:
-      x-building: true
       tags: [Groups]
       summary: The group's members, owner and moderators first (a private group's, to its members only)
       security: [{ bearerAuth: [] }, {}]
@@ -1702,7 +1706,6 @@ paths:
   /groups/{group}/members/{member}:
     parameters: [{ $ref: "#/components/parameters/Group" }, { $ref: "#/components/parameters/Member" }]
     patch:
-      x-building: true
       tags: [Groups]
       summary: Make a member a moderator or a member again, or hand the group over (`owner`; by its owner)
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [role], properties: { role: { $ref: "#/components/schemas/GroupRole" } } } } } }
@@ -1710,7 +1713,6 @@ paths:
         "200": { description: The member in the group., content: { application/json: { schema: { $ref: "#/components/schemas/GroupMember" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
     delete:
-      x-building: true
       tags: [Groups]
       summary: Remove a member (owner or moderators; never the owner)
       responses:
@@ -1718,7 +1720,6 @@ paths:
   /groups/{group}/requests:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     get:
-      x-building: true
       tags: [Groups]
       summary: Requests to join a private group, oldest first (owner or moderators)
       parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
@@ -1727,7 +1728,6 @@ paths:
   /groups/{group}/requests/{member}/accept:
     parameters: [{ $ref: "#/components/parameters/Group" }, { $ref: "#/components/parameters/Member" }]
     post:
-      x-building: true
       tags: [Groups]
       summary: Accept a request to join
       responses:
@@ -1735,7 +1735,6 @@ paths:
   /groups/{group}/requests/{member}/decline:
     parameters: [{ $ref: "#/components/parameters/Group" }, { $ref: "#/components/parameters/Member" }]
     post:
-      x-building: true
       tags: [Groups]
       summary: Decline a request to join
       responses:
@@ -1743,7 +1742,6 @@ paths:
   /groups/{group}/feed:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     get:
-      x-building: true
       tags: [Groups]
       summary: The group's posts and questions, newest first (area B's feed items with `group_id`)
       security: [{ bearerAuth: [] }, {}]
@@ -1755,7 +1753,6 @@ paths:
   # ------------------------------------------------------------ Area A: Pros (234.1)
   /pros:
     get:
-      x-building: true
       tags: [Pros]
       summary: Pro profiles, best rated first
       security: [{ bearerAuth: [] }, {}]
@@ -1770,7 +1767,6 @@ paths:
   /pros/{member}:
     parameters: [{ $ref: "#/components/parameters/Member" }]
     get:
-      x-building: true
       tags: [Pros]
       summary: A member's pro profile
       security: [{ bearerAuth: [] }, {}]
@@ -1780,7 +1776,6 @@ paths:
   /pros/{member}/reviews:
     parameters: [{ $ref: "#/components/parameters/Member" }]
     get:
-      x-building: true
       tags: [Pros]
       summary: Reviews from finished hire requests, newest first
       security: [{ bearerAuth: [] }, {}]
@@ -1790,7 +1785,6 @@ paths:
   /pros/{member}/hire:
     parameters: [{ $ref: "#/components/parameters/Member" }]
     post:
-      x-building: true
       tags: [Pros]
       summary: Send a hire request; it opens a message thread with the pro
       description: No money moves on the platform; rates are text the pro writes. 10 requests a day.
@@ -1800,7 +1794,6 @@ paths:
         "400": { $ref: "#/components/responses/NotAllowed" }
   /pros/requests:
     get:
-      x-building: true
       tags: [Pros]
       summary: The member's hire requests, as the client (`sent`) or as the pro (`received`)
       parameters: [{ name: box, in: query, schema: { type: string, enum: [sent, received], default: received } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
@@ -1809,7 +1802,6 @@ paths:
   /pros/requests/{request_id}:
     parameters: [{ $ref: "#/components/parameters/RequestId" }]
     patch:
-      x-building: true
       tags: [Pros]
       summary: "Move a request on: the pro accepts or declines; either marks it done; the client cancels"
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [accepted, declined, done, cancelled] } } } } } }
@@ -1819,7 +1811,6 @@ paths:
   /pros/requests/{request_id}/review:
     parameters: [{ $ref: "#/components/parameters/RequestId" }]
     put:
-      x-building: true
       tags: [Pros]
       summary: The client reviews the pro once the request is done (once; changeable)
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [rating], properties: { rating: { type: integer, minimum: 1, maximum: 5 }, text: { type: string, maxLength: 2000 } } } } } }
@@ -1827,13 +1818,11 @@ paths:
         "200": { description: The review., content: { application/json: { schema: { $ref: "#/components/schemas/ProReview" } } } }
   /me/pro:
     get:
-      x-building: true
       tags: [Pros]
       summary: The member's own pro profile (404 when they have none)
       responses:
         "200": { description: The profile., content: { application/json: { schema: { $ref: "#/components/schemas/ProProfile" } } } }
     put:
-      x-building: true
       tags: [Pros]
       summary: Open or change one's pro profile
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ProInput" } } } }
@@ -1841,7 +1830,6 @@ paths:
         "200": { description: The profile., content: { application/json: { schema: { $ref: "#/components/schemas/ProProfile" } } } }
         "400": { $ref: "#/components/responses/Invalid" }
     delete:
-      x-building: true
       tags: [Pros]
       summary: Close one's pro profile (reviews are kept for when it opens again)
       responses:
@@ -1850,7 +1838,6 @@ paths:
   # ------------------------------------------------------------ Area A: Jobs (234.2)
   /jobs:
     get:
-      x-building: true
       tags: [Jobs]
       summary: Open jobs, newest first
       security: [{ bearerAuth: [] }, {}]
@@ -1865,7 +1852,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/JobPage" } } } }
     post:
-      x-building: true
       tags: [Jobs]
       summary: Post a job (a new member's first ones, and any the spam filter holds, wait for review)
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/JobInput" } } } }
@@ -1876,7 +1862,6 @@ paths:
   /jobs/{job_id}:
     parameters: [{ $ref: "#/components/parameters/JobId" }]
     get:
-      x-building: true
       tags: [Jobs]
       summary: A job
       security: [{ bearerAuth: [] }, {}]
@@ -1884,14 +1869,12 @@ paths:
         "200": { description: The job., content: { application/json: { schema: { $ref: "#/components/schemas/Job" } } } }
         "404": { $ref: "#/components/responses/NotFound" }
     patch:
-      x-building: true
       tags: [Jobs]
       summary: "Change or close one's job (`status`: open or closed)"
       requestBody: { required: true, content: { application/json: { schema: { allOf: [{ $ref: "#/components/schemas/JobInput" }, { type: object, properties: { status: { type: string, enum: [open, closed] } } }] } } } }
       responses:
         "200": { description: The job., content: { application/json: { schema: { $ref: "#/components/schemas/Job" } } } }
     delete:
-      x-building: true
       tags: [Jobs]
       summary: Delete one's job (its poster, or a moderator)
       responses:
@@ -1899,14 +1882,12 @@ paths:
   /jobs/{job_id}/applications:
     parameters: [{ $ref: "#/components/parameters/JobId" }]
     get:
-      x-building: true
       tags: [Jobs]
       summary: The applicants (the job's poster only), newest first
       parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/JobApplicationPage" } } } }
     post:
-      x-building: true
       tags: [Jobs]
       summary: Apply (once per job; never to one's own)
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [message], properties: { message: { type: string, minLength: 10, maxLength: 4000 }, links: { type: array, maxItems: 5, items: { type: string, format: uri } } } } } } }
@@ -1916,7 +1897,6 @@ paths:
   /jobs/{job_id}/applications/{application_id}:
     parameters: [{ $ref: "#/components/parameters/JobId" }, { name: application_id, in: path, required: true, schema: { type: string } }]
     patch:
-      x-building: true
       tags: [Jobs]
       summary: The poster shortlists or declines an applicant; the applicant withdraws
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [shortlisted, declined, withdrawn] } } } } } }
@@ -1924,7 +1904,6 @@ paths:
         "200": { description: The application., content: { application/json: { schema: { $ref: "#/components/schemas/JobApplication" } } } }
   /me/job-applications:
     get:
-      x-building: true
       tags: [Jobs]
       summary: The member's own applications, newest first
       parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
@@ -1934,7 +1913,6 @@ paths:
   # ------------------------------------------------------------ Area B: Feed, posts, stories (232.1, 232.2)
   /feed:
     get:
-      x-building: true
       tags: [Posts]
       summary: The home feed, posts and questions mixed
       security: [{ bearerAuth: [] }, {}]
@@ -1946,7 +1924,6 @@ paths:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/FeedPage" } } } }
   /posts:
     post:
-      x-building: true
       tags: [Posts]
       summary: Write a post (text, up to 10 photos or one video; in a group with `group_id`)
       description: Multipart. Photos JPEG/PNG/WebP 5 MB each; a video MP4 or MOV up to 5 MB with its `poster` frame. A link in the text gets a preview. Moderation and the spam filter as for questions.
@@ -1968,7 +1945,6 @@ paths:
         "429": { $ref: "#/components/responses/TooMany" }
   /posts/link-preview:
     post:
-      x-building: true
       tags: [Posts]
       summary: A link's preview before posting
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [url], properties: { url: { type: string, format: uri } } } } } }
@@ -1978,7 +1954,6 @@ paths:
   /posts/{post_id}:
     parameters: [{ $ref: "#/components/parameters/PostId" }]
     get:
-      x-building: true
       tags: [Posts]
       summary: A post
       security: [{ bearerAuth: [] }, {}]
@@ -1986,30 +1961,27 @@ paths:
         "200": { description: The post., content: { application/json: { schema: { $ref: "#/components/schemas/Post" } } } }
         "404": { $ref: "#/components/responses/NotFound" }
     patch:
-      x-building: true
       tags: [Posts]
       summary: Change one's post's text
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [body], properties: { body: { type: string, maxLength: 10000 } } } } } }
       responses:
         "200": { description: The post., content: { application/json: { schema: { $ref: "#/components/schemas/Post" } } } }
     delete:
-      x-building: true
       tags: [Posts]
       summary: Delete one's post (or a moderator, or the group's moderators)
       responses:
         "204": { description: Deleted. }
   /posts/{post_id}/like:
     parameters: [{ $ref: "#/components/parameters/PostId" }]
-    put: { x-building: true, tags: [Posts], summary: Like, responses: { "200": { $ref: "#/components/responses/Liked" } } }
-    delete: { x-building: true, tags: [Posts], summary: Take the like back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    put: { tags: [Posts], summary: Like, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    delete: { tags: [Posts], summary: Take the like back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
   /posts/{post_id}/save:
     parameters: [{ $ref: "#/components/parameters/PostId" }]
-    put: { x-building: true, tags: [Posts], summary: Save for later, responses: { "204": { description: Saved. } } }
-    delete: { x-building: true, tags: [Posts], summary: Unsave, responses: { "204": { description: Unsaved. } } }
+    put: { tags: [Posts], summary: Save for later, responses: { "204": { description: Saved. } } }
+    delete: { tags: [Posts], summary: Unsave, responses: { "204": { description: Unsaved. } } }
   /posts/{post_id}/comments:
     parameters: [{ $ref: "#/components/parameters/PostId" }]
     get:
-      x-building: true
       tags: [Posts]
       summary: Comments, oldest first, each with its replies
       security: [{ bearerAuth: [] }, {}]
@@ -2017,7 +1989,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/CommentPage" } } } }
     post:
-      x-building: true
       tags: [Posts]
       summary: Comment, or reply to a comment (`parent_id`; one level)
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CommentInput" } } } }
@@ -2026,18 +1997,16 @@ paths:
   /comments/{comment_id}:
     parameters: [{ $ref: "#/components/parameters/CommentId" }]
     delete:
-      x-building: true
       tags: [Posts]
       summary: Delete one's comment (on a post, a showcase item or a live event)
       responses:
         "204": { description: Deleted. }
   /comments/{comment_id}/like:
     parameters: [{ $ref: "#/components/parameters/CommentId" }]
-    put: { x-building: true, tags: [Posts], summary: Like a comment, responses: { "200": { $ref: "#/components/responses/Liked" } } }
-    delete: { x-building: true, tags: [Posts], summary: Take the like back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    put: { tags: [Posts], summary: Like a comment, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    delete: { tags: [Posts], summary: Take the like back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
   /me/saved:
     get:
-      x-building: true
       tags: [Posts]
       summary: Saved posts, newest saved first
       parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
@@ -2046,7 +2015,6 @@ paths:
   /members/{member}/posts:
     parameters: [{ $ref: "#/components/parameters/Member" }]
     get:
-      x-building: true
       tags: [Posts]
       summary: A member's posts, newest first
       security: [{ bearerAuth: [] }, {}]
@@ -2055,13 +2023,11 @@ paths:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/FeedPage" } } } }
   /stories:
     get:
-      x-building: true
       tags: [Stories]
       summary: "The ring row on home: members the viewer follows (and themself) with stories from the last 24 hours, unseen first"
       responses:
         "200": { description: The rings., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/StoryRing" } } } } } } }
     post:
-      x-building: true
       tags: [Stories]
       summary: Add a story (one photo, or a video up to 30 s and 5 MB with its poster); it lasts 24 hours
       requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, properties: { photo: { type: string, format: binary }, video: { type: string, format: binary }, poster: { type: string, format: binary } } } } } }
@@ -2070,7 +2036,6 @@ paths:
   /stories/{story_id}:
     parameters: [{ $ref: "#/components/parameters/StoryId" }]
     delete:
-      x-building: true
       tags: [Stories]
       summary: Delete one's story
       responses:
@@ -2078,7 +2043,6 @@ paths:
   /stories/{story_id}/view:
     parameters: [{ $ref: "#/components/parameters/StoryId" }]
     post:
-      x-building: true
       tags: [Stories]
       summary: Seen (once per viewer)
       responses:
@@ -2086,7 +2050,6 @@ paths:
   /stories/{story_id}/viewers:
     parameters: [{ $ref: "#/components/parameters/StoryId" }]
     get:
-      x-building: true
       tags: [Stories]
       summary: Who saw it (its author only)
       parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
@@ -2096,7 +2059,6 @@ paths:
   # ------------------------------------------------------------ Area B: Showcase (232.3)
   /showcase:
     get:
-      x-building: true
       tags: [Showcase]
       summary: The gallery
       security: [{ bearerAuth: [] }, {}]
@@ -2109,7 +2071,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/ShowcasePage" } } } }
     post:
-      x-building: true
       tags: [Showcase]
       summary: Show an app one built
       description: Multipart, up to 8 pictures (5 MB each). With `yallapp_app_id` naming an app of the member's linked Yallapp account, it shows "Made with Yallapp" verified.
@@ -2134,33 +2095,29 @@ paths:
   /showcase/{item_id}:
     parameters: [{ $ref: "#/components/parameters/ItemId" }]
     get:
-      x-building: true
       tags: [Showcase]
       summary: A showcase item
       security: [{ bearerAuth: [] }, {}]
       responses:
         "200": { description: The item., content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseItem" } } } }
     patch:
-      x-building: true
       tags: [Showcase]
       summary: Change one's item (text and links; pictures by posting again)
       requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { title: { type: string }, description: { type: string }, app_type: { type: string }, app_store_url: { type: [string, "null"] }, play_store_url: { type: [string, "null"] }, website_url: { type: [string, "null"] } } } } } }
       responses:
         "200": { description: The item., content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseItem" } } } }
     delete:
-      x-building: true
       tags: [Showcase]
       summary: Delete one's item
       responses:
         "204": { description: Deleted. }
   /showcase/{item_id}/like:
     parameters: [{ $ref: "#/components/parameters/ItemId" }]
-    put: { x-building: true, tags: [Showcase], summary: Like, responses: { "200": { $ref: "#/components/responses/Liked" } } }
-    delete: { x-building: true, tags: [Showcase], summary: Take the like back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    put: { tags: [Showcase], summary: Like, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    delete: { tags: [Showcase], summary: Take the like back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
   /showcase/{item_id}/comments:
     parameters: [{ $ref: "#/components/parameters/ItemId" }]
     get:
-      x-building: true
       tags: [Showcase]
       summary: Comments, oldest first
       security: [{ bearerAuth: [] }, {}]
@@ -2168,7 +2125,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/CommentPage" } } } }
     post:
-      x-building: true
       tags: [Showcase]
       summary: Comment
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CommentInput" } } } }
@@ -2178,7 +2134,6 @@ paths:
   # ------------------------------------------------------------ Area B: Member tutorials (233.4)
   /tutorials/mine:
     get:
-      x-building: true
       tags: [Tutorials]
       summary: The member's own tutorials, any status
       parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
@@ -2186,7 +2141,6 @@ paths:
         "200": { description: A page of tutorials (area B's shape)., content: { application/json: { schema: { type: object, required: [items, next_cursor], properties: { items: { type: array, items: { type: object } }, next_cursor: { type: [string, "null"] } } } } } }
   /tutorials/drafts:
     post:
-      x-building: true
       tags: [Tutorials]
       summary: A member writes a tutorial (article, or a video link); the first ones wait for review; "Official" stays for the Yallapp team
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/TutorialInput" } } } }
@@ -2195,14 +2149,12 @@ paths:
   /tutorials/drafts/{tutorial_id}:
     parameters: [{ name: tutorial_id, in: path, required: true, schema: { type: string } }]
     patch:
-      x-building: true
       tags: [Tutorials]
       summary: Change one's tutorial (back to review when it was held)
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/TutorialInput" } } } }
       responses:
         "200": { description: The tutorial., content: { application/json: { schema: { type: object } } } }
     delete:
-      x-building: true
       tags: [Tutorials]
       summary: Delete one's tutorial
       responses:
@@ -2211,7 +2163,6 @@ paths:
   # ------------------------------------------------------------ Area B: Academy (233.1)
   /academy/courses:
     get:
-      x-building: true
       tags: [Academy]
       summary: Courses, with whether each is open to the viewer
       description: |
@@ -2226,7 +2177,6 @@ paths:
   /academy/courses/{course}:
     parameters: [{ $ref: "#/components/parameters/Course" }]
     get:
-      x-building: true
       tags: [Academy]
       summary: A course and its lessons (a locked course's lessons have titles only)
       security: [{ bearerAuth: [] }, {}]
@@ -2235,7 +2185,6 @@ paths:
   /academy/courses/{course}/lessons/{lesson_id}:
     parameters: [{ $ref: "#/components/parameters/Course" }, { name: lesson_id, in: path, required: true, schema: { type: string } }]
     get:
-      x-building: true
       tags: [Academy]
       summary: A lesson (its video or article); 403 `course_locked` when the course isn't open to them
       responses:
@@ -2244,7 +2193,6 @@ paths:
   /academy/courses/{course}/lessons/{lesson_id}/complete:
     parameters: [{ $ref: "#/components/parameters/Course" }, { name: lesson_id, in: path, required: true, schema: { type: string } }]
     post:
-      x-building: true
       tags: [Academy]
       summary: Mark a lesson done
       responses:
@@ -2252,7 +2200,6 @@ paths:
   /academy/courses/{course}/quizzes/{quiz_id}/attempts:
     parameters: [{ $ref: "#/components/parameters/Course" }, { name: quiz_id, in: path, required: true, schema: { type: string } }]
     post:
-      x-building: true
       tags: [Academy]
       summary: Answer a quiz; passing every quiz and lesson earns the certificate
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [answers], properties: { answers: { type: object, additionalProperties: { type: array, items: { type: string } }, description: "Question id → the chosen option ids." } } } } } }
@@ -2260,14 +2207,12 @@ paths:
         "200": { description: The result., content: { application/json: { schema: { $ref: "#/components/schemas/QuizResult" } } } }
   /academy/mine:
     get:
-      x-building: true
       tags: [Academy]
       summary: The member's open courses and their progress (bought ones are open on every device on sign-in)
       responses:
         "200": { description: The courses., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/CourseSummary" } } } } } } }
   /academy/certificates:
     get:
-      x-building: true
       tags: [Academy]
       summary: The member's certificates
       responses:
@@ -2275,12 +2220,123 @@ paths:
   /academy/certificates/{code}:
     parameters: [{ name: code, in: path, required: true, schema: { type: string } }]
     get:
-      x-building: true
       tags: [Academy]
       summary: Check a certificate (public; its PDF is `pdf_url`)
       security: []
       responses:
         "200": { description: The certificate., content: { application/json: { schema: { $ref: "#/components/schemas/Certificate" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /academy/courses/{course}/quizzes/{quiz_id}:
+    parameters: [{ $ref: "#/components/parameters/Course" }, { name: quiz_id, in: path, required: true, schema: { type: string } }]
+    get:
+      tags: [Academy]
+      summary: "A quiz's questions and options (never the right ones); 403 `course_locked` when the course isn't open to them"
+      security: [{ bearerAuth: [] }, {}]
+      responses:
+        "200":
+          description: The quiz.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, title, passed, score, questions]
+                properties:
+                  id: { type: string }
+                  title: { type: string }
+                  passed: { type: boolean }
+                  score: { type: [number, "null"], minimum: 0, maximum: 1, description: "The best try so far." }
+                  questions: { type: array, items: { type: object, required: [id, text, options], properties: { id: { type: string }, text: { type: string }, options: { type: array, items: { type: object, required: [id, text], properties: { id: { type: string }, text: { type: string } } } } } } }
+        "403": { description: "`course_locked`." }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /media:
+    post:
+      tags: [Posts]
+      summary: "Upload one photo or video first (multipart `file`, a video's `poster`), then post with `media_ids`; the same limits as a post's files"
+      requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, required: [file], properties: { file: { type: string, format: binary }, poster: { type: string, format: binary } } } } } }
+      responses:
+        "201": { description: Uploaded., content: { application/json: { schema: { allOf: [{ $ref: "#/components/schemas/Media" }, { type: object, required: [id], properties: { id: { type: string } } }] } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "429": { $ref: "#/components/responses/TooMany" }
+
+  # ------------------------------------------------------------ Area B: Academy authoring (233, admins)
+  /admin/academy/courses:
+    get:
+      tags: [Academy]
+      summary: "Admins: every course, drafts too"
+      responses:
+        "200": { description: The courses., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { type: object, required: [id, slug, title, status, free, lesson_count, updated_at], properties: { id: { type: string }, slug: { type: string }, title: { type: string }, status: { type: string, enum: [draft, published] }, free: { type: boolean }, lesson_count: { type: integer }, updated_at: { type: string, format: date-time } } } } } } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [Academy]
+      summary: "Admins: a new course (a draft unless status is published); what it costs is set on the website"
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CourseInput" } } } }
+      responses:
+        "201": { description: Created., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/academy/courses/{course_id}:
+    get:
+      tags: [Academy]
+      summary: "Admins: a course with its lessons and quizzes, answers included"
+      parameters: [{ name: course_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: The course., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Academy]
+      summary: "Admins: change a course, publish it or mark it free"
+      parameters: [{ name: course_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CourseInput" } } } }
+      responses:
+        "200": { description: Changed., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/academy/courses/{course_id}/lessons:
+    post:
+      tags: [Academy]
+      summary: "Admins: add a lesson (a video or an article)"
+      parameters: [{ name: course_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/LessonInput" } } } }
+      responses:
+        "201": { description: Added., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/academy/lessons/{lesson_id}:
+    patch:
+      tags: [Academy]
+      summary: "Admins: change a lesson or move it"
+      parameters: [{ name: lesson_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/LessonInput" } } } }
+      responses:
+        "200": { description: Changed., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Academy]
+      summary: "Admins: remove a lesson"
+      parameters: [{ name: lesson_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Removed. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/academy/lessons/{lesson_id}/quiz:
+    put:
+      tags: [Academy]
+      summary: "Admins: replace a lesson's quiz (an empty list removes it)"
+      parameters: [{ name: lesson_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [questions], properties: { questions: { type: array, maxItems: 30, items: { $ref: "#/components/schemas/QuizQuestion" } } } }
+      responses:
+        "200": { description: Replaced., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
 
   # ------------------------------------------------------------ Area C: Push, points, leaderboard (232.6, 233.2)
@@ -2641,8 +2697,8 @@ components:
       enum: [system, light, dark]
     TargetType:
       type: string
-      description: "Phase 2–4 adds posts and their comments, stories, showcase items and their comments, groups, jobs, pro profiles, conversations (reported as a whole), pro reviews, events and their comments (a live session's chat), and challenge entries."
-      enum: [member, question, answer, reply, tutorial, comment, post, post_comment, story, showcase, showcase_comment, group, job, pro, conversation, review, event, event_comment, challenge_submission]
+      description: "Phase 2–4 adds posts and their comments, stories, showcase items and their comments, groups, jobs, conversations (reported as a whole), pro reviews, events and their live comments, and challenge submissions (the same report and moderation paths as phase 1)."
+      enum: [member, question, answer, reply, tutorial, comment, post, post_comment, story, showcase, showcase_comment, group, job, conversation, pro_review, event, event_comment, challenge_submission]
     DeviceInput:
       type: object
       properties:
@@ -3074,11 +3130,11 @@ components:
           type: object
           description: Which kinds also come by email (the list always has them all).
           additionalProperties: { type: boolean }
+          examples: [{ answer: true, answer_accepted: true, friend_request: true, follow: false, badge_granted: true, verification_approved: true, verification_rejected: true, official_answer: true }]
         push:
           type: object
           description: "232 Which kinds also come as a push to the member's phones (the list always has them all; every kind is on until turned off). PUT takes `email`, `push` or both; only the kinds sent change."
           additionalProperties: { type: boolean }
-          examples: [{ answer: true, answer_accepted: true, friend_request: true, follow: false, badge_granted: true, verification_approved: true, verification_rejected: true, official_answer: true }]
 
     # ================================================================ Phases 2–5
     Tenant:
@@ -3659,3 +3715,49 @@ components:
       properties:
         items: { type: array, items: { $ref: "#/components/schemas/Event" } }
         next_cursor: { type: [string, "null"] }
+    CourseInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 3, maxLength: 160 }
+        summary: { type: string, maxLength: 2000 }
+        cover_url: { type: [string, "null"], format: uri }
+        level: { type: string, enum: [beginner, intermediate, advanced] }
+        language: { $ref: "#/components/schemas/Language" }
+        status: { type: string, enum: [draft, published] }
+        free: { type: boolean }
+    LessonInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 3, maxLength: 160 }
+        kind: { type: string, enum: [video, article] }
+        body: { type: string }
+        video_url: { type: string, description: "On YouTube, Vimeo or yallapp.com.tr." }
+        duration_seconds: { type: integer }
+        preview: { type: boolean }
+        position: { type: integer, minimum: 0 }
+    QuizQuestion:
+      type: object
+      required: [prompt, options, answer]
+      properties:
+        prompt: { type: string }
+        options: { type: array, minItems: 2, maxItems: 6, items: { type: string } }
+        answer: { type: integer, minimum: 0, description: "The right option's index (admins only)." }
+    AdminCourse:
+      type: object
+      required: [id, slug, title, summary, cover_url, level, language, status, free, lessons]
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        title: { type: string }
+        summary: { type: string }
+        cover_url: { type: [string, "null"] }
+        level: { type: string, enum: [beginner, intermediate, advanced] }
+        language: { $ref: "#/components/schemas/Language" }
+        status: { type: string, enum: [draft, published] }
+        free: { type: boolean }
+        lessons:
+          type: array
+          items:
+            allOf:
+              - { $ref: "#/components/schemas/LessonInput" }
+              - { type: object, required: [id, quiz], properties: { id: { type: string }, quiz: { type: array, items: { $ref: "#/components/schemas/QuizQuestion" } } } }

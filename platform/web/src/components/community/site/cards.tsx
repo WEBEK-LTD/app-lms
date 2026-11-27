@@ -1,4 +1,7 @@
 import Link from "next/link";
+import type { Challenge, CmEvent } from "./next";
+import { LocalTime } from "./next-client";
+import type { CmWords2 } from "./words2";
 import { Avatar } from "./avatar";
 import { BadgeMark } from "./badge";
 import type { ActiveMember, MemberRef, QuestionSummary, TutorialSummary } from "./data";
@@ -152,31 +155,47 @@ export function ActiveBox({ items, w }: { items: ActiveMember[]; w: CmWords }) {
   );
 }
 
-/** The rail's challenge card: challenges come in a later phase, so it says so and leads nowhere. */
-export function ChallengeBox({ w }: { w: CmWords }) {
+/** 233 The rail's challenge card: the running challenge (or the next one), leading to it. */
+export function ChallengeBox({ w, w2, challenge }: { w: CmWords; w2: CmWords2; challenge: Challenge | null }) {
   return (
     <section className="cm-box">
       <div className="cm-ch">
-        <small>{w.challengeKicker}</small>
-        <h3>{w.challengeTitle}</h3>
-        <span className="soon"><span className="ms f" style={{ fontSize: 16 }} aria-hidden="true">schedule</span>{w.comingSoon}</span>
+        <small>{w2.challengeCard}</small>
+        {challenge ? (
+          <>
+            <h3><Link href={cmLinks.challenge(challenge.id)}>{challenge.title}</Link></h3>
+            <span className="soon"><span className="ms f" style={{ fontSize: 16 }} aria-hidden="true">emoji_events</span>{fill(w2.entries, { n: challenge.entry_count })}</span>
+          </>
+        ) : (
+          <>
+            <h3>{w.challengeTitle}</h3>
+            <Link href={cmLinks.challenges()} className="soon">{w2.noChallenges}</Link>
+          </>
+        )}
       </div>
     </section>
   );
 }
 
-/** The rail's event card, likewise a later phase's. */
-export function EventsBox({ w }: { w: CmWords }) {
+/** 234 The rail's next events (a live first). */
+export function EventsBox({ w2, events, lang }: { w2: CmWords2; events: CmEvent[]; lang: string }) {
   return (
     <section className="cm-box">
-      <div className="cm-ev">
-        <div className="d"><span className="ms f" aria-hidden="true">sensors</span></div>
-        <div>
-          <b style={{ fontSize: 14 }}>{w.eventsTitle}</b>
-          <div style={{ fontSize: 12, color: "var(--cm-muted)" }}>{w.eventsText}</div>
-        </div>
-        <span className="tag">{w.soon}</span>
-      </div>
+      <h3 className="cm-box-h"><Link href={cmLinks.events()}>{w2.eventsTitle}</Link></h3>
+      {events.length ? (
+        events.map((e) => (
+          <Link key={e.id} href={cmLinks.event(e.id)} className="cm-ev">
+            <div className="d"><span className="ms f" aria-hidden="true">{e.kind === "live" ? "sensors" : e.kind === "online" ? "videocam" : "location_on"}</span></div>
+            <div style={{ minWidth: 0 }}>
+              <b style={{ fontSize: 14 }}>{e.title}</b>
+              <div style={{ fontSize: 12, color: "var(--cm-muted)" }}><LocalTime at={e.starts_at} lang={lang} /></div>
+            </div>
+            {e.live_now ? <span className="tag live">{w2.liveNow}</span> : null}
+          </Link>
+        ))
+      ) : (
+        <p className="cm-muted" style={{ fontSize: 13 }}>{w2.noEvents}</p>
+      )}
     </section>
   );
 }

@@ -38,7 +38,7 @@ class _LanguageSheet extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(14, 18, 14, 10),
         decoration: BoxDecoration(
           color: p.dark ? Brand.navy2 : Colors.white,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Material(
           type: MaterialType.transparency,
@@ -61,7 +61,7 @@ class _LanguageSheet extends ConsumerWidget {
                 ListTile(
                   key: ValueKey('language-$code'),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   title: Text(
                     name,

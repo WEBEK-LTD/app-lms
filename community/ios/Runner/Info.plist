@@ -66,6 +66,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- 232 Push (Firebase Cloud Messaging): notifications arrive while the
+	     app is in the background. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<!-- 231 The photo picker (image_picker): a profile picture, and the
 	     proof of identity for the Gold badge. The app never records. -->
 	<key>NSPhotoLibraryUsageDescription</key>

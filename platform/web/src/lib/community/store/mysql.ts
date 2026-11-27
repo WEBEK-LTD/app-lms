@@ -9,6 +9,7 @@ import type { CommunityDb } from "./db";
 import { MysqlCommunityQaStore } from "./qa-mysql";
 import { MysqlCommunityTrustStore } from "./trust-mysql";
 import { YALLAPP_TENANT, type CommunityTenant } from "../types";
+import { MysqlConnectStore } from "../connect/mysql";
 
 /**
  * 231 The whole community on MySQL or MariaDB (migration 0155), on a pool from lib/data/mysql's createPool.
@@ -16,5 +17,5 @@ import { YALLAPP_TENANT, type CommunityTenant } from "../types";
  */
 export function mysqlCommunityStore(pool: mysql.Pool, tenant: CommunityTenant = YALLAPP_TENANT): CommunityStore {
   const db: CommunityDb = drizzle({ client: pool, schema: { ...communitySchema, ...engageSchema }, mode: "default" });
-  return { tenant, base: new MysqlCommunityBaseStore(db, tenant), qa: new MysqlCommunityQaStore(db, tenant), trust: new MysqlCommunityTrustStore(db, tenant), engage: new MysqlEngageStore(db) };
+  return { tenant, base: new MysqlCommunityBaseStore(db, tenant), qa: new MysqlCommunityQaStore(db, tenant), trust: new MysqlCommunityTrustStore(db, tenant), connect: new MysqlConnectStore(db, tenant), engage: new MysqlEngageStore(db) };
 }

@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -53,45 +51,28 @@ class FloatingTabBar extends StatelessWidget {
       return current == t ? Flexible(child: item) : item;
     }
 
+    // #527: a flat card with its 1px line, no blur or shadow.
     return Container(
       height: height,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: p.tabShadow,
-            blurRadius: 44,
-            offset: const Offset(0, 20),
-          ),
-        ],
+        color: p.tabBar,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: p.tabRim),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 11, sigmaY: 11),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: p.tabBar,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: p.tabRim),
-            ),
-            // The bar floats over the page, outside its Material: its own
-            // gives the labels the app's type.
-            child: Material(
-              type: MaterialType.transparency,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  tab(ShellTab.home, Symbols.home_rounded, l.tabHome),
-                  tab(ShellTab.qa, Symbols.forum_rounded, l.tabQa),
-                  _Create(label: l.tabCreate, onTap: onCreate),
-                  tab(ShellTab.learn, Symbols.school_rounded, l.tabLearn),
-                  tab(ShellTab.groups, Symbols.groups_rounded, l.tabGroups),
-                ],
-              ),
-            ),
-          ),
+      // The bar floats over the page, outside its Material: its own gives
+      // the labels the app's type.
+      child: Material(
+        type: MaterialType.transparency,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            tab(ShellTab.home, Symbols.home_rounded, l.tabHome),
+            tab(ShellTab.qa, Symbols.forum_rounded, l.tabQa),
+            _Create(label: l.tabCreate, onTap: onCreate),
+            tab(ShellTab.learn, Symbols.school_rounded, l.tabLearn),
+            tab(ShellTab.groups, Symbols.groups_rounded, l.tabGroups),
+          ],
         ),
       ),
     );
@@ -135,18 +116,7 @@ class _Tab extends StatelessWidget {
               : EdgeInsets.zero,
           decoration: BoxDecoration(
             gradient: on ? p.tabOn : null,
-            borderRadius: BorderRadius.circular(17),
-            boxShadow: on
-                ? [
-                    BoxShadow(
-                      color: p.dark
-                          ? const Color(0x00000000)
-                          : const Color(0x4D0E0D24),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
-                    ),
-                  ]
-                : null,
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Stack(
             clipBehavior: Clip.none,
@@ -228,20 +198,11 @@ class _Create extends StatelessWidget {
           child: Container(
             width: 56,
             height: 56,
+            // Solid orange, the page's colour around it; no glow.
             decoration: BoxDecoration(
-              gradient: Brand.createRing,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: p.dark ? Brand.night : Brand.screen,
-                width: 4,
-              ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x80FF5A1F),
-                  blurRadius: 24,
-                  offset: Offset(0, 10),
-                ),
-              ],
+              color: Brand.orange,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: p.screen, width: 4),
             ),
             alignment: Alignment.center,
             child: const Sym(

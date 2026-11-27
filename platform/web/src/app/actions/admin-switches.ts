@@ -8,12 +8,12 @@ import type { SwitchesSetting } from "@/lib/data/types";
 import type { FormState } from "@/lib/forms";
 import { isPlan, STUDIO_PLANS } from "@/lib/plans";
 import { getPlans, clearPlatformSettingsCache } from "@/lib/settings/platform";
-import { allSwitchKeys, cleanSwitches, getSwitches, isStudioSwitch, LICENSE_FEATURE_SWITCHES, switchKey } from "@/lib/switches";
+import { allSwitchKeys, cleanSwitches, DEFAULT_OFF_SWITCHES, getSwitches, isStudioSwitch, LICENSE_FEATURE_SWITCHES, switchKey } from "@/lib/switches";
 
 /** Saves the switches and logs which ones changed. */
 async function saveSwitches(next: SwitchesSetting, before: SwitchesSetting | null, admin: { id: string; email: string }, summary: string, action: "switches.save" | "plan.availability", targetId: string) {
   const store = await getStore();
-  const empty = next.off.length === 0 && Object.keys(next.offByPlan).length === 0;
+  const empty = next.off.length === 0 && Object.keys(next.offByPlan).length === 0 && !next.on?.length;
   await store.setPlatformSetting("switches", empty ? null : next, admin.email, new Date());
   clearPlatformSettingsCache();
   await recordAudit({
@@ -21,8 +21,8 @@ async function saveSwitches(next: SwitchesSetting, before: SwitchesSetting | nul
     action,
     target: action === "plan.availability" ? { type: "plan", id: targetId } : { type: "switches", id: targetId },
     summary,
-    before: { off: before?.off ?? [], ...Object.fromEntries(Object.entries(before?.offByPlan ?? {}).map(([plan, keys]) => [`off_${plan}`, keys])) },
-    after: { off: next.off, ...Object.fromEntries(Object.entries(next.offByPlan).map(([plan, keys]) => [`off_${plan}`, keys])) },
+    before: { off: before?.off ?? [], on: before?.on ?? [], ...Object.fromEntries(Object.entries(before?.offByPlan ?? {}).map(([plan, keys]) => [`off_${plan}`, keys])) },
+    after: { off: next.off, on: next.on ?? [], ...Object.fromEntries(Object.entries(next.offByPlan).map(([plan, keys]) => [`off_${plan}`, keys])) },
   });
   // The dashboard's app types and Website step, and the plans page, follow at once.
   revalidatePath("/", "layout");
@@ -42,10 +42,13 @@ export async function saveSwitchesAction(_: FormState, formData: FormData): Prom
   const studio = formData.get("family") === "studio";
   const shown = new Set(allSwitchKeys().filter((key) => isStudioSwitch(key) === studio));
   const off = [...(before?.off ?? []).filter((key) => !shown.has(key)), ...[...shown].filter((key) => !on.has(key))];
-  const next = cleanSwitches(off, before?.offByPlan ?? {});
-  const was = new Set(before?.off ?? []);
-  const turnedOff = next.off.filter((k) => !was.has(k));
-  const turnedOn = [...was].filter((k) => !next.off.includes(k));
+  // 235 A switch that's off until turned on is kept by the ones turned on.
+  const turnedOnDefaultOff = [...(before?.on ?? []).filter((key) => !shown.has(key)), ...[...shown].filter((key) => DEFAULT_OFF_SWITCHES.has(key) && on.has(key))];
+  const next = cleanSwitches(off, before?.offByPlan ?? {}, turnedOnDefaultOff);
+  const isOff = (s: SwitchesSetting | null, k: string) => (DEFAULT_OFF_SWITCHES.has(k) ? !(s?.on ?? []).includes(k) : (s?.off ?? []).includes(k));
+  const keys = allSwitchKeys();
+  const turnedOff = keys.filter((k) => isOff(next, k) && !isOff(before, k));
+  const turnedOn = keys.filter((k) => !isOff(next, k) && isOff(before, k));
   await saveSwitches(next, before, admin, `Switches ${describe(turnedOff, turnedOn)}`, "switches.save", "global");
   return { ok: true, message: turnedOff.length || turnedOn.length ? "Switches saved. The dashboard follows them now." : "Nothing changed." };
 }
@@ -63,7 +66,7 @@ export async function savePlanAvailabilityAction(_: FormState, formData: FormDat
   const studioPlan = (STUDIO_PLANS as readonly string[]).includes(plan);
   const shown = new Set(allSwitchKeys().filter((key) => !licenseKeys.has(key) && (studioPlan || !isStudioSwitch(key))));
   const planOff = [...(before?.offByPlan[plan] ?? []).filter((key) => !shown.has(key)), ...[...shown].filter((key) => !on.has(key))];
-  const next = cleanSwitches(before?.off ?? [], { ...(before?.offByPlan ?? {}), [plan]: planOff });
+  const next = cleanSwitches(before?.off ?? [], { ...(before?.offByPlan ?? {}), [plan]: planOff }, before?.on ?? []);
   const was = new Set(before?.offByPlan[plan] ?? []);
   const now = new Set(next.offByPlan[plan] ?? []);
   const name = (await getPlans(store))[plan].name;

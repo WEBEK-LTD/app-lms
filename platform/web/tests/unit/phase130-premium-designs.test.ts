@@ -257,7 +257,8 @@ const GALLERY_ITEMS: Record<ItemSource, [string, string, string][]> = {
 describe("130.38 the gallery for the owner's review (mobile/test/support/premium_designs.json)", () => {
   it("is every kind's premium designs as the app draws them", () => {
     const base = appUrl();
-    const kinds = KINDS.map((kind) => {
+    // 235 The Community kind's designs are its own three (lib/pages/designs/community.ts), not in this gallery.
+    const kinds = KINDS.filter((k) => k.engine !== "community").map((kind) => {
       const app = projectApp(kind);
       const ctx = context(app);
       return {

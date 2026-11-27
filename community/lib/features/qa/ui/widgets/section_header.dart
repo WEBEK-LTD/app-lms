@@ -3,11 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/auth/session.dart';
-import '../../../../core/l10n.dart';
 import '../../../../core/routing/feature_routes.dart';
 import '../../../../core/routing/paths.dart';
-import '../../../../core/widgets/coming_soon.dart';
 import '../../../../core/widgets/community_header.dart';
+import '../../../messages/links.dart';
 import '../../../shell/side_menu.dart';
 
 /// The shell's header on area E's tab roots (Q&A, Learn), as on Home: the
@@ -29,7 +28,8 @@ class SectionHeader extends ConsumerWidget {
       notifications: ref.watch(unreadNotificationsProvider),
       onMenu: () => openSideMenu(context, current: section),
       onSearch: () => context.push(FeatureLinks.search),
-      onMessages: () => showComingSoon(context, context.l10n.headerMessages),
+      onMessages: () => context.push(MessagesLinks.inbox),
+      messages: ref.watch(unreadMessagesProvider).value ?? 0,
       onNotifications: () => context.push(FeatureLinks.notifications),
       onProfile: () => context.push(Paths.me),
     );

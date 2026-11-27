@@ -34,6 +34,13 @@ export const NOTIFICATION_KINDS = [
   "report_resolved",
   // Area A sends this when the member links their Yallapp account.
   "yallapp_linked",
+  // 232–234 Area A: groups, hire requests, jobs.
+  "group_request",
+  "group_joined",
+  "hire_request",
+  "hire_update",
+  "pro_review",
+  "job_application",
   // 232–233 Posts, showcase and the academy (area B sends these)
   "post_comment",
   "comment_reply",
@@ -45,6 +52,8 @@ export const NOTIFICATION_KINDS = [
   "event_tomorrow",
   "event_soon",
   "event_cancelled",
+  // 232 A new message: pushed only (a conversation has its own unread count, not a notice in the list).
+  "message",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
@@ -59,6 +68,8 @@ export const EMAILED_BY_DEFAULT: ReadonlySet<NotificationKind> = new Set<Notific
   "verification_approved",
   "verification_rejected",
   "post_removed",
+  "hire_request",
+  "job_application",
   "course_certificate",
   "challenge_won",
   "event_tomorrow",
@@ -150,6 +161,12 @@ const WORDS: Record<CommunityLang, Words> = {
     post_removed: (d) => `Your post "${d.title}" was not approved.${d.reason ? ` Reason: ${d.reason}` : ""}`,
     report_resolved: () => "Thanks for your report. Our team has reviewed it.",
     yallapp_linked: () => "Your Yallapp account is now linked. Your apps show on your profile.",
+    group_request: (d) => `${d.actor} asked to join your group "${d.title}".`,
+    group_joined: (d) => `You're now a member of the group "${d.title}".`,
+    hire_request: (d) => `${d.actor} sent you a hire request.`,
+    hire_update: (d) => `Your hire request with ${d.actor} is now ${d.title}.`,
+    pro_review: (d) => `${d.actor} reviewed your work.`,
+    job_application: (d) => `${d.actor} applied to your job "${d.title}".`,
     post_comment: (d) => `${d.actor} commented on your post "${d.title}".`,
     comment_reply: (d) => `${d.actor} replied to your comment on "${d.title}".`,
     post_liked: (d) => `Your post "${d.title}" reached ${d.count} likes.`,
@@ -159,6 +176,7 @@ const WORDS: Record<CommunityLang, Words> = {
     event_tomorrow: (d) => `Tomorrow: "${d.title}". You're going.`,
     event_soon: (d) => `"${d.title}" starts in an hour.`,
     event_cancelled: (d) => `"${d.title}" was cancelled.`,
+    message: (d) => `${d.actor}: ${d.title}`,
   },
   ar: {
     answer: (d) => `أجاب ${d.actor} عن سؤالك «${d.title}».`,
@@ -178,6 +196,12 @@ const WORDS: Record<CommunityLang, Words> = {
     post_removed: (d) => `لم تُقبل مشاركتك «${d.title}».${d.reason ? ` السبب: ${d.reason}` : ""}`,
     report_resolved: () => "شكرًا على بلاغك، فقد راجعه فريقنا.",
     yallapp_linked: () => "رُبط حسابك في Yallapp، وتظهر تطبيقاتك الآن في ملفك الشخصي.",
+    group_request: (d) => `طلب ${d.actor} الانضمام إلى مجموعتك «${d.title}».`,
+    group_joined: (d) => `أصبحت عضوًا في مجموعة «${d.title}».`,
+    hire_request: (d) => `أرسل إليك ${d.actor} طلب توظيف.`,
+    hire_update: (d) => `تغيّرت حالة طلب التوظيف مع ${d.actor} إلى: ${d.title}.`,
+    pro_review: (d) => `كتب ${d.actor} تقييمًا لعملك.`,
+    job_application: (d) => `تقدّم ${d.actor} إلى وظيفتك «${d.title}».`,
     post_comment: (d) => `علّق ${d.actor} على منشورك «${d.title}».`,
     comment_reply: (d) => `ردّ ${d.actor} على تعليقك في «${d.title}».`,
     post_liked: (d) => `حصل منشورك «${d.title}» على ${d.count} إعجابًا.`,
@@ -187,6 +211,7 @@ const WORDS: Record<CommunityLang, Words> = {
     event_tomorrow: (d) => `غدًا: «${d.title}». أنت من الحاضرين.`,
     event_soon: (d) => `تبدأ «${d.title}» بعد ساعة.`,
     event_cancelled: (d) => `أُلغيت «${d.title}».`,
+    message: (d) => `${d.actor}: ${d.title}`,
   },
   tr: {
     answer: (d) => `${d.actor}, "${d.title}" sorunuzu yanıtladı.`,
@@ -206,6 +231,12 @@ const WORDS: Record<CommunityLang, Words> = {
     post_removed: (d) => `"${d.title}" gönderiniz onaylanmadı.${d.reason ? ` Neden: ${d.reason}` : ""}`,
     report_resolved: () => "Bildiriminiz için teşekkürler. Ekibimiz inceledi.",
     yallapp_linked: () => "Yallapp hesabınız bağlandı. Uygulamalarınız artık profilinizde görünüyor.",
+    group_request: (d) => `${d.actor}, "${d.title}" grubunuza katılmak istiyor.`,
+    group_joined: (d) => `Artık "${d.title}" grubunun üyesisiniz.`,
+    hire_request: (d) => `${d.actor} size bir iş teklifi gönderdi.`,
+    hire_update: (d) => `${d.actor} ile iş teklifinizin durumu: ${d.title}.`,
+    pro_review: (d) => `${d.actor} çalışmanızı değerlendirdi.`,
+    job_application: (d) => `${d.actor}, "${d.title}" ilanınıza başvurdu.`,
     post_comment: (d) => `${d.actor}, "${d.title}" gönderinize yorum yaptı.`,
     comment_reply: (d) => `${d.actor}, "${d.title}" içindeki yorumunuza yanıt verdi.`,
     post_liked: (d) => `"${d.title}" gönderiniz ${d.count} beğeniye ulaştı.`,
@@ -215,6 +246,7 @@ const WORDS: Record<CommunityLang, Words> = {
     event_tomorrow: (d) => `Yarın: "${d.title}". Katılıyorsunuz.`,
     event_soon: (d) => `"${d.title}" bir saat sonra başlıyor.`,
     event_cancelled: (d) => `"${d.title}" iptal edildi.`,
+    message: (d) => `${d.actor}: ${d.title}`,
   },
 };
 
