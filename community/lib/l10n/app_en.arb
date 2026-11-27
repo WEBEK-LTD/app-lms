@@ -457,5 +457,67 @@
   "notifKindOther": "Other",
   "qaSearchMembers": "Members",
   "qaSearchTags": "Tags",
-  "qaAcceptShort": "Accept"
+  "qaAcceptShort": "Accept",
+  "feedForYou": "For you",
+  "feedLatest": "Latest",
+  "feedFollowing": "Following",
+  "feedFollowingEmpty": "Posts from the members you follow show here.",
+  "postTitle": "Post",
+  "postNew": "New post",
+  "postHint": "Share something with the community",
+  "postPublish": "Post",
+  "postPhotos": "Photos {n}/{max}",
+  "@postPhotos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "postVideo": "Video",
+  "postPickPoster": "Choose a cover photo",
+  "postVideoReady": "Video and cover ready",
+  "postPending": "Waiting for review",
+  "postMore": "More",
+  "postLike": "Like",
+  "postComments": "Comments",
+  "postShare": "Share",
+  "postSave": "Save",
+  "postDelete": "Delete",
+  "postDeleteConfirm": "Delete this post?",
+  "postReport": "Report",
+  "postLinkCopied": "Link copied",
+  "postNoComments": "No comments yet. Be the first.",
+  "postReply": "Reply",
+  "postReplyingTo": "Replying to {name}",
+  "@postReplyingTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "postCommentHint": "Write a comment",
+  "postSend": "Send",
+  "postSaved": "Saved posts",
+  "createPost": "Write a post",
+  "createPostLine": "Words, up to 10 photos or a video",
+  "createStory": "Add a story",
+  "createStoryLine": "A photo or short video for 24 hours",
+  "storyYours": "Your story",
+  "storyAddPhoto": "Photo",
+  "storyAddVideo": "Short video",
+  "storyAdded": "Your story is up for 24 hours",
+  "storyViews": "{n, plural, =1{1 view} other{{n} views}}",
+  "@storyViews": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "postSavedEmpty": "Posts you save show here."
 }

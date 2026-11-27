@@ -1983,6 +1983,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Accept'**
   String get qaAcceptShort;
+
+  /// No description provided for @feedForYou.
+  ///
+  /// In en, this message translates to:
+  /// **'For you'**
+  String get feedForYou;
+
+  /// No description provided for @feedLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get feedLatest;
+
+  /// No description provided for @feedFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get feedFollowing;
+
+  /// No description provided for @feedFollowingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts from the members you follow show here.'**
+  String get feedFollowingEmpty;
+
+  /// No description provided for @postTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postTitle;
+
+  /// No description provided for @postNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New post'**
+  String get postNew;
+
+  /// No description provided for @postHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share something with the community'**
+  String get postHint;
+
+  /// No description provided for @postPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postPublish;
+
+  /// No description provided for @postPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos {n}/{max}'**
+  String postPhotos(int n, int max);
+
+  /// No description provided for @postVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get postVideo;
+
+  /// No description provided for @postPickPoster.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a cover photo'**
+  String get postPickPoster;
+
+  /// No description provided for @postVideoReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Video and cover ready'**
+  String get postVideoReady;
+
+  /// No description provided for @postPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for review'**
+  String get postPending;
+
+  /// No description provided for @postMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get postMore;
+
+  /// No description provided for @postLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Like'**
+  String get postLike;
+
+  /// No description provided for @postComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get postComments;
+
+  /// No description provided for @postShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get postShare;
+
+  /// No description provided for @postSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get postSave;
+
+  /// No description provided for @postDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get postDelete;
+
+  /// No description provided for @postDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this post?'**
+  String get postDeleteConfirm;
+
+  /// No description provided for @postReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get postReport;
+
+  /// No description provided for @postLinkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get postLinkCopied;
+
+  /// No description provided for @postNoComments.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet. Be the first.'**
+  String get postNoComments;
+
+  /// No description provided for @postReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get postReply;
+
+  /// No description provided for @postReplyingTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to {name}'**
+  String postReplyingTo(String name);
+
+  /// No description provided for @postCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a comment'**
+  String get postCommentHint;
+
+  /// No description provided for @postSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get postSend;
+
+  /// No description provided for @postSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved posts'**
+  String get postSaved;
+
+  /// No description provided for @createPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a post'**
+  String get createPost;
+
+  /// No description provided for @createPostLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Words, up to 10 photos or a video'**
+  String get createPostLine;
+
+  /// No description provided for @createStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a story'**
+  String get createStory;
+
+  /// No description provided for @createStoryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'A photo or short video for 24 hours'**
+  String get createStoryLine;
+
+  /// No description provided for @storyYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your story'**
+  String get storyYours;
+
+  /// No description provided for @storyAddPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get storyAddPhoto;
+
+  /// No description provided for @storyAddVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Short video'**
+  String get storyAddVideo;
+
+  /// No description provided for @storyAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Your story is up for 24 hours'**
+  String get storyAdded;
+
+  /// No description provided for @storyViews.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 view} other{{n} views}}'**
+  String storyViews(int n);
+
+  /// No description provided for @postSavedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts you save show here.'**
+  String get postSavedEmpty;
 }
 
 class _AppLocalizationsDelegate

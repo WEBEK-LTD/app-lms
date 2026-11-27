@@ -1035,4 +1035,125 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get qaAcceptShort => 'Kabul et';
+
+  @override
+  String get feedForYou => 'Senin için';
+
+  @override
+  String get feedLatest => 'En yeni';
+
+  @override
+  String get feedFollowing => 'Takip edilenler';
+
+  @override
+  String get feedFollowingEmpty =>
+      'Takip ettiğin üyelerin gönderileri burada görünür.';
+
+  @override
+  String get postTitle => 'Gönderi';
+
+  @override
+  String get postNew => 'Yeni gönderi';
+
+  @override
+  String get postHint => 'Toplulukla bir şey paylaş';
+
+  @override
+  String get postPublish => 'Paylaş';
+
+  @override
+  String postPhotos(int n, int max) {
+    return 'Fotoğraflar $n/$max';
+  }
+
+  @override
+  String get postVideo => 'Video';
+
+  @override
+  String get postPickPoster => 'Kapak fotoğrafı seç';
+
+  @override
+  String get postVideoReady => 'Video ve kapak hazır';
+
+  @override
+  String get postPending => 'İnceleme bekliyor';
+
+  @override
+  String get postMore => 'Daha fazla';
+
+  @override
+  String get postLike => 'Beğen';
+
+  @override
+  String get postComments => 'Yorumlar';
+
+  @override
+  String get postShare => 'Paylaş';
+
+  @override
+  String get postSave => 'Kaydet';
+
+  @override
+  String get postDelete => 'Sil';
+
+  @override
+  String get postDeleteConfirm => 'Bu gönderi silinsin mi?';
+
+  @override
+  String get postReport => 'Bildir';
+
+  @override
+  String get postLinkCopied => 'Bağlantı kopyalandı';
+
+  @override
+  String get postNoComments => 'Henüz yorum yok. İlk sen yaz.';
+
+  @override
+  String get postReply => 'Yanıtla';
+
+  @override
+  String postReplyingTo(String name) {
+    return '$name adlı üyeye yanıt';
+  }
+
+  @override
+  String get postCommentHint => 'Yorum yaz';
+
+  @override
+  String get postSend => 'Gönder';
+
+  @override
+  String get postSaved => 'Kaydedilen gönderiler';
+
+  @override
+  String get createPost => 'Gönderi yaz';
+
+  @override
+  String get createPostLine => 'Metin, en fazla 10 fotoğraf ya da bir video';
+
+  @override
+  String get createStory => 'Hikâye ekle';
+
+  @override
+  String get createStoryLine => '24 saatlik bir fotoğraf ya da kısa video';
+
+  @override
+  String get storyYours => 'Hikâyen';
+
+  @override
+  String get storyAddPhoto => 'Fotoğraf';
+
+  @override
+  String get storyAddVideo => 'Kısa video';
+
+  @override
+  String get storyAdded => 'Hikâyen 24 saat yayında';
+
+  @override
+  String storyViews(int n) {
+    return '$n görüntülenme';
+  }
+
+  @override
+  String get postSavedEmpty => 'Kaydettiğin gönderiler burada görünür.';
 }

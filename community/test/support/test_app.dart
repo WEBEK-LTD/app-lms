@@ -11,15 +11,20 @@ import 'package:yallapp_community/core/auth/social_sign_in.dart';
 import 'package:yallapp_community/core/providers.dart';
 import 'package:yallapp_community/features/home/data/home_api.dart';
 import 'package:yallapp_community/features/opening/opening_page.dart';
+import 'package:yallapp_community/features/posts/data/posts_api.dart';
+import 'package:yallapp_community/features/posts/ui/composer_screen.dart';
 
 /// The app on a 390 × 844 phone over the fake API, signed in or not, in a
 /// language and a theme. Every widget test starts here; area E's too.
 class TestApp {
-  TestApp._(this.container, this.api, this.tokens);
+  TestApp._(this.container, this.api, this.tokens, this.posts);
 
   final ProviderContainer container;
   final FakeCommunityApi api;
   final MemoryTokenStore tokens;
+
+  /// Posts, the feed and stories (area D's 232.1 and 232.2).
+  final FakePostsApi posts;
 
   static Future<TestApp> start(
     WidgetTester tester, {
@@ -28,6 +33,8 @@ class TestApp {
     ThemeMode theme = ThemeMode.light,
     FakeCommunityApi? api,
     HomeApi? home,
+    FakePostsApi? posts,
+    MediaPicker? picker,
     SocialSignIn apple = const FakeSocialSignIn('apple-token'),
     SocialSignIn google = const FakeSocialSignIn('google-token'),
     List<Override> overrides = const [],
@@ -47,6 +54,7 @@ class TestApp {
     });
     final prefs = await SharedPreferences.getInstance();
     final fake = api ?? FakeCommunityApi();
+    final postsApi = posts ?? FakePostsApi();
     final tokens = MemoryTokenStore(
       signedIn ? const Session(accessToken: 'test-token') : null,
     );
@@ -60,6 +68,8 @@ class TestApp {
         tokenStoreProvider.overrideWithValue(tokens),
         appleSignInProvider.overrideWithValue(apple),
         googleSignInProvider.overrideWithValue(google),
+        postsApiProvider.overrideWithValue(postsApi),
+        mediaPickerProvider.overrideWithValue(picker ?? FakeMediaPicker()),
         ...overrides,
       ],
     );
@@ -73,7 +83,7 @@ class TestApp {
       ),
     );
     await settle(tester);
-    return TestApp._(container, fake, tokens);
+    return TestApp._(container, fake, tokens, postsApi);
   }
 
   /// Pumps frames for a while (the design's blurs and gradients animate
@@ -83,4 +93,24 @@ class TestApp {
       await tester.pump(const Duration(milliseconds: 60));
     }
   }
+}
+
+/// The gallery in tests: the app's own pictures.
+class FakeMediaPicker implements MediaPicker {
+  var picked = 0;
+
+  @override
+  Future<List<String>> photos(int max) async {
+    picked++;
+    return [
+      'asset:assets/images/bath-set.jpg',
+      'asset:assets/images/bed-bright.jpg',
+    ].take(max).toList();
+  }
+
+  @override
+  Future<String?> photo() async => 'asset:assets/images/bunny-knit.jpg';
+
+  @override
+  Future<String?> video() async => '/tmp/clip.mp4';
 }

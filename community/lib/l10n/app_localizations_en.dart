@@ -1046,4 +1046,131 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qaAcceptShort => 'Accept';
+
+  @override
+  String get feedForYou => 'For you';
+
+  @override
+  String get feedLatest => 'Latest';
+
+  @override
+  String get feedFollowing => 'Following';
+
+  @override
+  String get feedFollowingEmpty =>
+      'Posts from the members you follow show here.';
+
+  @override
+  String get postTitle => 'Post';
+
+  @override
+  String get postNew => 'New post';
+
+  @override
+  String get postHint => 'Share something with the community';
+
+  @override
+  String get postPublish => 'Post';
+
+  @override
+  String postPhotos(int n, int max) {
+    return 'Photos $n/$max';
+  }
+
+  @override
+  String get postVideo => 'Video';
+
+  @override
+  String get postPickPoster => 'Choose a cover photo';
+
+  @override
+  String get postVideoReady => 'Video and cover ready';
+
+  @override
+  String get postPending => 'Waiting for review';
+
+  @override
+  String get postMore => 'More';
+
+  @override
+  String get postLike => 'Like';
+
+  @override
+  String get postComments => 'Comments';
+
+  @override
+  String get postShare => 'Share';
+
+  @override
+  String get postSave => 'Save';
+
+  @override
+  String get postDelete => 'Delete';
+
+  @override
+  String get postDeleteConfirm => 'Delete this post?';
+
+  @override
+  String get postReport => 'Report';
+
+  @override
+  String get postLinkCopied => 'Link copied';
+
+  @override
+  String get postNoComments => 'No comments yet. Be the first.';
+
+  @override
+  String get postReply => 'Reply';
+
+  @override
+  String postReplyingTo(String name) {
+    return 'Replying to $name';
+  }
+
+  @override
+  String get postCommentHint => 'Write a comment';
+
+  @override
+  String get postSend => 'Send';
+
+  @override
+  String get postSaved => 'Saved posts';
+
+  @override
+  String get createPost => 'Write a post';
+
+  @override
+  String get createPostLine => 'Words, up to 10 photos or a video';
+
+  @override
+  String get createStory => 'Add a story';
+
+  @override
+  String get createStoryLine => 'A photo or short video for 24 hours';
+
+  @override
+  String get storyYours => 'Your story';
+
+  @override
+  String get storyAddPhoto => 'Photo';
+
+  @override
+  String get storyAddVideo => 'Short video';
+
+  @override
+  String get storyAdded => 'Your story is up for 24 hours';
+
+  @override
+  String storyViews(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n views',
+      one: '1 view',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postSavedEmpty => 'Posts you save show here.';
 }

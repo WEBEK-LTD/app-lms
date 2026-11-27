@@ -25,6 +25,10 @@ import '../../core/widgets/sym.dart';
 import '../link/link_suggestion.dart';
 import '../shell/side_menu.dart';
 import '../social/data/social.dart';
+import '../posts/data/posts_api.dart';
+import '../posts/posts_state.dart';
+import '../posts/ui/post_card.dart';
+import '../stories/stories.dart';
 import 'data/home_api.dart';
 
 /// Home (mobile.html "Home · header with menu + profile"): the header, the
@@ -38,6 +42,8 @@ class HomePage extends ConsumerWidget {
     final p = context.palette;
     final me = ref.watch(meProvider);
     final feed = ref.watch(homeFeedProvider);
+    final tab = ref.watch(_homeTab);
+    final entries = ref.watch(feedProvider(tab));
     final top = MediaQuery.paddingOf(context).top;
     return Scaffold(
       backgroundColor: p.screen,
@@ -45,7 +51,12 @@ class HomePage extends ConsumerWidget {
         children: [
           RefreshIndicator(
             color: Brand.orange,
-            onRefresh: () async => ref.refresh(homeFeedProvider.future),
+            onRefresh: () async {
+              ref
+                ..invalidate(homeFeedProvider)
+                ..invalidate(storyRingsProvider);
+              return ref.refresh(feedProvider(tab).future);
+            },
             child: ListView(
               key: const ValueKey('home-list'),
               padding: EdgeInsets.only(
@@ -77,19 +88,31 @@ class HomePage extends ConsumerWidget {
                 const LinkSuggestionBanner(
                   margin: EdgeInsets.fromLTRB(16, 0, 16, 14),
                 ),
-                ...switch (feed) {
+                if (feed.value?.featured case final featured?)
+                  _Featured(item: featured),
+                const StoryRow(),
+                _FeedTabs(
+                  tab: tab,
+                  onTab: (t) => ref.read(_homeTab.notifier).set(t),
+                ),
+                ...switch (entries) {
                   AsyncData(:final value) => [
-                    if (value.featured != null)
-                      _Featured(item: value.featured!),
-                    _Stories(feed: value),
-                    if (value.items.isEmpty)
-                      _Empty(text: context.l10n.homeFeedEmpty),
-                    for (final item in value.items) _Post(item: item),
+                    if (value.isEmpty)
+                      _Empty(
+                        text: tab == FeedTab.following
+                            ? context.l10n.feedFollowingEmpty
+                            : context.l10n.homeFeedEmpty,
+                      ),
+                    for (final e in value)
+                      if (e.post case final post?)
+                        PostCard(post: post)
+                      else if (e.question case final q?)
+                        _Post(item: q),
                   ],
                   AsyncError() => [
                     _Empty(
                       text: context.l10n.commonError,
-                      retry: () => ref.invalidate(homeFeedProvider),
+                      retry: () => ref.invalidate(feedProvider(tab)),
                     ),
                   ],
                   _ => [
@@ -362,152 +385,64 @@ class _CountdownState extends State<_Countdown> {
   }
 }
 
-/// The shortcuts (`.stories`): rings in the brand's colours for what is new,
-/// grey once seen; a later phase's open "Coming soon".
-class _Stories extends StatelessWidget {
-  const _Stories({required this.feed});
-
-  final HomeFeed feed;
-
+class _HomeTab extends Notifier<FeedTab> {
   @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    FeedItem? newestTutorial;
-    for (final i in feed.items) {
-      if (i.kind == FeedKind.tutorial) {
-        newestTutorial = i;
-        break;
-      }
-    }
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        // One-line labels sit under their ring, as two-line ones.
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _Story(
-            key: const ValueKey('story-live'),
-            label: l.homeStoryLive,
-            fill: Brand.solid(Brand.violet),
-            icon: Symbols.live_tv_rounded,
-            onTap: () => showComingSoon(context, l.homeStoryLive),
-          ),
-          _Story(
-            key: const ValueKey('story-tutorial'),
-            label: l.homeStoryTutorial,
-            image: 'asset:assets/images/bunny-knit.jpg',
-            seen: !feed.newTutorial,
-            onTap: () => context.push(
-              newestTutorial == null
-                  ? FeatureLinks.learn
-                  : FeatureLinks.tutorial(newestTutorial.id),
-            ),
-          ),
-          _Story(
-            key: const ValueKey('story-showcase'),
-            label: l.homeStoryShowcase,
-            image: 'asset:assets/images/bath-set.jpg',
-            onTap: () => showComingSoon(context, l.homeStoryShowcase),
-          ),
-          _Story(
-            key: const ValueKey('story-tip'),
-            label: l.homeStoryTip,
-            image: 'asset:assets/images/bed-bright.jpg',
-            seen: true,
-            onTap: () => showComingSoon(context, l.homeStoryTip),
-          ),
-          _Story(
-            key: const ValueKey('story-news'),
-            label: l.homeStoryNews,
-            fill: Brand.solid(Brand.green),
-            icon: Symbols.campaign_rounded,
-            seen: !feed.news,
-            onTap: () => context.push(FeatureLinks.learn),
-          ),
-        ],
-      ),
-    );
-  }
+  FeedTab build() => FeedTab.forYou;
+
+  void set(FeedTab tab) => state = tab;
 }
 
-class _Story extends StatelessWidget {
-  const _Story({
-    super.key,
-    required this.label,
-    required this.onTap,
-    this.image,
-    this.fill,
-    this.icon,
-    this.seen = false,
-  });
+final _homeTab = NotifierProvider<_HomeTab, FeedTab>(_HomeTab.new);
 
-  final String label;
-  final VoidCallback onTap;
-  final String? image;
-  final Gradient? fill;
-  final IconData? icon;
-  final bool seen;
+/// For you, Latest, Following: the 1px line under them, orange on the one
+/// shown.
+class _FeedTabs extends StatelessWidget {
+  const _FeedTabs({required this.tab, required this.onTab});
+
+  final FeedTab tab;
+  final ValueChanged<FeedTab> onTab;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    return Semantics(
-      button: true,
-      label: label,
-      excludeSemantics: true,
-      child: GestureDetector(
-        onTap: onTap,
-        child: SizedBox(
-          width: 62,
-          child: Column(
-            children: [
-              Container(
-                width: 58,
-                height: 58,
-                padding: const EdgeInsets.all(2.5),
+    final l = context.l10n;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: p.line)),
+      ),
+      child: Row(
+        children: [
+          for (final t in FeedTab.values)
+            InkWell(
+              key: ValueKey('feed-tab-${t.wire}'),
+              onTap: () => onTab(t),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(4, 10, 4, 9),
+                margin: const EdgeInsetsDirectional.only(end: 18),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  gradient: seen ? null : Brand.storyRing,
-                  color: seen
-                      ? (p.dark
-                            ? const Color(0xFF2A2848)
-                            : const Color(0xFFDDD6CB))
-                      : null,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: p.screen, width: 2.5),
-                    gradient: fill,
-                    image: image == null
-                        ? null
-                        : DecorationImage(
-                            image: imageOf(image!),
-                            fit: BoxFit.cover,
-                          ),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: t == tab ? Brand.orange : Colors.transparent,
+                      width: 2,
+                    ),
                   ),
-                  alignment: Alignment.center,
-                  child: icon == null
-                      ? null
-                      : Sym(icon!, size: 26, fill: true, color: Colors.white),
+                ),
+                child: Text(
+                  switch (t) {
+                    FeedTab.forYou => l.feedForYou,
+                    FeedTab.latest => l.feedLatest,
+                    FeedTab.following => l.feedFollowing,
+                  },
+                  style: TextStyle(
+                    color: t == tab ? p.ink : p.muted,
+                    fontSize: 14,
+                    fontWeight: t == tab ? FontWeight.w700 : FontWeight.w500,
+                  ),
                 ),
               ),
-              const SizedBox(height: 5),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  height: 1.15,
-                  color: p.dark ? p.soft : const Color(0xFF3C3A50),
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+        ],
       ),
     );
   }

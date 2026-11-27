@@ -5,6 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/email_pages.dart';
 import '../../features/home/home_page.dart';
 import '../../features/opening/opening_page.dart';
+import '../../features/posts/posts_state.dart';
+import '../../features/posts/ui/composer_screen.dart';
+import '../../features/posts/ui/post_screen.dart';
+import '../../features/posts/ui/saved_page.dart';
 import '../../features/profile/edit_profile_page.dart';
 import '../../features/profile/profile_page.dart';
 import '../../features/settings/settings_page.dart';
@@ -143,6 +147,23 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Paths.blocked,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const BlockedPage(),
+      ),
+      GoRoute(
+        path: PostLinks.compose,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            ComposerScreen(groupId: state.uri.queryParameters['group']),
+      ),
+      GoRoute(
+        path: '/posts/:id',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            PostScreen(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: PostLinks.saved,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const SavedPostsPage(),
       ),
       ...featureRoutes(),
     ],

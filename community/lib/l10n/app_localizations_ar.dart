@@ -1051,4 +1051,131 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get qaAcceptShort => 'اقبل';
+
+  @override
+  String get feedForYou => 'لك';
+
+  @override
+  String get feedLatest => 'الأحدث';
+
+  @override
+  String get feedFollowing => 'المتابَعون';
+
+  @override
+  String get feedFollowingEmpty => 'تظهر هنا منشورات الأعضاء الذين تتابعهم.';
+
+  @override
+  String get postTitle => 'منشور';
+
+  @override
+  String get postNew => 'منشور جديد';
+
+  @override
+  String get postHint => 'شارك شيئًا مع المجتمع';
+
+  @override
+  String get postPublish => 'انشر';
+
+  @override
+  String postPhotos(int n, int max) {
+    return 'الصور $n/$max';
+  }
+
+  @override
+  String get postVideo => 'فيديو';
+
+  @override
+  String get postPickPoster => 'اختر صورة الغلاف';
+
+  @override
+  String get postVideoReady => 'الفيديو والغلاف جاهزان';
+
+  @override
+  String get postPending => 'بانتظار المراجعة';
+
+  @override
+  String get postMore => 'المزيد';
+
+  @override
+  String get postLike => 'إعجاب';
+
+  @override
+  String get postComments => 'التعليقات';
+
+  @override
+  String get postShare => 'مشاركة';
+
+  @override
+  String get postSave => 'حفظ';
+
+  @override
+  String get postDelete => 'حذف';
+
+  @override
+  String get postDeleteConfirm => 'هل تريد حذف هذا المنشور؟';
+
+  @override
+  String get postReport => 'إبلاغ';
+
+  @override
+  String get postLinkCopied => 'تم نسخ الرابط';
+
+  @override
+  String get postNoComments => 'لا توجد تعليقات بعد. كن الأول.';
+
+  @override
+  String get postReply => 'رد';
+
+  @override
+  String postReplyingTo(String name) {
+    return 'رد على $name';
+  }
+
+  @override
+  String get postCommentHint => 'اكتب تعليقًا';
+
+  @override
+  String get postSend => 'إرسال';
+
+  @override
+  String get postSaved => 'المنشورات المحفوظة';
+
+  @override
+  String get createPost => 'اكتب منشورًا';
+
+  @override
+  String get createPostLine => 'نص وحتى 10 صور أو فيديو';
+
+  @override
+  String get createStory => 'أضف قصة';
+
+  @override
+  String get createStoryLine => 'صورة أو فيديو قصير لمدة 24 ساعة';
+
+  @override
+  String get storyYours => 'قصتك';
+
+  @override
+  String get storyAddPhoto => 'صورة';
+
+  @override
+  String get storyAddVideo => 'فيديو قصير';
+
+  @override
+  String get storyAdded => 'قصتك منشورة لمدة 24 ساعة';
+
+  @override
+  String storyViews(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n مشاهدة',
+      one: 'مشاهدة واحدة',
+      zero: 'لا مشاهدات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postSavedEmpty => 'تظهر هنا المنشورات التي تحفظها.';
 }
