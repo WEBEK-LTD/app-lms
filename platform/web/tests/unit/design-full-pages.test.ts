@@ -37,6 +37,8 @@ const OWN_PAGES: Record<string, string[]> = {
   school: ["admissions"],
   // 126 Umrah, holidays and groups.
   travel: ["packages"],
+  // 235 A community's own screens do the rest.
+  community: [],
 };
 
 const words = (html: string) => html.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length;
