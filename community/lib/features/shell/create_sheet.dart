@@ -5,7 +5,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../core/l10n.dart';
 import '../../core/routing/feature_routes.dart';
 import '../../core/theme/tokens.dart';
-import '../../core/widgets/coming_soon.dart';
 import '../../core/widgets/sym.dart';
 import '../posts/posts_state.dart';
 import '../stories/stories.dart';
@@ -99,10 +98,9 @@ class _CreateSheet extends StatelessWidget {
               title: l.createShowcase,
               line: l.createShowcaseLine,
               gradient: Brand.solid(Brand.violet),
-              soon: true,
               onTap: () {
                 close();
-                showComingSoon(parent, l.createShowcase);
+                parent.go(FeatureLinks.showcase);
               },
             ),
             const SizedBox(height: 8),
@@ -112,10 +110,9 @@ class _CreateSheet extends StatelessWidget {
               title: l.createChallenge,
               line: l.createChallengeLine,
               gradient: Brand.solid(const Color(0xFFE08A12)),
-              soon: true,
               onTap: () {
                 close();
-                showComingSoon(parent, l.createChallenge);
+                parent.go(FeatureLinks.challenges);
               },
             ),
           ],
@@ -133,7 +130,6 @@ class _Choice extends StatelessWidget {
     required this.line,
     required this.gradient,
     required this.onTap,
-    this.soon = false,
   });
 
   final IconData icon;
@@ -141,7 +137,6 @@ class _Choice extends StatelessWidget {
   final String line;
   final Gradient gradient;
   final VoidCallback onTap;
-  final bool soon;
 
   @override
   Widget build(BuildContext context) {
@@ -182,27 +177,6 @@ class _Choice extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (soon) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 7,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0x1FFF5A1F),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              context.l10n.commonComingSoon,
-                              style: const TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w600,
-                                color: Brand.orange,
-                              ),
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                     const SizedBox(height: 2),

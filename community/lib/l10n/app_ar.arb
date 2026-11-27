@@ -507,5 +507,6 @@
   "eventGoingCount": "{count} سيحضرون",
   "boardYou": "أنت: #{rank} · {points} نقطة",
   "jobBudget": "الميزانية: {budget}",
-  "challengeEnds": "ينتهي {date}"
+  "challengeEnds": "ينتهي {date}",
+  "profilePosts": "المنشورات"
 }
