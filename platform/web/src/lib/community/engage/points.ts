@@ -30,7 +30,10 @@ export const DEFAULT_POINT_RULES: Readonly<Record<string, PointRule>> = {
   tutorial_published: { points: 50, dailyCap: null },
   post_created: { points: 2, dailyCap: 10 },
   post_liked: { points: 1, dailyCap: 50 },
+  comment_created: { points: 1, dailyCap: 10 },
+  story_created: { points: 1, dailyCap: 5 },
   showcase_created: { points: 10, dailyCap: 20 },
+  showcase_liked: { points: 1, dailyCap: 50 },
   lesson_done: { points: 2, dailyCap: 40 },
   course_completed: { points: 20, dailyCap: null },
   // Set per challenge by the admins when they pick the winners (`points` in awardPoints).

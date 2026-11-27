@@ -10,6 +10,8 @@ Last updated: 24 November 2026.
 
 Roadmap 231.Y ("Continue with Yallapp"): Yallapp Community's 4th sign-in, PKCE with a one-time code from yallapp.com.tr, never an admin by itself; the one-tap link suggestion for the same verified email; Yallapp's "Confirm your email" (`users.email_verified_at`), which both need before they trust an email (migration 0158). The app's side ships with area D's app.
 
+Roadmap 232–235 area F: Yallapp Community's website for phases 2–4 (feed, stories, posts, showcase, messages, groups, academy with the website's checkout, leaderboard, challenges, member tutorials, pros, jobs, events and live, and their admin), and Dashboard › Community for a client's Community app, on `wip-community-f2`; everything integrated in `wip-community-next`.
+
 Roadmap 232 area A: Yallapp Community's messages (one-to-one and group chats, photos, replies, read state, polling) and groups (public and private, owners and moderators), on `wip-community-a2` (migration 0160).
 
 Roadmap 234 area A: Yallapp Community's pros (profiles, hire requests that open a thread, reviews; no money moves) and jobs (post, apply, applicants, moderation), on `wip-community-a2`.
@@ -26,6 +28,7 @@ reports, linking a Yallapp account, its three languages and its own host
 Roadmap 231 area B (Yallapp Community's Q&A and tutorials): questions and answers with the similar questions before asking, official answers from Yallapp's team, replies, votes and points, accepting, sections and tags, saving, search and the team's tutorials (articles and videos by section, level and language) through `/api/community/v1`, held for review and noticed through area C.
 
 Roadmap 232–233 area B (on `wip-community-b2`, for the integration): posts with photos and video, link previews, likes, comments with replies, saving and the mixed home feed; 24-hour stories; the showcase with "Made with Yallapp" verified; member tutorials reviewed at first; the Academy (courses, lessons, quizzes, progress, certificates with a PDF), open or locked in the API and never priced there (migrations 0169–0170). Needs: the website's checkout (area C) and pages (area F), and the app's screens (areas D and E).
+Roadmap 232–235 area C (Yallapp Community, phases 2 to 5): push to the Community app through Yallapp's keyless Firebase sender (each kind on or off), points with an admin-edited table and daily caps, levels and the weekly and all-time leaderboard, challenges with winners' points and badges, free events and live sessions (RSVP with places, `.ics`, live comments, reminders by push and email), moderation and reports for every new kind, and the academy's checkout on Yallapp's existing website checkout (`community-engage-*`; migration 0179; `COMMUNITY_FIREBASE_PROJECT_ID` turns push on).
 
 Roadmap 231 area C (Yallapp Community's trust, area C): badges (Gold by the
 verification form and an admin's review, Blue and Green by their rules),
@@ -43,11 +46,17 @@ welcome and signing in (Apple, Google, email), the shell, Home, the side
 menu, profiles with follow, friends, block and report, and settings, on area
 A's contract; no payments in the app (a test guards it); not yet released.
 
+Roadmap 232 area D (the Community app): the flat look; posts, the For you, Latest and Following feed, stories, messages, groups and push in the app, with the shell opening phases 2–4; push routes by area C's `link` and keeps its per-kind choices on the server.
+
 Roadmap 231 (area E, the Community app's features): the question screen
 as the approved dark question phone, the Q&A tab, asking with similar
 questions, official tutorials (all free, never a lock),
 the Gold badge's verification form, notifications with the bell's count,
 search and saved, in English, Arabic and Turkish, light and dark.
+
+Roadmap 232–234 (area E, the Community app): Showcase, the Academy (open or locked, never a price), Challenges, the leaderboard, Pros, Jobs, Events and Live, flat, in en/ar/tr, light and dark; not yet released.
+
+Roadmap 235 (area E): the "Community" app type, off until Admin › Switches turns it on: its Studio card and three designs, and mobile/'s feed, Q&A, groups, profile and messages on the app's own community; no release bump.
 
 Roadmap 231 area F (Yallapp Community's website, under `src/app/community/`,
 served on `community.yallapp.com.tr`): the approved look in English, Arabic

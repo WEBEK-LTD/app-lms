@@ -72,7 +72,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'انضم إلى أكثر من 18,000 صانع تطبيقات. تعلّم واسأل\nواعرض ما صنعت.';
 
   @override
-  String get authBubbleNour => 'أطلقتُ متجري اليوم 🎉';
+  String get authBubbleNour => 'أطلقتُ متجري اليوم';
 
   @override
   String get authBubbleAccepted => 'قُبلت الإجابة';
@@ -196,13 +196,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get headerProfile => 'ملفك الشخصي';
 
   @override
-  String get homeMorning => 'صباح الخير ☀️';
+  String get homeMorning => 'صباح الخير';
 
   @override
-  String get homeAfternoon => 'مساء الخير 🌤️';
+  String get homeAfternoon => 'مساء الخير';
 
   @override
-  String get homeEvening => 'مساء الخير 🌙';
+  String get homeEvening => 'مساء الخير';
 
   @override
   String get homeRead => 'اقرأ';
@@ -1051,4 +1051,707 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get qaAcceptShort => 'اقبل';
+
+  @override
+  String get feedForYou => 'لك';
+
+  @override
+  String get feedLatest => 'الأحدث';
+
+  @override
+  String get feedFollowing => 'المتابَعون';
+
+  @override
+  String get feedFollowingEmpty => 'تظهر هنا منشورات الأعضاء الذين تتابعهم.';
+
+  @override
+  String get postTitle => 'منشور';
+
+  @override
+  String get postNew => 'منشور جديد';
+
+  @override
+  String get postHint => 'شارك شيئًا مع المجتمع';
+
+  @override
+  String get postPublish => 'انشر';
+
+  @override
+  String postPhotos(int n, int max) {
+    return 'الصور $n/$max';
+  }
+
+  @override
+  String get postVideo => 'فيديو';
+
+  @override
+  String get postPickPoster => 'اختر صورة الغلاف';
+
+  @override
+  String get postVideoReady => 'الفيديو والغلاف جاهزان';
+
+  @override
+  String get postPending => 'بانتظار المراجعة';
+
+  @override
+  String get postMore => 'المزيد';
+
+  @override
+  String get postLike => 'إعجاب';
+
+  @override
+  String get postComments => 'التعليقات';
+
+  @override
+  String get postShare => 'مشاركة';
+
+  @override
+  String get postSave => 'حفظ';
+
+  @override
+  String get postDelete => 'حذف';
+
+  @override
+  String get postDeleteConfirm => 'هل تريد حذف هذا المنشور؟';
+
+  @override
+  String get postReport => 'إبلاغ';
+
+  @override
+  String get postLinkCopied => 'تم نسخ الرابط';
+
+  @override
+  String get postNoComments => 'لا توجد تعليقات بعد. كن الأول.';
+
+  @override
+  String get postReply => 'رد';
+
+  @override
+  String postReplyingTo(String name) {
+    return 'رد على $name';
+  }
+
+  @override
+  String get postCommentHint => 'اكتب تعليقًا';
+
+  @override
+  String get postSend => 'إرسال';
+
+  @override
+  String get postSaved => 'المنشورات المحفوظة';
+
+  @override
+  String get createPost => 'اكتب منشورًا';
+
+  @override
+  String get createPostLine => 'نص وحتى 10 صور أو فيديو';
+
+  @override
+  String get createStory => 'أضف قصة';
+
+  @override
+  String get createStoryLine => 'صورة أو فيديو قصير لمدة 24 ساعة';
+
+  @override
+  String get storyYours => 'قصتك';
+
+  @override
+  String get storyAddPhoto => 'صورة';
+
+  @override
+  String get storyAddVideo => 'فيديو قصير';
+
+  @override
+  String get storyAdded => 'قصتك منشورة لمدة 24 ساعة';
+
+  @override
+  String storyViews(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n مشاهدة',
+      one: 'مشاهدة واحدة',
+      zero: 'لا مشاهدات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postSavedEmpty => 'تظهر هنا المنشورات التي تحفظها.';
+
+  @override
+  String get msgNew => 'رسالة جديدة';
+
+  @override
+  String get msgEmpty =>
+      'لا توجد محادثات بعد. راسل عضوًا من ملفه، أو ابدأ محادثة من هنا.';
+
+  @override
+  String get msgDeleted => 'رسالة محذوفة';
+
+  @override
+  String get msgPhoto => 'صورة';
+
+  @override
+  String get msgStart => 'ابدأ';
+
+  @override
+  String get msgGroupTitle => 'اسم المجموعة (اختياري)';
+
+  @override
+  String msgPickPeople(int n, int max) {
+    return 'تم اختيار $n من $max';
+  }
+
+  @override
+  String get msgNotAllowed => 'لا يمكنك مراسلة هذا العضو.';
+
+  @override
+  String get msgHint => 'رسالة';
+
+  @override
+  String get msgSeen => 'شوهدت';
+
+  @override
+  String get msgMute => 'كتم الإشعارات';
+
+  @override
+  String get msgUnmute => 'تشغيل الإشعارات';
+
+  @override
+  String get msgRename => 'إعادة تسمية المجموعة';
+
+  @override
+  String get msgReport => 'الإبلاغ عن المحادثة';
+
+  @override
+  String get msgLeave => 'مغادرة المجموعة';
+
+  @override
+  String get msgHide => 'إخفاء المحادثة';
+
+  @override
+  String get msgBlocked => 'لا يمكنك الرد في هذه المحادثة.';
+
+  @override
+  String get msgMessage => 'مراسلة';
+
+  @override
+  String get groupCreate => 'مجموعة جديدة';
+
+  @override
+  String get groupDiscover => 'اكتشف';
+
+  @override
+  String get groupNoneYet => 'لم تنضم إلى أي مجموعة بعد.';
+
+  @override
+  String get groupAll => 'كل المجموعات';
+
+  @override
+  String groupMembers(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n عضو',
+      few: '$n أعضاء',
+      two: 'عضوان',
+      one: 'عضو واحد',
+      zero: 'لا أعضاء',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get groupMembersTitle => 'الأعضاء';
+
+  @override
+  String get groupName => 'الاسم';
+
+  @override
+  String get groupAbout => 'عن المجموعة';
+
+  @override
+  String get groupPrivate => 'خاصة';
+
+  @override
+  String get groupPublic => 'عامة';
+
+  @override
+  String get groupPrivateLine => 'ينضم الأعضاء بطلب، ويرون وحدهم منشوراتها.';
+
+  @override
+  String get groupPublicLine => 'يمكن لأي أحد الانضمام والقراءة.';
+
+  @override
+  String get groupCreateNotAllowed => 'إنشاء المجموعات غير متاح لحسابك بعد.';
+
+  @override
+  String get groupJoin => 'انضم';
+
+  @override
+  String get groupAskToJoin => 'اطلب الانضمام';
+
+  @override
+  String get groupRequested => 'تم الطلب';
+
+  @override
+  String get groupLeave => 'مغادرة';
+
+  @override
+  String get groupOwnerMustTransfer => 'سلّم المجموعة لعضو آخر قبل المغادرة.';
+
+  @override
+  String get groupWrite => 'اكتب في المجموعة';
+
+  @override
+  String get groupJoinToRead => 'هذه المجموعة خاصة. انضم لقراءة منشوراتها.';
+
+  @override
+  String get groupNoPosts => 'لا توجد منشورات بعد.';
+
+  @override
+  String get groupCover => 'تغيير الغلاف';
+
+  @override
+  String get groupRequests => 'طلبات الانضمام';
+
+  @override
+  String get groupDecline => 'رفض';
+
+  @override
+  String get groupOwner => 'المالك';
+
+  @override
+  String get groupModerator => 'مشرف';
+
+  @override
+  String get groupMakeModerator => 'تعيين مشرفًا';
+
+  @override
+  String get groupMakeMember => 'إعادته عضوًا';
+
+  @override
+  String get groupHandOver => 'تسليم المجموعة';
+
+  @override
+  String get groupRemove => 'إزالة من المجموعة';
+
+  @override
+  String get pushTitle => 'الإشعارات الفورية';
+
+  @override
+  String get pushBody =>
+      'اختر ما يصل إلى هاتفك. تبقى قائمة التطبيق وخيارات البريد كما هي.';
+
+  @override
+  String get pushOpen => 'فتح';
+
+  @override
+  String get pushKindMessage => 'الرسائل';
+
+  @override
+  String get pushKindComment => 'التعليقات على منشوراتي';
+
+  @override
+  String get pushKindReply => 'الردود على تعليقاتي';
+
+  @override
+  String get pushKindLike => 'الإعجابات بمنشوراتي';
+
+  @override
+  String get pushKindGroup => 'طلبات ودعوات المجموعات';
+
+  @override
+  String get showcaseTitle => 'معرض الأعمال';
+
+  @override
+  String get showcaseAll => 'الكل';
+
+  @override
+  String get showcaseNewest => 'الأحدث';
+
+  @override
+  String get showcaseMostLiked => 'الأكثر إعجابًا';
+
+  @override
+  String get showcaseTypeStore => 'المتاجر';
+
+  @override
+  String get showcaseTypeAcademy => 'الأكاديميات';
+
+  @override
+  String get showcaseTypeBooking => 'الحجوزات';
+
+  @override
+  String get showcaseMadeWith => 'صُنع بـ Yallapp';
+
+  @override
+  String get showcaseLike => 'إعجاب';
+
+  @override
+  String get showcaseLiked => 'أعجبني';
+
+  @override
+  String get showcaseAppStore => 'App Store';
+
+  @override
+  String get showcasePlay => 'Google Play';
+
+  @override
+  String get showcaseWebsite => 'الموقع';
+
+  @override
+  String get showcaseEmpty => 'لا توجد تطبيقات هنا بعد.';
+
+  @override
+  String get academyTitle => 'الأكاديمية';
+
+  @override
+  String get academyLocked => 'مقفل';
+
+  @override
+  String get academyLockedNote => 'هذه الدورة غير متاحة في حسابك بعد.';
+
+  @override
+  String get academyFree => 'متاحة';
+
+  @override
+  String get academyComplete => 'تحديد كمكتمل';
+
+  @override
+  String get academyDone => 'مكتمل';
+
+  @override
+  String get academyWatch => 'شاهد الدرس';
+
+  @override
+  String get academyCertificate => 'شهادتك';
+
+  @override
+  String get academyEmpty => 'لا توجد دورات بعد.';
+
+  @override
+  String get challengesTitle => 'التحديات';
+
+  @override
+  String get challengeUpcoming => 'قريبًا';
+
+  @override
+  String get challengeOpen => 'مفتوح';
+
+  @override
+  String get challengeVoting => 'التصويت';
+
+  @override
+  String get challengeClosed => 'مغلق';
+
+  @override
+  String get challengeRules => 'القواعد';
+
+  @override
+  String get challengeEntriesTitle => 'المشاركات';
+
+  @override
+  String get challengeWinners => 'الفائزون';
+
+  @override
+  String get challengeVote => 'صوّت';
+
+  @override
+  String get challengeVoted => 'تم التصويت';
+
+  @override
+  String get challengeEnter => 'شارك برابط';
+
+  @override
+  String get challengeEnterHint => 'رابط تطبيقك';
+
+  @override
+  String get challengeEntered => 'لقد شاركت';
+
+  @override
+  String get challengeSend => 'إرسال';
+
+  @override
+  String get challengeEmpty => 'لا توجد تحديات الآن.';
+
+  @override
+  String get challengeCardTitle => 'تحدي هذا الأسبوع';
+
+  @override
+  String get boardTitle => 'لوحة الصدارة';
+
+  @override
+  String get boardWeek => 'هذا الأسبوع';
+
+  @override
+  String get boardAll => 'كل الأوقات';
+
+  @override
+  String get prosTitle => 'المحترفون';
+
+  @override
+  String get proAvailable => 'متاح';
+
+  @override
+  String get proBusy => 'مشغول';
+
+  @override
+  String get proUnavailable => 'لا يقبل أعمالًا';
+
+  @override
+  String get proAvailableOnly => 'متاح الآن';
+
+  @override
+  String get proServices => 'الخدمات';
+
+  @override
+  String get proPortfolio => 'الأعمال السابقة';
+
+  @override
+  String get proSkills => 'المهارات';
+
+  @override
+  String get proHire => 'أرسل طلب توظيف';
+
+  @override
+  String get proHireHint => 'ماذا تحتاج؟ 10 أحرف على الأقل.';
+
+  @override
+  String get proHireSent => 'تم الإرسال. محادثتك مع المحترف مفتوحة.';
+
+  @override
+  String get proDirect => 'أنت والمحترف تتفقان على العمل والشروط بينكما.';
+
+  @override
+  String get prosEmpty => 'لا يوجد محترفون بعد.';
+
+  @override
+  String get jobsTitle => 'الوظائف';
+
+  @override
+  String get jobRemote => 'عن بُعد';
+
+  @override
+  String get jobFullTime => 'دوام كامل';
+
+  @override
+  String get jobPartTime => 'دوام جزئي';
+
+  @override
+  String get jobContract => 'عقد';
+
+  @override
+  String get jobFreelance => 'عمل حر';
+
+  @override
+  String get jobInternship => 'تدريب';
+
+  @override
+  String get jobApply => 'تقدّم';
+
+  @override
+  String get jobApplyHint => 'رسالتك. 10 أحرف على الأقل.';
+
+  @override
+  String get jobApplied => 'لقد تقدّمت';
+
+  @override
+  String get jobApplicantsTitle => 'المتقدّمون';
+
+  @override
+  String get jobsEmpty => 'لا توجد وظائف الآن.';
+
+  @override
+  String get eventsTitle => 'الفعاليات';
+
+  @override
+  String get eventAll => 'الكل';
+
+  @override
+  String get eventLive => 'مباشر';
+
+  @override
+  String get eventLiveNow => 'مباشر الآن';
+
+  @override
+  String get eventOnline => 'عبر الإنترنت';
+
+  @override
+  String get eventInPerson => 'حضوريًا';
+
+  @override
+  String get eventFree => 'مجاني';
+
+  @override
+  String get eventRsvp => 'سأحضر';
+
+  @override
+  String get eventGoing => 'سأحضر';
+
+  @override
+  String get eventNotGoing => 'لن أحضر';
+
+  @override
+  String get eventCalendar => 'أضف إلى التقويم';
+
+  @override
+  String get eventJoin => 'انضم';
+
+  @override
+  String get eventWatch => 'شاهد';
+
+  @override
+  String get eventReplay => 'شاهد الإعادة';
+
+  @override
+  String get eventCancelled => 'أُلغيت';
+
+  @override
+  String get eventComments => 'التعليقات';
+
+  @override
+  String get eventCommentHint => 'اكتب شيئًا';
+
+  @override
+  String get eventsEmpty => 'لا توجد فعاليات قادمة.';
+
+  @override
+  String showcaseLikes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count إعجاب',
+      many: '$count إعجابًا',
+      few: '$count إعجابات',
+      two: 'إعجابان',
+      one: 'إعجاب واحد',
+      zero: 'لا إعجابات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String academyLessons(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count درس',
+      many: '$count درسًا',
+      few: '$count دروس',
+      two: 'درسان',
+      one: 'درس واحد',
+      zero: 'لا دروس',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String academyMinutes(int count) {
+    return '$count د';
+  }
+
+  @override
+  String academyProgress(int count) {
+    return 'مكتمل بنسبة $count%';
+  }
+
+  @override
+  String challengeEntries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مشاركة',
+      many: '$count مشاركة',
+      few: '$count مشاركات',
+      two: 'مشاركتان',
+      one: 'مشاركة واحدة',
+      zero: 'لا مشاركات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String challengeReward(int count) {
+    return '$count نقطة';
+  }
+
+  @override
+  String challengeVotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صوت',
+      many: '$count صوتًا',
+      few: '$count أصوات',
+      two: 'صوتان',
+      one: 'صوت واحد',
+      zero: 'لا أصوات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String boardPoints(int count) {
+    return '$count نقطة';
+  }
+
+  @override
+  String proReviews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تقييم',
+      many: '$count تقييمًا',
+      few: '$count تقييمات',
+      two: 'تقييمان',
+      one: 'تقييم واحد',
+      zero: 'لا تقييمات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String proDone(int count) {
+    return '$count مكتمل';
+  }
+
+  @override
+  String jobApplicants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count متقدّم',
+      many: '$count متقدّمًا',
+      few: '$count متقدّمين',
+      two: 'متقدّمان',
+      one: 'متقدّم واحد',
+      zero: 'لا متقدّمين',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String eventGoingCount(int count) {
+    return '$count سيحضرون';
+  }
+
+  @override
+  String boardYou(int rank, int points) {
+    return 'أنت: #$rank · $points نقطة';
+  }
+
+  @override
+  String jobBudget(String budget) {
+    return 'الميزانية: $budget';
+  }
+
+  @override
+  String challengeEnds(String date) {
+    return 'ينتهي $date';
+  }
+
+  @override
+  String get profilePosts => 'المنشورات';
 }

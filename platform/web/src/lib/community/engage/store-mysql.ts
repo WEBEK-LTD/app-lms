@@ -68,7 +68,7 @@ export class MysqlEngageStore implements EngageStore {
     if (!memberIds.length) return [];
     const t = communityPushDevices;
     const rows = await this.db.select().from(t).where(inArray(t.memberId, [...memberIds]));
-    return rows.map(({ tokenHash: _hash, ...r }) => r);
+    return rows.map((r) => ({ sessionId: r.sessionId, tenantId: r.tenantId, memberId: r.memberId, token: r.token, platform: r.platform, createdAt: r.createdAt, lastSeenAt: r.lastSeenAt }));
   }
 
   // ——— Points ———

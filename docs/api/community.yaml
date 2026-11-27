@@ -2697,8 +2697,8 @@ components:
       enum: [system, light, dark]
     TargetType:
       type: string
-      description: "Phase 2–4 adds posts and their comments, stories, showcase items and their comments, groups, jobs, pro profiles, conversations (reported as a whole), pro reviews, events and their comments (a live session's chat), and challenge entries."
-      enum: [member, question, answer, reply, tutorial, comment, post, post_comment, story, showcase, showcase_comment, group, job, pro, conversation, pro_review, review, event, event_comment, challenge_submission]
+      description: "Phase 2–4 adds posts and their comments, stories, showcase items and their comments, groups, jobs, conversations (reported as a whole), pro reviews, events and their live comments, and challenge submissions (the same report and moderation paths as phase 1)."
+      enum: [member, question, answer, reply, tutorial, comment, post, post_comment, story, showcase, showcase_comment, group, job, conversation, pro_review, event, event_comment, challenge_submission]
     DeviceInput:
       type: object
       properties:
@@ -3130,11 +3130,11 @@ components:
           type: object
           description: Which kinds also come by email (the list always has them all).
           additionalProperties: { type: boolean }
+          examples: [{ answer: true, answer_accepted: true, friend_request: true, follow: false, badge_granted: true, verification_approved: true, verification_rejected: true, official_answer: true }]
         push:
           type: object
           description: "232 Which kinds also come as a push to the member's phones (the list always has them all; every kind is on until turned off). PUT takes `email`, `push` or both; only the kinds sent change."
           additionalProperties: { type: boolean }
-          examples: [{ answer: true, answer_accepted: true, friend_request: true, follow: false, badge_granted: true, verification_approved: true, verification_rejected: true, official_answer: true }]
 
     # ================================================================ Phases 2–5
     Tenant:

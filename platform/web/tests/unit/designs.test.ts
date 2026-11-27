@@ -89,8 +89,8 @@ describe("ready-made designs", () => {
         }
         const actions = [...layout.tabs.map((t) => t.target), ...blocks.flatMap((b) => [b.action, b.see_all, ...(b.links ?? []).map((l) => l.action), ...(b.slides ?? []).map((s) => s.action)])];
         for (const a of actions) if (a?.type === "screen") expect(screens, `${design.id} ${a.screen}`).toContain(a.screen);
-        // Every design shows its engine's own content.
-        expect(blocks.some((b) => b.type === "items" && b.source === ENGINES[kind.engine].pages.source), design.id).toBe(true);
+        // Every design shows its engine's own content (235 a community's is its own screens, which its tabs and links open).
+        if (kind.engine !== "community") expect(blocks.some((b) => b.type === "items" && b.source === ENGINES[kind.engine].pages.source), design.id).toBe(true);
         // Nothing course-related outside Academy apps.
         if (kind.engine !== "lms") expect(blocks.some((b) => b.type === "continue_learning")).toBe(false);
       });

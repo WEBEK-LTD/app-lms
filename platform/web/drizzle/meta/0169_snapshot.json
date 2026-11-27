@@ -2,7 +2,7 @@
   "version": "5",
   "dialect": "mysql",
   "id": "3b34fab8-cb57-4c78-9eb9-101b68089c16",
-  "prevId": "d2d9f384-212e-4927-8a5d-2beb569cb3b5",
+  "prevId": "9e02d561-0fb2-4af2-ae19-91aeaffb662a",
   "tables": {
     "account_deletion_requests": {
       "name": "account_deletion_requests",

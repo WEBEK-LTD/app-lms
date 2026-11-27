@@ -244,9 +244,9 @@ const groupFeed: Handler = async (ctx) => {
   return ok({ items: page.items.map((p) => ({ kind: "post", id: p.id, created_at: p.createdAt, post: postOut(ctx, p) })), next_cursor: page.nextCursor });
 };
 
-/** A showcase item's card (ShowcaseSummary) for C's challenge entries; null when it isn't shown. */
-export async function showcaseCard(ctx: CommunityContext, id: string): Promise<Json | null> {
-  const item = await social.getShowcase(socialEnvFor(ctx), ctx.member?.id ?? null, id).catch(() => null);
+/** 233 One showcase item's card (ShowcaseSummary), for a challenge entry made with it (lib/community/content-kinds.ts); null when it isn't there. */
+export async function showcaseSummaryOf(ctx: CommunityContext, id: string): Promise<Json | null> {
+  const item = await social.getShowcase(socialEnvFor(ctx), viewer(ctx), id).catch(() => null);
   return item ? showcaseSummaryOut(item) : null;
 }
 

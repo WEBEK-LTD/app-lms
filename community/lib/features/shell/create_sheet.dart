@@ -5,8 +5,9 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../core/l10n.dart';
 import '../../core/routing/feature_routes.dart';
 import '../../core/theme/tokens.dart';
-import '../../core/widgets/coming_soon.dart';
 import '../../core/widgets/sym.dart';
+import '../posts/posts_state.dart';
+import '../stories/stories.dart';
 
 /// The tab bar's "+": ask a question, or (later phases) show an app or join
 /// a challenge.
@@ -14,6 +15,8 @@ Future<void> showCreateSheet(BuildContext context) =>
     showModalBottomSheet<void>(
       context: context,
       useRootNavigator: true,
+      // Six choices: taller than a sheet's default nine-sixteenths.
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheet) => _CreateSheet(parent: context),
     );
@@ -35,14 +38,7 @@ class _CreateSheet extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
         decoration: BoxDecoration(
           color: p.dark ? Brand.navy2 : Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x29141327),
-              blurRadius: 44,
-              offset: Offset(0, 20),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -61,6 +57,30 @@ class _CreateSheet extends StatelessWidget {
               ),
             ),
             _Choice(
+              key: const ValueKey('create-post'),
+              icon: Symbols.edit_square_rounded,
+              title: l.createPost,
+              line: l.createPostLine,
+              gradient: Brand.sunrise,
+              onTap: () {
+                close();
+                parent.push(PostLinks.compose);
+              },
+            ),
+            const SizedBox(height: 8),
+            _Choice(
+              key: const ValueKey('create-story'),
+              icon: Symbols.amp_stories_rounded,
+              title: l.createStory,
+              line: l.createStoryLine,
+              gradient: Brand.solid(Brand.violet),
+              onTap: () {
+                close();
+                addStory(parent);
+              },
+            ),
+            const SizedBox(height: 8),
+            _Choice(
               key: const ValueKey('create-ask'),
               icon: Symbols.forum_rounded,
               title: l.createAsk,
@@ -77,13 +97,10 @@ class _CreateSheet extends StatelessWidget {
               icon: Symbols.apps_rounded,
               title: l.createShowcase,
               line: l.createShowcaseLine,
-              gradient: const LinearGradient(
-                colors: [Brand.lilac, Color(0xFF4B3BE0)],
-              ),
-              soon: true,
+              gradient: Brand.solid(Brand.violet),
               onTap: () {
                 close();
-                showComingSoon(parent, l.createShowcase);
+                parent.go(FeatureLinks.showcase);
               },
             ),
             const SizedBox(height: 8),
@@ -92,13 +109,10 @@ class _CreateSheet extends StatelessWidget {
               icon: Symbols.emoji_events_rounded,
               title: l.createChallenge,
               line: l.createChallengeLine,
-              gradient: const LinearGradient(
-                colors: [Color(0xFFF2B544), Color(0xFFE08A12)],
-              ),
-              soon: true,
+              gradient: Brand.solid(const Color(0xFFE08A12)),
               onTap: () {
                 close();
-                showComingSoon(parent, l.createChallenge);
+                parent.go(FeatureLinks.challenges);
               },
             ),
           ],
@@ -116,7 +130,6 @@ class _Choice extends StatelessWidget {
     required this.line,
     required this.gradient,
     required this.onTap,
-    this.soon = false,
   });
 
   final IconData icon;
@@ -124,16 +137,15 @@ class _Choice extends StatelessWidget {
   final String line;
   final Gradient gradient;
   final VoidCallback onTap;
-  final bool soon;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     return Material(
       color: p.dark ? const Color(0x0AFFFFFF) : Brand.paper,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -144,7 +156,7 @@ class _Choice extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   gradient: gradient,
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Sym(icon, size: 22, fill: true, color: Colors.white),
               ),
@@ -165,27 +177,6 @@ class _Choice extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (soon) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 7,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0x1FFF5A1F),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              context.l10n.commonComingSoon,
-                              style: const TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w600,
-                                color: Brand.orange,
-                              ),
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                     const SizedBox(height: 2),

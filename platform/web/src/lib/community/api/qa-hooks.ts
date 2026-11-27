@@ -1,5 +1,5 @@
-import { awardPoints, takeBackPoints } from "../engage/points";
 import { withQa, type MemberPerson, type QaHooks } from "../qa/hooks";
+import { awardPoints, takeBackPoints } from "../engage/points";
 import { trustDepsOf } from "../trust/context";
 import { moderateNew, notify } from "../trust/service";
 import type { CommunityContext } from "./http";
@@ -28,12 +28,15 @@ export function qaHooksFor(ctx: CommunityContext): Partial<QaHooks> {
       const found = await base.searchMembers(q, 0, limit);
       return (await memberSummaries(ctx, found.map((m) => m.id))).map(fromView);
     },
-    async pointsChanged(memberId, delta) {
+    async pointsChanged(memberId, delta, from) {
+      // 233 Through area C's ledger: the admins' table and daily caps decide, and the member's total follows it.
+      if (from) {
+        if (from.undo) await takeBackPoints(ctx, { memberId, reason: from.reason, ref: from.ref });
+        else await awardPoints(ctx, { memberId, reason: from.reason, ref: from.ref });
+        return;
+      }
       await base.addPoints(memberId, delta);
     },
-    // 233 Area C's ledger gives the points (and keeps community_members.points).
-    award: (input) => awardPoints(ctx, input),
-    takeBack: (input) => takeBackPoints(ctx, input),
     ...trustForQa(ctx),
   };
 }

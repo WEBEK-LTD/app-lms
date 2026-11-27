@@ -60,6 +60,7 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
   const instructors = kindById("instructors");
   const school = kindById("school");
   const travel = kindById("travel");
+  const community = kindById("community");
   const academy = kindById("academy");
   // 124.6 The premium academy: an academy with its template for the whole project already chosen (step 3 still offers the others).
   const premium = academy && offered.includes(academy) ? premiumAcademyChoice(choiceOf(academy), t("studio.tpl_academy_premium"), t("studio.kindPremiumAcademyText")) : null;
@@ -95,6 +96,8 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
     travel && offered.includes(travel)
       ? { ...choiceOf(travel), name: t("studio.kindTravel"), icon: "travel_explore", text: t("studio.kindTravelText"), soon: false }
       : { id: "travel", name: t("studio.kindTravel"), icon: "travel_explore", sources: [], text: t("studio.soon"), soon: true },
+    // 235 Only while Admin › Switches has app_type:community on (it is off until then), so no "Soon" card either.
+    ...(community && offered.includes(community) ? [{ ...choiceOf(community), name: t("studio.kindCommunity"), icon: "groups", text: t("studio.kindCommunityText"), soon: false }] : []),
   ];
   // 208 Studio's shop types by section (lib/studio/shop-types.ts): a ready one is the store with its look A chosen; the others coming soon.
   const storeKind = kindById("store");

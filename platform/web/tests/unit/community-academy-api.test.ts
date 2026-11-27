@@ -65,7 +65,7 @@ describe("233 Community academy API", () => {
     const { c, admin, nour } = await setup();
     const course = (await api<Json>(c, "POST", "/admin/academy/courses", { token: admin.token, body: { title: "Grow your shop", summary: "", level: "intermediate", language: "tr", status: "published" } })).body;
     const lessons = (await api<Json>(c, "POST", `/admin/academy/courses/${course.id}/lessons`, { token: admin.token, body: { title: "Your customers", kind: "video", video_url: "https://youtu.be/abc", duration_seconds: 300 } })).body.lessons;
-    await setCoursePrice(c.deps.store.qa.academy, "yallapp", course.id, { priceMinor: 49900, currency: "TRY" });
+    await setCoursePrice(c.deps.store.qa.academy, "yallapp", course.id, { priceMinor: 49900, currency: "USD" });
 
     const seen = await api<Json>(c, "GET", `/academy/courses/${course.slug}`, { token: nour.token });
     expect(seen.body).toMatchObject({ access: "locked", progress: null, lessons: [{ title: "Your customers", locked: true }] });

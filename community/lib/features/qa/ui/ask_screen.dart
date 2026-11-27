@@ -307,13 +307,6 @@ class _AskScreenState extends ConsumerState<AskScreen> {
                       decoration: BoxDecoration(
                         gradient: Brand.signUp,
                         borderRadius: BorderRadius.circular(18),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x73FF5A1F),
-                            blurRadius: 26,
-                            offset: Offset(0, 12),
-                          ),
-                        ],
                       ),
                       child: TextButton(
                         onPressed: _sending ? null : () => _send(sections),

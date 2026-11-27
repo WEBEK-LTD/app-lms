@@ -52,6 +52,8 @@ export const NOTIFICATION_KINDS = [
   "event_tomorrow",
   "event_soon",
   "event_cancelled",
+  // 232 A new message: pushed only (a conversation has its own unread count, not a notice in the list).
+  "message",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
@@ -174,6 +176,7 @@ const WORDS: Record<CommunityLang, Words> = {
     event_tomorrow: (d) => `Tomorrow: "${d.title}". You're going.`,
     event_soon: (d) => `"${d.title}" starts in an hour.`,
     event_cancelled: (d) => `"${d.title}" was cancelled.`,
+    message: (d) => `${d.actor}: ${d.title}`,
   },
   ar: {
     answer: (d) => `أجاب ${d.actor} عن سؤالك «${d.title}».`,
@@ -208,6 +211,7 @@ const WORDS: Record<CommunityLang, Words> = {
     event_tomorrow: (d) => `غدًا: «${d.title}». أنت من الحاضرين.`,
     event_soon: (d) => `تبدأ «${d.title}» بعد ساعة.`,
     event_cancelled: (d) => `أُلغيت «${d.title}».`,
+    message: (d) => `${d.actor}: ${d.title}`,
   },
   tr: {
     answer: (d) => `${d.actor}, "${d.title}" sorunuzu yanıtladı.`,
@@ -242,6 +246,7 @@ const WORDS: Record<CommunityLang, Words> = {
     event_tomorrow: (d) => `Yarın: "${d.title}". Katılıyorsunuz.`,
     event_soon: (d) => `"${d.title}" bir saat sonra başlıyor.`,
     event_cancelled: (d) => `"${d.title}" iptal edildi.`,
+    message: (d) => `${d.actor}: ${d.title}`,
   },
 };
 

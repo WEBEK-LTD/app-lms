@@ -101,33 +101,12 @@ class _EmailAuthPageState extends ConsumerState<EmailAuthPage> {
       EmailMode.forgot => (l.authResetTitle, l.authResetSent, l.authSendLink),
     };
     return Scaffold(
-      backgroundColor: Brand.night,
+      backgroundColor: Brand.darkPaper,
       body: Stack(
         children: [
           const Positioned.fill(
             child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Brand.indigo, Brand.night],
-                  stops: [0, .7],
-                ),
-              ),
-            ),
-          ),
-          const Positioned(
-            right: -200,
-            top: -260,
-            width: 520,
-            height: 520,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [Color(0x8CFF8A3D), Color(0x00FF8A3D)],
-                  stops: [0, .7],
-                ),
-              ),
+              decoration: BoxDecoration(color: Brand.darkPaper),
             ),
           ),
           SafeArea(
@@ -144,7 +123,7 @@ class _EmailAuthPageState extends ConsumerState<EmailAuthPage> {
                             ? context.pop()
                             : context.go(Paths.welcome),
                         child: Glass(
-                          radius: 15,
+                          radius: 10,
                           child: SizedBox(
                             width: 42,
                             height: 42,
@@ -274,14 +253,7 @@ class _EmailAuthPageState extends ConsumerState<EmailAuthPage> {
                         height: 54,
                         decoration: BoxDecoration(
                           gradient: Brand.signUp,
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x73FF5A1F),
-                              blurRadius: 26,
-                              offset: Offset(0, 12),
-                            ),
-                          ],
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         alignment: Alignment.center,
                         child: _busy
@@ -400,7 +372,7 @@ class _Field extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     OutlineInputBorder border(Color c, [double w = 1]) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(12),
       borderSide: BorderSide(color: c, width: w),
     );
     return TextFormField(

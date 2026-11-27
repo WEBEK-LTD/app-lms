@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { PLANS } from "@/lib/plans";
 import { getPlans } from "@/lib/settings/platform";
-import { getSwitches, isStudioSwitch, switchGroups, type SwitchKind } from "@/lib/switches";
+import { getSwitches, isOn, isStudioSwitch, switchGroups, type SwitchKind } from "@/lib/switches";
 import { SwitchesForm } from "./forms";
 
 export const metadata: Metadata = { title: "Switches" };
@@ -43,7 +43,7 @@ export default async function SwitchesPage({ searchParams }: PageProps<"/admin/s
       .map((item) => ({
         key: item.key,
         label: item.label,
-        on: !(switches?.off ?? []).includes(item.key),
+        on: isOn(switches, item.key),
         offOn: PLANS.filter((plan) => switches?.offByPlan[plan]?.includes(item.key)).map((plan) => plans[plan].name),
       })),
   }));

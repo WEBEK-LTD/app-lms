@@ -73,7 +73,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Join 18,000+ app makers. Learn, ask,\nand show what you built.';
 
   @override
-  String get authBubbleNour => 'Launched my store today 🎉';
+  String get authBubbleNour => 'Launched my store today';
 
   @override
   String get authBubbleAccepted => 'Answer accepted';
@@ -197,13 +197,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerProfile => 'Your profile';
 
   @override
-  String get homeMorning => 'Good morning ☀️';
+  String get homeMorning => 'Good morning';
 
   @override
-  String get homeAfternoon => 'Good afternoon 🌤️';
+  String get homeAfternoon => 'Good afternoon';
 
   @override
-  String get homeEvening => 'Good evening 🌙';
+  String get homeEvening => 'Good evening';
 
   @override
   String get homeRead => 'Read';
@@ -1046,4 +1046,686 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qaAcceptShort => 'Accept';
+
+  @override
+  String get feedForYou => 'For you';
+
+  @override
+  String get feedLatest => 'Latest';
+
+  @override
+  String get feedFollowing => 'Following';
+
+  @override
+  String get feedFollowingEmpty =>
+      'Posts from the members you follow show here.';
+
+  @override
+  String get postTitle => 'Post';
+
+  @override
+  String get postNew => 'New post';
+
+  @override
+  String get postHint => 'Share something with the community';
+
+  @override
+  String get postPublish => 'Post';
+
+  @override
+  String postPhotos(int n, int max) {
+    return 'Photos $n/$max';
+  }
+
+  @override
+  String get postVideo => 'Video';
+
+  @override
+  String get postPickPoster => 'Choose a cover photo';
+
+  @override
+  String get postVideoReady => 'Video and cover ready';
+
+  @override
+  String get postPending => 'Waiting for review';
+
+  @override
+  String get postMore => 'More';
+
+  @override
+  String get postLike => 'Like';
+
+  @override
+  String get postComments => 'Comments';
+
+  @override
+  String get postShare => 'Share';
+
+  @override
+  String get postSave => 'Save';
+
+  @override
+  String get postDelete => 'Delete';
+
+  @override
+  String get postDeleteConfirm => 'Delete this post?';
+
+  @override
+  String get postReport => 'Report';
+
+  @override
+  String get postLinkCopied => 'Link copied';
+
+  @override
+  String get postNoComments => 'No comments yet. Be the first.';
+
+  @override
+  String get postReply => 'Reply';
+
+  @override
+  String postReplyingTo(String name) {
+    return 'Replying to $name';
+  }
+
+  @override
+  String get postCommentHint => 'Write a comment';
+
+  @override
+  String get postSend => 'Send';
+
+  @override
+  String get postSaved => 'Saved posts';
+
+  @override
+  String get createPost => 'Write a post';
+
+  @override
+  String get createPostLine => 'Words, up to 10 photos or a video';
+
+  @override
+  String get createStory => 'Add a story';
+
+  @override
+  String get createStoryLine => 'A photo or short video for 24 hours';
+
+  @override
+  String get storyYours => 'Your story';
+
+  @override
+  String get storyAddPhoto => 'Photo';
+
+  @override
+  String get storyAddVideo => 'Short video';
+
+  @override
+  String get storyAdded => 'Your story is up for 24 hours';
+
+  @override
+  String storyViews(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n views',
+      one: '1 view',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postSavedEmpty => 'Posts you save show here.';
+
+  @override
+  String get msgNew => 'New message';
+
+  @override
+  String get msgEmpty =>
+      'No conversations yet. Write to a member from their profile, or start one here.';
+
+  @override
+  String get msgDeleted => 'Message deleted';
+
+  @override
+  String get msgPhoto => 'Photo';
+
+  @override
+  String get msgStart => 'Start';
+
+  @override
+  String get msgGroupTitle => 'Group name (optional)';
+
+  @override
+  String msgPickPeople(int n, int max) {
+    return 'Chosen $n of $max';
+  }
+
+  @override
+  String get msgNotAllowed => 'You can\'t message this member.';
+
+  @override
+  String get msgHint => 'Message';
+
+  @override
+  String get msgSeen => 'Seen';
+
+  @override
+  String get msgMute => 'Mute notifications';
+
+  @override
+  String get msgUnmute => 'Turn notifications on';
+
+  @override
+  String get msgRename => 'Rename the group';
+
+  @override
+  String get msgReport => 'Report the conversation';
+
+  @override
+  String get msgLeave => 'Leave the group';
+
+  @override
+  String get msgHide => 'Hide the conversation';
+
+  @override
+  String get msgBlocked => 'You can\'t reply to this conversation.';
+
+  @override
+  String get msgMessage => 'Message';
+
+  @override
+  String get groupCreate => 'New group';
+
+  @override
+  String get groupDiscover => 'Discover';
+
+  @override
+  String get groupNoneYet => 'You haven\'t joined a group yet.';
+
+  @override
+  String get groupAll => 'All groups';
+
+  @override
+  String groupMembers(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n members',
+      one: '1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get groupMembersTitle => 'Members';
+
+  @override
+  String get groupName => 'Name';
+
+  @override
+  String get groupAbout => 'What the group is about';
+
+  @override
+  String get groupPrivate => 'Private';
+
+  @override
+  String get groupPublic => 'Public';
+
+  @override
+  String get groupPrivateLine =>
+      'Members join by request; only they see its posts.';
+
+  @override
+  String get groupPublicLine => 'Anyone can join and read it.';
+
+  @override
+  String get groupCreateNotAllowed =>
+      'Creating groups isn\'t open to your account yet.';
+
+  @override
+  String get groupJoin => 'Join';
+
+  @override
+  String get groupAskToJoin => 'Ask to join';
+
+  @override
+  String get groupRequested => 'Requested';
+
+  @override
+  String get groupLeave => 'Leave';
+
+  @override
+  String get groupOwnerMustTransfer =>
+      'Hand the group over to another member before you leave.';
+
+  @override
+  String get groupWrite => 'Write in the group';
+
+  @override
+  String get groupJoinToRead =>
+      'This group is private. Join to read its posts.';
+
+  @override
+  String get groupNoPosts => 'No posts yet.';
+
+  @override
+  String get groupCover => 'Change the cover';
+
+  @override
+  String get groupRequests => 'Requests to join';
+
+  @override
+  String get groupDecline => 'Decline';
+
+  @override
+  String get groupOwner => 'Owner';
+
+  @override
+  String get groupModerator => 'Moderator';
+
+  @override
+  String get groupMakeModerator => 'Make moderator';
+
+  @override
+  String get groupMakeMember => 'Make a member again';
+
+  @override
+  String get groupHandOver => 'Hand the group over';
+
+  @override
+  String get groupRemove => 'Remove from the group';
+
+  @override
+  String get pushTitle => 'Push notifications';
+
+  @override
+  String get pushBody =>
+      'Choose what reaches your phone. The app\'s list and your email choices stay as they are.';
+
+  @override
+  String get pushOpen => 'Open';
+
+  @override
+  String get pushKindMessage => 'Messages';
+
+  @override
+  String get pushKindComment => 'Comments on my posts';
+
+  @override
+  String get pushKindReply => 'Replies to my comments';
+
+  @override
+  String get pushKindLike => 'Likes on my posts';
+
+  @override
+  String get pushKindGroup => 'Group requests and invitations';
+
+  @override
+  String get showcaseTitle => 'Showcase';
+
+  @override
+  String get showcaseAll => 'All';
+
+  @override
+  String get showcaseNewest => 'Newest';
+
+  @override
+  String get showcaseMostLiked => 'Most liked';
+
+  @override
+  String get showcaseTypeStore => 'Shops';
+
+  @override
+  String get showcaseTypeAcademy => 'Academies';
+
+  @override
+  String get showcaseTypeBooking => 'Bookings';
+
+  @override
+  String get showcaseMadeWith => 'Made with Yallapp';
+
+  @override
+  String get showcaseLike => 'Like';
+
+  @override
+  String get showcaseLiked => 'Liked';
+
+  @override
+  String get showcaseAppStore => 'App Store';
+
+  @override
+  String get showcasePlay => 'Google Play';
+
+  @override
+  String get showcaseWebsite => 'Website';
+
+  @override
+  String get showcaseEmpty => 'No apps here yet.';
+
+  @override
+  String get academyTitle => 'Academy';
+
+  @override
+  String get academyLocked => 'Locked';
+
+  @override
+  String get academyLockedNote =>
+      'This course isn\'t open on your account yet.';
+
+  @override
+  String get academyFree => 'Open';
+
+  @override
+  String get academyComplete => 'Mark as done';
+
+  @override
+  String get academyDone => 'Done';
+
+  @override
+  String get academyWatch => 'Watch the lesson';
+
+  @override
+  String get academyCertificate => 'Your certificate';
+
+  @override
+  String get academyEmpty => 'No courses yet.';
+
+  @override
+  String get challengesTitle => 'Challenges';
+
+  @override
+  String get challengeUpcoming => 'Coming up';
+
+  @override
+  String get challengeOpen => 'Open';
+
+  @override
+  String get challengeVoting => 'Voting';
+
+  @override
+  String get challengeClosed => 'Closed';
+
+  @override
+  String get challengeRules => 'Rules';
+
+  @override
+  String get challengeEntriesTitle => 'Entries';
+
+  @override
+  String get challengeWinners => 'Winners';
+
+  @override
+  String get challengeVote => 'Vote';
+
+  @override
+  String get challengeVoted => 'Voted';
+
+  @override
+  String get challengeEnter => 'Enter with a link';
+
+  @override
+  String get challengeEnterHint => 'Link to your app';
+
+  @override
+  String get challengeEntered => 'You\'ve entered';
+
+  @override
+  String get challengeSend => 'Send';
+
+  @override
+  String get challengeEmpty => 'No challenges right now.';
+
+  @override
+  String get challengeCardTitle => 'This week\'s challenge';
+
+  @override
+  String get boardTitle => 'Leaderboard';
+
+  @override
+  String get boardWeek => 'This week';
+
+  @override
+  String get boardAll => 'All time';
+
+  @override
+  String get prosTitle => 'Pros';
+
+  @override
+  String get proAvailable => 'Available';
+
+  @override
+  String get proBusy => 'Busy';
+
+  @override
+  String get proUnavailable => 'Not taking work';
+
+  @override
+  String get proAvailableOnly => 'Available now';
+
+  @override
+  String get proServices => 'Services';
+
+  @override
+  String get proPortfolio => 'Portfolio';
+
+  @override
+  String get proSkills => 'Skills';
+
+  @override
+  String get proHire => 'Send a hire request';
+
+  @override
+  String get proHireHint => 'What do you need? At least 10 characters.';
+
+  @override
+  String get proHireSent => 'Sent. Your conversation with the pro is open.';
+
+  @override
+  String get proDirect =>
+      'You and the pro agree on the work and terms between you.';
+
+  @override
+  String get prosEmpty => 'No pros yet.';
+
+  @override
+  String get jobsTitle => 'Jobs';
+
+  @override
+  String get jobRemote => 'Remote';
+
+  @override
+  String get jobFullTime => 'Full time';
+
+  @override
+  String get jobPartTime => 'Part time';
+
+  @override
+  String get jobContract => 'Contract';
+
+  @override
+  String get jobFreelance => 'Freelance';
+
+  @override
+  String get jobInternship => 'Internship';
+
+  @override
+  String get jobApply => 'Apply';
+
+  @override
+  String get jobApplyHint => 'Your message. At least 10 characters.';
+
+  @override
+  String get jobApplied => 'You applied';
+
+  @override
+  String get jobApplicantsTitle => 'Applicants';
+
+  @override
+  String get jobsEmpty => 'No jobs right now.';
+
+  @override
+  String get eventsTitle => 'Events';
+
+  @override
+  String get eventAll => 'All';
+
+  @override
+  String get eventLive => 'Live';
+
+  @override
+  String get eventLiveNow => 'Live now';
+
+  @override
+  String get eventOnline => 'Online';
+
+  @override
+  String get eventInPerson => 'In person';
+
+  @override
+  String get eventFree => 'Free';
+
+  @override
+  String get eventRsvp => 'I\'m going';
+
+  @override
+  String get eventGoing => 'Going';
+
+  @override
+  String get eventNotGoing => 'Not going';
+
+  @override
+  String get eventCalendar => 'Add to calendar';
+
+  @override
+  String get eventJoin => 'Join';
+
+  @override
+  String get eventWatch => 'Watch';
+
+  @override
+  String get eventReplay => 'Watch the replay';
+
+  @override
+  String get eventCancelled => 'Cancelled';
+
+  @override
+  String get eventComments => 'Comments';
+
+  @override
+  String get eventCommentHint => 'Say something';
+
+  @override
+  String get eventsEmpty => 'No events coming up.';
+
+  @override
+  String showcaseLikes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count likes',
+      one: '1 like',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String academyLessons(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lessons',
+      one: '1 lesson',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String academyMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String academyProgress(int count) {
+    return '$count% done';
+  }
+
+  @override
+  String challengeEntries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entries',
+      one: '1 entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String challengeReward(int count) {
+    return '$count points';
+  }
+
+  @override
+  String challengeVotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count votes',
+      one: '1 vote',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String boardPoints(int count) {
+    return '$count pts';
+  }
+
+  @override
+  String proReviews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reviews',
+      one: '1 review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String proDone(int count) {
+    return '$count done';
+  }
+
+  @override
+  String jobApplicants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count applicants',
+      one: '1 applicant',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String eventGoingCount(int count) {
+    return '$count going';
+  }
+
+  @override
+  String boardYou(int rank, int points) {
+    return 'You: #$rank · $points pts';
+  }
+
+  @override
+  String jobBudget(String budget) {
+    return 'Budget: $budget';
+  }
+
+  @override
+  String challengeEnds(String date) {
+    return 'Ends $date';
+  }
+
+  @override
+  String get profilePosts => 'Posts';
 }

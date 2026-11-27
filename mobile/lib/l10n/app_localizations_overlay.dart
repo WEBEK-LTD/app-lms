@@ -13769,4 +13769,104 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get productDeliveryReturns =>
       overlay.text('productDeliveryReturns') ?? base.productDeliveryReturns;
+
+  @override
+  String get communityTabFeed =>
+      overlay.text('communityTabFeed') ?? base.communityTabFeed;
+
+  @override
+  String get communityTabQuestions =>
+      overlay.text('communityTabQuestions') ?? base.communityTabQuestions;
+
+  @override
+  String get communityTabGroups =>
+      overlay.text('communityTabGroups') ?? base.communityTabGroups;
+
+  @override
+  String get communityTabMessages =>
+      overlay.text('communityTabMessages') ?? base.communityTabMessages;
+
+  @override
+  String get communityTabProfile =>
+      overlay.text('communityTabProfile') ?? base.communityTabProfile;
+
+  @override
+  String get communityFeedEmpty =>
+      overlay.text('communityFeedEmpty') ?? base.communityFeedEmpty;
+
+  @override
+  String get communityQuestionsEmpty =>
+      overlay.text('communityQuestionsEmpty') ?? base.communityQuestionsEmpty;
+
+  @override
+  String get communityGroupsEmpty =>
+      overlay.text('communityGroupsEmpty') ?? base.communityGroupsEmpty;
+
+  @override
+  String get communityMessagesEmpty =>
+      overlay.text('communityMessagesEmpty') ?? base.communityMessagesEmpty;
+
+  @override
+  String get communityPrivate =>
+      overlay.text('communityPrivate') ?? base.communityPrivate;
+
+  @override
+  String get communityJoin =>
+      overlay.text('communityJoin') ?? base.communityJoin;
+
+  @override
+  String get communityJoined =>
+      overlay.text('communityJoined') ?? base.communityJoined;
+
+  @override
+  String get communityAccepted =>
+      overlay.text('communityAccepted') ?? base.communityAccepted;
+
+  @override
+  String get communityUnread =>
+      overlay.text('communityUnread') ?? base.communityUnread;
+
+  @override
+  String get communityAnswerHint =>
+      overlay.text('communityAnswerHint') ?? base.communityAnswerHint;
+
+  @override
+  String get communityMessageHint =>
+      overlay.text('communityMessageHint') ?? base.communityMessageHint;
+
+  @override
+  String get communitySend =>
+      overlay.text('communitySend') ?? base.communitySend;
+
+  @override
+  String get communitySignInTitle =>
+      overlay.text('communitySignInTitle') ?? base.communitySignInTitle;
+
+  @override
+  String get communitySignInMessage =>
+      overlay.text('communitySignInMessage') ?? base.communitySignInMessage;
+
+  @override
+  String get communityAccount =>
+      overlay.text('communityAccount') ?? base.communityAccount;
+
+  @override
+  String get noNotificationsMessageCommunity =>
+      overlay.text('noNotificationsMessageCommunity') ??
+      base.noNotificationsMessageCommunity;
+
+  @override
+  String communityAnswers(int count) =>
+      overlay.format('communityAnswers', {'count': count}) ??
+      base.communityAnswers(count);
+
+  @override
+  String communityComments(int count) =>
+      overlay.format('communityComments', {'count': count}) ??
+      base.communityComments(count);
+
+  @override
+  String communityMembers(int count) =>
+      overlay.format('communityMembers', {'count': count}) ??
+      base.communityMembers(count);
 }

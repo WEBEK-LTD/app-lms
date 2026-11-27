@@ -52,6 +52,11 @@ final newsModule = AppModule(
     BuiltInScreen.trips ||
     BuiltInScreen.saved ||
     BuiltInScreen.priceAlerts ||
+    BuiltInScreen.communityFeed ||
+    BuiltInScreen.communityQuestions ||
+    BuiltInScreen.communityGroups ||
+    BuiltInScreen.communityProfile ||
+    BuiltInScreen.communityMessages ||
     BuiltInScreen.club ||
     BuiltInScreen.foodOrders ||
     BuiltInScreen.restaurant ||

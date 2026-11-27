@@ -170,14 +170,13 @@ test("the admin grants a badge: it shows beside the name, and in the audit log",
   await expect(adminPage.locator(".cm-table")).toContainText("Helped many members this month");
 });
 
-test("the later sections say Soon and lead nowhere", async () => {
+test("232–234 the later sections are live and lead to their pages", async () => {
   await askerPage.goto("/community");
   const nav = askerPage.locator(".cm-nav");
-  for (const name of ["Academy", "Showcase", "Challenges", "Pros", "Events"]) {
-    const item = nav.locator(".soon", { hasText: new RegExp(`${name}Soon$`) });
-    await expect(item).toBeVisible();
-    await expect(item.locator("a")).toHaveCount(0);
+  for (const [name, path] of [["Academy", "/community/academy"], ["Showcase", "/community/showcase"], ["Challenges", "/community/challenges"], ["Pros", "/community/pros"], ["Events", "/community/events"]] as const) {
+    await expect(nav.getByRole("link", { name, exact: true })).toHaveAttribute("href", path);
   }
+  await expect(nav.locator(".soon")).toHaveCount(0);
 });
 
 test("no prices, buy buttons or payment links anywhere on the site", async () => {

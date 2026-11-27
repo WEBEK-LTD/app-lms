@@ -40,6 +40,7 @@ enum AppKind {
   delivery,
   rides,
   travel,
+  community,
 }
 
 /// 169 The app's kind: its type, its kind of business ([appVerticalOf]) and,
@@ -65,6 +66,7 @@ AppKind appKindOf(BuildConfigData build, AppConfig? config) {
     AppType.food => AppKind.food,
     AppType.rides => AppKind.rides,
     AppType.travel => AppKind.travel,
+    AppType.community => AppKind.community,
   };
 }
 
@@ -218,6 +220,7 @@ class VerticalWording {
     AppKind.delivery => l10n.noNotificationsMessageDelivery,
     AppKind.rides => l10n.noNotificationsMessageRides,
     AppKind.travel => l10n.noNotificationsMessageTravel,
+    AppKind.community => l10n.noNotificationsMessageCommunity,
   };
 
   /// "Update the app to keep learning", or to keep using it.

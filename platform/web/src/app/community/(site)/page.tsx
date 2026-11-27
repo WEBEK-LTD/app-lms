@@ -1,21 +1,30 @@
+import Link from "next/link";
 import { siteContext } from "@/components/community/site/context";
-import { Composer, Feed, FeedTabs, feedTab, Hero, Rail } from "@/components/community/site/feed";
+import { Composer as AskBox, Feed, Hero, Rail } from "@/components/community/site/feed";
 import { cmLinks } from "@/components/community/site/links";
 import { LinkSuggestion } from "@/components/community/site/link-suggest";
+import { feed, stories } from "@/components/community/site/next";
+import { Composer, Empty, FeedList, More, PageNote, StoryRow, withCursor } from "@/components/community/site/next-ui";
 import { SitePage } from "@/components/community/site/page";
 import { questions, sections, siteStats, tutorials, waiting } from "@/components/community/site/source";
+import { CM_WORDS2 } from "@/components/community/site/words2";
 
-/** 231 The Community's home: the hero, the composer, the feed's tabs and the feed, with the rail. */
-export default async function CommunityHome({ searchParams }: { searchParams: Promise<{ tab?: string; section?: string }> }) {
+const TABS = ["for_you", "latest", "following"] as const;
+type Tab = (typeof TABS)[number];
+
+/** 231–232 The Community's home: the hero, stories, the post composer, and the feed (posts and questions mixed: For you, Latest, Following), with the rail. */
+export default async function CommunityHome({ searchParams }: { searchParams: Promise<{ tab?: string; cursor?: string; error?: string; pending?: string; done?: string }> }) {
   const sp = await searchParams;
   const { lang, w, viewer } = await siteContext();
-  const tab = feedTab(sp.tab);
+  const w2 = CM_WORDS2[lang];
+  const tab: Tab = TABS.includes(sp.tab as Tab) ? (sp.tab as Tab) : "for_you";
   const viewerId = viewer?.id ?? null;
-  const [all, stats, feed, tuts, wq] = await Promise.all([
+  const back = tab === "for_you" ? cmLinks.home() : `${cmLinks.home()}?tab=${tab}`;
+  const [all, stats, mixed, rings, wq] = await Promise.all([
     sections(lang, viewerId),
     siteStats(),
-    questions({ viewerId, lang, tab, section: sp.section, limit: 12 }),
-    tutorials({ viewerId, lang, section: sp.section, limit: 4 }),
+    feed(tab, sp.cursor),
+    viewer ? stories() : Promise.resolve([]),
     viewer ? waiting({ viewerId, lang, limit: 20 }) : Promise.resolve({ items: [], total: 0, inMySections: 0 }),
   ]);
   // The member's followed section with the most questions waiting, for the hero ("3 questions in Stores…").
@@ -23,13 +32,34 @@ export default async function CommunityHome({ searchParams }: { searchParams: Pr
   const bySection = new Map<string, { name: string; n: number }>();
   for (const q of wq.items) if (followed.has(q.section.slug)) bySection.set(q.section.slug, { name: q.section.name, n: (bySection.get(q.section.slug)?.n ?? 0) + 1 });
   const top = [...bySection.values()].sort((a, b) => b.n - a.n)[0];
+  // Before the feed has posts (or where it can't be read), the questions' feed as before.
+  const fallback = mixed.items.length ? null : await Promise.all([questions({ viewerId, lang, tab: tab === "following" ? "for_you" : tab, limit: 12 }), tutorials({ viewerId, lang, limit: 4 })]);
+  const label = { for_you: w2.feedForYou, latest: w2.feedLatest, following: w2.feedFollowing };
   return (
     <SitePage active="home" rail={<Rail w={w} lang={lang} viewer={viewer} />}>
       <Hero w={w} viewer={viewer} waitingCount={top?.n ?? wq.total} topSection={top?.name ?? null} stats={stats} />
       <LinkSuggestion w={w} viewer={viewer} back={cmLinks.home()} />
-      <Composer w={w} viewer={viewer} />
-      <FeedTabs w={w} tab={tab} section={sp.section} sections={all} base={(q) => (q.tab || q.section ? `${cmLinks.home()}?${new URLSearchParams(Object.entries(q).filter((e): e is [string, string] => !!e[1])).toString()}` : cmLinks.home())} />
-      <Feed w={w} questions={feed.items} tutorials={tab === "unanswered" ? [] : tuts.items} />
+      <StoryRow rings={rings} viewer={viewer} w2={w2} back={back} />
+      <PageNote sp={sp} w2={w2} />
+      {viewer ? <Composer w2={w2} back={back} viewer={viewer} /> : null}
+      <AskBox w={w} viewer={viewer} />
+      <div className="cm-tabs" role="tablist">
+        {TABS.map((t) => (
+          <Link key={t} href={t === "for_you" ? cmLinks.home() : `${cmLinks.home()}?tab=${t}`} className={t === tab ? "on" : ""} aria-current={t === tab ? "page" : undefined} role="tab" aria-selected={t === tab}>
+            {label[t]}
+          </Link>
+        ))}
+      </div>
+      {mixed.items.length ? (
+        <>
+          <FeedList items={mixed.items} w={w} w2={w2} back={back} />
+          <More href={withCursor(back, mixed.next)} w2={w2} />
+        </>
+      ) : fallback && (fallback[0].items.length || fallback[1].items.length) ? (
+        <Feed w={w} questions={fallback[0].items} tutorials={fallback[1].items} />
+      ) : (
+        <Empty icon="dynamic_feed" text={w2.noPosts} />
+      )}
     </SitePage>
   );
 }

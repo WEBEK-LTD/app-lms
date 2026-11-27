@@ -145,11 +145,7 @@ class AcceptedPill extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(12),
-      gradient: const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [Brand.mint, Color(0xFF22C483)],
-      ),
+      color: Brand.mint,
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -315,43 +311,15 @@ class AnswerCard extends StatelessWidget {
     final accepted = answer.accepted;
     final decoration = accepted
         ? BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: dark
-                  ? const [Color(0x2918A56B), Color(0x0AFFFFFF)]
-                  : const [Color(0x2418A56B), Colors.white],
-              stops: const [0, .7],
-            ),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: dark ? const Color(0x732FD392) : const Color(0x8C2FD392),
             ),
-            boxShadow: dark
-                ? null
-                : [
-                    BoxShadow(
-                      color: p.cardShadow,
-                      blurRadius: 34,
-                      offset: const Offset(0, 14),
-                    ),
-                  ],
           )
         : BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            color: dark ? const Color(0x0BFFFFFF) : Colors.white,
-            border: Border.all(
-              color: dark ? const Color(0x12FFFFFF) : const Color(0x0A141327),
-            ),
-            boxShadow: dark
-                ? null
-                : [
-                    BoxShadow(
-                      color: p.cardShadow,
-                      blurRadius: 34,
-                      offset: const Offset(0, 14),
-                    ),
-                  ],
+            borderRadius: BorderRadius.circular(12),
+            color: p.card,
+            border: Border.all(color: p.line),
           );
     final card = Container(
       width: double.infinity,

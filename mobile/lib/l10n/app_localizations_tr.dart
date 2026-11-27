@@ -12866,4 +12866,101 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get productDeliveryReturns => 'Teslimat ve iade';
+
+  @override
+  String get communityTabFeed => 'Topluluk';
+
+  @override
+  String get communityTabQuestions => 'Soru-Cevap';
+
+  @override
+  String get communityTabGroups => 'Gruplar';
+
+  @override
+  String get communityTabMessages => 'Mesajlar';
+
+  @override
+  String get communityTabProfile => 'Profil';
+
+  @override
+  String get communityFeedEmpty => 'Henüz gönderi yok';
+
+  @override
+  String get communityQuestionsEmpty => 'Henüz soru yok';
+
+  @override
+  String get communityGroupsEmpty => 'Henüz grup yok';
+
+  @override
+  String get communityMessagesEmpty => 'Henüz mesaj yok';
+
+  @override
+  String get communityPrivate => 'Özel';
+
+  @override
+  String get communityJoin => 'Katıl';
+
+  @override
+  String get communityJoined => 'Katıldınız';
+
+  @override
+  String get communityAccepted => 'Kabul edilen yanıt';
+
+  @override
+  String get communityUnread => 'Okunmadı';
+
+  @override
+  String get communityAnswerHint => 'Bir yanıt yazın';
+
+  @override
+  String get communityMessageHint => 'Bir mesaj yazın';
+
+  @override
+  String get communitySend => 'Gönder';
+
+  @override
+  String get communitySignInTitle => 'Katılmak için giriş yapın';
+
+  @override
+  String get communitySignInMessage =>
+      'Giriş yaptığınızda profiliniz ve mesajlarınız burada olur.';
+
+  @override
+  String get communityAccount => 'Hesap ve ayarlar';
+
+  @override
+  String get noNotificationsMessageCommunity =>
+      'Topluluktan yanıtlar, cevaplar, mesajlar ve haberler burada görünecek.';
+
+  @override
+  String communityAnswers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yanıt',
+      zero: 'Yanıt yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String communityComments(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yorum',
+      zero: 'Yorum yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String communityMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count üye',
+    );
+    return '$_temp0';
+  }
 }
