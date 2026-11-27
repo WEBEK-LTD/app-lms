@@ -45,12 +45,37 @@ info:
     account, reports), B (Q&A, tutorials, search), C (badges and the
     verification form, notifications, moderation, the admin). Each area
     keeps its paths and schemas here.
+
+    **Phases 2–5 (ROADMAP 232–235).** A: messages, groups, pros, jobs, and
+    the tenant key. B: feed and posts, stories, showcase, member tutorials,
+    the academy. C: push, points and the leaderboard, challenges, events
+    and live, and the admin and moderation of all of it.
+
+    - **The tenant key (235).** One engine serves many communities. Yallapp
+      Community is the tenant `yallapp`; a client app that adds the
+      "Community" app type in Studio has its own community, the tenant
+      being its app id, with its own members (the app's customers),
+      content, moderation and settings. A client app calls the same paths
+      under `https://yallapp.com.tr/api/app/{app_id}/community/v1`; its
+      tokens, members and everything else never reach another tenant
+      (404 there). Every community table keeps `tenant_id`.
+    - **Polling.** The website polls `GET /messages/unread` and an open
+      conversation's messages with `after` (every 15 s); the app polls the
+      same and also gets push (`PUT /me/push-tokens`).
+    - **Still no payments in the app.** Academy courses say only `open` or
+      `locked`: the website sells them on its own pages (Yallapp's Stripe
+      checkout), never through this API. Pros' rates and jobs' budgets are
+      text; no money moves on the platform. Events are free.
   contact:
     name: Yallapp
     email: info@yallapp.com.tr
 servers:
   - url: https://community.yallapp.com.tr/api/community/v1
   - url: https://yallapp.com.tr/api/community/v1
+  - url: https://yallapp.com.tr/api/app/{app_id}/community/v1
+    description: A client app's own community (phase 5); the tenant is the app.
+    variables:
+      app_id: { default: "00000000-0000-0000-0000-000000000000", description: "The client app's id." }
 security:
   - bearerAuth: []
 tags:
@@ -81,6 +106,28 @@ tags:
     description: (Area C) The notifications list and the email choices. Push is phase 2.
   - name: Admin
     description: "(Area C) Admins only (`Member.role` admin): badges, verification requests, the audit log, settings, moderation, reports."
+  - name: Messages
+    description: "(Area A, 232.4) One-to-one and small group chats (up to 10 people): text, photos, replies, read state. Blocks are respected."
+  - name: Groups
+    description: "(Area A, 232.5) Public or private groups with an owner and moderators; their posts and questions."
+  - name: Pros
+    description: "(Area A, 234.1) Pro profiles, hire requests (a message thread), and reviews once done. No money moves on the platform."
+  - name: Jobs
+    description: "(Area A, 234.2) Job posts, applications and applicants."
+  - name: Posts
+    description: "(Area B, 232.1) The home feed, posts with photos or a video, likes, comments and replies, saves."
+  - name: Stories
+    description: "(Area B, 232.2) Photo or short video stories for 24 hours."
+  - name: Showcase
+    description: "(Area B, 232.3) Apps members built, \"Made with Yallapp\" verified from the linked account."
+  - name: Academy
+    description: "(Area B, 233.1) Courses, lessons, quizzes, progress and certificates. Nothing is sold through the API."
+  - name: Points
+    description: "(Area C, 233.2) Points, levels and the leaderboard."
+  - name: Challenges
+    description: "(Area C, 233.3) Challenges, entries and votes."
+  - name: Events
+    description: "(Area C, 234.3, 234.4) Events and live sessions (an embed; no streaming of our own), RSVP, reminders, calendar files."
 
 paths:
   # ------------------------------------------------------------ Area A: Auth
@@ -1420,6 +1467,1040 @@ paths:
         "200": { description: Closed., content: { application/json: { schema: { $ref: "#/components/schemas/Report" } } } }
         "403": { $ref: "#/components/responses/Forbidden" }
 
+  # ================================================================ Phases 2–5 (ROADMAP 232–235)
+  # Every path below also answers under a client app's own community:
+  # https://yallapp.com.tr/api/app/{app_id}/community/v1/… (the tenant key, see info).
+  # `x-building: true`: in the contract, not served yet. Each area drops it
+  # as it builds the operation; none is left when phases 2–5 ship.
+
+  # ------------------------------------------------------------ Area A: Messages (232.4)
+  /messages/conversations:
+    get:
+      x-building: true
+      tags: [Messages]
+      summary: The member's conversations, latest message first
+      description: Polled by the website (every 15 s while open) and the app (with push). Blocked members' one-to-one conversations are left out.
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/ConversationPage" } } } }
+    post:
+      x-building: true
+      tags: [Messages]
+      summary: Start a conversation
+      description: |
+        One other member: their one-to-one conversation (the existing one when
+        there is one, 200; a new one, 201). Two to 9 others: a new small group
+        chat (up to 10 people with the creator), with an optional title. Never
+        with a member either side blocked (400 `not_allowed`). A member who
+        isn't followed back may still be written to; limits: 20 new
+        conversations a day.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [member_ids]
+              properties:
+                member_ids: { type: array, minItems: 1, maxItems: 9, items: { type: string } }
+                title: { type: string, maxLength: 80 }
+                body: { type: string, maxLength: 4000, description: "A first message, sent at once." }
+      responses:
+        "200": { description: The existing one-to-one conversation., content: { application/json: { schema: { $ref: "#/components/schemas/Conversation" } } } }
+        "201": { description: A new conversation., content: { application/json: { schema: { $ref: "#/components/schemas/Conversation" } } } }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /messages/unread:
+    get:
+      x-building: true
+      tags: [Messages]
+      summary: How many conversations have unread messages (the inbox badge; cheap to poll)
+      responses:
+        "200": { description: The count., content: { application/json: { schema: { type: object, required: [conversations], properties: { conversations: { type: integer } } } } } }
+  /messages/conversations/{conversation_id}:
+    parameters: [{ $ref: "#/components/parameters/ConversationId" }]
+    get:
+      x-building: true
+      tags: [Messages]
+      summary: One conversation (its people and read state)
+      responses:
+        "200": { description: The conversation., content: { application/json: { schema: { $ref: "#/components/schemas/Conversation" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      x-building: true
+      tags: [Messages]
+      summary: Rename a group chat (any of its members)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { title: { type: string, maxLength: 80 }, muted: { type: boolean, description: "For oneself only: no push for it." } } } } } }
+      responses:
+        "200": { description: The conversation., content: { application/json: { schema: { $ref: "#/components/schemas/Conversation" } } } }
+  /messages/conversations/{conversation_id}/members:
+    parameters: [{ $ref: "#/components/parameters/ConversationId" }]
+    post:
+      x-building: true
+      tags: [Messages]
+      summary: Add people to a group chat (up to 10 in all)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [member_ids], properties: { member_ids: { type: array, minItems: 1, maxItems: 9, items: { type: string } } } } } } }
+      responses:
+        "200": { description: The conversation., content: { application/json: { schema: { $ref: "#/components/schemas/Conversation" } } } }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+  /messages/conversations/{conversation_id}/members/me:
+    parameters: [{ $ref: "#/components/parameters/ConversationId" }]
+    delete:
+      x-building: true
+      tags: [Messages]
+      summary: Leave a group chat, or hide a one-to-one conversation until its next message
+      responses:
+        "204": { description: Left. }
+  /messages/conversations/{conversation_id}/messages:
+    parameters: [{ $ref: "#/components/parameters/ConversationId" }]
+    get:
+      x-building: true
+      tags: [Messages]
+      summary: Messages, newest first; with `after`, only those newer than it (polling)
+      parameters:
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/Limit" }
+        - { name: after, in: query, description: "A message id: only messages after it, oldest first.", schema: { type: string } }
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/MessagePage" } } } }
+    post:
+      x-building: true
+      tags: [Messages]
+      summary: Send a message (text, up to 4 photos, a reply to one message)
+      description: JSON for text only; multipart (`body`, `reply_to_id`, `photos` up to 4, JPEG/PNG/WebP, 5 MB each) with photos. Refused (400 `not_allowed`) when the other member of a one-to-one conversation blocked or was blocked. 60 messages a minute.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [body], properties: { body: { type: string, minLength: 1, maxLength: 4000 }, reply_to_id: { type: [string, "null"] } } }
+          multipart/form-data:
+            schema: { type: object, properties: { body: { type: string, maxLength: 4000 }, reply_to_id: { type: string }, photos: { type: array, maxItems: 4, items: { type: string, format: binary } } } }
+      responses:
+        "201": { description: Sent., content: { application/json: { schema: { $ref: "#/components/schemas/Message" } } } }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /messages/conversations/{conversation_id}/messages/{message_id}:
+    parameters: [{ $ref: "#/components/parameters/ConversationId" }, { name: message_id, in: path, required: true, schema: { type: string } }]
+    delete:
+      x-building: true
+      tags: [Messages]
+      summary: Delete one's own message (shows as deleted for everyone)
+      responses:
+        "204": { description: Deleted. }
+  /messages/conversations/{conversation_id}/read:
+    parameters: [{ $ref: "#/components/parameters/ConversationId" }]
+    post:
+      x-building: true
+      tags: [Messages]
+      summary: Mark read up to a message (the newest when none is given)
+      requestBody: { content: { application/json: { schema: { type: object, properties: { message_id: { type: string } } } } } }
+      responses:
+        "204": { description: Read. }
+  /messages/conversations/{conversation_id}/report:
+    parameters: [{ $ref: "#/components/parameters/ConversationId" }]
+    post:
+      x-building: true
+      tags: [Messages]
+      summary: Report a conversation to the moderators (they see its last 50 messages)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [reason], properties: { reason: { $ref: "#/components/schemas/ReportReason" }, note: { type: string, maxLength: 500 } } } } } }
+      responses:
+        "201": { description: Reported. }
+        "409": { description: "`already_reported`." }
+
+  # ------------------------------------------------------------ Area A: Groups (232.5)
+  /groups:
+    get:
+      x-building: true
+      tags: [Groups]
+      summary: Groups, most active first; `mine` for the member's own ("My groups" in the side menu)
+      security: [{ bearerAuth: [] }, {}]
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: mine, in: query, schema: { type: boolean } }
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/Limit" }
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/GroupPage" } } } }
+    post:
+      x-building: true
+      tags: [Groups]
+      summary: Create a group
+      description: Who may follows the admin setting `groups_create_policy` (everyone, badge holders, or chosen members; 403 `not_allowed` otherwise). The creator is its owner. A new member's group waits for review like their first posts.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GroupInput" }
+      responses:
+        "201": { description: Created., content: { application/json: { schema: { $ref: "#/components/schemas/Group" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /groups/{group}:
+    parameters: [{ $ref: "#/components/parameters/Group" }]
+    get:
+      x-building: true
+      tags: [Groups]
+      summary: A group's page (a private group shows its name, description and counts to everyone; its posts to members)
+      security: [{ bearerAuth: [] }, {}]
+      responses:
+        "200": { description: The group., content: { application/json: { schema: { $ref: "#/components/schemas/Group" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      x-building: true
+      tags: [Groups]
+      summary: Change a group (its owner or moderators)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/GroupInput" } } } }
+      responses:
+        "200": { description: The group., content: { application/json: { schema: { $ref: "#/components/schemas/Group" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    delete:
+      x-building: true
+      tags: [Groups]
+      summary: Delete a group (its owner, or a community admin)
+      responses:
+        "204": { description: Deleted. }
+  /groups/{group}/cover:
+    parameters: [{ $ref: "#/components/parameters/Group" }]
+    put:
+      x-building: true
+      tags: [Groups]
+      summary: The group's cover picture (owner or moderators; JPEG/PNG/WebP, 5 MB)
+      requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, required: [file], properties: { file: { type: string, format: binary } } } } } }
+      responses:
+        "200": { description: The group., content: { application/json: { schema: { $ref: "#/components/schemas/Group" } } } }
+    delete:
+      x-building: true
+      tags: [Groups]
+      summary: Remove the cover picture
+      responses:
+        "200": { description: The group., content: { application/json: { schema: { $ref: "#/components/schemas/Group" } } } }
+  /groups/{group}/membership:
+    parameters: [{ $ref: "#/components/parameters/Group" }]
+    put:
+      x-building: true
+      tags: [Groups]
+      summary: Join (a public group at once; a private one asks, and its moderators accept)
+      responses:
+        "200": { description: The member's standing now., content: { application/json: { schema: { $ref: "#/components/schemas/GroupStanding" } } } }
+    delete:
+      x-building: true
+      tags: [Groups]
+      summary: Leave, or take back a request to join (an owner hands the group over first)
+      responses:
+        "200": { description: The member's standing now., content: { application/json: { schema: { $ref: "#/components/schemas/GroupStanding" } } } }
+        "400": { description: "`owner_must_transfer`." }
+  /groups/{group}/members:
+    parameters: [{ $ref: "#/components/parameters/Group" }]
+    get:
+      x-building: true
+      tags: [Groups]
+      summary: The group's members, owner and moderators first (a private group's, to its members only)
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ name: role, in: query, schema: { $ref: "#/components/schemas/GroupRole" } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/GroupMemberPage" } } } }
+  /groups/{group}/members/{member}:
+    parameters: [{ $ref: "#/components/parameters/Group" }, { $ref: "#/components/parameters/Member" }]
+    patch:
+      x-building: true
+      tags: [Groups]
+      summary: Make a member a moderator or a member again, or hand the group over (`owner`; by its owner)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [role], properties: { role: { $ref: "#/components/schemas/GroupRole" } } } } } }
+      responses:
+        "200": { description: The member in the group., content: { application/json: { schema: { $ref: "#/components/schemas/GroupMember" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    delete:
+      x-building: true
+      tags: [Groups]
+      summary: Remove a member (owner or moderators; never the owner)
+      responses:
+        "204": { description: Removed. }
+  /groups/{group}/requests:
+    parameters: [{ $ref: "#/components/parameters/Group" }]
+    get:
+      x-building: true
+      tags: [Groups]
+      summary: Requests to join a private group, oldest first (owner or moderators)
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/GroupMemberPage" } } } }
+  /groups/{group}/requests/{member}/accept:
+    parameters: [{ $ref: "#/components/parameters/Group" }, { $ref: "#/components/parameters/Member" }]
+    post:
+      x-building: true
+      tags: [Groups]
+      summary: Accept a request to join
+      responses:
+        "200": { description: The member in the group., content: { application/json: { schema: { $ref: "#/components/schemas/GroupMember" } } } }
+  /groups/{group}/requests/{member}/decline:
+    parameters: [{ $ref: "#/components/parameters/Group" }, { $ref: "#/components/parameters/Member" }]
+    post:
+      x-building: true
+      tags: [Groups]
+      summary: Decline a request to join
+      responses:
+        "204": { description: Declined. }
+  /groups/{group}/feed:
+    parameters: [{ $ref: "#/components/parameters/Group" }]
+    get:
+      x-building: true
+      tags: [Groups]
+      summary: The group's posts and questions, newest first (area B's feed items with `group_id`)
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/FeedPage" } } } }
+        "403": { description: "`group_private`: join to read." }
+
+  # ------------------------------------------------------------ Area A: Pros (234.1)
+  /pros:
+    get:
+      x-building: true
+      tags: [Pros]
+      summary: Pro profiles, best rated first
+      security: [{ bearerAuth: [] }, {}]
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: skill, in: query, schema: { type: string } }
+        - { name: available, in: query, schema: { type: boolean } }
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/Limit" }
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/ProPage" } } } }
+  /pros/{member}:
+    parameters: [{ $ref: "#/components/parameters/Member" }]
+    get:
+      x-building: true
+      tags: [Pros]
+      summary: A member's pro profile
+      security: [{ bearerAuth: [] }, {}]
+      responses:
+        "200": { description: The profile., content: { application/json: { schema: { $ref: "#/components/schemas/ProProfile" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /pros/{member}/reviews:
+    parameters: [{ $ref: "#/components/parameters/Member" }]
+    get:
+      x-building: true
+      tags: [Pros]
+      summary: Reviews from finished hire requests, newest first
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/ProReviewPage" } } } }
+  /pros/{member}/hire:
+    parameters: [{ $ref: "#/components/parameters/Member" }]
+    post:
+      x-building: true
+      tags: [Pros]
+      summary: Send a hire request; it opens a message thread with the pro
+      description: No money moves on the platform; rates are text the pro writes. 10 requests a day.
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [message], properties: { message: { type: string, minLength: 10, maxLength: 4000 }, service: { type: string, maxLength: 120 } } } } } }
+      responses:
+        "201": { description: Sent., content: { application/json: { schema: { $ref: "#/components/schemas/HireRequest" } } } }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+  /pros/requests:
+    get:
+      x-building: true
+      tags: [Pros]
+      summary: The member's hire requests, as the client (`sent`) or as the pro (`received`)
+      parameters: [{ name: box, in: query, schema: { type: string, enum: [sent, received], default: received } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/HireRequestPage" } } } }
+  /pros/requests/{request_id}:
+    parameters: [{ $ref: "#/components/parameters/RequestId" }]
+    patch:
+      x-building: true
+      tags: [Pros]
+      summary: "Move a request on: the pro accepts or declines; either marks it done; the client cancels"
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [accepted, declined, done, cancelled] } } } } } }
+      responses:
+        "200": { description: The request., content: { application/json: { schema: { $ref: "#/components/schemas/HireRequest" } } } }
+        "400": { description: "`not_allowed` (a step that isn't theirs or not from this status)." }
+  /pros/requests/{request_id}/review:
+    parameters: [{ $ref: "#/components/parameters/RequestId" }]
+    put:
+      x-building: true
+      tags: [Pros]
+      summary: The client reviews the pro once the request is done (once; changeable)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [rating], properties: { rating: { type: integer, minimum: 1, maximum: 5 }, text: { type: string, maxLength: 2000 } } } } } }
+      responses:
+        "200": { description: The review., content: { application/json: { schema: { $ref: "#/components/schemas/ProReview" } } } }
+  /me/pro:
+    get:
+      x-building: true
+      tags: [Pros]
+      summary: The member's own pro profile (404 when they have none)
+      responses:
+        "200": { description: The profile., content: { application/json: { schema: { $ref: "#/components/schemas/ProProfile" } } } }
+    put:
+      x-building: true
+      tags: [Pros]
+      summary: Open or change one's pro profile
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ProInput" } } } }
+      responses:
+        "200": { description: The profile., content: { application/json: { schema: { $ref: "#/components/schemas/ProProfile" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+    delete:
+      x-building: true
+      tags: [Pros]
+      summary: Close one's pro profile (reviews are kept for when it opens again)
+      responses:
+        "204": { description: Closed. }
+
+  # ------------------------------------------------------------ Area A: Jobs (234.2)
+  /jobs:
+    get:
+      x-building: true
+      tags: [Jobs]
+      summary: Open jobs, newest first
+      security: [{ bearerAuth: [] }, {}]
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: type, in: query, schema: { $ref: "#/components/schemas/JobType" } }
+        - { name: remote, in: query, schema: { type: boolean } }
+        - { name: skill, in: query, schema: { type: string } }
+        - { name: mine, in: query, description: "The member's own postings, any status.", schema: { type: boolean } }
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/Limit" }
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/JobPage" } } } }
+    post:
+      x-building: true
+      tags: [Jobs]
+      summary: Post a job (a new member's first ones, and any the spam filter holds, wait for review)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/JobInput" } } } }
+      responses:
+        "201": { description: Posted., content: { application/json: { schema: { $ref: "#/components/schemas/Job" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /jobs/{job_id}:
+    parameters: [{ $ref: "#/components/parameters/JobId" }]
+    get:
+      x-building: true
+      tags: [Jobs]
+      summary: A job
+      security: [{ bearerAuth: [] }, {}]
+      responses:
+        "200": { description: The job., content: { application/json: { schema: { $ref: "#/components/schemas/Job" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      x-building: true
+      tags: [Jobs]
+      summary: "Change or close one's job (`status`: open or closed)"
+      requestBody: { required: true, content: { application/json: { schema: { allOf: [{ $ref: "#/components/schemas/JobInput" }, { type: object, properties: { status: { type: string, enum: [open, closed] } } }] } } } }
+      responses:
+        "200": { description: The job., content: { application/json: { schema: { $ref: "#/components/schemas/Job" } } } }
+    delete:
+      x-building: true
+      tags: [Jobs]
+      summary: Delete one's job (its poster, or a moderator)
+      responses:
+        "204": { description: Deleted. }
+  /jobs/{job_id}/applications:
+    parameters: [{ $ref: "#/components/parameters/JobId" }]
+    get:
+      x-building: true
+      tags: [Jobs]
+      summary: The applicants (the job's poster only), newest first
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/JobApplicationPage" } } } }
+    post:
+      x-building: true
+      tags: [Jobs]
+      summary: Apply (once per job; never to one's own)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [message], properties: { message: { type: string, minLength: 10, maxLength: 4000 }, links: { type: array, maxItems: 5, items: { type: string, format: uri } } } } } } }
+      responses:
+        "201": { description: Applied., content: { application/json: { schema: { $ref: "#/components/schemas/JobApplication" } } } }
+        "409": { description: "`already_applied`." }
+  /jobs/{job_id}/applications/{application_id}:
+    parameters: [{ $ref: "#/components/parameters/JobId" }, { name: application_id, in: path, required: true, schema: { type: string } }]
+    patch:
+      x-building: true
+      tags: [Jobs]
+      summary: The poster shortlists or declines an applicant; the applicant withdraws
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [shortlisted, declined, withdrawn] } } } } } }
+      responses:
+        "200": { description: The application., content: { application/json: { schema: { $ref: "#/components/schemas/JobApplication" } } } }
+  /me/job-applications:
+    get:
+      x-building: true
+      tags: [Jobs]
+      summary: The member's own applications, newest first
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/JobApplicationPage" } } } }
+
+  # ------------------------------------------------------------ Area B: Feed, posts, stories (232.1, 232.2)
+  /feed:
+    get:
+      x-building: true
+      tags: [Posts]
+      summary: The home feed, posts and questions mixed
+      security: [{ bearerAuth: [] }, {}]
+      parameters:
+        - { name: tab, in: query, schema: { type: string, enum: [for_you, latest, following], default: for_you } }
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/Limit" }
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/FeedPage" } } } }
+  /posts:
+    post:
+      x-building: true
+      tags: [Posts]
+      summary: Write a post (text, up to 10 photos or one video; in a group with `group_id`)
+      description: Multipart. Photos JPEG/PNG/WebP 5 MB each; a video MP4 or MOV up to 5 MB with its `poster` frame. A link in the text gets a preview. Moderation and the spam filter as for questions.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                body: { type: string, maxLength: 10000 }
+                group_id: { type: string }
+                photos: { type: array, maxItems: 10, items: { type: string, format: binary } }
+                video: { type: string, format: binary }
+                poster: { type: string, format: binary }
+      responses:
+        "201": { description: Posted (or held for review)., content: { application/json: { schema: { $ref: "#/components/schemas/Post" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /posts/link-preview:
+    post:
+      x-building: true
+      tags: [Posts]
+      summary: A link's preview before posting
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [url], properties: { url: { type: string, format: uri } } } } } }
+      responses:
+        "200": { description: The preview., content: { application/json: { schema: { $ref: "#/components/schemas/LinkPreview" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /posts/{post_id}:
+    parameters: [{ $ref: "#/components/parameters/PostId" }]
+    get:
+      x-building: true
+      tags: [Posts]
+      summary: A post
+      security: [{ bearerAuth: [] }, {}]
+      responses:
+        "200": { description: The post., content: { application/json: { schema: { $ref: "#/components/schemas/Post" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      x-building: true
+      tags: [Posts]
+      summary: Change one's post's text
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [body], properties: { body: { type: string, maxLength: 10000 } } } } } }
+      responses:
+        "200": { description: The post., content: { application/json: { schema: { $ref: "#/components/schemas/Post" } } } }
+    delete:
+      x-building: true
+      tags: [Posts]
+      summary: Delete one's post (or a moderator, or the group's moderators)
+      responses:
+        "204": { description: Deleted. }
+  /posts/{post_id}/like:
+    parameters: [{ $ref: "#/components/parameters/PostId" }]
+    put: { x-building: true, tags: [Posts], summary: Like, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    delete: { x-building: true, tags: [Posts], summary: Take the like back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+  /posts/{post_id}/save:
+    parameters: [{ $ref: "#/components/parameters/PostId" }]
+    put: { x-building: true, tags: [Posts], summary: Save for later, responses: { "204": { description: Saved. } } }
+    delete: { x-building: true, tags: [Posts], summary: Unsave, responses: { "204": { description: Unsaved. } } }
+  /posts/{post_id}/comments:
+    parameters: [{ $ref: "#/components/parameters/PostId" }]
+    get:
+      x-building: true
+      tags: [Posts]
+      summary: Comments, oldest first, each with its replies
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/CommentPage" } } } }
+    post:
+      x-building: true
+      tags: [Posts]
+      summary: Comment, or reply to a comment (`parent_id`; one level)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CommentInput" } } } }
+      responses:
+        "201": { description: Commented., content: { application/json: { schema: { $ref: "#/components/schemas/Comment" } } } }
+  /comments/{comment_id}:
+    parameters: [{ $ref: "#/components/parameters/CommentId" }]
+    delete:
+      x-building: true
+      tags: [Posts]
+      summary: Delete one's comment (on a post, a showcase item or a live event)
+      responses:
+        "204": { description: Deleted. }
+  /comments/{comment_id}/like:
+    parameters: [{ $ref: "#/components/parameters/CommentId" }]
+    put: { x-building: true, tags: [Posts], summary: Like a comment, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    delete: { x-building: true, tags: [Posts], summary: Take the like back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+  /me/saved:
+    get:
+      x-building: true
+      tags: [Posts]
+      summary: Saved posts, newest saved first
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/FeedPage" } } } }
+  /members/{member}/posts:
+    parameters: [{ $ref: "#/components/parameters/Member" }]
+    get:
+      x-building: true
+      tags: [Posts]
+      summary: A member's posts, newest first
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/FeedPage" } } } }
+  /stories:
+    get:
+      x-building: true
+      tags: [Stories]
+      summary: "The ring row on home: members the viewer follows (and themself) with stories from the last 24 hours, unseen first"
+      responses:
+        "200": { description: The rings., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/StoryRing" } } } } } } }
+    post:
+      x-building: true
+      tags: [Stories]
+      summary: Add a story (one photo, or a video up to 30 s and 5 MB with its poster); it lasts 24 hours
+      requestBody: { required: true, content: { multipart/form-data: { schema: { type: object, properties: { photo: { type: string, format: binary }, video: { type: string, format: binary }, poster: { type: string, format: binary } } } } } }
+      responses:
+        "201": { description: Added., content: { application/json: { schema: { $ref: "#/components/schemas/Story" } } } }
+  /stories/{story_id}:
+    parameters: [{ $ref: "#/components/parameters/StoryId" }]
+    delete:
+      x-building: true
+      tags: [Stories]
+      summary: Delete one's story
+      responses:
+        "204": { description: Deleted. }
+  /stories/{story_id}/view:
+    parameters: [{ $ref: "#/components/parameters/StoryId" }]
+    post:
+      x-building: true
+      tags: [Stories]
+      summary: Seen (once per viewer)
+      responses:
+        "204": { description: Seen. }
+  /stories/{story_id}/viewers:
+    parameters: [{ $ref: "#/components/parameters/StoryId" }]
+    get:
+      x-building: true
+      tags: [Stories]
+      summary: Who saw it (its author only)
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { $ref: "#/components/responses/MemberPage" }
+
+  # ------------------------------------------------------------ Area B: Showcase (232.3)
+  /showcase:
+    get:
+      x-building: true
+      tags: [Showcase]
+      summary: The gallery
+      security: [{ bearerAuth: [] }, {}]
+      parameters:
+        - { name: type, in: query, description: "An app type (store, academy, …).", schema: { type: string } }
+        - { name: sort, in: query, schema: { type: string, enum: [newest, most_liked], default: newest } }
+        - { name: member, in: query, schema: { type: string } }
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/Limit" }
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/ShowcasePage" } } } }
+    post:
+      x-building: true
+      tags: [Showcase]
+      summary: Show an app one built
+      description: Multipart, up to 8 pictures (5 MB each). With `yallapp_app_id` naming an app of the member's linked Yallapp account, it shows "Made with Yallapp" verified.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string, maxLength: 120 }
+                description: { type: string, maxLength: 4000 }
+                app_type: { type: string }
+                app_store_url: { type: string, format: uri }
+                play_store_url: { type: string, format: uri }
+                website_url: { type: string, format: uri }
+                yallapp_app_id: { type: string }
+                pictures: { type: array, maxItems: 8, items: { type: string, format: binary } }
+      responses:
+        "201": { description: Shown (or held for review)., content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseItem" } } } }
+  /showcase/{item_id}:
+    parameters: [{ $ref: "#/components/parameters/ItemId" }]
+    get:
+      x-building: true
+      tags: [Showcase]
+      summary: A showcase item
+      security: [{ bearerAuth: [] }, {}]
+      responses:
+        "200": { description: The item., content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseItem" } } } }
+    patch:
+      x-building: true
+      tags: [Showcase]
+      summary: Change one's item (text and links; pictures by posting again)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { title: { type: string }, description: { type: string }, app_type: { type: string }, app_store_url: { type: [string, "null"] }, play_store_url: { type: [string, "null"] }, website_url: { type: [string, "null"] } } } } } }
+      responses:
+        "200": { description: The item., content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseItem" } } } }
+    delete:
+      x-building: true
+      tags: [Showcase]
+      summary: Delete one's item
+      responses:
+        "204": { description: Deleted. }
+  /showcase/{item_id}/like:
+    parameters: [{ $ref: "#/components/parameters/ItemId" }]
+    put: { x-building: true, tags: [Showcase], summary: Like, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    delete: { x-building: true, tags: [Showcase], summary: Take the like back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+  /showcase/{item_id}/comments:
+    parameters: [{ $ref: "#/components/parameters/ItemId" }]
+    get:
+      x-building: true
+      tags: [Showcase]
+      summary: Comments, oldest first
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/CommentPage" } } } }
+    post:
+      x-building: true
+      tags: [Showcase]
+      summary: Comment
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CommentInput" } } } }
+      responses:
+        "201": { description: Commented., content: { application/json: { schema: { $ref: "#/components/schemas/Comment" } } } }
+
+  # ------------------------------------------------------------ Area B: Member tutorials (233.4)
+  /tutorials/mine:
+    get:
+      x-building: true
+      tags: [Tutorials]
+      summary: The member's own tutorials, any status
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page of tutorials (area B's shape)., content: { application/json: { schema: { type: object, required: [items, next_cursor], properties: { items: { type: array, items: { type: object } }, next_cursor: { type: [string, "null"] } } } } } }
+  /tutorials/drafts:
+    post:
+      x-building: true
+      tags: [Tutorials]
+      summary: A member writes a tutorial (article, or a video link); the first ones wait for review; "Official" stays for the Yallapp team
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/TutorialInput" } } } }
+      responses:
+        "201": { description: Written (pending or published)., content: { application/json: { schema: { type: object } } } }
+  /tutorials/drafts/{tutorial_id}:
+    parameters: [{ name: tutorial_id, in: path, required: true, schema: { type: string } }]
+    patch:
+      x-building: true
+      tags: [Tutorials]
+      summary: Change one's tutorial (back to review when it was held)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/TutorialInput" } } } }
+      responses:
+        "200": { description: The tutorial., content: { application/json: { schema: { type: object } } } }
+    delete:
+      x-building: true
+      tags: [Tutorials]
+      summary: Delete one's tutorial
+      responses:
+        "204": { description: Deleted. }
+
+  # ------------------------------------------------------------ Area B: Academy (233.1)
+  /academy/courses:
+    get:
+      x-building: true
+      tags: [Academy]
+      summary: Courses, with whether each is open to the viewer
+      description: |
+        The API never says what a course costs and offers nothing to buy: a
+        course is `open` (free, or the member has it) or `locked`. Courses
+        are sold on the website's own pages only, never through this API.
+        The app shows a lock, and no price, buy button or payment link.
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ name: level, in: query, schema: { type: string, enum: [beginner, intermediate, advanced] } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/CoursePage" } } } }
+  /academy/courses/{course}:
+    parameters: [{ $ref: "#/components/parameters/Course" }]
+    get:
+      x-building: true
+      tags: [Academy]
+      summary: A course and its lessons (a locked course's lessons have titles only)
+      security: [{ bearerAuth: [] }, {}]
+      responses:
+        "200": { description: The course., content: { application/json: { schema: { $ref: "#/components/schemas/Course" } } } }
+  /academy/courses/{course}/lessons/{lesson_id}:
+    parameters: [{ $ref: "#/components/parameters/Course" }, { name: lesson_id, in: path, required: true, schema: { type: string } }]
+    get:
+      x-building: true
+      tags: [Academy]
+      summary: A lesson (its video or article); 403 `course_locked` when the course isn't open to them
+      responses:
+        "200": { description: The lesson., content: { application/json: { schema: { $ref: "#/components/schemas/Lesson" } } } }
+        "403": { description: "`course_locked`." }
+  /academy/courses/{course}/lessons/{lesson_id}/complete:
+    parameters: [{ $ref: "#/components/parameters/Course" }, { name: lesson_id, in: path, required: true, schema: { type: string } }]
+    post:
+      x-building: true
+      tags: [Academy]
+      summary: Mark a lesson done
+      responses:
+        "200": { description: The progress., content: { application/json: { schema: { $ref: "#/components/schemas/CourseProgress" } } } }
+  /academy/courses/{course}/quizzes/{quiz_id}/attempts:
+    parameters: [{ $ref: "#/components/parameters/Course" }, { name: quiz_id, in: path, required: true, schema: { type: string } }]
+    post:
+      x-building: true
+      tags: [Academy]
+      summary: Answer a quiz; passing every quiz and lesson earns the certificate
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [answers], properties: { answers: { type: object, additionalProperties: { type: array, items: { type: string } }, description: "Question id → the chosen option ids." } } } } } }
+      responses:
+        "200": { description: The result., content: { application/json: { schema: { $ref: "#/components/schemas/QuizResult" } } } }
+  /academy/mine:
+    get:
+      x-building: true
+      tags: [Academy]
+      summary: The member's open courses and their progress (bought ones are open on every device on sign-in)
+      responses:
+        "200": { description: The courses., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/CourseSummary" } } } } } } }
+  /academy/certificates:
+    get:
+      x-building: true
+      tags: [Academy]
+      summary: The member's certificates
+      responses:
+        "200": { description: The certificates., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/Certificate" } } } } } } }
+  /academy/certificates/{code}:
+    parameters: [{ name: code, in: path, required: true, schema: { type: string } }]
+    get:
+      x-building: true
+      tags: [Academy]
+      summary: Check a certificate (public; its PDF is `pdf_url`)
+      security: []
+      responses:
+        "200": { description: The certificate., content: { application/json: { schema: { $ref: "#/components/schemas/Certificate" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ------------------------------------------------------------ Area C: Push, points, leaderboard (232.6, 233.2)
+  /me/push-tokens:
+    put:
+      x-building: true
+      tags: [Notifications]
+      summary: The device's Firebase Cloud Messaging token (the app sends it after sign-in and when it changes)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [token, platform], properties: { token: { type: string, maxLength: 4096 }, platform: { type: string, enum: [ios, android] } } } } } }
+      responses:
+        "204": { description: Kept for this session's device. }
+    delete:
+      x-building: true
+      tags: [Notifications]
+      summary: Forget this device's token (signing out does too)
+      responses:
+        "204": { description: Forgotten. }
+  /me/points:
+    get:
+      x-building: true
+      tags: [Points]
+      summary: The member's points, level and history, newest first
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: The points., content: { application/json: { schema: { $ref: "#/components/schemas/PointsHistory" } } } }
+  /leaderboard:
+    get:
+      x-building: true
+      tags: [Points]
+      summary: The leaderboard, this week's (Monday 00:00 UTC on) or all-time
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ name: period, in: query, schema: { type: string, enum: [week, all], default: week } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/LeaderboardPage" } } } }
+  /admin/points:
+    get:
+      x-building: true
+      tags: [Admin]
+      summary: The points for each action, their daily caps, and the levels
+      responses:
+        "200": { description: The table., content: { application/json: { schema: { $ref: "#/components/schemas/PointsRules" } } } }
+    put:
+      x-building: true
+      tags: [Admin]
+      summary: Change the points table (admins; audit-logged)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/PointsRules" } } } }
+      responses:
+        "200": { description: The table., content: { application/json: { schema: { $ref: "#/components/schemas/PointsRules" } } } }
+
+  # ------------------------------------------------------------ Area C: Challenges (233.3)
+  /challenges:
+    get:
+      x-building: true
+      tags: [Challenges]
+      summary: Challenges (the running one first; the home card reads `status=open&limit=1`)
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ name: status, in: query, schema: { type: string, enum: [upcoming, open, voting, closed] } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/ChallengePage" } } } }
+  /challenges/{challenge_id}:
+    parameters: [{ $ref: "#/components/parameters/ChallengeId" }]
+    get:
+      x-building: true
+      tags: [Challenges]
+      summary: A challenge, its rules and winners
+      security: [{ bearerAuth: [] }, {}]
+      responses:
+        "200": { description: The challenge., content: { application/json: { schema: { $ref: "#/components/schemas/Challenge" } } } }
+  /challenges/{challenge_id}/entries:
+    parameters: [{ $ref: "#/components/parameters/ChallengeId" }]
+    get:
+      x-building: true
+      tags: [Challenges]
+      summary: The entries, most voted first while voting
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/ChallengeEntryPage" } } } }
+    post:
+      x-building: true
+      tags: [Challenges]
+      summary: Enter, with a showcase item or a link (once, while open)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { showcase_id: { type: string }, url: { type: string, format: uri }, note: { type: string, maxLength: 1000 } } } } } }
+      responses:
+        "201": { description: Entered., content: { application/json: { schema: { $ref: "#/components/schemas/ChallengeEntry" } } } }
+  /challenges/{challenge_id}/entries/{entry_id}/vote:
+    parameters: [{ $ref: "#/components/parameters/ChallengeId" }, { name: entry_id, in: path, required: true, schema: { type: string } }]
+    put: { x-building: true, tags: [Challenges], summary: Vote for an entry (not one's own; while voting), responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    delete: { x-building: true, tags: [Challenges], summary: Take the vote back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+  /admin/challenges:
+    post:
+      x-building: true
+      tags: [Admin]
+      summary: Post a challenge
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ChallengeInput" } } } }
+      responses:
+        "201": { description: Posted., content: { application/json: { schema: { $ref: "#/components/schemas/Challenge" } } } }
+  /admin/challenges/{challenge_id}:
+    parameters: [{ $ref: "#/components/parameters/ChallengeId" }]
+    patch:
+      x-building: true
+      tags: [Admin]
+      summary: Change a challenge
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ChallengeInput" } } } }
+      responses:
+        "200": { description: The challenge., content: { application/json: { schema: { $ref: "#/components/schemas/Challenge" } } } }
+    delete:
+      x-building: true
+      tags: [Admin]
+      summary: Delete a challenge
+      responses:
+        "204": { description: Deleted. }
+  /admin/challenges/{challenge_id}/winners:
+    parameters: [{ $ref: "#/components/parameters/ChallengeId" }]
+    put:
+      x-building: true
+      tags: [Admin]
+      summary: Pick the winners; each gets the challenge's badge or points
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [entry_ids], properties: { entry_ids: { type: array, minItems: 1, maxItems: 10, items: { type: string } } } } } } }
+      responses:
+        "200": { description: The challenge., content: { application/json: { schema: { $ref: "#/components/schemas/Challenge" } } } }
+
+  # ------------------------------------------------------------ Area C: Events and live (234.3, 234.4)
+  /events:
+    get:
+      x-building: true
+      tags: [Events]
+      summary: Events, soonest first (`past` for replays)
+      security: [{ bearerAuth: [] }, {}]
+      parameters:
+        - { name: when, in: query, schema: { type: string, enum: [upcoming, past], default: upcoming } }
+        - { name: kind, in: query, schema: { $ref: "#/components/schemas/EventKind" } }
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/Limit" }
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/EventPage" } } } }
+  /events/{event_id}:
+    parameters: [{ $ref: "#/components/parameters/EventId" }]
+    get:
+      x-building: true
+      tags: [Events]
+      summary: An event (times in UTC; clients show them in the viewer's time zone)
+      security: [{ bearerAuth: [] }, {}]
+      responses:
+        "200": { description: The event., content: { application/json: { schema: { $ref: "#/components/schemas/Event" } } } }
+  /events/{event_id}/rsvp:
+    parameters: [{ $ref: "#/components/parameters/EventId" }]
+    put:
+      x-building: true
+      tags: [Events]
+      summary: Going (free; reminders by push and email a day and an hour before)
+      responses:
+        "200": { description: The event., content: { application/json: { schema: { $ref: "#/components/schemas/Event" } } } }
+        "409": { description: "`event_full`." }
+    delete:
+      x-building: true
+      tags: [Events]
+      summary: Not going
+      responses:
+        "200": { description: The event., content: { application/json: { schema: { $ref: "#/components/schemas/Event" } } } }
+  /events/{event_id}/attendees:
+    parameters: [{ $ref: "#/components/parameters/EventId" }]
+    get:
+      x-building: true
+      tags: [Events]
+      summary: Who is going
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { $ref: "#/components/responses/MemberPage" }
+  /events/{event_id}/ics:
+    parameters: [{ $ref: "#/components/parameters/EventId" }]
+    get:
+      x-building: true
+      tags: [Events]
+      summary: Add to calendar (an .ics file)
+      security: []
+      responses:
+        "200": { description: The calendar file., content: { text/calendar: { schema: { type: string } } } }
+  /events/{event_id}/comments:
+    parameters: [{ $ref: "#/components/parameters/EventId" }]
+    get:
+      x-building: true
+      tags: [Events]
+      summary: A live event's comments; with `after`, only newer ones (polling during the live)
+      security: [{ bearerAuth: [] }, {}]
+      parameters: [{ name: after, in: query, schema: { type: string } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/CommentPage" } } } }
+    post:
+      x-building: true
+      tags: [Events]
+      summary: Comment during the live
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CommentInput" } } } }
+      responses:
+        "201": { description: Commented., content: { application/json: { schema: { $ref: "#/components/schemas/Comment" } } } }
+  /admin/events:
+    post:
+      x-building: true
+      tags: [Admin]
+      summary: Create an event or a live session (an embed URL; no streaming of our own)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/EventInput" } } } }
+      responses:
+        "201": { description: Created., content: { application/json: { schema: { $ref: "#/components/schemas/Event" } } } }
+  /admin/events/{event_id}:
+    parameters: [{ $ref: "#/components/parameters/EventId" }]
+    patch:
+      x-building: true
+      tags: [Admin]
+      summary: Change an event (the replay link after a live)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/EventInput" } } } }
+      responses:
+        "200": { description: The event., content: { application/json: { schema: { $ref: "#/components/schemas/Event" } } } }
+    delete:
+      x-building: true
+      tags: [Admin]
+      summary: Cancel an event (those going hear of it)
+      responses:
+        "204": { description: Cancelled. }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1457,6 +2538,58 @@ components:
       name: limit
       in: query
       schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+    ConversationId:
+      name: conversation_id
+      in: path
+      required: true
+      schema: { type: string }
+    Group:
+      name: group
+      in: path
+      required: true
+      description: The group's id, or its slug.
+      schema: { type: string }
+    JobId:
+      name: job_id
+      in: path
+      required: true
+      schema: { type: string }
+    PostId:
+      name: post_id
+      in: path
+      required: true
+      schema: { type: string }
+    CommentId:
+      name: comment_id
+      in: path
+      required: true
+      schema: { type: string }
+    StoryId:
+      name: story_id
+      in: path
+      required: true
+      schema: { type: string }
+    ItemId:
+      name: item_id
+      in: path
+      required: true
+      schema: { type: string }
+    Course:
+      name: course
+      in: path
+      required: true
+      description: The course's id or slug.
+      schema: { type: string }
+    ChallengeId:
+      name: challenge_id
+      in: path
+      required: true
+      schema: { type: string }
+    EventId:
+      name: event_id
+      in: path
+      required: true
+      schema: { type: string }
 
   requestBodies:
     Vote:
@@ -1466,6 +2599,11 @@ components:
           schema: { type: object, required: [value], properties: { value: { type: integer, enum: [1, 0, -1], description: "0 takes the vote back." } } }
 
   responses:
+    Liked:
+      description: The count now and whether the member likes (or voted for) it.
+      content:
+        application/json:
+          schema: { type: object, required: [count, mine], properties: { count: { type: integer }, mine: { type: boolean } } }
     Session:
       description: Signed in.
       content:
@@ -1528,7 +2666,8 @@ components:
       enum: [system, light, dark]
     TargetType:
       type: string
-      enum: [member, question, answer, reply, tutorial, comment]
+      description: "Phase 2–4 adds posts, stories, showcase items, groups, jobs, conversations (reported as a whole) and pro reviews."
+      enum: [member, question, answer, reply, tutorial, comment, post, story, showcase, group, job, conversation, review]
     DeviceInput:
       type: object
       properties:
@@ -1961,3 +3100,582 @@ components:
           description: Which kinds also come by email (the list always has them all).
           additionalProperties: { type: boolean }
           examples: [{ answer: true, answer_accepted: true, friend_request: true, follow: false, badge_granted: true, verification_approved: true, verification_rejected: true, official_answer: true }]
+
+    # ================================================================ Phases 2–5
+    Tenant:
+      type: string
+      description: |
+        Whose community a record belongs to: `yallapp` (Yallapp Community) or
+        a client app's id (its own community, phase 5). Every community table
+        keeps it; nothing is ever read across tenants.
+      examples: [yallapp, 6f0d9a52-3c1e-4d55-9a0a-6b1d2e7c4f10]
+    ReportReason:
+      type: string
+      enum: [spam, harassment, hate, inappropriate, misinformation, impersonation, other]
+
+    # ------------------------------------------------------------ Area A: Messages
+    Conversation:
+      type: object
+      required: [id, kind, title, members, last_message, unread, muted, created_at, updated_at]
+      properties:
+        id: { type: string }
+        kind: { type: string, enum: [direct, group, hire], description: "`hire`: opened by a hire request (its `hire_request_id`)." }
+        title: { type: [string, "null"], description: "A group chat's own title; null: clients show the others' names." }
+        members: { type: array, items: { $ref: "#/components/schemas/MemberSummary" }, description: "Everyone in it, the viewer included." }
+        last_message: { oneOf: [{ $ref: "#/components/schemas/Message" }, { type: "null" }] }
+        unread: { type: integer, description: "Messages after the viewer's read mark (not their own)." }
+        muted: { type: boolean }
+        blocked: { type: boolean, description: "A one-to-one conversation with a member either side blocked: read-only." }
+        hire_request_id: { type: [string, "null"] }
+        read_by: { type: object, additionalProperties: { type: [string, "null"] }, description: "Member id → the last message id they read." }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    ConversationPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Conversation" } }
+        next_cursor: { type: [string, "null"] }
+    Message:
+      type: object
+      required: [id, conversation_id, author, body, photos, reply_to, deleted, created_at]
+      properties:
+        id: { type: string }
+        conversation_id: { type: string }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        body: { type: string, description: "Empty when deleted." }
+        photos: { type: array, items: { type: string, format: uri } }
+        reply_to: { oneOf: [{ type: object, required: [id, author_name, excerpt], properties: { id: { type: string }, author_name: { type: string }, excerpt: { type: string } } }, { type: "null" }] }
+        deleted: { type: boolean }
+        created_at: { type: string, format: date-time }
+    MessagePage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Message" } }
+        next_cursor: { type: [string, "null"] }
+
+    # ------------------------------------------------------------ Area A: Groups
+    GroupRole:
+      type: string
+      enum: [owner, moderator, member]
+    GroupInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 3, maxLength: 80 }
+        description: { type: string, maxLength: 2000 }
+        visibility: { type: string, enum: [public, private], default: public }
+    Group:
+      type: object
+      required: [id, slug, name, description, visibility, cover_url, owner, member_count, post_count, status, standing, created_at]
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        name: { type: string }
+        description: { type: string }
+        visibility: { type: string, enum: [public, private] }
+        cover_url: { type: [string, "null"] }
+        owner: { $ref: "#/components/schemas/MemberSummary" }
+        member_count: { type: integer }
+        post_count: { type: integer }
+        status: { type: string, enum: [active, pending, removed], description: "`pending`: waiting for review (its owner and moderators see it)." }
+        standing: { $ref: "#/components/schemas/GroupStanding" }
+        created_at: { type: string, format: date-time }
+    GroupStanding:
+      type: object
+      required: [role, requested]
+      description: The viewer's place in the group.
+      properties:
+        role: { oneOf: [{ $ref: "#/components/schemas/GroupRole" }, { type: "null" }], description: "null: not a member." }
+        requested: { type: boolean, description: "Asked to join a private group; waiting." }
+    GroupPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Group" } }
+        next_cursor: { type: [string, "null"] }
+    GroupMember:
+      type: object
+      required: [member, role, joined_at]
+      properties:
+        member: { $ref: "#/components/schemas/MemberSummary" }
+        role: { $ref: "#/components/schemas/GroupRole" }
+        joined_at: { type: string, format: date-time, description: "When they joined, or asked to (requests)." }
+    GroupMemberPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/GroupMember" } }
+        next_cursor: { type: [string, "null"] }
+
+    # ------------------------------------------------------------ Area A: Pros
+    ProService:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, maxLength: 120 }
+        description: { type: string, maxLength: 1000 }
+        rate: { type: string, maxLength: 80, description: "Text only (\"from $300\", \"by the hour\"); no money moves on the platform." }
+    ProInput:
+      type: object
+      required: [headline, services, availability]
+      properties:
+        headline: { type: string, minLength: 3, maxLength: 120 }
+        about: { type: string, maxLength: 4000 }
+        services: { type: array, minItems: 1, maxItems: 10, items: { $ref: "#/components/schemas/ProService" } }
+        skills: { type: array, maxItems: 20, items: { type: string, maxLength: 40 } }
+        availability: { type: string, enum: [available, busy, unavailable] }
+        showcase_ids: { type: array, maxItems: 12, items: { type: string }, description: "The member's own showcase items, as the portfolio." }
+    ProProfile:
+      type: object
+      required: [member, headline, about, services, skills, availability, portfolio, rating, review_count, done_count, created_at]
+      properties:
+        member: { $ref: "#/components/schemas/MemberSummary" }
+        headline: { type: string }
+        about: { type: string }
+        services: { type: array, items: { $ref: "#/components/schemas/ProService" } }
+        skills: { type: array, items: { type: string } }
+        availability: { type: string, enum: [available, busy, unavailable] }
+        portfolio: { type: array, items: { $ref: "#/components/schemas/ShowcaseSummary" } }
+        rating: { type: [number, "null"], description: "The average, 1–5; null before a review." }
+        review_count: { type: integer }
+        done_count: { type: integer }
+        created_at: { type: string, format: date-time }
+    ProPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/ProProfile" } }
+        next_cursor: { type: [string, "null"] }
+    HireRequest:
+      type: object
+      required: [id, client, pro, service, message, status, conversation_id, review, created_at, updated_at]
+      properties:
+        id: { type: string }
+        client: { $ref: "#/components/schemas/MemberSummary" }
+        pro: { $ref: "#/components/schemas/MemberSummary" }
+        service: { type: [string, "null"] }
+        message: { type: string }
+        status: { type: string, enum: [pending, accepted, declined, done, cancelled] }
+        conversation_id: { type: string, description: "The message thread it opened (kind `hire`)." }
+        review: { oneOf: [{ $ref: "#/components/schemas/ProReview" }, { type: "null" }] }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    HireRequestPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/HireRequest" } }
+        next_cursor: { type: [string, "null"] }
+    ProReview:
+      type: object
+      required: [id, author, rating, text, created_at]
+      properties:
+        id: { type: string }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        text: { type: string }
+        created_at: { type: string, format: date-time }
+    ProReviewPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/ProReview" } }
+        next_cursor: { type: [string, "null"] }
+
+    # ------------------------------------------------------------ Area A: Jobs
+    JobType:
+      type: string
+      enum: [full_time, part_time, contract, freelance, internship]
+    JobInput:
+      type: object
+      required: [title, description, type]
+      properties:
+        title: { type: string, minLength: 5, maxLength: 120 }
+        description: { type: string, minLength: 20, maxLength: 10000 }
+        type: { $ref: "#/components/schemas/JobType" }
+        remote: { type: boolean, default: true }
+        location: { type: string, maxLength: 120 }
+        skills: { type: array, maxItems: 15, items: { type: string, maxLength: 40 } }
+        budget: { type: string, maxLength: 80, description: "Text only; no money moves on the platform." }
+    Job:
+      type: object
+      required: [id, poster, title, description, type, remote, location, skills, budget, status, application_count, applied, created_at]
+      properties:
+        id: { type: string }
+        poster: { $ref: "#/components/schemas/MemberSummary" }
+        title: { type: string }
+        description: { type: string }
+        type: { $ref: "#/components/schemas/JobType" }
+        remote: { type: boolean }
+        location: { type: string }
+        skills: { type: array, items: { type: string } }
+        budget: { type: string }
+        status: { type: string, enum: [pending, open, closed, removed] }
+        application_count: { type: integer, description: "Shown to the poster; 0 for others." }
+        applied: { type: boolean, description: "The viewer applied." }
+        created_at: { type: string, format: date-time }
+    JobPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Job" } }
+        next_cursor: { type: [string, "null"] }
+    JobApplication:
+      type: object
+      required: [id, job_id, job_title, applicant, message, links, status, created_at]
+      properties:
+        id: { type: string }
+        job_id: { type: string }
+        job_title: { type: string }
+        applicant: { $ref: "#/components/schemas/MemberSummary" }
+        message: { type: string }
+        links: { type: array, items: { type: string, format: uri } }
+        status: { type: string, enum: [sent, shortlisted, declined, withdrawn] }
+        created_at: { type: string, format: date-time }
+    JobApplicationPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/JobApplication" } }
+        next_cursor: { type: [string, "null"] }
+
+    # ------------------------------------------------------------ Area B: Feed, posts, stories, showcase
+    FeedItem:
+      type: object
+      required: [kind, id, created_at]
+      description: One item of a feed; exactly the field named by `kind` is set.
+      properties:
+        kind: { type: string, enum: [post, question, showcase] }
+        id: { type: string }
+        created_at: { type: string, format: date-time }
+        post: { $ref: "#/components/schemas/Post" }
+        question: { type: object, description: "Area B's QuestionSummary." }
+        showcase: { $ref: "#/components/schemas/ShowcaseSummary" }
+    FeedPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/FeedItem" } }
+        next_cursor: { type: [string, "null"] }
+    Media:
+      type: object
+      required: [kind, url]
+      properties:
+        kind: { type: string, enum: [photo, video] }
+        url: { type: string, format: uri }
+        poster_url: { type: [string, "null"], description: "A video's poster frame." }
+        width: { type: [integer, "null"] }
+        height: { type: [integer, "null"] }
+    LinkPreview:
+      type: object
+      required: [url, title]
+      properties:
+        url: { type: string, format: uri }
+        title: { type: string }
+        description: { type: [string, "null"] }
+        image_url: { type: [string, "null"] }
+        site_name: { type: [string, "null"] }
+    Post:
+      type: object
+      required: [id, author, body, media, link_preview, group_id, like_count, comment_count, liked, saved, status, share_url, created_at]
+      properties:
+        id: { type: string }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        body: { type: string }
+        media: { type: array, items: { $ref: "#/components/schemas/Media" } }
+        link_preview: { oneOf: [{ $ref: "#/components/schemas/LinkPreview" }, { type: "null" }] }
+        group_id: { type: [string, "null"] }
+        like_count: { type: integer }
+        comment_count: { type: integer }
+        liked: { type: boolean }
+        saved: { type: boolean }
+        status: { type: string, enum: [published, pending, removed] }
+        share_url: { type: string, format: uri }
+        created_at: { type: string, format: date-time }
+        edited_at: { type: [string, "null"], format: date-time }
+    CommentInput:
+      type: object
+      required: [body]
+      properties:
+        body: { type: string, minLength: 1, maxLength: 4000 }
+        parent_id: { type: [string, "null"], description: "Replying to this comment (one level)." }
+    Comment:
+      type: object
+      required: [id, author, body, parent_id, like_count, liked, replies, status, created_at]
+      properties:
+        id: { type: string }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        body: { type: string }
+        parent_id: { type: [string, "null"] }
+        like_count: { type: integer }
+        liked: { type: boolean }
+        replies: { type: array, items: { $ref: "#/components/schemas/Comment" }, description: "A top-level comment's replies, oldest first (empty for a reply)." }
+        status: { type: string, enum: [published, pending, removed] }
+        created_at: { type: string, format: date-time }
+    CommentPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Comment" } }
+        next_cursor: { type: [string, "null"] }
+    Story:
+      type: object
+      required: [id, author, media, view_count, seen, created_at, expires_at]
+      properties:
+        id: { type: string }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        media: { $ref: "#/components/schemas/Media" }
+        view_count: { type: integer, description: "Shown to its author; 0 for others." }
+        seen: { type: boolean }
+        created_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+    StoryRing:
+      type: object
+      required: [member, stories, all_seen]
+      properties:
+        member: { $ref: "#/components/schemas/MemberSummary" }
+        stories: { type: array, items: { $ref: "#/components/schemas/Story" }, description: "Oldest first." }
+        all_seen: { type: boolean }
+    ShowcaseSummary:
+      type: object
+      required: [id, title, cover_url, author, made_with_yallapp, like_count]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        cover_url: { type: [string, "null"] }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        made_with_yallapp: { type: boolean, description: "Verified: the app belongs to the author's linked Yallapp account." }
+        like_count: { type: integer }
+    ShowcaseItem:
+      type: object
+      required: [id, title, description, app_type, pictures, app_store_url, play_store_url, website_url, author, made_with_yallapp, like_count, comment_count, liked, status, created_at]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        app_type: { type: [string, "null"] }
+        pictures: { type: array, items: { type: string, format: uri } }
+        app_store_url: { type: [string, "null"] }
+        play_store_url: { type: [string, "null"] }
+        website_url: { type: [string, "null"] }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        made_with_yallapp: { type: boolean }
+        like_count: { type: integer }
+        comment_count: { type: integer }
+        liked: { type: boolean }
+        status: { type: string, enum: [published, pending, removed] }
+        created_at: { type: string, format: date-time }
+    ShowcasePage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/ShowcaseSummary" } }
+        next_cursor: { type: [string, "null"] }
+    TutorialInput:
+      type: object
+      required: [title, kind, section]
+      properties:
+        title: { type: string, minLength: 5, maxLength: 160 }
+        kind: { type: string, enum: [article, video] }
+        section: { type: string }
+        body: { type: string, maxLength: 50000, description: "An article's text (Markdown)." }
+        video_url: { type: string, format: uri, description: "A video's link (YouTube or Vimeo)." }
+        tags: { type: array, maxItems: 5, items: { type: string } }
+
+    # ------------------------------------------------------------ Area B: Academy
+    CourseSummary:
+      type: object
+      required: [id, slug, title, summary, cover_url, level, lesson_count, access, progress]
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        title: { type: string }
+        summary: { type: string }
+        cover_url: { type: [string, "null"] }
+        level: { type: string, enum: [beginner, intermediate, advanced] }
+        lesson_count: { type: integer }
+        access: { type: string, enum: [open, locked], description: "`open`: free, or the member has it. Never a price." }
+        progress: { type: [number, "null"], minimum: 0, maximum: 1, description: "Done lessons and passed quizzes; null when not started." }
+    CoursePage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/CourseSummary" } }
+        next_cursor: { type: [string, "null"] }
+    Course:
+      allOf:
+        - { $ref: "#/components/schemas/CourseSummary" }
+        - type: object
+          required: [description, lessons, quizzes]
+          properties:
+            description: { type: string }
+            lessons: { type: array, items: { type: object, required: [id, title, kind, minutes, done], properties: { id: { type: string }, title: { type: string }, kind: { type: string, enum: [video, article] }, minutes: { type: integer }, done: { type: boolean } } } }
+            quizzes: { type: array, items: { type: object, required: [id, title, after_lesson_id, passed], properties: { id: { type: string }, title: { type: string }, after_lesson_id: { type: [string, "null"] }, passed: { type: boolean } } } }
+            certificate: { oneOf: [{ $ref: "#/components/schemas/Certificate" }, { type: "null" }] }
+    Lesson:
+      type: object
+      required: [id, course_id, title, kind, body, video_url, minutes, done]
+      properties:
+        id: { type: string }
+        course_id: { type: string }
+        title: { type: string }
+        kind: { type: string, enum: [video, article] }
+        body: { type: string, description: "An article's text (Markdown); a video's notes." }
+        video_url: { type: [string, "null"] }
+        minutes: { type: integer }
+        done: { type: boolean }
+    CourseProgress:
+      type: object
+      required: [course_id, progress, completed]
+      properties:
+        course_id: { type: string }
+        progress: { type: number }
+        completed: { type: boolean }
+        certificate: { oneOf: [{ $ref: "#/components/schemas/Certificate" }, { type: "null" }] }
+    QuizResult:
+      type: object
+      required: [score, passed, correct]
+      properties:
+        score: { type: number, minimum: 0, maximum: 1 }
+        passed: { type: boolean }
+        correct: { type: object, additionalProperties: { type: boolean }, description: "Question id → answered right." }
+        progress: { $ref: "#/components/schemas/CourseProgress" }
+    Certificate:
+      type: object
+      required: [code, member_name, course_title, issued_at, verify_url, pdf_url]
+      properties:
+        code: { type: string }
+        member_name: { type: string }
+        course_title: { type: string }
+        issued_at: { type: string, format: date-time }
+        verify_url: { type: string, format: uri, description: "The public page that checks it." }
+        pdf_url: { type: string, format: uri }
+
+    # ------------------------------------------------------------ Area C: Points, challenges, events
+    PointsRules:
+      type: object
+      required: [actions, levels]
+      properties:
+        actions:
+          type: array
+          items: { type: object, required: [action, points, daily_cap], properties: { action: { type: string, examples: [question, answer, answer_accepted, post, comment, like_received, showcase, tutorial_published, challenge_entry, challenge_won, event_attended, course_completed] }, points: { type: integer }, daily_cap: { type: [integer, "null"], description: "At most this many points a day from it; null: no cap." } } }
+        levels:
+          type: array
+          items: { type: object, required: [key, min_points, name], properties: { key: { type: string }, min_points: { type: integer }, name: { type: object, required: [en, ar, tr], properties: { en: { type: string }, ar: { type: string }, tr: { type: string } } } } }
+    PointsHistory:
+      type: object
+      required: [points, level, items, next_cursor]
+      properties:
+        points: { type: integer }
+        week_points: { type: integer }
+        level: { type: object, required: [key, label, progress], properties: { key: { type: string }, label: { type: string }, progress: { type: number }, next_at: { type: [integer, "null"] } } }
+        items: { type: array, items: { type: object, required: [action, points, created_at], properties: { action: { type: string }, points: { type: integer }, target_type: { type: [string, "null"] }, target_id: { type: [string, "null"] }, created_at: { type: string, format: date-time } } } }
+        next_cursor: { type: [string, "null"] }
+    LeaderboardPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { type: object, required: [rank, member, points], properties: { rank: { type: integer }, member: { $ref: "#/components/schemas/MemberSummary" }, points: { type: integer } } } }
+        me: { type: [object, "null"], properties: { rank: { type: integer }, points: { type: integer } } }
+        next_cursor: { type: [string, "null"] }
+    ChallengeInput:
+      type: object
+      required: [title, rules, starts_at, ends_at]
+      properties:
+        title: { type: string, maxLength: 160 }
+        rules: { type: string, maxLength: 10000 }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time, description: "Entries close; voting runs until `voting_ends_at`." }
+        voting_ends_at: { type: string, format: date-time }
+        reward_points: { type: integer, minimum: 0 }
+        reward_badge: { type: [string, "null"] }
+        cover_url: { type: [string, "null"] }
+    Challenge:
+      type: object
+      required: [id, title, rules, status, starts_at, ends_at, voting_ends_at, reward_points, reward_badge, entry_count, entered, winners]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        rules: { type: string }
+        cover_url: { type: [string, "null"] }
+        status: { type: string, enum: [upcoming, open, voting, closed] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+        voting_ends_at: { type: string, format: date-time }
+        reward_points: { type: integer }
+        reward_badge: { type: [string, "null"] }
+        entry_count: { type: integer }
+        entered: { type: boolean }
+        winners: { type: array, items: { $ref: "#/components/schemas/ChallengeEntry" } }
+    ChallengePage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Challenge" } }
+        next_cursor: { type: [string, "null"] }
+    ChallengeEntry:
+      type: object
+      required: [id, member, showcase, url, note, vote_count, voted, created_at]
+      properties:
+        id: { type: string }
+        member: { $ref: "#/components/schemas/MemberSummary" }
+        showcase: { oneOf: [{ $ref: "#/components/schemas/ShowcaseSummary" }, { type: "null" }] }
+        url: { type: [string, "null"] }
+        note: { type: string }
+        vote_count: { type: integer }
+        voted: { type: boolean }
+        created_at: { type: string, format: date-time }
+    ChallengeEntryPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/ChallengeEntry" } }
+        next_cursor: { type: [string, "null"] }
+    EventKind:
+      type: string
+      enum: [online, in_person, live]
+    EventInput:
+      type: object
+      required: [title, kind, starts_at]
+      properties:
+        title: { type: string, maxLength: 160 }
+        description: { type: string, maxLength: 10000 }
+        kind: { $ref: "#/components/schemas/EventKind" }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: [string, "null"], format: date-time }
+        time_zone: { type: string, description: "The organiser's IANA zone, for an in-person event's local time.", examples: [Europe/Istanbul] }
+        location: { type: [string, "null"], description: "In person: the place." }
+        join_url: { type: [string, "null"], format: uri, description: "Online: the meeting link (shown to those going)." }
+        embed_url: { type: [string, "null"], format: uri, description: "Live: a YouTube Live or meeting embed. No streaming of our own." }
+        replay_url: { type: [string, "null"], format: uri }
+        capacity: { type: [integer, "null"] }
+        cover_url: { type: [string, "null"] }
+    Event:
+      type: object
+      required: [id, title, description, kind, starts_at, ends_at, time_zone, location, join_url, embed_url, replay_url, capacity, going_count, going, live_now, status]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        kind: { $ref: "#/components/schemas/EventKind" }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: [string, "null"], format: date-time }
+        time_zone: { type: string }
+        location: { type: [string, "null"] }
+        join_url: { type: [string, "null"], description: "Only to those going." }
+        embed_url: { type: [string, "null"] }
+        replay_url: { type: [string, "null"] }
+        capacity: { type: [integer, "null"] }
+        cover_url: { type: [string, "null"] }
+        going_count: { type: integer }
+        going: { type: boolean }
+        live_now: { type: boolean }
+        status: { type: string, enum: [scheduled, cancelled] }
+    EventPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Event" } }
+        next_cursor: { type: [string, "null"] }

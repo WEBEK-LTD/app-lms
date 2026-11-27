@@ -1,6 +1,7 @@
 import type { CommunityBaseStore } from "./base";
 import type { CommunityQaStore } from "./qa";
 import type { CommunityTrustStore } from "./trust";
+import type { CommunityTenant } from "../types";
 
 /**
  * 231 Yallapp Community's data, one part per area, each with a memory and a
@@ -13,6 +14,8 @@ import type { CommunityTrustStore } from "./trust";
  * with YALLAPP_DATA=memory (tests, local runs), MySQL otherwise.
  */
 export interface CommunityStore {
+  /** 232–235 Whose community this store reads and writes (lib/community/types.ts CommunityTenant). */
+  tenant: CommunityTenant;
   base: CommunityBaseStore;
   qa: CommunityQaStore;
   trust: CommunityTrustStore;

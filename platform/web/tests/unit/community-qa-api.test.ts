@@ -39,7 +39,8 @@ describe("231 Community Q&A API", () => {
     const METHODS = ["get", "post", "put", "patch", "delete"];
     const documented = Object.entries(contract.paths)
       .filter(([path]) => /^\/(qa|tutorials|search)(\/|$)/.test(path))
-      .flatMap(([path, ops]) => Object.keys(ops).filter((m) => METHODS.includes(m)).map((m) => `${m.toUpperCase()} ${path.replace(/\{(\w+)\}/g, ":$1")}`))
+      // 232–235 An operation marked `x-building` is in the contract and not served yet.
+      .flatMap(([path, ops]) => Object.keys(ops).filter((m) => METHODS.includes(m) && !(ops[m] as { "x-building"?: boolean })["x-building"]).map((m) => `${m.toUpperCase()} ${path.replace(/\{(\w+)\}/g, ":$1")}`))
       .sort();
     expect(QA_ROUTES.map((r) => `${r.method} ${r.path}`).sort()).toEqual(documented);
   });

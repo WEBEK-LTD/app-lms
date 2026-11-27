@@ -1107,6 +1107,13 @@
       "when": 1795666620424,
       "tag": "0158_community_yallapp_signin",
       "breakpoints": true
+    },
+    {
+      "idx": 159,
+      "version": "5",
+      "when": 1795752723113,
+      "tag": "0159_community_tenant",
+      "breakpoints": true
     }
   ]
 }

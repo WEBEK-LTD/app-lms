@@ -6,6 +6,7 @@ import { sendMail } from "../mail";
 import type { CommunityDeps } from "./api/http";
 import { appleVerifier, googleVerifier } from "./auth/id-tokens";
 import { getCommunityStore } from "./store/server";
+import { YALLAPP_TENANT, type CommunityTenant } from "./types";
 
 /**
  * 231 What the Community API needs in production: the community's store,
@@ -28,10 +29,13 @@ export const COMMUNITY_FILES_PATH = "/api/community/files";
 /** Only these keys are ever public. */
 export const PUBLIC_COMMUNITY_PREFIX = "community/avatars/";
 
-export async function communityDeps(input: { ip: string; now?: Date }): Promise<CommunityDeps> {
-  const [store, platform] = await Promise.all([getCommunityStore(), getStore()]);
+/** 232–235 `tenant`: a client app's id for its own community (/api/app/{app_id}/community/v1); Yallapp Community by default. */
+export async function communityDeps(input: { ip: string; now?: Date; tenant?: CommunityTenant }): Promise<CommunityDeps> {
+  const tenant = input.tenant ?? YALLAPP_TENANT;
+  const [store, platform] = await Promise.all([getCommunityStore(tenant), getStore()]);
   const yallappUrl = appUrl();
   return {
+    tenant,
     store,
     platform,
     now: input.now ?? new Date(),
