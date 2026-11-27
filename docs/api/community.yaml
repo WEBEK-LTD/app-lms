@@ -73,6 +73,12 @@ tags:
     description: (Area B) Questions, answers, votes, accepted answers, official answers, tags and sections.
   - name: Tutorials
     description: (Area B) Official tutorials, articles and videos, by section, level and language.
+  - name: Posts
+    description: Area B (232). Posts with photos and video, comments, likes, saves, the home feed.
+  - name: Stories
+    description: Area B (232). 24-hour stories.
+  - name: Showcase
+    description: Area B (232). Apps members built.
   - name: Search
     description: (Area B) Search across questions, tutorials, members and tags; similar questions before asking.
   - name: Badges
@@ -1096,6 +1102,310 @@ paths:
                   tags: { type: array, items: { $ref: "#/components/schemas/Tag" } }
 
         "429": { $ref: "#/components/responses/TooMany" }
+  # ------------------------------------------------------------ Area B: Posts, stories, showcase (232)
+  /media:
+    post:
+      tags: [Posts]
+      summary: "Upload a photo or a video (for a post, a story or the showcase)"
+      description: "JPEG, PNG or WebP, or MP4 or WebM, checked by its bytes, 5 MB at most; a video may come with its still (`poster`). Used once, by its owner."
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { type: object, required: [file], properties: { file: { type: string, format: binary }, poster: { type: string, format: binary } } }
+      responses:
+        "201": { description: The file., content: { application/json: { schema: { $ref: "#/components/schemas/Media" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /feed:
+    get:
+      tags: [Posts]
+      summary: "The home feed: posts and questions together, newest first"
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: tab, in: query, schema: { type: string, enum: [for_you, latest, following], default: for_you } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { type: object, required: [items, next_cursor], properties: { items: { type: array, items: { $ref: "#/components/schemas/FeedItem" } }, next_cursor: { type: [string, "null"] } } } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /posts:
+    get:
+      tags: [Posts]
+      summary: "A member's posts, newest first"
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: author, in: query, schema: { type: string } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { type: object, required: [items, next_cursor], properties: { items: { type: array, items: { $ref: "#/components/schemas/Post" } }, next_cursor: { type: [string, "null"] } } } } } }
+    post:
+      tags: [Posts]
+      summary: "Post words, photos or videos (and a group's post)"
+      description: "Up to 10 uploads (`media_ids`, from POST /media). The first link gets a preview. A new member's first posts wait for review."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, properties: { body: { type: string, maxLength: 5000 }, media_ids: { type: array, maxItems: 10, items: { type: string } }, group_id: { type: string } } }
+      responses:
+        "201": { description: Posted., content: { application/json: { schema: { $ref: "#/components/schemas/Post" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /posts/{post_id}:
+    get:
+      tags: [Posts]
+      summary: "A post"
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: post_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: The post., content: { application/json: { schema: { $ref: "#/components/schemas/Post" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Posts]
+      summary: "Edit one's own post (moderated again)"
+      parameters: [{ name: post_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, properties: { body: { type: string, maxLength: 5000 } } }
+      responses:
+        "200": { description: The post., content: { application/json: { schema: { $ref: "#/components/schemas/Post" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/TooMany" }
+    delete:
+      tags: [Posts]
+      summary: "Delete one's own post (the team removes any)"
+      parameters: [{ name: post_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Deleted. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /posts/{post_id}/like:
+    put:
+      tags: [Posts]
+      summary: "Like a post (once; never one's own)"
+      parameters: [{ name: post_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Liked., content: { application/json: { schema: { type: object, required: [liked, like_count], properties: { liked: { type: boolean }, like_count: { type: integer } } } } } }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+        "429": { $ref: "#/components/responses/TooMany" }
+    delete:
+      tags: [Posts]
+      summary: "Unlike a post"
+      parameters: [{ name: post_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Not liked., content: { application/json: { schema: { type: object, required: [liked, like_count], properties: { liked: { type: boolean }, like_count: { type: integer } } } } } }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /comments/{comment_id}/like:
+    put:
+      tags: [Posts]
+      summary: "Like a comment (once; never one's own)"
+      parameters: [{ name: comment_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Liked., content: { application/json: { schema: { type: object, required: [liked, like_count], properties: { liked: { type: boolean }, like_count: { type: integer } } } } } }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+        "429": { $ref: "#/components/responses/TooMany" }
+    delete:
+      tags: [Posts]
+      summary: "Unlike a comment"
+      parameters: [{ name: comment_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Not liked., content: { application/json: { schema: { type: object, required: [liked, like_count], properties: { liked: { type: boolean }, like_count: { type: integer } } } } } }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /showcase/{showcase_id}/like:
+    put:
+      tags: [Showcase]
+      summary: "Like a showcase (once; never one's own)"
+      parameters: [{ name: showcase_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Liked., content: { application/json: { schema: { type: object, required: [liked, like_count], properties: { liked: { type: boolean }, like_count: { type: integer } } } } } }
+        "400": { $ref: "#/components/responses/NotAllowed" }
+        "429": { $ref: "#/components/responses/TooMany" }
+    delete:
+      tags: [Showcase]
+      summary: "Unlike a showcase"
+      parameters: [{ name: showcase_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Not liked., content: { application/json: { schema: { type: object, required: [liked, like_count], properties: { liked: { type: boolean }, like_count: { type: integer } } } } } }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /posts/{post_id}/save:
+    put:
+      tags: [Posts]
+      summary: "Save a post"
+      parameters: [{ name: post_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Saved. }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Posts]
+      summary: "Unsave a post"
+      parameters: [{ name: post_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Unsaved. }
+  /posts/{post_id}/comments:
+    get:
+      tags: [Posts]
+      summary: "A post's comments, oldest first (or a comment's replies)"
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: post_id, in: path, required: true, schema: { type: string, format: uuid } }, { name: parent_id, in: query, schema: { type: string } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { type: object, required: [items, next_cursor], properties: { items: { type: array, items: { $ref: "#/components/schemas/PostComment" } }, next_cursor: { type: [string, "null"] } } } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      tags: [Posts]
+      summary: "Comment on a post, or reply to a comment"
+      parameters: [{ name: post_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [body], properties: { body: { type: string, minLength: 1, maxLength: 1000 }, parent_id: { type: string } } }
+      responses:
+        "201": { description: Commented., content: { application/json: { schema: { $ref: "#/components/schemas/PostComment" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /showcase/{showcase_id}/save:
+    put:
+      tags: [Showcase]
+      summary: "Save a showcase item"
+      parameters: [{ name: showcase_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Saved. }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Showcase]
+      summary: "Unsave a showcase item"
+      parameters: [{ name: showcase_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Unsaved. }
+  /showcase/{showcase_id}/comments:
+    get:
+      tags: [Showcase]
+      summary: "A showcase item's comments, oldest first (or a comment's replies)"
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: showcase_id, in: path, required: true, schema: { type: string, format: uuid } }, { name: parent_id, in: query, schema: { type: string } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { type: object, required: [items, next_cursor], properties: { items: { type: array, items: { $ref: "#/components/schemas/PostComment" } }, next_cursor: { type: [string, "null"] } } } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      tags: [Showcase]
+      summary: "Comment on a showcase item, or reply to a comment"
+      parameters: [{ name: showcase_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [body], properties: { body: { type: string, minLength: 1, maxLength: 1000 }, parent_id: { type: string } } }
+      responses:
+        "201": { description: Commented., content: { application/json: { schema: { $ref: "#/components/schemas/PostComment" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /comments/{comment_id}:
+    delete:
+      tags: [Posts]
+      summary: "Delete one's own comment"
+      parameters: [{ name: comment_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Deleted. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /saved:
+    get:
+      tags: [Posts]
+      summary: "The member's saved posts and showcase items, the last saved first"
+      responses:
+        "200": { description: Saved., content: { application/json: { schema: { type: object, required: [posts, showcase], properties: { posts: { type: array, items: { $ref: "#/components/schemas/Post" } }, showcase: { type: array, items: { $ref: "#/components/schemas/ShowcaseItem" } } } } } } }
+  /stories:
+    get:
+      tags: [Stories]
+      summary: "The ring row: one's own, then the members followed (unseen first), 24 hours"
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        "200": { description: Rings., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/StoryRing" } } } } } } }
+    post:
+      tags: [Stories]
+      summary: "Post a story (a photo or a short video, from POST /media)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [media_id], properties: { media_id: { type: string } } }
+      responses:
+        "201": { description: Posted., content: { application/json: { schema: { $ref: "#/components/schemas/Story" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /stories/{story_id}/view:
+    put:
+      tags: [Stories]
+      summary: "Seen (counted once per viewer)"
+      parameters: [{ name: story_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Seen. }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /stories/{story_id}/viewers:
+    get:
+      tags: [Stories]
+      summary: "Who saw it (its author only)"
+      parameters: [{ name: story_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Viewers., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { type: object, required: [member, viewed_at], properties: { member: { $ref: "#/components/schemas/MemberSummary" }, viewed_at: { type: string, format: date-time } } } } } } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /stories/{story_id}:
+    delete:
+      tags: [Stories]
+      summary: "Delete one's own story"
+      parameters: [{ name: story_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Deleted. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /showcase:
+    get:
+      tags: [Showcase]
+      summary: "The gallery"
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: type, in: query, schema: { type: string } }, { name: sort, in: query, schema: { type: string, enum: [newest, liked], default: newest } }, { name: author, in: query, schema: { type: string } }, { $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
+      responses:
+        "200": { description: A page., content: { application/json: { schema: { type: object, required: [items, next_cursor], properties: { items: { type: array, items: { $ref: "#/components/schemas/ShowcaseItem" } }, next_cursor: { type: [string, "null"] } } } } } }
+    post:
+      tags: [Showcase]
+      summary: "Show an app one built"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, properties: { title: { type: string, minLength: 3, maxLength: 120 }, description: { type: string, maxLength: 4000 }, media_ids: { type: array, minItems: 1, maxItems: 10, items: { type: string } }, app_type: { type: string }, app_store_url: { type: string, description: "https://apps.apple.com/…" }, play_store_url: { type: string, description: "https://play.google.com/…" }, web_url: { type: string }, yallapp_app_id: { type: string, description: "The Yallapp app it is: Made with Yallapp when it is the linked account's." } } }
+      responses:
+        "201": { description: Shown., content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseItem" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /showcase/{showcase_id}:
+    get:
+      tags: [Showcase]
+      summary: "A showcase item"
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: showcase_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: It., content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseItem" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Showcase]
+      summary: "Edit one's own (moderated again)"
+      parameters: [{ name: showcase_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, properties: { title: { type: string, minLength: 3, maxLength: 120 }, description: { type: string, maxLength: 4000 }, media_ids: { type: array, minItems: 1, maxItems: 10, items: { type: string } }, app_type: { type: string }, app_store_url: { type: string, description: "https://apps.apple.com/…" }, play_store_url: { type: string, description: "https://play.google.com/…" }, web_url: { type: string }, yallapp_app_id: { type: string, description: "The Yallapp app it is: Made with Yallapp when it is the linked account's." } } }
+      responses:
+        "200": { description: It., content: { application/json: { schema: { $ref: "#/components/schemas/ShowcaseItem" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/TooMany" }
+    delete:
+      tags: [Showcase]
+      summary: "Delete one's own"
+      parameters: [{ name: showcase_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Deleted. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
   # ------------------------------------------------------------ Area C: Badges
   /badges/verification:
     get:
@@ -1961,3 +2271,101 @@ components:
           description: Which kinds also come by email (the list always has them all).
           additionalProperties: { type: boolean }
           examples: [{ answer: true, answer_accepted: true, friend_request: true, follow: false, badge_granted: true, verification_approved: true, verification_rejected: true, official_answer: true }]
+    Media:
+      type: object
+      required: [id, kind, url, poster_url]
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string, enum: [image, video] }
+        url: { type: string, format: uri }
+        poster_url: { type: [string, "null"], description: "A video's still." }
+    LinkPreview:
+      type: object
+      required: [url, title, description, image_url, site_name]
+      properties:
+        url: { type: string, format: uri }
+        title: { type: string }
+        description: { type: string }
+        image_url: { type: [string, "null"] }
+        site_name: { type: string }
+    Post:
+      type: object
+      required: [id, author, group_id, body, media, link, like_count, comment_count, liked, saved, status, can_edit, share_path, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        group_id: { type: [string, "null"] }
+        body: { type: string }
+        media: { type: array, items: { $ref: "#/components/schemas/Media" } }
+        link: { oneOf: [{ $ref: "#/components/schemas/LinkPreview" }, { type: "null" }] }
+        like_count: { type: integer }
+        comment_count: { type: integer }
+        liked: { type: boolean }
+        saved: { type: boolean }
+        status: { type: string, enum: [pending, published, removed] }
+        can_edit: { type: boolean }
+        share_path: { type: string, description: "The post's page on the site, to share: /posts/{id}." }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    PostComment:
+      type: object
+      required: [id, target_type, target_id, parent_id, author, body, like_count, liked, reply_count, status, can_delete, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        target_type: { type: string, enum: [post, showcase] }
+        target_id: { type: string, format: uuid }
+        parent_id: { type: [string, "null"], description: "The comment it replies to (one level)." }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        body: { type: string }
+        like_count: { type: integer }
+        liked: { type: boolean }
+        reply_count: { type: integer }
+        status: { type: string, enum: [pending, published, removed] }
+        can_delete: { type: boolean }
+        created_at: { type: string, format: date-time }
+    FeedItem:
+      type: object
+      required: [type, at]
+      properties:
+        type: { type: string, enum: [post, question] }
+        post: { $ref: "#/components/schemas/Post" }
+        question: { $ref: "#/components/schemas/QuestionSummary" }
+        at: { type: string, format: date-time }
+    Story:
+      type: object
+      required: [id, media, seen, view_count, expires_at, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        media: { $ref: "#/components/schemas/Media" }
+        seen: { type: boolean }
+        view_count: { type: [integer, "null"], description: "Only for its author." }
+        expires_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+    StoryRing:
+      type: object
+      required: [author, stories, seen]
+      properties:
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        stories: { type: array, items: { $ref: "#/components/schemas/Story" } }
+        seen: { type: boolean }
+    ShowcaseItem:
+      type: object
+      required: [id, author, title, description, media, app_type, app_store_url, play_store_url, web_url, made_with_yallapp, like_count, comment_count, liked, saved, status, can_edit, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        author: { $ref: "#/components/schemas/MemberSummary" }
+        title: { type: string }
+        description: { type: string }
+        media: { type: array, items: { $ref: "#/components/schemas/Media" } }
+        app_type: { type: string }
+        app_store_url: { type: [string, "null"] }
+        play_store_url: { type: [string, "null"] }
+        web_url: { type: [string, "null"] }
+        made_with_yallapp: { type: boolean, description: "The app is one of the member's linked Yallapp account's." }
+        like_count: { type: integer }
+        comment_count: { type: integer }
+        liked: { type: boolean }
+        saved: { type: boolean }
+        status: { type: string, enum: [pending, published, removed] }
+        can_edit: { type: boolean }
+        created_at: { type: string, format: date-time }

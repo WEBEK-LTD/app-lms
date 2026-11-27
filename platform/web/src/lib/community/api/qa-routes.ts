@@ -59,7 +59,7 @@ const limited =
   };
 
 /** Runs a handler with this call's Q&A store and hooks; a vote refused is 400 (docs: NotAllowed), other refusals 403. */
-function run(handler: Handler, options: { refusedStatus?: number } = {}): Handler {
+export function run(handler: Handler, options: { refusedStatus?: number } = {}): Handler {
   return async (ctx) => {
     try {
       return await withQa(ctx.store.qa, qaHooksFor(ctx), () => handler(ctx));

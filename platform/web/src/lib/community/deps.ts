@@ -27,6 +27,16 @@ export const COMMUNITY_SITE = "https://community.yallapp.com.tr";
 export const COMMUNITY_FILES_PATH = "/api/community/files";
 /** Only these keys are ever public. */
 export const PUBLIC_COMMUNITY_PREFIX = "community/avatars/";
+/** 232 Posts', stories' and the showcase's photos and videos (area B), served under this path, ranges included. */
+export const COMMUNITY_MEDIA_PREFIX = "community/media/";
+export const COMMUNITY_MEDIA_PATH = "/api/community/media";
+
+/** The public address of a public community key; null for any other key. */
+export function publicCommunityUrl(yallappUrl: string, key: string): string | null {
+  if (key.startsWith(PUBLIC_COMMUNITY_PREFIX)) return `${yallappUrl}${COMMUNITY_FILES_PATH}/${key.slice(PUBLIC_COMMUNITY_PREFIX.length)}`;
+  if (key.startsWith(COMMUNITY_MEDIA_PREFIX)) return `${yallappUrl}${COMMUNITY_MEDIA_PATH}/${key.slice(COMMUNITY_MEDIA_PREFIX.length)}`;
+  return null;
+}
 
 export async function communityDeps(input: { ip: string; now?: Date }): Promise<CommunityDeps> {
   const [store, platform] = await Promise.all([getCommunityStore(), getStore()]);
@@ -42,8 +52,10 @@ export async function communityDeps(input: { ip: string; now?: Date }): Promise<
     google: googleVerifier(),
     mail: (mail) => sendMail(mail, { fromName: "Yallapp Community" }),
     upload: async (key, bytes, contentType) => {
+      const url = publicCommunityUrl(yallappUrl, key);
+      if (!url) throw new Error(`Not a public community file: ${key}`);
       await getBlobStore().put(key, Buffer.from(bytes), contentType);
-      return `${yallappUrl}${COMMUNITY_FILES_PATH}/${key.slice(PUBLIC_COMMUNITY_PREFIX.length)}`;
+      return url;
     },
   };
 }

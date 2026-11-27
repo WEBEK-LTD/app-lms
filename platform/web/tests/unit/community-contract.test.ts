@@ -35,7 +35,7 @@ describe("231 the community contract", () => {
   });
 
   it("keeps every path in one of the areas' groups", () => {
-    const groups = ["/auth/", "/me", "/members/", "/reports", "/config", "/qa/", "/tutorials", "/search", "/badges/", "/notifications", "/admin/"];
+    const groups = ["/auth/", "/me", "/members/", "/reports", "/config", "/qa/", "/tutorials", "/search", "/badges/", "/notifications", "/admin/", "/media", "/feed", "/posts", "/comments/", "/saved", "/stories", "/showcase", "/academy/"];
     const stray = Object.keys(contract.paths).filter((p) => !groups.some((g) => p.startsWith(g)));
     expect(stray).toEqual([]);
   });
