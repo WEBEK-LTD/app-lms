@@ -74,6 +74,7 @@ export const SCREENS: Record<AppType, readonly ScreenPlan[]> = {
   rides: [{ screen: "home", route: "/ride" }],
   school: [HOME],
   travel: [HOME, list("/stays")],
+  community: [HOME, list("/community")],
 };
 
 /** At most this many languages are made (each one is every screen at four sizes). */

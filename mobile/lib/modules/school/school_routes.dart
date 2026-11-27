@@ -50,7 +50,12 @@ final schoolModule = AppModule(
     BuiltInScreen.flights ||
     BuiltInScreen.trips ||
     BuiltInScreen.saved ||
-    BuiltInScreen.priceAlerts => null,
+    BuiltInScreen.priceAlerts ||
+    BuiltInScreen.communityFeed ||
+    BuiltInScreen.communityQuestions ||
+    BuiltInScreen.communityGroups ||
+    BuiltInScreen.communityProfile ||
+    BuiltInScreen.communityMessages => null,
     BuiltInScreen.account => Paths.account,
     BuiltInScreen.settings => Paths.settings,
     BuiltInScreen.notifications => Paths.notifications,

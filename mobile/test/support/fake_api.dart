@@ -2955,6 +2955,34 @@ class FakeApi implements YallappApi {
     );
   }
 
+  /// 235 Community requests, and what answers them.
+  final communityRequests =
+      <({String method, String path, Map<String, dynamic>? query, Object? body})>[];
+  dynamic Function(
+    String method,
+    String path,
+    Map<String, dynamic>? query,
+    Object? body,
+  )?
+  communityHandler;
+
+  @override
+  Future<dynamic> community(
+    String method,
+    String path, {
+    Map<String, dynamic>? query,
+    Object? body,
+    bool signedIn = false,
+  }) {
+    communityRequests.add((method: method, path: path, query: query, body: body));
+    return _answer(
+      'community',
+      () =>
+          communityHandler?.call(method, path, query, body) ??
+          const <String, dynamic>{},
+    );
+  }
+
   @override
   Future<RideEstimate> estimateRide(RideRequest request) {
     rideEstimates.add(request);

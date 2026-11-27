@@ -23,6 +23,7 @@ import '../../modules/shared/shared_routes.dart';
 import '../../modules/store/store_routes.dart';
 import '../../modules/travel/travel_paths.dart';
 import '../../modules/travel/travel_routes.dart';
+import '../../modules/community/community_routes.dart';
 import '../../modules/shared/staff_app.dart';
 import '../../modules/vendor/data/vendor_providers.dart';
 import '../api/models/models.dart';
@@ -95,6 +96,7 @@ final appModuleProvider = Provider<AppModule>(
     AppType.rides => ridesModule,
     AppType.school => schoolModule,
     AppType.travel => travelModule,
+    AppType.community => communityModule,
   },
 );
 

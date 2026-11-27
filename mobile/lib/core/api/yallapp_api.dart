@@ -1178,6 +1178,17 @@ abstract class YallappApi {
     bool signedIn = false,
   });
 
+  /// 235 Community apps: the hosted API's /community endpoints, the
+  /// community engine with this app as its tenant (members are the app's
+  /// customers). lib/modules/community/data/community_api.dart types them.
+  Future<dynamic> community(
+    String method,
+    String path, {
+    Map<String, dynamic>? query,
+    Object? body,
+    bool signedIn = false,
+  });
+
   // 105.2 Ride hailing.
   Future<RideEstimate> estimateRide(RideRequest request);
   Future<Ride> requestRide(RideRequest request);
@@ -3963,6 +3974,22 @@ class HttpYallappApi implements YallappApi {
 
   @override
   Future<dynamic> travel(
+    String method,
+    String path, {
+    Map<String, dynamic>? query,
+    Object? body,
+    bool signedIn = false,
+  }) => _send(
+    method,
+    path,
+    signedIn ? _required : _optional,
+    (data) => data,
+    body: body,
+    query: query,
+  );
+
+  @override
+  Future<dynamic> community(
     String method,
     String path, {
     Map<String, dynamic>? query,

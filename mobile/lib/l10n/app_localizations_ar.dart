@@ -13377,4 +13377,114 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get productDeliveryReturns => 'التوصيل والإرجاع';
+
+  @override
+  String get communityTabFeed => 'المجتمع';
+
+  @override
+  String get communityTabQuestions => 'أسئلة وأجوبة';
+
+  @override
+  String get communityTabGroups => 'المجموعات';
+
+  @override
+  String get communityTabMessages => 'الرسائل';
+
+  @override
+  String get communityTabProfile => 'الملف الشخصي';
+
+  @override
+  String get communityFeedEmpty => 'لا توجد منشورات بعد';
+
+  @override
+  String get communityQuestionsEmpty => 'لا توجد أسئلة بعد';
+
+  @override
+  String get communityGroupsEmpty => 'لا توجد مجموعات بعد';
+
+  @override
+  String get communityMessagesEmpty => 'لا توجد رسائل بعد';
+
+  @override
+  String get communityPrivate => 'خاصة';
+
+  @override
+  String get communityJoin => 'انضمام';
+
+  @override
+  String get communityJoined => 'منضم';
+
+  @override
+  String get communityAccepted => 'إجابة مقبولة';
+
+  @override
+  String get communityUnread => 'غير مقروءة';
+
+  @override
+  String get communityAnswerHint => 'اكتب إجابة';
+
+  @override
+  String get communityMessageHint => 'اكتب رسالة';
+
+  @override
+  String get communitySend => 'إرسال';
+
+  @override
+  String get communitySignInTitle => 'سجّل الدخول للمشاركة';
+
+  @override
+  String get communitySignInMessage =>
+      'سيظهر ملفك الشخصي ورسائلك هنا بعد تسجيل الدخول.';
+
+  @override
+  String get communityAccount => 'الحساب والإعدادات';
+
+  @override
+  String get noNotificationsMessageCommunity =>
+      'ستظهر هنا الردود والإجابات والرسائل وأخبار المجتمع.';
+
+  @override
+  String communityAnswers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count إجابة',
+      many: '$count إجابة',
+      few: '$count إجابات',
+      two: 'إجابتان',
+      one: 'إجابة واحدة',
+      zero: 'لا إجابات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String communityComments(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تعليق',
+      many: '$count تعليقًا',
+      few: '$count تعليقات',
+      two: 'تعليقان',
+      one: 'تعليق واحد',
+      zero: 'لا تعليقات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String communityMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عضو',
+      many: '$count عضوًا',
+      few: '$count أعضاء',
+      two: 'عضوان',
+      one: 'عضو واحد',
+      zero: 'لا أعضاء',
+    );
+    return '$_temp0';
+  }
 }
