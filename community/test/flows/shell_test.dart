@@ -33,17 +33,14 @@ void main() {
     expect(tester.widget<Text>(key('home-name')).data, contains('Mohamed'));
   });
 
-  testWidgets('the tab bar goes to Q&A and Learn; Groups is coming soon', (
-    tester,
-  ) async {
+  testWidgets('the tab bar goes to Q&A, Learn and Groups', (tester) async {
     final app = await TestApp.start(tester);
     await tap(tester, 'tab-qa');
     expect(app.path, FeatureLinks.qa);
     await tap(tester, 'tab-learn');
     expect(app.path, FeatureLinks.learn);
     await tap(tester, 'tab-groups');
-    expect(key('coming-soon'), findsOneWidget);
-    expect(app.path, FeatureLinks.learn);
+    expect(app.path, Paths.groups);
   });
 
   testWidgets('the + sheet: Ask a question, the rest coming soon', (

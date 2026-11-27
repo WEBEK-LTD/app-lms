@@ -10,6 +10,7 @@ import 'package:yallapp_community/core/api/models.dart';
 import 'package:yallapp_community/core/auth/social_sign_in.dart';
 import 'package:yallapp_community/core/providers.dart';
 import 'package:yallapp_community/features/home/data/home_api.dart';
+import 'package:yallapp_community/features/groups/data/groups_api.dart';
 import 'package:yallapp_community/features/messages/data/messages_api.dart';
 import 'package:yallapp_community/features/messages/links.dart';
 import 'package:yallapp_community/features/opening/opening_page.dart';
@@ -19,7 +20,14 @@ import 'package:yallapp_community/features/posts/ui/composer_screen.dart';
 /// The app on a 390 × 844 phone over the fake API, signed in or not, in a
 /// language and a theme. Every widget test starts here; area E's too.
 class TestApp {
-  TestApp._(this.container, this.api, this.tokens, this.posts, this.messages);
+  TestApp._(
+    this.container,
+    this.api,
+    this.tokens,
+    this.posts,
+    this.messages,
+    this.groups,
+  );
 
   final ProviderContainer container;
   final FakeCommunityApi api;
@@ -31,6 +39,9 @@ class TestApp {
   /// Messages (232.4); no polling.
   final FakeMessagesApi messages;
 
+  /// Groups (232.5).
+  final FakeGroupsApi groups;
+
   static Future<TestApp> start(
     WidgetTester tester, {
     bool signedIn = true,
@@ -40,6 +51,7 @@ class TestApp {
     HomeApi? home,
     FakePostsApi? posts,
     FakeMessagesApi? messages,
+    FakeGroupsApi? groups,
     MediaPicker? picker,
     SocialSignIn apple = const FakeSocialSignIn('apple-token'),
     SocialSignIn google = const FakeSocialSignIn('google-token'),
@@ -62,6 +74,7 @@ class TestApp {
     final fake = api ?? FakeCommunityApi();
     final postsApi = posts ?? FakePostsApi();
     final messagesApi = messages ?? FakeMessagesApi();
+    final groupsApi = groups ?? FakeGroupsApi();
     final tokens = MemoryTokenStore(
       signedIn ? const Session(accessToken: 'test-token') : null,
     );
@@ -77,6 +90,7 @@ class TestApp {
         googleSignInProvider.overrideWithValue(google),
         postsApiProvider.overrideWithValue(postsApi),
         messagesApiProvider.overrideWithValue(messagesApi),
+        groupsApiProvider.overrideWithValue(groupsApi),
         messagePollProvider.overrideWithValue((
           inbox: Duration.zero,
           thread: Duration.zero,
@@ -95,7 +109,7 @@ class TestApp {
       ),
     );
     await settle(tester);
-    return TestApp._(container, fake, tokens, postsApi, messagesApi);
+    return TestApp._(container, fake, tokens, postsApi, messagesApi, groupsApi);
   }
 
   /// Pumps frames for a while (the design's blurs and gradients animate

@@ -547,5 +547,42 @@
   "msgLeave": "Leave the group",
   "msgHide": "Hide the conversation",
   "msgBlocked": "You can't reply to this conversation.",
-  "msgMessage": "Message"
+  "msgMessage": "Message",
+  "groupCreate": "New group",
+  "groupDiscover": "Discover",
+  "groupNoneYet": "You haven't joined a group yet.",
+  "groupAll": "All groups",
+  "groupMembers": "{n, plural, =1{1 member} other{{n} members}}",
+  "@groupMembers": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "groupMembersTitle": "Members",
+  "groupName": "Name",
+  "groupAbout": "What the group is about",
+  "groupPrivate": "Private",
+  "groupPublic": "Public",
+  "groupPrivateLine": "Members join by request; only they see its posts.",
+  "groupPublicLine": "Anyone can join and read it.",
+  "groupCreateNotAllowed": "Creating groups isn't open to your account yet.",
+  "groupJoin": "Join",
+  "groupAskToJoin": "Ask to join",
+  "groupRequested": "Requested",
+  "groupLeave": "Leave",
+  "groupOwnerMustTransfer": "Hand the group over to another member before you leave.",
+  "groupWrite": "Write in the group",
+  "groupJoinToRead": "This group is private. Join to read its posts.",
+  "groupNoPosts": "No posts yet.",
+  "groupCover": "Change the cover",
+  "groupRequests": "Requests to join",
+  "groupDecline": "Decline",
+  "groupOwner": "Owner",
+  "groupModerator": "Moderator",
+  "groupMakeModerator": "Make moderator",
+  "groupMakeMember": "Make a member again",
+  "groupHandOver": "Hand the group over",
+  "groupRemove": "Remove from the group"
 }

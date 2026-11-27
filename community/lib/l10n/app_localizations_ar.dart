@@ -1235,4 +1235,105 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get msgMessage => 'مراسلة';
+
+  @override
+  String get groupCreate => 'مجموعة جديدة';
+
+  @override
+  String get groupDiscover => 'اكتشف';
+
+  @override
+  String get groupNoneYet => 'لم تنضم إلى أي مجموعة بعد.';
+
+  @override
+  String get groupAll => 'كل المجموعات';
+
+  @override
+  String groupMembers(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n عضو',
+      few: '$n أعضاء',
+      two: 'عضوان',
+      one: 'عضو واحد',
+      zero: 'لا أعضاء',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get groupMembersTitle => 'الأعضاء';
+
+  @override
+  String get groupName => 'الاسم';
+
+  @override
+  String get groupAbout => 'عن المجموعة';
+
+  @override
+  String get groupPrivate => 'خاصة';
+
+  @override
+  String get groupPublic => 'عامة';
+
+  @override
+  String get groupPrivateLine => 'ينضم الأعضاء بطلب، ويرون وحدهم منشوراتها.';
+
+  @override
+  String get groupPublicLine => 'يمكن لأي أحد الانضمام والقراءة.';
+
+  @override
+  String get groupCreateNotAllowed => 'إنشاء المجموعات غير متاح لحسابك بعد.';
+
+  @override
+  String get groupJoin => 'انضم';
+
+  @override
+  String get groupAskToJoin => 'اطلب الانضمام';
+
+  @override
+  String get groupRequested => 'تم الطلب';
+
+  @override
+  String get groupLeave => 'مغادرة';
+
+  @override
+  String get groupOwnerMustTransfer => 'سلّم المجموعة لعضو آخر قبل المغادرة.';
+
+  @override
+  String get groupWrite => 'اكتب في المجموعة';
+
+  @override
+  String get groupJoinToRead => 'هذه المجموعة خاصة. انضم لقراءة منشوراتها.';
+
+  @override
+  String get groupNoPosts => 'لا توجد منشورات بعد.';
+
+  @override
+  String get groupCover => 'تغيير الغلاف';
+
+  @override
+  String get groupRequests => 'طلبات الانضمام';
+
+  @override
+  String get groupDecline => 'رفض';
+
+  @override
+  String get groupOwner => 'المالك';
+
+  @override
+  String get groupModerator => 'مشرف';
+
+  @override
+  String get groupMakeModerator => 'تعيين مشرفًا';
+
+  @override
+  String get groupMakeMember => 'إعادته عضوًا';
+
+  @override
+  String get groupHandOver => 'تسليم المجموعة';
+
+  @override
+  String get groupRemove => 'إزالة من المجموعة';
 }

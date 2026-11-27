@@ -2319,6 +2319,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Message'**
   String get msgMessage;
+
+  /// No description provided for @groupCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'New group'**
+  String get groupCreate;
+
+  /// No description provided for @groupDiscover.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover'**
+  String get groupDiscover;
+
+  /// No description provided for @groupNoneYet.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t joined a group yet.'**
+  String get groupNoneYet;
+
+  /// No description provided for @groupAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All groups'**
+  String get groupAll;
+
+  /// No description provided for @groupMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 member} other{{n} members}}'**
+  String groupMembers(int n);
+
+  /// No description provided for @groupMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get groupMembersTitle;
+
+  /// No description provided for @groupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get groupName;
+
+  /// No description provided for @groupAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'What the group is about'**
+  String get groupAbout;
+
+  /// No description provided for @groupPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get groupPrivate;
+
+  /// No description provided for @groupPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get groupPublic;
+
+  /// No description provided for @groupPrivateLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Members join by request; only they see its posts.'**
+  String get groupPrivateLine;
+
+  /// No description provided for @groupPublicLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone can join and read it.'**
+  String get groupPublicLine;
+
+  /// No description provided for @groupCreateNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating groups isn\'t open to your account yet.'**
+  String get groupCreateNotAllowed;
+
+  /// No description provided for @groupJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get groupJoin;
+
+  /// No description provided for @groupAskToJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask to join'**
+  String get groupAskToJoin;
+
+  /// No description provided for @groupRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested'**
+  String get groupRequested;
+
+  /// No description provided for @groupLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get groupLeave;
+
+  /// No description provided for @groupOwnerMustTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand the group over to another member before you leave.'**
+  String get groupOwnerMustTransfer;
+
+  /// No description provided for @groupWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write in the group'**
+  String get groupWrite;
+
+  /// No description provided for @groupJoinToRead.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is private. Join to read its posts.'**
+  String get groupJoinToRead;
+
+  /// No description provided for @groupNoPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts yet.'**
+  String get groupNoPosts;
+
+  /// No description provided for @groupCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the cover'**
+  String get groupCover;
+
+  /// No description provided for @groupRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests to join'**
+  String get groupRequests;
+
+  /// No description provided for @groupDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get groupDecline;
+
+  /// No description provided for @groupOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get groupOwner;
+
+  /// No description provided for @groupModerator.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderator'**
+  String get groupModerator;
+
+  /// No description provided for @groupMakeModerator.
+  ///
+  /// In en, this message translates to:
+  /// **'Make moderator'**
+  String get groupMakeModerator;
+
+  /// No description provided for @groupMakeMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a member again'**
+  String get groupMakeMember;
+
+  /// No description provided for @groupHandOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand the group over'**
+  String get groupHandOver;
+
+  /// No description provided for @groupRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from the group'**
+  String get groupRemove;
 }
 
 class _AppLocalizationsDelegate

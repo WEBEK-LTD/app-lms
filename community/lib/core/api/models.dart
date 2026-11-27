@@ -560,8 +560,16 @@ class CommunityConfig {
   final List<String> languages;
   final String? siteUrl;
 
-  /// Phase 1: home, Q&A, tutorials and friends open; the rest are coming.
-  static const phase1Open = {'home', 'qa', 'tutorials', 'friends', 'learn'};
+  /// Open when the server says nothing: phase 1's home, Q&A, tutorials
+  /// and friends, and phase 2's groups (area D); the rest are coming.
+  static const phase1Open = {
+    'home',
+    'qa',
+    'tutorials',
+    'friends',
+    'learn',
+    'groups',
+  };
 
   /// Whether the section [slug] opens nothing yet: the server's word, else
   /// phase 1's.

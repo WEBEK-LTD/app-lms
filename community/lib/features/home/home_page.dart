@@ -107,7 +107,7 @@ class HomePage extends ConsumerWidget {
                       if (e.post case final post?)
                         PostCard(post: post)
                       else if (e.question case final q?)
-                        _Post(item: q),
+                        FeedQuestionCard(item: q),
                   ],
                   AsyncError() => [
                     _Empty(
@@ -448,11 +448,11 @@ class _FeedTabs extends StatelessWidget {
   }
 }
 
-/// A question or a tutorial as the design's post (`.post`): its photo (a
+/// A question or a tutorial as the design's post (groups' feeds too) (`.post`): its photo (a
 /// gradient when it has none) under the author, Follow, its label and its
 /// score, then its words.
-class _Post extends ConsumerWidget {
-  const _Post({required this.item});
+class FeedQuestionCard extends ConsumerWidget {
+  const FeedQuestionCard({super.key, required this.item});
 
   final FeedItem item;
 

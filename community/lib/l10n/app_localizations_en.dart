@@ -1230,4 +1230,106 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get msgMessage => 'Message';
+
+  @override
+  String get groupCreate => 'New group';
+
+  @override
+  String get groupDiscover => 'Discover';
+
+  @override
+  String get groupNoneYet => 'You haven\'t joined a group yet.';
+
+  @override
+  String get groupAll => 'All groups';
+
+  @override
+  String groupMembers(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n members',
+      one: '1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get groupMembersTitle => 'Members';
+
+  @override
+  String get groupName => 'Name';
+
+  @override
+  String get groupAbout => 'What the group is about';
+
+  @override
+  String get groupPrivate => 'Private';
+
+  @override
+  String get groupPublic => 'Public';
+
+  @override
+  String get groupPrivateLine =>
+      'Members join by request; only they see its posts.';
+
+  @override
+  String get groupPublicLine => 'Anyone can join and read it.';
+
+  @override
+  String get groupCreateNotAllowed =>
+      'Creating groups isn\'t open to your account yet.';
+
+  @override
+  String get groupJoin => 'Join';
+
+  @override
+  String get groupAskToJoin => 'Ask to join';
+
+  @override
+  String get groupRequested => 'Requested';
+
+  @override
+  String get groupLeave => 'Leave';
+
+  @override
+  String get groupOwnerMustTransfer =>
+      'Hand the group over to another member before you leave.';
+
+  @override
+  String get groupWrite => 'Write in the group';
+
+  @override
+  String get groupJoinToRead =>
+      'This group is private. Join to read its posts.';
+
+  @override
+  String get groupNoPosts => 'No posts yet.';
+
+  @override
+  String get groupCover => 'Change the cover';
+
+  @override
+  String get groupRequests => 'Requests to join';
+
+  @override
+  String get groupDecline => 'Decline';
+
+  @override
+  String get groupOwner => 'Owner';
+
+  @override
+  String get groupModerator => 'Moderator';
+
+  @override
+  String get groupMakeModerator => 'Make moderator';
+
+  @override
+  String get groupMakeMember => 'Make a member again';
+
+  @override
+  String get groupHandOver => 'Hand the group over';
+
+  @override
+  String get groupRemove => 'Remove from the group';
 }

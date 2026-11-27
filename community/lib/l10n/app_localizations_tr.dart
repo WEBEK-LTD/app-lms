@@ -1213,4 +1213,100 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get msgMessage => 'Mesaj gönder';
+
+  @override
+  String get groupCreate => 'Yeni grup';
+
+  @override
+  String get groupDiscover => 'Keşfet';
+
+  @override
+  String get groupNoneYet => 'Henüz bir gruba katılmadın.';
+
+  @override
+  String get groupAll => 'Tüm gruplar';
+
+  @override
+  String groupMembers(int n) {
+    return '$n üye';
+  }
+
+  @override
+  String get groupMembersTitle => 'Üyeler';
+
+  @override
+  String get groupName => 'Ad';
+
+  @override
+  String get groupAbout => 'Grup ne hakkında';
+
+  @override
+  String get groupPrivate => 'Özel';
+
+  @override
+  String get groupPublic => 'Herkese açık';
+
+  @override
+  String get groupPrivateLine =>
+      'Üyeler istekle katılır; gönderileri yalnızca onlar görür.';
+
+  @override
+  String get groupPublicLine => 'Herkes katılabilir ve okuyabilir.';
+
+  @override
+  String get groupCreateNotAllowed =>
+      'Grup oluşturma henüz hesabına açık değil.';
+
+  @override
+  String get groupJoin => 'Katıl';
+
+  @override
+  String get groupAskToJoin => 'Katılma isteği gönder';
+
+  @override
+  String get groupRequested => 'İstek gönderildi';
+
+  @override
+  String get groupLeave => 'Ayrıl';
+
+  @override
+  String get groupOwnerMustTransfer =>
+      'Ayrılmadan önce grubu başka bir üyeye devret.';
+
+  @override
+  String get groupWrite => 'Gruba yaz';
+
+  @override
+  String get groupJoinToRead =>
+      'Bu grup özel. Gönderilerini okumak için katıl.';
+
+  @override
+  String get groupNoPosts => 'Henüz gönderi yok.';
+
+  @override
+  String get groupCover => 'Kapağı değiştir';
+
+  @override
+  String get groupRequests => 'Katılma istekleri';
+
+  @override
+  String get groupDecline => 'Reddet';
+
+  @override
+  String get groupOwner => 'Sahip';
+
+  @override
+  String get groupModerator => 'Moderatör';
+
+  @override
+  String get groupMakeModerator => 'Moderatör yap';
+
+  @override
+  String get groupMakeMember => 'Yeniden üye yap';
+
+  @override
+  String get groupHandOver => 'Grubu devret';
+
+  @override
+  String get groupRemove => 'Gruptan çıkar';
 }
