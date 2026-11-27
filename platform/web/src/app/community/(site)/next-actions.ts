@@ -7,7 +7,10 @@ import { siteContext } from "@/components/community/site/context";
 import { cmHref, cmLinks } from "@/components/community/site/links";
 import { jsonBody, list } from "@/components/community/site/form-body";
 import { send } from "@/components/community/site/next";
+import { setCoursePrice } from "@/lib/community/academy/service";
 import { communityApi } from "@/lib/community/site-client";
+import { getCommunityStore } from "@/lib/community/store/server";
+import { YALLAPP_TENANT } from "@/lib/community/types";
 
 /**
  * 232–234 One server action for the website's phase 2–4 forms. A form names
@@ -33,7 +36,7 @@ const PATHS = [
   /^\/pros\/[^/]+\/hire$/, /^\/pros\/requests\/[^/]+(\/review)?$/, /^\/me\/pro$/,
   /^\/jobs(\/[^/]+(\/applications(\/[^/]+)?)?)?$/,
   /^\/events\/[^/]+\/(rsvp|comments)$/,
-  /^\/admin\/(points|challenges(\/[^/]+(\/winners)?)?|events(\/[^/]+)?|academy\/courses(\/[^/]+)?)$/,
+  /^\/admin\/(points|challenges(\/[^/]+(\/winners)?)?|events(\/[^/]+)?|academy\/courses(\/[^/]+(\/lessons)?)?|academy\/lessons\/[^/]+)$/,
   /^\/admin\/(moderation|reports)\/[^/]+$/,
 ];
 const METHODS = ["POST", "PUT", "PATCH", "DELETE"] as const;
@@ -161,5 +164,32 @@ export async function pointsAction(form: FormData): Promise<void> {
     .map((key, i) => ({ key: key.trim(), min_points: num(form.getAll("level_min")[i]) ?? 0, name: { en: String(form.getAll("level_en")[i] ?? "").trim(), ar: String(form.getAll("level_ar")[i] ?? "").trim(), tr: String(form.getAll("level_tr")[i] ?? "").trim() } }))
     .filter((l) => l.key && l.name.en);
   const result = await send("PUT", "/admin/points", { body: { actions, levels } });
+  redirect(await cmTarget(withParam(back, result.ok ? "done" : "error", result.ok ? "saved" : result.code)));
+}
+
+/** 233 The admin sets a course's price (on the website only), or clears it. */
+export async function coursePriceAction(form: FormData): Promise<void> {
+  const { viewer } = await siteContext();
+  const courseId = str(form, "course_id");
+  const back = `${cmLinks.admin("academy")}?id=${encodeURIComponent(courseId)}`;
+  if (!viewer || viewer.role !== "admin") redirect(await cmTarget(cmLinks.signIn(back)));
+  const amount = str(form, "amount").replace(",", ".");
+  const currency = str(form, "currency").toUpperCase();
+  const price = amount ? { priceMinor: Math.round(Number(amount) * 100), currency } : null;
+  const ok = await setCoursePrice((await getCommunityStore(YALLAPP_TENANT)).qa.academy, YALLAPP_TENANT, courseId, price).catch(() => false);
+  redirect(await cmTarget(withParam(back, ok ? "done" : "error", ok ? "saved" : "invalid_request")));
+}
+
+/** 233 A lesson's quiz, written one question a line: "Question? | option | *right option | option". */
+export async function quizAuthorAction(form: FormData): Promise<void> {
+  const { viewer } = await siteContext();
+  const back = sitePath(str(form, "_back"), cmLinks.admin("academy"));
+  if (!viewer || viewer.role !== "admin") redirect(await cmTarget(cmLinks.signIn(back)));
+  const questions = str(form, "quiz")
+    .split(/\r?\n/)
+    .map((line) => line.split("|").map((x) => x.trim()).filter(Boolean))
+    .filter((parts) => parts.length >= 3)
+    .map(([prompt, ...opts]) => ({ prompt: prompt!, options: opts.map((o) => o.replace(/^\*/, "").trim()), answer: Math.max(0, opts.findIndex((o) => o.startsWith("*"))) }));
+  const result = await send("PUT", `/admin/academy/lessons/${encodeURIComponent(str(form, "lesson_id"))}/quiz`, { body: { questions } });
   redirect(await cmTarget(withParam(back, result.ok ? "done" : "error", result.ok ? "saved" : result.code)));
 }

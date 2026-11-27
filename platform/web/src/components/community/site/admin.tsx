@@ -9,7 +9,7 @@ import { SitePage } from "./page";
 import type { CmWords } from "./words";
 import { CM_WORDS2, type CmWords2 } from "./words2";
 
-export const ADMIN_TABS = ["verifications", "badges", "moderation", "reports", "points", "challenges", "events", "audit", "settings"] as const;
+export const ADMIN_TABS = ["verifications", "badges", "moderation", "reports", "points", "challenges", "events", "academy", "audit", "settings"] as const;
 export type AdminTab = (typeof ADMIN_TABS)[number];
 
 /** The tabs a moderator may open; an admin opens them all. */
@@ -29,7 +29,7 @@ export function adminTabs(role: "admin" | "moderator" | null): readonly AdminTab
 }
 
 function tabName(w: CmWords, w2: CmWords2, t: AdminTab): string {
-  return { verifications: w.adminVerifications, badges: w.badges, moderation: w.adminModeration, reports: w.adminReports, points: w2.adminPoints, challenges: w2.adminChallenges, events: w2.adminEvents, audit: w.adminAudit, settings: w.settings }[t];
+  return { verifications: w.adminVerifications, badges: w.badges, moderation: w.adminModeration, reports: w.adminReports, points: w2.adminPoints, challenges: w2.adminChallenges, events: w2.adminEvents, academy: w2.adminAcademy, audit: w.adminAudit, settings: w.settings }[t];
 }
 
 export async function AdminPage({ w, tab, children }: { w: CmWords; tab: AdminTab; children: ReactNode }) {

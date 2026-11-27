@@ -99,6 +99,7 @@ describe("no payments in the community, ever", () => {
     "src/app/community/(site)/academy/[course]/page.tsx",
     "src/app/community/(site)/next-actions.ts",
     "src/components/community/site/academy-words.ts",
+    "src/app/community/(site)/admin/academy/amount.tsx",
   ]);
 
   it("the website's code has none (but the academy's checkout)", () => {
