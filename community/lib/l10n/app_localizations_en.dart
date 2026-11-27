@@ -1046,4 +1046,372 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qaAcceptShort => 'Accept';
+
+  @override
+  String get showcaseTitle => 'Showcase';
+
+  @override
+  String get showcaseAll => 'All';
+
+  @override
+  String get showcaseNewest => 'Newest';
+
+  @override
+  String get showcaseMostLiked => 'Most liked';
+
+  @override
+  String get showcaseTypeStore => 'Shops';
+
+  @override
+  String get showcaseTypeAcademy => 'Academies';
+
+  @override
+  String get showcaseTypeBooking => 'Bookings';
+
+  @override
+  String get showcaseMadeWith => 'Made with Yallapp';
+
+  @override
+  String get showcaseLike => 'Like';
+
+  @override
+  String get showcaseLiked => 'Liked';
+
+  @override
+  String get showcaseAppStore => 'App Store';
+
+  @override
+  String get showcasePlay => 'Google Play';
+
+  @override
+  String get showcaseWebsite => 'Website';
+
+  @override
+  String get showcaseEmpty => 'No apps here yet.';
+
+  @override
+  String get academyTitle => 'Academy';
+
+  @override
+  String get academyLocked => 'Locked';
+
+  @override
+  String get academyLockedNote =>
+      'This course isn\'t open on your account yet.';
+
+  @override
+  String get academyFree => 'Open';
+
+  @override
+  String get academyComplete => 'Mark as done';
+
+  @override
+  String get academyDone => 'Done';
+
+  @override
+  String get academyWatch => 'Watch the lesson';
+
+  @override
+  String get academyCertificate => 'Your certificate';
+
+  @override
+  String get academyEmpty => 'No courses yet.';
+
+  @override
+  String get challengesTitle => 'Challenges';
+
+  @override
+  String get challengeUpcoming => 'Coming up';
+
+  @override
+  String get challengeOpen => 'Open';
+
+  @override
+  String get challengeVoting => 'Voting';
+
+  @override
+  String get challengeClosed => 'Closed';
+
+  @override
+  String get challengeRules => 'Rules';
+
+  @override
+  String get challengeEntriesTitle => 'Entries';
+
+  @override
+  String get challengeWinners => 'Winners';
+
+  @override
+  String get challengeVote => 'Vote';
+
+  @override
+  String get challengeVoted => 'Voted';
+
+  @override
+  String get challengeEnter => 'Enter with a link';
+
+  @override
+  String get challengeEnterHint => 'Link to your app';
+
+  @override
+  String get challengeEntered => 'You\'ve entered';
+
+  @override
+  String get challengeSend => 'Send';
+
+  @override
+  String get challengeEmpty => 'No challenges right now.';
+
+  @override
+  String get challengeCardTitle => 'This week\'s challenge';
+
+  @override
+  String get boardTitle => 'Leaderboard';
+
+  @override
+  String get boardWeek => 'This week';
+
+  @override
+  String get boardAll => 'All time';
+
+  @override
+  String get prosTitle => 'Pros';
+
+  @override
+  String get proAvailable => 'Available';
+
+  @override
+  String get proBusy => 'Busy';
+
+  @override
+  String get proUnavailable => 'Not taking work';
+
+  @override
+  String get proAvailableOnly => 'Available now';
+
+  @override
+  String get proServices => 'Services';
+
+  @override
+  String get proPortfolio => 'Portfolio';
+
+  @override
+  String get proSkills => 'Skills';
+
+  @override
+  String get proHire => 'Send a hire request';
+
+  @override
+  String get proHireHint => 'What do you need? At least 10 characters.';
+
+  @override
+  String get proHireSent => 'Sent. Your conversation with the pro is open.';
+
+  @override
+  String get proDirect =>
+      'You and the pro agree on the work and terms between you.';
+
+  @override
+  String get prosEmpty => 'No pros yet.';
+
+  @override
+  String get jobsTitle => 'Jobs';
+
+  @override
+  String get jobRemote => 'Remote';
+
+  @override
+  String get jobFullTime => 'Full time';
+
+  @override
+  String get jobPartTime => 'Part time';
+
+  @override
+  String get jobContract => 'Contract';
+
+  @override
+  String get jobFreelance => 'Freelance';
+
+  @override
+  String get jobInternship => 'Internship';
+
+  @override
+  String get jobApply => 'Apply';
+
+  @override
+  String get jobApplyHint => 'Your message. At least 10 characters.';
+
+  @override
+  String get jobApplied => 'You applied';
+
+  @override
+  String get jobApplicantsTitle => 'Applicants';
+
+  @override
+  String get jobsEmpty => 'No jobs right now.';
+
+  @override
+  String get eventsTitle => 'Events';
+
+  @override
+  String get eventAll => 'All';
+
+  @override
+  String get eventLive => 'Live';
+
+  @override
+  String get eventLiveNow => 'Live now';
+
+  @override
+  String get eventOnline => 'Online';
+
+  @override
+  String get eventInPerson => 'In person';
+
+  @override
+  String get eventFree => 'Free';
+
+  @override
+  String get eventRsvp => 'I\'m going';
+
+  @override
+  String get eventGoing => 'Going';
+
+  @override
+  String get eventNotGoing => 'Not going';
+
+  @override
+  String get eventCalendar => 'Add to calendar';
+
+  @override
+  String get eventJoin => 'Join';
+
+  @override
+  String get eventWatch => 'Watch';
+
+  @override
+  String get eventReplay => 'Watch the replay';
+
+  @override
+  String get eventCancelled => 'Cancelled';
+
+  @override
+  String get eventComments => 'Comments';
+
+  @override
+  String get eventCommentHint => 'Say something';
+
+  @override
+  String get eventsEmpty => 'No events coming up.';
+
+  @override
+  String showcaseLikes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count likes',
+      one: '1 like',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String academyLessons(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lessons',
+      one: '1 lesson',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String academyMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String academyProgress(int count) {
+    return '$count% done';
+  }
+
+  @override
+  String challengeEntries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entries',
+      one: '1 entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String challengeReward(int count) {
+    return '$count points';
+  }
+
+  @override
+  String challengeVotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count votes',
+      one: '1 vote',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String boardPoints(int count) {
+    return '$count pts';
+  }
+
+  @override
+  String proReviews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reviews',
+      one: '1 review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String proDone(int count) {
+    return '$count done';
+  }
+
+  @override
+  String jobApplicants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count applicants',
+      one: '1 applicant',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String eventGoingCount(int count) {
+    return '$count going';
+  }
+
+  @override
+  String boardYou(int rank, int points) {
+    return 'You: #$rank · $points pts';
+  }
+
+  @override
+  String jobBudget(String budget) {
+    return 'Budget: $budget';
+  }
+
+  @override
+  String challengeEnds(String date) {
+    return 'Ends $date';
+  }
 }

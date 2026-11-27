@@ -457,5 +457,483 @@
   "notifKindOther": "Other",
   "qaSearchMembers": "Members",
   "qaSearchTags": "Tags",
-  "qaAcceptShort": "Accept"
+  "qaAcceptShort": "Accept",
+  "showcaseTitle": "Showcase",
+  "@showcaseTitle": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseAll": "All",
+  "@showcaseAll": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseNewest": "Newest",
+  "@showcaseNewest": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseMostLiked": "Most liked",
+  "@showcaseMostLiked": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseTypeStore": "Shops",
+  "@showcaseTypeStore": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseTypeAcademy": "Academies",
+  "@showcaseTypeAcademy": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseTypeBooking": "Bookings",
+  "@showcaseTypeBooking": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseMadeWith": "Made with Yallapp",
+  "@showcaseMadeWith": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseLike": "Like",
+  "@showcaseLike": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseLiked": "Liked",
+  "@showcaseLiked": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseAppStore": "App Store",
+  "@showcaseAppStore": {
+    "description": "232–234 (area E)"
+  },
+  "showcasePlay": "Google Play",
+  "@showcasePlay": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseWebsite": "Website",
+  "@showcaseWebsite": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseEmpty": "No apps here yet.",
+  "@showcaseEmpty": {
+    "description": "232–234 (area E)"
+  },
+  "academyTitle": "Academy",
+  "@academyTitle": {
+    "description": "232–234 (area E)"
+  },
+  "academyLocked": "Locked",
+  "@academyLocked": {
+    "description": "232–234 (area E)"
+  },
+  "academyLockedNote": "This course isn't open on your account yet.",
+  "@academyLockedNote": {
+    "description": "232–234 (area E)"
+  },
+  "academyFree": "Open",
+  "@academyFree": {
+    "description": "232–234 (area E)"
+  },
+  "academyComplete": "Mark as done",
+  "@academyComplete": {
+    "description": "232–234 (area E)"
+  },
+  "academyDone": "Done",
+  "@academyDone": {
+    "description": "232–234 (area E)"
+  },
+  "academyWatch": "Watch the lesson",
+  "@academyWatch": {
+    "description": "232–234 (area E)"
+  },
+  "academyCertificate": "Your certificate",
+  "@academyCertificate": {
+    "description": "232–234 (area E)"
+  },
+  "academyEmpty": "No courses yet.",
+  "@academyEmpty": {
+    "description": "232–234 (area E)"
+  },
+  "challengesTitle": "Challenges",
+  "@challengesTitle": {
+    "description": "232–234 (area E)"
+  },
+  "challengeUpcoming": "Coming up",
+  "@challengeUpcoming": {
+    "description": "232–234 (area E)"
+  },
+  "challengeOpen": "Open",
+  "@challengeOpen": {
+    "description": "232–234 (area E)"
+  },
+  "challengeVoting": "Voting",
+  "@challengeVoting": {
+    "description": "232–234 (area E)"
+  },
+  "challengeClosed": "Closed",
+  "@challengeClosed": {
+    "description": "232–234 (area E)"
+  },
+  "challengeRules": "Rules",
+  "@challengeRules": {
+    "description": "232–234 (area E)"
+  },
+  "challengeEntriesTitle": "Entries",
+  "@challengeEntriesTitle": {
+    "description": "232–234 (area E)"
+  },
+  "challengeWinners": "Winners",
+  "@challengeWinners": {
+    "description": "232–234 (area E)"
+  },
+  "challengeVote": "Vote",
+  "@challengeVote": {
+    "description": "232–234 (area E)"
+  },
+  "challengeVoted": "Voted",
+  "@challengeVoted": {
+    "description": "232–234 (area E)"
+  },
+  "challengeEnter": "Enter with a link",
+  "@challengeEnter": {
+    "description": "232–234 (area E)"
+  },
+  "challengeEnterHint": "Link to your app",
+  "@challengeEnterHint": {
+    "description": "232–234 (area E)"
+  },
+  "challengeEntered": "You've entered",
+  "@challengeEntered": {
+    "description": "232–234 (area E)"
+  },
+  "challengeSend": "Send",
+  "@challengeSend": {
+    "description": "232–234 (area E)"
+  },
+  "challengeEmpty": "No challenges right now.",
+  "@challengeEmpty": {
+    "description": "232–234 (area E)"
+  },
+  "challengeCardTitle": "This week's challenge",
+  "@challengeCardTitle": {
+    "description": "232–234 (area E)"
+  },
+  "boardTitle": "Leaderboard",
+  "@boardTitle": {
+    "description": "232–234 (area E)"
+  },
+  "boardWeek": "This week",
+  "@boardWeek": {
+    "description": "232–234 (area E)"
+  },
+  "boardAll": "All time",
+  "@boardAll": {
+    "description": "232–234 (area E)"
+  },
+  "prosTitle": "Pros",
+  "@prosTitle": {
+    "description": "232–234 (area E)"
+  },
+  "proAvailable": "Available",
+  "@proAvailable": {
+    "description": "232–234 (area E)"
+  },
+  "proBusy": "Busy",
+  "@proBusy": {
+    "description": "232–234 (area E)"
+  },
+  "proUnavailable": "Not taking work",
+  "@proUnavailable": {
+    "description": "232–234 (area E)"
+  },
+  "proAvailableOnly": "Available now",
+  "@proAvailableOnly": {
+    "description": "232–234 (area E)"
+  },
+  "proServices": "Services",
+  "@proServices": {
+    "description": "232–234 (area E)"
+  },
+  "proPortfolio": "Portfolio",
+  "@proPortfolio": {
+    "description": "232–234 (area E)"
+  },
+  "proSkills": "Skills",
+  "@proSkills": {
+    "description": "232–234 (area E)"
+  },
+  "proHire": "Send a hire request",
+  "@proHire": {
+    "description": "232–234 (area E)"
+  },
+  "proHireHint": "What do you need? At least 10 characters.",
+  "@proHireHint": {
+    "description": "232–234 (area E)"
+  },
+  "proHireSent": "Sent. Your conversation with the pro is open.",
+  "@proHireSent": {
+    "description": "232–234 (area E)"
+  },
+  "proDirect": "You and the pro agree on the work and terms between you.",
+  "@proDirect": {
+    "description": "232–234 (area E)"
+  },
+  "prosEmpty": "No pros yet.",
+  "@prosEmpty": {
+    "description": "232–234 (area E)"
+  },
+  "jobsTitle": "Jobs",
+  "@jobsTitle": {
+    "description": "232–234 (area E)"
+  },
+  "jobRemote": "Remote",
+  "@jobRemote": {
+    "description": "232–234 (area E)"
+  },
+  "jobFullTime": "Full time",
+  "@jobFullTime": {
+    "description": "232–234 (area E)"
+  },
+  "jobPartTime": "Part time",
+  "@jobPartTime": {
+    "description": "232–234 (area E)"
+  },
+  "jobContract": "Contract",
+  "@jobContract": {
+    "description": "232–234 (area E)"
+  },
+  "jobFreelance": "Freelance",
+  "@jobFreelance": {
+    "description": "232–234 (area E)"
+  },
+  "jobInternship": "Internship",
+  "@jobInternship": {
+    "description": "232–234 (area E)"
+  },
+  "jobApply": "Apply",
+  "@jobApply": {
+    "description": "232–234 (area E)"
+  },
+  "jobApplyHint": "Your message. At least 10 characters.",
+  "@jobApplyHint": {
+    "description": "232–234 (area E)"
+  },
+  "jobApplied": "You applied",
+  "@jobApplied": {
+    "description": "232–234 (area E)"
+  },
+  "jobApplicantsTitle": "Applicants",
+  "@jobApplicantsTitle": {
+    "description": "232–234 (area E)"
+  },
+  "jobsEmpty": "No jobs right now.",
+  "@jobsEmpty": {
+    "description": "232–234 (area E)"
+  },
+  "eventsTitle": "Events",
+  "@eventsTitle": {
+    "description": "232–234 (area E)"
+  },
+  "eventAll": "All",
+  "@eventAll": {
+    "description": "232–234 (area E)"
+  },
+  "eventLive": "Live",
+  "@eventLive": {
+    "description": "232–234 (area E)"
+  },
+  "eventLiveNow": "Live now",
+  "@eventLiveNow": {
+    "description": "232–234 (area E)"
+  },
+  "eventOnline": "Online",
+  "@eventOnline": {
+    "description": "232–234 (area E)"
+  },
+  "eventInPerson": "In person",
+  "@eventInPerson": {
+    "description": "232–234 (area E)"
+  },
+  "eventFree": "Free",
+  "@eventFree": {
+    "description": "232–234 (area E)"
+  },
+  "eventRsvp": "I'm going",
+  "@eventRsvp": {
+    "description": "232–234 (area E)"
+  },
+  "eventGoing": "Going",
+  "@eventGoing": {
+    "description": "232–234 (area E)"
+  },
+  "eventNotGoing": "Not going",
+  "@eventNotGoing": {
+    "description": "232–234 (area E)"
+  },
+  "eventCalendar": "Add to calendar",
+  "@eventCalendar": {
+    "description": "232–234 (area E)"
+  },
+  "eventJoin": "Join",
+  "@eventJoin": {
+    "description": "232–234 (area E)"
+  },
+  "eventWatch": "Watch",
+  "@eventWatch": {
+    "description": "232–234 (area E)"
+  },
+  "eventReplay": "Watch the replay",
+  "@eventReplay": {
+    "description": "232–234 (area E)"
+  },
+  "eventCancelled": "Cancelled",
+  "@eventCancelled": {
+    "description": "232–234 (area E)"
+  },
+  "eventComments": "Comments",
+  "@eventComments": {
+    "description": "232–234 (area E)"
+  },
+  "eventCommentHint": "Say something",
+  "@eventCommentHint": {
+    "description": "232–234 (area E)"
+  },
+  "eventsEmpty": "No events coming up.",
+  "@eventsEmpty": {
+    "description": "232–234 (area E)"
+  },
+  "showcaseLikes": "{count, plural, =1{1 like} other{{count} likes}}",
+  "@showcaseLikes": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "academyLessons": "{count, plural, =1{1 lesson} other{{count} lessons}}",
+  "@academyLessons": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "academyMinutes": "{count} min",
+  "@academyMinutes": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "academyProgress": "{count}% done",
+  "@academyProgress": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeEntries": "{count, plural, =1{1 entry} other{{count} entries}}",
+  "@challengeEntries": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeReward": "{count} points",
+  "@challengeReward": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeVotes": "{count, plural, =1{1 vote} other{{count} votes}}",
+  "@challengeVotes": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "boardPoints": "{count} pts",
+  "@boardPoints": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proReviews": "{count, plural, =1{1 review} other{{count} reviews}}",
+  "@proReviews": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proDone": "{count} done",
+  "@proDone": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "jobApplicants": "{count, plural, =1{1 applicant} other{{count} applicants}}",
+  "@jobApplicants": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventGoingCount": "{count} going",
+  "@eventGoingCount": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "boardYou": "You: #{rank} · {points} pts",
+  "@boardYou": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "jobBudget": "Budget: {budget}",
+  "@jobBudget": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "budget": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeEnds": "Ends {date}",
+  "@challengeEnds": {
+    "description": "232–234 (area E)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }
