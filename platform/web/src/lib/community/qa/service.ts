@@ -58,12 +58,18 @@ const SHOWN: readonly ContentStatus[] = ["published"];
 /** Gives points and tells area A the member's total (their profile's points). */
 /** Gives points once per reason and ref; the member's profile moves only by what was recorded. */
 async function award(e: Parameters<QaStore["addPoints"]>[0]): Promise<void> {
-  if ((await qaStore().addPoints(e)) && e.points) await qaHooks().pointsChanged(e.memberId, e.points);
+  if (!(await qaStore().addPoints(e)) || !e.points) return;
+  const hooks = qaHooks();
+  if (hooks.award) await hooks.award({ memberId: e.memberId, reason: e.reason, ref: e.ref });
+  else await hooks.pointsChanged(e.memberId, e.points);
 }
 /** Takes back what that reason and ref gave, by exactly what was taken. */
 async function unaward(memberId: string, reason: Parameters<QaStore["removePoints"]>[1], ref: string): Promise<void> {
   const taken = await qaStore().removePoints(memberId, reason, ref);
-  if (taken) await qaHooks().pointsChanged(memberId, -taken);
+  if (!taken) return;
+  const hooks = qaHooks();
+  if (hooks.takeBack) await hooks.takeBack({ memberId, reason, ref });
+  else await hooks.pointsChanged(memberId, -taken);
 }
 
 // ——— Sections ———

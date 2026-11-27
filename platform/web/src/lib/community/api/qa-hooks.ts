@@ -1,3 +1,4 @@
+import { awardPoints, takeBackPoints } from "../engage/points";
 import { withQa, type MemberPerson, type QaHooks } from "../qa/hooks";
 import { trustDepsOf } from "../trust/context";
 import { moderateNew, notify } from "../trust/service";
@@ -30,6 +31,9 @@ export function qaHooksFor(ctx: CommunityContext): Partial<QaHooks> {
     async pointsChanged(memberId, delta) {
       await base.addPoints(memberId, delta);
     },
+    // 233 Area C's ledger gives the points (and keeps community_members.points).
+    award: (input) => awardPoints(ctx, input),
+    takeBack: (input) => takeBackPoints(ctx, input),
     ...trustForQa(ctx),
   };
 }

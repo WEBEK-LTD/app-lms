@@ -232,7 +232,7 @@ export const communityReports = mysqlTable(
     reporterId: id("reporter_id")
       .notNull()
       .references(() => communityMembers.id, { onDelete: "cascade" }),
-    targetType: varchar("target_type", { length: 12 }).notNull().$type<CommunityTargetType>(),
+    targetType: varchar("target_type", { length: 24 }).notNull().$type<CommunityTargetType>(),
     targetId: id("target_id").notNull(),
     reason: varchar("reason", { length: 16 }).notNull().$type<CommunityReportReason>(),
     note: text("note").notNull(),
@@ -568,7 +568,7 @@ export const communityModerationItems = mysqlTable(
   {
     id: id("id").primaryKey(),
     tenantId: tenantColumn(),
-    targetType: varchar("target_type", { length: 12 }).notNull().$type<CommunityTargetType>(),
+    targetType: varchar("target_type", { length: 24 }).notNull().$type<CommunityTargetType>(),
     targetId: id("target_id").notNull(),
     authorId: id("author_id"),
     cause: varchar("cause", { length: 16 }).notNull().$type<"first_posts" | "spam_filter" | "reports">(),
@@ -590,7 +590,7 @@ export const communityViolations = mysqlTable(
       .notNull()
       .references(() => communityMembers.id, { onDelete: "cascade" }),
     kind: varchar("kind", { length: 24 }).notNull(),
-    targetType: varchar("target_type", { length: 12 }),
+    targetType: varchar("target_type", { length: 24 }),
     targetId: id("target_id"),
     createdBy: id("created_by"),
     createdAt: time("created_at").notNull(),

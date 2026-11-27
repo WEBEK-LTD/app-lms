@@ -37,6 +37,7 @@ export async function serveCommunity(request: Request, path: string[], tenant: C
     acceptLanguage: request.headers.get("accept-language"),
   });
   if (result.status === 204) return noContent();
+  if (result.text !== undefined) return new Response(result.text, { status: result.status, headers: result.headers });
   return json(result.body, result.status, result.headers);
 }
 

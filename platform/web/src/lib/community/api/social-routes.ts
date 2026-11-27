@@ -10,6 +10,7 @@ import { fail, noContent, ok, requireMember, tooMany, type CommunityContext, typ
 import { findMember } from "../base/profile";
 import { groupPosted, readableGroup } from "../connect/groups";
 import { setPortfolioLookup } from "../connect/pros";
+import { awardPoints, takeBackPoints } from "../engage/points";
 import { qaHooksFor, withQaFor } from "./qa-hooks";
 import { run, wire } from "./qa-routes";
 
@@ -78,6 +79,11 @@ export function socialEnvFor(ctx: CommunityContext): SocialEnv {
     groups: {
       canRead: async (_viewer, groupId) => (await groupRights(ctx, groupId))?.canRead ?? false,
       canPost: async (_member, groupId) => (await groupRights(ctx, groupId))?.canPost ?? false,
+    },
+    // 233 Area C's points ledger (engage/points.ts) decides each reason's points and daily cap.
+    onEvent: async ({ kind, memberId, refId, undo }) => {
+      if (undo) await takeBackPoints(ctx, { memberId, reason: kind, ref: refId });
+      else await awardPoints(ctx, { memberId, reason: kind, ref: refId });
     },
     questions: ({ tab, viewerId, limit }) =>
       withQaFor(ctx, async () => (await qa.listQuestions({ viewerId, lang: ctx.lang, filter: tab === "following" ? "following" : tab === "for_you" ? "for_you" : "all", sort: "newest", limit })).items),
@@ -237,6 +243,12 @@ const groupFeed: Handler = async (ctx) => {
   const page = await social.listPosts(socialEnvFor(ctx), viewer(ctx), { groupId: rights.group.id, cursor: ctx.query.get("cursor"), limit: limitOf(ctx) });
   return ok({ items: page.items.map((p) => ({ kind: "post", id: p.id, created_at: p.createdAt, post: postOut(ctx, p) })), next_cursor: page.nextCursor });
 };
+
+/** A showcase item's card (ShowcaseSummary) for C's challenge entries; null when it isn't shown. */
+export async function showcaseCard(ctx: CommunityContext, id: string): Promise<Json | null> {
+  const item = await social.getShowcase(socialEnvFor(ctx), ctx.member?.id ?? null, id).catch(() => null);
+  return item ? showcaseSummaryOut(item) : null;
+}
 
 // 234 A pro's portfolio is their own showcase items, in the order given.
 setPortfolioLookup(async (ctx, memberId, ids) => {

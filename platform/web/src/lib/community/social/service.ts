@@ -34,7 +34,8 @@ export interface SocialEnv {
   /** The feed's questions (area B's Q&A), newest or for the member. */
   questions?(input: { tab: FeedTab; viewerId: string | null; limit: number }): Promise<QuestionSummary[]>;
   /** For points (area C): something the member did. */
-  onEvent?(event: { kind: SocialEventKind; memberId: string; refId: string }): Promise<void>;
+  /** 233 For area C's points: who earned it, for what (`refId`), and whether it is taken back (an unlike). */
+  onEvent?(event: { kind: SocialEventKind; memberId: string; refId: string; undo?: boolean }): Promise<void>;
 }
 
 export type SocialEventKind = "post_created" | "post_liked" | "comment_created" | "story_created" | "showcase_created" | "showcase_liked";
@@ -416,8 +417,9 @@ export async function like(env: SocialEnv, viewerId: string | null, kind: Reacti
   if (!changed) return { liked: on, likeCount: target.likeCount };
   await env.store.addCounts(kind, id, { likes: on ? 1 : -1 });
   const likeCount = target.likeCount + (on ? 1 : -1);
+  // One like's points per liker (the ref), taken back with the like.
+  if (kind !== "comment") await env.onEvent?.({ kind: kind === "post" ? "post_liked" : "showcase_liked", memberId: target.authorId, refId: `${id}:${member}`, undo: !on });
   if (on && kind !== "comment") {
-    await env.onEvent?.({ kind: kind === "post" ? "post_liked" : "showcase_liked", memberId: target.authorId, refId: id });
     if ((LIKE_MILESTONES as readonly number[]).includes(likeCount)) {
       await env.hooks.notify({ memberId: target.authorId, kind: "post_liked" as never, actorId: member, targetType: kind as never, targetId: id, data: { title: target.title, count: likeCount }, link: target.link });
     }

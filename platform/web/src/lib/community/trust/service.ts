@@ -1,7 +1,7 @@
 import type { CommunityRole, CommunityTargetType } from "../types";
 import { GOLD_MIN_APPS, heldBadges, isActive, reconcileAutoBadges, shownBadge, type BadgeDetails, type CommunityBadge, type MemberBadge, type MemberFacts } from "./badges";
 import { holdCause, moderationGate, type HoldReason } from "./moderation";
-import { BADGE_NAMES, communityLang, DEFAULT_NOTIFICATION_PREFS, emails, notificationEmail, notificationText, parsePrefs, prefsView, type NotificationData, type NotificationKind } from "./notifications";
+import { BADGE_NAMES, communityLang, DEFAULT_NOTIFICATION_PREFS, emails, notificationEmail, notificationText, parsePrefs, prefsView, pushes, pushPrefsView, type NotificationData, type NotificationKind } from "./notifications";
 import { fileTypeOf, ID_PROOF_KEEP_DAYS, ID_PROOF_TYPES, idProofProblem, parseDecision, parseGrant, parseReason, parseReport, parseVerificationForm, verificationBlocked, type AuditAction, type AuditEntry, type LinkedApp, type Report, type ReportStatus, type VerificationRequest, type VerificationStatus } from "./requests";
 import { blueRulesOf, mayCreateGroups, parseSettings, settingsOf, type CommunitySettings } from "./settings";
 import type { ContentKind, ModerationItem, ModerationStatus, Page, TrustStore } from "./store";
@@ -77,6 +77,8 @@ export interface TrustDeps {
     /** Deletes a private file (gone from storage for good). */
     delete: (key: string) => Promise<void>;
   };
+  /** 232 Pushes one notice to a member's phones (lib/community/engage/push.ts); none: push isn't set up here. */
+  push?: (memberId: string, message: { title: string; body: string; data: Record<string, string> }) => Promise<void>;
   /** Sends one email (lib/mail.ts in the platform, a fake in tests). */
   sendMail: (mail: { to: string; subject: string; text: string; html: string }) => Promise<void>;
   /** The Community's address ("https://community.yallapp.com.tr"), for the links in emails. */
@@ -87,7 +89,7 @@ export interface TrustDeps {
 
 /** A refusal, as the API answers it (`{ error: { code, message } }` with `status`). */
 export type Fail = { ok: false; status: number; code: string; message: string; errors?: Record<string, string> };
-const fail = (status: number, code: string, message: string, errors?: Record<string, string>): Fail => ({ ok: false, status, code, message, ...(errors ? { errors } : {}) });
+export const fail = (status: number, code: string, message: string, errors?: Record<string, string>): Fail => ({ ok: false, status, code, message, ...(errors ? { errors } : {}) });
 export const isFail = (x: unknown): x is Fail => typeof x === "object" && x !== null && (x as { ok?: unknown }).ok === false;
 
 /** The API's page size: at most 50, 20 by default. */
@@ -121,11 +123,11 @@ export async function staffRole(deps: TrustDeps, memberId: string): Promise<Staf
 /** Whether a role is enough: an admin may do anything a moderator may. */
 export const roleAllows = (role: StaffRole | null, need: StaffRole): boolean => role === "admin" || (need === "moderator" && role === "moderator");
 
-async function audit(deps: TrustDeps, entry: { actorId: string | null; action: AuditAction; memberId?: string | null; targetType?: string | null; targetId?: string | null; reason?: string | null; details?: Record<string, unknown> | null }) {
+export async function audit(deps: TrustDeps, entry: { actorId: string | null; action: AuditAction; memberId?: string | null; targetType?: string | null; targetId?: string | null; reason?: string | null; details?: Record<string, unknown> | null }) {
   await deps.store.addAudit({ actorId: entry.actorId, action: entry.action, memberId: entry.memberId ?? null, targetType: entry.targetType ?? null, targetId: entry.targetId ?? null, reason: entry.reason ?? null, details: entry.details ?? null, createdAt: deps.now() });
 }
 
-async function requireAdmin(deps: TrustDeps, memberId: string, need: StaffRole = "admin"): Promise<Fail | null> {
+export async function requireAdmin(deps: TrustDeps, memberId: string, need: StaffRole = "admin"): Promise<Fail | null> {
   return roleAllows(await staffRole(deps, memberId), need) ? null : fail(403, "forbidden", need === "admin" ? "Only Community admins can do this." : "Only Community moderators can do this.");
 }
 
@@ -201,6 +203,9 @@ export async function canCreateGroups(deps: TrustDeps, memberId: string): Promis
  * when the kind emails and they haven't turned it off. Never for their own
  * action, and never to a member who isn't active.
  */
+/** 232 A push's title: the app's name, as the phone shows it above the notice. */
+export const PUSH_TITLE = "Yallapp Community";
+
 export async function notify(deps: TrustDeps, input: { memberId: string; kind: NotificationKind; actorId?: string | null; targetType?: string | null; targetId?: string | null; data?: NotificationData; link: string }): Promise<void> {
   if (input.actorId && input.actorId === input.memberId) return;
   const member = await deps.member(input.memberId);
@@ -209,6 +214,13 @@ export async function notify(deps: TrustDeps, input: { memberId: string; kind: N
   if (input.actorId && (await deps.blockedEitherWay?.(member.id))?.has(input.actorId)) return;
   const n = await deps.store.addNotification({ memberId: member.id, kind: input.kind, actorId: input.actorId ?? null, targetType: input.targetType ?? null, targetId: input.targetId ?? null, data: { ...(input.data ?? {}), link: input.link }, createdAt: deps.now() });
   const prefs = (await deps.store.getNotificationPrefs(member.id)) ?? DEFAULT_NOTIFICATION_PREFS;
+  // 232 To the member's phones (Firebase Cloud Messaging), unless they turned this kind off; never failing what caused it.
+  if (deps.push && pushes(input.kind, prefs)) {
+    const text = notificationText(input.kind, n.data, communityLang(member.language));
+    await deps.push(member.id, { title: PUSH_TITLE, body: text, data: { kind: input.kind, notification_id: n.id, link: input.link } }).catch((error: unknown) => {
+      console.warn(`[community] push for notification ${n.id} failed: ${error instanceof Error ? error.message : String(error)}`);
+    });
+  }
   if (!member.email || !emails(input.kind, prefs)) return;
   const mail = notificationEmail(input.kind, n.data, communityLang(member.language), new URL(input.link, deps.siteUrl).toString(), deps.logoUrl);
   try {
@@ -255,15 +267,16 @@ export async function markRead(deps: TrustDeps, memberId: string, input: unknown
 }
 
 /** Which kinds also come by email (`NotificationSettings`): every kind, on or off. */
-export async function getPrefs(deps: TrustDeps, memberId: string): Promise<{ email: Record<NotificationKind, boolean> }> {
-  return { email: prefsView((await deps.store.getNotificationPrefs(memberId)) ?? DEFAULT_NOTIFICATION_PREFS) };
+export async function getPrefs(deps: TrustDeps, memberId: string): Promise<{ email: Record<NotificationKind, boolean>; push: Record<NotificationKind, boolean> }> {
+  const prefs = (await deps.store.getNotificationPrefs(memberId)) ?? DEFAULT_NOTIFICATION_PREFS;
+  return { email: prefsView(prefs), push: pushPrefsView(prefs) };
 }
 
-export async function updatePrefs(deps: TrustDeps, memberId: string, input: unknown): Promise<{ ok: true; email: Record<NotificationKind, boolean> } | Fail> {
+export async function updatePrefs(deps: TrustDeps, memberId: string, input: unknown): Promise<{ ok: true; email: Record<NotificationKind, boolean>; push: Record<NotificationKind, boolean> } | Fail> {
   const parsed = parsePrefs(input, (await deps.store.getNotificationPrefs(memberId)) ?? DEFAULT_NOTIFICATION_PREFS);
   if (!parsed.ok) return fail(400, "invalid_request", parsed.error);
   await deps.store.saveNotificationPrefs(memberId, parsed.value, deps.now());
-  return { ok: true, email: prefsView(parsed.value) };
+  return { ok: true, email: prefsView(parsed.value), push: pushPrefsView(parsed.value) };
 }
 
 // ——— Badges ———

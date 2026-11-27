@@ -161,7 +161,7 @@ async function getNotificationSettings(ctx: CommunityContext): Promise<Community
 
 async function putNotificationSettings(ctx: CommunityContext): Promise<CommunityResult> {
   const result = unwrap(await T.updatePrefs(deps(ctx), me(ctx).id, ctx.json()));
-  return ok({ email: result.email });
+  return ok({ email: result.email, push: result.push });
 }
 
 async function listVerificationRequests(ctx: CommunityContext): Promise<CommunityResult> {
