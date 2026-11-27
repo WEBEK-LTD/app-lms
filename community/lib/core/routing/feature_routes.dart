@@ -9,6 +9,7 @@ import '../../features/challenges/ui/challenges_screens.dart';
 import '../../features/events/ui/events_screens.dart';
 import '../../features/jobs/ui/jobs_screens.dart';
 import '../../features/leaderboard/ui/leaderboard_screen.dart';
+import '../../features/messages/links.dart';
 import '../../features/pros/ui/pros_screens.dart';
 import '../../features/showcase/ui/showcase_screens.dart';
 import '../../features/notifications/ui/notifications_screen.dart';
@@ -82,8 +83,7 @@ abstract final class FeatureLinks {
   static String event(String id) => '/events/${Uri.encodeComponent(id)}';
 
   /// A message thread (area D's), as a hire request opens it.
-  static String conversation(String id) =>
-      '/messages/${Uri.encodeComponent(id)}';
+  static String conversation(String id) => MessagesLinks.thread(id);
 }
 
 /// E's screens under the shell's floating tab bar: the tab roots (Q&A,

@@ -5143,6 +5143,23 @@ One PR for all four (design/BRIEF-phase2-5.md). Areas add their rows under their
 | [x] | 233.B5 Member tutorials: any member writes one (`/tutorials/drafts`, `/tutorials/mine`); a new member's first ones wait for review; "Official" stays the team's; points once published | `community-qa-suite.ts`, `community-qa-api.test.ts` |
 | [x] | 233.B6 The Academy: courses with video and article lessons, quizzes (70% passes), progress, a certificate with a public code and its PDF; the admin's authoring under `/admin/academy`; a course is open or locked (403 `course_locked`) and the API never carries a price, a buy button or a payment link; the website's checkout uses `coursePriceForCheckout`, `setCoursePrice` and `grantCourseAccess` (idempotent) (migration 0170) | `community-academy.test.ts`, `community-academy-mysql.test.ts`, `community-academy-api.test.ts`, `community-contract.test.ts` (no field sells anything) |
 
+## Phases 232–235: Yallapp Community, phases 2 to 5 (area E's rows)
+
+| | Item | Tests |
+|---|---|---|
+| [x] | 232.E1 The flat look (#527) on area E's phase 1 screens too: Q&A, tutorials, the verification form and search without shadows, glows, blur or two-colour gradients; cards at 12 | the phase 1 tests above, `icons_test.dart` |
+| [x] | 232.E2 Showcase in the app: the gallery by type (shops, academies, bookings), newest or most liked; an item's pictures, description, store links and Like; "Made with Yallapp" when the API says so | `test/features/sections/sections_test.dart` |
+| [x] | 233.E1 The Academy in the app: courses open or locked (`access`), a lock and "not open on your account yet" and nothing else (no price, buy button or payment link, Android and iOS, en/ar/tr); an open course's lessons, the video outside the app, Mark as done, the certificate's link | `test/academy_no_payments_test.dart`, `no_payments_test.dart`, `sections_test.dart` |
+| [x] | 233.E2 Challenges: the list, a challenge's rules, dates and reward, entering with a link while open, voting while voting, the winners after; the home card (`featuredChallengeProvider`, `ChallengeCard`) for area D's home | `sections_test.dart` |
+| [x] | 233.E3 The leaderboard: this week's and all-time, the member's own place | `sections_test.dart` |
+| [x] | 234.E1 Pros: best rated, "Available now"; a pro's services with their rates as text, skills and portfolio; a hire request opens its message thread; the pro and the client agree between them (no money moves) | `sections_test.dart` |
+| [x] | 234.E2 Jobs: the list, a job's type, place, skills and budget as text; applying with a message; the poster sees the applicants | `sections_test.dart` |
+| [x] | 234.E3 Events and Live: online, in person or live at the viewer's own time, all free; RSVP, the .ics file; a live session's Watch link (an embed or meeting link, no streaming of our own), its comments and the replay after | `sections_test.dart` |
+| [x] | 232–234.E4 Every new screen in light and dark, in English, Arabic (RTL) and Turkish, at 390; Material Symbols Rounded only | `sections_test.dart` (90 cases), `icons_test.dart`, `no_emoji_test.dart` |
+| [x] | 235.E1 The "Community" app type: `community` in `AppType` and its engine (kinds.ts), off until Admin › Switches turns `app_type:community` on (`DEFAULT_OFF_SWITCHES`, the switch's `on` list); its Studio card shows only then; the screens `community_feed`, `community_questions`, `community_groups`, `community_profile` and `community_messages` | `kinds.test.ts`, `switches.test.ts` |
+| [x] | 235.E2 Studio's three community designs, every screen editable as on other designs: Day (light), Night (dark) and Everyday (follows the phone), flat pictures in the designs' colours | `designs.test.ts` |
+| [x] | 235.E3 The client app (`mobile/`): the Community module only for apps whose `app_type` is `community` (the build config, the build tool and the schema know it): the feed (posts, questions, showcase), Q&A with answering, groups with Join, the member's profile and member-to-member messages, on the tenant's Community API (`/api/app/{app_id}/community/v1`) with the community token for the signed-in customer (`POST /auth/app`, area A); en/ar/tr. No CLIENT_APP_RELEASE bump | `phase235_community_test.dart`, `build_config_tool_test.dart`, `kinds.test.ts` (screens match the Dart module) |
+| [ ] | 235.E4 A demo app for the Community type on /demo/studio (`DemoId` leaves `community` out until then) | — |
 ### Phases 232–235, area D (the Community app's shell, posts, stories, messages, groups and push)
 
 Rows for the table under "Phases 232–235: Yallapp Community, phases 2 to 5".

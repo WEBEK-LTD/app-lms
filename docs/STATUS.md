@@ -51,6 +51,10 @@ questions, official tutorials (all free, never a lock),
 the Gold badge's verification form, notifications with the bell's count,
 search and saved, in English, Arabic and Turkish, light and dark.
 
+Roadmap 232–234 (area E, the Community app): Showcase, the Academy (open or locked, never a price), Challenges, the leaderboard, Pros, Jobs, Events and Live, flat, in en/ar/tr, light and dark; not yet released.
+
+Roadmap 235 (area E): the "Community" app type, off until Admin › Switches turns it on: its Studio card and three designs, and mobile/'s feed, Q&A, groups, profile and messages on the app's own community; no release bump.
+
 Roadmap 231 area F (Yallapp Community's website, under `src/app/community/`,
 served on `community.yallapp.com.tr`): the approved look in English, Arabic
 and Turkish, light and dark; welcome and signing in (Apple, Google, email),
