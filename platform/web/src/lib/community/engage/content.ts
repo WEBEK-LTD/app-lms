@@ -10,7 +10,7 @@ export const challengeSubmissionContent: ContentAdapter = {
   async info(ctx, id) {
     const s = await ctx.store.engage.getSubmission(id);
     if (!s) return null;
-    const words = [s.title, s.note, s.url].filter(Boolean).join(" · ");
+    const words = [s.note, s.url].filter(Boolean).join(" · ") || "Entry";
     return { authorId: s.memberId, title: words.slice(0, 140), link: `/challenges/${s.challengeId}#entry-${s.id}` };
   },
   async setStatus(ctx, id, status) {

@@ -15,7 +15,10 @@ import type { CommunityEvent, EventComment, EventKind, Page } from "./store";
 const HTTPS = /^https:\/\/[^\s/$.?#][^\s]*$/i;
 const KINDS: readonly EventKind[] = ["online", "in_person", "live"];
 const MAX_LENGTH_MS = 7 * 24 * 60 * 60 * 1000;
-const COMMENT_MAX = 1000;
+/** Without an end: an hour long. */
+const DEFAULT_LENGTH_MS = 60 * 60 * 1000;
+const CAPACITY_MAX = 100_000;
+const COMMENT_MAX = 4000;
 
 /** Where an event is now: before it, on now, over, or cancelled. */
 export type EventPhase = "scheduled" | "live" | "ended" | "cancelled";
@@ -39,8 +42,8 @@ export function validTimeZone(zone: string): boolean {
 
 /**
  * A YouTube video or live stream's player address, from any of its links
- * (watch, live, youtu.be, embed); null for anything else. Only YouTube's
- * player is embedded on our pages: a meeting link is a join link.
+ * (watch, live, youtu.be, embed); null for anything else. A YouTube link is
+ * always kept as its player's address (youtube-nocookie.com).
  */
 export function youtubeEmbed(url: string): string | null {
   let u: URL;
@@ -61,9 +64,9 @@ export function youtubeEmbed(url: string): string | null {
   return id && /^[A-Za-z0-9_-]{6,20}$/.test(id) ? `https://www.youtube-nocookie.com/embed/${id}` : null;
 }
 
-type EventFields = Pick<CommunityEvent, "kind" | "title" | "body" | "startsAt" | "endsAt" | "timeZone" | "location" | "joinUrl" | "embedUrl" | "replayUrl" | "coverUrl" | "groupId">;
+type EventFields = Pick<CommunityEvent, "kind" | "title" | "body" | "startsAt" | "endsAt" | "capacity" | "timeZone" | "location" | "joinUrl" | "embedUrl" | "replayUrl" | "coverUrl" | "groupId">;
 
-/** An event's fields as the admin sends them; with `current`, only what is sent changes. */
+/** An event's fields as the admin sends them (EventInput); with `current`, only what is sent changes. */
 export function parseEvent(input: unknown, current?: CommunityEvent): { ok: true; value: EventFields } | { ok: false; errors: Record<string, string> } {
   const v = (input ?? {}) as Record<string, unknown>;
   const errors: Record<string, string> = {};
@@ -72,17 +75,21 @@ export function parseEvent(input: unknown, current?: CommunityEvent): { ok: true
   const kind = (has("kind") || !current ? v.kind : current.kind) as EventKind;
   if (!KINDS.includes(kind)) errors.kind = "kind must be online, in_person or live.";
   const title = str("title", current?.title);
-  if (title === null || title.length < 5 || title.length > 140) errors.title = "Give it a title of 5 to 140 characters.";
-  const body = str("body", current?.body);
-  if (body === null || body.length > 10_000) errors.body = "Keep the description under 10,000 characters.";
+  if (title === null || title.length < 5 || title.length > 160) errors.title = "Give it a title of 5 to 160 characters.";
+  const body = str("description", current?.body);
+  if (body === null || body.length > 10_000) errors.description = "Keep the description under 10,000 characters.";
   const time = (k: string, was: Date | undefined) => (has(k) || !was ? (typeof v[k] === "string" && !Number.isNaN(new Date(v[k] as string).getTime()) ? new Date(v[k] as string) : null) : was);
   const startsAt = time("starts_at", current?.startsAt);
-  const endsAt = time("ends_at", current?.endsAt);
   if (!startsAt) errors.starts_at = "Give the start as a date and time.";
-  if (!endsAt) errors.ends_at = "Give the end as a date and time.";
+  // No end (or null): an hour after the start, moving with it.
+  const endGiven = has("ends_at") && v.ends_at !== null;
+  const endsAt = endGiven ? time("ends_at", undefined) : has("ends_at") || !current || has("starts_at") ? (startsAt ? new Date(startsAt.getTime() + DEFAULT_LENGTH_MS) : null) : current.endsAt;
+  if (endGiven && !endsAt) errors.ends_at = "Give the end as a date and time.";
   if (startsAt && endsAt && (endsAt <= startsAt || endsAt.getTime() - startsAt.getTime() > MAX_LENGTH_MS)) errors.ends_at = "It ends after it starts, within 7 days.";
-  const timeZone = str("time_zone", current?.timeZone);
-  if (!timeZone || !validTimeZone(timeZone)) errors.time_zone = "Choose the time zone it is held in.";
+  const timeZone = has("time_zone") || !current ? (typeof v.time_zone === "string" && v.time_zone.trim() ? v.time_zone.trim() : "UTC") : current.timeZone;
+  if (!validTimeZone(timeZone)) errors.time_zone = "Choose the time zone it is held in.";
+  const capacity = has("capacity") ? v.capacity : (current?.capacity ?? null);
+  if (capacity !== null && (typeof capacity !== "number" || !Number.isInteger(capacity) || capacity < 1 || capacity > CAPACITY_MAX)) errors.capacity = "The places are a whole number of at least 1, or none for no limit.";
   const link = (k: string, was: string | null | undefined, max = 500) => {
     const got = str(k, was);
     if (got === null || (got && (!HTTPS.test(got) || got.length > max))) {
@@ -97,8 +104,8 @@ export function parseEvent(input: unknown, current?: CommunityEvent): { ok: true
   const replayUrl = link("replay_url", current?.replayUrl);
   const coverUrl = link("cover_url", current?.coverUrl, 512);
   const rawEmbed = link("embed_url", current?.embedUrl);
-  const embedUrl = rawEmbed ? youtubeEmbed(rawEmbed) : null;
-  if (rawEmbed && !embedUrl) errors.embed_url = "Embed a YouTube video or live stream; put a meeting link in join_url.";
+  // YouTube's links become its player's; a meeting's embed link is kept as given.
+  const embedUrl = rawEmbed ? (youtubeEmbed(rawEmbed) ?? rawEmbed) : null;
   if (!errors.kind) {
     if (kind === "in_person" && !location) errors.location = "Say where it is held.";
     if (kind === "online" && !joinUrl) errors.join_url = "Give the link to join.";
@@ -106,7 +113,7 @@ export function parseEvent(input: unknown, current?: CommunityEvent): { ok: true
   }
   const groupId = has("group_id") ? (typeof v.group_id === "string" && v.group_id.trim() ? v.group_id.trim().slice(0, 36) : null) : (current?.groupId ?? null);
   if (Object.keys(errors).length) return { ok: false, errors };
-  return { ok: true, value: { kind, title: title!, body: body!, startsAt: startsAt!, endsAt: endsAt!, timeZone: timeZone!, location: location || null, joinUrl, embedUrl, replayUrl, coverUrl, groupId } };
+  return { ok: true, value: { kind, title: title!, body: body!, startsAt: startsAt!, endsAt: endsAt!, capacity: capacity as number | null, timeZone, location: location || null, joinUrl, embedUrl, replayUrl, coverUrl, groupId } };
 }
 
 type Result<T> = ({ ok: true } & T) | Fail;
@@ -141,17 +148,18 @@ export async function updateEvent(ctx: EngageCtx, adminId: string, id: string, i
   return { ok: true, event };
 }
 
-export async function deleteEvent(ctx: EngageCtx, adminId: string, id: string): Promise<{ ok: true } | Fail> {
+/** The admin cancels an event (DELETE /admin/events/{id}): it stays, marked cancelled, and everyone going hears of it. */
+export async function cancelEvent(ctx: EngageCtx, adminId: string, id: string): Promise<{ ok: true; event: CommunityEvent } | Fail> {
   const { store, trust } = engageOf(ctx);
   const denied = await requireAdmin(trust, adminId);
   if (denied) return denied;
   const current = await getEvent(ctx, id);
   if (!current) return fail(404, "not_found", "There's no such event.");
-  // Those going are told before it goes, unless it was over or cancelled already.
-  if (eventPhase(current, ctx.now) === "scheduled") await tellGoing(ctx, current, "event_cancelled");
-  await store.deleteEvent(id);
+  if (current.status === "cancelled") return { ok: true, event: current };
+  const event = (await store.updateEvent(id, { status: "cancelled", updatedAt: ctx.now }))!;
   await audit(trust, { actorId: adminId, action: "event.delete", targetType: "event", targetId: id, details: { title: current.title } });
-  return { ok: true };
+  if (eventPhase(current, ctx.now) !== "ended") await tellGoing(ctx, event, "event_cancelled");
+  return { ok: true, event };
 }
 
 export async function getEvent(ctx: EngageCtx, id: string): Promise<CommunityEvent | null> {
@@ -172,8 +180,9 @@ export async function rsvp(ctx: EngageCtx, memberId: string, eventId: string, go
   if (!event) return fail(404, "not_found", "There's no such event.");
   const phase = eventPhase(event, ctx.now);
   if (going && (phase === "cancelled" || phase === "ended")) return fail(409, "event_closed", phase === "cancelled" ? "This event was cancelled." : "This event is over.");
-  if (going) await store.addRsvp(eventId, memberId, ctx.now);
-  else await store.removeRsvp(eventId, memberId);
+  if (going) {
+    if ((await store.addRsvp(eventId, memberId, ctx.now)) === "full") return fail(409, "event_full", "This event is full.");
+  } else await store.removeRsvp(eventId, memberId);
   return { ok: true, going, rsvpCount: (await store.getEvent(eventId))!.rsvpCount };
 }
 

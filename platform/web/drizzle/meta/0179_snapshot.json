@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "b92b1058-8999-4913-9cf7-2283999712f9",
-  "prevId": "d2d9f384-212e-4927-8a5d-2beb569cb3b5",
+  "id": "9923d321-119b-4f3a-9469-8ffc00799be1",
+  "prevId": "b7c9359f-bd69-4428-8cbb-915c9c91c93e",
   "tables": {
     "account_deletion_requests": {
       "name": "account_deletion_requests",
@@ -34034,6 +34034,14 @@
           "notNull": true,
           "autoincrement": false
         },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'yallapp'"
+        },
         "actor_id": {
           "name": "actor_id",
           "type": "varchar(36)",
@@ -34095,6 +34103,7 @@
         "community_audit_created": {
           "name": "community_audit_created",
           "columns": [
+            "tenant_id",
             "created_at"
           ],
           "isUnique": false
@@ -34670,6 +34679,14 @@
     "community_identities": {
       "name": "community_identities",
       "columns": {
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'yallapp'"
+        },
         "member_id": {
           "name": "member_id",
           "type": "varchar(36)",
@@ -34731,9 +34748,10 @@
         }
       },
       "compositePrimaryKeys": {
-        "community_identities_provider_subject_pk": {
-          "name": "community_identities_provider_subject_pk",
+        "community_identities_tenant_id_provider_subject_pk": {
+          "name": "community_identities_tenant_id_provider_subject_pk",
           "columns": [
+            "tenant_id",
             "provider",
             "subject"
           ]
@@ -34825,6 +34843,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'yallapp'"
         },
         "email": {
           "name": "email",
@@ -35007,6 +35033,7 @@
         "community_members_email_unique": {
           "name": "community_members_email_unique",
           "columns": [
+            "tenant_id",
             "email"
           ],
           "isUnique": true
@@ -35014,6 +35041,7 @@
         "community_members_username_unique": {
           "name": "community_members_username_unique",
           "columns": [
+            "tenant_id",
             "username"
           ],
           "isUnique": true
@@ -35021,6 +35049,7 @@
         "community_members_yallapp_unique": {
           "name": "community_members_yallapp_unique",
           "columns": [
+            "tenant_id",
             "yallapp_user_id"
           ],
           "isUnique": true
@@ -35028,6 +35057,7 @@
         "community_members_points": {
           "name": "community_members_points",
           "columns": [
+            "tenant_id",
             "points"
           ],
           "isUnique": false
@@ -35054,6 +35084,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'yallapp'"
         },
         "target_type": {
           "name": "target_type",
@@ -35123,6 +35161,7 @@
         "community_moderation_status": {
           "name": "community_moderation_status",
           "columns": [
+            "tenant_id",
             "status",
             "created_at"
           ],
@@ -35487,6 +35526,14 @@
           "notNull": true,
           "autoincrement": false
         },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'yallapp'"
+        },
         "author_id": {
           "name": "author_id",
           "type": "varchar(36)",
@@ -35600,6 +35647,7 @@
         "community_questions_slug_unique": {
           "name": "community_questions_slug_unique",
           "columns": [
+            "tenant_id",
             "slug"
           ],
           "isUnique": true
@@ -35781,6 +35829,14 @@
           "notNull": true,
           "autoincrement": false
         },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'yallapp'"
+        },
         "reporter_id": {
           "name": "reporter_id",
           "type": "varchar(36)",
@@ -35859,6 +35915,7 @@
         "community_reports_status": {
           "name": "community_reports_status",
           "columns": [
+            "tenant_id",
             "status",
             "created_at"
           ],
@@ -35975,6 +36032,14 @@
           "notNull": true,
           "autoincrement": false
         },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'yallapp'"
+        },
         "slug": {
           "name": "slug",
           "type": "varchar(60)",
@@ -36023,6 +36088,7 @@
         "community_sections_slug_unique": {
           "name": "community_sections_slug_unique",
           "columns": [
+            "tenant_id",
             "kind",
             "slug"
           ],
@@ -36174,6 +36240,14 @@
     "community_settings": {
       "name": "community_settings",
       "columns": {
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'yallapp'"
+        },
         "key": {
           "name": "key",
           "type": "varchar(60)",
@@ -36206,9 +36280,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "community_settings_key": {
-          "name": "community_settings_key",
+        "community_settings_tenant_id_key_pk": {
+          "name": "community_settings_tenant_id_key_pk",
           "columns": [
+            "tenant_id",
             "key"
           ]
         }
@@ -36225,6 +36300,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'yallapp'"
         },
         "slug": {
           "name": "slug",
@@ -36260,6 +36343,7 @@
         "community_tags_slug_unique": {
           "name": "community_tags_slug_unique",
           "columns": [
+            "tenant_id",
             "slug"
           ],
           "isUnique": true
@@ -36286,6 +36370,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'yallapp'"
         },
         "author_id": {
           "name": "author_id",
@@ -36435,6 +36527,7 @@
         "community_tutorials_slug_unique": {
           "name": "community_tutorials_slug_unique",
           "columns": [
+            "tenant_id",
             "slug"
           ],
           "isUnique": true
@@ -36504,6 +36597,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'yallapp'"
         },
         "member_id": {
           "name": "member_id",
@@ -36587,6 +36688,7 @@
         "community_verification_status": {
           "name": "community_verification_status",
           "columns": [
+            "tenant_id",
             "status",
             "created_at"
           ],
@@ -36925,13 +37027,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "title": {
-          "name": "title",
-          "type": "varchar(140)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "note": {
           "name": "note",
           "type": "text",
@@ -37120,7 +37215,7 @@
         },
         "title": {
           "name": "title",
-          "type": "varchar(140)",
+          "type": "varchar(160)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -37132,11 +37227,19 @@
           "notNull": true,
           "autoincrement": false
         },
-        "prizes": {
-          "name": "prizes",
-          "type": "text",
+        "reward_points": {
+          "name": "reward_points",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "reward_badge": {
+          "name": "reward_badge",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "cover_url": {
@@ -37562,7 +37665,7 @@
         },
         "title": {
           "name": "title",
-          "type": "varchar(140)",
+          "type": "varchar(160)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -37586,6 +37689,13 @@
           "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "capacity": {
+          "name": "capacity",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "time_zone": {
@@ -37823,9 +37933,9 @@
     "community_push_devices": {
       "name": "community_push_devices",
       "columns": {
-        "token": {
-          "name": "token",
-          "type": "varchar(255)",
+        "session_id": {
+          "name": "session_id",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -37841,6 +37951,20 @@
         "member_id": {
           "name": "member_id",
           "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "token": {
+          "name": "token",
+          "type": "varchar(4096)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -37874,9 +37998,29 @@
             "member_id"
           ],
           "isUnique": false
+        },
+        "community_push_devices_token": {
+          "name": "community_push_devices_token",
+          "columns": [
+            "token_hash"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {
+        "community_push_devices_session_id_community_sessions_id_fk": {
+          "name": "community_push_devices_session_id_community_sessions_id_fk",
+          "tableFrom": "community_push_devices",
+          "tableTo": "community_sessions",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
         "community_push_devices_member_id_community_members_id_fk": {
           "name": "community_push_devices_member_id_community_members_id_fk",
           "tableFrom": "community_push_devices",
@@ -37892,10 +38036,10 @@
         }
       },
       "compositePrimaryKeys": {
-        "community_push_devices_token": {
-          "name": "community_push_devices_token",
+        "community_push_devices_session_id": {
+          "name": "community_push_devices_session_id",
           "columns": [
-            "token"
+            "session_id"
           ]
         }
       },

@@ -23,23 +23,27 @@ export type CommunityPusher = (targets: { token: string; platform: PushPlatform 
 /** The Community app (Android's package and iOS's bundle ID): its pushes never reach another app. */
 export const COMMUNITY_APP_ID = "tr.com.yallapp.community";
 
-const TOKEN = /^[A-Za-z0-9:_\-.]{20,255}$/;
+const TOKEN = /^[A-Za-z0-9:_\-.]{20,4096}$/;
 
-/** A phone registers (or refreshes) its token for the signed-in member; a token signed in as someone else moves to them. */
-export async function registerDevice(ctx: EngageCtx, memberId: string, input: unknown): Promise<{ ok: true } | Fail> {
+/**
+ * PUT /me/push-tokens: the signed-in phone's token, kept for its session (a
+ * new one replaces the old). The same phone signed in as someone else moves
+ * to them. Signing out forgets it (the row goes with the session).
+ */
+export async function registerDevice(ctx: EngageCtx, session: { id: string; memberId: string }, input: unknown): Promise<{ ok: true } | Fail> {
   const v = (input ?? {}) as { token?: unknown; platform?: unknown };
   const errors: Record<string, string> = {};
   if (typeof v.token !== "string" || !TOKEN.test(v.token)) errors.token = "Send the phone's push token.";
   if (v.platform !== "android" && v.platform !== "ios") errors.platform = "platform must be android or ios.";
   if (Object.keys(errors).length) return fail(400, "invalid_request", "Please check the highlighted fields.", errors);
   const { store, tenantId } = engageOf(ctx);
-  await store.saveDevice({ token: v.token as string, tenantId, memberId, platform: v.platform as PushPlatform }, ctx.now);
+  await store.saveDevice({ sessionId: session.id, token: v.token as string, tenantId, memberId: session.memberId, platform: v.platform as PushPlatform }, ctx.now);
   return { ok: true };
 }
 
-/** A phone signs out: its token stops getting this member's pushes. */
-export async function unregisterDevice(ctx: EngageCtx, memberId: string, token: string): Promise<void> {
-  await engageOf(ctx).store.removeDevice(token, memberId);
+/** DELETE /me/push-tokens: this phone stops getting pushes (its session stays signed in). */
+export async function unregisterDevice(ctx: EngageCtx, sessionId: string): Promise<void> {
+  await engageOf(ctx).store.removeSessionDevice(sessionId);
 }
 
 /** Pushes one notice to every phone of a member; nothing when push isn't set up here or they have none. */
@@ -47,7 +51,13 @@ export async function pushToMember(ctx: EngageCtx, memberId: string, message: Co
   const pusher = ctx.deps.push;
   if (!pusher) return 0;
   const { store } = engageOf(ctx);
-  const devices = await store.devicesOf([memberId]);
+  const all = await store.devicesOf([memberId]);
+  if (!all.length) return 0;
+  // Only phones still signed in: signing out (or out everywhere), or a session that ran out, forgets its token.
+  const live = new Set((await ctx.store.base.listSessions(memberId)).filter((x) => x.refreshExpiresAt > ctx.now).map((x) => x.id));
+  const gone = all.filter((d) => !live.has(d.sessionId));
+  for (const d of gone) await store.removeSessionDevice(d.sessionId);
+  const devices = all.filter((d) => live.has(d.sessionId));
   if (!devices.length) return 0;
   const result = await pusher(
     devices.map((d) => ({ token: d.token, platform: d.platform })),

@@ -108,7 +108,7 @@ export const REPORT_TARGETS: readonly CommunityTargetType[] = [
   "group",
   "job",
   "pro",
-  "pro_review",
+  "review",
   "event",
   "event_comment",
   "challenge_submission",

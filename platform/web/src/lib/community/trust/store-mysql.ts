@@ -123,7 +123,11 @@ function isDuplicate(error: unknown): boolean {
 }
 
 export class MysqlTrustStore implements TrustStore {
-  constructor(private readonly db: Db) {}
+  /** 232–235 The tenant this store keeps to (lib/community/types.ts CommunityTenant); its rows carry it. */
+  constructor(
+    private readonly db: Db,
+    readonly tenant: string = "yallapp",
+  ) {}
 
   async listMemberBadges(memberId: string) {
     const rows = await this.db.select().from(communityBadges).where(eq(communityBadges.memberId, memberId)).orderBy(asc(communityBadges.grantedAt));
@@ -146,7 +150,7 @@ export class MysqlTrustStore implements TrustStore {
   }
 
   async addVerification(input: Omit<VerificationRequest, "id" | "status" | "reason" | "reviewedBy" | "reviewedAt">) {
-    const row = { id: randomUUID(), ...input, status: "pending" as const, reason: null, reviewedBy: null, reviewedAt: null };
+    const row = { id: randomUUID(), tenantId: this.tenant, ...input, status: "pending" as const, reason: null, reviewedBy: null, reviewedAt: null };
     const t = communityVerificationRequests;
     // The member's row locked for the transaction: two requests sent at once wait for each other, and the second finds the first.
     const made = await this.db.transaction(async (tx) => {
@@ -169,7 +173,8 @@ export class MysqlTrustStore implements TrustStore {
   async listVerifications(input: { status: VerificationStatus; offset: number; limit: number }) {
     const t = communityVerificationRequests;
     const order = input.status === "pending" ? [asc(t.createdAt), asc(t.id)] : [desc(t.reviewedAt), desc(t.createdAt)];
-    const rows = await this.db.select().from(t).where(eq(t.status, input.status)).orderBy(...order).limit(input.limit + 1).offset(input.offset);
+    // 232–235 Each community's own requests.
+    const rows = await this.db.select().from(t).where(and(eq(t.tenantId, this.tenant), eq(t.status, input.status))).orderBy(...order).limit(input.limit + 1).offset(input.offset);
     return paged(rows.map(verificationOf), input.offset, input.limit);
   }
   async decideVerification(id: string, input: { status: "approved" | "rejected"; at: Date; by: string; reason: string | null }) {
@@ -189,30 +194,30 @@ export class MysqlTrustStore implements TrustStore {
   }
 
   async addAudit(input: Omit<AuditEntry, "id">) {
-    const row = { id: randomUUID(), ...input };
+    const row = { id: randomUUID(), tenantId: this.tenant, ...input };
     await this.db.insert(communityAuditLog).values(row);
     return auditOf(row);
   }
   async listAudit(input: { memberId?: string; action?: string; offset: number; limit: number }) {
     const t = communityAuditLog;
-    const where: SQL[] = [];
+    const where: SQL[] = [eq(t.tenantId, this.tenant)];
     if (input.memberId) where.push(eq(t.memberId, input.memberId));
     if (input.action) where.push(eq(t.action, input.action));
-    const rows = await this.db.select().from(t).where(where.length ? and(...where) : undefined).orderBy(desc(t.createdAt), desc(t.id)).limit(input.limit + 1).offset(input.offset);
+    const rows = await this.db.select().from(t).where(and(...where)).orderBy(desc(t.createdAt), desc(t.id)).limit(input.limit + 1).offset(input.offset);
     return paged(rows.map(auditOf), input.offset, input.limit);
   }
 
   async getSettingsDoc(key = SETTINGS_KEY) {
-    const [row] = await this.db.select().from(communitySettings).where(eq(communitySettings.key, key));
+    const [row] = await this.db.select().from(communitySettings).where(and(eq(communitySettings.tenantId, this.tenant), eq(communitySettings.key, key)));
     return row?.value ?? null;
   }
   async saveSettingsDoc(doc: unknown, input: { at: Date; by: string | null }, key = SETTINGS_KEY) {
-    await this.db.insert(communitySettings).values({ key, value: doc, updatedBy: input.by, updatedAt: input.at }).onDuplicateKeyUpdate({ set: { value: doc, updatedBy: input.by, updatedAt: input.at } });
+    await this.db.insert(communitySettings).values({ tenantId: this.tenant, key, value: doc, updatedBy: input.by, updatedAt: input.at }).onDuplicateKeyUpdate({ set: { value: doc, updatedBy: input.by, updatedAt: input.at } });
   }
 
   async addModeration(input: Omit<ModerationItem, "id" | "status" | "handledBy" | "handledAt">) {
     const t = communityModerationItems;
-    const row = { id: randomUUID(), ...input, status: "open" as const, handledBy: null, handledAt: null };
+    const row = { id: randomUUID(), tenantId: this.tenant, ...input, status: "open" as const, handledBy: null, handledAt: null };
     try {
       await this.db.insert(t).values(row);
       return moderationOf(row);
@@ -236,7 +241,7 @@ export class MysqlTrustStore implements TrustStore {
   async listModeration(input: { status: ModerationStatus; offset: number; limit: number }) {
     const t = communityModerationItems;
     const order = input.status === "open" ? [asc(t.createdAt), asc(t.id)] : [desc(t.handledAt), desc(t.createdAt)];
-    const rows = await this.db.select().from(t).where(eq(t.status, input.status)).orderBy(...order).limit(input.limit + 1).offset(input.offset);
+    const rows = await this.db.select().from(t).where(and(eq(t.tenantId, this.tenant), eq(t.status, input.status))).orderBy(...order).limit(input.limit + 1).offset(input.offset);
     return paged(rows.map(moderationOf), input.offset, input.limit);
   }
   async decideModeration(id: string, input: { status: "approved" | "removed"; at: Date; by: string; note: string | null }) {
@@ -255,7 +260,7 @@ export class MysqlTrustStore implements TrustStore {
   }
 
   async addReport(input: { id?: string; reporterId: string; targetType: CommunityTargetType; targetId: string; reason: ReportReason; note: string; createdAt: Date }) {
-    const row = { ...input, id: input.id ?? randomUUID(), status: "open" as const, handledBy: null, handledAt: null };
+    const row = { ...input, tenantId: this.tenant, id: input.id ?? randomUUID(), status: "open" as const, handledBy: null, handledAt: null };
     try {
       await this.db.insert(communityReports).values(row);
     } catch (error) {
@@ -281,7 +286,7 @@ export class MysqlTrustStore implements TrustStore {
   async listReports(input: { status: ReportStatus; offset: number; limit: number }) {
     const t = communityReports;
     const order = input.status === "open" ? [asc(t.createdAt), asc(t.id)] : [desc(t.handledAt), desc(t.createdAt)];
-    const rows = await this.db.select().from(t).where(eq(t.status, input.status)).orderBy(...order).limit(input.limit + 1).offset(input.offset);
+    const rows = await this.db.select().from(t).where(and(eq(t.tenantId, this.tenant), eq(t.status, input.status))).orderBy(...order).limit(input.limit + 1).offset(input.offset);
     return paged(rows.map(reportOf), input.offset, input.limit);
   }
   async resolveReport(id: string, input: { status: "actioned" | "dismissed"; at: Date; by: string }) {

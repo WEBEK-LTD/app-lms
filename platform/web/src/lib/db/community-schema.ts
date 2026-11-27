@@ -37,6 +37,15 @@ const jsonText = <T>(name: string) =>
 
 const id = (name: string) => varchar(name, { length: 36 });
 const time = (name: string) => datetime(name, { mode: "date", fsp: 3 });
+/**
+ * 232–235 The tenant key: whose community a row belongs to, "yallapp"
+ * (Yallapp Community) or a client app's id (its own community, phase 5).
+ * Every new table has it; of phase 1's, the roots that are listed or
+ * looked up by a natural key (members, identities, reports, sections, tags,
+ * questions, tutorials, verification requests, the audit log, settings,
+ * the moderation queue). The rest hang off a member or content id.
+ */
+export const tenantColumn = (name = "tenant_id") => varchar(name, { length: 64 }).notNull().default("yallapp");
 
 // ---------------------------------------------------------------- Area A
 
@@ -44,6 +53,7 @@ export const communityMembers = mysqlTable(
   "community_members",
   {
     id: id("id").primaryKey(),
+    tenantId: tenantColumn(),
     email: varchar("email", { length: 191 }),
     emailVerified: boolean("email_verified").notNull().default(false),
     passwordHash: varchar("password_hash", { length: 255 }),
@@ -70,16 +80,17 @@ export const communityMembers = mysqlTable(
     lastActiveAt: time("last_active_at").notNull(),
   },
   (t) => [
-    uniqueIndex("community_members_email_unique").on(t.email),
-    uniqueIndex("community_members_username_unique").on(t.username),
-    uniqueIndex("community_members_yallapp_unique").on(t.yallappUserId),
-    index("community_members_points").on(t.points),
+    uniqueIndex("community_members_email_unique").on(t.tenantId, t.email),
+    uniqueIndex("community_members_username_unique").on(t.tenantId, t.username),
+    uniqueIndex("community_members_yallapp_unique").on(t.tenantId, t.yallappUserId),
+    index("community_members_points").on(t.tenantId, t.points),
   ],
 );
 
 export const communityIdentities = mysqlTable(
   "community_identities",
   {
+    tenantId: tenantColumn(),
     memberId: id("member_id")
       .notNull()
       .references(() => communityMembers.id, { onDelete: "cascade" }),
@@ -88,7 +99,7 @@ export const communityIdentities = mysqlTable(
     email: varchar("email", { length: 191 }),
     createdAt: time("created_at").notNull(),
   },
-  (t) => [primaryKey({ columns: [t.provider, t.subject] }), index("community_identities_member").on(t.memberId)],
+  (t) => [primaryKey({ columns: [t.tenantId, t.provider, t.subject] }), index("community_identities_member").on(t.memberId)],
 );
 
 export const communitySessions = mysqlTable(
@@ -217,6 +228,7 @@ export const communityReports = mysqlTable(
   "community_reports",
   {
     id: id("id").primaryKey(),
+    tenantId: tenantColumn(),
     reporterId: id("reporter_id")
       .notNull()
       .references(() => communityMembers.id, { onDelete: "cascade" }),
@@ -231,7 +243,7 @@ export const communityReports = mysqlTable(
   },
   (t) => [
     uniqueIndex("community_reports_once").on(t.reporterId, t.targetType, t.targetId),
-    index("community_reports_status").on(t.status, t.createdAt),
+    index("community_reports_status").on(t.tenantId, t.status, t.createdAt),
     index("community_reports_target").on(t.targetType, t.targetId),
   ],
 );
@@ -243,6 +255,7 @@ export const communitySections = mysqlTable(
   "community_sections",
   {
     id: id("id").primaryKey(),
+    tenantId: tenantColumn(),
     slug: varchar("slug", { length: 60 }).notNull(),
     kind: varchar("kind", { length: 10 }).notNull().$type<"qa" | "tutorial">(),
     names: jsonText<Partial<Record<CommunityLanguage, string>>>("names").notNull(),
@@ -250,19 +263,20 @@ export const communitySections = mysqlTable(
     position: int("position").notNull().default(0),
     createdAt: time("created_at").notNull(),
   },
-  (t) => [uniqueIndex("community_sections_slug_unique").on(t.kind, t.slug)],
+  (t) => [uniqueIndex("community_sections_slug_unique").on(t.tenantId, t.kind, t.slug)],
 );
 
 export const communityTags = mysqlTable(
   "community_tags",
   {
     id: id("id").primaryKey(),
+    tenantId: tenantColumn(),
     slug: varchar("slug", { length: 40 }).notNull(),
     name: varchar("name", { length: 40 }).notNull(),
     useCount: int("use_count").notNull().default(0),
     createdAt: time("created_at").notNull(),
   },
-  (t) => [uniqueIndex("community_tags_slug_unique").on(t.slug)],
+  (t) => [uniqueIndex("community_tags_slug_unique").on(t.tenantId, t.slug)],
 );
 
 /** Content's moderation state: pending (a new member's first posts, or the spam filter), published, removed. */
@@ -272,6 +286,7 @@ export const communityQuestions = mysqlTable(
   "community_questions",
   {
     id: id("id").primaryKey(),
+    tenantId: tenantColumn(),
     authorId: id("author_id")
       .notNull()
       .references(() => communityMembers.id, { onDelete: "cascade" }),
@@ -294,7 +309,7 @@ export const communityQuestions = mysqlTable(
     lastActivityAt: time("last_activity_at").notNull(),
   },
   (t) => [
-    uniqueIndex("community_questions_slug_unique").on(t.slug),
+    uniqueIndex("community_questions_slug_unique").on(t.tenantId, t.slug),
     index("community_questions_section").on(t.sectionId, t.status, t.lastActivityAt),
     index("community_questions_author").on(t.authorId),
     index("community_questions_status").on(t.status, t.createdAt),
@@ -355,6 +370,7 @@ export const communityTutorials = mysqlTable(
   "community_tutorials",
   {
     id: id("id").primaryKey(),
+    tenantId: tenantColumn(),
     authorId: id("author_id")
       .notNull()
       .references(() => communityMembers.id, { onDelete: "cascade" }),
@@ -383,7 +399,7 @@ export const communityTutorials = mysqlTable(
     publishedAt: time("published_at"),
   },
   (t) => [
-    uniqueIndex("community_tutorials_slug_unique").on(t.slug),
+    uniqueIndex("community_tutorials_slug_unique").on(t.tenantId, t.slug),
     index("community_tutorials_section").on(t.sectionId, t.status, t.publishedAt),
     index("community_tutorials_author").on(t.authorId),
   ],
@@ -492,6 +508,7 @@ export const communityVerificationRequests = mysqlTable(
   "community_verification_requests",
   {
     id: id("id").primaryKey(),
+    tenantId: tenantColumn(),
     // Its foreign key is named below: the generated name is longer than MySQL's 64 characters.
     memberId: id("member_id").notNull(),
     fullName: varchar("full_name", { length: 120 }).notNull(),
@@ -509,7 +526,7 @@ export const communityVerificationRequests = mysqlTable(
   (t) => [
     foreignKey({ name: "community_verification_member_fk", columns: [t.memberId], foreignColumns: [communityMembers.id] }).onDelete("cascade"),
     index("community_verification_member").on(t.memberId),
-    index("community_verification_status").on(t.status, t.createdAt),
+    index("community_verification_status").on(t.tenantId, t.status, t.createdAt),
   ],
 );
 
@@ -518,6 +535,7 @@ export const communityAuditLog = mysqlTable(
   "community_audit_log",
   {
     id: id("id").primaryKey(),
+    tenantId: tenantColumn(),
     // An admin (a community member with role admin), or null for the rules themselves.
     actorId: id("actor_id"),
     action: varchar("action", { length: 40 }).notNull(),
@@ -528,22 +546,28 @@ export const communityAuditLog = mysqlTable(
     details: jsonText<Record<string, unknown> | null>("details"),
     createdAt: time("created_at").notNull(),
   },
-  (t) => [index("community_audit_created").on(t.createdAt), index("community_audit_member").on(t.memberId, t.createdAt)],
+  (t) => [index("community_audit_created").on(t.tenantId, t.createdAt), index("community_audit_member").on(t.memberId, t.createdAt)],
 );
 
 /** The community's settings an admin edits (the Blue badge's rules, who can create groups, the spam filter). */
-export const communitySettings = mysqlTable("community_settings", {
-  key: varchar("key", { length: 60 }).primaryKey(),
-  value: jsonText<unknown>("value").notNull(),
-  updatedBy: id("updated_by"),
-  updatedAt: time("updated_at").notNull(),
-});
+export const communitySettings = mysqlTable(
+  "community_settings",
+  {
+    tenantId: tenantColumn(),
+    key: varchar("key", { length: 60 }).notNull(),
+    value: jsonText<unknown>("value").notNull(),
+    updatedBy: id("updated_by"),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.tenantId, t.key] })],
+);
 
 /** Content waiting for a moderator: a new member's first posts, the spam filter's catches, reported content. */
 export const communityModerationItems = mysqlTable(
   "community_moderation_items",
   {
     id: id("id").primaryKey(),
+    tenantId: tenantColumn(),
     targetType: varchar("target_type", { length: 24 }).notNull().$type<CommunityTargetType>(),
     targetId: id("target_id").notNull(),
     authorId: id("author_id"),
@@ -554,7 +578,7 @@ export const communityModerationItems = mysqlTable(
     handledAt: time("handled_at"),
     createdAt: time("created_at").notNull(),
   },
-  (t) => [index("community_moderation_status").on(t.status, t.createdAt), uniqueIndex("community_moderation_target").on(t.targetType, t.targetId, t.cause)],
+  (t) => [index("community_moderation_status").on(t.tenantId, t.status, t.createdAt), uniqueIndex("community_moderation_target").on(t.targetType, t.targetId, t.cause)],
 );
 
 /** A member's violations (content removed, a suspension): the Blue badge needs none in 90 days. */

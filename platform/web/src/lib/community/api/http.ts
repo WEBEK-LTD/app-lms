@@ -1,6 +1,6 @@
 import type { DataStore } from "../../data/store";
 import type { CommunityStore } from "../store";
-import type { CommunityLanguage, CommunityMember, CommunitySession } from "../types";
+import type { CommunityLanguage, CommunityMember, CommunitySession, CommunityTenant } from "../types";
 import type { IdTokenVerifier } from "../auth/id-tokens";
 import type { CommunityMailer } from "../mail";
 import type { CommunityPusher } from "../engage/push";
@@ -16,6 +16,11 @@ import type { CourseCheckoutGateway, CourseShop } from "../engage/checkout";
  */
 
 export interface CommunityDeps {
+  /**
+   * 232–235 Whose community: "yallapp" (Yallapp Community), or a client
+   * app's id (/api/app/{app_id}/community/v1). `store` is that tenant's.
+   */
+  tenant: CommunityTenant;
   store: CommunityStore;
   /** Yallapp's own data store: rate limits, and the Yallapp account a member links (its apps and plans). */
   platform: DataStore;
@@ -56,6 +61,12 @@ export interface CommunityRequest {
   form: FormData | null;
   token: string | null;
   acceptLanguage: string | null;
+  /**
+   * 232–235 A client app's community is run from the client's dashboard:
+   * its server code calls the engine in-process with this set, for the
+   * tenant's `auth: "admin"` routes. Never set from an HTTP request.
+   */
+  tenantAdmin?: boolean;
 }
 
 export interface CommunityContext {
@@ -81,6 +92,8 @@ export type MemberContext = CommunityContext & { member: CommunityMember; sessio
 export interface CommunityResult {
   status: number;
   body?: unknown;
+  /** 234 A body that isn't JSON (an event's .ics file), sent as it is with `headers`' content type. */
+  text?: string;
   headers?: Record<string, string>;
 }
 
@@ -90,6 +103,8 @@ export interface CommunityRoute {
   path: string;
   /** member (the default): a token is needed; public: read with or without one; admin: role admin. */
   auth?: "member" | "public" | "admin";
+  /** 232–235 Only in Yallapp Community (linking a Yallapp account, Continue with Yallapp): another tenant's community answers 404. */
+  yallappOnly?: boolean;
   handler: (ctx: CommunityContext) => Promise<CommunityResult>;
 }
 

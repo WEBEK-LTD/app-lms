@@ -8,7 +8,7 @@ import type { CommunityTargetType } from "./types";
  * and how to hide or show it again (`setStatus`). Phase 1's moderation queue,
  * reports and spam rules (lib/community/trust) read it for every kind not in
  * area B's Q&A. Each area adds its own kinds' line: A (conversation, group,
- * job, pro, pro_review), B (post, post_comment, story, showcase,
+ * job, pro, review), B (post, post_comment, story, showcase,
  * showcase_comment), C (event, event_comment, challenge_submission).
  */
 
@@ -25,6 +25,8 @@ export interface ContentInfo {
 export interface ContentAdapter {
   info(ctx: Pick<CommunityContext, "deps" | "store" | "now">, id: string): Promise<ContentInfo | null>;
   setStatus(ctx: Pick<CommunityContext, "deps" | "store" | "now">, id: string, status: "published" | "hidden"): Promise<void>;
+  /** The kind's card as the API shows it elsewhere (a challenge entry's showcase item: ShowcaseSummary); area B gives it for showcase. */
+  summary?(ctx: CommunityContext, id: string): Promise<unknown>;
 }
 
 export const CONTENT_KINDS: Partial<Record<Exclude<CommunityTargetType, "member">, ContentAdapter>> = {

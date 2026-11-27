@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { YALLAPP_TENANT } from "../types";
 
 /**
  * 232–235 Yallapp Community, area C's records for phases 2 to 5: push
@@ -9,7 +10,7 @@ import { randomUUID } from "node:crypto";
  * Community itself, a client app's id for its own community (phase 5).
  */
 
-export const YALLAPP_TENANT = "yallapp";
+export { YALLAPP_TENANT };
 
 export interface Page<T> {
   items: T[];
@@ -21,10 +22,12 @@ export interface Page<T> {
 
 export type PushPlatform = "android" | "ios";
 
+/** A signed-in phone's push token: one per session, forgotten when the session ends. */
 export interface PushDevice {
-  token: string;
+  sessionId: string;
   tenantId: string;
   memberId: string;
+  token: string;
   platform: PushPlatform;
   createdAt: Date;
   lastSeenAt: Date;
@@ -54,7 +57,9 @@ export interface Challenge {
   tenantId: string;
   title: string;
   body: string;
-  prizes: string;
+  /** What each winner gets: points, and a badge (an admin's grant) or none. */
+  rewardPoints: number;
+  rewardBadge: "gold" | "green" | "blue" | null;
   coverUrl: string | null;
   startsAt: Date;
   submitUntil: Date;
@@ -89,7 +94,6 @@ export interface ChallengeSubmission {
   memberId: string;
   showcaseId: string | null;
   url: string | null;
-  title: string;
   note: string;
   votes: number;
   place: number | null;
@@ -111,6 +115,7 @@ export interface CommunityEvent {
   body: string;
   startsAt: Date;
   endsAt: Date;
+  capacity: number | null;
   timeZone: string;
   location: string | null;
   joinUrl: string | null;
@@ -154,8 +159,9 @@ export interface CourseOrder {
 
 export interface EngageStore {
   // Push
+  /** This session's token (one per session); the same token under another session is let go (the phone signed in again). */
   saveDevice(d: Omit<PushDevice, "createdAt" | "lastSeenAt">, at: Date): Promise<void>;
-  removeDevice(token: string, memberId: string): Promise<void>;
+  removeSessionDevice(sessionId: string): Promise<void>;
   removeTokens(tokens: readonly string[]): Promise<void>;
   devicesOf(memberIds: readonly string[]): Promise<PushDevice[]>;
 
@@ -168,6 +174,8 @@ export interface EngageStore {
   gainedSince(memberId: string, reason: string, since: Date): Promise<number>;
   /** Today's gains by reason. */
   gainsByReason(memberId: string, since: Date): Promise<Record<string, number>>;
+  /** A member's points, newest first. */
+  history(memberId: string, offset: number, limit: number): Promise<Page<PointEntry>>;
   /** The board: members by points since a time (null: all time), most first, ties by who got there first. */
   board(tenantId: string, since: Date | null, offset: number, limit: number): Promise<BoardRow[]>;
   memberTotal(tenantId: string, memberId: string, since: Date | null): Promise<number>;
@@ -186,6 +194,8 @@ export interface EngageStore {
   listSubmissions(input: { challengeId: string; sort: "top" | "new"; offset: number; limit: number; withHidden?: boolean }): Promise<Page<ChallengeSubmission>>;
   countSubmissions(challengeId: string): Promise<number>;
   updateSubmission(id: string, patch: Partial<Pick<ChallengeSubmission, "status" | "place" | "reward">>): Promise<ChallengeSubmission | null>;
+  /** The entry of a member in a challenge, if any. */
+  submissionOf(challengeId: string, memberId: string): Promise<ChallengeSubmission | null>;
   /** A vote; false when the member had voted already. Keeps the entry's count. */
   addVote(submissionId: string, memberId: string, at: Date): Promise<boolean>;
   removeVote(submissionId: string, memberId: string): Promise<boolean>;
@@ -200,10 +210,12 @@ export interface EngageStore {
   listEvents(input: { tenantId: string; when: "upcoming" | "past"; kind?: EventKind; groupId?: string; now: Date; offset: number; limit: number }): Promise<Page<CommunityEvent>>;
   /** Scheduled events starting between the two times and not yet reminded for that reminder. */
   eventsToRemind(which: "day" | "hour", from: Date, to: Date): Promise<CommunityEvent[]>;
-  addRsvp(eventId: string, memberId: string, at: Date): Promise<boolean>;
+  /** Going; false when already going, "full" when the event's capacity is reached. */
+  addRsvp(eventId: string, memberId: string, at: Date): Promise<boolean | "full">;
   removeRsvp(eventId: string, memberId: string): Promise<boolean>;
   rsvpOf(eventIds: readonly string[], memberId: string): Promise<Set<string>>;
   attendees(eventId: string, offset: number, limit: number): Promise<Page<string>>;
+  /** A comment, at least 1 ms after the event's last one: polling after a comment never misses one made in the same instant. */
   addEventComment(c: Omit<EventComment, "id">): Promise<EventComment>;
   getEventComment(id: string): Promise<EventComment | null>;
   /** Published comments, oldest first; after a comment's id: only newer ones (polling). */
@@ -235,14 +247,16 @@ export class MemoryEngageStore implements EngageStore {
 
   // Push
   async saveDevice(d: Omit<PushDevice, "createdAt" | "lastSeenAt">, at: Date) {
-    const had = this.devices.get(d.token);
-    this.devices.set(d.token, { ...d, createdAt: had && had.memberId === d.memberId ? had.createdAt : at, lastSeenAt: at });
+    for (const [sid, x] of this.devices) if (x.token === d.token && sid !== d.sessionId) this.devices.delete(sid);
+    const had = this.devices.get(d.sessionId);
+    this.devices.set(d.sessionId, { ...d, createdAt: had?.createdAt ?? at, lastSeenAt: at });
   }
-  async removeDevice(token: string, memberId: string) {
-    if (this.devices.get(token)?.memberId === memberId) this.devices.delete(token);
+  async removeSessionDevice(sessionId: string) {
+    this.devices.delete(sessionId);
   }
   async removeTokens(tokens: readonly string[]) {
-    for (const t of tokens) this.devices.delete(t);
+    const gone = new Set(tokens);
+    for (const [sid, x] of this.devices) if (gone.has(x.token)) this.devices.delete(sid);
   }
   async devicesOf(memberIds: readonly string[]) {
     const ids = new Set(memberIds);
@@ -268,6 +282,10 @@ export class MemoryEngageStore implements EngageStore {
     const out: Record<string, number> = {};
     for (const p of this.points) if (p.memberId === memberId && p.points > 0 && p.createdAt >= since) out[p.reason] = (out[p.reason] ?? 0) + p.points;
     return out;
+  }
+  async history(memberId: string, offset: number, limit: number) {
+    const all = this.points.filter((p) => p.memberId === memberId).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id.localeCompare(a.id));
+    return pageOf(all.map(clone), offset, limit);
   }
   private totals(tenantId: string, since: Date | null) {
     const sums = new Map<string, { points: number; first: number }>();
@@ -344,6 +362,10 @@ export class MemoryEngageStore implements EngageStore {
     Object.assign(s, clone(patch));
     return clone(s);
   }
+  async submissionOf(challengeId: string, memberId: string) {
+    const s = [...this.submissions.values()].find((x) => x.challengeId === challengeId && x.memberId === memberId);
+    return s ? clone(s) : null;
+  }
   async addVote(submissionId: string, memberId: string) {
     const key = `${submissionId}:${memberId}`;
     const s = this.submissions.get(submissionId);
@@ -401,6 +423,7 @@ export class MemoryEngageStore implements EngageStore {
     const key = `${eventId}:${memberId}`;
     const e = this.events.get(eventId);
     if (!e || this.rsvps.has(key)) return false;
+    if (e.capacity !== null && e.rsvpCount >= e.capacity) return "full" as const;
     this.rsvps.set(key, at);
     e.rsvpCount++;
     return true;
@@ -422,7 +445,8 @@ export class MemoryEngageStore implements EngageStore {
     return pageOf(all, offset, limit);
   }
   async addEventComment(c: Omit<EventComment, "id">) {
-    const made = { ...clone(c), id: randomUUID() };
+    const last = this.comments.filter((x) => x.eventId === c.eventId).reduce((t, x) => Math.max(t, x.createdAt.getTime()), 0);
+    const made = { ...clone(c), id: randomUUID(), createdAt: new Date(Math.max(c.createdAt.getTime(), last + 1)) };
     this.comments.push(made);
     return clone(made);
   }

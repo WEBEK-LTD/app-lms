@@ -4,7 +4,6 @@ CREATE TABLE `community_challenge_submissions` (
 	`member_id` varchar(36) NOT NULL,
 	`showcase_id` varchar(36),
 	`url` varchar(500),
-	`title` varchar(140) NOT NULL,
 	`note` text NOT NULL,
 	`votes` int NOT NULL DEFAULT 0,
 	`place` int,
@@ -25,9 +24,10 @@ CREATE TABLE `community_challenge_votes` (
 CREATE TABLE `community_challenges` (
 	`id` varchar(36) NOT NULL,
 	`tenant_id` varchar(64) NOT NULL DEFAULT 'yallapp',
-	`title` varchar(140) NOT NULL,
+	`title` varchar(160) NOT NULL,
 	`body` text NOT NULL,
-	`prizes` text NOT NULL,
+	`reward_points` int NOT NULL DEFAULT 0,
+	`reward_badge` varchar(8),
 	`cover_url` varchar(512),
 	`starts_at` datetime(3) NOT NULL,
 	`submit_until` datetime(3) NOT NULL,
@@ -79,10 +79,11 @@ CREATE TABLE `community_events` (
 	`tenant_id` varchar(64) NOT NULL DEFAULT 'yallapp',
 	`group_id` varchar(36),
 	`kind` varchar(10) NOT NULL,
-	`title` varchar(140) NOT NULL,
+	`title` varchar(160) NOT NULL,
 	`body` text NOT NULL,
 	`starts_at` datetime(3) NOT NULL,
 	`ends_at` datetime(3) NOT NULL,
+	`capacity` int,
 	`time_zone` varchar(64) NOT NULL,
 	`location` varchar(300),
 	`join_url` varchar(500),
@@ -112,13 +113,15 @@ CREATE TABLE `community_points` (
 );
 --> statement-breakpoint
 CREATE TABLE `community_push_devices` (
-	`token` varchar(255) NOT NULL,
+	`session_id` varchar(36) NOT NULL,
 	`tenant_id` varchar(64) NOT NULL DEFAULT 'yallapp',
 	`member_id` varchar(36) NOT NULL,
+	`token` varchar(4096) NOT NULL,
+	`token_hash` varchar(64) NOT NULL,
 	`platform` varchar(8) NOT NULL,
 	`created_at` datetime(3) NOT NULL,
 	`last_seen_at` datetime(3) NOT NULL,
-	CONSTRAINT `community_push_devices_token` PRIMARY KEY(`token`)
+	CONSTRAINT `community_push_devices_session_id` PRIMARY KEY(`session_id`)
 );
 --> statement-breakpoint
 ALTER TABLE `community_moderation_items` MODIFY COLUMN `target_type` varchar(24) NOT NULL;--> statement-breakpoint
@@ -134,6 +137,7 @@ ALTER TABLE `community_event_comments` ADD CONSTRAINT `community_event_comments_
 ALTER TABLE `community_event_rsvps` ADD CONSTRAINT `community_event_rsvps_event_id_community_events_id_fk` FOREIGN KEY (`event_id`) REFERENCES `community_events`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `community_event_rsvps` ADD CONSTRAINT `community_event_rsvps_member_id_community_members_id_fk` FOREIGN KEY (`member_id`) REFERENCES `community_members`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `community_points` ADD CONSTRAINT `community_points_member_id_community_members_id_fk` FOREIGN KEY (`member_id`) REFERENCES `community_members`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `community_push_devices` ADD CONSTRAINT `community_push_devices_session_id_community_sessions_id_fk` FOREIGN KEY (`session_id`) REFERENCES `community_sessions`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `community_push_devices` ADD CONSTRAINT `community_push_devices_member_id_community_members_id_fk` FOREIGN KEY (`member_id`) REFERENCES `community_members`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX `community_challenge_entries` ON `community_challenge_submissions` (`challenge_id`,`status`,`votes`);--> statement-breakpoint
 CREATE INDEX `community_challenges_time` ON `community_challenges` (`tenant_id`,`status`,`starts_at`);--> statement-breakpoint
@@ -144,6 +148,7 @@ CREATE INDEX `community_events_time` ON `community_events` (`tenant_id`,`status`
 CREATE INDEX `community_events_group` ON `community_events` (`group_id`,`starts_at`);--> statement-breakpoint
 CREATE INDEX `community_points_board` ON `community_points` (`tenant_id`,`created_at`);--> statement-breakpoint
 CREATE INDEX `community_points_day` ON `community_points` (`member_id`,`reason`,`created_at`);--> statement-breakpoint
-CREATE INDEX `community_push_devices_member` ON `community_push_devices` (`member_id`);;--> statement-breakpoint
+CREATE INDEX `community_push_devices_member` ON `community_push_devices` (`member_id`);--> statement-breakpoint
+CREATE INDEX `community_push_devices_token` ON `community_push_devices` (`token_hash`);;--> statement-breakpoint
 -- 233 The points ledger starts with every point earned in phase 1 (area B's events), so the all-time board and the members' totals agree.
 INSERT IGNORE INTO `community_points` (`id`, `tenant_id`, `member_id`, `reason`, `points`, `ref`, `created_at`) SELECT `id`, 'yallapp', `member_id`, `reason`, `points`, `ref`, `created_at` FROM `community_point_events`;

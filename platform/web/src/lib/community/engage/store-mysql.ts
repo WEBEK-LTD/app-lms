@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { and, asc, desc, eq, gt, gte, inArray, isNull, lt, lte, ne, or, sql, type SQL } from "drizzle-orm";
 import type { MySql2Database } from "drizzle-orm/mysql2";
+import { sha256Hex } from "../../crypto/tokens";
 import {
   communityChallenges,
   communityChallengeSubmissions,
@@ -46,25 +47,28 @@ export class MysqlEngageStore implements EngageStore {
   // ——— Push ———
   async saveDevice(d: Omit<PushDevice, "createdAt" | "lastSeenAt">, at: Date) {
     const t = communityPushDevices;
+    const tokenHash = sha256Hex(d.token);
+    // The same phone under another session (signed in again): that one lets it go.
+    await this.db.delete(t).where(and(eq(t.tokenHash, tokenHash), ne(t.sessionId, d.sessionId)));
     await this.db
       .insert(t)
-      .values({ ...d, createdAt: at, lastSeenAt: at })
-      .onDuplicateKeyUpdate({ set: { tenantId: d.tenantId, memberId: d.memberId, platform: d.platform, lastSeenAt: at } });
+      .values({ ...d, tokenHash, createdAt: at, lastSeenAt: at })
+      .onDuplicateKeyUpdate({ set: { tenantId: d.tenantId, memberId: d.memberId, token: d.token, tokenHash, platform: d.platform, lastSeenAt: at } });
   }
-  async removeDevice(token: string, memberId: string) {
+  async removeSessionDevice(sessionId: string) {
     const t = communityPushDevices;
-    await this.db.delete(t).where(and(eq(t.token, token), eq(t.memberId, memberId)));
+    await this.db.delete(t).where(eq(t.sessionId, sessionId));
   }
   async removeTokens(tokens: readonly string[]) {
     if (!tokens.length) return;
     const t = communityPushDevices;
-    await this.db.delete(t).where(inArray(t.token, [...tokens]));
+    await this.db.delete(t).where(inArray(t.tokenHash, tokens.map((x) => sha256Hex(x))));
   }
   async devicesOf(memberIds: readonly string[]): Promise<PushDevice[]> {
     if (!memberIds.length) return [];
     const t = communityPushDevices;
     const rows = await this.db.select().from(t).where(inArray(t.memberId, [...memberIds]));
-    return rows.map((r) => ({ ...r }));
+    return rows.map(({ tokenHash: _hash, ...r }) => r);
   }
 
   // ——— Points ———
@@ -103,6 +107,11 @@ export class MysqlEngageStore implements EngageStore {
       .where(and(eq(t.memberId, memberId), gt(t.points, 0), gte(t.createdAt, since)))
       .groupBy(t.reason);
     return Object.fromEntries(rows.map((r) => [r.reason, Number(r.n)]));
+  }
+  async history(memberId: string, offset: number, limit: number) {
+    const t = communityPoints;
+    const rows = await this.db.select().from(t).where(eq(t.memberId, memberId)).orderBy(desc(t.createdAt), desc(t.id)).limit(limit + 1).offset(offset);
+    return paged(rows.map((r) => ({ ...r })), offset, limit);
   }
   private scope(tenantId: string, since: Date | null): SQL {
     const t = communityPoints;
@@ -205,6 +214,11 @@ export class MysqlEngageStore implements EngageStore {
     if (Object.keys(patch).length) await this.db.update(communityChallengeSubmissions).set(patch).where(eq(communityChallengeSubmissions.id, id));
     return this.getSubmission(id);
   }
+  async submissionOf(challengeId: string, memberId: string) {
+    const t = communityChallengeSubmissions;
+    const [row] = await this.db.select().from(t).where(and(eq(t.challengeId, challengeId), eq(t.memberId, memberId)));
+    return row ? submissionOf(row) : null;
+  }
   async addVote(submissionId: string, memberId: string, at: Date) {
     return this.db.transaction(async (tx) => {
       const s = communityChallengeSubmissions;
@@ -273,11 +287,15 @@ export class MysqlEngageStore implements EngageStore {
       .orderBy(asc(t.startsAt));
     return rows.map(eventOf);
   }
-  async addRsvp(eventId: string, memberId: string, at: Date) {
+  async addRsvp(eventId: string, memberId: string, at: Date): Promise<boolean | "full"> {
     return this.db.transaction(async (tx) => {
       const e = communityEvents;
-      const [event] = await tx.select({ id: e.id }).from(e).where(eq(e.id, eventId)).for("update");
+      // The row lock keeps the count and the capacity honest when many say "going" at once.
+      const [event] = await tx.select({ id: e.id, rsvpCount: e.rsvpCount, capacity: e.capacity }).from(e).where(eq(e.id, eventId)).for("update");
       if (!event) return false;
+      const [had] = await tx.select({ m: communityEventRsvps.memberId }).from(communityEventRsvps).where(and(eq(communityEventRsvps.eventId, eventId), eq(communityEventRsvps.memberId, memberId)));
+      if (had) return false;
+      if (event.capacity !== null && event.rsvpCount >= event.capacity) return "full" as const;
       try {
         await tx.insert(communityEventRsvps).values({ eventId, memberId, createdAt: at });
       } catch (error) {
@@ -311,9 +329,15 @@ export class MysqlEngageStore implements EngageStore {
     return paged(rows.map((x) => x.id), offset, limit);
   }
   async addEventComment(c: Omit<EventComment, "id">) {
-    const row = { ...c, id: randomUUID() };
-    await this.db.insert(communityEventComments).values(row);
-    return commentOf(row);
+    return this.db.transaction(async (tx) => {
+      // The event's row lock puts its comments in one line, each after the last.
+      await tx.select({ id: communityEvents.id }).from(communityEvents).where(eq(communityEvents.id, c.eventId)).for("update");
+      const [last] = await tx.select({ at: communityEventComments.createdAt }).from(communityEventComments).where(eq(communityEventComments.eventId, c.eventId)).orderBy(desc(communityEventComments.createdAt)).limit(1);
+      const lastMs = last ? last.at.getTime() : 0;
+      const row = { ...c, id: randomUUID(), createdAt: new Date(Math.max(c.createdAt.getTime(), lastMs + 1)) };
+      await tx.insert(communityEventComments).values(row);
+      return commentOf(row);
+    });
   }
   async getEventComment(id: string) {
     const [row] = await this.db.select().from(communityEventComments).where(eq(communityEventComments.id, id));

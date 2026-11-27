@@ -4,6 +4,7 @@ import type { CommunityContext } from "../api/http";
 import { withQaFor } from "../api/qa-hooks";
 import { pushToMember } from "../engage/push";
 import { CONTENT_KINDS } from "../content-kinds";
+import { YALLAPP_TENANT } from "../types";
 import { contentInfo, memberStats, recentTexts, setContentStatus, type QaContentKind } from "../qa/service";
 import type { CommunityMember } from "../types";
 import { linkedApps, yallappAccountName } from "../yallapp";
@@ -107,6 +108,8 @@ export function trustDepsOf(ctx: Pick<CommunityContext, "deps" | "store" | "now"
     member,
     blockedEitherWay: (id) => base.blockedEitherWay(id),
     platformAdmin: async (id) => {
+      // 232–235 A client app's community is run by the client, from their dashboard (CommunityRequest.tenantAdmin, set in-process only).
+      if (ctx.store.tenant !== YALLAPP_TENANT) return ctx.req?.tenantAdmin === true && ctx.member?.id === id;
       const m = await base.getMember(id);
       // A's check (lib/community/staff.ts): an active member whose linked Yallapp account is an owner or admin of Yallapp's admin, asked now.
       return m ? isCommunityAdmin(ctx.req ?? ctx, ctx.deps.platform, m) : false;

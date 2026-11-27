@@ -38,6 +38,9 @@ export const DEFAULT_POINT_RULES: Readonly<Record<string, PointRule>> = {
 };
 
 export const POINT_REASONS = Object.keys(DEFAULT_POINT_RULES);
+
+/** A member's level by their points (lib/community/levels.ts). */
+export const levelStanding = levelOf;
 const SETTINGS_KEY = "points";
 const POINTS_LIMIT = 10_000;
 
@@ -100,7 +103,7 @@ export type BoardPeriod = "week" | "all";
 export interface BoardPage {
   rows: (BoardRow & { rank: number })[];
   next: number | null;
-  me: { rank: number | null; points: number } | null;
+  me: { rank: number; points: number } | null;
 }
 
 /** The leaderboard: this week's points (from Monday, UTC) or all time; the reader's own place too. */
@@ -112,7 +115,7 @@ export async function leaderboard(ctx: EngageCtx, input: { period: BoardPeriod; 
   let me: BoardPage["me"] = null;
   if (input.memberId) {
     const points = await store.memberTotal(tenantId, input.memberId, since);
-    me = { points, rank: points > 0 ? (await store.aheadOf(tenantId, points, since)) + 1 : null };
+    me = { points, rank: (await store.aheadOf(tenantId, points, since)) + 1 };
   }
   return { rows, next: got.length > input.limit ? input.offset + input.limit : null, me };
 }

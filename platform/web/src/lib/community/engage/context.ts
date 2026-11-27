@@ -12,9 +12,9 @@ export type EngageCtx = Pick<CommunityContext, "deps" | "store" | "now"> & Parti
 
 const made = new WeakMap<object, { store: EngageStore; tenantId: string; trust: TrustDeps }>();
 
-/** The community this runs in: the request's tenant (phase 5, area A's key), Yallapp Community otherwise. */
+/** The community this runs in: its store's tenant (area A's key: "yallapp", or a client app's id). */
 export function tenantOf(ctx: EngageCtx): string {
-  return ctx.tenant ?? YALLAPP_TENANT;
+  return ctx.tenant ?? ctx.store.tenant ?? YALLAPP_TENANT;
 }
 
 export function engageOf(ctx: EngageCtx): { store: EngageStore; tenantId: string; trust: TrustDeps } {

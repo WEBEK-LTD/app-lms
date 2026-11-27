@@ -1,5 +1,5 @@
 import { customType, datetime, foreignKey, index, int, mysqlTable, primaryKey, text, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
-import { communityMembers } from "./community-schema";
+import { communityMembers, communitySessions, tenantColumn } from "./community-schema";
 
 /**
  * 232–235 Yallapp Community, area C's tables for phases 2 to 5 (migration
@@ -20,21 +20,26 @@ const jsonText = <T>(name: string) =>
 
 const id = (name: string) => varchar(name, { length: 36 });
 const time = (name: string) => datetime(name, { mode: "date", fsp: 3 });
-const tenant = () => varchar("tenant_id", { length: 64 }).notNull().default("yallapp");
+const tenant = () => tenantColumn();
 const member = (name: string) => id(name).notNull().references(() => communityMembers.id, { onDelete: "cascade" });
 
-/** 232 A member's phone for push (Firebase Cloud Messaging through Yallapp's keyless sender). */
+/** 232 A signed-in phone's push token (Firebase Cloud Messaging through Yallapp's keyless sender): one per session, gone when it signs out. */
 export const communityPushDevices = mysqlTable(
   "community_push_devices",
   {
-    token: varchar("token", { length: 255 }).primaryKey(),
+    sessionId: id("session_id")
+      .primaryKey()
+      .references(() => communitySessions.id, { onDelete: "cascade" }),
     tenantId: tenant(),
     memberId: member("member_id"),
+    token: varchar("token", { length: 4096 }).notNull(),
+    /** The token's SHA-256: the same phone signed in again, or a token Firebase no longer knows. */
+    tokenHash: varchar("token_hash", { length: 64 }).notNull(),
     platform: varchar("platform", { length: 8 }).notNull().$type<"android" | "ios">(),
     createdAt: time("created_at").notNull(),
     lastSeenAt: time("last_seen_at").notNull(),
   },
-  (t) => [index("community_push_devices_member").on(t.memberId)],
+  (t) => [index("community_push_devices_member").on(t.memberId), index("community_push_devices_token").on(t.tokenHash)],
 );
 
 /** 233 Every point a member earned or lost, once per thing done (member, reason, ref). */
@@ -56,15 +61,16 @@ export const communityPoints = mysqlTable(
   ],
 );
 
-/** 233 A challenge the admins post: dates, rules and what the winners get. */
+/** 233 A challenge the admins post: dates, rules and what each winner gets (points, a badge). */
 export const communityChallenges = mysqlTable(
   "community_challenges",
   {
     id: id("id").primaryKey(),
     tenantId: tenant(),
-    title: varchar("title", { length: 140 }).notNull(),
+    title: varchar("title", { length: 160 }).notNull(),
     body: text("body").notNull(),
-    prizes: text("prizes").notNull(),
+    rewardPoints: int("reward_points").notNull().default(0),
+    rewardBadge: varchar("reward_badge", { length: 8 }).$type<"gold" | "green" | "blue">(),
     coverUrl: varchar("cover_url", { length: 512 }),
     startsAt: time("starts_at").notNull(),
     submitUntil: time("submit_until").notNull(),
@@ -87,7 +93,6 @@ export const communityChallengeSubmissions = mysqlTable(
     memberId: id("member_id").notNull(),
     showcaseId: id("showcase_id"),
     url: varchar("url", { length: 500 }),
-    title: varchar("title", { length: 140 }).notNull(),
     note: text("note").notNull(),
     votes: int("votes").notNull().default(0),
     place: int("place"),
@@ -126,10 +131,12 @@ export const communityEvents = mysqlTable(
     tenantId: tenant(),
     groupId: id("group_id"),
     kind: varchar("kind", { length: 10 }).notNull().$type<"online" | "in_person" | "live">(),
-    title: varchar("title", { length: 140 }).notNull(),
+    title: varchar("title", { length: 160 }).notNull(),
     body: text("body").notNull(),
     startsAt: time("starts_at").notNull(),
     endsAt: time("ends_at").notNull(),
+    /** At most this many going; null: no limit. */
+    capacity: int("capacity"),
     timeZone: varchar("time_zone", { length: 64 }).notNull(),
     location: varchar("location", { length: 300 }),
     joinUrl: varchar("join_url", { length: 500 }),
