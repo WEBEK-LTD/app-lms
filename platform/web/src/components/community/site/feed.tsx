@@ -6,6 +6,8 @@ import type { FeedTab, QuestionSummary, Section, TutorialSummary, Viewer } from 
 import { cmLinks } from "./links";
 import { activeMembers, waiting } from "./source";
 import { compact, fill, type CmLang, type CmWords } from "./words";
+import { challenges, events } from "./next";
+import { CM_WORDS2 } from "./words2";
 
 export const FEED_TABS: FeedTab[] = ["for_you", "latest", "active", "unanswered"];
 
@@ -75,10 +77,10 @@ export function Composer({ w, viewer }: { w: CmWords; viewer: Viewer | null }) {
       {viewer ? <Avatar member={viewer} size={42} /> : <span className="av a1" style={{ width: 42, height: 42 }}><span className="ms" aria-hidden="true">person</span></span>}
       <Link href={ask} className="in">{w.composerPlaceholder}</Link>
       <div className="t">
-        <span className="soon" title={w.comingSoon} aria-disabled="true"><span className="ms" style={{ color: "#18A56B" }} aria-hidden="true">image</span>{w.photo}</span>
-        <span className="soon" title={w.comingSoon} aria-disabled="true"><span className="ms" style={{ color: "#E23F72" }} aria-hidden="true">videocam</span>{w.video}</span>
+        <Link href={viewer ? "#cm-post-body" : cmLinks.signIn(cmLinks.home())}><span className="ms" style={{ color: "#18A56B" }} aria-hidden="true">image</span>{w.photo}</Link>
+        <Link href={viewer ? "#cm-post-body" : cmLinks.signIn(cmLinks.home())}><span className="ms" style={{ color: "#E23F72" }} aria-hidden="true">videocam</span>{w.video}</Link>
         <Link href={ask}><span className="ms" style={{ color: "#FF5A1F" }} aria-hidden="true">help</span>{w.question}</Link>
-        <span className="soon" title={w.comingSoon} aria-disabled="true"><span className="ms" style={{ color: "#6B5BFF" }} aria-hidden="true">apps</span>{w.showApp}</span>
+        <Link href={viewer ? cmLinks.showcaseNew() : cmLinks.signIn(cmLinks.showcaseNew())}><span className="ms" style={{ color: "#6B5BFF" }} aria-hidden="true">apps</span>{w.showApp}</Link>
       </div>
     </div>
   );
@@ -124,13 +126,19 @@ export function Feed({ w, questions, tutorials }: { w: CmWords; questions: Quest
 
 /** The rail of the home and the lists. */
 export async function Rail({ w, lang, viewer }: { w: CmWords; lang: CmLang; viewer: Viewer | null }) {
-  const [wq, active] = await Promise.all([waiting({ viewerId: viewer?.id ?? null, lang, limit: 3 }), activeMembers({ limit: 3 })]);
+  const w2 = CM_WORDS2[lang];
+  const [wq, active, open, next] = await Promise.all([
+    waiting({ viewerId: viewer?.id ?? null, lang, limit: 3 }),
+    activeMembers({ limit: 3 }),
+    challenges("open").then((p) => p.items[0] ?? null),
+    events({ when: "upcoming" }).then((p) => p.items.slice(0, 2)),
+  ]);
   return (
     <>
-      <ChallengeBox w={w} />
+      <ChallengeBox w={w} w2={w2} challenge={open} />
       <WaitingBox items={wq.items} w={w} />
       <ActiveBox items={active} w={w} />
-      <EventsBox w={w} />
+      <EventsBox w2={w2} events={next} lang={lang} />
     </>
   );
 }

@@ -252,7 +252,7 @@ export async function saved(viewerId: string, lang: CmLang): Promise<{ questions
 
 type ApiError = { error?: { code?: string; message?: string; fields?: Record<string, string> } };
 type ApiRelationship = { following: boolean; followed_by: boolean; friend: "none" | "requested" | "incoming" | "friends"; friend_request_id?: string | null; blocked: boolean };
-type ApiMember = { id: string; username: string; display_name: string; avatar_url: string | null; top_badge: BadgeKind | null; team: boolean; deleted: boolean; relationship?: ApiRelationship };
+export type ApiMember = { id: string; username: string; display_name: string; avatar_url: string | null; top_badge: BadgeKind | null; team: boolean; deleted: boolean; relationship?: ApiRelationship };
 type ApiBadge = { kind: BadgeKind; label: string; since: string; company_name?: string | null; app_url?: string | null };
 type ApiProfile = ApiMember & {
   bio: string;
@@ -273,7 +273,7 @@ const memberPath = (handleOrId: string) => encodeURIComponent(/^[0-9a-f]{8}-[0-9
 const errorCode = (body: unknown): string => (body as ApiError | null)?.error?.code ?? "error";
 const errorFields = (body: unknown): Record<string, string> | undefined => (body as ApiError | null)?.error?.fields;
 
-function apiMember(m: ApiMember): MemberRef {
+export function apiMember(m: ApiMember): MemberRef {
   return { id: m.id, name: m.display_name, handle: m.deleted ? null : m.username, avatarUrl: m.avatar_url, badge: m.top_badge, staff: m.team, rank: null };
 }
 

@@ -9,30 +9,39 @@ import { cmLinks } from "./links";
 import { sectionColor } from "./source";
 import { signOutAction } from "@/app/community/(site)/auth-actions";
 import { fill, type CmLang, type CmWords } from "./words";
+import { CM_WORDS2 } from "./words2";
 
-export type NavKey = "home" | "questions" | "tutorials" | "admin" | "none";
+export type GroupLink = { slug: string; name: string };
+
+export type NavKey = "home" | "questions" | "tutorials" | "academy" | "showcase" | "challenges" | "groups" | "pros" | "jobs" | "events" | "messages" | "leaderboard" | "admin" | "none";
 
 type Item = { key: NavKey | "soon"; icon: string; label: string; href?: string; count?: string };
 
-/** The sections, in the design's order; the later phases' show as "Soon" and lead nowhere. */
-function items(w: CmWords, newCount: number, withSocial: boolean): Item[] {
+/** The sections, in the design's order (232–234: all live). */
+function items(w: CmWords, lang: CmLang, newCount: number, withSocial: boolean): Item[] {
+  const w2 = CM_WORDS2[lang];
   const list: Item[] = [
     { key: "home", icon: "home", label: w.navHome, href: cmLinks.home() },
     { key: "questions", icon: "forum", label: w.navQuestions, href: cmLinks.questions(), count: newCount > 0 ? fill(w.newCount, { n: newCount }) : undefined },
     { key: "tutorials", icon: "menu_book", label: w.navTutorials, href: cmLinks.tutorials() },
-    { key: "soon", icon: "school", label: w.navAcademy },
-    { key: "soon", icon: "apps", label: w.navShowcase },
-    { key: "soon", icon: "emoji_events", label: w.navChallenges },
+    { key: "academy", icon: "school", label: w.navAcademy, href: cmLinks.academy() },
+    { key: "showcase", icon: "apps", label: w.navShowcase, href: cmLinks.showcase() },
+    { key: "challenges", icon: "emoji_events", label: w.navChallenges, href: cmLinks.challenges() },
+    { key: "leaderboard", icon: "leaderboard", label: w2.leaderboardTitle, href: cmLinks.leaderboard() },
   ];
-  if (withSocial) list.push({ key: "soon", icon: "groups", label: w.navGroups });
-  list.push({ key: "soon", icon: "work", label: w.navPros }, { key: "soon", icon: "event", label: w.navEvents });
+  if (withSocial) list.push({ key: "groups", icon: "groups", label: w.navGroups, href: cmLinks.groups() });
+  list.push(
+    { key: "pros", icon: "work", label: w.navPros, href: cmLinks.pros() },
+    { key: "jobs", icon: "business_center", label: w2.jobsTitle, href: cmLinks.jobs() },
+    { key: "events", icon: "event", label: w.navEvents, href: cmLinks.events() },
+  );
   return list;
 }
 
-function NavItems({ w, active, newCount, withSocial, viewer }: { w: CmWords; active: NavKey; newCount: number; withSocial: boolean; viewer: Viewer | null }) {
-  const list = items(w, newCount, withSocial);
+function NavItems({ w, lang, active, newCount, withSocial, viewer }: { w: CmWords; lang: CmLang; active: NavKey; newCount: number; withSocial: boolean; viewer: Viewer | null }) {
+  const list = items(w, lang, newCount, withSocial);
   if (viewer?.role) list.push({ key: "admin", icon: "admin_panel_settings", label: w.admin, href: cmLinks.admin() });
-  if (withSocial && viewer) list.splice(7, 0, { key: "none", icon: "diversity_3", label: w.navFriends, href: cmLinks.memberList(viewer.handle, "friends") });
+  if (withSocial && viewer) list.splice(8, 0, { key: "none", icon: "diversity_3", label: w.navFriends, href: cmLinks.memberList(viewer.handle, "friends") });
   return (
     <>
       {list.map((it) =>
@@ -70,10 +79,21 @@ function MeCard({ viewer, w }: { viewer: Viewer; w: CmWords }) {
 }
 
 /** The start-side nav of the desktop design. */
-export function SideNav({ w, active, viewer, mySections, newCount }: { w: CmWords; active: NavKey; viewer: Viewer | null; mySections: Section[]; newCount: number }) {
+export function SideNav({ w, lang, active, viewer, mySections, myGroups, newCount }: { w: CmWords; lang: CmLang; active: NavKey; viewer: Viewer | null; mySections: Section[]; myGroups: GroupLink[]; newCount: number }) {
   return (
     <nav className="cm-nav" aria-label={w.navHome}>
-      <NavItems w={w} active={active} newCount={newCount} withSocial={false} viewer={viewer} />
+      <NavItems w={w} lang={lang} active={active} newCount={newCount} withSocial viewer={viewer} />
+      {myGroups.length ? (
+        <>
+          <h6>{CM_WORDS2[lang].myGroups}</h6>
+          {myGroups.slice(0, 6).map((g) => (
+            <Link key={g.slug} href={cmLinks.group(g.slug)} className="cm-chip">
+              <span className="ms" aria-hidden="true">groups</span>
+              {g.name}
+            </Link>
+          ))}
+        </>
+      ) : null}
       {mySections.length ? (
         <>
           <h6>{w.mySections}</h6>
@@ -92,7 +112,7 @@ export function SideNav({ w, active, viewer, mySections, newCount }: { w: CmWord
 }
 
 /** The header: brand, search, language, messages, notifications, Ask and the member (the phone's: menu, logo, search, messages, notifications, avatar). */
-export function Header({ w, lang, viewer, unread, active, mySections, newCount, q = "" }: { w: CmWords; lang: CmLang; viewer: Viewer | null; unread: number; active: NavKey; mySections: Section[]; newCount: number; q?: string }) {
+export function Header({ w, lang, viewer, unread, unreadMessages, active, mySections, myGroups, newCount, q = "" }: { w: CmWords; lang: CmLang; viewer: Viewer | null; unread: number; unreadMessages: number; active: NavKey; mySections: Section[]; myGroups: GroupLink[]; newCount: number; q?: string }) {
   return (
     <header className="cm-hdr">
       <Drawer label={w.menu} closeLabel={w.close}>
@@ -115,10 +135,19 @@ export function Header({ w, lang, viewer, unread, active, mySections, newCount, 
           </div>
         )}
         <div className="dnav">
-          <NavItems w={w} active={active} newCount={newCount} withSocial viewer={viewer} />
+          <NavItems w={w} lang={lang} active={active} newCount={newCount} withSocial viewer={viewer} />
         </div>
-        <div className="dh">{w.yourGroups}</div>
-        <div className="dsoon">{w.groupsSoon}</div>
+        {myGroups.length ? (
+          <>
+            <div className="dh">{w.yourGroups}</div>
+            {myGroups.slice(0, 6).map((g) => (
+              <Link key={g.slug} href={cmLinks.group(g.slug)} className="cm-chip">
+                <span className="ms" aria-hidden="true">groups</span>
+                {g.name}
+              </Link>
+            ))}
+          </>
+        ) : null}
         {mySections.length ? (
           <>
             <div className="dh">{w.mySections}</div>
@@ -160,7 +189,12 @@ export function Header({ w, lang, viewer, unread, active, mySections, newCount, 
       <div className="sp" />
       <LangSelect lang={lang} label={w.language} />
       <Link href={cmLinks.search()} className="cm-icb cm-only-phone" aria-label={w.search}><span className="ms" aria-hidden="true">search</span></Link>
-      <span className="cm-icb soon" aria-disabled="true" title={w.messagesSoon} aria-label={w.messagesSoon}><span className="ms" aria-hidden="true">chat_bubble</span></span>
+      {viewer ? (
+        <Link href={cmLinks.messages()} className="cm-icb" aria-label={unreadMessages ? `${w.messages} (${unreadMessages})` : w.messages} data-testid="cm-messages">
+          <span className="ms" aria-hidden="true">chat_bubble</span>
+          {unreadMessages ? <i /> : null}
+        </Link>
+      ) : null}
       {viewer ? (
         <Link href={cmLinks.notifications()} className="cm-icb" aria-label={unread ? `${w.notifications} (${unread})` : w.notifications}>
           <span className="ms" aria-hidden="true">notifications</span>
@@ -202,7 +236,7 @@ export function Header({ w, lang, viewer, unread, active, mySections, newCount, 
   );
 }
 
-/** The phone's tab bar: Home, Q&A, +, Learn, Groups (soon). */
+/** The phone's tab bar: Home, Q&A, +, Learn, Groups. */
 export function TabBar({ w, active, viewer }: { w: CmWords; active: NavKey; viewer: Viewer | null }) {
   const tab = (key: NavKey, icon: string, label: string, href: string) => (
     <Link href={href} className={`t${active === key ? " on" : ""}`} aria-current={active === key ? "page" : undefined}>
@@ -218,10 +252,7 @@ export function TabBar({ w, active, viewer }: { w: CmWords; active: NavKey; view
         <span className="ms" aria-hidden="true">add</span>
       </Link>
       {tab("tutorials", "school", w.learn, cmLinks.tutorials())}
-      <span className="t soon" aria-disabled="true" title={w.comingSoon}>
-        <span className="ms" aria-hidden="true">groups</span>
-        <span>{w.navGroups}</span>
-      </span>
+      {tab("groups", "groups", w.navGroups, cmLinks.groups())}
     </nav>
   );
 }
