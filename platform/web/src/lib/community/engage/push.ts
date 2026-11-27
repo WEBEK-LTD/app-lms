@@ -1,4 +1,5 @@
-import { fail, type Fail } from "../trust/service";
+import { communityLang, pushes, DEFAULT_NOTIFICATION_PREFS } from "../trust/notifications";
+import { fail, PUSH_TITLE, type Fail } from "../trust/service";
 import { engageOf, type EngageCtx } from "./context";
 import type { PushPlatform } from "./store";
 
@@ -65,4 +66,30 @@ export async function pushToMember(ctx: EngageCtx, memberId: string, message: Co
   );
   if (result.invalidTokens.length) await store.removeTokens(result.invalidTokens);
   return result.sent;
+}
+
+const PHOTO: Record<"en" | "ar" | "tr", string> = { en: "Photo", ar: "صورة", tr: "Fotoğraf" };
+
+/**
+ * 232 A new message, pushed to everyone else in the conversation who is
+ * still in it and hasn't muted it, unless they turned message pushes off or
+ * a block stands between them (area A's messages call it after sending).
+ * The words are the message's own (a photo says so in their language).
+ */
+export async function pushNewMessage(ctx: EngageCtx, input: { conversationId: string; authorId: string; authorName: string; body: string; photos: number; recipients: readonly string[] }): Promise<number> {
+  if (!ctx.deps.push) return 0;
+  let sent = 0;
+  for (const memberId of input.recipients) {
+    if (memberId === input.authorId) continue;
+    const member = await ctx.store.base.getMember(memberId);
+    if (!member || member.status !== "active") continue;
+    if ((await ctx.store.base.blockedEitherWay(memberId)).has(input.authorId)) continue;
+    const prefs = (await ctx.store.trust.getNotificationPrefs(memberId)) ?? DEFAULT_NOTIFICATION_PREFS;
+    if (!pushes("message", prefs)) continue;
+    const lang = communityLang(member.language);
+    const words = input.body.trim() || (input.photos ? PHOTO[lang] : "");
+    const body = `${input.authorName}: ${words}`.slice(0, 180);
+    sent += await pushToMember(ctx, memberId, { title: PUSH_TITLE, body, data: { kind: "message", conversation_id: input.conversationId, link: `/messages/${input.conversationId}` } });
+  }
+  return sent;
 }

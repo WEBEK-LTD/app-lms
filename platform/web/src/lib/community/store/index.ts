@@ -22,9 +22,9 @@ export interface CommunityStore {
   base: CommunityBaseStore;
   qa: CommunityQaStore;
   trust: CommunityTrustStore;
+  engage: EngageStore;
   /** 232–234 (A): messages, groups, pros, jobs (lib/community/connect). */
   connect: ConnectStore;
-  engage: EngageStore;
 }
 
 export type { CommunityBaseStore, CommunityQaStore, CommunityTrustStore, EngageStore };

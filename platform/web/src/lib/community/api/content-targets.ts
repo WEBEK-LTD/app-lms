@@ -1,5 +1,5 @@
-import { connectContentInfo, isConnectKind } from "../connect/content";
 import { CONTENT_KINDS } from "../content-kinds";
+import { connectContentInfo, isConnectKind } from "../connect/content";
 import { withQa } from "../qa/hooks";
 import { contentInfo, type QaContentKind } from "../qa/service";
 import type { CommunityTargetType } from "../types";
@@ -14,7 +14,7 @@ const QA_KINDS: Record<string, QaContentKind> = { question: "question", answer: 
  * posts, their comments, stories and showcase items.
  */
 export async function contentTarget(ctx: CommunityContext, type: Exclude<CommunityTargetType, "member">, id: string): Promise<{ authorId: string } | null> {
-  // 232–235 The kinds phases 2 to 5 add, from their areas' table.
+  // 233–234 Area C's kinds (events, their comments, challenge entries), from its table.
   const adapter = CONTENT_KINDS[type];
   if (adapter) {
     const got = await adapter.info(ctx, id);

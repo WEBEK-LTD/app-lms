@@ -170,6 +170,32 @@ describe.skipIf(!url)("231 the trust store on MySQL", () => {
   afterAll(async () => {
     await pool?.end();
   });
+  it("232–235 each community's lists keep to it: verification requests, the audit log, the moderation queue and reports", async () => {
+    const db = drizzle({ client: pool!, schema: communitySchema, mode: "default" });
+    const [ta, tb] = [`t-${randomUUID().slice(0, 8)}`, `t-${randomUUID().slice(0, 8)}`];
+    const [a, b] = [new MysqlTrustStore(db as never, ta), new MysqlTrustStore(db as never, tb)];
+    const member = async (tenantId: string) => {
+      const id = randomUUID();
+      await db.insert(communityMembers).values({ id, tenantId, email: `${id}@trust.test`, displayName: "Member", username: `m${id.slice(0, 8)}${id.slice(9, 13)}`, bio: "", skills: [], links: [], language: "en", createdAt: T0, updatedAt: T0, lastActiveAt: T0 });
+      return id;
+    };
+    const [ma, mb] = [await member(ta), await member(tb)];
+    for (const [store, m] of [[a, ma], [b, mb]] as const) {
+      await store.addVerification({ memberId: m, fullName: "Sami Aydın", idProofKey: `community/id-proof/${m}.pdf`, portfolioLinks: [], apps: [], createdAt: at(0) });
+      await store.addAudit({ actorId: m, action: "settings.update", memberId: m, targetType: "settings", targetId: "trust", reason: null, details: null, createdAt: at(0) });
+      await store.addModeration({ targetType: "post", targetId: randomUUID(), authorId: m, cause: "first_posts", note: null, createdAt: at(0) });
+      await store.addReport({ reporterId: m, targetType: "post", targetId: randomUUID(), reason: "spam", note: "", createdAt: at(0) });
+    }
+    const only = async (store: MysqlTrustStore, m: string) => {
+      expect((await store.listVerifications({ status: "pending", offset: 0, limit: 50 })).items.map((x) => x.memberId)).toEqual([m]);
+      expect((await store.listAudit({ offset: 0, limit: 50 })).items.map((x) => x.memberId)).toEqual([m]);
+      expect((await store.listModeration({ status: "open", offset: 0, limit: 50 })).items.map((x) => x.authorId)).toEqual([m]);
+      expect((await store.listReports({ status: "open", offset: 0, limit: 50 })).items.map((x) => x.reporterId)).toEqual([m]);
+    };
+    await only(a, ma);
+    await only(b, mb);
+  });
+
   suite("on the base's tables (0155)", async () => {
     const db = drizzle({ client: pool!, schema: communitySchema, mode: "default" });
     return {

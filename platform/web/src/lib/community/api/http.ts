@@ -40,14 +40,14 @@ export interface CommunityDeps {
   privateFiles?: { put(key: string, bytes: Uint8Array, contentType: string): Promise<void>; get(key: string): Promise<{ bytes: Uint8Array; contentType: string } | null>; delete?(key: string): Promise<void> };
   /** Signs short-lived links to private files; none: SIGNING_SECRET. */
   fileSecret?: string;
-  /** 235 The hosted API's token secret (a client app's customers sign in to its community with theirs); none: from SIGNING_SECRET. */
-  hostedSecret?: string;
   /** 232 Push to the Community app's phones (lib/community/engage/push.ts); null or none: push isn't set up here. */
   push?: CommunityPusher | null;
   /** 233 Area B's academy, for the course checkout (lib/community/engage/checkout.ts); none: courses can't be bought. */
   courses?: CourseShop | null;
   /** 233 Yallapp's own website checkout (Studio Market's); none: courses can't be bought. */
   courseCheckout?: (() => Promise<CourseCheckoutGateway>) | null;
+  /** 235 The hosted API's token secret (a client app's customers sign in to its community with theirs); none: from SIGNING_SECRET. */
+  hostedSecret?: string;
 }
 
 export type CommunityMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";

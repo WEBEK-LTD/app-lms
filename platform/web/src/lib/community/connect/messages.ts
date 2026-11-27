@@ -1,4 +1,5 @@
 import { newId } from "../../crypto/tokens";
+import { pushNewMessage } from "../engage/push";
 import { fail, noContent, ok, pageOf, type CommunityContext, type CommunityResult, type MemberContext } from "../api/http";
 import { onReported } from "../api/trust-hooks";
 import type { MemberSummaryView } from "../api/views";
@@ -238,6 +239,11 @@ async function send(ctx: MemberContext, conversation: Conversation, input: { bod
   await limitConnect(ctx, "message");
   const message: Message = { id: newId(), conversationId: conversation.id, authorId: ctx.member.id, body: input.body, photos: input.photos, replyToId: input.replyToId, deletedAt: null, createdAt: ctx.now };
   await store.addMessage(message);
+  // 232 To the others' phones (area C): those still in it and who haven't muted it.
+  const others = (await store.listConversationMembers(conversation.id)).filter((m) => m.memberId !== ctx.member.id && !m.leftAt && !m.muted).map((m) => m.memberId);
+  await pushNewMessage(ctx, { conversationId: conversation.id, authorId: ctx.member.id, authorName: ctx.member.displayName, body: input.body, photos: input.photos.length, recipients: others }).catch((error: unknown) => {
+    console.warn(`[community] push for message ${message.id} failed: ${error instanceof Error ? error.message : String(error)}`);
+  });
   // One's own message is read.
   const me = await store.getConversationMember(conversation.id, ctx.member.id);
   if (me) await store.saveConversationMember({ ...me, lastReadMessageId: message.id, lastReadAt: message.createdAt, hiddenAt: null });

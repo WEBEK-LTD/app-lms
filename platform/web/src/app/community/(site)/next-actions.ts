@@ -9,8 +9,7 @@ import { cmHref, cmLinks } from "@/components/community/site/links";
 import { jsonBody, list } from "@/components/community/site/form-body";
 import { send } from "@/components/community/site/next";
 import { setCoursePrice } from "@/lib/community/academy/service";
-import { communityDeps } from "@/lib/community/deps";
-import { startCourseCheckout } from "@/lib/community/engage/checkout";
+import { startSiteCourseCheckout } from "@/lib/community/engage/course-payment";
 import { ipFromHeaders } from "@/lib/http";
 import { communityApi } from "@/lib/community/site-client";
 import { getCommunityStore } from "@/lib/community/store/server";
@@ -178,8 +177,8 @@ export async function coursePriceAction(form: FormData): Promise<void> {
   const back = `${cmLinks.admin("academy")}?id=${encodeURIComponent(courseId)}`;
   if (!viewer || viewer.role !== "admin") redirect(await cmTarget(cmLinks.signIn(back)));
   const amount = str(form, "amount").replace(",", ".");
-  const currency = str(form, "currency").toUpperCase();
-  const price = amount ? { priceMinor: Math.round(Number(amount) * 100), currency } : null;
+  // Prices are in US dollars only; the gateway converts them (area C, engage/checkout.ts).
+  const price = amount ? { priceMinor: Math.round(Number(amount) * 100), currency: "USD" } : null;
   const ok = await setCoursePrice((await getCommunityStore(YALLAPP_TENANT)).qa.academy, YALLAPP_TENANT, courseId, price).catch(() => false);
   redirect(await cmTarget(withParam(back, ok ? "done" : "error", ok ? "saved" : "invalid_request")));
 }
@@ -205,8 +204,7 @@ export async function courseCheckoutAction(form: FormData): Promise<void> {
   const back = cmLinks.course(slug);
   if (!viewer) redirect(await cmTarget(cmLinks.signIn(back)));
   const ip = ipFromHeaders(await headers());
-  const deps = await communityDeps({ ip });
-  const result = await startCourseCheckout({ deps, store: deps.store, now: deps.now }, viewer.id, str(form, "course_id"), { ip }).catch(() => null);
+  const result = await startSiteCourseCheckout({ memberId: viewer.id, courseId: str(form, "course_id"), ip }).catch(() => null);
   if (result && result.ok && /^https:\/\//.test(result.url)) redirect(result.url);
   redirect(await cmTarget(withParam(back, "error", result && !result.ok ? result.code : "checkout_failed")));
 }

@@ -36,11 +36,11 @@ export interface QaHooks {
    */
   moderate(input: { memberId: string; targetType: ModeratedTarget; targetId: string; text: string }): Promise<"published" | "pending">;
   /** Tells a member (the list in the app and email): area C's notify. Never about their own doing. */
-  /** The member's Q&A points went up or down by `delta` (area A adds it to the member's points, shown on the profile). */
-  pointsChanged(memberId: string, delta: number): Promise<void>;
-  /** 233 Area C's points ledger (engage/points.ts): when set, it gives the points (its table decides the amount and the daily cap) instead of pointsChanged. */
-  award?(input: { memberId: string; reason: string; ref: string }): Promise<unknown>;
-  takeBack?(input: { memberId: string; reason: string; ref: string }): Promise<unknown>;
+  /**
+   * The member's Q&A points went up or down by `delta` (area A adds it to the member's points, shown on the profile).
+   * 233 With `from`: what gave them (or, `undo`, what is taken back), for area C's points ledger: its table and daily caps decide.
+   */
+  pointsChanged(memberId: string, delta: number, from?: { reason: string; ref: string; undo: boolean }): Promise<void>;
   notify(input: { memberId: string; kind: QaNoticeKind; actorId: string | null; targetType: "question" | "answer" | "reply"; targetId: string; data: { actor?: string; title?: string; count?: number }; link: string }): Promise<void>;
 }
 

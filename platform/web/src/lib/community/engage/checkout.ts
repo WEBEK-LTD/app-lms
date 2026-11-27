@@ -26,7 +26,7 @@ export interface CourseShop {
   price(ctx: EngageCtx, courseId: string): Promise<{ title: string; slug: string; amountMinor: number; currency: string; free: boolean } | null>;
   owned(ctx: EngageCtx, memberId: string, courseId: string): Promise<boolean>;
   /** Idempotent on (member, course). */
-  grant(ctx: EngageCtx, input: { tenant: string; memberId: string; courseId: string; source: "purchase"; ref: string }): Promise<void>;
+  grant(ctx: EngageCtx, input: { tenant: string; memberId: string; courseId: string; ref: string }): Promise<void>;
 }
 
 /** Yallapp's own checkout, as Studio Market uses it (lib/community/deps.ts gives the real one; tests a fake). */
@@ -142,7 +142,7 @@ export async function settleCourseOrder(ctx: EngageCtx, token: string, trigger: 
   const paid = await store.settleOrder(order.id, { status: "paid", at: ctx.now, providerRef: result.paymentId ?? null });
   // Settled a moment ago by the other call (the return and the webhook at once).
   if (!paid) return { status: "already_paid", path: page("done") };
-  await shop.grant({ ...ctx, tenant: order.tenantId }, { tenant: order.tenantId, memberId: order.memberId, courseId: order.courseId, source: "purchase", ref: order.id });
+  await shop.grant({ ...ctx, tenant: order.tenantId }, { tenant: order.tenantId, memberId: order.memberId, courseId: order.courseId, ref: order.id });
   await sendReceipt(ctx, paid, course?.title ?? "");
   return { status: "paid", path: page("done") };
 }

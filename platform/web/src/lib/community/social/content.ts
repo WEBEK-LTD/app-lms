@@ -39,7 +39,7 @@ export const showcaseContent: ContentAdapter = {
   ...adapter("showcase"),
   /** A challenge entry's card: ShowcaseSummary. */
   async summary(ctx, id) {
-    const { showcaseCard } = await import("../api/social-routes");
-    return showcaseCard(ctx, id);
+    const { showcaseSummaryOf } = await import("../api/social-routes");
+    return showcaseSummaryOf(ctx, id);
   },
 };
