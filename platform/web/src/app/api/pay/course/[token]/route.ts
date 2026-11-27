@@ -1,4 +1,4 @@
-import { settledLocation } from "@/lib/payments/provider-route";
+import { settledLocation } from "@/lib/payments/routes";
 import { settleCoursePayment } from "@/lib/community/engage/course-payment";
 
 /**

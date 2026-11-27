@@ -1,11 +1,10 @@
 import "server-only";
 import { chooseApp } from "../auth/session";
-import { appUrl } from "../env";
 import { getStore } from "../data";
 import { verifyFawaterkWebhook } from "./fawaterk";
 import { verifyKashierWebhook } from "./kashier";
 import { noteWebhook } from "./webhooks";
-import { PAYMENT_KINDS, type PaymentKind } from "./routes";
+import { PAYMENT_KINDS, settledLocation, type PaymentKind } from "./routes";
 import { settleDonationPayment, settleOrderPayment, settlePlanPayment, type Settled, type Trigger } from "./settle";
 import { settleTemplatePayment } from "../studio-market/payment";
 import { settleCoursePayment } from "../community/engage/course-payment";
@@ -46,11 +45,6 @@ export async function providerReturn(provider: ReturnOnly, kind: string, token: 
   const settled = await settle(kind, token, { provider });
   if (kind === "plan" && settled.paidApp) await chooseApp(settled.paidApp);
   return new Response(null, { status: 303, headers: { location: settledLocation(settled.path), "cache-control": "no-store" } });
-}
-
-/** Where the buyer goes next: a path on this site, or 233 the Community's own site (a full address). */
-export function settledLocation(path: string): string {
-  return /^https:\/\//.test(path) ? path : `${appUrl()}${path}`;
 }
 
 async function readBody(request: Request): Promise<Record<string, unknown> | null> {
