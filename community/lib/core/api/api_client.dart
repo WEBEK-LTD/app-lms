@@ -147,6 +147,29 @@ class ApiClient {
     );
   }, asJson);
 
+  /// `multipart/form-data` with several files (posts' photos, a message's
+  /// photos, a story's video and poster): [files] as (field, path) pairs;
+  /// a field repeated for an array.
+  Future<Json> multipart(
+    String path, {
+    String method = 'POST',
+    Map<String, Object?> fields = const {},
+    List<(String, String)> files = const [],
+  }) => _run((o) async {
+    final form = FormData();
+    for (final e in fields.entries) {
+      if (e.value != null) form.fields.add(MapEntry(e.key, '${e.value}'));
+    }
+    for (final (field, file) in files) {
+      form.files.add(MapEntry(field, await MultipartFile.fromFile(file)));
+    }
+    return _dio.request<Object?>(
+      path,
+      data: form,
+      options: o.copyWith(method: method),
+    );
+  }, asJson);
+
   static Map<String, Object?>? _clean(Map<String, Object?>? query) =>
       query == null
       ? null

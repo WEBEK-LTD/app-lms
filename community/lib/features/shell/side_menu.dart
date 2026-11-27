@@ -14,6 +14,8 @@ import '../../core/widgets/avatar.dart';
 import '../../core/widgets/coming_soon.dart';
 import '../../core/widgets/logo.dart';
 import '../../core/widgets/sym.dart';
+import '../groups/data/groups_api.dart';
+import '../groups/links.dart';
 
 /// The menu's sections, in the design's order (two by two).
 enum MenuSection {
@@ -142,7 +144,7 @@ class SideMenu extends ConsumerWidget {
         MenuSection.groups,
         Symbols.groups_rounded,
         l.menuGroups,
-        open(MenuSection.groups, l.menuGroups, null),
+        open(MenuSection.groups, l.menuGroups, () => go(Paths.groups)),
         0,
       ),
       (
@@ -268,19 +270,25 @@ class SideMenu extends ConsumerWidget {
                             const SizedBox(height: 12),
                             _NavGrid(items: items, current: current),
                             _Heading(l.menuYourGroups),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                              ),
-                              child: Text(
-                                l.menuGroupsSoon,
-                                style: const TextStyle(
-                                  fontSize: 12.5,
-                                  color: Color(0xFF8F8BAE),
-                                  height: 1.45,
+                            if (config.comingSoon(MenuSection.groups.name))
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
                                 ),
+                                child: Text(
+                                  l.menuGroupsSoon,
+                                  style: const TextStyle(
+                                    fontSize: 12.5,
+                                    color: Color(0xFF8F8BAE),
+                                    height: 1.45,
+                                  ),
+                                ),
+                              )
+                            else
+                              _MyGroups(
+                                open: (id) => push(GroupLinks.group(id)),
+                                all: () => go(Paths.groups),
                               ),
-                            ),
                             const Spacer(),
                             Row(
                               children: [
@@ -652,4 +660,67 @@ class _Square extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// "Your groups": the first four of the member's groups, then All groups.
+class _MyGroups extends ConsumerWidget {
+  const _MyGroups({required this.open, required this.all});
+
+  final ValueChanged<String> open;
+  final VoidCallback all;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final groups = ref.watch(myGroupsProvider).value ?? const <Group>[];
+    const muted = TextStyle(fontSize: 12.5, color: Color(0xFF8F8BAE));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (groups.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(l.groupNoneYet, style: muted),
+          ),
+        for (final g in groups.take(4))
+          InkWell(
+            key: ValueKey('menu-group-${g.id}'),
+            borderRadius: BorderRadius.circular(10),
+            onTap: () => open(g.id),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
+              child: Row(
+                children: [
+                  GroupMark(group: g, size: 30),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      g.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Brand.darkInk,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton(
+            key: const ValueKey('menu-groups-all'),
+            onPressed: all,
+            child: Text(
+              l.groupAll,
+              style: const TextStyle(color: Brand.orange),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

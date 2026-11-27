@@ -1984,6 +1984,570 @@ abstract class AppLocalizations {
   /// **'Accept'**
   String get qaAcceptShort;
 
+  /// No description provided for @feedForYou.
+  ///
+  /// In en, this message translates to:
+  /// **'For you'**
+  String get feedForYou;
+
+  /// No description provided for @feedLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get feedLatest;
+
+  /// No description provided for @feedFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get feedFollowing;
+
+  /// No description provided for @feedFollowingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts from the members you follow show here.'**
+  String get feedFollowingEmpty;
+
+  /// No description provided for @postTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postTitle;
+
+  /// No description provided for @postNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New post'**
+  String get postNew;
+
+  /// No description provided for @postHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share something with the community'**
+  String get postHint;
+
+  /// No description provided for @postPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postPublish;
+
+  /// No description provided for @postPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos {n}/{max}'**
+  String postPhotos(int n, int max);
+
+  /// No description provided for @postVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get postVideo;
+
+  /// No description provided for @postPickPoster.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a cover photo'**
+  String get postPickPoster;
+
+  /// No description provided for @postVideoReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Video and cover ready'**
+  String get postVideoReady;
+
+  /// No description provided for @postPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for review'**
+  String get postPending;
+
+  /// No description provided for @postMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get postMore;
+
+  /// No description provided for @postLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Like'**
+  String get postLike;
+
+  /// No description provided for @postComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get postComments;
+
+  /// No description provided for @postShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get postShare;
+
+  /// No description provided for @postSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get postSave;
+
+  /// No description provided for @postDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get postDelete;
+
+  /// No description provided for @postDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this post?'**
+  String get postDeleteConfirm;
+
+  /// No description provided for @postReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get postReport;
+
+  /// No description provided for @postLinkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get postLinkCopied;
+
+  /// No description provided for @postNoComments.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet. Be the first.'**
+  String get postNoComments;
+
+  /// No description provided for @postReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get postReply;
+
+  /// No description provided for @postReplyingTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to {name}'**
+  String postReplyingTo(String name);
+
+  /// No description provided for @postCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a comment'**
+  String get postCommentHint;
+
+  /// No description provided for @postSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get postSend;
+
+  /// No description provided for @postSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved posts'**
+  String get postSaved;
+
+  /// No description provided for @createPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a post'**
+  String get createPost;
+
+  /// No description provided for @createPostLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Words, up to 10 photos or a video'**
+  String get createPostLine;
+
+  /// No description provided for @createStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a story'**
+  String get createStory;
+
+  /// No description provided for @createStoryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'A photo or short video for 24 hours'**
+  String get createStoryLine;
+
+  /// No description provided for @storyYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your story'**
+  String get storyYours;
+
+  /// No description provided for @storyAddPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get storyAddPhoto;
+
+  /// No description provided for @storyAddVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Short video'**
+  String get storyAddVideo;
+
+  /// No description provided for @storyAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Your story is up for 24 hours'**
+  String get storyAdded;
+
+  /// No description provided for @storyViews.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 view} other{{n} views}}'**
+  String storyViews(int n);
+
+  /// No description provided for @postSavedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts you save show here.'**
+  String get postSavedEmpty;
+
+  /// No description provided for @msgNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New message'**
+  String get msgNew;
+
+  /// No description provided for @msgEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet. Write to a member from their profile, or start one here.'**
+  String get msgEmpty;
+
+  /// No description provided for @msgDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Message deleted'**
+  String get msgDeleted;
+
+  /// No description provided for @msgPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get msgPhoto;
+
+  /// No description provided for @msgStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get msgStart;
+
+  /// No description provided for @msgGroupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name (optional)'**
+  String get msgGroupTitle;
+
+  /// No description provided for @msgPickPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen {n} of {max}'**
+  String msgPickPeople(int n, int max);
+
+  /// No description provided for @msgNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t message this member.'**
+  String get msgNotAllowed;
+
+  /// No description provided for @msgHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get msgHint;
+
+  /// No description provided for @msgSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Seen'**
+  String get msgSeen;
+
+  /// No description provided for @msgMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute notifications'**
+  String get msgMute;
+
+  /// No description provided for @msgUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn notifications on'**
+  String get msgUnmute;
+
+  /// No description provided for @msgRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename the group'**
+  String get msgRename;
+
+  /// No description provided for @msgReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report the conversation'**
+  String get msgReport;
+
+  /// No description provided for @msgLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the group'**
+  String get msgLeave;
+
+  /// No description provided for @msgHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the conversation'**
+  String get msgHide;
+
+  /// No description provided for @msgBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t reply to this conversation.'**
+  String get msgBlocked;
+
+  /// No description provided for @msgMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get msgMessage;
+
+  /// No description provided for @groupCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'New group'**
+  String get groupCreate;
+
+  /// No description provided for @groupDiscover.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover'**
+  String get groupDiscover;
+
+  /// No description provided for @groupNoneYet.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t joined a group yet.'**
+  String get groupNoneYet;
+
+  /// No description provided for @groupAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All groups'**
+  String get groupAll;
+
+  /// No description provided for @groupMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 member} other{{n} members}}'**
+  String groupMembers(int n);
+
+  /// No description provided for @groupMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get groupMembersTitle;
+
+  /// No description provided for @groupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get groupName;
+
+  /// No description provided for @groupAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'What the group is about'**
+  String get groupAbout;
+
+  /// No description provided for @groupPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get groupPrivate;
+
+  /// No description provided for @groupPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get groupPublic;
+
+  /// No description provided for @groupPrivateLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Members join by request; only they see its posts.'**
+  String get groupPrivateLine;
+
+  /// No description provided for @groupPublicLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone can join and read it.'**
+  String get groupPublicLine;
+
+  /// No description provided for @groupCreateNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating groups isn\'t open to your account yet.'**
+  String get groupCreateNotAllowed;
+
+  /// No description provided for @groupJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get groupJoin;
+
+  /// No description provided for @groupAskToJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask to join'**
+  String get groupAskToJoin;
+
+  /// No description provided for @groupRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested'**
+  String get groupRequested;
+
+  /// No description provided for @groupLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get groupLeave;
+
+  /// No description provided for @groupOwnerMustTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand the group over to another member before you leave.'**
+  String get groupOwnerMustTransfer;
+
+  /// No description provided for @groupWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write in the group'**
+  String get groupWrite;
+
+  /// No description provided for @groupJoinToRead.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is private. Join to read its posts.'**
+  String get groupJoinToRead;
+
+  /// No description provided for @groupNoPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts yet.'**
+  String get groupNoPosts;
+
+  /// No description provided for @groupCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the cover'**
+  String get groupCover;
+
+  /// No description provided for @groupRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests to join'**
+  String get groupRequests;
+
+  /// No description provided for @groupDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get groupDecline;
+
+  /// No description provided for @groupOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get groupOwner;
+
+  /// No description provided for @groupModerator.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderator'**
+  String get groupModerator;
+
+  /// No description provided for @groupMakeModerator.
+  ///
+  /// In en, this message translates to:
+  /// **'Make moderator'**
+  String get groupMakeModerator;
+
+  /// No description provided for @groupMakeMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a member again'**
+  String get groupMakeMember;
+
+  /// No description provided for @groupHandOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand the group over'**
+  String get groupHandOver;
+
+  /// No description provided for @groupRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from the group'**
+  String get groupRemove;
+
+  /// No description provided for @pushTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications'**
+  String get pushTitle;
+
+  /// No description provided for @pushBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what reaches your phone. The app\'s list and your email choices stay as they are.'**
+  String get pushBody;
+
+  /// No description provided for @pushOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get pushOpen;
+
+  /// No description provided for @pushKindMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get pushKindMessage;
+
+  /// No description provided for @pushKindComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments on my posts'**
+  String get pushKindComment;
+
+  /// No description provided for @pushKindReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies to my comments'**
+  String get pushKindReply;
+
+  /// No description provided for @pushKindLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes on my posts'**
+  String get pushKindLike;
+
+  /// No description provided for @pushKindGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group requests and invitations'**
+  String get pushKindGroup;
+
   /// 232–234 (area E)
   ///
   /// In en, this message translates to:

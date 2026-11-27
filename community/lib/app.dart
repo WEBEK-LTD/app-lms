@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/l10n.dart';
 import 'core/providers.dart';
+import 'core/push/push_wiring.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/theme.dart';
 
@@ -13,10 +14,12 @@ class CommunityApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final language = ref.watch(languageProvider);
+    ref.watch(pushWiringProvider);
     return MaterialApp.router(
       title: 'Yallapp Community',
       debugShowCheckedModeBanner: false,
       routerConfig: ref.watch(routerProvider),
+      scaffoldMessengerKey: appMessengerKey,
       theme: communityTheme(dark: false),
       darkTheme: communityTheme(dark: true),
       themeMode: ref.watch(themeModeProvider),

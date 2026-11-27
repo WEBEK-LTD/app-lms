@@ -20,6 +20,7 @@ import '../../core/widgets/floating_tab_bar.dart';
 import '../../core/widgets/glass.dart';
 import '../../core/widgets/images.dart';
 import '../../core/widgets/sym.dart';
+import '../messages/links.dart';
 import '../social/data/social.dart';
 import '../social/report_sheet.dart';
 
@@ -611,6 +612,13 @@ class _Actions extends ConsumerWidget {
               onTap: () {},
             ),
           },
+        ),
+        const SizedBox(width: 10),
+        IconBtn(
+          key: const ValueKey('profile-message'),
+          icon: Symbols.chat_bubble_rounded,
+          label: l.msgMessage,
+          onTap: () => openConversationWith(context, ref, m.id),
         ),
       ],
     );

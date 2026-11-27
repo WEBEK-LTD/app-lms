@@ -1053,6 +1053,316 @@ class AppLocalizationsAr extends AppLocalizations {
   String get qaAcceptShort => 'اقبل';
 
   @override
+  String get feedForYou => 'لك';
+
+  @override
+  String get feedLatest => 'الأحدث';
+
+  @override
+  String get feedFollowing => 'المتابَعون';
+
+  @override
+  String get feedFollowingEmpty => 'تظهر هنا منشورات الأعضاء الذين تتابعهم.';
+
+  @override
+  String get postTitle => 'منشور';
+
+  @override
+  String get postNew => 'منشور جديد';
+
+  @override
+  String get postHint => 'شارك شيئًا مع المجتمع';
+
+  @override
+  String get postPublish => 'انشر';
+
+  @override
+  String postPhotos(int n, int max) {
+    return 'الصور $n/$max';
+  }
+
+  @override
+  String get postVideo => 'فيديو';
+
+  @override
+  String get postPickPoster => 'اختر صورة الغلاف';
+
+  @override
+  String get postVideoReady => 'الفيديو والغلاف جاهزان';
+
+  @override
+  String get postPending => 'بانتظار المراجعة';
+
+  @override
+  String get postMore => 'المزيد';
+
+  @override
+  String get postLike => 'إعجاب';
+
+  @override
+  String get postComments => 'التعليقات';
+
+  @override
+  String get postShare => 'مشاركة';
+
+  @override
+  String get postSave => 'حفظ';
+
+  @override
+  String get postDelete => 'حذف';
+
+  @override
+  String get postDeleteConfirm => 'هل تريد حذف هذا المنشور؟';
+
+  @override
+  String get postReport => 'إبلاغ';
+
+  @override
+  String get postLinkCopied => 'تم نسخ الرابط';
+
+  @override
+  String get postNoComments => 'لا توجد تعليقات بعد. كن الأول.';
+
+  @override
+  String get postReply => 'رد';
+
+  @override
+  String postReplyingTo(String name) {
+    return 'رد على $name';
+  }
+
+  @override
+  String get postCommentHint => 'اكتب تعليقًا';
+
+  @override
+  String get postSend => 'إرسال';
+
+  @override
+  String get postSaved => 'المنشورات المحفوظة';
+
+  @override
+  String get createPost => 'اكتب منشورًا';
+
+  @override
+  String get createPostLine => 'نص وحتى 10 صور أو فيديو';
+
+  @override
+  String get createStory => 'أضف قصة';
+
+  @override
+  String get createStoryLine => 'صورة أو فيديو قصير لمدة 24 ساعة';
+
+  @override
+  String get storyYours => 'قصتك';
+
+  @override
+  String get storyAddPhoto => 'صورة';
+
+  @override
+  String get storyAddVideo => 'فيديو قصير';
+
+  @override
+  String get storyAdded => 'قصتك منشورة لمدة 24 ساعة';
+
+  @override
+  String storyViews(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n مشاهدة',
+      one: 'مشاهدة واحدة',
+      zero: 'لا مشاهدات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postSavedEmpty => 'تظهر هنا المنشورات التي تحفظها.';
+
+  @override
+  String get msgNew => 'رسالة جديدة';
+
+  @override
+  String get msgEmpty =>
+      'لا توجد محادثات بعد. راسل عضوًا من ملفه، أو ابدأ محادثة من هنا.';
+
+  @override
+  String get msgDeleted => 'رسالة محذوفة';
+
+  @override
+  String get msgPhoto => 'صورة';
+
+  @override
+  String get msgStart => 'ابدأ';
+
+  @override
+  String get msgGroupTitle => 'اسم المجموعة (اختياري)';
+
+  @override
+  String msgPickPeople(int n, int max) {
+    return 'تم اختيار $n من $max';
+  }
+
+  @override
+  String get msgNotAllowed => 'لا يمكنك مراسلة هذا العضو.';
+
+  @override
+  String get msgHint => 'رسالة';
+
+  @override
+  String get msgSeen => 'شوهدت';
+
+  @override
+  String get msgMute => 'كتم الإشعارات';
+
+  @override
+  String get msgUnmute => 'تشغيل الإشعارات';
+
+  @override
+  String get msgRename => 'إعادة تسمية المجموعة';
+
+  @override
+  String get msgReport => 'الإبلاغ عن المحادثة';
+
+  @override
+  String get msgLeave => 'مغادرة المجموعة';
+
+  @override
+  String get msgHide => 'إخفاء المحادثة';
+
+  @override
+  String get msgBlocked => 'لا يمكنك الرد في هذه المحادثة.';
+
+  @override
+  String get msgMessage => 'مراسلة';
+
+  @override
+  String get groupCreate => 'مجموعة جديدة';
+
+  @override
+  String get groupDiscover => 'اكتشف';
+
+  @override
+  String get groupNoneYet => 'لم تنضم إلى أي مجموعة بعد.';
+
+  @override
+  String get groupAll => 'كل المجموعات';
+
+  @override
+  String groupMembers(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n عضو',
+      few: '$n أعضاء',
+      two: 'عضوان',
+      one: 'عضو واحد',
+      zero: 'لا أعضاء',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get groupMembersTitle => 'الأعضاء';
+
+  @override
+  String get groupName => 'الاسم';
+
+  @override
+  String get groupAbout => 'عن المجموعة';
+
+  @override
+  String get groupPrivate => 'خاصة';
+
+  @override
+  String get groupPublic => 'عامة';
+
+  @override
+  String get groupPrivateLine => 'ينضم الأعضاء بطلب، ويرون وحدهم منشوراتها.';
+
+  @override
+  String get groupPublicLine => 'يمكن لأي أحد الانضمام والقراءة.';
+
+  @override
+  String get groupCreateNotAllowed => 'إنشاء المجموعات غير متاح لحسابك بعد.';
+
+  @override
+  String get groupJoin => 'انضم';
+
+  @override
+  String get groupAskToJoin => 'اطلب الانضمام';
+
+  @override
+  String get groupRequested => 'تم الطلب';
+
+  @override
+  String get groupLeave => 'مغادرة';
+
+  @override
+  String get groupOwnerMustTransfer => 'سلّم المجموعة لعضو آخر قبل المغادرة.';
+
+  @override
+  String get groupWrite => 'اكتب في المجموعة';
+
+  @override
+  String get groupJoinToRead => 'هذه المجموعة خاصة. انضم لقراءة منشوراتها.';
+
+  @override
+  String get groupNoPosts => 'لا توجد منشورات بعد.';
+
+  @override
+  String get groupCover => 'تغيير الغلاف';
+
+  @override
+  String get groupRequests => 'طلبات الانضمام';
+
+  @override
+  String get groupDecline => 'رفض';
+
+  @override
+  String get groupOwner => 'المالك';
+
+  @override
+  String get groupModerator => 'مشرف';
+
+  @override
+  String get groupMakeModerator => 'تعيين مشرفًا';
+
+  @override
+  String get groupMakeMember => 'إعادته عضوًا';
+
+  @override
+  String get groupHandOver => 'تسليم المجموعة';
+
+  @override
+  String get groupRemove => 'إزالة من المجموعة';
+
+  @override
+  String get pushTitle => 'الإشعارات الفورية';
+
+  @override
+  String get pushBody =>
+      'اختر ما يصل إلى هاتفك. تبقى قائمة التطبيق وخيارات البريد كما هي.';
+
+  @override
+  String get pushOpen => 'فتح';
+
+  @override
+  String get pushKindMessage => 'الرسائل';
+
+  @override
+  String get pushKindComment => 'التعليقات على منشوراتي';
+
+  @override
+  String get pushKindReply => 'الردود على تعليقاتي';
+
+  @override
+  String get pushKindLike => 'الإعجابات بمنشوراتي';
+
+  @override
+  String get pushKindGroup => 'طلبات ودعوات المجموعات';
+
+  @override
   String get showcaseTitle => 'معرض الأعمال';
 
   @override

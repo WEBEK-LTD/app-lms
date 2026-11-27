@@ -1048,6 +1048,317 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qaAcceptShort => 'Accept';
 
   @override
+  String get feedForYou => 'For you';
+
+  @override
+  String get feedLatest => 'Latest';
+
+  @override
+  String get feedFollowing => 'Following';
+
+  @override
+  String get feedFollowingEmpty =>
+      'Posts from the members you follow show here.';
+
+  @override
+  String get postTitle => 'Post';
+
+  @override
+  String get postNew => 'New post';
+
+  @override
+  String get postHint => 'Share something with the community';
+
+  @override
+  String get postPublish => 'Post';
+
+  @override
+  String postPhotos(int n, int max) {
+    return 'Photos $n/$max';
+  }
+
+  @override
+  String get postVideo => 'Video';
+
+  @override
+  String get postPickPoster => 'Choose a cover photo';
+
+  @override
+  String get postVideoReady => 'Video and cover ready';
+
+  @override
+  String get postPending => 'Waiting for review';
+
+  @override
+  String get postMore => 'More';
+
+  @override
+  String get postLike => 'Like';
+
+  @override
+  String get postComments => 'Comments';
+
+  @override
+  String get postShare => 'Share';
+
+  @override
+  String get postSave => 'Save';
+
+  @override
+  String get postDelete => 'Delete';
+
+  @override
+  String get postDeleteConfirm => 'Delete this post?';
+
+  @override
+  String get postReport => 'Report';
+
+  @override
+  String get postLinkCopied => 'Link copied';
+
+  @override
+  String get postNoComments => 'No comments yet. Be the first.';
+
+  @override
+  String get postReply => 'Reply';
+
+  @override
+  String postReplyingTo(String name) {
+    return 'Replying to $name';
+  }
+
+  @override
+  String get postCommentHint => 'Write a comment';
+
+  @override
+  String get postSend => 'Send';
+
+  @override
+  String get postSaved => 'Saved posts';
+
+  @override
+  String get createPost => 'Write a post';
+
+  @override
+  String get createPostLine => 'Words, up to 10 photos or a video';
+
+  @override
+  String get createStory => 'Add a story';
+
+  @override
+  String get createStoryLine => 'A photo or short video for 24 hours';
+
+  @override
+  String get storyYours => 'Your story';
+
+  @override
+  String get storyAddPhoto => 'Photo';
+
+  @override
+  String get storyAddVideo => 'Short video';
+
+  @override
+  String get storyAdded => 'Your story is up for 24 hours';
+
+  @override
+  String storyViews(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n views',
+      one: '1 view',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postSavedEmpty => 'Posts you save show here.';
+
+  @override
+  String get msgNew => 'New message';
+
+  @override
+  String get msgEmpty =>
+      'No conversations yet. Write to a member from their profile, or start one here.';
+
+  @override
+  String get msgDeleted => 'Message deleted';
+
+  @override
+  String get msgPhoto => 'Photo';
+
+  @override
+  String get msgStart => 'Start';
+
+  @override
+  String get msgGroupTitle => 'Group name (optional)';
+
+  @override
+  String msgPickPeople(int n, int max) {
+    return 'Chosen $n of $max';
+  }
+
+  @override
+  String get msgNotAllowed => 'You can\'t message this member.';
+
+  @override
+  String get msgHint => 'Message';
+
+  @override
+  String get msgSeen => 'Seen';
+
+  @override
+  String get msgMute => 'Mute notifications';
+
+  @override
+  String get msgUnmute => 'Turn notifications on';
+
+  @override
+  String get msgRename => 'Rename the group';
+
+  @override
+  String get msgReport => 'Report the conversation';
+
+  @override
+  String get msgLeave => 'Leave the group';
+
+  @override
+  String get msgHide => 'Hide the conversation';
+
+  @override
+  String get msgBlocked => 'You can\'t reply to this conversation.';
+
+  @override
+  String get msgMessage => 'Message';
+
+  @override
+  String get groupCreate => 'New group';
+
+  @override
+  String get groupDiscover => 'Discover';
+
+  @override
+  String get groupNoneYet => 'You haven\'t joined a group yet.';
+
+  @override
+  String get groupAll => 'All groups';
+
+  @override
+  String groupMembers(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n members',
+      one: '1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get groupMembersTitle => 'Members';
+
+  @override
+  String get groupName => 'Name';
+
+  @override
+  String get groupAbout => 'What the group is about';
+
+  @override
+  String get groupPrivate => 'Private';
+
+  @override
+  String get groupPublic => 'Public';
+
+  @override
+  String get groupPrivateLine =>
+      'Members join by request; only they see its posts.';
+
+  @override
+  String get groupPublicLine => 'Anyone can join and read it.';
+
+  @override
+  String get groupCreateNotAllowed =>
+      'Creating groups isn\'t open to your account yet.';
+
+  @override
+  String get groupJoin => 'Join';
+
+  @override
+  String get groupAskToJoin => 'Ask to join';
+
+  @override
+  String get groupRequested => 'Requested';
+
+  @override
+  String get groupLeave => 'Leave';
+
+  @override
+  String get groupOwnerMustTransfer =>
+      'Hand the group over to another member before you leave.';
+
+  @override
+  String get groupWrite => 'Write in the group';
+
+  @override
+  String get groupJoinToRead =>
+      'This group is private. Join to read its posts.';
+
+  @override
+  String get groupNoPosts => 'No posts yet.';
+
+  @override
+  String get groupCover => 'Change the cover';
+
+  @override
+  String get groupRequests => 'Requests to join';
+
+  @override
+  String get groupDecline => 'Decline';
+
+  @override
+  String get groupOwner => 'Owner';
+
+  @override
+  String get groupModerator => 'Moderator';
+
+  @override
+  String get groupMakeModerator => 'Make moderator';
+
+  @override
+  String get groupMakeMember => 'Make a member again';
+
+  @override
+  String get groupHandOver => 'Hand the group over';
+
+  @override
+  String get groupRemove => 'Remove from the group';
+
+  @override
+  String get pushTitle => 'Push notifications';
+
+  @override
+  String get pushBody =>
+      'Choose what reaches your phone. The app\'s list and your email choices stay as they are.';
+
+  @override
+  String get pushOpen => 'Open';
+
+  @override
+  String get pushKindMessage => 'Messages';
+
+  @override
+  String get pushKindComment => 'Comments on my posts';
+
+  @override
+  String get pushKindReply => 'Replies to my comments';
+
+  @override
+  String get pushKindLike => 'Likes on my posts';
+
+  @override
+  String get pushKindGroup => 'Group requests and invitations';
+
+  @override
   String get showcaseTitle => 'Showcase';
 
   @override

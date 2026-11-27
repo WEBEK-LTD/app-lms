@@ -16,20 +16,28 @@ Future<void> showReportSheet(
   BuildContext context, {
   required String targetType,
   required String targetId,
+  Future<void> Function(ReportReason reason, String note)? send,
 }) => showModalBottomSheet<void>(
   context: context,
   useRootNavigator: true,
   isScrollControlled: true,
   backgroundColor: Colors.transparent,
   builder: (context) =>
-      _ReportSheet(targetType: targetType, targetId: targetId),
+      _ReportSheet(targetType: targetType, targetId: targetId, send: send),
 );
 
 class _ReportSheet extends ConsumerStatefulWidget {
-  const _ReportSheet({required this.targetType, required this.targetId});
+  const _ReportSheet({
+    required this.targetType,
+    required this.targetId,
+    this.send,
+  });
 
   final String targetType;
   final String targetId;
+
+  /// Its own endpoint (a conversation's report), instead of `/reports`.
+  final Future<void> Function(ReportReason reason, String note)? send;
 
   @override
   ConsumerState<_ReportSheet> createState() => _ReportSheetState();
@@ -54,14 +62,19 @@ class _ReportSheetState extends ConsumerState<_ReportSheet> {
     final navigator = Navigator.of(context);
     setState(() => _busy = true);
     try {
-      await ref
-          .read(communityApiProvider)
-          .report(
-            targetType: widget.targetType,
-            targetId: widget.targetId,
-            reason: reason,
-            note: _note.text.trim(),
-          );
+      final send = widget.send;
+      if (send != null) {
+        await send(reason, _note.text.trim());
+      } else {
+        await ref
+            .read(communityApiProvider)
+            .report(
+              targetType: widget.targetType,
+              targetId: widget.targetId,
+              reason: reason,
+              note: _note.text.trim(),
+            );
+      }
       navigator.pop();
       messenger.showSnackBar(SnackBar(content: Text(l.socialReportSent)));
     } on ApiException catch (e) {

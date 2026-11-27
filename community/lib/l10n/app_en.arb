@@ -458,6 +458,141 @@
   "qaSearchMembers": "Members",
   "qaSearchTags": "Tags",
   "qaAcceptShort": "Accept",
+  "feedForYou": "For you",
+  "feedLatest": "Latest",
+  "feedFollowing": "Following",
+  "feedFollowingEmpty": "Posts from the members you follow show here.",
+  "postTitle": "Post",
+  "postNew": "New post",
+  "postHint": "Share something with the community",
+  "postPublish": "Post",
+  "postPhotos": "Photos {n}/{max}",
+  "@postPhotos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "postVideo": "Video",
+  "postPickPoster": "Choose a cover photo",
+  "postVideoReady": "Video and cover ready",
+  "postPending": "Waiting for review",
+  "postMore": "More",
+  "postLike": "Like",
+  "postComments": "Comments",
+  "postShare": "Share",
+  "postSave": "Save",
+  "postDelete": "Delete",
+  "postDeleteConfirm": "Delete this post?",
+  "postReport": "Report",
+  "postLinkCopied": "Link copied",
+  "postNoComments": "No comments yet. Be the first.",
+  "postReply": "Reply",
+  "postReplyingTo": "Replying to {name}",
+  "@postReplyingTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "postCommentHint": "Write a comment",
+  "postSend": "Send",
+  "postSaved": "Saved posts",
+  "createPost": "Write a post",
+  "createPostLine": "Words, up to 10 photos or a video",
+  "createStory": "Add a story",
+  "createStoryLine": "A photo or short video for 24 hours",
+  "storyYours": "Your story",
+  "storyAddPhoto": "Photo",
+  "storyAddVideo": "Short video",
+  "storyAdded": "Your story is up for 24 hours",
+  "storyViews": "{n, plural, =1{1 view} other{{n} views}}",
+  "@storyViews": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "postSavedEmpty": "Posts you save show here.",
+  "msgNew": "New message",
+  "msgEmpty": "No conversations yet. Write to a member from their profile, or start one here.",
+  "msgDeleted": "Message deleted",
+  "msgPhoto": "Photo",
+  "msgStart": "Start",
+  "msgGroupTitle": "Group name (optional)",
+  "msgPickPeople": "Chosen {n} of {max}",
+  "@msgPickPeople": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "msgNotAllowed": "You can't message this member.",
+  "msgHint": "Message",
+  "msgSeen": "Seen",
+  "msgMute": "Mute notifications",
+  "msgUnmute": "Turn notifications on",
+  "msgRename": "Rename the group",
+  "msgReport": "Report the conversation",
+  "msgLeave": "Leave the group",
+  "msgHide": "Hide the conversation",
+  "msgBlocked": "You can't reply to this conversation.",
+  "msgMessage": "Message",
+  "groupCreate": "New group",
+  "groupDiscover": "Discover",
+  "groupNoneYet": "You haven't joined a group yet.",
+  "groupAll": "All groups",
+  "groupMembers": "{n, plural, =1{1 member} other{{n} members}}",
+  "@groupMembers": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "groupMembersTitle": "Members",
+  "groupName": "Name",
+  "groupAbout": "What the group is about",
+  "groupPrivate": "Private",
+  "groupPublic": "Public",
+  "groupPrivateLine": "Members join by request; only they see its posts.",
+  "groupPublicLine": "Anyone can join and read it.",
+  "groupCreateNotAllowed": "Creating groups isn't open to your account yet.",
+  "groupJoin": "Join",
+  "groupAskToJoin": "Ask to join",
+  "groupRequested": "Requested",
+  "groupLeave": "Leave",
+  "groupOwnerMustTransfer": "Hand the group over to another member before you leave.",
+  "groupWrite": "Write in the group",
+  "groupJoinToRead": "This group is private. Join to read its posts.",
+  "groupNoPosts": "No posts yet.",
+  "groupCover": "Change the cover",
+  "groupRequests": "Requests to join",
+  "groupDecline": "Decline",
+  "groupOwner": "Owner",
+  "groupModerator": "Moderator",
+  "groupMakeModerator": "Make moderator",
+  "groupMakeMember": "Make a member again",
+  "groupHandOver": "Hand the group over",
+  "groupRemove": "Remove from the group",
+  "pushTitle": "Push notifications",
+  "pushBody": "Choose what reaches your phone. The app's list and your email choices stay as they are.",
+  "pushOpen": "Open",
+  "pushKindMessage": "Messages",
+  "pushKindComment": "Comments on my posts",
+  "pushKindReply": "Replies to my comments",
+  "pushKindLike": "Likes on my posts",
+  "pushKindGroup": "Group requests and invitations",
   "showcaseTitle": "Showcase",
   "@showcaseTitle": {
     "description": "232–234 (area E)"

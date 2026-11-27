@@ -7,6 +7,8 @@ import '../../core/routing/feature_routes.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/coming_soon.dart';
 import '../../core/widgets/sym.dart';
+import '../posts/posts_state.dart';
+import '../stories/stories.dart';
 
 /// The tab bar's "+": ask a question, or (later phases) show an app or join
 /// a challenge.
@@ -14,6 +16,8 @@ Future<void> showCreateSheet(BuildContext context) =>
     showModalBottomSheet<void>(
       context: context,
       useRootNavigator: true,
+      // Six choices: taller than a sheet's default nine-sixteenths.
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheet) => _CreateSheet(parent: context),
     );
@@ -53,6 +57,30 @@ class _CreateSheet extends StatelessWidget {
                 ),
               ),
             ),
+            _Choice(
+              key: const ValueKey('create-post'),
+              icon: Symbols.edit_square_rounded,
+              title: l.createPost,
+              line: l.createPostLine,
+              gradient: Brand.sunrise,
+              onTap: () {
+                close();
+                parent.push(PostLinks.compose);
+              },
+            ),
+            const SizedBox(height: 8),
+            _Choice(
+              key: const ValueKey('create-story'),
+              icon: Symbols.amp_stories_rounded,
+              title: l.createStory,
+              line: l.createStoryLine,
+              gradient: Brand.solid(Brand.violet),
+              onTap: () {
+                close();
+                addStory(parent);
+              },
+            ),
+            const SizedBox(height: 8),
             _Choice(
               key: const ValueKey('create-ask'),
               icon: Symbols.forum_rounded,
