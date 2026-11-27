@@ -1,4 +1,4 @@
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomInt, randomUUID } from "node:crypto";
 import { QaError } from "../qa/types";
 import { slugify } from "../qa/text";
 import type { AcademyStore, AccessRecord, AccessSource, CertificateRecord, CourseLevel, CourseRecord, CourseStatus, LessonKind, LessonRecord, ProgressRecord, QuizQuestionRecord } from "./store";
@@ -285,7 +285,7 @@ export async function certificate(env: AcademyEnv, code: string): Promise<Certif
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 function certificateCode(): string {
-  return [...randomBytes(10)].map((b) => CODE_ALPHABET[b % CODE_ALPHABET.length]).join("");
+  return Array.from({ length: 10 }, () => CODE_ALPHABET[randomInt(CODE_ALPHABET.length)]).join("");
 }
 
 // ——— The admin's authoring (no price here: the website sets it, setCoursePrice) ———

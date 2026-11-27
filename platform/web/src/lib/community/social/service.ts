@@ -239,7 +239,9 @@ export function firstLink(body: string): string | null {
   }
 }
 
-const decode = (s: string) => s.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g, " ").trim();
+const ENTITIES: Record<string, string> = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'" };
+// One pass, so "&amp;lt;" stays "&lt;" (decoded once, never twice).
+const decode = (s: string) => s.replace(/&(?:amp|lt|gt|quot|#39);/g, (e) => ENTITIES[e] ?? e).replace(/\s+/g, " ").trim();
 
 /** A page's title, description, image and site name from its Open Graph tags (else its <title>). */
 export function previewFromHtml(url: string, html: string): LinkPreview | null {
