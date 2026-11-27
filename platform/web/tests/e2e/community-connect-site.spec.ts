@@ -68,7 +68,7 @@ test("groups: a new member's group waits for a moderator; only its creator sees 
   await ayseP.getByLabel("Group name").fill(`Restaurant apps ${s}`);
   await ayseP.getByLabel("Description").fill("For people building restaurant and café apps.");
   await ayseP.getByRole("button", { name: "Create a group" }).click();
-  await ayseP.waitForURL(/\/community\/groups\/[^/?]+(\?.*)?$/);
+  await ayseP.waitForURL((u) => /^\/community\/groups\/[^/]+$/.test(u.pathname) && !u.pathname.endsWith("/new"));
   const groupUrl = new URL(ayseP.url()).pathname;
   await expect(ayseP.getByRole("heading", { level: 1 })).toContainText(`Restaurant apps ${s}`);
   await expect(ayseP.getByRole("status")).toContainText("once a moderator has checked it");
@@ -111,7 +111,7 @@ test("jobs: a new member's job waits for a moderator before others can apply", a
   await ayseP.getByLabel("Skills").fill("Studio, payments");
   await ayseP.getByLabel("Description").fill("We sell bread and cakes in Istanbul and want an app with ordering and pickup.");
   await ayseP.getByRole("button", { name: "Post a job" }).click();
-  await ayseP.waitForURL(/\/community\/jobs\/[^/?]+(\?.*)?$/);
+  await ayseP.waitForURL((u) => /^\/community\/jobs\/[^/]+$/.test(u.pathname) && !u.pathname.endsWith("/new"));
   await expect(ayseP.getByRole("status")).toContainText("once a moderator has checked it");
   await expect(ayseP.getByRole("heading", { level: 1 })).toHaveText(`Build our bakery app ${s}`);
   await ayseP.goto("/community/jobs/mine");
