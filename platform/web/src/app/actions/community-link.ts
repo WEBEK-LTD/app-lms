@@ -21,6 +21,11 @@ export async function confirmCommunityLinkAction(form: FormData): Promise<void> 
   if (!result.ok) redirect(`/link-community?error=${result.code}&return=${back}`);
   await onYallappLinkChanged({ deps, store: deps.store, now: deps.now }, result.member.id);
   // 231 The account's owner hears of it by email, whoever clicked: a link sent to them by someone else is caught.
-  await deps.mail(linkedMail(user, result.member));
+  // The link is saved by now: a mail service that fails is logged, never shown as a failed link.
+  try {
+    await deps.mail(linkedMail(user, result.member));
+  } catch (error) {
+    console.error("community link: the linked email wasn't sent", error);
+  }
   redirect(`/link-community?done=${encodeURIComponent(result.member.username)}&return=${back}&lang=${result.member.language}`);
 }

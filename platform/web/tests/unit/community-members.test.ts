@@ -217,7 +217,7 @@ describe("231 linking a Yallapp account", () => {
     const c = await testCommunity();
     const me = await joinWithEmail(c, "Kerem");
     const owner = await yallappOwner(c, ["Leqaa", "Runway"]);
-    expect((await api(c, "GET", "/me/yallapp-link", { token: me.token })).body).toEqual({ linked: false, linked_at: null, account_name: null, apps: [] });
+    expect((await api(c, "GET", "/me/yallapp-link", { token: me.token })).body).toEqual({ linked: false, linked_at: null, account_name: null, account_email: null, apps: [] });
     const start = await api<{ confirm_url: string }>(c, "POST", "/me/yallapp-link/start", { token: me.token, body: { return_to: "app" } });
     const url = new URL(start.body.confirm_url);
     expect(`${url.origin}${url.pathname}`).toBe("https://yallapp.test/link-community");
@@ -229,7 +229,8 @@ describe("231 linking a Yallapp account", () => {
     // Once only.
     expect(await confirmLink({ store: c.deps.store, platform: c.deps.platform, now: NOW }, state, owner.id)).toEqual({ ok: false, code: "link_expired" });
     const link = await api<{ linked: boolean; account_name: string; apps: { name: string; play_store_url: string; from_template: boolean; paid_plan: boolean }[] }>(c, "GET", "/me/yallapp-link", { token: me.token });
-    expect(link.body).toMatchObject({ linked: true, account_name: "Leqaa Owner" });
+    // The member sees which Yallapp account is linked: its name and email (a person may have two).
+    expect(link.body).toMatchObject({ linked: true, account_name: "Leqaa Owner", account_email: owner.email });
     expect(link.body.apps.map((a) => a.name).sort()).toEqual(["Leqaa", "Runway"]);
     expect(link.body.apps[0]).toMatchObject({ from_template: false, paid_plan: false });
     expect(link.body.apps[0]!.play_store_url).toMatch(/^https:\/\/play\.google\.com\/store\/apps\/details\?id=tr\.example\./);
