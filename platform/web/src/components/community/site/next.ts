@@ -51,7 +51,7 @@ export type ProProfile = {
   member: MemberRef; headline: string; about: string; services: ProService[]; skills: string[]; availability: "available" | "busy" | "unavailable";
   portfolio: ShowcaseSummary[]; rating: number | null; review_count: number; done_count: number;
 };
-export type Review = { rating: number; body: string; client?: MemberRef; created_at: string };
+export type Review = { rating: number; text: string; client?: MemberRef; created_at: string };
 export type HireRequest = { id: string; client: MemberRef; pro: MemberRef; service: string | null; message: string; status: "pending" | "accepted" | "declined" | "done" | "cancelled"; conversation_id: string; review: Review | null; created_at: string };
 export type JobType = "full_time" | "part_time" | "contract" | "freelance" | "internship";
 export type Job = {
@@ -160,7 +160,8 @@ export const certificates = () => page<Certificate>("/academy/certificates");
 export const certificate = (code: string) => get<Certificate>(`/academy/certificates/${id(code)}`);
 export const leaderboard = (period: "week" | "all", cursor?: string) => get<{ items: LeaderRow[]; me: LeaderRow | null; next_cursor: string | null }>(`/leaderboard${qs({ period, cursor, limit: 50 })}`);
 export const myPoints = () => get<{ points: number; level: number; level_label: string; next_level_at: number | null; history: Raw<{ reason: string; points: number; created_at: string }> }>("/me/points");
-export const pointsTable = () => get<{ actions: { action: string; points: number; daily_cap: number | null }[]; levels: { level: number; label: string; min_points: number }[] }>("/admin/points");
+export type PointsRules = { actions: { action: string; points: number; daily_cap: number | null }[]; levels: { key: string; min_points: number; name: { en: string; ar: string; tr: string } }[] };
+export const pointsTable = () => get<PointsRules>("/admin/points");
 export const challenges = (status?: string) => page<Challenge>(`/challenges${qs({ status, limit: 20 })}`);
 export const challenge = (chId: string) => get<Challenge>(`/challenges/${id(chId)}`);
 export const challengeEntries = (chId: string) => page<ChallengeEntry>(`/challenges/${id(chId)}/entries${qs({ limit: 60 })}`);
@@ -171,7 +172,7 @@ export const pros = (q: { q?: string; skill?: string; available?: boolean; curso
 export const pro = (handle: string) => get<ProProfile>(`/pros/${id(`@${handle}`)}`);
 export const proReviews = (handle: string) => page<Review>(`/pros/${id(`@${handle}`)}/reviews`);
 export const myPro = () => get<ProProfile>("/me/pro");
-export const hireRequests = (side: "sent" | "received") => page<HireRequest>(`/pros/requests${qs({ side })}`);
+export const hireRequests = (box: "sent" | "received") => page<HireRequest>(`/pros/requests${qs({ box })}`);
 export const jobs = (q: { q?: string; type?: string; remote?: boolean; mine?: boolean; cursor?: string }) => page<Job>(`/jobs${qs({ ...q, limit: 24 })}`);
 export const job = (jobId: string) => get<Job>(`/jobs/${id(jobId)}`);
 export const jobApplications = (jobId: string) => page<JobApplication>(`/jobs/${id(jobId)}/applications`);

@@ -7,8 +7,9 @@ import type { AdminMember } from "./data";
 import { cmLinks } from "./links";
 import { SitePage } from "./page";
 import type { CmWords } from "./words";
+import { CM_WORDS2, type CmWords2 } from "./words2";
 
-export const ADMIN_TABS = ["verifications", "badges", "moderation", "reports", "audit", "settings"] as const;
+export const ADMIN_TABS = ["verifications", "badges", "moderation", "reports", "points", "challenges", "events", "audit", "settings"] as const;
 export type AdminTab = (typeof ADMIN_TABS)[number];
 
 /** The tabs a moderator may open; an admin opens them all. */
@@ -27,19 +28,20 @@ export function adminTabs(role: "admin" | "moderator" | null): readonly AdminTab
   return role === "admin" ? ADMIN_TABS : role === "moderator" ? MODERATOR_TABS : [];
 }
 
-function tabName(w: CmWords, t: AdminTab): string {
-  return { verifications: w.adminVerifications, badges: w.badges, moderation: w.adminModeration, reports: w.adminReports, audit: w.adminAudit, settings: w.settings }[t];
+function tabName(w: CmWords, w2: CmWords2, t: AdminTab): string {
+  return { verifications: w.adminVerifications, badges: w.badges, moderation: w.adminModeration, reports: w.adminReports, points: w2.adminPoints, challenges: w2.adminChallenges, events: w2.adminEvents, audit: w.adminAudit, settings: w.settings }[t];
 }
 
 export async function AdminPage({ w, tab, children }: { w: CmWords; tab: AdminTab; children: ReactNode }) {
-  const { viewer } = await siteContext();
+  const { viewer, lang } = await siteContext();
+  const w2 = CM_WORDS2[lang];
   return (
     <SitePage active="admin">
       <div className="cm-card">
         <h1><span className="ms f" style={{ fontSize: 26, color: "var(--cm-orange)", verticalAlign: "-4px" }} aria-hidden="true">admin_panel_settings</span> {w.admin}</h1>
         <nav className="cm-tabs" style={{ marginBottom: 0 }} aria-label={w.admin}>
           {adminTabs(viewer?.role ?? null).map((t) => (
-            <Link key={t} href={cmLinks.admin(t)} className={t === tab ? "on" : ""} aria-current={t === tab ? "page" : undefined}>{tabName(w, t)}</Link>
+            <Link key={t} href={cmLinks.admin(t)} className={t === tab ? "on" : ""} aria-current={t === tab ? "page" : undefined}>{tabName(w, w2, t)}</Link>
           ))}
         </nav>
       </div>

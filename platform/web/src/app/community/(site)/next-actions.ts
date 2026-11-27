@@ -51,6 +51,24 @@ function list(v: string): string[] {
   return v.split(/\r?\n|,/).map((x) => x.trim()).filter(Boolean);
 }
 
+/** A date and time from a datetime-local field, read in the given time zone, as UTC ISO. */
+function zonedToUtc(local: string, tz: string): string | null {
+  const m = local.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  if (!m) return null;
+  const asUtc = Date.UTC(+m[1]!, +m[2]! - 1, +m[3]!, +m[4]!, +m[5]!);
+  // The zone's offset at that moment: format the UTC instant in the zone and compare.
+  const zoned = (ms: number) => {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
+    return Date.UTC(+parts.year!, +parts.month! - 1, +parts.day!, +parts.hour!, +parts.minute!);
+  };
+  try {
+    const offset = zoned(asUtc) - asUtc;
+    return new Date(asUtc - offset).toISOString();
+  } catch {
+    return null;
+  }
+}
+
 function jsonBody(form: FormData): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   const names = new Set<string>();
@@ -58,7 +76,8 @@ function jsonBody(form: FormData): Record<string, unknown> {
   for (const k of names) {
     const all = form.getAll(k).filter((v): v is string => typeof v === "string").map((v) => v.trim());
     const [kind, name] = k.includes(":") ? (k.split(":", 2) as [string, string]) : ["s", k];
-    if (kind === "n") out[name] = all[0] === "" || all[0] === undefined ? null : Number(all[0]);
+    if (kind === "d") out[name] = all[0] ? zonedToUtc(all[0], str(form, "time_zone") || str(form, "_tz") || "UTC") : null;
+    else if (kind === "n") out[name] = all[0] === "" || all[0] === undefined ? null : Number(all[0]);
     else if (kind === "b") out[name] = all.includes("1");
     else if (kind === "l") out[name] = all.flatMap(list);
     else if (kind === "o") out[name] = all[0] ? JSON.parse(all[0]) : null;
@@ -144,4 +163,41 @@ export async function quizAction(form: FormData): Promise<void> {
   u.searchParams.set("score", String(Math.round((r.score ?? 0) * (r.score !== undefined && r.score <= 1 ? 100 : 1))));
   u.searchParams.set("passed", r.passed ? "1" : "0");
   redirect(await cmTarget(`${u.pathname}${u.search}`));
+}
+
+/** 234 Open or change one's pro profile: headline, about, services (title, rate as text, description), skills, availability and portfolio. */
+export async function proAction(form: FormData): Promise<void> {
+  const { viewer } = await siteContext();
+  const back = cmLinks.proEdit();
+  if (!viewer) redirect(await cmTarget(cmLinks.signIn(back)));
+  const titles = form.getAll("service_title").map(String);
+  const rates = form.getAll("service_rate").map(String);
+  const descs = form.getAll("service_description").map(String);
+  const services = titles.map((t, i) => ({ title: t.trim(), rate: (rates[i] ?? "").trim(), description: (descs[i] ?? "").trim() })).filter((s) => s.title);
+  const body = {
+    headline: str(form, "headline"),
+    about: str(form, "about"),
+    services,
+    skills: list(str(form, "skills")).slice(0, 20),
+    availability: ["available", "busy", "unavailable"].find((a) => a === str(form, "availability")) ?? "available",
+    showcase_ids: form.getAll("showcase_ids").map(String).filter(Boolean).slice(0, 12),
+  };
+  const result = await send("PUT", "/me/pro", { body });
+  if (!result.ok) redirect(await cmTarget(withParam(back, "error", result.code)));
+  redirect(await cmTarget(cmLinks.pro(viewer.handle)));
+}
+
+/** 233 The admin's points table: points and a daily cap for each action, and the levels (from points, named in each language). */
+export async function pointsAction(form: FormData): Promise<void> {
+  const back = cmLinks.admin("points");
+  const { viewer } = await siteContext();
+  if (!viewer) redirect(await cmTarget(cmLinks.signIn(back)));
+  const num = (v: FormDataEntryValue | undefined) => (typeof v === "string" && v.trim() !== "" ? Math.trunc(Number(v)) : null);
+  const actions = form.getAll("action").map((a, i) => ({ action: String(a), points: num(form.getAll("points")[i]) ?? 0, daily_cap: num(form.getAll("daily_cap")[i]) }));
+  const keys = form.getAll("level_key").map(String);
+  const levels = keys
+    .map((key, i) => ({ key: key.trim(), min_points: num(form.getAll("level_min")[i]) ?? 0, name: { en: String(form.getAll("level_en")[i] ?? "").trim(), ar: String(form.getAll("level_ar")[i] ?? "").trim(), tr: String(form.getAll("level_tr")[i] ?? "").trim() } }))
+    .filter((l) => l.key && l.name.en);
+  const result = await send("PUT", "/admin/points", { body: { actions, levels } });
+  redirect(await cmTarget(withParam(back, result.ok ? "done" : "error", result.ok ? "saved" : result.code)));
 }
