@@ -59,14 +59,15 @@ export type Job = {
   status: "pending" | "open" | "closed" | "removed"; application_count: number; applied: boolean; created_at: string;
 };
 export type JobApplication = { id: string; job_id: string; job_title: string; applicant: MemberRef; message: string; links: string[]; status: "sent" | "shortlisted" | "declined" | "withdrawn"; created_at: string };
-export type CourseSummary = { id: string; slug: string; title: string; summary: string; cover_url: string | null; level: "beginner" | "intermediate" | "advanced"; lesson_count: number; access: "open" | "locked"; progress: number | null; price?: string | null; free?: boolean; owned?: boolean };
+export type CourseSummary = { id: string; slug: string; title: string; summary: string; cover_url: string | null; level: "beginner" | "intermediate" | "advanced"; lesson_count: number; access: "open" | "locked"; progress: number | null; price_label?: string | null; free?: boolean; owned?: boolean };
 export type Course = CourseSummary & {
   description: string;
   lessons: { id: string; title: string; kind: "video" | "article"; minutes: number; done: boolean }[];
-  quizzes: { id: string; title: string; after_lesson_id: string | null; passed: boolean; questions?: { id: string; text: string; options: string[] }[] }[];
+  quizzes: { id: string; title: string; after_lesson_id: string | null; passed: boolean }[];
   certificate: Certificate | null;
 };
 export type Lesson = { id: string; course_id: string; title: string; kind: "video" | "article"; body: string; video_url: string | null; minutes: number; done: boolean };
+export type Quiz = { id: string; title: string; passed: boolean; questions: { id: string; text: string; options: { id: string; text: string }[] }[] };
 export type Certificate = { code: string; member_name: string; course_title: string; issued_at: string; verify_url: string; pdf_url: string };
 export type LeaderRow = { rank: number; member: MemberRef; points: number; level?: number; level_label?: string };
 export type Challenge = {
@@ -153,6 +154,7 @@ export const groupFeed = (slug: string, cursor?: string) => page<FeedItem>(`/gro
 export const courses = (level?: string) => page<CourseSummary>(`/academy/courses${qs({ level, limit: 30 })}`);
 export const course = (slug: string) => get<Course>(`/academy/courses/${id(slug)}`);
 export const lesson = (courseSlug: string, lessonId: string) => communityApi<Lesson>("GET", `/academy/courses/${id(courseSlug)}/lessons/${id(lessonId)}`).then((r) => ({ status: r.status, lesson: r.status === 200 ? (r.body as Lesson) : null })).catch(() => ({ status: 500, lesson: null }));
+export const quiz = (courseSlug: string, quizId: string) => get<Quiz>(`/academy/courses/${id(courseSlug)}/quizzes/${id(quizId)}`);
 export const myCourses = () => page<CourseSummary>("/academy/mine");
 export const certificates = () => page<Certificate>("/academy/certificates");
 export const certificate = (code: string) => get<Certificate>(`/academy/certificates/${id(code)}`);

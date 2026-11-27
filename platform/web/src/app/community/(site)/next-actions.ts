@@ -6,6 +6,7 @@ import { cmTarget } from "@/components/community/site/redirect";
 import { siteContext } from "@/components/community/site/context";
 import { cmHref, cmLinks } from "@/components/community/site/links";
 import { send } from "@/components/community/site/next";
+import { communityApi } from "@/lib/community/site-client";
 
 /**
  * 232–234 One server action for the website's phase 2–4 forms. A form names
@@ -105,4 +106,42 @@ export async function apiAction(form: FormData): Promise<void> {
   if (typeof body.status === "string" && body.status === "pending") target = withParam(target, "pending", "1");
   else if (done) target = withParam(target, "done", done);
   redirect(await cmTarget(sitePath(target, back)));
+}
+
+/** 232 A new conversation from usernames (the API takes member ids). */
+export async function startConversationAction(form: FormData): Promise<void> {
+  const { viewer } = await siteContext();
+  const back = cmLinks.messages();
+  if (!viewer) redirect(await cmTarget(cmLinks.signIn(back)));
+  const names = list(str(form, "to")).map((n) => n.replace(/^@/, "")).slice(0, 9);
+  const ids: string[] = [];
+  for (const n of names) {
+    const r = await communityApi<{ id?: string }>("GET", `/members/${encodeURIComponent(`@${n}`)}`).catch(() => null);
+    if (!r || r.status !== 200 || !r.body?.id) redirect(await cmTarget(withParam(back, "error", "member_not_found")));
+    ids.push(r.body.id);
+  }
+  if (!ids.length) redirect(await cmTarget(withParam(back, "error", "member_not_found")));
+  const title = str(form, "title");
+  const result = await send("POST", "/messages/conversations", { body: { member_ids: ids, ...(title ? { title } : {}), body: str(form, "body") || undefined } });
+  if (!result.ok) redirect(await cmTarget(withParam(back, "error", result.code)));
+  const id = String((result.body as { id?: string })?.id ?? "");
+  redirect(await cmTarget(id ? cmLinks.conversation(id) : back));
+}
+
+/** 233 A quiz attempt: the chosen option for each question, then the score on the same page. */
+export async function quizAction(form: FormData): Promise<void> {
+  const { viewer } = await siteContext();
+  const back = sitePath(str(form, "_back"), cmLinks.academy());
+  if (!viewer) redirect(await cmTarget(cmLinks.signIn(back)));
+  const courseId = str(form, "course_id");
+  const quizId = str(form, "quiz_id");
+  const answers: Record<string, string[]> = {};
+  for (const [k, v] of form.entries()) if (k.startsWith("q:") && typeof v === "string") (answers[k.slice(2)] ??= []).push(v);
+  const result = await send("POST", `/academy/courses/${encodeURIComponent(courseId)}/quizzes/${encodeURIComponent(quizId)}/attempts`, { body: { answers } });
+  if (!result.ok) redirect(await cmTarget(withParam(back, "error", result.code)));
+  const r = (result.body ?? {}) as { score?: number; passed?: boolean };
+  const u = new URL(back, "http://site.local");
+  u.searchParams.set("score", String(Math.round((r.score ?? 0) * (r.score !== undefined && r.score <= 1 ? 100 : 1))));
+  u.searchParams.set("passed", r.passed ? "1" : "0");
+  redirect(await cmTarget(`${u.pathname}${u.search}`));
 }

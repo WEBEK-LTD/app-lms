@@ -68,6 +68,7 @@ const en = {
   // Messages
   messagesTitle: "Messages",
   newMessage: "New message",
+  memberNotFound: "We couldn't find that username.",
   newGroupChat: "New group chat",
   to: "To",
   toHint: "Usernames, separated by commas (up to 9).",
@@ -186,6 +187,7 @@ const en = {
   writeTutorial: "Write a tutorial",
   myTutorials: "My tutorials",
   tutorialTitle: "Title",
+  level: "Level",
   tutorialSummary: "Summary",
   tutorialBody: "Tutorial",
   videoUrl: "Video link (YouTube or Vimeo)",
@@ -334,6 +336,14 @@ const en = {
   signInFirst: "Log in to take part.",
   soonInApp: "In the app",
   viewAll: "View all",
+  st_store: "Store",
+  st_lms: "Courses",
+  st_booking: "Bookings",
+  st_food: "Restaurant",
+  st_news: "News",
+  st_events: "Events",
+  st_real_estate: "Real estate",
+  st_other: "Other",
   search: "Search",
 };
 
@@ -402,6 +412,7 @@ const ar: CmWords2 = {
   likes: "{n} إعجاب",
   messagesTitle: "الرسائل",
   newMessage: "رسالة جديدة",
+  memberNotFound: "لم نجد اسم المستخدم هذا.",
   newGroupChat: "محادثة جماعية جديدة",
   to: "إلى",
   toHint: "أسماء المستخدمين مفصولة بفواصل (حتى 9).",
@@ -516,6 +527,7 @@ const ar: CmWords2 = {
   writeTutorial: "اكتب شرحًا",
   myTutorials: "شروحاتي",
   tutorialTitle: "العنوان",
+  level: "المستوى",
   tutorialSummary: "الملخص",
   tutorialBody: "الشرح",
   videoUrl: "رابط الفيديو (YouTube أو Vimeo)",
@@ -658,6 +670,14 @@ const ar: CmWords2 = {
   signInFirst: "سجّل الدخول للمشاركة.",
   soonInApp: "في التطبيق",
   viewAll: "عرض الكل",
+  st_store: "متجر",
+  st_lms: "دورات",
+  st_booking: "حجوزات",
+  st_food: "مطعم",
+  st_news: "أخبار",
+  st_events: "فعاليات",
+  st_real_estate: "عقارات",
+  st_other: "أخرى",
   search: "بحث",
 };
 
@@ -724,6 +744,7 @@ const tr: CmWords2 = {
   likes: "{n} beğeni",
   messagesTitle: "Mesajlar",
   newMessage: "Yeni mesaj",
+  memberNotFound: "Bu kullanıcı adını bulamadık.",
   newGroupChat: "Yeni grup sohbeti",
   to: "Kime",
   toHint: "Virgülle ayrılmış kullanıcı adları (en fazla 9).",
@@ -838,6 +859,7 @@ const tr: CmWords2 = {
   writeTutorial: "Eğitim yaz",
   myTutorials: "Eğitimlerim",
   tutorialTitle: "Başlık",
+  level: "Seviye",
   tutorialSummary: "Özet",
   tutorialBody: "Eğitim",
   videoUrl: "Video bağlantısı (YouTube veya Vimeo)",
@@ -980,7 +1002,17 @@ const tr: CmWords2 = {
   signInFirst: "Katılmak için giriş yap.",
   soonInApp: "Uygulamada",
   viewAll: "Tümünü gör",
+  st_store: "Mağaza",
+  st_lms: "Kurslar",
+  st_booking: "Randevu",
+  st_food: "Restoran",
+  st_news: "Haber",
+  st_events: "Etkinlik",
+  st_real_estate: "Emlak",
+  st_other: "Diğer",
   search: "Ara",
 };
 
 export const CM_WORDS2: Record<CmLang, CmWords2> = { en, ar, tr };
+
+export const SHOWCASE_TYPES = ["store", "lms", "booking", "food", "news", "events", "real_estate", "other"] as const;
