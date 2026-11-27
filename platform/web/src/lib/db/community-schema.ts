@@ -94,7 +94,7 @@ export const communityIdentities = mysqlTable(
     memberId: id("member_id")
       .notNull()
       .references(() => communityMembers.id, { onDelete: "cascade" }),
-    provider: varchar("provider", { length: 8 }).notNull().$type<"apple" | "google">(),
+    provider: varchar("provider", { length: 8 }).notNull().$type<"apple" | "google" | "app">(),
     subject: varchar("subject", { length: 191 }).notNull(),
     email: varchar("email", { length: 191 }),
     createdAt: time("created_at").notNull(),

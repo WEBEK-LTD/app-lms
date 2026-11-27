@@ -274,6 +274,32 @@ paths:
                   expires_at: { type: string, format: date-time }
         "400": { $ref: "#/components/responses/Invalid" }
         "429": { $ref: "#/components/responses/TooMany" }
+  /auth/app:
+    post:
+      tags: [Auth]
+      summary: "A client app's customer, in that app's own community (phase 5; 404 in Yallapp Community)"
+      description: |
+        Only under `/api/app/{app_id}/community/v1`. The app's customer is
+        already signed in to the app (the hosted API's access token); this
+        gives them a community session: the member tied to that customer, made
+        with their name and email the first time (201, `created`). No second
+        sign-up. A token that isn't a signed-in customer of this app is 401.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [access_token]
+              properties:
+                access_token: { type: string, description: "The app customer's hosted API access token." }
+                device: { $ref: "#/components/schemas/DeviceInput" }
+      responses:
+        "200": { $ref: "#/components/responses/Session" }
+        "201": { $ref: "#/components/responses/Session" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
   /auth/yallapp:
     post:
       tags: [Auth]
@@ -2697,8 +2723,8 @@ components:
       enum: [system, light, dark]
     TargetType:
       type: string
-      description: "Phase 2–4 adds posts, stories, showcase items, groups, jobs, conversations (reported as a whole) and pro reviews."
-      enum: [member, question, answer, reply, tutorial, comment, post, story, showcase, group, job, conversation, review]
+      description: "Phase 2–4 adds posts and their comments, stories, showcase items and their comments, groups, jobs, conversations (reported as a whole), pro reviews, events and their live comments, and challenge submissions (the same report and moderation paths as phase 1)."
+      enum: [member, question, answer, reply, tutorial, comment, post, post_comment, story, showcase, showcase_comment, group, job, conversation, pro_review, event, event_comment, challenge_submission]
     DeviceInput:
       type: object
       properties:

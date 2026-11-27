@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { encodeJwt } from "@/lib/hosted/jwt";
+import { newApp } from "@/lib/app/setup";
+import { registerClient } from "@/lib/auth/accounts";
 import { api, joinWithEmail, makeYallappStaff, NOW, testCommunity, type TestCommunity } from "./community-support";
 
 /**
@@ -260,3 +263,38 @@ describe("232–235 the tenant key", () => {
     expect((await api(app, "GET", "/admin/moderation", { token: b.token })).status).toBe(403);
   });
 });
+
+describe("235 an app's customers in its own community", () => {
+  it("POST /auth/app: the customer's app token gives a community session, the same member each time; never in Yallapp Community", async () => {
+    const yallapp = await testCommunity();
+    const platform = yallapp.deps.platform;
+    const { client } = await registerClient(platform, { name: "Shop Owner", email: "owner@shop.test", whatsapp: "+905446731948", siteUrl: "", password: null }, NOW);
+    const app = { ...newApp(client.id, null, NOW, "store"), appName: "Petal Shop" };
+    await platform.createApp(app);
+    const c = await testCommunity({ tenant: app.id });
+    c.deps.platform = platform;
+    c.deps.hostedSecret = "hosted-secret-for-tests-0123456789abcdef";
+    const customer = (await platform.createHostedUser({ appId: app.id, phone: "+905321234567", name: "Leyla Demir", email: "leyla@customer.test", city: null, now: NOW }))!;
+    const deviceId = "device-row-1";
+    await platform.createHostedDevice({ id: deviceId, appId: app.id, userId: customer.id, deviceId: "install-1", platform: "android", name: "Pixel", appVersion: "1.0.0", pushToken: null, pushPreferences: null, createdAt: NOW, lastSeenAt: NOW } as never);
+    const now = Math.floor(NOW.getTime() / 1000);
+    const token = encodeJwt({ aud: app.id, sub: customer.id, did: deviceId, iat: now, exp: now + 900 }, c.deps.hostedSecret);
+
+    const first = await api<J>(c, "POST", "/auth/app", { body: { access_token: token } });
+    expect(first.status).toBe(201);
+    expect(first.body.member).toMatchObject({ display_name: "Leyla Demir", email: "leyla@customer.test", providers: ["app"] });
+    const again = await api<J>(c, "POST", "/auth/app", { body: { access_token: token } });
+    expect(again.status).toBe(200);
+    expect(again.body.member.id).toBe(first.body.member.id);
+    expect((await api<J>(c, "GET", "/me", { token: again.body.access_token })).body.id).toBe(first.body.member.id);
+    // A token for another app, a forged one, or a signed-out device: 401.
+    const other = encodeJwt({ aud: "another-app", sub: customer.id, did: deviceId, iat: now, exp: now + 900 }, c.deps.hostedSecret);
+    expect((await api(c, "POST", "/auth/app", { body: { access_token: other } })).status).toBe(401);
+    expect((await api(c, "POST", "/auth/app", { body: { access_token: `${token}x` } })).status).toBe(401);
+    const gone = encodeJwt({ aud: app.id, sub: customer.id, did: "no-such-device", iat: now, exp: now + 900 }, c.deps.hostedSecret);
+    expect((await api(c, "POST", "/auth/app", { body: { access_token: gone } })).status).toBe(401);
+    // Yallapp Community has no app sign-in.
+    expect((await api(yallapp, "POST", "/auth/app", { body: { access_token: token } })).status).toBe(404);
+  });
+});
+

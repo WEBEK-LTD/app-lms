@@ -54,6 +54,7 @@ const qaContext = cache(async (): Promise<CommunityContext> => {
   const deps = await communityDeps({ ip: ipFromHeaders(list) });
   return {
     deps,
+    tenant: deps.tenant,
     req: { method: "GET", path: [], query: new URLSearchParams(), body: undefined, form: null, token: signed?.accessToken ?? null, acceptLanguage: list.get("accept-language") },
     store: deps.store,
     now: deps.now,

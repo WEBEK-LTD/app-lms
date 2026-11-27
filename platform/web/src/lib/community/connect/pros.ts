@@ -226,6 +226,6 @@ export async function review(ctx: MemberContext): Promise<CommunityResult> {
   const made: ProReview = { requestId: h.id, proId: h.proId, authorId: ctx.member.id, rating: rating as number, text: words, status: old?.status ?? "published", createdAt: old?.createdAt ?? ctx.now, updatedAt: ctx.now };
   await store.saveReview(made);
   await store.recountPro(h.proId);
-  if (!old) await notify(ctx, { memberId: h.proId, kind: "pro_review", actorId: ctx.member.id, targetType: "review", targetId: h.id, link: "/pros/me" });
+  if (!old) await notify(ctx, { memberId: h.proId, kind: "pro_review", actorId: ctx.member.id, targetType: "pro_review", targetId: h.id, link: "/pros/me" });
   return ok(reviewView(made, await summaries(ctx, [made.authorId])));
 }
