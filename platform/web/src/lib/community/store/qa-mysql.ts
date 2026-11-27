@@ -12,7 +12,7 @@ export class MysqlCommunityQaStore extends MysqlQaStore implements CommunityQaSt
   readonly social: MysqlSocialStore;
   readonly academy: MysqlAcademyStore;
   constructor(db: CommunityDb, tenant: CommunityTenant = YALLAPP_TENANT) {
-    super(db as never);
+    super(db as never, tenant);
     this.tenant = tenant;
     this.social = new MysqlSocialStore(db);
     this.academy = new MysqlAcademyStore(db);

@@ -1742,7 +1742,6 @@ paths:
   /groups/{group}/feed:
     parameters: [{ $ref: "#/components/parameters/Group" }]
     get:
-      x-building: true
       tags: [Groups]
       summary: The group's posts and questions, newest first (area B's feed items with `group_id`)
       security: [{ bearerAuth: [] }, {}]

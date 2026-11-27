@@ -70,6 +70,23 @@ describe("232 Community social API", () => {
     expect((await api(c, "DELETE", `/comments/${reply.body.id}`, { token: karim.token })).status).toBe(204);
   });
 
+  it("posts in a group only as its member, and shows the group's feed by its privacy", async () => {
+    const { c, karim, nour } = await setup();
+    const group = await api<Json>(c, "POST", "/groups", { token: karim.token, body: { name: "Shop makers", description: "Selling with Yallapp.", visibility: "private" } });
+    expect(group.status, JSON.stringify(group.body)).toBe(201);
+    const gid = group.body.id;
+    const post = await api<Json>(c, "POST", "/posts", { token: karim.token, body: { body: "Welcome to the group", group_id: gid } });
+    expect(post.status, JSON.stringify(post.body)).toBe(201);
+    expect(post.body.group_id).toBe(gid);
+    expect((await api<Json>(c, "POST", "/posts", { token: nour.token, body: { body: "Let me in", group_id: gid } })).status).toBe(403);
+    expect((await api<Json>(c, "GET", `/groups/${gid}/feed`, { token: karim.token })).body.items.map((i: Json) => i.post.id)).toEqual([post.body.id]);
+    expect((await api<Json>(c, "GET", `/groups/${gid}/feed`, { token: nour.token })).status).toBe(403);
+    // Not on the home feed, and not readable by a stranger.
+    expect((await api<Json>(c, "GET", "/feed?tab=latest", { token: nour.token })).body.items.map((i: Json) => i.id)).not.toContain(post.body.id);
+    expect((await api(c, "GET", `/posts/${post.body.id}`, { token: nour.token })).status).toBe(404);
+    expect((await api<Json>(c, "GET", `/groups/${gid}`, { token: karim.token })).body.post_count).toBe(1);
+  });
+
   it("holds a new member's first post for review", async () => {
     const { c } = await setup();
     const fresh = await joinWithEmail(c, "Omar New");

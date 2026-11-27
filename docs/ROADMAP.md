@@ -5132,7 +5132,7 @@ One PR for all four (design/BRIEF-phase2-5.md). Areas add their rows under their
 | [x] | 234.A1 Pros: a pro profile (services with rates as text, skills, availability, a portfolio of showcase items through area B's lookup), best rated first and by skill; a hire request opens its own message thread; the pro accepts or declines, either marks it done, then the client reviews it once (changeable); closed profiles keep their reviews; no money moves (`lib/community/connect/pros.ts`) | `community-connect.test.ts`, `community-connect-store.test.ts` |
 | [x] | 234.A2 Jobs: post (title, type, remote or a place, skills, a budget as text), apply once with a message and links, the poster's applicants (shortlist or decline; the applicant withdraws), open and closed, a member's own; a new member's first jobs wait for area C's moderators, whose decisions reach groups, jobs, reviews and conversations (`lib/community/connect/jobs.ts`, `connect/content.ts`) | `community-connect.test.ts`, `community-connect-store.test.ts` |
 
-### 232–233 area B: posts, stories, showcase, member tutorials, the Academy (`wip-community-b2`)
+### Area B (232–233): posts, stories, showcase, member tutorials, the Academy
 
 | | Step | Done when |
 |---|---|---|
@@ -5188,3 +5188,4 @@ Rows for the table under "Phases 232–235: Yallapp Community, phases 2 to 5".
 | [x] | 232.D7 Push through Yallapp's keyless Firebase setup (options from `YC_FIREBASE_*` dart-defines, no config file in the repository; APNs entitlements, Android 13's permission): the token to `PUT /me/push-tokens` after sign-in and when it changes, a tapped push opens its screen (`core/push/routes.dart`, area E adds its kinds), one arriving in the app shows with Open, Settings → Push notifications switches each kind (email as in phase 1) | `flows/push_test.dart` |
 | [x] | 232.D8 The shell opens phases 2–4: the side menu's Academy, Showcase, Challenges, Groups, Pros and Events, the + sheet's post, story, showcase and challenge; the server's `coming_soon` can still close any; `profile_hooks.dart` for area E's profile sections | `flows/shell_test.dart` |
 | [ ] | 232.D9 `push` beside `email` in NotificationSettings on the server (the app sends it; the contract has `email` only), and the push payload's kinds as the app routes them | (areas A and C) |
+

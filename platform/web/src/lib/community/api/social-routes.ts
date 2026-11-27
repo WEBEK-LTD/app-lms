@@ -8,6 +8,8 @@ import { isYallappTeam } from "../staff";
 import { linkedApps } from "../yallapp";
 import { fail, noContent, ok, requireMember, tooMany, type CommunityContext, type CommunityResult, type CommunityRoute } from "./http";
 import { findMember } from "../base/profile";
+import { groupPosted, readableGroup } from "../connect/groups";
+import { setPortfolioLookup } from "../connect/pros";
 import { qaHooksFor, withQaFor } from "./qa-hooks";
 import { run, wire } from "./qa-routes";
 
@@ -22,7 +24,16 @@ type Handler = (ctx: CommunityContext) => Promise<CommunityResult>;
 
 /** The community a call is about: area A's tenant key when it sets one, else Yallapp Community. */
 export function tenantOf(ctx: CommunityContext): string {
-  return ctx.deps.tenant || "yallapp";
+  return ctx.tenant || ctx.deps.tenant || "yallapp";
+}
+
+/** Area A's group rights; no such group reads as none. */
+async function groupRights(ctx: CommunityContext, groupId: string) {
+  try {
+    return await readableGroup(ctx, groupId);
+  } catch {
+    return null;
+  }
 }
 
 /** A link's preview: the page's Open Graph tags, public addresses only, 3 seconds and 512 KB at most. */
@@ -63,6 +74,10 @@ export function socialEnvFor(ctx: CommunityContext): SocialEnv {
       const m = memberId === ctx.member?.id ? ctx.member : await ctx.store.base.getMember(memberId);
       if (!m?.yallappUserId) return false;
       return (await linkedApps(platform, m.yallappUserId, ctx.now)).some((app) => app.appId === appId);
+    },
+    groups: {
+      canRead: async (_viewer, groupId) => (await groupRights(ctx, groupId))?.canRead ?? false,
+      canPost: async (_member, groupId) => (await groupRights(ctx, groupId))?.canPost ?? false,
     },
     questions: ({ tab, viewerId, limit }) =>
       withQaFor(ctx, async () => (await qa.listQuestions({ viewerId, lang: ctx.lang, filter: tab === "following" ? "following" : tab === "for_you" ? "for_you" : "all", sort: "newest", limit })).items),
@@ -189,7 +204,9 @@ const createPost: Handler = async (ctx) => {
   const env = socialEnvFor(ctx);
   const b = fieldsOf(ctx);
   const mediaIds = await mediaIdsOf(ctx, env, me, ["photos", "photo"]);
-  return ok(postOut(ctx, await social.createPost(env, me, { body: b.body, mediaIds, groupId: str(b.group_id) ?? null })), 201);
+  const post = await social.createPost(env, me, { body: b.body, mediaIds, groupId: str(b.group_id) ?? null });
+  if (post.groupId) await groupPosted(ctx, post.groupId, 1);
+  return ok(postOut(ctx, post), 201);
 };
 const linkPreview: Handler = async (ctx) => {
   requireMember(ctx);
@@ -201,7 +218,10 @@ const linkPreview: Handler = async (ctx) => {
 const getPost: Handler = async (ctx) => ok(postOut(ctx, await social.getPost(socialEnvFor(ctx), viewer(ctx), ctx.params.post_id!)));
 const editPost: Handler = async (ctx) => ok(postOut(ctx, await social.editPost(socialEnvFor(ctx), requireMember(ctx).member.id, ctx.params.post_id!, { body: ctx.json().body })));
 const deletePost: Handler = async (ctx) => {
-  await social.deletePost(socialEnvFor(ctx), requireMember(ctx).member.id, ctx.params.post_id!);
+  const env = socialEnvFor(ctx);
+  const groupId = (await env.store.getPost(ctx.params.post_id!))?.groupId;
+  await social.deletePost(env, requireMember(ctx).member.id, ctx.params.post_id!);
+  if (groupId) await groupPosted(ctx, groupId, -1);
   return noContent();
 };
 const memberPosts: Handler = async (ctx) => {
@@ -209,6 +229,25 @@ const memberPosts: Handler = async (ctx) => {
   const page = await social.listPosts(socialEnvFor(ctx), viewer(ctx), { authorId: member.id, cursor: ctx.query.get("cursor"), limit: limitOf(ctx) });
   return ok({ items: page.items.map((p) => ({ kind: "post", id: p.id, created_at: p.createdAt, post: postOut(ctx, p) })), next_cursor: page.nextCursor });
 };
+
+/** A group's posts, newest first (A's groups decide who reads). */
+const groupFeed: Handler = async (ctx) => {
+  const rights = await readableGroup(ctx, ctx.params.group!);
+  if (!rights.canRead) fail(403, "group_private");
+  const page = await social.listPosts(socialEnvFor(ctx), viewer(ctx), { groupId: rights.group.id, cursor: ctx.query.get("cursor"), limit: limitOf(ctx) });
+  return ok({ items: page.items.map((p) => ({ kind: "post", id: p.id, created_at: p.createdAt, post: postOut(ctx, p) })), next_cursor: page.nextCursor });
+};
+
+// 234 A pro's portfolio is their own showcase items, in the order given.
+setPortfolioLookup(async (ctx, memberId, ids) => {
+  const env = socialEnvFor(ctx);
+  const out: unknown[] = [];
+  for (const id of ids) {
+    const item = await social.getShowcase(env, viewer(ctx), id).catch(() => null);
+    if (item && item.author.id === memberId) out.push(showcaseSummaryOut(item));
+  }
+  return out;
+});
 
 const likeOn =
   (kind: "post" | "comment" | "showcase", param: string, on: boolean): Handler =>
@@ -322,6 +361,7 @@ export const SOCIAL_ROUTES: CommunityRoute[] = [
   mem("DELETE", "/comments/:comment_id/like", limited("like", likeOn("comment", "comment_id", false)), { refusedStatus: 400 }),
   mem("GET", "/me/saved", savedList),
   pub("GET", "/members/:member/posts", memberPosts),
+  pub("GET", "/groups/:group/feed", groupFeed),
   // Stories
   mem("GET", "/stories", stories),
   mem("POST", "/stories", limited("story", createStory)),

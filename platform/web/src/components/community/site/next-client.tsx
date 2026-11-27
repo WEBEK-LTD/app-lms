@@ -49,6 +49,9 @@ export function Poll({ seconds }: { seconds: number }) {
 /** Keep a chat scrolled to its newest message. */
 export function ScrollEnd({ dep }: { dep: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => ref.current?.scrollIntoView({ block: "end" }), [dep]);
+  // A block body: scrollIntoView returns a promise in newer browsers, and an effect may only return its cleanup.
+  useEffect(() => {
+    ref.current?.scrollIntoView({ block: "end" });
+  }, [dep]);
   return <span ref={ref} aria-hidden="true" />;
 }
