@@ -3,6 +3,8 @@ import type { CommunityStore } from "../store";
 import type { CommunityLanguage, CommunityMember, CommunitySession, CommunityTenant } from "../types";
 import type { IdTokenVerifier } from "../auth/id-tokens";
 import type { CommunityMailer } from "../mail";
+import type { CommunityPusher } from "../engage/push";
+import type { CourseCheckoutGateway, CourseShop } from "../engage/checkout";
 
 /**
  * 231 The Community API's plumbing (/api/community/v1, docs/api/community.yaml):
@@ -40,6 +42,12 @@ export interface CommunityDeps {
   fileSecret?: string;
   /** 235 The hosted API's token secret (a client app's customers sign in to its community with theirs); none: from SIGNING_SECRET. */
   hostedSecret?: string;
+  /** 232 Push to the Community app's phones (lib/community/engage/push.ts); null or none: push isn't set up here. */
+  push?: CommunityPusher | null;
+  /** 233 Area B's academy, for the course checkout (lib/community/engage/checkout.ts); none: courses can't be bought. */
+  courses?: CourseShop | null;
+  /** 233 Yallapp's own website checkout (Studio Market's); none: courses can't be bought. */
+  courseCheckout?: (() => Promise<CourseCheckoutGateway>) | null;
 }
 
 export type CommunityMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -88,6 +96,8 @@ export type MemberContext = CommunityContext & { member: CommunityMember; sessio
 export interface CommunityResult {
   status: number;
   body?: unknown;
+  /** 234 A body that isn't JSON (an event's .ics file), sent as it is with `headers`' content type. */
+  text?: string;
   headers?: Record<string, string>;
 }
 

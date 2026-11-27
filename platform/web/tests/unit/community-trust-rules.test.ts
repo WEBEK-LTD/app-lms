@@ -213,7 +213,7 @@ describe("231 reports", () => {
   it("names what and why, with a note for 'other'", () => {
     expect(parseReport({ target_type: "answer", target_id: "a31", reason: "spam" })).toEqual({ ok: true, value: { targetType: "answer", targetId: "a31", reason: "spam", note: "" } });
     expect(parseReport({ target_type: "answer", target_id: "a31", reason: "other" }).ok).toBe(false);
-    expect(parseReport({ target_type: "group", target_id: "g1", reason: "spam" }).ok).toBe(false);
+    expect(parseReport({ target_type: "planet", target_id: "g1", reason: "spam" }).ok).toBe(false);
     expect(parseReport({ target_type: "member", target_id: "m1", reason: "rude" }).ok).toBe(false);
   });
 });

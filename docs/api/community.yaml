@@ -2342,21 +2342,18 @@ paths:
   # ------------------------------------------------------------ Area C: Push, points, leaderboard (232.6, 233.2)
   /me/push-tokens:
     put:
-      x-building: true
       tags: [Notifications]
       summary: The device's Firebase Cloud Messaging token (the app sends it after sign-in and when it changes)
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [token, platform], properties: { token: { type: string, maxLength: 4096 }, platform: { type: string, enum: [ios, android] } } } } } }
       responses:
         "204": { description: Kept for this session's device. }
     delete:
-      x-building: true
       tags: [Notifications]
       summary: Forget this device's token (signing out does too)
       responses:
         "204": { description: Forgotten. }
   /me/points:
     get:
-      x-building: true
       tags: [Points]
       summary: The member's points, level and history, newest first
       parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }]
@@ -2364,7 +2361,6 @@ paths:
         "200": { description: The points., content: { application/json: { schema: { $ref: "#/components/schemas/PointsHistory" } } } }
   /leaderboard:
     get:
-      x-building: true
       tags: [Points]
       summary: The leaderboard, this week's (Monday 00:00 UTC on) or all-time
       security: [{ bearerAuth: [] }, {}]
@@ -2373,13 +2369,11 @@ paths:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/LeaderboardPage" } } } }
   /admin/points:
     get:
-      x-building: true
       tags: [Admin]
       summary: The points for each action, their daily caps, and the levels
       responses:
         "200": { description: The table., content: { application/json: { schema: { $ref: "#/components/schemas/PointsRules" } } } }
     put:
-      x-building: true
       tags: [Admin]
       summary: Change the points table (admins; audit-logged)
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/PointsRules" } } } }
@@ -2389,7 +2383,6 @@ paths:
   # ------------------------------------------------------------ Area C: Challenges (233.3)
   /challenges:
     get:
-      x-building: true
       tags: [Challenges]
       summary: Challenges (the running one first; the home card reads `status=open&limit=1`)
       security: [{ bearerAuth: [] }, {}]
@@ -2399,7 +2392,6 @@ paths:
   /challenges/{challenge_id}:
     parameters: [{ $ref: "#/components/parameters/ChallengeId" }]
     get:
-      x-building: true
       tags: [Challenges]
       summary: A challenge, its rules and winners
       security: [{ bearerAuth: [] }, {}]
@@ -2408,7 +2400,6 @@ paths:
   /challenges/{challenge_id}/entries:
     parameters: [{ $ref: "#/components/parameters/ChallengeId" }]
     get:
-      x-building: true
       tags: [Challenges]
       summary: The entries, most voted first while voting
       security: [{ bearerAuth: [] }, {}]
@@ -2416,7 +2407,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/ChallengeEntryPage" } } } }
     post:
-      x-building: true
       tags: [Challenges]
       summary: Enter, with a showcase item or a link (once, while open)
       requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { showcase_id: { type: string }, url: { type: string, format: uri }, note: { type: string, maxLength: 1000 } } } } } }
@@ -2424,11 +2414,10 @@ paths:
         "201": { description: Entered., content: { application/json: { schema: { $ref: "#/components/schemas/ChallengeEntry" } } } }
   /challenges/{challenge_id}/entries/{entry_id}/vote:
     parameters: [{ $ref: "#/components/parameters/ChallengeId" }, { name: entry_id, in: path, required: true, schema: { type: string } }]
-    put: { x-building: true, tags: [Challenges], summary: Vote for an entry (not one's own; while voting), responses: { "200": { $ref: "#/components/responses/Liked" } } }
-    delete: { x-building: true, tags: [Challenges], summary: Take the vote back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    put: { tags: [Challenges], summary: Vote for an entry (not one's own; while voting), responses: { "200": { $ref: "#/components/responses/Liked" } } }
+    delete: { tags: [Challenges], summary: Take the vote back, responses: { "200": { $ref: "#/components/responses/Liked" } } }
   /admin/challenges:
     post:
-      x-building: true
       tags: [Admin]
       summary: Post a challenge
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ChallengeInput" } } } }
@@ -2437,14 +2426,12 @@ paths:
   /admin/challenges/{challenge_id}:
     parameters: [{ $ref: "#/components/parameters/ChallengeId" }]
     patch:
-      x-building: true
       tags: [Admin]
       summary: Change a challenge
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ChallengeInput" } } } }
       responses:
         "200": { description: The challenge., content: { application/json: { schema: { $ref: "#/components/schemas/Challenge" } } } }
     delete:
-      x-building: true
       tags: [Admin]
       summary: Delete a challenge
       responses:
@@ -2452,7 +2439,6 @@ paths:
   /admin/challenges/{challenge_id}/winners:
     parameters: [{ $ref: "#/components/parameters/ChallengeId" }]
     put:
-      x-building: true
       tags: [Admin]
       summary: Pick the winners; each gets the challenge's badge or points
       requestBody: { required: true, content: { application/json: { schema: { type: object, required: [entry_ids], properties: { entry_ids: { type: array, minItems: 1, maxItems: 10, items: { type: string } } } } } } }
@@ -2462,7 +2448,6 @@ paths:
   # ------------------------------------------------------------ Area C: Events and live (234.3, 234.4)
   /events:
     get:
-      x-building: true
       tags: [Events]
       summary: Events, soonest first (`past` for replays)
       security: [{ bearerAuth: [] }, {}]
@@ -2476,7 +2461,6 @@ paths:
   /events/{event_id}:
     parameters: [{ $ref: "#/components/parameters/EventId" }]
     get:
-      x-building: true
       tags: [Events]
       summary: An event (times in UTC; clients show them in the viewer's time zone)
       security: [{ bearerAuth: [] }, {}]
@@ -2485,14 +2469,12 @@ paths:
   /events/{event_id}/rsvp:
     parameters: [{ $ref: "#/components/parameters/EventId" }]
     put:
-      x-building: true
       tags: [Events]
       summary: Going (free; reminders by push and email a day and an hour before)
       responses:
         "200": { description: The event., content: { application/json: { schema: { $ref: "#/components/schemas/Event" } } } }
         "409": { description: "`event_full`." }
     delete:
-      x-building: true
       tags: [Events]
       summary: Not going
       responses:
@@ -2500,7 +2482,6 @@ paths:
   /events/{event_id}/attendees:
     parameters: [{ $ref: "#/components/parameters/EventId" }]
     get:
-      x-building: true
       tags: [Events]
       summary: Who is going
       security: [{ bearerAuth: [] }, {}]
@@ -2510,7 +2491,6 @@ paths:
   /events/{event_id}/ics:
     parameters: [{ $ref: "#/components/parameters/EventId" }]
     get:
-      x-building: true
       tags: [Events]
       summary: Add to calendar (an .ics file)
       security: []
@@ -2519,7 +2499,6 @@ paths:
   /events/{event_id}/comments:
     parameters: [{ $ref: "#/components/parameters/EventId" }]
     get:
-      x-building: true
       tags: [Events]
       summary: A live event's comments; with `after`, only newer ones (polling during the live)
       security: [{ bearerAuth: [] }, {}]
@@ -2527,7 +2506,6 @@ paths:
       responses:
         "200": { description: A page., content: { application/json: { schema: { $ref: "#/components/schemas/CommentPage" } } } }
     post:
-      x-building: true
       tags: [Events]
       summary: Comment during the live
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CommentInput" } } } }
@@ -2535,7 +2513,6 @@ paths:
         "201": { description: Commented., content: { application/json: { schema: { $ref: "#/components/schemas/Comment" } } } }
   /admin/events:
     post:
-      x-building: true
       tags: [Admin]
       summary: Create an event or a live session (an embed URL; no streaming of our own)
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/EventInput" } } } }
@@ -2544,14 +2521,12 @@ paths:
   /admin/events/{event_id}:
     parameters: [{ $ref: "#/components/parameters/EventId" }]
     patch:
-      x-building: true
       tags: [Admin]
       summary: Change an event (the replay link after a live)
       requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/EventInput" } } } }
       responses:
         "200": { description: The event., content: { application/json: { schema: { $ref: "#/components/schemas/Event" } } } }
     delete:
-      x-building: true
       tags: [Admin]
       summary: Cancel an event (those going hear of it)
       responses:
@@ -2722,8 +2697,8 @@ components:
       enum: [system, light, dark]
     TargetType:
       type: string
-      description: "Phase 2–4 adds posts and their comments, stories, showcase items and their comments, groups, jobs, conversations (reported as a whole), pro reviews, events and their live comments, and challenge submissions (the same report and moderation paths as phase 1)."
-      enum: [member, question, answer, reply, tutorial, comment, post, post_comment, story, showcase, showcase_comment, group, job, conversation, pro_review, event, event_comment, challenge_submission]
+      description: "Phase 2–4 adds posts and their comments, stories, showcase items and their comments, groups, jobs, pro profiles, conversations (reported as a whole), pro reviews, events and their comments (a live session's chat), and challenge entries."
+      enum: [member, question, answer, reply, tutorial, comment, post, post_comment, story, showcase, showcase_comment, group, job, pro, conversation, pro_review, review, event, event_comment, challenge_submission]
     DeviceInput:
       type: object
       properties:
@@ -3149,11 +3124,15 @@ components:
         created_at: { type: string, format: date-time }
     NotificationSettings:
       type: object
-      required: [email]
+      required: [email, push]
       properties:
         email:
           type: object
           description: Which kinds also come by email (the list always has them all).
+          additionalProperties: { type: boolean }
+        push:
+          type: object
+          description: "232 Which kinds also come as a push to the member's phones (the list always has them all; every kind is on until turned off). PUT takes `email`, `push` or both; only the kinds sent change."
           additionalProperties: { type: boolean }
           examples: [{ answer: true, answer_accepted: true, friend_request: true, follow: false, badge_granted: true, verification_approved: true, verification_rejected: true, official_answer: true }]
 
@@ -3619,6 +3598,7 @@ components:
           items: { type: object, required: [action, points, daily_cap], properties: { action: { type: string, examples: [question, answer, answer_accepted, post, comment, like_received, showcase, tutorial_published, challenge_entry, challenge_won, event_attended, course_completed] }, points: { type: integer }, daily_cap: { type: [integer, "null"], description: "At most this many points a day from it; null: no cap." } } }
         levels:
           type: array
+          description: "The levels and their names, fixed (lib/community/levels.ts): PUT changes only `actions`."
           items: { type: object, required: [key, min_points, name], properties: { key: { type: string }, min_points: { type: integer }, name: { type: object, required: [en, ar, tr], properties: { en: { type: string }, ar: { type: string }, tr: { type: string } } } } }
     PointsHistory:
       type: object

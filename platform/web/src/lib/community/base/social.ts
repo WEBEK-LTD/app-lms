@@ -1,4 +1,5 @@
 import { newId } from "../../crypto/tokens";
+import { REPORT_TARGETS } from "../trust/requests";
 import { contentTarget } from "../api/content-targets";
 import { fail, noContent, ok, page, pageOf, requireMember, type CommunityContext, type CommunityResult, type MemberContext } from "../api/http";
 import { notify, onReported } from "../api/trust-hooks";
@@ -202,8 +203,8 @@ export async function listBlocks(ctx: MemberContext): Promise<CommunityResult> {
 // ------------------------------------------------------------ reports
 
 const REASONS: readonly CommunityReportReason[] = ["spam", "harassment", "hate", "inappropriate", "misinformation", "impersonation", "other"];
-// 232–234 Groups, jobs and pro reviews are reported here too (a conversation by its own path); area B adds its posts, stories and showcase items.
-const TARGETS: readonly CommunityTargetType[] = ["member", "question", "answer", "reply", "tutorial", "comment", "group", "job", "pro_review", "post", "post_comment", "story", "showcase", "showcase_comment"];
+// 232–235 The one list (lib/community/trust/requests.ts): what phases 2 to 5 add can be reported too.
+const TARGETS: readonly CommunityTargetType[] = REPORT_TARGETS;
 
 export async function report(ctx: CommunityContext): Promise<CommunityResult> {
   const signed = requireMember(ctx);
