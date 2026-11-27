@@ -1,6 +1,6 @@
 CREATE TABLE `community_media` (
 	`id` varchar(36) NOT NULL,
-	`tenant_id` varchar(36) NOT NULL DEFAULT 'yallapp',
+	`tenant_id` varchar(64) NOT NULL DEFAULT 'yallapp',
 	`owner_id` varchar(36) NOT NULL,
 	`kind` varchar(8) NOT NULL,
 	`url` varchar(512) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE `community_media` (
 --> statement-breakpoint
 CREATE TABLE `community_post_comments` (
 	`id` varchar(36) NOT NULL,
-	`tenant_id` varchar(36) NOT NULL DEFAULT 'yallapp',
+	`tenant_id` varchar(64) NOT NULL DEFAULT 'yallapp',
 	`target_type` varchar(10) NOT NULL,
 	`target_id` varchar(36) NOT NULL,
 	`parent_id` varchar(36),
@@ -28,7 +28,7 @@ CREATE TABLE `community_post_comments` (
 --> statement-breakpoint
 CREATE TABLE `community_posts` (
 	`id` varchar(36) NOT NULL,
-	`tenant_id` varchar(36) NOT NULL DEFAULT 'yallapp',
+	`tenant_id` varchar(64) NOT NULL DEFAULT 'yallapp',
 	`author_id` varchar(36) NOT NULL,
 	`group_id` varchar(36),
 	`body` text NOT NULL,
@@ -53,7 +53,7 @@ CREATE TABLE `community_reactions` (
 --> statement-breakpoint
 CREATE TABLE `community_showcase` (
 	`id` varchar(36) NOT NULL,
-	`tenant_id` varchar(36) NOT NULL DEFAULT 'yallapp',
+	`tenant_id` varchar(64) NOT NULL DEFAULT 'yallapp',
 	`author_id` varchar(36) NOT NULL,
 	`title` varchar(120) NOT NULL,
 	`description` text NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE `community_showcase` (
 --> statement-breakpoint
 CREATE TABLE `community_stories` (
 	`id` varchar(36) NOT NULL,
-	`tenant_id` varchar(36) NOT NULL DEFAULT 'yallapp',
+	`tenant_id` varchar(64) NOT NULL DEFAULT 'yallapp',
 	`author_id` varchar(36) NOT NULL,
 	`media_id` varchar(36) NOT NULL,
 	`status` varchar(10) NOT NULL,

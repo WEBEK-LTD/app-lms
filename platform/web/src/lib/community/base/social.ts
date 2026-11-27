@@ -202,7 +202,8 @@ export async function listBlocks(ctx: MemberContext): Promise<CommunityResult> {
 // ------------------------------------------------------------ reports
 
 const REASONS: readonly CommunityReportReason[] = ["spam", "harassment", "hate", "inappropriate", "misinformation", "impersonation", "other"];
-const TARGETS: readonly CommunityTargetType[] = ["member", "question", "answer", "reply", "tutorial", "comment"];
+// 232–234 Groups, jobs and pro reviews are reported here too (a conversation by its own path); area B adds its posts, stories and showcase items.
+const TARGETS: readonly CommunityTargetType[] = ["member", "question", "answer", "reply", "tutorial", "comment", "group", "job", "pro_review", "post", "post_comment", "story", "showcase", "showcase_comment"];
 
 export async function report(ctx: CommunityContext): Promise<CommunityResult> {
   const signed = requireMember(ctx);

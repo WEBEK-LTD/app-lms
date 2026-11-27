@@ -10,6 +10,12 @@ Last updated: 24 November 2026.
 
 Roadmap 231.Y ("Continue with Yallapp"): Yallapp Community's 4th sign-in, PKCE with a one-time code from yallapp.com.tr, never an admin by itself; the one-tap link suggestion for the same verified email; Yallapp's "Confirm your email" (`users.email_verified_at`), which both need before they trust an email (migration 0158). The app's side ships with area D's app.
 
+Roadmap 232 area A: Yallapp Community's messages (one-to-one and group chats, photos, replies, read state, polling) and groups (public and private, owners and moderators), on `wip-community-a2` (migration 0160).
+
+Roadmap 234 area A: Yallapp Community's pros (profiles, hire requests that open a thread, reviews; no money moves) and jobs (post, apply, applicants, moderation), on `wip-community-a2`.
+
+Roadmap 235 area A: the tenant key (Yallapp Community is "yallapp", a client app's own community its app id at `/api/app/{app_id}/community/v1`, migration 0159) and the phase 2–5 API contract.
+
 Roadmap 231 area A (Yallapp Community's base, on `wip-community-base`):
 the community's API contract, its 24 tables (migration 0155), joining and
 signing in with email, Apple and Google, profiles, follow, friends, block,

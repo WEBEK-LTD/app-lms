@@ -1,6 +1,6 @@
 CREATE TABLE `community_certificates` (
 	`id` varchar(36) NOT NULL,
-	`tenant_id` varchar(36) NOT NULL DEFAULT 'yallapp',
+	`tenant_id` varchar(64) NOT NULL DEFAULT 'yallapp',
 	`code` varchar(20) NOT NULL,
 	`member_id` varchar(36) NOT NULL,
 	`course_id` varchar(36) NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE `community_certificates` (
 );
 --> statement-breakpoint
 CREATE TABLE `community_course_access` (
-	`tenant_id` varchar(36) NOT NULL DEFAULT 'yallapp',
+	`tenant_id` varchar(64) NOT NULL DEFAULT 'yallapp',
 	`member_id` varchar(36) NOT NULL,
 	`course_id` varchar(36) NOT NULL,
 	`source` varchar(8) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE `community_course_access` (
 --> statement-breakpoint
 CREATE TABLE `community_courses` (
 	`id` varchar(36) NOT NULL,
-	`tenant_id` varchar(36) NOT NULL DEFAULT 'yallapp',
+	`tenant_id` varchar(64) NOT NULL DEFAULT 'yallapp',
 	`slug` varchar(140) NOT NULL,
 	`title` varchar(160) NOT NULL,
 	`summary` text NOT NULL,

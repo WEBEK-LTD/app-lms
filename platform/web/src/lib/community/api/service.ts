@@ -3,6 +3,7 @@ import { authenticate } from "../auth/sessions";
 import { isCommunityAdmin } from "../staff";
 import { errorMessage, languageFromHeader, t } from "../i18n";
 import { BASE_ROUTES } from "./base-routes";
+import { CONNECT_ROUTES } from "./connect-routes";
 import { CommunityError, type CommunityContext, type CommunityDeps, type CommunityRequest, type CommunityResult, type CommunityRoute } from "./http";
 import { QA_ROUTES } from "./qa-routes";
 import { ACADEMY_ROUTES } from "./academy-routes";
@@ -15,7 +16,7 @@ import { TRUST_ROUTES } from "./trust-routes";
  * the language, runs the handler, and turns errors into
  * `{ error: { code, message, fields? } }` in the reader's language.
  */
-export const COMMUNITY_ROUTES: readonly CommunityRoute[] = [...BASE_ROUTES, ...QA_ROUTES, ...SOCIAL_ROUTES, ...ACADEMY_ROUTES, ...TRUST_ROUTES];
+export const COMMUNITY_ROUTES: readonly CommunityRoute[] = [...BASE_ROUTES, ...QA_ROUTES, ...SOCIAL_ROUTES, ...ACADEMY_ROUTES, ...TRUST_ROUTES, ...CONNECT_ROUTES];
 
 interface Compiled {
   route: CommunityRoute;
@@ -74,6 +75,7 @@ export async function handleCommunity(deps: CommunityDeps, req: CommunityRequest
   const signedIn = req.token ? await authenticate(deps.store.base, req.token, deps.now) : null;
   const ctx: CommunityContext = {
     deps,
+    tenant: deps.tenant,
     req,
     store: deps.store,
     now: deps.now,

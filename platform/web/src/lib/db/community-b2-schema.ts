@@ -1,7 +1,7 @@
 import { customType, datetime, index, int, mysqlTable, primaryKey, uniqueIndex, varchar, boolean, text } from "drizzle-orm/mysql-core";
 import type { CommentTarget, LinkPreview, MediaKind, ReactionKind, ReactionTarget, SocialStatus } from "../community/social/store";
 import type { AccessSource, CourseLevel, CourseStatus, LessonKind } from "../community/academy/store";
-import { communityMembers } from "./community-schema";
+import { communityMembers, tenantColumn } from "./community-schema";
 
 /**
  * 232–233 Area B's tables for phases 2 and 3 (migrations 0169–0178), beside
@@ -20,7 +20,7 @@ const jsonText = <T>(name: string) =>
 
 const id = (name: string) => varchar(name, { length: 36 });
 const time = (name: string) => datetime(name, { mode: "date", fsp: 3 });
-const tenant = () => varchar("tenant_id", { length: 36 }).notNull().default("yallapp");
+const tenant = () => tenantColumn();
 const member = (name: string) =>
   id(name)
     .notNull()

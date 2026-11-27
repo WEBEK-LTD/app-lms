@@ -1,4 +1,5 @@
 import * as accounts from "../base/accounts";
+import { appSignIn } from "../base/app-signin";
 import { getConfig } from "../base/config";
 import { getLink, startLink, unlink } from "../base/linking";
 import * as profile from "../base/profile";
@@ -17,6 +18,8 @@ export const BASE_ROUTES: CommunityRoute[] = [
   { method: "POST", path: "/auth/google", auth: "public", handler: accounts.withGoogle },
   { method: "POST", path: "/auth/yallapp/start", yallappOnly: true, auth: "public", handler: startYallappSignin },
   { method: "POST", path: "/auth/yallapp", yallappOnly: true, auth: "public", handler: exchangeYallappCode },
+  // 235 A client app's customer, in its own community (404 in Yallapp Community).
+  { method: "POST", path: "/auth/app", auth: "public", handler: appSignIn },
   { method: "POST", path: "/auth/refresh", auth: "public", handler: accounts.refresh },
   { method: "POST", path: "/auth/log-out", handler: member(accounts.logOut) },
   { method: "POST", path: "/auth/email/verify", auth: "public", handler: accounts.verifyEmail },

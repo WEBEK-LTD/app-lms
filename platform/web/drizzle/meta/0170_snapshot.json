@@ -36899,7 +36899,7 @@
         },
         "tenant_id": {
           "name": "tenant_id",
-          "type": "varchar(36)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -37009,7 +37009,7 @@
       "columns": {
         "tenant_id": {
           "name": "tenant_id",
-          "type": "varchar(36)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -37104,7 +37104,7 @@
         },
         "tenant_id": {
           "name": "tenant_id",
-          "type": "varchar(36)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -37454,7 +37454,7 @@
         },
         "tenant_id": {
           "name": "tenant_id",
-          "type": "varchar(36)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -37565,7 +37565,7 @@
         },
         "tenant_id": {
           "name": "tenant_id",
-          "type": "varchar(36)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -37686,7 +37686,7 @@
         },
         "tenant_id": {
           "name": "tenant_id",
-          "type": "varchar(36)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -37992,7 +37992,7 @@
         },
         "tenant_id": {
           "name": "tenant_id",
-          "type": "varchar(36)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -38163,7 +38163,7 @@
         },
         "tenant_id": {
           "name": "tenant_id",
-          "type": "varchar(36)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,

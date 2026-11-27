@@ -45,9 +45,12 @@ const fullNames = (names: Partial<Record<CommunityLang, string>>): Record<Commun
 
 export class MysqlQaStore implements QaStore {
   private readonly db: Db;
+  /** 232–235 The community whose sections, tags, questions and tutorials these are (A's 0159). */
+  protected readonly tenantKey: string;
 
   /** On a pool, or on the community's drizzle database (lib/community/store/mysql.ts). */
-  constructor(source: mysql.Pool | MySql2Database<never>) {
+  constructor(source: mysql.Pool | MySql2Database<never>, tenant = "yallapp") {
+    this.tenantKey = tenant;
     // Positional: drizzle takes `{ client, mode }` without a schema for the client itself (its config check needs `schema`).
     this.db = "select" in source ? (source as unknown as Db) : (drizzle(source) as Db);
   }
@@ -55,14 +58,14 @@ export class MysqlQaStore implements QaStore {
   // ——— Sections and tags ———
 
   async listSections(kind: SectionKind): Promise<SectionRecord[]> {
-    const rows = await this.db.select().from(communitySections).where(eq(communitySections.kind, kind)).orderBy(asc(communitySections.position), asc(communitySections.slug));
+    const rows = await this.db.select().from(communitySections).where(and(eq(communitySections.tenantId, this.tenantKey), eq(communitySections.kind, kind))).orderBy(asc(communitySections.position), asc(communitySections.slug));
     return rows.map((r) => ({ id: r.id, kind: r.kind, slug: r.slug, names: fullNames(r.names), icon: r.icon, position: r.position }));
   }
 
   async upsertSection(s: SectionRecord): Promise<void> {
     await this.db
       .insert(communitySections)
-      .values({ id: s.id, kind: s.kind, slug: s.slug, names: s.names, icon: s.icon, position: s.position, createdAt: new Date() })
+      .values({ id: s.id, tenantId: this.tenantKey, kind: s.kind, slug: s.slug, names: s.names, icon: s.icon, position: s.position, createdAt: new Date() })
       .onDuplicateKeyUpdate({ set: { names: s.names, icon: s.icon, position: s.position } });
   }
 
@@ -76,7 +79,7 @@ export class MysqlQaStore implements QaStore {
   }
 
   async listTags(filter: { ids?: readonly string[]; slugs?: readonly string[]; prefix?: string; limit?: number } = {}): Promise<TagRecord[]> {
-    const where: SQL[] = [];
+    const where: SQL[] = [eq(communityTags.tenantId, this.tenantKey)];
     if (filter.ids) {
       if (!filter.ids.length) return [];
       where.push(inArray(communityTags.id, [...filter.ids]));
@@ -94,21 +97,21 @@ export class MysqlQaStore implements QaStore {
   }
 
   async ensureTag(slug: string, name: string, now: Date): Promise<TagRecord> {
-    await this.db.insert(communityTags).ignore().values({ id: randomUUID(), slug, name, useCount: 0, createdAt: now });
-    const [tag] = await this.db.select({ id: communityTags.id, slug: communityTags.slug, name: communityTags.name }).from(communityTags).where(eq(communityTags.slug, slug)).limit(1);
+    await this.db.insert(communityTags).ignore().values({ id: randomUUID(), tenantId: this.tenantKey, slug, name, useCount: 0, createdAt: now });
+    const [tag] = await this.db.select({ id: communityTags.id, slug: communityTags.slug, name: communityTags.name }).from(communityTags).where(and(eq(communityTags.tenantId, this.tenantKey), eq(communityTags.slug, slug))).limit(1);
     return tag!;
   }
 
   async counts() {
     const [sections, tags, tutorials] = await Promise.all([
-      this.db.select({ id: communityQuestions.sectionId, n: count() }).from(communityQuestions).where(eq(communityQuestions.status, "published")).groupBy(communityQuestions.sectionId),
+      this.db.select({ id: communityQuestions.sectionId, n: count() }).from(communityQuestions).where(and(eq(communityQuestions.tenantId, this.tenantKey), eq(communityQuestions.status, "published"))).groupBy(communityQuestions.sectionId),
       this.db
         .select({ id: communityQuestionTags.tagId, n: count() })
         .from(communityQuestionTags)
         .innerJoin(communityQuestions, eq(communityQuestions.id, communityQuestionTags.questionId))
-        .where(eq(communityQuestions.status, "published"))
+        .where(and(eq(communityQuestions.tenantId, this.tenantKey), eq(communityQuestions.status, "published")))
         .groupBy(communityQuestionTags.tagId),
-      this.db.select({ id: communityTutorials.sectionId, n: count() }).from(communityTutorials).where(eq(communityTutorials.status, "published")).groupBy(communityTutorials.sectionId),
+      this.db.select({ id: communityTutorials.sectionId, n: count() }).from(communityTutorials).where(and(eq(communityTutorials.tenantId, this.tenantKey), eq(communityTutorials.status, "published"))).groupBy(communityTutorials.sectionId),
     ]);
     const map = (rows: { id: string; n: number }[]) => Object.fromEntries(rows.map((r) => [r.id, Number(r.n)]));
     return { questionSections: map(sections), tags: map(tags), tutorialSections: map(tutorials) };
@@ -153,6 +156,7 @@ export class MysqlQaStore implements QaStore {
       try {
         await this.db.insert(communityQuestions).values({
           id: q.id,
+          tenantId: this.tenantKey,
           authorId: q.authorId,
           sectionId: q.sectionId,
           slug,
@@ -179,12 +183,12 @@ export class MysqlQaStore implements QaStore {
   }
 
   async getQuestion(id: string): Promise<QuestionRecord | null> {
-    const [row] = await this.withTags(await this.db.select().from(communityQuestions).where(eq(communityQuestions.id, id)).limit(1));
+    const [row] = await this.withTags(await this.db.select().from(communityQuestions).where(and(eq(communityQuestions.tenantId, this.tenantKey), eq(communityQuestions.id, id))).limit(1));
     return row ?? null;
   }
 
   async getQuestionBySlug(slug: string): Promise<QuestionRecord | null> {
-    const [row] = await this.withTags(await this.db.select().from(communityQuestions).where(eq(communityQuestions.slug, slug)).limit(1));
+    const [row] = await this.withTags(await this.db.select().from(communityQuestions).where(and(eq(communityQuestions.tenantId, this.tenantKey), eq(communityQuestions.slug, slug))).limit(1));
     return row ?? null;
   }
 
@@ -204,7 +208,7 @@ export class MysqlQaStore implements QaStore {
 
   private questionWhere(f: QuestionFilter): SQL | undefined {
     const q = communityQuestions;
-    const where: (SQL | undefined)[] = [];
+    const where: (SQL | undefined)[] = [eq(q.tenantId, this.tenantKey)];
     if (f.statuses) where.push(f.orAuthorId != null ? or(inArray(q.status, [...f.statuses]), eq(q.authorId, f.orAuthorId)) : inArray(q.status, [...f.statuses]));
     if (f.sectionIds) where.push(f.sectionIds.length ? inArray(q.sectionId, [...f.sectionIds]) : sql`false`);
     if (f.tagId) where.push(exists(this.db.select({ one: sql`1` }).from(communityQuestionTags).where(and(eq(communityQuestionTags.questionId, q.id), eq(communityQuestionTags.tagId, f.tagId)))));
@@ -424,7 +428,7 @@ export class MysqlQaStore implements QaStore {
     for (let n = 1; ; n++) {
       const slug = n === 1 ? t.slug : `${t.slug.slice(0, 110)}-${n}`;
       try {
-        await this.db.insert(communityTutorials).values({ ...t, slug, durationMinutes: Math.max(1, Math.ceil(t.durationSeconds / 60)) });
+        await this.db.insert(communityTutorials).values({ ...t, tenantId: this.tenantKey, slug, durationMinutes: Math.max(1, Math.ceil(t.durationSeconds / 60)) });
         return { ...t, slug };
       } catch (e) {
         if (!isDuplicate(e) || n > 50) throw e;
@@ -433,12 +437,12 @@ export class MysqlQaStore implements QaStore {
   }
 
   async getTutorial(id: string): Promise<TutorialRecord | null> {
-    const [row] = await this.db.select().from(communityTutorials).where(eq(communityTutorials.id, id)).limit(1);
+    const [row] = await this.db.select().from(communityTutorials).where(and(eq(communityTutorials.tenantId, this.tenantKey), eq(communityTutorials.id, id))).limit(1);
     return row ? this.tutorial(row) : null;
   }
 
   async getTutorialBySlug(slug: string): Promise<TutorialRecord | null> {
-    const [row] = await this.db.select().from(communityTutorials).where(eq(communityTutorials.slug, slug)).limit(1);
+    const [row] = await this.db.select().from(communityTutorials).where(and(eq(communityTutorials.tenantId, this.tenantKey), eq(communityTutorials.slug, slug))).limit(1);
     return row ? this.tutorial(row) : null;
   }
 
@@ -449,7 +453,7 @@ export class MysqlQaStore implements QaStore {
 
   private tutorialWhere(f: TutorialFilter): SQL | undefined {
     const t = communityTutorials;
-    const where: (SQL | undefined)[] = [];
+    const where: (SQL | undefined)[] = [eq(t.tenantId, this.tenantKey)];
     if (f.statuses) where.push(inArray(t.status, [...f.statuses]));
     if (f.sectionId) where.push(eq(t.sectionId, f.sectionId));
     if (f.level) where.push(eq(t.level, f.level));
