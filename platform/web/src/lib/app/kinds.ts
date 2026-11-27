@@ -990,8 +990,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       source: "posts",
       read: null,
       blocks: [],
-      screens: ["community_feed", "community_questions", "community_groups", "community_messages", "community_profile", "notifications", "settings"],
-      aliases: { messages: "community_messages", account: "community_profile" },
+      screens: ["community_feed", "community_questions", "community_groups", "community_messages", "community_profile", "account", "settings", "notifications"],
+      aliases: { messages: "community_messages" },
       tabs: [
         tab("questions", "Q&A", "forum", "community_questions"),
         tab("groups", "Groups", "groups", "community_groups"),

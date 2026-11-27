@@ -5704,6 +5704,126 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "زرار: يفتح صفحة الدفع في نافذة المتصفح تاني.",
     tr: "Düğme: ödeme sayfasını tarayıcı penceresinde yeniden açar.",
   },
+  "235 The Community app's feed tab.": {
+    en: "The community's feed tab.",
+    ar: "تبويب المنشورات في المجتمع.",
+    tr: "Topluluğun akış sekmesi.",
+  },
+  "235 The Community app's questions tab.": {
+    en: "The community's questions tab.",
+    ar: "تبويب الأسئلة في المجتمع.",
+    tr: "Topluluğun soru sekmesi.",
+  },
+  "235 The Community app's groups tab.": {
+    en: "The community's groups tab.",
+    ar: "تبويب المجموعات في المجتمع.",
+    tr: "Topluluğun gruplar sekmesi.",
+  },
+  "235 The Community app's member messages tab.": {
+    en: "The tab of messages between members.",
+    ar: "تبويب الرسائل بين الأعضاء.",
+    tr: "Üyeler arası mesajlar sekmesi.",
+  },
+  "235 The Community app's own profile tab.": {
+    en: "The member's own profile tab.",
+    ar: "تبويب الملف الشخصي للعضو.",
+    tr: "Üyenin kendi profil sekmesi.",
+  },
+  "235 The feed with nothing in it.": {
+    en: "The feed when nothing has been posted yet.",
+    ar: "المنشورات لما مفيش حاجة اتنشرت لسه.",
+    tr: "Henüz bir şey paylaşılmamışken akış.",
+  },
+  "235 Q&A with no questions.": {
+    en: "The questions tab when nobody has asked yet.",
+    ar: "تبويب الأسئلة لما محدش سأل لسه.",
+    tr: "Henüz soru sorulmamışken soru sekmesi.",
+  },
+  "235 No groups.": {
+    en: "The groups tab when there are no groups.",
+    ar: "تبويب المجموعات لما مفيش مجموعات.",
+    tr: "Hiç grup yokken gruplar sekmesi.",
+  },
+  "235 No conversations.": {
+    en: "Messages when the member has no conversations.",
+    ar: "الرسائل لما العضو معندوش محادثات.",
+    tr: "Üyenin hiç konuşması yokken mesajlar.",
+  },
+  "235 A private group (join by request).": {
+    en: "A private group, which members ask to join.",
+    ar: "مجموعة خاصة، الأعضاء بيطلبوا ينضموا لها.",
+    tr: "Üyelerin katılmak için istek gönderdiği özel grup.",
+  },
+  "235 Join a group.": {
+    en: "The button to join a group.",
+    ar: "زرار الانضمام لمجموعة.",
+    tr: "Bir gruba katılma düğmesi.",
+  },
+  "235 A group the member is in.": {
+    en: "Shown on a group the member is in.",
+    ar: "بيظهر على مجموعة العضو منضم لها.",
+    tr: "Üyenin içinde olduğu grupta görünür.",
+  },
+  "235 Screen reader label of an accepted answer.": {
+    en: "Read aloud for an accepted answer.",
+    ar: "بيتقري بصوت عالي للإجابة المقبولة.",
+    tr: "Kabul edilen yanıt için sesli okunur.",
+  },
+  "235 Screen reader label of an unread conversation.": {
+    en: "Read aloud for a conversation with new messages.",
+    ar: "بيتقري بصوت عالي لمحادثة فيها رسائل جديدة.",
+    tr: "Yeni mesajı olan bir konuşma için sesli okunur.",
+  },
+  "235 The answer box under a question.": {
+    en: "The box for writing an answer under a question.",
+    ar: "خانة كتابة الإجابة تحت السؤال.",
+    tr: "Sorunun altındaki yanıt yazma kutusu.",
+  },
+  "235 The message box in a conversation.": {
+    en: "The box for writing a message in a conversation.",
+    ar: "خانة كتابة الرسالة في المحادثة.",
+    tr: "Konuşmadaki mesaj yazma kutusu.",
+  },
+  "235 Send an answer or a message.": {
+    en: "The button that sends an answer or a message.",
+    ar: "زرار إرسال الإجابة أو الرسالة.",
+    tr: "Yanıtı veya mesajı gönderen düğme.",
+  },
+  "235 Profile and messages, signed out.": {
+    en: "The profile and messages when nobody is signed in.",
+    ar: "الملف الشخصي والرسائل لما محدش مسجّل دخول.",
+    tr: "Kimse giriş yapmamışken profil ve mesajlar.",
+  },
+  "235 Under the sign-in title.": {
+    en: "The line under the sign-in title.",
+    ar: "السطر اللي تحت عنوان تسجيل الدخول.",
+    tr: "Giriş başlığının altındaki satır.",
+  },
+  "235 The profile's link to the account.": {
+    en: "The profile's link to the account and settings.",
+    ar: "لينك الحساب والإعدادات في الملف الشخصي.",
+    tr: "Profildeki hesap ve ayarlar bağlantısı.",
+  },
+  "235 The notifications' empty state in a Community app.": {
+    en: "Notifications in a community app when there are none yet.",
+    ar: "الإشعارات في تطبيق المجتمع لما مفيش إشعارات لسه.",
+    tr: "Topluluk uygulamasında henüz bildirim yokken bildirimler.",
+  },
+  "235 A question's answers.": {
+    en: "How many answers a question has.",
+    ar: "عدد إجابات السؤال.",
+    tr: "Bir sorunun yanıt sayısı.",
+  },
+  "235 A post's comments.": {
+    en: "How many comments a post has.",
+    ar: "عدد تعليقات المنشور.",
+    tr: "Bir gönderinin yorum sayısı.",
+  },
+  "235 A group's members.": {
+    en: "How many members a group has.",
+    ar: "عدد أعضاء المجموعة.",
+    tr: "Bir grubun üye sayısı.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

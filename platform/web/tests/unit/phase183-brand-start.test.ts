@@ -53,6 +53,7 @@ const EXPECTED: Record<string, string> = {
   news: "articles",
   charity: "campaigns",
   travel: "explore",
+  community: "community_feed",
   rides: "ride",
   taxi: "ride",
   school: "school",

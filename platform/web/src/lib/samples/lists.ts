@@ -62,6 +62,8 @@ export const LIST_PAGE: Record<SampleList, string> = {
  */
 export function canHaveSamples(app: Pick<App, "appType" | "backend" | "connector" | "demo">): boolean {
   if (app.demo || app.backend !== "hosted" || !isAppType(app.appType)) return false;
+  // 235 A community's content is its members' (the community engine), never sample entries.
+  if (app.appType === "community") return false;
   return app.connector?.kind === ENGINES[app.appType].ownContent.kind;
 }
 

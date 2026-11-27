@@ -411,7 +411,8 @@ const tabsOf = (id: string) => [
 describe("130.63 the gallery for the owner's review (mobile/test/support/new_premium.json)", () => {
   it("is Monochrome luxe for every kind and the six landings, as the app draws them", () => {
     const base = appUrl();
-    const mono = KINDS.map((kind) => {
+    // 235 The Community kind's designs are its own three (lib/pages/designs/community.ts), not in this gallery.
+    const mono = KINDS.filter((k) => k.engine !== "community").map((kind) => {
       const file = makeDesign(monoOf(kind), context(projectApp(kind)), words, LANGS);
       return { kind: kind.id, engine: kind.engine, vertical: kind.vertical, tabs: tabsOf(kind.id), font: file.look?.font, secondary: file.look?.secondary_color, accent: PREMIUM_PALETTES.mono.brand, tab_bar: file.look?.tab_bar, system: file.look?.screens?.system, home: file.pages[0]!.studio };
     });

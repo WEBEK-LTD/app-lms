@@ -124,7 +124,8 @@ describe("110.2 seeding sample entries", () => {
   it("fills every list of every kind of app whose content is kept in Yallapp, each entry marked", { timeout: 60_000 }, async () => {
     const { store, client, deps } = await world();
     const seen = new Set<SampleList>();
-    for (const kind of KINDS) {
+    // 235 A community's sample posts are the community engine's, not these lists.
+    for (const kind of KINDS.filter((k) => k.engine !== "community")) {
       const app = await hostedApp(store, client.id, kind);
       const lists = await seedSamples(deps, app.id);
       expect(lists, kind.id).toEqual(GENERIC(sampleListsOf(app)));
