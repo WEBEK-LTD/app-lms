@@ -25,7 +25,7 @@ function safeEmbed(url: string | null): string | null {
   if (!url) return null;
   try {
     new URL(url);
-    const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
+    const yt = url.match(/^https:\/\/(?:www\.|m\.)?(?:(?:youtube(?:-nocookie)?\.com\/(?:watch\?v=|live\/|embed\/))|youtu\.be\/)([\w-]{6,})/);
     if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}`;
     const vm = url.match(/vimeo\.com\/(?:event\/)?(\d+)/);
     if (vm) return url.includes("/event/") ? `https://vimeo.com/event/${vm[1]}/embed` : `https://player.vimeo.com/video/${vm[1]}`;

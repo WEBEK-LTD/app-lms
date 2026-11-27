@@ -633,9 +633,9 @@ a.cm-appcard:hover { border-color: var(--cm-faint); }
 
 /* Stories: the ring row and the viewer. */
 .cm-stories { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 14px; margin-top: 16px; scrollbar-width: none; }
-.cm-stories .ring { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 72px; flex: none; position: relative; }
-.cm-stories .ring > summary { list-style: none; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
-.cm-stories .ring > summary::-webkit-details-marker { display: none; }
+.cm-stories .cm-sring { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 72px; flex: none; position: relative; }
+.cm-stories .cm-sring > summary { list-style: none; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+.cm-stories .cm-sring > summary::-webkit-details-marker { display: none; }
 .cm-stories .r { position: relative; padding: 3px; border-radius: 50%; border: 2px solid var(--cm-orange); display: flex; }
 .cm-stories .seen .r, .cm-stories .plus { border-color: var(--cm-line); }
 .cm-stories .plus .ms { position: absolute; bottom: -2px; inset-inline-end: -2px; width: 22px; height: 22px; border-radius: 50%; background: var(--cm-orange); color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--cm-paper); }
@@ -799,6 +799,7 @@ a.cm-sc:hover, a.cm-grp:hover, a.cm-course:hover, a.cm-chal:hover, a.cm-evcard:h
 .cm-filter input[type="search"], .cm-filter select { height: 40px; font: inherit; font-size: 14px; color: var(--cm-ink); background: var(--cm-card); border: 1px solid var(--cm-line); border-radius: 10px; padding: 0 12px; }
 .cm-filter input[type="search"] { flex: 1; min-width: 180px; }
 .cm-filter .cm-check { margin: 0; }
+.cm-tabs.cm-filter { flex-wrap: wrap; overflow: visible; }
 .cm-filter .cm-btn { height: 40px; }
 .cm-job { color: inherit; border: 1px solid var(--cm-line); }
 .cm-job h3 { font-size: 17px; margin: 10px 0 8px; }
@@ -819,7 +820,7 @@ a.cm-sc:hover, a.cm-grp:hover, a.cm-course:hover, a.cm-chal:hover, a.cm-evcard:h
 .cm-stat-i { font-size: 13.5px; color: var(--cm-muted); }
 
 @media (max-width: 900px) {
-  .cm-chat { grid-template-columns: 1fr; }
+  .cm-chat { grid-template-columns: minmax(0, 1fr); }
   .cm-chat-list { display: none; }
   .cm-chat-main { min-height: calc(100vh - 200px); }
   .cm-msgs { max-height: none; }

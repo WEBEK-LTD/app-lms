@@ -74,7 +74,8 @@ export function withCursor(href: string, cursor: string | null): string | null {
 export function PageHead({ title, intro, children }: { title: string; intro?: string; children?: ReactNode }) {
   return (
     <div className="cm-card cm-ph">
-      <div style={{ flex: 1, minWidth: 0 }}>
+      {/* Wide enough to read; on a phone the buttons go below. */}
+      <div style={{ flex: "1 1 260px", minWidth: 0 }}>
         <h1>{title}</h1>
         {intro ? <p className="cm-muted">{intro}</p> : null}
       </div>
@@ -220,12 +221,12 @@ export function StoryRow({ rings, viewer, w2, back }: { rings: StoryRing[]; view
     <section className="cm-stories" aria-label={w2.stories}>
       {viewer ? (
         mine ? (
-          <Link href={cmLinks.stories(viewer.handle)} className="ring">
+          <Link href={cmLinks.stories(viewer.handle)} className="cm-sring">
             <span className="r"><Avatar member={viewer} size={58} /></span>
             <span className="l">{w2.yourStory}</span>
           </Link>
         ) : (
-          <details className="ring add">
+          <details className="cm-sring add">
             <summary>
               <span className="r plus"><Avatar member={viewer} size={58} /><span className="ms" aria-hidden="true">add</span></span>
               <span className="l">{w2.addStory}</span>
@@ -241,7 +242,7 @@ export function StoryRow({ rings, viewer, w2, back }: { rings: StoryRing[]; view
         )
       ) : null}
       {others.map((r) => (
-        <Link key={r.member.id} href={cmLinks.stories(r.member.handle ?? r.member.id)} className={`ring${r.all_seen ? " seen" : ""}`}>
+        <Link key={r.member.id} href={cmLinks.stories(r.member.handle ?? r.member.id)} className={`cm-sring${r.all_seen ? " seen" : ""}`}>
           <span className="r"><Avatar member={r.member} size={58} /></span>
           <span className="l">{r.member.name.split(" ")[0]}</span>
         </Link>
