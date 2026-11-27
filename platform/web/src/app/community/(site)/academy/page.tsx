@@ -18,7 +18,7 @@ function CourseCard({ c, w, w2 }: { c: CourseSummary; w: CmWords; w2: CmWords2 }
       <span className="txt">
         <span className="cm-row" style={{ gap: 6 }}>
           <span className="pill p-gy">{w[`level_${c.level}`]}</span>
-          {c.access === "open" ? <span className="pill p-gr">{c.free ? w2.free : w2.open}</span> : <span className="pill p-gy"><span className="ms" aria-hidden="true">lock</span>{c.price_label ?? w2.locked}</span>}
+          {c.access === "open" ? <span className="pill p-gr">{c.free ? w2.free : w2.open}</span> : <span className="pill p-gy"><span className="ms" aria-hidden="true">lock</span>{w2.locked}</span>}
         </span>
         <b>{c.title}</b>
         <span className="cm-muted cm-clamp2">{c.summary}</span>

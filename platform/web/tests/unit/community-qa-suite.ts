@@ -402,7 +402,16 @@ export function communityQaSuite(setup: () => Promise<QaStore>): void {
 
   describe("231 official tutorials", () => {
     it("are the team's: articles with their reading time, videos with their length, by section, level, language and kind, never locked or priced", async () => {
-      await expect(publishTutorial("karim", { title: "My own tutorial title", summary: "Something here", kind: "article", section: "studio", level: "beginner", language: "en", body: "x".repeat(40) })).rejects.toMatchObject({ code: "not_allowed" });
+      // 233 A member writes one too: never "Official", and a new member's waits for review.
+      const mine = { title: "My own tutorial title", summary: "Something here", kind: "article" as const, section: "studio", level: "beginner" as const, language: "en" as const, body: "x".repeat(40) };
+      await expect(publishTutorial("karim", { ...mine, official: true })).rejects.toMatchObject({ code: "not_allowed", field: "official" });
+      pendingFor.add("karim");
+      const held = await publishTutorial("karim", mine);
+      expect(held).toMatchObject({ official: false, status: "pending" });
+      expect(moderated).toContainEqual({ kind: "tutorial", contentId: held.id });
+      await expect(getTutorial(held.id, { viewerId: "nour", lang: "en" })).rejects.toMatchObject({ code: "not_found" });
+      await setContentStatus("tutorial", held.id, "removed");
+      pendingFor.delete("karim");
       await expect(publishTutorial(TEAM, { title: "A video without its address", summary: "A summary here.", kind: "video", section: "studio", level: "beginner", language: "en", body: "", videoUrl: "https://evil.example/v", durationSeconds: 60 })).rejects.toMatchObject({ field: "videoUrl" });
       const article = await publishTutorial(TEAM, { title: "A different product page per template", summary: "Each template its own product page.", kind: "article", section: "studio", level: "beginner", language: "en", body: "word ".repeat(1000), tags: ["Studio", "Product page"] }, later(1));
       const video = await publishTutorial(TEAM, { title: "صفحة منتج مختلفة لكل تمبلت", summary: "في ثماني دقائق.", kind: "video", section: "studio", level: "intermediate", language: "ar", body: "", videoUrl: "https://youtu.be/xyz", durationSeconds: 504 }, later(2));

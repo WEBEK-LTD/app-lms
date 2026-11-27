@@ -6,6 +6,8 @@ import { BASE_ROUTES } from "./base-routes";
 import { CONNECT_ROUTES } from "./connect-routes";
 import { CommunityError, type CommunityContext, type CommunityDeps, type CommunityRequest, type CommunityResult, type CommunityRoute } from "./http";
 import { QA_ROUTES } from "./qa-routes";
+import { ACADEMY_ROUTES } from "./academy-routes";
+import { SOCIAL_ROUTES } from "./social-routes";
 import { TRUST_ROUTES } from "./trust-routes";
 
 /**
@@ -14,7 +16,7 @@ import { TRUST_ROUTES } from "./trust-routes";
  * the language, runs the handler, and turns errors into
  * `{ error: { code, message, fields? } }` in the reader's language.
  */
-export const COMMUNITY_ROUTES: readonly CommunityRoute[] = [...BASE_ROUTES, ...QA_ROUTES, ...TRUST_ROUTES, ...CONNECT_ROUTES];
+export const COMMUNITY_ROUTES: readonly CommunityRoute[] = [...BASE_ROUTES, ...QA_ROUTES, ...SOCIAL_ROUTES, ...ACADEMY_ROUTES, ...TRUST_ROUTES, ...CONNECT_ROUTES];
 
 interface Compiled {
   route: CommunityRoute;

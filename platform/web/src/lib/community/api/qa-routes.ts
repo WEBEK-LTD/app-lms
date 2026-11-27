@@ -59,7 +59,7 @@ const limited =
   };
 
 /** Runs a handler with this call's Q&A store and hooks; a vote refused is 400 (docs: NotAllowed), other refusals 403. */
-function run(handler: Handler, options: { refusedStatus?: number } = {}): Handler {
+export function run(handler: Handler, options: { refusedStatus?: number } = {}): Handler {
   return async (ctx) => {
     try {
       return await withQa(ctx.store.qa, qaHooksFor(ctx), () => handler(ctx));
@@ -245,28 +245,48 @@ const listTutorials: Handler = async (ctx) =>
 
 const getTutorial: Handler = async (ctx) => ok(wire(await qa.getTutorial(ctx.params.tutorial!, { viewerId: viewer(ctx), lang: lang(ctx), countView: await countsView(ctx, `t:${ctx.params.tutorial!}`) })));
 
-/** Yallapp's team publishes an official tutorial. */
-const publishTutorial: Handler = async (ctx) => {
+/**
+ * POST /tutorials: the team's official tutorial (others 403). 233 POST
+ * /tutorials/drafts: any member's, never official, and a new member's
+ * first ones wait for review.
+ */
+const publishTutorial =
+  (draft: boolean): Handler =>
+  async (ctx) => {
   const body = ctx.json();
+  const me = requireMember(ctx).member;
+  if (!draft && !isYallappTeam(ctx, ctx.deps.platform, me)) throw new QaError("not_allowed", "Only Yallapp's team publishes official tutorials.");
   const duration = typeof body.duration_seconds === "number" ? body.duration_seconds : undefined;
+  const text = (str(body, "body") ?? "").replace(/[#*_`>\[\]()]/g, " ").replace(/\s+/g, " ").trim();
   const tutorial = await qa.publishTutorial(
-    requireMember(ctx).member.id,
+    me.id,
     {
       title: str(body, "title") as string,
-      summary: str(body, "summary") ?? "",
+      summary: str(body, "summary") ?? (draft ? (text.slice(0, 200) || (str(body, "title") ?? "")).padEnd(10, ".") : ""),
       kind: str(body, "kind") as TutorialKind,
       section: str(body, "section") ?? "",
-      level: str(body, "level") as TutorialLevel,
+      level: (str(body, "level") ?? (draft ? "beginner" : undefined)) as TutorialLevel,
       language: (str(body, "language") ?? lang(ctx)) as CommunityLang,
       body: str(body, "body") ?? "",
       videoUrl: str(body, "video_url") ?? null,
       durationSeconds: duration,
       coverUrl: str(body, "cover_url") ?? null,
+      official: draft ? false : typeof body.official === "boolean" ? body.official : undefined,
       tags: tagsIn(body.tags),
     },
     ctx.now,
   );
   return ok(wire(tutorial), 201);
+};
+
+const myTutorials: Handler = async (ctx) => ok(page(await qa.myTutorials(requireMember(ctx).member.id, { lang: lang(ctx), cursor: ctx.query.get("cursor"), limit: limitOf(ctx) })));
+const editTutorial: Handler = async (ctx) => {
+  const body = ctx.json();
+  return ok(wire(await qa.editTutorial(requireMember(ctx).member.id, ctx.params.tutorial_id!, { title: str(body, "title"), summary: str(body, "summary"), body: str(body, "body"), videoUrl: str(body, "video_url"), section: str(body, "section"), tags: body.tags === undefined ? undefined : tagsIn(body.tags) }, ctx.now)));
+};
+const deleteTutorial: Handler = async (ctx) => {
+  await qa.deleteTutorial(requireMember(ctx).member.id, ctx.params.tutorial_id!, ctx.now);
+  return noContent();
 };
 
 const search: Handler = async (ctx) =>
@@ -317,7 +337,11 @@ export const QA_ROUTES: CommunityRoute[] = [
   // Tutorials
   publicRoute("GET", "/tutorials/sections", tutorialSections),
   publicRoute("GET", "/tutorials", listTutorials),
-  memberRoute("POST", "/tutorials", limited("publish", publishTutorial)),
+  memberRoute("POST", "/tutorials", limited("publish", publishTutorial(false))),
+  memberRoute("GET", "/tutorials/mine", myTutorials),
+  memberRoute("POST", "/tutorials/drafts", limited("publish", publishTutorial(true))),
+  memberRoute("PATCH", "/tutorials/drafts/:tutorial_id", limited("publish", editTutorial)),
+  memberRoute("DELETE", "/tutorials/drafts/:tutorial_id", deleteTutorial),
   publicRoute("GET", "/tutorials/:tutorial", getTutorial),
   memberRoute("PUT", "/tutorials/:tutorial/bookmark", limited("save", bookmarkOn("tutorial", "tutorial", true))),
   memberRoute("DELETE", "/tutorials/:tutorial/bookmark", limited("save", bookmarkOn("tutorial", "tutorial", false))),

@@ -856,6 +856,7 @@ async function tutorialSummaries(records: TutorialRecord[], viewerId: string | n
     viewCount: t.viewCount,
     bookmarked: savedSet.has(t.id),
     publishedAt: (t.publishedAt ?? t.createdAt).toISOString(),
+    status: t.status,
   }));
 }
 
@@ -872,7 +873,9 @@ export async function listTutorials(input: { viewerId: string | null; lang: Comm
 /** One tutorial by id or address; one more view when `countView`. */
 export async function getTutorial(idOrSlug: string, input: { viewerId: string | null; lang: CommunityLang; countView?: boolean }): Promise<Tutorial> {
   const t = await findTutorial(idOrSlug);
-  if (!t || t.status !== "published") throw new QaError("not_found", "There's no such tutorial.");
+  // The author sees their own while it waits for review.
+  const own = !!t && !!input.viewerId && t.authorId === input.viewerId && t.status !== "removed";
+  if (!t || (t.status !== "published" && !own)) throw new QaError("not_found", "There's no such tutorial.");
   if (input.countView) {
     await qaStore().addTutorialView(t.id);
     t.viewCount += 1;
@@ -885,17 +888,20 @@ export async function getTutorial(idOrSlug: string, input: { viewerId: string | 
 const VIDEO_HOSTS = /^https:\/\/(www\.)?(youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com|yallapp\.com\.tr|[\w-]+\.yallapp\.com\.tr)\//i;
 
 /**
- * Yallapp's team publishes an official tutorial (phase 1's are all the
- * team's): an article (Markdown; its reading time from its length) or a
+ * A member writes a tutorial (233): the team's are "Official" and show at
+ * once; a member's go through moderation (area C), so the first ones are
+ * reviewed. An article (Markdown; its reading time from its length) or a
  * video (its address on YouTube, Vimeo or Yallapp, and its length).
  */
 export async function publishTutorial(
   authorId: string | null,
-  input: { title: string; summary: string; kind: TutorialKind; section: string; level: TutorialLevel; language: CommunityLang; body: string; videoUrl?: string | null; durationSeconds?: number; coverUrl?: string | null; tags?: readonly string[] },
+  input: { title: string; summary: string; kind: TutorialKind; section: string; level: TutorialLevel; language: CommunityLang; body: string; videoUrl?: string | null; durationSeconds?: number; coverUrl?: string | null; tags?: readonly string[]; official?: boolean },
   now = new Date(),
 ): Promise<Tutorial> {
   const author = signedIn(authorId);
-  if (!(await isTeam(author))) throw new QaError("not_allowed", "Only Yallapp's team publishes tutorials.");
+  // 233 Members write tutorials too; "Official" stays the team's.
+  const team = await isTeam(author);
+  if (input.official === true && !team) throw new QaError("not_allowed", "Only Yallapp's team publishes official tutorials.", "official");
   const title = check(typeof input.title === "string" ? input.title.replace(/\s+/g, " ") : input.title, LIMITS.titleMin, LIMITS.titleMax, "title", "The title");
   const summary = check(input.summary, 10, 400, "summary", "The summary");
   if (input.kind !== "article" && input.kind !== "video") throw new QaError("invalid_request", "A tutorial is an article or a video.", "kind");
@@ -919,7 +925,7 @@ export async function publishTutorial(
     durationSeconds = Math.max(60, Math.round((body.split(/\s+/).length / 200) * 60));
   }
   const tags = (await tagsFor(input.tags, now)).map((t) => t.slug);
-  const t = await qaStore().createTutorial({
+  const created = await qaStore().createTutorial({
     id: randomUUID(),
     slug: slugify(title, "tutorial"),
     title,
@@ -934,13 +940,67 @@ export async function publishTutorial(
     coverUrl: input.coverUrl ?? null,
     tags,
     authorId: author,
-    official: true,
-    status: "published",
+    official: team && input.official !== false,
+    status: "pending",
     viewCount: 0,
     createdAt: now,
     updatedAt: now,
-    publishedAt: now,
+    publishedAt: null,
   });
-  await award({ id: randomUUID(), memberId: author, reason: "tutorial_published", points: POINTS.tutorial_published, ref: t.id, createdAt: now });
-  return getTutorial(t.id, { viewerId: author, lang: input.language });
+  // A member's first ones are reviewed (area C's moderation); the team's show at once. Points come once it's published.
+  const status = await moderated(author, "tutorial", created.id, `${title}\n${summary}\n${body}`, team);
+  if (status === "published") await setContentStatus("tutorial", created.id, "published", now);
+  return getTutorial(created.id, { viewerId: author, lang: input.language });
+}
+
+// ——— 233 A member's own tutorials ———
+
+/** The member's own tutorials, any status but removed, newest first. */
+export async function myTutorials(authorId: string | null, input: { lang: CommunityLang; cursor?: string | null; limit?: number }): Promise<Page<TutorialSummary>> {
+  const me = signedIn(authorId);
+  const limit = pageOf(input.limit);
+  const offset = offsetOf(input.cursor);
+  const records = await qaStore().listTutorials({ statuses: ["pending", "published"], authorId: me }, { offset, limit: limit + 1 });
+  return { items: await tutorialSummaries(records.slice(0, limit), me, input.lang), nextCursor: records.length > limit ? cursorOf(offset + limit) : null };
+}
+
+async function ownTutorial(authorId: string | null, id: string) {
+  const me = signedIn(authorId);
+  const t = await qaStore().getTutorial(id);
+  if (!t || t.status === "removed") throw new QaError("not_found", "There's no such tutorial.");
+  if (t.authorId !== me && !(await isTeam(me))) throw new QaError("not_allowed", "It isn't yours.");
+  return { me, t };
+}
+
+/** Changes one's tutorial; a member's goes back through moderation when its words change. */
+export async function editTutorial(authorId: string | null, id: string, input: { title?: string; summary?: string; body?: string; videoUrl?: string | null; section?: string; tags?: readonly string[] }, now = new Date()): Promise<Tutorial> {
+  const { me, t } = await ownTutorial(authorId, id);
+  const patch: Partial<TutorialRecord> = { updatedAt: now };
+  if (input.title !== undefined) patch.title = check(input.title.replace(/\s+/g, " "), LIMITS.titleMin, LIMITS.titleMax, "title", "The title");
+  if (input.summary !== undefined) patch.summary = check(input.summary, 10, 400, "summary", "The summary");
+  if (input.body !== undefined) patch.body = t.kind === "article" ? check(input.body, LIMITS.bodyMin, LIMITS.bodyMax * 5, "body", "The article") : input.body.trim().slice(0, LIMITS.bodyMax);
+  if (input.videoUrl !== undefined && t.kind === "video") {
+    if (!input.videoUrl || !VIDEO_HOSTS.test(input.videoUrl)) throw new QaError("invalid_request", "Give the video's address on YouTube, Vimeo or Yallapp.", "videoUrl");
+    patch.videoUrl = input.videoUrl;
+  }
+  if (input.section !== undefined) {
+    const section = (await sectionsOf("tutorial")).bySlug.get(input.section);
+    if (!section) throw new QaError("invalid_request", "Choose a section.", "section");
+    patch.sectionId = section.id;
+  }
+  if (input.tags !== undefined) patch.tags = (await tagsFor(input.tags, now)).map((x) => x.slug);
+  if (patch.body !== undefined && t.kind === "article") patch.durationSeconds = Math.max(60, Math.round((patch.body.split(/\s+/).length / 200) * 60));
+  await qaStore().updateTutorial(t.id, patch);
+  const changed = ["title", "summary", "body"].some((k) => k in patch && patch[k as "title"] !== t[k as "title"]);
+  if (changed) {
+    const status = await moderated(t.authorId, "tutorial", t.id, `${patch.title ?? t.title}\n${patch.summary ?? t.summary}\n${patch.body ?? t.body}`, await isTeam(t.authorId));
+    await setContentStatus("tutorial", t.id, status, now);
+  }
+  return getTutorial(t.id, { viewerId: me, lang: t.language });
+}
+
+/** Deletes one's tutorial (its points go with it). */
+export async function deleteTutorial(authorId: string | null, id: string, now = new Date()): Promise<void> {
+  const { t } = await ownTutorial(authorId, id);
+  await setContentStatus("tutorial", t.id, "removed", now);
 }

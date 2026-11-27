@@ -59,7 +59,7 @@ export type Job = {
   status: "pending" | "open" | "closed" | "removed"; application_count: number; applied: boolean; created_at: string;
 };
 export type JobApplication = { id: string; job_id: string; job_title: string; applicant: MemberRef; message: string; links: string[]; status: "sent" | "shortlisted" | "declined" | "withdrawn"; created_at: string };
-export type CourseSummary = { id: string; slug: string; title: string; summary: string; cover_url: string | null; level: "beginner" | "intermediate" | "advanced"; lesson_count: number; access: "open" | "locked"; progress: number | null; price_label?: string | null; free?: boolean; owned?: boolean };
+export type CourseSummary = { id: string; slug: string; title: string; summary: string; cover_url: string | null; level: "beginner" | "intermediate" | "advanced"; lesson_count: number; access: "open" | "locked"; progress: number | null; free?: boolean; owned?: boolean };
 export type Course = CourseSummary & {
   description: string;
   lessons: { id: string; title: string; kind: "video" | "article"; minutes: number; done: boolean }[];

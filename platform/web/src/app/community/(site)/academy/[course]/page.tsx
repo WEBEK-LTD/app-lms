@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { siteContext } from "@/components/community/site/context";
 import { cmLinks } from "@/components/community/site/links";
 import { course } from "@/components/community/site/next";
+import { coursePriceForCheckout } from "@/lib/community/academy/service";
+import { getCommunityStore } from "@/lib/community/store/server";
+import { YALLAPP_TENANT } from "@/lib/community/types";
 import { Poll } from "@/components/community/site/next-client";
 import { ApiForm, PageNote } from "@/components/community/site/next-ui";
 import { SitePage } from "@/components/community/site/page";
@@ -28,6 +31,9 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const c = await course(slug);
   if (!c) notFound();
   const open = c.access === "open";
+  // The price, on the website only (never in the API the app reads): read here, as the checkout does.
+  const price = open ? null : await coursePriceForCheckout((await getCommunityStore(YALLAPP_TENANT)).qa.academy, YALLAPP_TENANT, c.id).catch(() => null);
+  const priceLabel = price ? new Intl.NumberFormat(lang === "ar" ? "ar-EG-u-nu-latn" : lang, { style: "currency", currency: price.currency }).format(price.priceMinor / 100) : null;
   const pending = sp.checkout === "done" && !open;
   const back = cmLinks.course(c.slug);
   const first = c.lessons.find((l) => !l.done) ?? c.lessons[0];
@@ -55,7 +61,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
           <Link href={cmLinks.signIn(back)} className="cm-btn o">{wa.signInToBuy}</Link>
         ) : (
           <ApiForm call={{ m: "POST", p: `/academy/courses/${encodeURIComponent(c.id)}/checkout`, back }}>
-            <button type="submit" className="cm-btn o"><span className="ms" aria-hidden="true">lock_open</span>{c.price_label ? fill(wa.buyCourse, { price: c.price_label }) : w2.startCourse}</button>
+            <button type="submit" className="cm-btn o"><span className="ms" aria-hidden="true">lock_open</span>{priceLabel ? fill(wa.buyCourse, { price: priceLabel }) : w2.startCourse}</button>
           </ApiForm>
         )}
         {c.certificate ? (
