@@ -61,7 +61,7 @@ export default async function ConversationPage({ params, searchParams }: { param
                 <li key={m.id} className={mine ? "me" : ""}>
                   {!mine && c.kind !== "direct" ? <span className="who">{m.author.name}</span> : null}
                   <div className="bubble">
-                    {m.reply_to ? <blockquote>{m.reply_to.author.name}: {m.reply_to.body}</blockquote> : null}
+                    {m.reply_to ? <blockquote>{m.reply_to.author_name}: {m.reply_to.excerpt}</blockquote> : null}
                     {m.deleted ? <em className="cm-muted">{w2.deletedMessage}</em> : m.body ? <p>{m.body}</p> : null}
                     {!m.deleted && m.photos.length ? <div className="pics">{m.photos.map((src) => <a key={src} href={src} target="_blank" rel="noopener"><img src={src} alt="" loading="lazy" /></a>)}</div> : null}
                   </div>
