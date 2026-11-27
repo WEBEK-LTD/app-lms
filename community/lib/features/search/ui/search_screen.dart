@@ -238,9 +238,7 @@ class _TutorialRow extends StatelessWidget {
               height: 46,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
-                gradient: const LinearGradient(
-                  colors: [Brand.lilac, Color(0xFF3B2BD0)],
-                ),
+                color: Brand.lilac,
               ),
               child: Sym(
                 t.kind == TutorialKind.video

@@ -176,19 +176,8 @@ class _GoldHero extends StatelessWidget {
           width: 64,
           height: 64,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFFFFE08A), Color(0xFFE0A21A)],
-            ),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x66F2B544),
-                blurRadius: 24,
-                offset: Offset(0, 10),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(12),
+            color: Color(0xFFFFE08A),
           ),
           child: const Center(
             child: Sym(
@@ -237,7 +226,7 @@ class _Note extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color.withValues(alpha: p.dark ? .14 : .1),
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: .35)),
       ),
       child: Row(
@@ -408,13 +397,6 @@ class _Primary extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: Brand.signUp,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x73FF5A1F),
-            blurRadius: 26,
-            offset: Offset(0, 12),
-          ),
-        ],
       ),
       child: TextButton(
         onPressed: busy ? null : onTap,
@@ -636,7 +618,7 @@ class _AppIcon extends StatelessWidget {
       height: 36,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11),
-        gradient: const LinearGradient(colors: [Brand.lilac, Brand.violet]),
+        color: Brand.lilac,
       ),
       alignment: Alignment.center,
       child: Text(

@@ -174,7 +174,7 @@ class _Cover extends ConsumerWidget {
             decoration: BoxDecoration(
               color: Brand.indigo,
               borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(34),
+                bottom: Radius.circular(12),
               ),
               image: t.coverUrl == null
                   ? null
@@ -186,17 +186,8 @@ class _Cover extends ConsumerWidget {
           ),
           const DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(34)),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0x8C0E0D24),
-                  Color(0x000E0D24),
-                  Color(0x990E0D24),
-                ],
-                stops: [0, .45, 1],
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
+              color: Color(0x8C0E0D24),
             ),
           ),
           Positioned(
