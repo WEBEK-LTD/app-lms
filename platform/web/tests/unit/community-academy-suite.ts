@@ -80,12 +80,12 @@ export function communityAcademySuite(setup: () => Promise<AcademyStore>) {
 
     // The website (areas C and F): the price, then the checkout's grant.
     expect(await academy.coursePriceForCheckout(env.store, "yallapp", c.id)).toBeNull();
-    expect(await academy.setCoursePrice(env.store, "yallapp", c.id, { priceMinor: 49900, currency: "TRY" })).toBe(true);
-    await expect(academy.setCoursePrice(env.store, "yallapp", c.id, { priceMinor: 1.5, currency: "try" })).rejects.toMatchObject({ field: "price" });
-    expect(await academy.coursePriceForCheckout(env.store, "yallapp", c.id)).toMatchObject({ courseId: c.id, priceMinor: 49900, currency: "TRY" });
+    expect(await academy.setCoursePrice(env.store, "yallapp", c.id, { priceMinor: 49900, currency: "USD" })).toBe(true);
+    await expect(academy.setCoursePrice(env.store, "yallapp", c.id, { priceMinor: 1.5, currency: "EUR" })).rejects.toMatchObject({ field: "price" });
+    expect(await academy.coursePriceForCheckout(env.store, "yallapp", c.id)).toMatchObject({ courseId: c.id, priceMinor: 49900, currency: "USD" });
     expect(await academy.coursePriceForCheckout(env.store, "other-app", c.id)).toBeNull();
     // Still never in what the app sees.
-    expect(JSON.stringify(await academy.getCourse(env, "nour", c.id))).not.toMatch(/49900|TRY|price/);
+    expect(JSON.stringify(await academy.getCourse(env, "nour", c.id))).not.toMatch(/49900|USD|price/);
     expect(await academy.grantCourseAccess(env.store, { tenant: "yallapp", memberId: "nour", courseId: c.id, source: "bought", ref: "cs_test_1" })).toBe(true);
     expect(await academy.grantCourseAccess(env.store, { tenant: "yallapp", memberId: "nour", courseId: c.id, source: "bought", ref: "cs_test_1" })).toBe(false);
     expect((await academy.getCourse(env, "nour", c.id)).access).toBe("owned");

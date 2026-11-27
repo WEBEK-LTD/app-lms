@@ -14,7 +14,7 @@ const QA_KINDS: Record<string, QaContentKind> = { question: "question", answer: 
  * posts, their comments, stories and showcase items.
  */
 export async function contentTarget(ctx: CommunityContext, type: Exclude<CommunityTargetType, "member">, id: string): Promise<{ authorId: string } | null> {
-  // 233–234 Area C's kinds (events, their comments, challenge entries), from its table.
+  // 232–235 The kinds phases 2 to 5 add, from their areas' table.
   const adapter = CONTENT_KINDS[type];
   if (adapter) {
     const got = await adapter.info(ctx, id);

@@ -1,5 +1,4 @@
 import { hitRateLimit, type RateLimitRule } from "../../rate-limit";
-import { awardPoints } from "../engage/points";
 import { safeFetch } from "../../net/safe-fetch";
 import * as qa from "../qa/service";
 import * as social from "../social/service";
@@ -82,11 +81,6 @@ export function socialEnvFor(ctx: CommunityContext): SocialEnv {
     },
     questions: ({ tab, viewerId, limit }) =>
       withQaFor(ctx, async () => (await qa.listQuestions({ viewerId, lang: ctx.lang, filter: tab === "following" ? "following" : tab === "for_you" ? "for_you" : "all", sort: "newest", limit })).items),
-    // 233 Points through area C's ledger (the admins' table and daily caps). A like pays once per liker when the event names them.
-    onEvent: async (e) => {
-      const actorId = (e as { actorId?: string }).actorId;
-      await awardPoints(ctx, { memberId: e.memberId, reason: e.kind, ref: actorId ? `${e.refId}:${actorId}` : e.refId });
-    },
   };
 }
 
