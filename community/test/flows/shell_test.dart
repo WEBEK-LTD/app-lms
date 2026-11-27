@@ -43,19 +43,20 @@ void main() {
     expect(app.path, Paths.groups);
   });
 
-  testWidgets('the + sheet: Ask a question, the rest coming soon', (
+  testWidgets('the + sheet: post, story, ask, showcase, challenge', (
     tester,
   ) async {
-    await TestApp.start(tester);
+    final app = await TestApp.start(tester);
     await tap(tester, 'tab-create');
     expect(key('create-sheet'), findsOneWidget);
+    for (final k in ['create-post', 'create-story', 'create-ask']) {
+      expect(key(k), findsOneWidget, reason: k);
+    }
     await tap(tester, 'create-showcase');
-    expect(key('coming-soon'), findsOneWidget);
+    expect(app.path, FeatureLinks.showcase);
   });
 
-  testWidgets('the side menu: sections, coming soon, settings, log out', (
-    tester,
-  ) async {
+  testWidgets('the side menu: sections, settings, log out', (tester) async {
     final api = FakeCommunityApi();
     final opened = <Uri>[];
     final app = await TestApp.start(
@@ -84,12 +85,12 @@ void main() {
     ]) {
       expect(key('menu-$s'), findsOneWidget, reason: s);
     }
-    // A later phase's section: "Coming soon", no dead tap.
+    // Phases 2-4's sections are live.
     await tap(tester, 'menu-academy');
-    expect(key('coming-soon'), findsOneWidget);
-    await tester.tapAt(const Offset(20, 20));
-    await TestApp.settle(tester);
+    expect(app.path, FeatureLinks.academy);
 
+    app.go(Paths.home);
+    await TestApp.settle(tester);
     await tap(tester, 'header-menu');
     await tap(tester, 'menu-settings');
     expect(find.byKey(const ValueKey('settings-logout')), findsOneWidget);

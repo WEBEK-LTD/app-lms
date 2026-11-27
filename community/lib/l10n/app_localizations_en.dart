@@ -1725,4 +1725,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String challengeEnds(String date) {
     return 'Ends $date';
   }
+
+  @override
+  String get profilePosts => 'Posts';
 }

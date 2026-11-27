@@ -507,5 +507,6 @@
   "eventGoingCount": "{count} katılıyor",
   "boardYou": "Siz: #{rank} · {points} puan",
   "jobBudget": "Bütçe: {budget}",
-  "challengeEnds": "Bitiş: {date}"
+  "challengeEnds": "Bitiş: {date}",
+  "profilePosts": "Gönderiler"
 }

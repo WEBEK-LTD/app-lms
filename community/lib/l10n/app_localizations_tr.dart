@@ -1695,4 +1695,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String challengeEnds(String date) {
     return 'Bitiş: $date';
   }
+
+  @override
+  String get profilePosts => 'Gönderiler';
 }

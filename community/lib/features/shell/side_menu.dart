@@ -123,21 +123,33 @@ class SideMenu extends ConsumerWidget {
         MenuSection.academy,
         Symbols.school_rounded,
         l.menuAcademy,
-        open(MenuSection.academy, l.menuAcademy, null),
+        open(
+          MenuSection.academy,
+          l.menuAcademy,
+          () => go(FeatureLinks.academy),
+        ),
         0,
       ),
       (
         MenuSection.showcase,
         Symbols.apps_rounded,
         l.menuShowcase,
-        open(MenuSection.showcase, l.menuShowcase, null),
+        open(
+          MenuSection.showcase,
+          l.menuShowcase,
+          () => go(FeatureLinks.showcase),
+        ),
         0,
       ),
       (
         MenuSection.challenges,
         Symbols.emoji_events_rounded,
         l.menuChallenges,
-        open(MenuSection.challenges, l.menuChallenges, null),
+        open(
+          MenuSection.challenges,
+          l.menuChallenges,
+          () => go(FeatureLinks.challenges),
+        ),
         0,
       ),
       (
@@ -162,14 +174,14 @@ class SideMenu extends ConsumerWidget {
         MenuSection.pros,
         Symbols.work_rounded,
         l.menuPros,
-        open(MenuSection.pros, l.menuPros, null),
+        open(MenuSection.pros, l.menuPros, () => go(FeatureLinks.pros)),
         0,
       ),
       (
         MenuSection.events,
         Symbols.event_rounded,
         l.menuEvents,
-        open(MenuSection.events, l.menuEvents, null),
+        open(MenuSection.events, l.menuEvents, () => go(FeatureLinks.events)),
         0,
       ),
     ];

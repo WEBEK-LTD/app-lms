@@ -22,6 +22,7 @@ import '../../core/widgets/images.dart';
 import '../../core/widgets/sym.dart';
 import '../messages/links.dart';
 import '../social/data/social.dart';
+import 'profile_hooks.dart';
 import '../social/report_sheet.dart';
 
 /// The badges a member needs apps for: the Gold badge's form opens at 5.
@@ -269,6 +270,7 @@ class _ProfileView extends ConsumerWidget {
                     ],
                   ),
                 ),
+                for (final section in profileSections()) section(m.id),
                 if (profile.joinedAt != null)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),

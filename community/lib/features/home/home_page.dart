@@ -21,6 +21,7 @@ import '../../core/widgets/floating_tab_bar.dart';
 import '../../core/widgets/glass.dart';
 import '../../core/widgets/images.dart';
 import '../../core/widgets/sym.dart';
+import '../challenges/home_card.dart';
 import '../link/link_suggestion.dart';
 import '../shell/side_menu.dart';
 import '../social/data/social.dart';
@@ -90,6 +91,12 @@ class HomePage extends ConsumerWidget {
                 ),
                 if (feed.value?.featured case final featured?)
                   _Featured(item: featured),
+                if (ref.watch(featuredChallengeProvider).value
+                    case final challenge?)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                    child: ChallengeCard(challenge: challenge),
+                  ),
                 const StoryRow(),
                 _FeedTabs(
                   tab: tab,
