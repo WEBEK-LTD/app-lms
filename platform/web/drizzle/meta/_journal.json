@@ -1114,6 +1114,13 @@
       "when": 1795752970968,
       "tag": "0169_community_social",
       "breakpoints": true
+    },
+    {
+      "idx": 160,
+      "version": "5",
+      "when": 1795754146247,
+      "tag": "0170_community_academy",
+      "breakpoints": true
     }
   ]
 }

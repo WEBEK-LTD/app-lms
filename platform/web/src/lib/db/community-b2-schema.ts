@@ -1,5 +1,6 @@
-import { customType, datetime, index, int, mysqlTable, primaryKey, varchar, boolean, text } from "drizzle-orm/mysql-core";
+import { customType, datetime, index, int, mysqlTable, primaryKey, uniqueIndex, varchar, boolean, text } from "drizzle-orm/mysql-core";
 import type { CommentTarget, LinkPreview, MediaKind, ReactionKind, ReactionTarget, SocialStatus } from "../community/social/store";
+import type { AccessSource, CourseLevel, CourseStatus, LessonKind } from "../community/academy/store";
 import { communityMembers } from "./community-schema";
 
 /**
@@ -142,4 +143,110 @@ export const communityShowcase = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [index("community_showcase_gallery").on(t.tenant, t.status, t.createdAt), index("community_showcase_author").on(t.authorId)],
+);
+
+// ---------------------------------------------------------------- 233 the Academy
+
+export const communityCourses = mysqlTable(
+  "community_courses",
+  {
+    id: id("id").primaryKey(),
+    tenant: tenant(),
+    slug: varchar("slug", { length: 140 }).notNull(),
+    title: varchar("title", { length: 160 }).notNull(),
+    summary: text("summary").notNull(),
+    coverUrl: varchar("cover_url", { length: 512 }),
+    level: varchar("level", { length: 14 }).notNull().$type<CourseLevel>(),
+    language: varchar("language", { length: 2 }).notNull().$type<"en" | "ar" | "tr">(),
+    status: varchar("status", { length: 10 }).notNull().$type<CourseStatus>(),
+    free: boolean("free").notNull().default(false),
+    // The website's checkout only (area C); never in the Community API.
+    priceMinor: int("price_minor"),
+    currency: varchar("currency", { length: 3 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    publishedAt: time("published_at"),
+  },
+  (t) => [uniqueIndex("community_courses_slug").on(t.tenant, t.slug), index("community_courses_list").on(t.tenant, t.status, t.createdAt)],
+);
+
+export const communityLessons = mysqlTable(
+  "community_lessons",
+  {
+    id: id("id").primaryKey(),
+    courseId: id("course_id")
+      .notNull()
+      .references(() => communityCourses.id, { onDelete: "cascade" }),
+    position: int("position").notNull(),
+    title: varchar("title", { length: 160 }).notNull(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<LessonKind>(),
+    body: text("body").notNull(),
+    videoUrl: varchar("video_url", { length: 512 }),
+    durationSeconds: int("duration_seconds").notNull(),
+    preview: boolean("preview").notNull().default(false),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("community_lessons_course").on(t.courseId, t.position)],
+);
+
+export const communityQuizQuestions = mysqlTable(
+  "community_quiz_questions",
+  {
+    id: id("id").primaryKey(),
+    lessonId: id("lesson_id")
+      .notNull()
+      .references(() => communityLessons.id, { onDelete: "cascade" }),
+    position: int("position").notNull(),
+    prompt: text("prompt").notNull(),
+    options: jsonText<string[]>("options").notNull(),
+    answer: int("answer").notNull(),
+  },
+  (t) => [index("community_quiz_questions_lesson").on(t.lessonId, t.position)],
+);
+
+export const communityCourseAccess = mysqlTable(
+  "community_course_access",
+  {
+    tenant: tenant(),
+    memberId: member("member_id"),
+    courseId: id("course_id")
+      .notNull()
+      .references(() => communityCourses.id, { onDelete: "cascade" }),
+    source: varchar("source", { length: 8 }).notNull().$type<AccessSource>(),
+    ref: varchar("ref", { length: 120 }),
+    grantedAt: time("granted_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.memberId, t.courseId] })],
+);
+
+export const communityLessonProgress = mysqlTable(
+  "community_lesson_progress",
+  {
+    memberId: member("member_id"),
+    lessonId: id("lesson_id")
+      .notNull()
+      .references(() => communityLessons.id, { onDelete: "cascade" }),
+    courseId: id("course_id").notNull(),
+    completedAt: time("completed_at"),
+    quizScore: int("quiz_score"),
+    attempts: int("attempts").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.memberId, t.lessonId] }), index("community_lesson_progress_course").on(t.memberId, t.courseId)],
+);
+
+export const communityCertificates = mysqlTable(
+  "community_certificates",
+  {
+    id: id("id").primaryKey(),
+    tenant: tenant(),
+    code: varchar("code", { length: 20 }).notNull(),
+    memberId: member("member_id"),
+    courseId: id("course_id")
+      .notNull()
+      .references(() => communityCourses.id, { onDelete: "cascade" }),
+    memberName: varchar("member_name", { length: 120 }).notNull(),
+    courseTitle: varchar("course_title", { length: 160 }).notNull(),
+    issuedAt: time("issued_at").notNull(),
+  },
+  (t) => [uniqueIndex("community_certificates_code").on(t.code), uniqueIndex("community_certificates_member").on(t.memberId, t.courseId)],
 );

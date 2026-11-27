@@ -45,6 +45,15 @@ describe("231 the community contract", () => {
     for (const word of ["checkout", "\"price", "payment_url", "buy_url", "purchase"]) expect(text, word).not.toContain(word);
   });
 
+  it("233 shows the Academy's courses free, owned or locked, never with a price", () => {
+    const schemas = contract.components.schemas as Record<string, unknown>;
+    const academy = ["Course", "CourseDetail", "LessonSummary", "Lesson", "LessonDone", "Certificate", "CourseInput", "LessonInput", "AdminCourse"];
+    for (const name of academy) expect(schemas[name], name).toBeDefined();
+    const text = JSON.stringify(academy.map((n) => schemas[n])).toLowerCase();
+    for (const word of ["price", "currency", "checkout", "payment", "purchase", "buy"]) expect(text, word).not.toContain(word);
+    expect(JSON.stringify(schemas.Course)).toContain('"enum":["free","owned","locked"]');
+  });
+
   it("names nothing in the community's migrations longer than MySQL's 64 characters", () => {
     const dir = new URL("../../drizzle/", import.meta.url);
     const files = readdirSync(dir).filter((f) => /^\d{4}_community.*\.sql$/.test(f));

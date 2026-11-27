@@ -79,6 +79,8 @@ tags:
     description: Area B (232). 24-hour stories.
   - name: Showcase
     description: Area B (232). Apps members built.
+  - name: Academy
+    description: "Area B (233). Courses, lessons, quizzes, progress and certificates. A course is free, owned or locked: never a price, a buy button or a payment link here; buying is on the website only."
   - name: Search
     description: (Area B) Search across questions, tutorials, members and tags; similar questions before asking.
   - name: Badges
@@ -1407,6 +1409,177 @@ paths:
         "204": { description: Deleted. }
         "403": { $ref: "#/components/responses/Forbidden" }
 
+  # ------------------------------------------------------------ Area B: Academy (233)
+  /academy/courses:
+    get:
+      tags: [Academy]
+      summary: "The published courses, newest first, each free, owned or locked"
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        "200": { description: The courses., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/Course" } } } } } } }
+  /academy/my:
+    get:
+      tags: [Academy]
+      summary: "The member's courses: free ones they started and the ones they own"
+      responses:
+        "200": { description: The courses., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/Course" } } } } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /academy/courses/{course}:
+    get:
+      tags: [Academy]
+      summary: "A course by id or address, with its lessons (a locked course's titles only)"
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: course, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: The course., content: { application/json: { schema: { $ref: "#/components/schemas/CourseDetail" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /academy/courses/{course}/enroll:
+    post:
+      tags: [Academy]
+      summary: "Start a free course (403 for a locked one)"
+      parameters: [{ name: course, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Started., content: { application/json: { schema: { $ref: "#/components/schemas/Course" } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /academy/lessons/{lesson_id}:
+    get:
+      tags: [Academy]
+      summary: "A lesson to read or watch, with its quiz's questions (never their answers); 403 when the course is locked and it isn't a preview"
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ name: lesson_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: The lesson., content: { application/json: { schema: { $ref: "#/components/schemas/Lesson" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /academy/lessons/{lesson_id}/complete:
+    put:
+      tags: [Academy]
+      summary: "Mark a lesson done (one with a quiz once it is passed); the last one issues the certificate"
+      parameters: [{ name: lesson_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Done., content: { application/json: { schema: { $ref: "#/components/schemas/LessonDone" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /academy/lessons/{lesson_id}/quiz:
+    post:
+      tags: [Academy]
+      summary: "Answer a lesson's quiz (each answer an option's index); 70 or more passes and completes the lesson"
+      parameters: [{ name: lesson_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [answers], properties: { answers: { type: array, items: { type: integer, minimum: 0 } } } }
+      responses:
+        "200":
+          description: The score.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [score, passed, correct, lesson]
+                properties:
+                  score: { type: integer, minimum: 0, maximum: 100 }
+                  passed: { type: boolean }
+                  correct: { type: array, items: { type: boolean } }
+                  lesson: { oneOf: [{ $ref: "#/components/schemas/LessonDone" }, { type: "null" }] }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /academy/certificates/{code}:
+    get:
+      tags: [Academy]
+      summary: "A certificate by its public code, for anyone to check; pdf_url is the PDF (outside this API, /api/community/academy/certificates/{code}/pdf)"
+      security: [{}]
+      parameters: [{ name: code, in: path, required: true, schema: { type: string, pattern: "^[A-Z0-9]{6,20}$" } }]
+      responses:
+        "200": { description: The certificate., content: { application/json: { schema: { $ref: "#/components/schemas/Certificate" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/academy/courses:
+    get:
+      tags: [Academy]
+      summary: "Admins: every course, drafts too"
+      responses:
+        "200": { description: The courses., content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { type: object, required: [id, slug, title, status, free, lesson_count, updated_at], properties: { id: { type: string }, slug: { type: string }, title: { type: string }, status: { type: string, enum: [draft, published] }, free: { type: boolean }, lesson_count: { type: integer }, updated_at: { type: string, format: date-time } } } } } } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [Academy]
+      summary: "Admins: a new course (a draft unless status is published); what it costs is set on the website"
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CourseInput" } } } }
+      responses:
+        "201": { description: Created., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/academy/courses/{course_id}:
+    get:
+      tags: [Academy]
+      summary: "Admins: a course with its lessons and quizzes, answers included"
+      parameters: [{ name: course_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: The course., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Academy]
+      summary: "Admins: change a course, publish it or mark it free"
+      parameters: [{ name: course_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CourseInput" } } } }
+      responses:
+        "200": { description: Changed., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/academy/courses/{course_id}/lessons:
+    post:
+      tags: [Academy]
+      summary: "Admins: add a lesson (a video or an article)"
+      parameters: [{ name: course_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/LessonInput" } } } }
+      responses:
+        "201": { description: Added., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/academy/lessons/{lesson_id}:
+    patch:
+      tags: [Academy]
+      summary: "Admins: change a lesson or move it"
+      parameters: [{ name: lesson_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/LessonInput" } } } }
+      responses:
+        "200": { description: Changed., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Academy]
+      summary: "Admins: remove a lesson"
+      parameters: [{ name: lesson_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "204": { description: Removed. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/academy/lessons/{lesson_id}/quiz:
+    put:
+      tags: [Academy]
+      summary: "Admins: replace a lesson's quiz (an empty list removes it)"
+      parameters: [{ name: lesson_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [questions], properties: { questions: { type: array, maxItems: 30, items: { $ref: "#/components/schemas/QuizQuestion" } } } }
+      responses:
+        "200": { description: Replaced., content: { application/json: { schema: { $ref: "#/components/schemas/AdminCourse" } } } }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
   # ------------------------------------------------------------ Area C: Badges
   /badges/verification:
     get:
@@ -2371,3 +2544,113 @@ components:
         status: { type: string, enum: [pending, published, removed] }
         can_edit: { type: boolean }
         created_at: { type: string, format: date-time }
+    Course:
+      type: object
+      description: "Access is free, owned (bought on the website, or given) or locked."
+      required: [id, slug, title, summary, cover_url, level, language, lesson_count, duration_seconds, access, progress, certificate_code, published_at]
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        title: { type: string }
+        summary: { type: string }
+        cover_url: { type: [string, "null"] }
+        level: { type: string, enum: [beginner, intermediate, advanced] }
+        language: { $ref: "#/components/schemas/Language" }
+        lesson_count: { type: integer }
+        duration_seconds: { type: integer }
+        access: { type: string, enum: [free, owned, locked] }
+        progress: { oneOf: [{ type: object, required: [completed, total], properties: { completed: { type: integer }, total: { type: integer } } }, { type: "null" }], description: "For a signed-in member who may open it." }
+        certificate_code: { type: [string, "null"] }
+        published_at: { type: [string, "null"], format: date-time }
+    LessonSummary:
+      type: object
+      required: [id, position, title, kind, duration_seconds, preview, locked, has_quiz, completed]
+      properties:
+        id: { type: string }
+        position: { type: integer }
+        title: { type: string }
+        kind: { type: string, enum: [video, article] }
+        duration_seconds: { type: integer }
+        preview: { type: boolean, description: "Opens for everyone, even in a locked course." }
+        locked: { type: boolean }
+        has_quiz: { type: boolean }
+        completed: { type: boolean }
+    CourseDetail:
+      allOf:
+        - { $ref: "#/components/schemas/Course" }
+        - { type: object, required: [lessons], properties: { lessons: { type: array, items: { $ref: "#/components/schemas/LessonSummary" } } } }
+    Lesson:
+      allOf:
+        - { $ref: "#/components/schemas/LessonSummary" }
+        - type: object
+          required: [course_id, body, video_url, quiz, quiz_score]
+          properties:
+            course_id: { type: string }
+            body: { type: string, description: "An article's Markdown; a video's notes." }
+            video_url: { type: [string, "null"] }
+            quiz: { type: array, items: { type: object, required: [id, prompt, options], properties: { id: { type: string }, prompt: { type: string }, options: { type: array, items: { type: string } } } } }
+            quiz_score: { type: [integer, "null"] }
+    LessonDone:
+      type: object
+      required: [completed, progress, certificate_code]
+      properties:
+        completed: { type: boolean }
+        progress: { type: object, required: [completed, total], properties: { completed: { type: integer }, total: { type: integer } } }
+        certificate_code: { type: [string, "null"], description: "Once every lesson is done." }
+    Certificate:
+      type: object
+      required: [code, member_name, course_title, course_slug, issued_at, verify_url, pdf_url]
+      properties:
+        code: { type: string }
+        member_name: { type: string }
+        course_title: { type: string }
+        course_slug: { type: [string, "null"] }
+        issued_at: { type: string, format: date-time }
+        verify_url: { type: string, format: uri, description: "The website's page that proves it." }
+        pdf_url: { type: string, format: uri }
+    CourseInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 3, maxLength: 160 }
+        summary: { type: string, maxLength: 2000 }
+        cover_url: { type: [string, "null"], format: uri }
+        level: { type: string, enum: [beginner, intermediate, advanced] }
+        language: { $ref: "#/components/schemas/Language" }
+        status: { type: string, enum: [draft, published] }
+        free: { type: boolean }
+    LessonInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 3, maxLength: 160 }
+        kind: { type: string, enum: [video, article] }
+        body: { type: string }
+        video_url: { type: string, description: "On YouTube, Vimeo or yallapp.com.tr." }
+        duration_seconds: { type: integer }
+        preview: { type: boolean }
+        position: { type: integer, minimum: 0 }
+    QuizQuestion:
+      type: object
+      required: [prompt, options, answer]
+      properties:
+        prompt: { type: string }
+        options: { type: array, minItems: 2, maxItems: 6, items: { type: string } }
+        answer: { type: integer, minimum: 0, description: "The right option's index (admins only)." }
+    AdminCourse:
+      type: object
+      required: [id, slug, title, summary, cover_url, level, language, status, free, lessons]
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        title: { type: string }
+        summary: { type: string }
+        cover_url: { type: [string, "null"] }
+        level: { type: string, enum: [beginner, intermediate, advanced] }
+        language: { $ref: "#/components/schemas/Language" }
+        status: { type: string, enum: [draft, published] }
+        free: { type: boolean }
+        lessons:
+          type: array
+          items:
+            allOf:
+              - { $ref: "#/components/schemas/LessonInput" }
+              - { type: object, required: [id, quiz], properties: { id: { type: string }, quiz: { type: array, items: { $ref: "#/components/schemas/QuizQuestion" } } } }
