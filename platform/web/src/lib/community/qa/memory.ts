@@ -96,6 +96,7 @@ export class MemoryQaStore implements QaStore {
     if (f.sectionIds && !f.sectionIds.includes(q.sectionId)) return false;
     if (f.tagId && !q.tagIds.includes(f.tagId)) return false;
     if (f.authorIds && !f.authorIds.includes(q.authorId)) return false;
+    if (f.answeredBy && ![...this.answers.values()].some((a) => a.questionId === q.id && a.authorId === f.answeredBy && a.status === "published")) return false;
     if (f.language && q.language !== f.language) return false;
     if (f.unanswered && q.answerCount > 0) return false;
     if (f.answered && !q.acceptedAnswerId) return false;

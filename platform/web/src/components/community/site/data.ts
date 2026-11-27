@@ -99,7 +99,8 @@ export type ActiveMember = { member: MemberRef; acceptedAnswers: number; points:
 
 export type EarnedBadge = { kind: BadgeKind; since: string; detail: string | null; link: string | null };
 
-export type LinkedApp = { id: string; name: string; iconUrl: string | null; url: string | null };
+/** platform: which stores the app is in; green: on a paid Yallapp plan (the Green badge). */
+export type LinkedApp = { id: string; name: string; iconUrl: string | null; url: string | null; platform: "ios" | "android" | "both" | null; green: boolean };
 
 export type AdminMember = MemberRef;
 
@@ -114,11 +115,16 @@ export type Profile = {
   following: number;
   friends: number;
   linkedApps: LinkedApp[];
+  links: { label: string; url: string }[];
+  questionsCount: number;
   /** Whether a Yallapp account is linked (the member themself sees "no apps yet" rather than "link your account"). */
   linked: boolean;
   /** How the viewer stands with this member. */
   relation: { self: boolean; following: boolean; friend: "none" | "requested" | "incoming" | "friends"; friendRequestId: string | null; blocked: boolean };
   questions: QuestionSummary[];
+  /** Questions the member answered, and the tutorials they wrote. */
+  answered: QuestionSummary[];
+  tutorials: TutorialSummary[];
   answersCount: number;
 };
 

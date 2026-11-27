@@ -140,3 +140,17 @@ describe("the profile picture's preview", async () => {
     }
   });
 });
+
+describe("231 a profile's links", () => {
+  it("takes up to five web addresses, one a line, each shown by its site's name", async () => {
+    const { profileLinks } = await import("@/components/community/site/profile-links");
+    expect(profileLinks("")).toEqual([]);
+    expect(profileLinks("https://www.example.com/\n\n github.com/nour ")).toEqual([
+      { label: "example.com", url: "https://www.example.com/" },
+      { label: "github.com/nour", url: "https://github.com/nour" },
+    ]);
+    expect(profileLinks("javascript:alert(1)")).toBeNull();
+    expect(profileLinks("not a link")).toBeNull();
+    expect(profileLinks(Array.from({ length: 6 }, (_, i) => `https://e${i}.com`).join("\n"))).toBeNull();
+  });
+});

@@ -262,6 +262,7 @@ type ApiProfile = ApiMember & {
   counts: { followers: number; following: number; friends: number; questions: number; answers: number; accepted_answers: number; apps: number };
   joined_at: string;
   yallapp_linked: boolean;
+  links?: { label: string; url: string }[];
 };
 type ApiMe = ApiProfile & { email: string | null; community_role?: "admin" | "moderator" | null; language: CmLang; unread_notifications: number; pending_friend_requests: number; link_suggestion?: { available: boolean } };
 type ApiApp = { id: string; name: string; icon_url: string | null; app_store_url: string | null; play_store_url: string | null; from_template: boolean; paid_plan: boolean };
@@ -294,6 +295,10 @@ export async function profile(handle: string, o: { viewerId: string | null; lang
     communityApi<{ items: ApiApp[] }>("GET", `/members/${memberPath(p.username)}/apps`),
     inQa(() => qa.listQuestions({ viewerId: o.viewerId, lang: o.lang, author: p.id, sort: "newest", limit: 6 })).catch(() => ({ items: [], nextCursor: null })),
   ]);
+  const [answered, wrote] = await Promise.all([
+    inQa(() => qa.listQuestions({ viewerId: o.viewerId, lang: o.lang, answeredBy: p.id, sort: "newest", limit: 6 })).catch(() => ({ items: [], nextCursor: null })),
+    inQa(() => qa.listTutorials({ viewerId: o.viewerId, lang: o.lang, author: p.id, limit: 6 })).catch(() => ({ items: [], nextCursor: null })),
+  ]);
   const rel = p.relationship;
   return {
     member: { ...apiMember(p), handle: p.username },
@@ -305,7 +310,12 @@ export async function profile(handle: string, o: { viewerId: string | null; lang
     followers: p.counts.followers,
     following: p.counts.following,
     friends: p.counts.friends,
-    linkedApps: (apps.status === 200 ? apps.body.items : []).map((a) => ({ id: a.id, name: a.name, iconUrl: a.icon_url, url: a.app_store_url ?? a.play_store_url })),
+    linkedApps: (apps.status === 200 ? apps.body.items : []).map((a) => ({
+      id: a.id, name: a.name, iconUrl: a.icon_url, url: a.app_store_url ?? a.play_store_url, green: a.paid_plan,
+      platform: a.app_store_url && a.play_store_url ? "both" : a.app_store_url ? "ios" : a.play_store_url ? "android" : null,
+    })),
+    links: p.links ?? [],
+    questionsCount: p.counts.questions,
     linked: p.yallapp_linked === true,
     relation: {
       self: o.viewerId === p.id,
@@ -315,6 +325,8 @@ export async function profile(handle: string, o: { viewerId: string | null; lang
       blocked: rel?.blocked ?? false,
     },
     questions: asked.items.map(questionOf),
+    answered: answered.items.map(questionOf),
+    tutorials: wrote.items.map(tutorialOf),
     answersCount: p.counts.answers,
   };
 }
@@ -339,15 +351,15 @@ export async function block(memberId: string, on: boolean): Promise<void> {
   await communityApi(on ? "PUT" : "DELETE", `/members/${encodeURIComponent(memberId)}/block`);
 }
 
-export type ProfileEdit = { name: string; handle: string; bio: string; skills: string[] };
+export type ProfileEdit = { name: string; handle: string; bio: string; skills: string[]; links: { label: string; url: string }[] };
 
 export async function myProfile(): Promise<(ProfileEdit & { avatarUrl: string | null }) | null> {
   const r = await communityApi<ApiMe>("GET", "/me");
-  return r.status === 200 ? { name: r.body.display_name, handle: r.body.username, bio: r.body.bio, skills: r.body.skills, avatarUrl: r.body.avatar_url } : null;
+  return r.status === 200 ? { name: r.body.display_name, handle: r.body.username, bio: r.body.bio, skills: r.body.skills, links: r.body.links ?? [], avatarUrl: r.body.avatar_url } : null;
 }
 
 export async function updateProfile(edit: ProfileEdit): Promise<SeamResult> {
-  const r = await communityApi("PATCH", "/me", { body: { display_name: edit.name, username: edit.handle, bio: edit.bio, skills: edit.skills } });
+  const r = await communityApi("PATCH", "/me", { body: { display_name: edit.name, username: edit.handle, bio: edit.bio, skills: edit.skills, links: edit.links } });
   return r.status === 200 ? { ok: true } : { ok: false, code: errorCode(r.body), errors: errorFields(r.body) };
 }
 
