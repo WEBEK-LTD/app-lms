@@ -159,7 +159,7 @@ export const myCourses = () => page<CourseSummary>("/academy/mine");
 export const certificates = () => page<Certificate>("/academy/certificates");
 export const certificate = (code: string) => get<Certificate>(`/academy/certificates/${id(code)}`);
 export const leaderboard = (period: "week" | "all", cursor?: string) => get<{ items: LeaderRow[]; me: LeaderRow | null; next_cursor: string | null }>(`/leaderboard${qs({ period, cursor, limit: 50 })}`);
-export const myPoints = () => get<{ points: number; level: number; level_label: string; next_level_at: number | null; history: Raw<{ reason: string; points: number; created_at: string }> }>("/me/points");
+export const myPoints = () => get<{ points: number; week_points: number; level: { key: string; label: string; progress: number; next_at: number | null }; items: { action: string; points: number; target_type: string | null; created_at: string }[]; next_cursor: string | null }>("/me/points");
 export type PointsRules = { actions: { action: string; points: number; daily_cap: number | null }[]; levels: { key: string; min_points: number; name: { en: string; ar: string; tr: string } }[] };
 export const pointsTable = () => get<PointsRules>("/admin/points");
 export const challenges = (status?: string) => page<Challenge>(`/challenges${qs({ status, limit: 20 })}`);

@@ -26,8 +26,8 @@ export default async function LeaderboardPage({ searchParams }: { searchParams: 
       {mine ? (
         <section className="cm-card cm-mypoints">
           <div><small className="cm-muted">{w2.yourPoints}</small><b className="num">{mine.points.toLocaleString("en-US")}</b></div>
-          <div><small className="cm-muted">{fill(w2.levelWord, { n: mine.level })}</small><b>{mine.level_label}</b></div>
-          {mine.next_level_at !== null ? <div className="cm-muted cm-small">{fill(w2.nextLevel, { n: Math.max(0, mine.next_level_at - mine.points) })}</div> : null}
+          <div><small className="cm-muted">{w2.level}</small><b>{mine.level.label}</b></div>
+          {mine.level.next_at !== null ? <div className="cm-muted cm-small">{fill(w2.nextLevel, { n: Math.max(0, mine.level.next_at - mine.points) })}<span className="cm-bar"><i style={{ width: `${Math.round(mine.level.progress * 100)}%` }} /></span></div> : null}
         </section>
       ) : null}
       <div className="cm-tabs">
@@ -51,12 +51,12 @@ export default async function LeaderboardPage({ searchParams }: { searchParams: 
           </ol>
         </section>
       ) : <Empty icon="leaderboard" text={w2.noLeaders} />}
-      {mine?.history.items.length ? (
+      {mine?.items.length ? (
         <section className="cm-card">
           <h2>{w2.pointsHistory}</h2>
           <ul className="cm-hist">
-            {mine.history.items.slice(0, 15).map((h, i) => (
-              <li key={i}><span>{h.reason}</span><span className="cm-muted cm-small">{ago(w, h.created_at)}</span><b className={`num ${h.points < 0 ? "neg" : ""}`}>{h.points > 0 ? `+${h.points}` : h.points}</b></li>
+            {mine.items.slice(0, 15).map((h, i) => (
+              <li key={i}><span>{w2[`pa_${h.action}` as keyof typeof w2] ?? h.action}</span><span className="cm-muted cm-small">{ago(w, h.created_at)}</span><b className={`num ${h.points < 0 ? "neg" : ""}`}>{h.points > 0 ? `+${h.points}` : h.points}</b></li>
             ))}
           </ul>
         </section>
