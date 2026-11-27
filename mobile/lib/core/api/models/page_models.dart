@@ -450,6 +450,14 @@ enum BuiltInScreen {
   trips,
   saved,
   priceAlerts,
+
+  /// 235 Community apps: the feed, Q&A, groups, the member's profile and
+  /// member-to-member messages (`messages` is the business chat).
+  communityFeed,
+  communityQuestions,
+  communityGroups,
+  communityProfile,
+  communityMessages,
 }
 
 enum OpenIn { inApp, browser }

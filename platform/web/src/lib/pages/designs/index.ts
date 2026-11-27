@@ -10,6 +10,7 @@ import { aboutPage, contactPage, page, PALETTES, PICTURE, tab, type Design, type
 import { CHARITY_DESIGNS, EVENTS_DESIGNS, NEWS_DESIGNS, REAL_ESTATE_DESIGNS } from "./more";
 import { SCHOOL_DESIGNS } from "./school";
 import { TRAVEL_DESIGNS } from "./travel";
+import { COMMUNITY_DESIGNS } from "./community";
 import { DELIVERY_DESIGNS, FOOD_DESIGNS, MARKET_DESIGNS, RIDES_DESIGNS, TAXI_DESIGNS } from "./transport";
 import { RESTAURANT_DESIGNS, STORE_DESIGNS } from "./store";
 
@@ -74,6 +75,7 @@ export const DESIGNS: readonly Design[] = [
   ...INSTRUCTORS_DESIGNS,
   ...SCHOOL_DESIGNS,
   ...TRAVEL_DESIGNS,
+  ...COMMUNITY_DESIGNS,
 ]
   .map(withHeader)
   .map(withCompanyPages);

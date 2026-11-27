@@ -230,5 +230,17 @@
   "travel-calm": {
     "primary": "#2A3350",
     "secondary": "#1F6F8B"
+  },
+  "community-day": {
+    "primary": "#141327",
+    "secondary": "#FF5A1F"
+  },
+  "community-night": {
+    "primary": "#0E0D24",
+    "secondary": "#FF5A1F"
+  },
+  "community-everyday": {
+    "primary": "#24476B",
+    "secondary": "#FF5A1F"
   }
 }

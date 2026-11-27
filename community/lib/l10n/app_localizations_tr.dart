@@ -1334,4 +1334,365 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get pushKindGroup => 'Grup istekleri ve davetleri';
+
+  @override
+  String get showcaseTitle => 'Vitrin';
+
+  @override
+  String get showcaseAll => 'Tümü';
+
+  @override
+  String get showcaseNewest => 'En yeni';
+
+  @override
+  String get showcaseMostLiked => 'En beğenilen';
+
+  @override
+  String get showcaseTypeStore => 'Mağazalar';
+
+  @override
+  String get showcaseTypeAcademy => 'Akademiler';
+
+  @override
+  String get showcaseTypeBooking => 'Randevular';
+
+  @override
+  String get showcaseMadeWith => 'Yallapp ile yapıldı';
+
+  @override
+  String get showcaseLike => 'Beğen';
+
+  @override
+  String get showcaseLiked => 'Beğenildi';
+
+  @override
+  String get showcaseAppStore => 'App Store';
+
+  @override
+  String get showcasePlay => 'Google Play';
+
+  @override
+  String get showcaseWebsite => 'Web sitesi';
+
+  @override
+  String get showcaseEmpty => 'Burada henüz uygulama yok.';
+
+  @override
+  String get academyTitle => 'Akademi';
+
+  @override
+  String get academyLocked => 'Kilitli';
+
+  @override
+  String get academyLockedNote => 'Bu kurs hesabınızda henüz açık değil.';
+
+  @override
+  String get academyFree => 'Açık';
+
+  @override
+  String get academyComplete => 'Tamamlandı olarak işaretle';
+
+  @override
+  String get academyDone => 'Tamamlandı';
+
+  @override
+  String get academyWatch => 'Dersi izle';
+
+  @override
+  String get academyCertificate => 'Sertifikanız';
+
+  @override
+  String get academyEmpty => 'Henüz kurs yok.';
+
+  @override
+  String get challengesTitle => 'Yarışmalar';
+
+  @override
+  String get challengeUpcoming => 'Yakında';
+
+  @override
+  String get challengeOpen => 'Açık';
+
+  @override
+  String get challengeVoting => 'Oylama';
+
+  @override
+  String get challengeClosed => 'Kapandı';
+
+  @override
+  String get challengeRules => 'Kurallar';
+
+  @override
+  String get challengeEntriesTitle => 'Katılımlar';
+
+  @override
+  String get challengeWinners => 'Kazananlar';
+
+  @override
+  String get challengeVote => 'Oy ver';
+
+  @override
+  String get challengeVoted => 'Oy verildi';
+
+  @override
+  String get challengeEnter => 'Bağlantıyla katıl';
+
+  @override
+  String get challengeEnterHint => 'Uygulamanızın bağlantısı';
+
+  @override
+  String get challengeEntered => 'Katıldınız';
+
+  @override
+  String get challengeSend => 'Gönder';
+
+  @override
+  String get challengeEmpty => 'Şu an yarışma yok.';
+
+  @override
+  String get challengeCardTitle => 'Bu haftanın yarışması';
+
+  @override
+  String get boardTitle => 'Liderlik tablosu';
+
+  @override
+  String get boardWeek => 'Bu hafta';
+
+  @override
+  String get boardAll => 'Tüm zamanlar';
+
+  @override
+  String get prosTitle => 'Uzmanlar';
+
+  @override
+  String get proAvailable => 'Müsait';
+
+  @override
+  String get proBusy => 'Meşgul';
+
+  @override
+  String get proUnavailable => 'İş almıyor';
+
+  @override
+  String get proAvailableOnly => 'Şimdi müsait';
+
+  @override
+  String get proServices => 'Hizmetler';
+
+  @override
+  String get proPortfolio => 'Portfolyo';
+
+  @override
+  String get proSkills => 'Beceriler';
+
+  @override
+  String get proHire => 'İş talebi gönder';
+
+  @override
+  String get proHireHint => 'Neye ihtiyacınız var? En az 10 karakter.';
+
+  @override
+  String get proHireSent => 'Gönderildi. Uzmanla konuşmanız açık.';
+
+  @override
+  String get proDirect =>
+      'İşi ve koşulları uzmanla aranızda kararlaştırırsınız.';
+
+  @override
+  String get prosEmpty => 'Henüz uzman yok.';
+
+  @override
+  String get jobsTitle => 'İşler';
+
+  @override
+  String get jobRemote => 'Uzaktan';
+
+  @override
+  String get jobFullTime => 'Tam zamanlı';
+
+  @override
+  String get jobPartTime => 'Yarı zamanlı';
+
+  @override
+  String get jobContract => 'Sözleşmeli';
+
+  @override
+  String get jobFreelance => 'Serbest';
+
+  @override
+  String get jobInternship => 'Staj';
+
+  @override
+  String get jobApply => 'Başvur';
+
+  @override
+  String get jobApplyHint => 'Mesajınız. En az 10 karakter.';
+
+  @override
+  String get jobApplied => 'Başvurdunuz';
+
+  @override
+  String get jobApplicantsTitle => 'Başvuranlar';
+
+  @override
+  String get jobsEmpty => 'Şu an iş yok.';
+
+  @override
+  String get eventsTitle => 'Etkinlikler';
+
+  @override
+  String get eventAll => 'Tümü';
+
+  @override
+  String get eventLive => 'Canlı';
+
+  @override
+  String get eventLiveNow => 'Şimdi canlı';
+
+  @override
+  String get eventOnline => 'Çevrim içi';
+
+  @override
+  String get eventInPerson => 'Yüz yüze';
+
+  @override
+  String get eventFree => 'Ücretsiz';
+
+  @override
+  String get eventRsvp => 'Katılıyorum';
+
+  @override
+  String get eventGoing => 'Katılıyorum';
+
+  @override
+  String get eventNotGoing => 'Katılmıyorum';
+
+  @override
+  String get eventCalendar => 'Takvime ekle';
+
+  @override
+  String get eventJoin => 'Katıl';
+
+  @override
+  String get eventWatch => 'İzle';
+
+  @override
+  String get eventReplay => 'Tekrarı izle';
+
+  @override
+  String get eventCancelled => 'İptal edildi';
+
+  @override
+  String get eventComments => 'Yorumlar';
+
+  @override
+  String get eventCommentHint => 'Bir şey yazın';
+
+  @override
+  String get eventsEmpty => 'Yaklaşan etkinlik yok.';
+
+  @override
+  String showcaseLikes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count beğeni',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String academyLessons(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ders',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String academyMinutes(int count) {
+    return '$count dk';
+  }
+
+  @override
+  String academyProgress(int count) {
+    return '%$count tamamlandı';
+  }
+
+  @override
+  String challengeEntries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count katılım',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String challengeReward(int count) {
+    return '$count puan';
+  }
+
+  @override
+  String challengeVotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count oy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String boardPoints(int count) {
+    return '$count puan';
+  }
+
+  @override
+  String proReviews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count değerlendirme',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String proDone(int count) {
+    return '$count tamamlandı';
+  }
+
+  @override
+  String jobApplicants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count başvuru',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String eventGoingCount(int count) {
+    return '$count katılıyor';
+  }
+
+  @override
+  String boardYou(int rank, int points) {
+    return 'Siz: #$rank · $points puan';
+  }
+
+  @override
+  String jobBudget(String budget) {
+    return 'Bütçe: $budget';
+  }
+
+  @override
+  String challengeEnds(String date) {
+    return 'Bitiş: $date';
+  }
 }

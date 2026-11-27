@@ -134,7 +134,8 @@ export const STORE_TEMPLATE_LABELS: Readonly<Record<typeof FLOWER_SHOP_DEMO | Sh
 export function isStoreTemplateDemo(id: string): id is typeof FLOWER_SHOP_DEMO | ShopTypeDemo {
   return Object.hasOwn(STORE_TEMPLATE_DEMOS, id);
 }
-export type DemoId = Exclude<AppType, StudioDemoId> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
+// 235 The community engine has no demo app of its own yet (its demo is the Studio template's).
+export type DemoId = Exclude<AppType, StudioDemoId | "community"> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
 
 /** The kinds only Studio offers (lib/studio/section.ts STUDIO_ONLY_KINDS). */
 const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors", "marketplace", "travel", PREMIUM_ACADEMY_DEMO, FLOWER_SHOP_DEMO, ...Object.keys(SHOP_TYPE_DEMOS)];

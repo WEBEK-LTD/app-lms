@@ -14373,5 +14373,116 @@
   "productDeliveryReturns": "Delivery & returns",
   "@productDeliveryReturns": {
     "description": "228 The title of a Studio product page's delivery and returns card."
+  },
+  "communityTabFeed": "Community",
+  "@communityTabFeed": {
+    "description": "235 The Community app's feed tab."
+  },
+  "communityTabQuestions": "Q&A",
+  "@communityTabQuestions": {
+    "description": "235 The Community app's questions tab."
+  },
+  "communityTabGroups": "Groups",
+  "@communityTabGroups": {
+    "description": "235 The Community app's groups tab."
+  },
+  "communityTabMessages": "Messages",
+  "@communityTabMessages": {
+    "description": "235 The Community app's member messages tab."
+  },
+  "communityTabProfile": "Profile",
+  "@communityTabProfile": {
+    "description": "235 The Community app's own profile tab."
+  },
+  "communityFeedEmpty": "No posts yet",
+  "@communityFeedEmpty": {
+    "description": "235 The feed with nothing in it."
+  },
+  "communityQuestionsEmpty": "No questions yet",
+  "@communityQuestionsEmpty": {
+    "description": "235 Q&A with no questions."
+  },
+  "communityGroupsEmpty": "No groups yet",
+  "@communityGroupsEmpty": {
+    "description": "235 No groups."
+  },
+  "communityMessagesEmpty": "No messages yet",
+  "@communityMessagesEmpty": {
+    "description": "235 No conversations."
+  },
+  "communityPrivate": "Private",
+  "@communityPrivate": {
+    "description": "235 A private group (join by request)."
+  },
+  "communityJoin": "Join",
+  "@communityJoin": {
+    "description": "235 Join a group."
+  },
+  "communityJoined": "Joined",
+  "@communityJoined": {
+    "description": "235 A group the member is in."
+  },
+  "communityAccepted": "Accepted answer",
+  "@communityAccepted": {
+    "description": "235 Screen reader label of an accepted answer."
+  },
+  "communityUnread": "Unread",
+  "@communityUnread": {
+    "description": "235 Screen reader label of an unread conversation."
+  },
+  "communityAnswerHint": "Write an answer",
+  "@communityAnswerHint": {
+    "description": "235 The answer box under a question."
+  },
+  "communityMessageHint": "Write a message",
+  "@communityMessageHint": {
+    "description": "235 The message box in a conversation."
+  },
+  "communitySend": "Send",
+  "@communitySend": {
+    "description": "235 Send an answer or a message."
+  },
+  "communitySignInTitle": "Sign in to take part",
+  "@communitySignInTitle": {
+    "description": "235 Profile and messages, signed out."
+  },
+  "communitySignInMessage": "Your profile and messages are here once you sign in.",
+  "@communitySignInMessage": {
+    "description": "235 Under the sign-in title."
+  },
+  "communityAccount": "Account and settings",
+  "@communityAccount": {
+    "description": "235 The profile's link to the account."
+  },
+  "noNotificationsMessageCommunity": "Replies, answers, messages and news from the community will show up here.",
+  "@noNotificationsMessageCommunity": {
+    "description": "235 The notifications' empty state in a Community app."
+  },
+  "communityAnswers": "{count, plural, =0{No answers} =1{1 answer} other{{count} answers}}",
+  "@communityAnswers": {
+    "description": "235 A question's answers.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "communityComments": "{count, plural, =0{No comments} =1{1 comment} other{{count} comments}}",
+  "@communityComments": {
+    "description": "235 A post's comments.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "communityMembers": "{count, plural, =1{1 member} other{{count} members}}",
+  "@communityMembers": {
+    "description": "235 A group's members.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

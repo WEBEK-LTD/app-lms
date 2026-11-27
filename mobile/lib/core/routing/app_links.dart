@@ -14,7 +14,22 @@ import 'paths.dart';
 /// One row of the table: where the kind opens and the shape of its id.
 typedef LinkKindRule = ({String route, String id, Set<AppType> types});
 
-const _allTypes = {...AppType.values};
+/// 235 A Community app has no links of these kinds yet (its screens are
+/// its own).
+const _allTypes = {
+  AppType.lms,
+  AppType.store,
+  AppType.booking,
+  AppType.realEstate,
+  AppType.news,
+  AppType.events,
+  AppType.donations,
+  AppType.delivery,
+  AppType.food,
+  AppType.rides,
+  AppType.school,
+  AppType.travel,
+};
 
 const linkKinds = <String, LinkKindRule>{
   'course': (route: '/course/{id}', id: 'number', types: {AppType.lms}),

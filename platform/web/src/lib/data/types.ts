@@ -345,7 +345,7 @@ export interface AutoScreenshots {
  * donations app (29, hosted API only). What each engine is and offers is in
  * lib/app/kinds.ts.
  */
-export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food" | "rides" | "school" | "travel";
+export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food" | "rides" | "school" | "travel" | "community";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
 export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services" | "instructors" | "taxi" | "marketplace";
@@ -389,6 +389,8 @@ export type ConnectorConfig =
   | { kind: "school" }
   /** 126 Travel: hotels, rooms, flights, bookings and alerts in the travel_* tables (lib/travel). */
   | { kind: "travel" }
+  /** 235 A community in the client's own app: the community engine with the app id as its tenant key (members are the app's customers). */
+  | { kind: "community" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
    * Thinkific, SimplyBook) or with OAuth through Yallapp's partner app
@@ -3912,6 +3914,8 @@ export interface AuditQuery {
 export interface SwitchesSetting {
   off: string[];
   offByPlan: Partial<Record<Plan, string[]>>;
+  /** 235 Switches that are off until the team turns them on (DEFAULT_OFF_SWITCHES): the ones turned on. */
+  on?: string[];
 }
 
 /** Merged into the settings above. */

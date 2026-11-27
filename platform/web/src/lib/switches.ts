@@ -51,6 +51,13 @@ export const LICENSE_FEATURE_SWITCHES: FeatureSwitch[] = PLAN_FEATURE_IDS.filter
 
 export const switchKey = (kind: SwitchKind, id: string) => `${kind}:${id}`;
 
+/**
+ * 235 Switches that are off until the team turns them on: the Community app
+ * type (Yallapp Community in a client's own app), behind its switch while it
+ * is new. Every other switch is on until turned off.
+ */
+export const DEFAULT_OFF_SWITCHES: ReadonlySet<string> = new Set([switchKey("app_type", "community")]);
+
 const item = (kind: SwitchKind, id: string, label: string): SwitchItem => ({ key: switchKey(kind, id), kind, id, label });
 
 /** Every switch, grouped as the Switches page shows them. */
@@ -83,6 +90,7 @@ export function isStudioSwitch(key: string): boolean {
 
 /** On for everyone, and for this plan (no plan: only the global switch counts). */
 export function isOn(setting: SwitchesSetting | null | undefined, key: string, plan?: Plan | null): boolean {
+  if (DEFAULT_OFF_SWITCHES.has(key) && !setting?.on?.includes(key)) return false;
   if (!setting) return true;
   if (setting.off.includes(key)) return false;
   return !(plan && setting.offByPlan[plan]?.includes(key));
@@ -125,7 +133,7 @@ export function plansWithSwitches(plans: Record<Plan, PlanInfo>, setting: Switch
 }
 
 /** The setting as saved, keeping only known keys and plans. */
-export function cleanSwitches(off: string[], offByPlan: Partial<Record<Plan, string[]>>): SwitchesSetting {
+export function cleanSwitches(off: string[], offByPlan: Partial<Record<Plan, string[]>>, on: string[] = []): SwitchesSetting {
   const known = new Set(allSwitchKeys());
   const keep = (keys: string[]) => [...new Set(keys)].filter((k) => known.has(k)).sort();
   const plans: Partial<Record<Plan, string[]>> = {};
@@ -133,7 +141,9 @@ export function cleanSwitches(off: string[], offByPlan: Partial<Record<Plan, str
     const keys = keep(offByPlan[plan] ?? []);
     if (keys.length) plans[plan] = keys;
   }
-  return { off: keep(off), offByPlan: plans };
+  // A switch that's off until turned on is never kept in `off`: its state is `on`.
+  const turnedOn = keep(on).filter((k) => DEFAULT_OFF_SWITCHES.has(k));
+  return { off: keep(off).filter((k) => !DEFAULT_OFF_SWITCHES.has(k)), offByPlan: plans, ...(turnedOn.length ? { on: turnedOn } : {}) };
 }
 
 export async function getSwitches(store: DataStore, options: { fresh?: boolean } = {}): Promise<SwitchesSetting | null> {

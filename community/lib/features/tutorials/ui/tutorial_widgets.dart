@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -69,16 +67,13 @@ class PhotoGlass extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ClipRRect(
     borderRadius: BorderRadius.circular(radius),
-    child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0x29FFFFFF),
-          borderRadius: BorderRadius.circular(radius),
-          border: Border.all(color: const Color(0x3DFFFFFF)),
-        ),
-        child: child,
+    child: Container(
+      decoration: BoxDecoration(
+        color: const Color(0x29FFFFFF),
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: const Color(0x3DFFFFFF)),
       ),
+      child: child,
     ),
   );
 }
@@ -104,7 +99,7 @@ class TutorialCard extends StatelessWidget {
           height: 196,
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(12),
             color: Brand.indigo,
             image: t.coverUrl == null
                 ? null
@@ -113,25 +108,12 @@ class TutorialCard extends StatelessWidget {
                     fit: BoxFit.cover,
                     alignment: const Alignment(0, -.4),
                   ),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x2E141327),
-                blurRadius: 36,
-                offset: Offset(0, 18),
-              ),
-            ],
           ),
           child: Stack(
             fit: StackFit.expand,
             children: [
               const DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0x0D0E0D24), Color(0xD90E0D24)],
-                  ),
-                ),
+                decoration: BoxDecoration(color: Color(0x0D0E0D24)),
               ),
               // A video's Play, in the top corner, clear of the words.
               if (t.kind == TutorialKind.video)

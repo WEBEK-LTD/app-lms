@@ -2547,6 +2547,606 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Group requests and invitations'**
   String get pushKindGroup;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Showcase'**
+  String get showcaseTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get showcaseAll;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get showcaseNewest;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Most liked'**
+  String get showcaseMostLiked;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Shops'**
+  String get showcaseTypeStore;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Academies'**
+  String get showcaseTypeAcademy;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get showcaseTypeBooking;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Made with Yallapp'**
+  String get showcaseMadeWith;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Like'**
+  String get showcaseLike;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Liked'**
+  String get showcaseLiked;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'App Store'**
+  String get showcaseAppStore;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play'**
+  String get showcasePlay;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get showcaseWebsite;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No apps here yet.'**
+  String get showcaseEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Academy'**
+  String get academyTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get academyLocked;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'This course isn\'t open on your account yet.'**
+  String get academyLockedNote;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get academyFree;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as done'**
+  String get academyComplete;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get academyDone;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the lesson'**
+  String get academyWatch;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Your certificate'**
+  String get academyCertificate;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No courses yet.'**
+  String get academyEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Challenges'**
+  String get challengesTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get challengeUpcoming;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get challengeOpen;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Voting'**
+  String get challengeVoting;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get challengeClosed;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Rules'**
+  String get challengeRules;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Entries'**
+  String get challengeEntriesTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Winners'**
+  String get challengeWinners;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Vote'**
+  String get challengeVote;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Voted'**
+  String get challengeVoted;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Enter with a link'**
+  String get challengeEnter;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Link to your app'**
+  String get challengeEnterHint;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve entered'**
+  String get challengeEntered;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get challengeSend;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No challenges right now.'**
+  String get challengeEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'This week\'s challenge'**
+  String get challengeCardTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get boardTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get boardWeek;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get boardAll;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Pros'**
+  String get prosTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get proAvailable;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Busy'**
+  String get proBusy;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Not taking work'**
+  String get proUnavailable;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Available now'**
+  String get proAvailableOnly;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get proServices;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio'**
+  String get proPortfolio;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Skills'**
+  String get proSkills;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Send a hire request'**
+  String get proHire;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'What do you need? At least 10 characters.'**
+  String get proHireHint;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. Your conversation with the pro is open.'**
+  String get proHireSent;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'You and the pro agree on the work and terms between you.'**
+  String get proDirect;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No pros yet.'**
+  String get prosEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Jobs'**
+  String get jobsTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Remote'**
+  String get jobRemote;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Full time'**
+  String get jobFullTime;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Part time'**
+  String get jobPartTime;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Contract'**
+  String get jobContract;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Freelance'**
+  String get jobFreelance;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Internship'**
+  String get jobInternship;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get jobApply;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Your message. At least 10 characters.'**
+  String get jobApplyHint;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'You applied'**
+  String get jobApplied;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Applicants'**
+  String get jobApplicantsTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No jobs right now.'**
+  String get jobsEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get eventsTitle;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get eventAll;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get eventLive;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Live now'**
+  String get eventLiveNow;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get eventOnline;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'In person'**
+  String get eventInPerson;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get eventFree;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m going'**
+  String get eventRsvp;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Going'**
+  String get eventGoing;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Not going'**
+  String get eventNotGoing;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Add to calendar'**
+  String get eventCalendar;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get eventJoin;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Watch'**
+  String get eventWatch;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the replay'**
+  String get eventReplay;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get eventCancelled;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get eventComments;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Say something'**
+  String get eventCommentHint;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'No events coming up.'**
+  String get eventsEmpty;
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 like} other{{count} likes}}'**
+  String showcaseLikes(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 lesson} other{{count} lessons}}'**
+  String academyLessons(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String academyMinutes(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count}% done'**
+  String academyProgress(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 entry} other{{count} entries}}'**
+  String challengeEntries(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} points'**
+  String challengeReward(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 vote} other{{count} votes}}'**
+  String challengeVotes(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pts'**
+  String boardPoints(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 review} other{{count} reviews}}'**
+  String proReviews(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} done'**
+  String proDone(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 applicant} other{{count} applicants}}'**
+  String jobApplicants(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} going'**
+  String eventGoingCount(int count);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'You: #{rank} · {points} pts'**
+  String boardYou(int rank, int points);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Budget: {budget}'**
+  String jobBudget(String budget);
+
+  /// 232–234 (area E)
+  ///
+  /// In en, this message translates to:
+  /// **'Ends {date}'**
+  String challengeEnds(String date);
 }
 
 class _AppLocalizationsDelegate

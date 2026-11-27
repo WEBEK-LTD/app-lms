@@ -32,6 +32,8 @@ export function ownContentSetup(kind: OwnContentKind, app: App, starting?: Catal
       return { connector: { kind }, catalogSettings: catalog };
     case "listings":
     case "articles":
+    // 235 A community sells nothing: its posts, questions and groups are the community engine's, under the app id.
+    case "community":
       return { connector: { kind } };
   }
 }
