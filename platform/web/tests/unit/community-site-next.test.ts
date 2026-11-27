@@ -23,6 +23,14 @@ describe("232 a form's fields as the API's JSON body", () => {
     expect(list(" a ,, b\n\nc ")).toEqual(["a", "b", "c"]);
   });
 
+  it("sends an optional link left empty as no link, and keeps other empty text", () => {
+    const f = new FormData();
+    f.set("cover_url", "");
+    f.set("embed_url", " https://www.youtube.com/live/x ");
+    f.set("summary", "");
+    expect(jsonBody(f)).toEqual({ cover_url: null, embed_url: "https://www.youtube.com/live/x", summary: "" });
+  });
+
   it("turns a datetime-local into UTC in the event's time zone", () => {
     expect(zonedToUtc("2026-12-01T19:00", "Europe/Istanbul")).toBe("2026-12-01T16:00:00.000Z");
     expect(zonedToUtc("2026-07-01T10:30", "Europe/London")).toBe("2026-07-01T09:30:00.000Z");
