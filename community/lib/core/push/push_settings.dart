@@ -32,15 +32,12 @@ class HttpPushSettingsApi implements PushSettingsApi {
   HttpPushSettingsApi(this.client);
 
   final ApiClient client;
-  Json _last = const {};
-
   Map<String, bool> _push(Json j) {
-    _last = j;
+    // The server lists every kind; phase 2's own when it sends none.
     final push = optObject(j, 'push');
-    return {
-      for (final k in pushKinds) k: true,
-      for (final e in (push ?? const {}).entries) e.key: e.value == true,
-    };
+    return push == null
+        ? {for (final k in pushKinds) k: true}
+        : {for (final e in push.entries) e.key: e.value == true};
   }
 
   @override
@@ -51,8 +48,8 @@ class HttpPushSettingsApi implements PushSettingsApi {
   Future<Map<String, bool>> set(Map<String, bool> push) async => _push(
     await client.put(
       '/notifications/settings',
-      // Email stays as it is.
-      body: {'email': optObject(_last, 'email') ?? const {}, 'push': push},
+      // Only push: the email choices stay as they are.
+      body: {'push': push},
     ),
   );
 }
@@ -119,7 +116,7 @@ class _PushSettingsPageState extends ConsumerState<PushSettingsPage> {
     'message' => l.pushKindMessage,
     'post_comment' => l.pushKindComment,
     'comment_reply' => l.pushKindReply,
-    'post_like' => l.pushKindLike,
+    'post_like' || 'post_liked' => l.pushKindLike,
     'follow' => l.notifKindFollow,
     'friend_request' => l.notifKindFriend,
     'group_request' => l.pushKindGroup,
