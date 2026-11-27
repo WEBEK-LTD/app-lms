@@ -133,8 +133,11 @@ describe("232 Community social API", () => {
     expect(item.body).toMatchObject({ made_with_yallapp: false, app_type: "shop", website_url: "https://bags.example.com/", pictures: [expect.any(String)], comment_count: 0, liked: false });
     expect((await api<Json>(c, "GET", `/showcase/${item.body.id}`)).body.id).toBe(item.body.id);
     expect((await api<Json>(c, "POST", "/showcase", { token: karim.token, body: { title: "Bad", media_ids: [], play_store_url: "https://evil.test" } })).status).toBe(400);
-    await api(c, "PUT", `/showcase/${item.body.id}/like`, { token: nour.token });
-    expect((await api<Json>(c, "GET", `/showcase?type=shop&sort=most_liked&member=${karim.id}`)).body.items).toMatchObject([{ id: item.body.id, like_count: 1, cover_url: expect.any(String), made_with_yallapp: false }]);
+    expect(item.body.status, "a member with approved posts shows at once").toBe("published");
+    const liked = await api<Json>(c, "PUT", `/showcase/${item.body.id}/like`, { token: nour.token });
+    expect(liked.body, JSON.stringify(liked.body)).toEqual({ count: 1, mine: true });
+    const gallery = await api<Json>(c, "GET", `/showcase?type=shop&sort=most_liked&member=${karim.id}`);
+    expect(gallery.body.items, JSON.stringify(gallery.body)).toMatchObject([{ id: item.body.id, like_count: 1, cover_url: expect.any(String), made_with_yallapp: false }]);
     expect((await api<Json>(c, "GET", "/showcase?type=food")).body.items).toEqual([]);
     const comment = await api<Json>(c, "POST", `/showcase/${item.body.id}/comments`, { token: nour.token, body: { body: "Lovely" } });
     expect(comment.status).toBe(201);

@@ -10,6 +10,7 @@ import { fail, noContent, ok, requireMember, tooMany, type CommunityContext, typ
 import { findMember } from "../base/profile";
 import { groupPosted, readableGroup } from "../connect/groups";
 import { setPortfolioLookup } from "../connect/pros";
+import { awardPoints, takeBackPoints } from "../engage/points";
 import { qaHooksFor, withQaFor } from "./qa-hooks";
 import { run, wire } from "./qa-routes";
 
@@ -78,6 +79,11 @@ export function socialEnvFor(ctx: CommunityContext): SocialEnv {
     groups: {
       canRead: async (_viewer, groupId) => (await groupRights(ctx, groupId))?.canRead ?? false,
       canPost: async (_member, groupId) => (await groupRights(ctx, groupId))?.canPost ?? false,
+    },
+    // 233 Area C's points ledger (engage/points.ts) decides each reason's points and daily cap; `undo` takes them back.
+    onEvent: async ({ kind, memberId, refId, undo }) => {
+      if (undo) await takeBackPoints(ctx, { memberId, reason: kind, ref: refId });
+      else await awardPoints(ctx, { memberId, reason: kind, ref: refId });
     },
     questions: ({ tab, viewerId, limit }) =>
       withQaFor(ctx, async () => (await qa.listQuestions({ viewerId, lang: ctx.lang, filter: tab === "following" ? "following" : tab === "for_you" ? "for_you" : "all", sort: "newest", limit })).items),
