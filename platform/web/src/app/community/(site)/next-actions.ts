@@ -86,7 +86,9 @@ export async function apiAction(form: FormData): Promise<void> {
   if (typeof body.url === "string" && /^https:\/\//.test(body.url) && path.endsWith("/checkout")) redirect(body.url);
   const to = str(form, "_to");
   const done = str(form, "_done");
-  let target = to ? to.replace("{id}", encodeURIComponent(String(body.id ?? ""))).replace("{slug}", encodeURIComponent(String(body.slug ?? body.id ?? ""))) : back;
+  // `{id}` and `{slug}` take the answer's (written plainly or as a link helper encoded them).
+  const fillIn = (t: string) => t.replace(/\{id\}|%7Bid%7D/gi, encodeURIComponent(String(body.id ?? ""))).replace(/\{slug\}|%7Bslug%7D/gi, encodeURIComponent(String(body.slug ?? body.id ?? "")));
+  let target = to ? fillIn(to) : back;
   if (typeof body.status === "string" && body.status === "pending") target = withParam(target, "pending", "1");
   else if (done) target = withParam(target, "done", done);
   redirect(await cmTarget(sitePath(target, back)));
