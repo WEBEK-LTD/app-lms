@@ -519,5 +519,33 @@
       }
     }
   },
-  "postSavedEmpty": "Posts you save show here."
+  "postSavedEmpty": "Posts you save show here.",
+  "msgNew": "New message",
+  "msgEmpty": "No conversations yet. Write to a member from their profile, or start one here.",
+  "msgDeleted": "Message deleted",
+  "msgPhoto": "Photo",
+  "msgStart": "Start",
+  "msgGroupTitle": "Group name (optional)",
+  "msgPickPeople": "Chosen {n} of {max}",
+  "@msgPickPeople": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "msgNotAllowed": "You can't message this member.",
+  "msgHint": "Message",
+  "msgSeen": "Seen",
+  "msgMute": "Mute notifications",
+  "msgUnmute": "Turn notifications on",
+  "msgRename": "Rename the group",
+  "msgReport": "Report the conversation",
+  "msgLeave": "Leave the group",
+  "msgHide": "Hide the conversation",
+  "msgBlocked": "You can't reply to this conversation.",
+  "msgMessage": "Message"
 }

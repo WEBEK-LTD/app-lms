@@ -2211,6 +2211,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Posts you save show here.'**
   String get postSavedEmpty;
+
+  /// No description provided for @msgNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New message'**
+  String get msgNew;
+
+  /// No description provided for @msgEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet. Write to a member from their profile, or start one here.'**
+  String get msgEmpty;
+
+  /// No description provided for @msgDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Message deleted'**
+  String get msgDeleted;
+
+  /// No description provided for @msgPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get msgPhoto;
+
+  /// No description provided for @msgStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get msgStart;
+
+  /// No description provided for @msgGroupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name (optional)'**
+  String get msgGroupTitle;
+
+  /// No description provided for @msgPickPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen {n} of {max}'**
+  String msgPickPeople(int n, int max);
+
+  /// No description provided for @msgNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t message this member.'**
+  String get msgNotAllowed;
+
+  /// No description provided for @msgHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get msgHint;
+
+  /// No description provided for @msgSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Seen'**
+  String get msgSeen;
+
+  /// No description provided for @msgMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute notifications'**
+  String get msgMute;
+
+  /// No description provided for @msgUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn notifications on'**
+  String get msgUnmute;
+
+  /// No description provided for @msgRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename the group'**
+  String get msgRename;
+
+  /// No description provided for @msgReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report the conversation'**
+  String get msgReport;
+
+  /// No description provided for @msgLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the group'**
+  String get msgLeave;
+
+  /// No description provided for @msgHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the conversation'**
+  String get msgHide;
+
+  /// No description provided for @msgBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t reply to this conversation.'**
+  String get msgBlocked;
+
+  /// No description provided for @msgMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get msgMessage;
 }
 
 class _AppLocalizationsDelegate

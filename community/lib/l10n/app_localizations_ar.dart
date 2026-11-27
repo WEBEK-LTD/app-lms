@@ -1178,4 +1178,61 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get postSavedEmpty => 'تظهر هنا المنشورات التي تحفظها.';
+
+  @override
+  String get msgNew => 'رسالة جديدة';
+
+  @override
+  String get msgEmpty =>
+      'لا توجد محادثات بعد. راسل عضوًا من ملفه، أو ابدأ محادثة من هنا.';
+
+  @override
+  String get msgDeleted => 'رسالة محذوفة';
+
+  @override
+  String get msgPhoto => 'صورة';
+
+  @override
+  String get msgStart => 'ابدأ';
+
+  @override
+  String get msgGroupTitle => 'اسم المجموعة (اختياري)';
+
+  @override
+  String msgPickPeople(int n, int max) {
+    return 'تم اختيار $n من $max';
+  }
+
+  @override
+  String get msgNotAllowed => 'لا يمكنك مراسلة هذا العضو.';
+
+  @override
+  String get msgHint => 'رسالة';
+
+  @override
+  String get msgSeen => 'شوهدت';
+
+  @override
+  String get msgMute => 'كتم الإشعارات';
+
+  @override
+  String get msgUnmute => 'تشغيل الإشعارات';
+
+  @override
+  String get msgRename => 'إعادة تسمية المجموعة';
+
+  @override
+  String get msgReport => 'الإبلاغ عن المحادثة';
+
+  @override
+  String get msgLeave => 'مغادرة المجموعة';
+
+  @override
+  String get msgHide => 'إخفاء المحادثة';
+
+  @override
+  String get msgBlocked => 'لا يمكنك الرد في هذه المحادثة.';
+
+  @override
+  String get msgMessage => 'مراسلة';
 }

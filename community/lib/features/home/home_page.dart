@@ -16,7 +16,6 @@ import '../../core/routing/paths.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/avatar.dart';
 import '../../core/widgets/badge_mark.dart';
-import '../../core/widgets/coming_soon.dart';
 import '../../core/widgets/community_header.dart';
 import '../../core/widgets/floating_tab_bar.dart';
 import '../../core/widgets/glass.dart';
@@ -25,6 +24,7 @@ import '../../core/widgets/sym.dart';
 import '../link/link_suggestion.dart';
 import '../shell/side_menu.dart';
 import '../social/data/social.dart';
+import '../messages/links.dart';
 import '../posts/data/posts_api.dart';
 import '../posts/posts_state.dart';
 import '../posts/ui/post_card.dart';
@@ -77,8 +77,8 @@ class HomePage extends ConsumerWidget {
                     onMenu: () =>
                         openSideMenu(context, current: MenuSection.home),
                     onSearch: () => context.push(FeatureLinks.search),
-                    onMessages: () =>
-                        showComingSoon(context, context.l10n.headerMessages),
+                    onMessages: () => context.push(MessagesLinks.inbox),
+                    messages: ref.watch(unreadMessagesProvider).value ?? 0,
                     onNotifications: () =>
                         context.push(FeatureLinks.notifications),
                     onProfile: () => context.push(Paths.me),

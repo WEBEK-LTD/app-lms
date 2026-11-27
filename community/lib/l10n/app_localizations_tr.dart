@@ -1156,4 +1156,61 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get postSavedEmpty => 'Kaydettiğin gönderiler burada görünür.';
+
+  @override
+  String get msgNew => 'Yeni mesaj';
+
+  @override
+  String get msgEmpty =>
+      'Henüz sohbet yok. Bir üyeye profilinden yaz ya da buradan başlat.';
+
+  @override
+  String get msgDeleted => 'Mesaj silindi';
+
+  @override
+  String get msgPhoto => 'Fotoğraf';
+
+  @override
+  String get msgStart => 'Başlat';
+
+  @override
+  String get msgGroupTitle => 'Grup adı (isteğe bağlı)';
+
+  @override
+  String msgPickPeople(int n, int max) {
+    return '$max kişiden $n seçildi';
+  }
+
+  @override
+  String get msgNotAllowed => 'Bu üyeye mesaj gönderemezsin.';
+
+  @override
+  String get msgHint => 'Mesaj';
+
+  @override
+  String get msgSeen => 'Görüldü';
+
+  @override
+  String get msgMute => 'Bildirimleri sessize al';
+
+  @override
+  String get msgUnmute => 'Bildirimleri aç';
+
+  @override
+  String get msgRename => 'Grubu yeniden adlandır';
+
+  @override
+  String get msgReport => 'Sohbeti bildir';
+
+  @override
+  String get msgLeave => 'Gruptan ayrıl';
+
+  @override
+  String get msgHide => 'Sohbeti gizle';
+
+  @override
+  String get msgBlocked => 'Bu sohbete yanıt veremezsin.';
+
+  @override
+  String get msgMessage => 'Mesaj gönder';
 }

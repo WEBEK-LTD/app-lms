@@ -1173,4 +1173,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get postSavedEmpty => 'Posts you save show here.';
+
+  @override
+  String get msgNew => 'New message';
+
+  @override
+  String get msgEmpty =>
+      'No conversations yet. Write to a member from their profile, or start one here.';
+
+  @override
+  String get msgDeleted => 'Message deleted';
+
+  @override
+  String get msgPhoto => 'Photo';
+
+  @override
+  String get msgStart => 'Start';
+
+  @override
+  String get msgGroupTitle => 'Group name (optional)';
+
+  @override
+  String msgPickPeople(int n, int max) {
+    return 'Chosen $n of $max';
+  }
+
+  @override
+  String get msgNotAllowed => 'You can\'t message this member.';
+
+  @override
+  String get msgHint => 'Message';
+
+  @override
+  String get msgSeen => 'Seen';
+
+  @override
+  String get msgMute => 'Mute notifications';
+
+  @override
+  String get msgUnmute => 'Turn notifications on';
+
+  @override
+  String get msgRename => 'Rename the group';
+
+  @override
+  String get msgReport => 'Report the conversation';
+
+  @override
+  String get msgLeave => 'Leave the group';
+
+  @override
+  String get msgHide => 'Hide the conversation';
+
+  @override
+  String get msgBlocked => 'You can\'t reply to this conversation.';
+
+  @override
+  String get msgMessage => 'Message';
 }

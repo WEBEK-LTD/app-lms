@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/email_pages.dart';
 import '../../features/home/home_page.dart';
 import '../../features/opening/opening_page.dart';
+import '../../features/messages/links.dart';
+import '../../features/messages/ui/inbox_page.dart';
+import '../../features/messages/ui/thread_page.dart';
 import '../../features/posts/posts_state.dart';
 import '../../features/posts/ui/composer_screen.dart';
 import '../../features/posts/ui/post_screen.dart';
@@ -147,6 +150,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Paths.blocked,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const BlockedPage(),
+      ),
+      GoRoute(
+        path: MessagesLinks.inbox,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const InboxPage(),
+      ),
+      GoRoute(
+        path: MessagesLinks.start,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const NewChatPage(),
+      ),
+      GoRoute(
+        path: '/messages/:id',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            ThreadPage(id: state.pathParameters['id']!),
       ),
       GoRoute(
         path: PostLinks.compose,
