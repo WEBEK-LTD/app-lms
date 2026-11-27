@@ -16,14 +16,16 @@ test.use({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.233" } });
 
 const suffix = Date.now().toString(36);
 const api = `${E2E.baseURL}/api/community/v1`;
-const password = "community-strong-password-3";
+const PASSWORD = "community-strong-password-3";
 const ADMIN_EMAIL = process.env.E2E_COMMUNITY_ADMIN_EMAIL ?? "community-admin@yallapp.test";
+/** The admin's account is shared with community-trust.spec.ts: the same password, whichever spec makes it first. */
+const ADMIN_PASSWORD = process.env.E2E_COMMUNITY_ADMIN_PASSWORD ?? "community-strong-password-2";
 
 type Member = { token: string; id: string };
 let nour: Member;
 const auth = (m: Member) => ({ authorization: `Bearer ${m.token}` });
 
-async function join(request: APIRequestContext, name: string, email: string): Promise<Member> {
+async function join(request: APIRequestContext, name: string, email: string, password = PASSWORD): Promise<Member> {
   const r = await request.post(`${api}/auth/email/sign-up`, { data: { email, password, display_name: name, device: { name: "e2e", platform: "android" } } });
   if (r.status() === 409) {
     const again = await request.post(`${api}/auth/email/log-in`, { data: { email, password, device: { name: "e2e", platform: "android" } } });
@@ -72,7 +74,7 @@ test("233–234 challenges and events are public to read; their admin tools are 
 });
 
 test("233–234 a Community admin: a challenge entered, an event RSVPed and saved to a calendar", async ({ request }) => {
-  const admin = await join(request, "Community Admin", ADMIN_EMAIL);
+  const admin = await join(request, "Community Admin", ADMIN_EMAIL, ADMIN_PASSWORD);
   const isAdmin = (await request.get(`${api}/admin/points`, { headers: auth(admin) })).status() === 200;
   test.skip(!isAdmin, `${ADMIN_EMAIL} isn't linked to a Yallapp platform admin on this server`);
   const now = Date.now();
