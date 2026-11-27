@@ -22,7 +22,7 @@ function embed(url: string): string | null {
   return vm ? `https://player.vimeo.com/video/${vm[1]}` : null;
 }
 
-/** 233 A lesson (video or article) with "Mark as done", or a quiz (`quiz-{id}`); a locked course sends the member back to buy it. */
+/** 233 A lesson (video or article) with "Mark as done", or a quiz (`quiz-{id}`); a locked course sends the member back to the course. */
 export default async function LessonPage({ params, searchParams }: { params: Promise<{ course: string; lesson: string }>; searchParams: Promise<{ error?: string; score?: string; passed?: string }> }) {
   const { course: rawSlug, lesson: rawLesson } = await params;
   const slug = decodeURIComponent(rawSlug);

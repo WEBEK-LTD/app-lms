@@ -8,6 +8,7 @@ import { Poll } from "@/components/community/site/next-client";
 import { ApiForm, PageNote } from "@/components/community/site/next-ui";
 import { SitePage } from "@/components/community/site/page";
 import { fill } from "@/components/community/site/words";
+import { ACADEMY_WORDS } from "@/components/community/site/academy-words";
 import { CM_WORDS2 } from "@/components/community/site/words2";
 
 type Props = { params: Promise<{ course: string }>; searchParams: Promise<{ checkout?: string; error?: string }> };
@@ -23,6 +24,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const sp = await searchParams;
   const { lang, w, viewer } = await siteContext();
   const w2 = CM_WORDS2[lang];
+  const wa = ACADEMY_WORDS[lang];
   const c = await course(slug);
   if (!c) notFound();
   const open = c.access === "open";
@@ -50,10 +52,10 @@ export default async function CoursePage({ params, searchParams }: Props) {
             {first ? <Link href={cmLinks.lesson(c.slug, first.id)} className="cm-btn o">{pct > 0 ? w2.continueCourse : w2.startCourse}</Link> : null}
           </>
         ) : !viewer ? (
-          <Link href={cmLinks.signIn(back)} className="cm-btn o">{w2.signInToBuy}</Link>
+          <Link href={cmLinks.signIn(back)} className="cm-btn o">{wa.signInToBuy}</Link>
         ) : (
           <ApiForm call={{ m: "POST", p: `/academy/courses/${encodeURIComponent(c.id)}/checkout`, back }}>
-            <button type="submit" className="cm-btn o"><span className="ms" aria-hidden="true">lock_open</span>{c.price_label ? fill(w2.buyCourse, { price: c.price_label }) : w2.startCourse}</button>
+            <button type="submit" className="cm-btn o"><span className="ms" aria-hidden="true">lock_open</span>{c.price_label ? fill(wa.buyCourse, { price: c.price_label }) : w2.startCourse}</button>
           </ApiForm>
         )}
         {c.certificate ? (

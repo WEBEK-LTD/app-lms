@@ -13,6 +13,7 @@ export function JobFields({ w2, job }: { w2: CmWords2; job?: Job }) {
         <label className="cm-field" style={{ flex: 1 }}>{w2.location}<input name="location" maxLength={120} defaultValue={job?.location ?? ""} /></label>
         <label className="cm-field" style={{ flex: 1 }}>{w2.budget}<input name="budget" maxLength={80} defaultValue={job?.budget ?? ""} /></label>
       </div>
+      <input type="hidden" name="b:remote" value="0" />
       <label className="cm-check" style={{ marginTop: 12 }}><input type="checkbox" name="b:remote" value="1" defaultChecked={job?.remote ?? true} /> {w2.remote}</label>
       <label className="cm-field">{w2.skills}<input name="l:skills" maxLength={600} defaultValue={job?.skills.join(", ") ?? ""} /></label>
       <label className="cm-field">{w2.description}<textarea name="description" required minLength={30} maxLength={8000} defaultValue={job?.description ?? ""} style={{ minHeight: 200 }} /></label>

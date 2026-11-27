@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { cmTarget } from "@/components/community/site/redirect";
 import { siteContext } from "@/components/community/site/context";
 import { cmHref, cmLinks } from "@/components/community/site/links";
+import { jsonBody, list } from "@/components/community/site/form-body";
 import { send } from "@/components/community/site/next";
 import { communityApi } from "@/lib/community/site-client";
 
@@ -45,45 +46,6 @@ function str(form: FormData, name: string): string {
 /** A site path to come back to: only the Community's own pages. */
 function sitePath(p: string, fallback: string): string {
   return p.startsWith(cmHref("/")) && !p.startsWith("//") ? p : fallback;
-}
-
-function list(v: string): string[] {
-  return v.split(/\r?\n|,/).map((x) => x.trim()).filter(Boolean);
-}
-
-/** A date and time from a datetime-local field, read in the given time zone, as UTC ISO. */
-function zonedToUtc(local: string, tz: string): string | null {
-  const m = local.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-  if (!m) return null;
-  const asUtc = Date.UTC(+m[1]!, +m[2]! - 1, +m[3]!, +m[4]!, +m[5]!);
-  // The zone's offset at that moment: format the UTC instant in the zone and compare.
-  const zoned = (ms: number) => {
-    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
-    return Date.UTC(+parts.year!, +parts.month! - 1, +parts.day!, +parts.hour!, +parts.minute!);
-  };
-  try {
-    const offset = zoned(asUtc) - asUtc;
-    return new Date(asUtc - offset).toISOString();
-  } catch {
-    return null;
-  }
-}
-
-function jsonBody(form: FormData): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  const names = new Set<string>();
-  for (const [k] of form.entries()) if (!k.startsWith("_") && !k.startsWith("$ACTION")) names.add(k);
-  for (const k of names) {
-    const all = form.getAll(k).filter((v): v is string => typeof v === "string").map((v) => v.trim());
-    const [kind, name] = k.includes(":") ? (k.split(":", 2) as [string, string]) : ["s", k];
-    if (kind === "d") out[name] = all[0] ? zonedToUtc(all[0], str(form, "time_zone") || str(form, "_tz") || "UTC") : null;
-    else if (kind === "n") out[name] = all[0] === "" || all[0] === undefined ? null : Number(all[0]);
-    else if (kind === "b") out[name] = all.includes("1");
-    else if (kind === "l") out[name] = all.flatMap(list);
-    else if (kind === "o") out[name] = all[0] ? JSON.parse(all[0]) : null;
-    else out[name] = all.length > 1 ? all : (all[0] ?? "");
-  }
-  return out;
 }
 
 function multipart(form: FormData): FormData {
