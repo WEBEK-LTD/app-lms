@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cmTarget } from "@/components/community/site/redirect";
 import { siteContext } from "@/components/community/site/context";
@@ -8,6 +9,9 @@ import { cmHref, cmLinks } from "@/components/community/site/links";
 import { jsonBody, list } from "@/components/community/site/form-body";
 import { send } from "@/components/community/site/next";
 import { setCoursePrice } from "@/lib/community/academy/service";
+import { communityDeps } from "@/lib/community/deps";
+import { startCourseCheckout } from "@/lib/community/engage/checkout";
+import { ipFromHeaders } from "@/lib/http";
 import { communityApi } from "@/lib/community/site-client";
 import { getCommunityStore } from "@/lib/community/store/server";
 import { YALLAPP_TENANT } from "@/lib/community/types";
@@ -31,7 +35,7 @@ const PATHS = [
   /^\/messages\/conversations(\/[^/]+(\/(members\/me|members|messages(\/[^/]+)?|read|report))?)?$/,
   /^\/groups(\/[^/]+(\/(cover|membership|members\/[^/]+|requests\/[^/]+\/(accept|decline)))?)?$/,
   /^\/tutorials\/drafts(\/[^/]+)?$/,
-  /^\/academy\/courses\/[^/]+\/(checkout|lessons\/[^/]+\/complete|quizzes\/[^/]+\/attempts)$/,
+  /^\/academy\/courses\/[^/]+\/(lessons\/[^/]+\/complete|quizzes\/[^/]+\/attempts)$/,
   /^\/challenges\/[^/]+\/entries(\/[^/]+\/vote)?$/,
   /^\/pros\/[^/]+\/hire$/, /^\/pros\/requests\/[^/]+(\/review)?$/, /^\/me\/pro$/,
   /^\/jobs(\/[^/]+(\/applications(\/[^/]+)?)?)?$/,
@@ -82,8 +86,6 @@ export async function apiAction(form: FormData): Promise<void> {
     redirect(await cmTarget(withParam(back, "error", result.code)));
   }
   const body = (result.body ?? {}) as Record<string, unknown>;
-  // A checkout answers with the gateway's address: the browser goes there.
-  if (typeof body.url === "string" && /^https:\/\//.test(body.url) && path.endsWith("/checkout")) redirect(body.url);
   const to = str(form, "_to");
   const done = str(form, "_done");
   // `{id}` and `{slug}` take the answer's (written plainly or as a link helper encoded them).
@@ -194,4 +196,17 @@ export async function quizAuthorAction(form: FormData): Promise<void> {
     .map(([prompt, ...opts]) => ({ prompt: prompt!, options: opts.map((o) => o.replace(/^\*/, "").trim()), answer: Math.max(0, opts.findIndex((o) => o.startsWith("*"))) }));
   const result = await send("PUT", `/admin/academy/lessons/${encodeURIComponent(str(form, "lesson_id"))}/quiz`, { body: { questions } });
   redirect(await cmTarget(withParam(back, result.ok ? "done" : "error", result.ok ? "saved" : result.code)));
+}
+
+/** 233 Buy a course on the website: Yallapp's own checkout (area C), signed in on the site only; back on the course's page with ?checkout=. */
+export async function courseCheckoutAction(form: FormData): Promise<void> {
+  const { viewer } = await siteContext();
+  const slug = str(form, "slug");
+  const back = cmLinks.course(slug);
+  if (!viewer) redirect(await cmTarget(cmLinks.signIn(back)));
+  const ip = ipFromHeaders(await headers());
+  const deps = await communityDeps({ ip });
+  const result = await startCourseCheckout({ deps, store: deps.store, now: deps.now }, viewer.id, str(form, "course_id"), { ip }).catch(() => null);
+  if (result && result.ok && /^https:\/\//.test(result.url)) redirect(result.url);
+  redirect(await cmTarget(withParam(back, "error", result && !result.ok ? result.code : "checkout_failed")));
 }
