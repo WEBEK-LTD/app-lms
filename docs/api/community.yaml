@@ -1005,7 +1005,7 @@ paths:
   /tutorials:
     get:
       tags: [Tutorials]
-      summary: Official tutorials
+      summary: Tutorials, the team's (official) and members' (233)
       security: [{}, { bearerAuth: [] }]
       parameters:
         - { name: section, in: query, schema: { type: string } }
@@ -1027,7 +1027,7 @@ paths:
                   next_cursor: { type: [string, "null"] }
     post:
       tags: [Tutorials]
-      summary: Publish an official tutorial (Yallapp's team; others get 403)
+      summary: "Write a tutorial (233): any member; a new member's first ones wait for review; official only for Yallapp's team (others get 403)"
       requestBody:
         required: true
         content:
@@ -1047,6 +1047,7 @@ paths:
                 duration_seconds: { type: integer, description: "A video's length." }
                 cover_url: { type: string, format: uri }
                 tags: { type: array, maxItems: 5, items: { type: string } }
+                official: { type: boolean, description: "Yallapp's team only; the team's are official unless false." }
       responses:
         "201": { description: Published., content: { application/json: { schema: { $ref: "#/components/schemas/Tutorial" } } } }
         "400": { $ref: "#/components/responses/Invalid" }
@@ -2105,7 +2106,7 @@ components:
         can_edit: { type: boolean, description: "Its author may delete it." }
     TutorialSummary:
       type: object
-      required: [id, slug, title, summary, kind, level, language, section, cover_url, duration_seconds, duration_minutes, official, tags, author, view_count, bookmarked, published_at]
+      required: [id, slug, title, summary, kind, level, language, section, cover_url, duration_seconds, duration_minutes, official, tags, author, view_count, bookmarked, published_at, status]
       properties:
         id: { type: string, format: uuid }
         slug: { type: string }
@@ -2124,6 +2125,7 @@ components:
         view_count: { type: integer }
         bookmarked: { type: boolean, description: "Saved by the signed-in member." }
         published_at: { type: string, format: date-time }
+        status: { type: string, enum: [pending, published, removed], description: "pending while a member's waits for review; only its author sees it then." }
     Tutorial:
       allOf:
         - $ref: "#/components/schemas/TutorialSummary"

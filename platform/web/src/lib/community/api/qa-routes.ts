@@ -245,7 +245,7 @@ const listTutorials: Handler = async (ctx) =>
 
 const getTutorial: Handler = async (ctx) => ok(wire(await qa.getTutorial(ctx.params.tutorial!, { viewerId: viewer(ctx), lang: lang(ctx), countView: await countsView(ctx, `t:${ctx.params.tutorial!}`) })));
 
-/** Yallapp's team publishes an official tutorial. */
+/** A member writes a tutorial (233); "Official" is the team's. */
 const publishTutorial: Handler = async (ctx) => {
   const body = ctx.json();
   const duration = typeof body.duration_seconds === "number" ? body.duration_seconds : undefined;
@@ -262,6 +262,7 @@ const publishTutorial: Handler = async (ctx) => {
       videoUrl: str(body, "video_url") ?? null,
       durationSeconds: duration,
       coverUrl: str(body, "cover_url") ?? null,
+      official: typeof body.official === "boolean" ? body.official : undefined,
       tags: tagsIn(body.tags),
     },
     ctx.now,

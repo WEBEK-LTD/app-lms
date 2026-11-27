@@ -135,17 +135,21 @@ describe("231 Community Q&A API", () => {
     expect((await api<Json>(c, "GET", "/search?q=nour&type=members")).body.members.map((m: Json) => m.id)).toEqual([helper.id]);
   });
 
-  it("publishes tutorials for the team only and filters them", async () => {
+  it("publishes tutorials, Official for the team only, and filters them", async () => {
     const { c, helper, team } = await setup();
     const video = { title: "Publish your app to the stores", summary: "From build to review.", kind: "video", section: "publishing", level: "intermediate", language: "ar", body: "", video_url: "https://www.youtube.com/watch?v=abc123", duration_seconds: 540 };
-    expect((await api(c, "POST", "/tutorials", { token: helper.token, body: video })).status).toBe(403);
+    expect((await api(c, "POST", "/tutorials", { token: helper.token, body: { ...video, official: true } })).status).toBe(403);
+    // 233 A member's own: never Official (the helper is established, so it shows at once).
+    const own = await api<Json>(c, "POST", "/tutorials", { token: helper.token, body: { ...video, kind: "article", body: "Open Studio, then Publish, then follow each step to the end.", title: "My way to publish" } });
+    expect(own.status, JSON.stringify(own.body)).toBe(201);
+    expect(own.body).toMatchObject({ official: false, status: "published" });
     const t = await api<Json>(c, "POST", "/tutorials", { token: team.token, body: video });
     expect(t.status, JSON.stringify(t.body)).toBe(201);
     expect(t.body).toMatchObject({ kind: "video", duration_seconds: 540, duration_minutes: 9, video_url: video.video_url, level: "intermediate", language: "ar" });
     expect((await api<Json>(c, "GET", "/tutorials?kind=video&level=intermediate")).body.items).toHaveLength(1);
-    expect((await api<Json>(c, "GET", "/tutorials?kind=article")).body.items).toHaveLength(0);
+    expect((await api<Json>(c, "GET", "/tutorials?kind=article")).body.items.map((x: Json) => x.id)).toEqual([own.body.id]);
     expect((await api<Json>(c, "GET", `/tutorials/${t.body.slug}`)).body.id).toBe(t.body.id);
-    expect((await api<Json>(c, "GET", "/tutorials/sections")).body.items.find((s: Json) => s.slug === "publishing").count).toBe(1);
+    expect((await api<Json>(c, "GET", "/tutorials/sections")).body.items.find((s: Json) => s.slug === "publishing").count).toBe(2);
   });
 
   it("explains a field it can't take in the reader's language", async () => {

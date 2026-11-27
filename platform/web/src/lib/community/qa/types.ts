@@ -157,6 +157,8 @@ export interface TutorialSummary {
   viewCount: number;
   bookmarked: boolean;
   publishedAt: string;
+  /** 233 "pending" while a member's waits for review (only its author sees it then). */
+  status: ContentStatus;
 }
 
 export interface Tutorial extends TutorialSummary {
