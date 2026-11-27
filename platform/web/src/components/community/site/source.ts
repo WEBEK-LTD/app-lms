@@ -316,6 +316,7 @@ export async function profile(handle: string, o: { viewerId: string | null; lang
     })),
     links: p.links ?? [],
     questionsCount: p.counts.questions,
+    linked: p.yallapp_linked === true,
     relation: {
       self: o.viewerId === p.id,
       following: rel?.following ?? false,
@@ -382,9 +383,13 @@ export async function report(target: { kind: "question" | "answer" | "reply" | "
 
 // ----- Linking a Yallapp account: confirmed signed in on yallapp.com.tr -----
 
-export async function linkedAccount(): Promise<{ linked: boolean; since: string | null; apps: number }> {
-  const r = await communityApi<{ linked: boolean; linked_at: string | null; apps?: unknown[] }>("GET", "/me/yallapp-link");
-  return r.status === 200 ? { linked: r.body.linked, since: r.body.linked_at, apps: r.body.apps?.length ?? 0 } : { linked: false, since: null, apps: 0 };
+export type LinkedAccount = { linked: boolean; since: string | null; apps: number; name: string | null; email: string | null };
+
+export async function linkedAccount(): Promise<LinkedAccount> {
+  const r = await communityApi<{ linked: boolean; linked_at: string | null; account_name?: string | null; account_email?: string | null; apps?: unknown[] }>("GET", "/me/yallapp-link");
+  return r.status === 200
+    ? { linked: r.body.linked, since: r.body.linked_at, apps: r.body.apps?.length ?? 0, name: r.body.account_name ?? null, email: r.body.account_email ?? null }
+    : { linked: false, since: null, apps: 0, name: null, email: null };
 }
 
 /** Where to send the member to confirm the link (yallapp.com.tr), or null when linking isn't available. */

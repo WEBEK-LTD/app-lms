@@ -175,13 +175,13 @@ export default async function MemberPage({ params, searchParams }: Props) {
           <section className="cm-card">
             <h2>{w.linkedApps}</h2>
             {p.linkedApps.length ? (
-              <div className="cm-appgrid">{p.linkedApps.map((a) => <AppCard key={a.id} a={a} w={w} />)}</div>
+              <div className="cm-appgrid cm-apps">{p.linkedApps.map((a) => <AppCard key={a.id} a={a} w={w} />)}</div>
             ) : (
               <div className="cm-empty">
                 <span className="ms" aria-hidden="true">apps</span>
                 <b>{w.appsEmptyTitle}</b>
-                <p className="cm-muted">{p.relation.self ? w.noAppsSelf : w.noApps}</p>
-                {p.relation.self ? <Link href={cmLinks.settings()} className="cm-btn g">{w.appsEmptyLink}</Link> : null}
+                <p className="cm-muted">{p.relation.self ? (p.linked ? w.noAppsLinked : w.noAppsSelf) : w.noApps}</p>
+                {p.relation.self && !p.linked ? <Link href={cmLinks.settings()} className="cm-btn g">{w.appsEmptyLink}</Link> : null}
               </div>
             )}
           </section>

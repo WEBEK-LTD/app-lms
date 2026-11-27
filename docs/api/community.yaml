@@ -1674,6 +1674,7 @@ components:
         linked: { type: boolean }
         linked_at: { type: [string, "null"], format: date-time }
         account_name: { type: [string, "null"], description: "The Yallapp account's name." }
+        account_email: { type: [string, "null"], description: "The Yallapp account's email, shown to the member themself so they can tell which account is linked." }
         apps: { type: array, items: { $ref: "#/components/schemas/LinkedApp" } }
     LinkedApp:
       type: object

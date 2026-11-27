@@ -8,7 +8,7 @@ import { isDuplicate } from "../store/db";
 import type { CommunityMember } from "../types";
 import { isCommunityLanguage, t } from "../i18n";
 import type { CommunityMail } from "../mail";
-import { linkedApps, yallappAccountName } from "../yallapp";
+import { linkedApps, yallappAccount } from "../yallapp";
 import { limitMember } from "./accounts";
 
 /**
@@ -37,9 +37,9 @@ export async function startLink(ctx: MemberContext): Promise<CommunityResult> {
 
 export async function getLink(ctx: MemberContext): Promise<CommunityResult> {
   const userId = ctx.member.yallappUserId;
-  if (!userId) return ok({ linked: false, linked_at: null, account_name: null, apps: [] });
-  const [name, apps] = await Promise.all([yallappAccountName(ctx.deps.platform, userId), linkedApps(ctx.deps.platform, userId, ctx.now)]);
-  return ok({ linked: true, linked_at: ctx.member.linkedAt?.toISOString() ?? null, account_name: name, apps: apps.map(linkedAppView) });
+  if (!userId) return ok({ linked: false, linked_at: null, account_name: null, account_email: null, apps: [] });
+  const [account, apps] = await Promise.all([yallappAccount(ctx.deps.platform, userId), linkedApps(ctx.deps.platform, userId, ctx.now)]);
+  return ok({ linked: true, linked_at: ctx.member.linkedAt?.toISOString() ?? null, account_name: account?.name ?? null, account_email: account?.email ?? null, apps: apps.map(linkedAppView) });
 }
 
 export async function unlink(ctx: MemberContext): Promise<CommunityResult> {
