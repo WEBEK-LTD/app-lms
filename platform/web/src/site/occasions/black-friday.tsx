@@ -576,7 +576,8 @@ function PlanList({ lang, t, plans, prices, on, family, percent }: { lang: Lang;
 
 function Plans({ lang, t, view, fill, regular, studio, prices, priceView, contact }: { lang: Lang; t: OccasionText; view: OccasionView; fill: Fill; regular: PlanInfo[]; studio: PlanInfo[]; prices: Map<string, OccasionPlanPrice | null>; priceView: PriceView; contact: Contact }) {
   const plansOn = view.occasion.plans;
-  const families = (view.on ? (plansOn === "all" ? ["regular", "studio"] : [plansOn]) : ["regular", "studio"]) as ("regular" | "studio")[];
+  // Studio first (the owner's rule for every page with prices): its tab, and its plan in the price drop.
+  const families = (view.on ? (plansOn === "all" ? ["studio", "regular"] : [plansOn]) : ["studio", "regular"]) as ("regular" | "studio")[];
   const drop = view.on ? dropPrice(prices, families.flatMap((f) => (f === "studio" ? studio : regular))) : null;
   const panel = (family: "regular" | "studio"): ReactNode =>
     family === "studio" && !studio.length ? (

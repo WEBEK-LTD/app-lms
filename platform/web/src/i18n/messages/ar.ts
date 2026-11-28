@@ -73,6 +73,7 @@ export const ar: Messages = {
     studioDemoText: "جرّب تطبيقات Studio على هاتفك",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
     market: "ماركت Studio",
+    community: "المجتمع",
     marketText: "تصاميم تطبيقات جاهزة من المصممين",
     signIn: "تسجيل الدخول",
     getStarted: "ابدأ الآن",

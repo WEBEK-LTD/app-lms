@@ -136,7 +136,8 @@ describe("32 the home page's texts and counts", () => {
     // The home's kinds are Yallapp Studio's, counted from their list (lib/studio/home-kinds.ts); the app editor's follow in one line.
     expect(home.solutionsTitle).toBe(`One platform, ${numberWord(HOME_STUDIO_KINDS.length)} kinds of Studio apps`);
     expect(home.solutionsTitle).toBe("One platform, nine kinds of Studio apps");
-    expect(home.badge).toBe("Android and iOS apps for eleven kinds of business");
+    // Every kind with a solutions page: the app editor's and Studio's.
+    expect(home.badge).toBe("Android and iOS apps for 18 kinds of business");
     expect(home.stepsTitle).toBe(`From sign-up to the app stores in ${numberWord(STEPS.length)} steps`);
     expect(contentPage("how-it-works")!.defaults.title).toBe(home.stepsTitle);
     expect(contentPage("integrations")!.defaults.intro).toContain("WordPress with 11 supported plugins, 10 online platforms, RSS feeds");
@@ -198,7 +199,7 @@ describe("32 search engines", () => {
   it("list every public page in the sitemap, and nothing private", () => {
     const entries = sitemapEntries(BASE, { "/terms": "15 October 2026", "/privacy": "not a date" });
     const urls = entries.map((e) => e.url);
-    for (const path of ["", "/solutions", "/features", "/integrations", "/how-it-works", "/pricing", "/yallapp-studio", "/demo", "/demo/studio", "/docs", "/developers", "/faq", "/contact", "/terms", "/privacy", "/refund", "/delete-account", "/black-friday"]) {
+    for (const path of ["", "/solutions", "/features", "/integrations", "/how-it-works", "/pricing", "/yallapp-studio", "/demo", "/demo/studio", "/docs", "/developers", "/faq", "/contact", "/terms", "/privacy", "/refund", "/delete-account", "/black-friday", "/yallapp-community"]) {
       expect(urls).toContain(`${BASE}${path}`);
     }
     for (const s of ALL_SOLUTIONS) expect(urls).toContain(`${BASE}/solutions/${s.id}`);
@@ -206,7 +207,7 @@ describe("32 search engines", () => {
     for (const id of STORY_IDS) expect(urls).toContain(`${BASE}${storyPath(id)}`);
     // 106.13 With /templates (its templates come from the store: tests/unit/studio-market-public.test.ts).
     expect(urls).toContain(`${BASE}/templates`);
-    expect(urls).toHaveLength(20 + compareParams().length + ALL_SOLUTIONS.length + DOCS.length + STORY_IDS.length);
+    expect(urls).toHaveLength(21 + compareParams().length + ALL_SOLUTIONS.length + DOCS.length + STORY_IDS.length);
     expect(new Set(urls).size).toBe(urls.length);
     for (const url of urls) {
       expect(url.startsWith(BASE)).toBe(true);
@@ -228,7 +229,8 @@ describe("32 search engines", () => {
 
   it("keep the private areas out in robots.txt and point to the sitemap", () => {
     const robots = robotsRules(BASE);
-    expect(robots.sitemap).toBe(`${BASE}/sitemap.xml`);
+    // The site's sitemap, and the Community site's own.
+    expect(robots.sitemap).toEqual([`${BASE}/sitemap.xml`, `${BASE}/community/sitemap.xml`]);
     expect(robots.host).toBe(BASE);
     const rules = Array.isArray(robots.rules) ? robots.rules[0]! : robots.rules;
     expect(rules).toMatchObject({ userAgent: "*", allow: "/" });
@@ -463,7 +465,7 @@ describe("67 Google: the favicon, and every public page indexed", () => {
     for (const url of [LOGO_PATH, "/site.webmanifest", "/opengraph-image", "/ar/opengraph-image", "/pricing/opengraph-image", "/sitemap.xml"]) expect(blocked(url), url).toBe(false);
     onNetlify();
     const robots = robotsRules(siteUrl());
-    expect(robots.sitemap).toBe("https://yallapp.com.tr/sitemap.xml");
+    expect(robots.sitemap).toEqual(["https://yallapp.com.tr/sitemap.xml", "https://yallapp.com.tr/community/sitemap.xml"]);
     expect(robots.host).toBe("https://yallapp.com.tr");
     const rules = Array.isArray(robots.rules) ? robots.rules[0]! : robots.rules;
     expect(rules.allow).toBe("/");

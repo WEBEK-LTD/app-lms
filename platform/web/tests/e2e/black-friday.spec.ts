@@ -59,13 +59,15 @@ for (const width of [360, 1280]) {
           expect(overflow).toBeLessThanOrEqual(0);
         }
         expect(await tab.evaluate(mainOverflow)).toBeLessThanOrEqual(1);
-        // The plans' families switch with their tabs, by click and by keyboard.
+        // The plans' families switch with their tabs, by click and by keyboard; Studio's first, the owner's rule for prices.
         const families = tab.getByRole("tablist").first();
-        await families.getByRole("tab").nth(1).click();
+        await expect(families.getByRole("tab").first()).toHaveAttribute("aria-selected", "true");
         await expect(tab.locator('[data-plan-family="studio"], [data-studio-on-request]').first()).toBeVisible();
+        await families.getByRole("tab").nth(1).click();
+        await expect(tab.locator('[data-plan-family="regular"]')).toBeVisible();
         await families.getByRole("tab").nth(1).press("Home");
         await expect(families.getByRole("tab").first()).toHaveAttribute("aria-selected", "true");
-        await expect(tab.locator('[data-plan-family="regular"]')).toBeVisible();
+        await expect(tab.locator('[data-plan-family="studio"], [data-studio-on-request]').first()).toBeVisible();
         // The shop window: every kind on the shelf, which its button moves along in the page's direction.
         const kinds = tab.locator("[data-kind]");
         expect(await kinds.count()).toBeGreaterThanOrEqual(12);

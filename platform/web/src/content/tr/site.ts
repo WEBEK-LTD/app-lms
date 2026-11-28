@@ -7,7 +7,7 @@ import type { SiteContentTranslation } from "../translation-types";
  */
 export const TR_SITE: SiteContentTranslation = {
   home: {
-    badge: "{kinds} farklı işletme türü için Android ve iOS uygulamaları",
+    badge: "{allKinds} farklı işletme türü için Android ve iOS uygulamaları",
     title: "İşletmeniz, kendi mobil uygulamanız olarak.",
     titleWords: "mağazanız, okulunuz, restoranınız, taksi şirketiniz, teslimatlarınız, akademiniz",
     intro:

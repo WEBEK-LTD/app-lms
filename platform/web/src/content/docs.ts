@@ -106,7 +106,7 @@ export const DOCS: DocDefault[] = [
 ## Your path to the stores
 
 1. [Create your account](/docs/create-account) and get it activated.
-2. [Choose your app type](/docs/app-types).
+2. Choose what to make: a [Yallapp Studio](/docs/yallapp-studio) project, or [an app type](/docs/app-types) under **Other app types**.
 3. [Choose where your content comes from](/docs/content-sources) and connect it.
 4. Complete [the setup steps](/docs/setup-steps): branding, store listing and publishing.
 5. Build your [pages and look](/docs/pages-and-look) and turn on [languages](/docs/languages).
@@ -145,7 +145,7 @@ We email you when your account is active.
 
 ## Sign in to your dashboard
 
-[Sign in](/sign-in) with your email and password. The first time, you choose your app type, and the setup steps follow. Forgot your password? Choose **Forgot password?** on the sign-in page and we'll email you a link to choose a new one.
+[Sign in](/sign-in) with your email and password. The first time, you choose what to make: Yallapp Studio's kinds of apps come first, and the app editor's types are under **Other app types** below them. The setup steps follow. Forgot your password? Choose **Forgot password?** on the sign-in page and we'll email you a link to choose a new one.
 `,
   }),
   doc({
@@ -154,7 +154,7 @@ We email you when your account is active.
     title: "Choose your app type",
     description: "Academy, Store, Restaurant & café, Bookings, Clinic, Gym & fitness, Real estate, News & blog, Events & tickets or Charity & donations: what each app type does and where its content can come from.",
     steps: false,
-    body: `The app type decides your app's screens and its bottom tabs. You choose it once, on the first page of **App setup**, and you can change it later.
+    body: `The app type decides your app's screens and its bottom tabs. You choose it once, on the first page of **App setup**, and you can change it later. On a new account's first page, Yallapp Studio's kinds of apps come first, and these types are under **Other app types** below them.
 
 ## Academy
 
@@ -221,7 +221,7 @@ Open it from **Yallapp Studio** in your dashboard's menu. Its first page, **Your
 ## Regular apps and Studio projects
 
 - **Pages**: regular apps use the page editor, with its blocks and ready-made designs. Studio projects use the Studio editor, where any element goes anywhere.
-- **Kinds of apps**: Studio makes every kind of app Yallapp makes, and the project types only Studio offers, like delivery companies.
+- **Kinds of apps**: Studio makes every kind of app Yallapp makes, and the project types only Studio offers, like delivery companies. Its shop types make a shop for clothes, kids' clothes, cosmetics, toys, home decor, crochet and handmade, furniture, electronics, mobiles, or computers and gaming, each with four looks (see [Studio's demos](/docs/studio-templates)).
 - **Plans**: they're separate. A regular app is paid on a regular plan (Starter, Growth, Pro or Business), and a Studio project on one of Studio's own plans.
 - **In your account**: your regular apps stay in the dashboard; your Studio projects are in Studio, each with its own dashboard.
 
@@ -237,7 +237,7 @@ Choose **New project**. It takes three steps:
 
 The project's dashboard opens, with the same pages as a regular app of its kind. You can design and try before you choose a plan. Publishing needs one of Studio's plans.
 
-You can also start from one of Studio's ten demos, in either of its two looks, with all its pages, photos and entries, and try each one live first: see [Ready sections, templates and Studio's demos](/docs/studio-templates).
+You can also start from one of Studio's 20 demos, in any of its looks, with all its pages, photos and entries, and try each one live first: see [Ready sections, templates and Studio's demos](/docs/studio-templates).
 
 A shop can start from Leqaa, Studio's flower shop, with its gift checkout, delivery days and times, card messages and flash sales, which every store app can use: see [Delivery days, gifts and flash sales](/docs/delivery-and-offers). Its story, **Flower shop app**, is among the stories on [Yallapp Studio](/yallapp-studio).
 
@@ -1257,7 +1257,7 @@ In a store project, **Sign-in and account** has **Checkout**: how your store's c
     slug: "studio-templates",
     section: "Your app",
     title: "Ready sections, templates and Studio's demos",
-    description: "Add ready-made sections and whole pages in Yallapp Studio, keep your own templates and designs, use the seven premium whole designs, and start from one of Studio's ten demos in either of its two looks, trying each one live before you choose.",
+    description: "Add ready-made sections and whole pages in Yallapp Studio, keep your own templates and designs, use the seven premium whole designs, and start from one of Studio's 20 demos in any of its looks, trying each one live before you choose.",
     steps: false,
     figures: ["safra-explore", "travel-sig-b-home", "rawaq-home", "teachers-sig-b-home"],
     body: `You don't have to build every page from single elements. In the [Studio editor](/docs/studio-elements), **Ready sections** adds a whole part of a page, **Templates** a whole page, and **Whole designs** every page at once. And a new project can start as one of Studio's demos, in either of its two looks, with all its pages, photos and entries.
@@ -1308,7 +1308,7 @@ Each one's home comes first, then your kind's own pages, an about page and conta
 
 The words a template, a ready section, a whole design or a look puts into your app (its headlines, buttons, section titles, tabs and sign-in lines) are your app's own, in English, Arabic and Turkish: written in your dashboard's language, with the others as translations. In Arabic they're in Modern Standard Arabic, like the rest of your app; Studio's editor itself speaks your dashboard's language.
 
-## Studio's ten demos
+## Studio's demos
 
 Each demo is a real app made in Studio, in English, Arabic and Turkish, light and dark, with real photos, and each one is its look A. Starting from one gives you all of it: its pages, tabs, bar, look, sign-in screen, account menu, entries, premium headers and the look of the app's own screens.
 
@@ -1339,6 +1339,21 @@ Every demo has two Signature looks. Look A is the demo itself; look B is another
 - **Rawaq Academy**: **Faculty index**, and **On air** (the teachers in a full-screen slider, the teachers in rings and the popular courses in a grid).
 - **Ufuq Academy**: **Night cinema**, and **Gold ring** (the course in a gold ring, the streak with this week's days, the live class and the picked courses in a list, with a dock).
 - **Leqaa**: **Rose hour**, in blush and plum, and **Botanical press** (the petal header over the page, "Who are the flowers for?" with the occasions as chips, the edit as numbered cards, Send today as a ticket, the flash sale on forest green, the collections as arches, a filmstrip from the atelier, the price list and the bouquet's three steps, in sage and forest with peach, the petal bar as a forest capsule).
+
+## The shop types
+
+Studio also has a demo for ten kinds of shop. Each one is a real shop app in English, Arabic and Turkish, light and dark, with four whole looks, A to D; look C is its main look, the one the home page shows. Starting from one gives you its pages, tabs and look.
+
+- **Lujain**: clothes
+- **Toota**: kids' clothes
+- **Velours**: cosmetics
+- **Toot**: toys
+- **Sakan**: home decor
+- **Ghurza**: crochet and handmade
+- **Rukn**: furniture
+- **Madar**: electronics
+- **Nova**: mobiles
+- **Nawah**: computers and gaming
 
 ## Starting from a demo
 
@@ -1935,7 +1950,7 @@ A courier deletes their Yallapp Courier account in the app, from **Account**. Yo
     // 115.13 Public pages never call it a marketplace (phase 72).
     slug: "multi-vendor",
     section: "Your app",
-    title: "Multi-vendor apps",
+    title: "Run your multi-vendor app",
     description: "Set up one delivery app for many restaurants, supermarkets and shops: joining, each place's panel, delivery, payments, offers, complaints and statements.",
     steps: true,
     body: `A multi-vendor app puts many restaurants, supermarkets and shops in one delivery app under your name. Customers order from each place, every place takes its own orders in its own panel, and your couriers or the place's own deliver them. It is a [Yallapp Studio](/docs/yallapp-studio) project, on Studio's own plans.
@@ -3464,6 +3479,7 @@ The bell at the top of your dashboard shows what our team sends you (updates, an
 - **WhatsApp**: the **Support** link in your dashboard, the fastest way to reach us. We have two numbers, one for customers in Egypt and one for everywhere else: the dashboard opens the one for your account's country, and the [Contact](/contact) page shows both
 - **Email**: for anything you'd rather put in writing
 - This documentation, for step-by-step answers
+- **Yallapp Community**: ask other app makers and share what you built, at [community.yallapp.com.tr](https://community.yallapp.com.tr)
 
 Send us a screenshot and the step you're on, and we'll answer you directly.
 `,

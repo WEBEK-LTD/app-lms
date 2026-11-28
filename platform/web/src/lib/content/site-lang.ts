@@ -3,7 +3,7 @@ import { LOCALIZED } from "@/content/localized";
 import { DOCS } from "@/content/docs";
 import type { PrefixedLang } from "@/i18n/config";
 import { faqFor, numberWordFor } from "../marketing-lang";
-import { INTEGRATION_COUNTS, SOLUTIONS, STEPS } from "../marketing";
+import { ALL_SOLUTIONS, INTEGRATION_COUNTS, SOLUTIONS, STEPS } from "../marketing";
 import { HOME_STUDIO_KINDS } from "../studio/home-kinds";
 import { faqMarkdown, type ContentPage } from "./site";
 
@@ -25,11 +25,12 @@ function fillCounts(lang: PrefixedLang, text: string): string {
   const counts: Record<string, string> = {
     kinds: numberWordFor(lang, SOLUTIONS.length),
     studioKinds: numberWordFor(lang, HOME_STUDIO_KINDS.length),
+    allKinds: numberWordFor(lang, ALL_SOLUTIONS.length),
     steps: numberWordFor(lang, STEPS.length),
     plugins: String(INTEGRATION_COUNTS.plugins),
     platforms: String(INTEGRATION_COUNTS.platforms),
   };
-  return text.replace(/\{(kinds|studioKinds|steps|plugins|platforms)\}/g, (_, name: string) => counts[name]!);
+  return text.replace(/\{(kinds|studioKinds|allKinds|steps|plugins|platforms)\}/g, (_, name: string) => counts[name]!);
 }
 
 /** The built-in translation of a page's fields (some may be missing: those show in English). */

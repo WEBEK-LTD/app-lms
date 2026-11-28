@@ -68,6 +68,8 @@ export function sitemapEntries(base: string, updated: Record<string, string | un
     ...STORY_IDS.map((id) => entry(storyPath(id), 0.8)),
     // 124 Black Friday's page: the same address every year, listed when the offer is over too.
     entry("/black-friday", 0.8),
+    // 232 Yallapp Community on the marketing site; the Community itself lists its own pages (/community/sitemap.xml).
+    entry("/yallapp-community", 0.7),
     entry("/compare", 0.8),
     ...compareParams().map((c) => entry(`/compare/${c.name}`, 0.7)),
     entry("/demo", 0.7),
@@ -102,7 +104,8 @@ export function siteSitemap(base: string, updated: Record<string, string | undef
 export function robotsRules(base: string): MetadataRoute.Robots {
   return {
     rules: [{ userAgent: "*", allow: "/", disallow: PRIVATE_PATHS }],
-    sitemap: `${base}/sitemap.xml`,
+    // 232 The Community site lists its own pages (app/community/sitemap.ts).
+    sitemap: [`${base}/sitemap.xml`, `${base}/community/sitemap.xml`],
     host: base,
   };
 }

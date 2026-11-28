@@ -66,6 +66,8 @@ function productLinks(lang: Lang, m: Messages): { id: string; href: string; labe
     { id: "studio-demo", href: "/demo/studio", label: m.footer.studioDemo },
     // 106.13 Studio Market's public page.
     { id: "templates", href: "/templates", label: nav.market },
+    // 232 Yallapp Community's page on the marketing site, which leads to the Community itself.
+    { id: "community", href: "/yallapp-community", label: nav.community },
   ].map((l) => ({ ...l, href: localePath(lang, l.href) }));
 }
 

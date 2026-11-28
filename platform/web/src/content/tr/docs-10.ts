@@ -287,7 +287,7 @@ Bir mağaza projesinde **Giriş ve hesap** sayfasında **Ödeme** bölümü vard
   },
   "studio-templates": {
     title: "Hazır bölümler, şablonlar ve Studio'nun demoları",
-    description: "Yallapp Studio'da hazır bölümler ve tüm sayfalar ekleyin, kendi şablonlarınızı ve tasarımlarınızı saklayın, yedi premium tüm tasarımı kullanın ve Studio'nun on demosundan biriyle, iki görünümünden hangisiyle isterseniz başlayın; seçmeden önce her birini canlı deneyin.",
+    description: "Yallapp Studio'da hazır bölümler ve tüm sayfalar ekleyin, kendi şablonlarınızı ve tasarımlarınızı saklayın, yedi premium tüm tasarımı kullanın ve Studio'nun 20 demosundan biriyle, görünümlerinden hangisiyle isterseniz başlayın; seçmeden önce her birini canlı deneyin.",
     body: `Her sayfayı tek tek öğelerden kurmanız gerekmez. [Studio düzenleyicisi](/docs/studio-elements)'nde **Hazır bölümler** bir sayfanın bütün bir bölümünü, **Şablonlar** bütün bir sayfayı, **Tüm tasarımlar** da tüm sayfaları birden ekler. Yeni bir proje de tüm sayfaları, fotoğrafları ve kayıtlarıyla, iki görünümünden biriyle Studio'nun demolarından biri olarak başlayabilir.
 
 ## Hazır bölümler
@@ -336,7 +336,7 @@ Her birinin ana sayfası önce gelir, sonra türünüzün kendi sayfaları, bir 
 
 Bir şablonun, hazır bölümün, tüm tasarımın ya da görünümün uygulamanıza koyduğu sözcükler (başlıkları, düğmeleri, bölüm başlıkları, sekmeleri ve giriş satırları) uygulamanızın kendi sözcükleridir; İngilizce, Arapça ve Türkçe: panelinizin dilinde yazılır, diğerleri çevirileridir. Arapçada, uygulamanızın geri kalanı gibi Modern Standart Arapçadırlar; Studio'nun düzenleyicisi ise panelinizin dilini konuşur.
 
-## Studio'nun on demosu
+## Studio'nun demoları
 
 Her demo Studio'da yapılmış gerçek bir uygulamadır; İngilizce, Arapça ve Türkçe, açık ve koyu, gerçek fotoğraflarla; her biri kendi A görünümüdür. Biriyle başlamak size hepsini verir: sayfalarını, sekmelerini, çubuğunu, görünümünü, giriş ekranını, hesap menüsünü, kayıtlarını, premium üst bilgilerini ve uygulamanın kendi ekranlarının görünümünü.
 
@@ -367,6 +367,21 @@ Her demonun iki Signature görünümü vardır. A görünümü demonun kendisidi
 - **Rawaq Academy**: **Öğretmen dizini** ve **Yayında** (tam ekran bir kaydırıcıda öğretmenler, halkalarda öğretmenler ve ızgarada popüler kurslar).
 - **Ufuq Academy**: **Gece sineması** ve **Altın halka** (altın bir halkada kurs, bu haftanın günleriyle seri, canlı ders ve bir listede seçilen kurslar, bir dokla).
 - **Leqaa**: pembe ve mürdüm rengi **Gül saati** ve **Botanik baskı** (sayfanın üstünde taç yaprağı üst bilgi, çipler halinde vesilelerle “Çiçekler kime?”, numaralı kartlarda seçki, bilet olarak Bugün gönder, orman yeşilinde flaş indirim, kemerler halinde koleksiyonlar, atölyeden bir film şeridi, fiyat listesi ve buketin üç adımı; adaçayı ve orman yeşili, şeftaliyle; orman renginde bir kapsül olarak taç yaprağı çubuk).
+
+## Mağaza türleri
+
+Studio'da on mağaza türü için de birer demo var. Her biri İngilizce, Arapça ve Türkçe, açık ve koyu, A'dan D'ye dört tam görünümü olan gerçek bir mağaza uygulamasıdır; C görünümü ana görünümüdür ve ana sayfa onu gösterir. Birinden başlamak size sayfalarını, sekmelerini ve görünümünü verir.
+
+- **Lujain**: giyim
+- **Toota**: çocuk giyim
+- **Velours**: kozmetik
+- **Toot**: oyuncak
+- **Sakan**: ev dekorasyonu
+- **Ghurza**: örgü ve el yapımı
+- **Rukn**: mobilya
+- **Madar**: elektronik
+- **Nova**: cep telefonları
+- **Nawah**: bilgisayar ve oyun
 
 ## Bir demoyla başlamak
 

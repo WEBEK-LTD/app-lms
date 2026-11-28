@@ -399,6 +399,9 @@ export async function HomePage({ lang }: { lang: Lang }) {
           <MoreLink href={lp("/how-it-works")}>{h.howInDetail}</MoreLink>
         </Section>
 
+        {/* 205 Studio's own plans as on the pricing page: compact cards on its night band; Studio's first, the owner's rule for every page with prices. */}
+        <StudioPlansBand lang={lang} plans={studioPlans} view={view} contact={contact} />
+
         <Section tinted id="plans">
           <SectionTitle title={text.plansTitle!} text={text.plansText} />
           {/* The plans' limits count up as they come into view (StoryEffects). */}
@@ -410,9 +413,6 @@ export async function HomePage({ lang }: { lang: Lang }) {
           </p>
           <MoreLink href={lp("/pricing")}>{h.compareFeatures}</MoreLink>
         </Section>
-
-        {/* 205 Studio's own plans as on the pricing page: compact cards on its night band. */}
-        <StudioPlansBand lang={lang} plans={studioPlans} view={view} contact={contact} />
 
         {/* Customer reviews, only real ones from Admin › Reviews; nothing without any. */}
         <HomeReviews lang={lang} />

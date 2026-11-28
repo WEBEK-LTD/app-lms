@@ -28,6 +28,8 @@ const EXACT_PAGES = new Set([
   "/faq",
   // 124 Black Friday's page (Admin › Occasions), every year at the same address.
   "/black-friday",
+  // 232 Yallapp Community on the marketing site.
+  "/yallapp-community",
   "/docs",
   "/developers",
   "/terms",
