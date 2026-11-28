@@ -152,7 +152,7 @@ test("a switched-off platform disappears from a client's Website step", async ()
   await owner.getByRole("button", { name: "Edit their app settings" }).click();
   // 132.110 An account without an app starts where the client does.
   await expect(owner).toHaveURL(/\/start$/);
-  await owner.getByRole("link", { name: "Start from an empty app" }).click();
+  await owner.goto((await owner.locator('[data-classic] a[href^="/dashboard/app-type"]').getAttribute("href"))!); // the app editor's empty start, under "Other app types"
   await expect(owner).toHaveURL(/\/dashboard\/app-type$/);
   await owner.getByText("Store", { exact: true }).click();
   await owner.getByRole("button", { name: "Continue" }).click();

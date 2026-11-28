@@ -1,6 +1,7 @@
 import { DOCS, type DocDefault } from "@/content/docs";
 import { PRIVACY, REFUND, TERMS, type LegalDefault } from "@/content/legal";
 import { ALL_SOLUTIONS, FAQ, INTEGRATION_COUNTS, numberWord, SOLUTIONS, STEPS } from "../marketing";
+import { HOME_STUDIO_KINDS } from "../studio/home-kinds";
 import { inlineText, parseMarkdown, type Block, type Inline } from "./markdown";
 import { hasUnplacedBlock } from "./legal-diff";
 
@@ -219,6 +220,8 @@ function headerPage(key: string, title: string, path: string, defaults: { eyebro
 
 /** 32 Counts in the default texts follow the registries (lib/app/kinds.ts, lib/marketing.ts). */
 const KIND_COUNT = numberWord(SOLUTIONS.length);
+/** The home's Studio kinds (lib/studio/home-kinds.ts). */
+const STUDIO_KIND_COUNT = numberWord(HOME_STUDIO_KINDS.length);
 const STEPS_TITLE = `From sign-up to the app stores in ${numberWord(STEPS.length)} steps`;
 
 export const CONTENT_PAGES: ContentPage[] = [
@@ -263,8 +266,8 @@ export const CONTENT_PAGES: ContentPage[] = [
         "Yallapp builds branded Android and iOS apps from the website you already run, from Shopify and other platforms, or with no website at all. Your name, your colors, your pages, published under your own store accounts.",
       primaryCta: "Get started on WhatsApp",
       secondaryCta: "See how it works",
-      solutionsTitle: `One platform, ${KIND_COUNT} kinds of apps`,
-      solutionsText: "Pick the app that fits your business. Each one has its own screens, built for what your customers do.",
+      solutionsTitle: `One platform, ${STUDIO_KIND_COUNT} kinds of Studio apps`,
+      solutionsText: "Made in Yallapp Studio: shops, delivery, rides, schools and more, each with its own premium screens in light and dark.",
       featuresTitle: "Everything your app needs",
       featuresText: "Your brand, your pages and your languages, with sign-in, notifications and payments that follow the store rules.",
       integrationsTitle: "Works with what you already use",

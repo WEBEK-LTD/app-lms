@@ -1,11 +1,9 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { STORY_IDS, storyPath } from "@/site/story/types";
-import { STUDIO_ONLY_KINDS } from "@/lib/studio/section";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { DOCS } from "@/content/docs";
 import { PRIVACY, REFUND, TERMS } from "@/content/legal";
-import { KINDS } from "@/lib/app/kinds";
 import { COMPANY_PLACE, legalLine } from "@/lib/company";
 import { contentPage } from "@/lib/content/site";
 import { parseMarkdown } from "@/lib/content/markdown";
@@ -36,6 +34,7 @@ import { solutionsFor } from "@/lib/marketing-lang";
 import { LANGS } from "@/i18n/config";
 import { messagesFor } from "@/i18n";
 import { isLocalizedPath, localePath } from "@/i18n/paths";
+import { HOME_STUDIO_KINDS } from "@/lib/studio/home-kinds";
 import nextConfig from "../../next.config";
 
 const BASE = "https://yallapp.test";
@@ -134,9 +133,9 @@ describe("32 the home page's texts and counts", () => {
   it("has a plan title for four plans and counts in the defaults", () => {
     const home = contentPage("home")!.defaults;
     expect(home.plansTitle).toBe("A plan for every app");
-    // 104 The site counts the kinds it has a page for (Studio's own kinds, 105.1 food delivery too, get theirs when they open to everyone).
-    expect(home.solutionsTitle).toBe(`One platform, ${numberWord(KINDS.filter((k) => !STUDIO_ONLY_KINDS.has(k.id)).length)} kinds of apps`);
-    expect(home.solutionsTitle).toBe("One platform, eleven kinds of apps");
+    // The home's kinds are Yallapp Studio's, counted from their list (lib/studio/home-kinds.ts); the app editor's follow in one line.
+    expect(home.solutionsTitle).toBe(`One platform, ${numberWord(HOME_STUDIO_KINDS.length)} kinds of Studio apps`);
+    expect(home.solutionsTitle).toBe("One platform, nine kinds of Studio apps");
     expect(home.badge).toBe("Android and iOS apps for eleven kinds of business");
     expect(home.stepsTitle).toBe(`From sign-up to the app stores in ${numberWord(STEPS.length)} steps`);
     expect(contentPage("how-it-works")!.defaults.title).toBe(home.stepsTitle);

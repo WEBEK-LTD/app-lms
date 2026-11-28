@@ -156,7 +156,7 @@ test("signing up in Turkish: a Turkish dashboard, an app from the App editor's d
   await shot(own, "tr-2-start");
 
   // The store demo, made the owner's.
-  await own.locator('a[data-demo="store"]').click();
+  await own.goto((await own.locator('a[data-demo="store"]').getAttribute("href"))!); // an app editor card, under "Other app types"
   await own.getByRole("link", { name: startTr.startWith }).click();
   await expect(own).toHaveURL(/\/start\/[a-z-]+\/make$/);
   await own.getByLabel(startTr.name).fill("Elif Çiçek");
@@ -192,7 +192,7 @@ test("an English account's app stays English until its owner makes Arabic the ma
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
   await expect(own).toHaveURL(/\/start$/);
-  await own.locator('a[data-demo="store"]').click();
+  await own.goto((await own.locator('a[data-demo="store"]').getAttribute("href"))!); // an app editor card, under "Other app types"
   await own.getByRole("link", { name: "Start with this app" }).click();
   await own.getByLabel("Your app's name").fill("Sam's Shop");
   await own.getByRole("button", { name: "Create my app" }).click();

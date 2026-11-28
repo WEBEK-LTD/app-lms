@@ -103,7 +103,7 @@ test("the team opens a client's account and makes an app from /start as the clie
   await expect(banner).toContainText(`You're working in ${omar.name}'s account`);
   await expect(banner.getByRole("button", { name: "Back to Admin" })).toBeVisible();
   await shot(admin, "banner-start");
-  await admin.locator('a[data-demo="store"]').click();
+  await admin.goto((await admin.locator('a[data-demo="store"]').getAttribute("href"))!); // an app editor card, under "Other app types"
   await expect(admin).toHaveURL(/\/start\/[a-z-]+$/);
   await expect(admin.locator("[data-working-in-account]")).toBeVisible();
   await admin.getByRole("link", { name: "Start with this app" }).first().click();

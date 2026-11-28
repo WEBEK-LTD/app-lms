@@ -132,10 +132,10 @@ test("the team activates the account, and the client sets up their first app", a
 
 test("the client adds a second app, which waits for activation", async () => {
   await own.getByRole("link", { name: "Add an app" }).click();
-  // 127 Our demos first, the App editor's chosen; today's empty start stays.
+  // 127 Our demos first: Studio's, then the App editor's types, opened from the App editor; today's empty start stays.
   await expect(own).toHaveURL(/\/start\?new=1&for=editor$/);
-  await expect(own.getByRole("button", { name: "App editor", pressed: true })).toBeVisible();
-  await own.getByRole("link", { name: "Start from an empty app" }).click();
+  await expect(own.locator("[data-classic]")).toHaveAttribute("open", "");
+  await own.goto((await own.locator('[data-classic] a[href^="/dashboard/app-type"]').getAttribute("href"))!); // the app editor's empty start, under "Other app types"
   await expect(own.getByRole("heading", { name: "Add an app" })).toBeVisible();
   await own.getByText("Bookings", { exact: true }).click();
   await own.getByRole("button", { name: "Add the app" }).click();

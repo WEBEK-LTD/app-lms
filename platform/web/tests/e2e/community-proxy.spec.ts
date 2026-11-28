@@ -163,7 +163,7 @@ test("through the reverse proxy: link a Yallapp account, and the profile shows i
 
   // The account makes its first app on Yallapp: the member's profile shows it.
   await page.goto(`${E2E.baseURL}/start`);
-  await page.getByRole("link", { name: "Start from an empty app" }).click();
+  await page.goto((await page.locator('[data-classic] a[href^="/dashboard/app-type"]').getAttribute("href"))!); // the app editor's empty start, under "Other app types"
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: "Website" })).toBeVisible();

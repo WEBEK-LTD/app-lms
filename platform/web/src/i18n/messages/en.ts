@@ -140,6 +140,7 @@ export const en = {
     tryDemo: "Try a demo app on your phone",
     appsGroup: "Yallapp apps",
     tryDemos: "Try the {count} demo apps",
+    alsoClassic: "Also in the app editor:",
     looksTitle: "3 templates, light and dark, 3 languages",
     lookClassic: "Classic",
     lookBold: "Bold",

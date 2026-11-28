@@ -133,6 +133,7 @@ export const ar: Messages = {
     tryDemo: "جرّب تطبيقًا تجريبيًا على هاتفك",
     appsGroup: "تطبيقات Yallapp",
     tryDemos: "جرّب التطبيقات التجريبية الـ{count}",
+    alsoClassic: "ومتاح كمان في محرر التطبيقات:",
     looksTitle: "3 قوالب، بالوضعين الفاتح والداكن، و3 لغات",
     lookClassic: "كلاسيكي",
     lookBold: "جريء",

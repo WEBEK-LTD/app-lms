@@ -13,7 +13,6 @@ import { cardWords, demoScreens, lookShots, Phone, PickerShell, ProductBadge, ST
 import { Icon } from "@/components/icon";
 import type { DashKey } from "@/i18n/dashboard";
 import { SECTION_DEMOS, SHOP_SECTIONS, SHOP_TYPES, shopTypesIn } from "@/lib/studio/shop-types";
-import { PickerFilter, type PickerShow } from "./filter";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("start.title"), robots: { index: false } };
@@ -42,7 +41,8 @@ export default async function StartPage({ searchParams }: PageProps<"/start">) {
   if (context.apps.length && !adding) redirect(context.app?.section === "studio" ? "/studio" : "/dashboard");
   const text = await dashboardText();
   const { t } = text;
-  const initial: PickerShow = query.for === "studio" ? "studio" : query.for === "editor" ? "editor" : "all";
+  // Studio first, always; the app editor's types open by themselves only for its own "New app".
+  const classicOpen = query.for === "editor";
   const sections = pickerSections();
   // 132.110 The account's owner, also when our team works in it.
   const first = (context.user.name ?? "").trim().split(/\s+/)[0] ?? "";
@@ -59,13 +59,18 @@ export default async function StartPage({ searchParams }: PageProps<"/start">) {
           {t("setup.maxApps", { max: MAX_APPS_PER_CLIENT })}
         </p>
       ) : null}
-      <PickerFilter
-        initial={initial}
-        labels={{ group: t("start.show"), all: t("start.all"), editor: t("start.editor"), studio: t("start.studio") }}
-        editor={<EditorSection text={text} ids={sections.editor} adding={adding} />}
-        studio={<StudioSection text={text} ids={sections.studio} adding={adding} />}
-        after={<NotSure text={text} adding={adding} />}
-      />
+      <StudioSection text={text} ids={sections.studio} adding={adding} />
+      {/* The app editor's types stay, smaller and folded under a quiet link below Studio. */}
+      <details className="group flex flex-col" data-classic="" open={classicOpen}>
+        <summary className="flex cursor-pointer list-none items-center gap-1.5 self-start text-[15px] font-semibold text-[var(--pk-ink2)] underline-offset-2 hover:underline [&::-webkit-details-marker]:hidden">
+          <Icon name="expand_more" size={20} className="transition-transform group-open:rotate-180" />
+          {t("start.otherTypes")}
+        </summary>
+        <div className="mt-4">
+          <EditorSection text={text} ids={sections.editor} adding={adding} />
+        </div>
+      </details>
+      <NotSure text={text} adding={adding} />
       {/* A div, not a p: the sign-out button is a form, which can't be inside a p (a full load wouldn't hydrate). */}
       <div className="m-0 flex flex-wrap items-center gap-1 text-sm text-[var(--pk-ink2)]">
         <span className="break-all" dir="ltr">
@@ -84,14 +89,14 @@ function EditorSection({ text, ids, adding }: { text: DashboardText; ids: readon
     <section aria-labelledby="pk-editor" data-section="editor" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end gap-4 border-b border-[var(--pk-line)] pb-3">
         <div className="min-w-0 flex-[1_1_280px]">
-          <h2 id="pk-editor" className="m-0 text-[28px] font-extrabold tracking-[-0.02em]">
+          <h2 id="pk-editor" className="m-0 text-[20px] font-bold tracking-[-0.01em]">
             {t("start.editorTitle")}
           </h2>
           <p className="m-0 mt-1 text-[15px] text-[var(--pk-ink2)]">{t("start.editorText")}</p>
         </div>
         <span className="flex h-8 items-center rounded-2xl border border-[var(--pk-line)] px-3.5 text-[13px] font-bold text-[var(--pk-ink2)]">{t("start.apps", { count: ids.length })}</span>
       </div>
-      <ul className="m-0 grid list-none gap-[18px] p-0 [grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr))]">
+      <ul className="m-0 grid list-none gap-3.5 p-0 [grid-template-columns:repeat(auto-fill,minmax(min(190px,100%),1fr))]">
         {ids.map((id, i) => {
           const words = cardWords(text, id);
           const shot = demoScreens(text, id)[0]!;
@@ -100,23 +105,26 @@ function EditorSection({ text, ids, adding }: { text: DashboardText; ids: readon
               <Link
                 href={pickerPath({ demo: id, adding })}
                 data-demo={id}
-                className="flex w-full flex-col overflow-hidden rounded-[26px] border border-[var(--pk-line)] bg-[var(--pk-surface)] text-[var(--pk-ink)] no-underline transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(14,13,36,0.45)]"
+                className="flex w-full flex-col overflow-hidden rounded-[20px] border border-[var(--pk-line)] bg-[var(--pk-surface)] text-[var(--pk-ink)] no-underline transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(14,13,36,0.45)]"
               >
-                <div className="pk-tint relative h-[200px] overflow-hidden" style={tintStyle(i)}>
-                  <Phone src={shot.src} alt={shot.alt} loop={demoLoop(id)} width={152} height={330} border={6} radius={24} className="absolute top-6 left-1/2 -ml-[76px] shadow-[0_18px_40px_rgba(14,13,36,0.18)]" />
+                <div className="pk-tint relative h-[130px] overflow-hidden" style={tintStyle(i)}>
+                  <Phone src={shot.src} alt={shot.alt} loop={demoLoop(id)} width={104} height={226} border={5} radius={18} className="absolute top-4 left-1/2 -ml-[52px] shadow-[0_18px_40px_rgba(14,13,36,0.18)]" />
                   <span className="absolute start-3.5 top-3.5">
                     <ProductBadge text={text} id={id} />
                   </span>
                 </div>
-                <div className="flex flex-col gap-1 px-[18px] pt-4 pb-[18px]">
-                  <span className="text-[19px] font-bold">{words.name}</span>
-                  <span className="text-sm leading-[1.4] text-[var(--pk-ink2)]">{words.line}</span>
+                <div className="flex flex-col gap-0.5 px-3.5 pt-3 pb-3.5">
+                  <span className="text-[16px] font-bold">{words.name}</span>
+                  <span className="text-[13px] leading-[1.4] text-[var(--pk-ink2)]">{words.line}</span>
                 </div>
               </Link>
             </li>
           );
         })}
       </ul>
+      <Link href={adding ? "/dashboard/app-type?new=1" : "/dashboard/app-type"} className="self-start text-sm font-semibold text-[var(--pk-ink2)] underline-offset-2 hover:underline">
+        {t("start.empty")}
+      </Link>
     </section>
   );
 }
@@ -166,7 +174,8 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
                       {t("start.lookCount")}
                     </span>
                   ) : null}
-                  <span className="absolute start-3.5 top-3.5">
+                  {/* Above both phones, so the badge is never under them. */}
+                  <span className="absolute start-3.5 top-3.5 z-[3]">
                     <ProductBadge text={text} id={id} />
                   </span>
                 </div>
@@ -182,9 +191,6 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
         })}
       </ul>
       <ShopTypes text={text} adding={adding} />
-      <Link href="/studio/new" className="self-start text-sm font-semibold underline-offset-2 hover:underline" style={{ color: STUDIO.gold }}>
-        {t("start.emptyStudio")}
-      </Link>
     </section>
   );
 }
@@ -291,8 +297,9 @@ function NotSure({ text, adding }: { text: DashboardText; adding: boolean }) {
         </form>
       </details>
       <div className="basis-full">
-        <Link href={adding ? "/dashboard/app-type?new=1" : "/dashboard/app-type"} className="text-sm font-semibold text-[var(--pk-ink2)] underline-offset-2 hover:underline">
-          {t("start.empty")}
+        {/* An empty start is a Studio project; the app editor's is with its types, under "Other app types". */}
+        <Link href="/studio/new" className="text-sm font-semibold text-[var(--pk-ink2)] underline-offset-2 hover:underline">
+          {t("start.emptyStudio")}
         </Link>
       </div>
     </div>
