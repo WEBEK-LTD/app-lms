@@ -87,7 +87,13 @@ test("a new account chooses Nour Academy and gets the whole demo in the app edit
   // 1 · What does your business do?
   await expect(own.getByRole("heading", { level: 1, name: "What does your business do?" })).toBeVisible();
   await expect(own.getByText("Welcome, Selin")).toBeVisible();
-  await expect(own.getByRole("button", { name: "All apps", pressed: true })).toBeVisible();
+  // Studio first and large; the app editor's types below it, folded under a quiet "Other app types".
+  const order = await own.locator('[data-section="studio"], [data-classic]').evaluateAll((els) => els.map((e) => (e.hasAttribute("data-classic") ? "classic" : "studio")));
+  expect(order).toEqual(["studio", "classic"]);
+  await expect(own.locator('[data-section="studio"]')).toBeVisible();
+  await expect(own.locator('[data-section="editor"]')).toBeHidden();
+  await own.getByText("Other app types").click();
+  await expect(own.locator('[data-section="editor"]')).toBeVisible();
   // Every demo once, in its own product's section, and nothing else.
   expect(await demosIn(own, "editor")).toEqual(EDITOR);
   expect(await demosIn(own, "studio")).toEqual([...STUDIO, ...SHOP_TYPES]);
@@ -144,6 +150,7 @@ test("a new account chooses Nour Academy and gets the whole demo in the app edit
   await expect(still.locator("source")).toHaveCount(0);
   expect(await still.evaluate((v: HTMLVideoElement) => v.paused && v.autoplay === false)).toBe(true);
   // Nor does the live app start by itself in a demo's phone: it waits for "Try it live".
+  await own.getByText("Other app types").click();
   await own.locator('a[data-demo="lms"]').click();
   await expect(own.locator("[data-live-try]")).toHaveAccessibleName("Try it live");
   await own.waitForTimeout(1500);
@@ -152,13 +159,9 @@ test("a new account chooses Nour Academy and gets the whole demo in the app edit
   await own.goBack();
   await expect(own.getByRole("heading", { level: 1, name: "What does your business do?" })).toBeVisible();
 
-  // The switch: one product, the other, both.
-  await own.getByRole("button", { name: "Studio" }).click();
-  await expect(own.locator('[data-section="editor"]')).toBeHidden();
-  await expect(own.locator('[data-section="studio"]')).toBeVisible();
-  await own.getByRole("button", { name: "App editor" }).click();
-  await expect(own.locator('[data-section="studio"]')).toBeHidden();
-  await own.getByRole("button", { name: "All apps" }).click();
+  // The app editor's own "New app" opens its types; Studio still comes first.
+  await own.goto("/start?for=editor");
+  await expect(own.locator("[data-classic]")).toHaveAttribute("open", "");
   await expect(own.locator('[data-section="studio"]')).toBeVisible();
   // The other ways in stay.
   await expect(own.getByRole("link", { name: "Describe my business" })).toHaveAttribute("href", "/dashboard/builder");
@@ -257,8 +260,8 @@ test("in Arabic and dark, Studio's New project opens the same page with Studio c
   await expect(own.locator("[data-picker-step]")).toHaveAttribute("dir", "rtl");
   await expect(own.locator("html")).toHaveAttribute("lang", "ar");
   await expect(own.getByRole("heading", { level: 1, name: "شغلك إيه؟" })).toBeVisible();
-  // Studio chosen: the App editor's section is hidden, Studio's shows.
-  await expect(own.getByRole("button", { name: "Studio", pressed: true })).toBeVisible();
+  // Studio first; the App editor's types folded below it.
+  await expect(own.locator('[data-section="studio"]')).toBeVisible();
   await expect(own.locator('[data-section="editor"]')).toBeHidden();
   expect(await demosIn(own, "studio")).toEqual([...STUDIO, ...SHOP_TYPES]);
   // Dark: the page in Midnight, Studio's cards dark with gold.
