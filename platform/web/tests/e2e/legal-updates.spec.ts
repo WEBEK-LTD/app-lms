@@ -88,20 +88,21 @@ for (const lang of LANGS) {
 
     await admin.goto(editor);
     const notice = admin.locator("[data-legal-update]");
-    // 106.14 changed it again on 23 November 2026 (the designer's public page and the ratings): the latest date.
-    await expect(notice).toContainText("Yallapp's default text for this page was updated on 23 November 2026. Your saved version doesn't have the changes.");
+    // 106.14 changed it again on 23 November 2026 (the designer's public page and the ratings); the November site audit on 28 November: the latest date.
+    await expect(notice).toContainText("Yallapp's default text for this page was updated on 28 November 2026. Your saved version doesn't have the changes.");
 
-    // Review the changes: 18 November's new list item and two changed paragraphs, 23 November's two new list items; none in the team's version yet.
+    // Review the changes: 18 November's new list item and two changed paragraphs, 23 November's two new list items,
+    // and the November site audit's (28 November) new and changed paragraphs; none in the team's version yet.
     await notice.getByRole("button", { name: "Review the changes" }).click();
     const changes = admin.getByRole("list", { name: "What the default added or changed" }).getByRole("listitem");
-    await expect(changes).toHaveCount(5);
-    for (const i of [0, 1, 2]) await expect(changes.nth(i)).toContainText("New paragraph");
-    for (const i of [3, 4]) await expect(changes.nth(i)).toContainText("Changed paragraph");
-    for (const [i, s] of NEW_SENTENCES[lang].entries()) {
-      await expect(changes.nth([0, 3, 4][i]!)).toContainText(s);
-      await expect(changes.nth([0, 3, 4][i]!)).toContainText("Not in your version");
+    await expect(changes).toHaveCount(8);
+    await expect(changes.filter({ hasText: "New paragraph" })).toHaveCount(5);
+    await expect(changes.filter({ hasText: "Changed paragraph" })).toHaveCount(3);
+    for (const s of NEW_SENTENCES[lang]) {
+      const item = changes.filter({ hasText: s }).first();
+      await expect(item).toContainText("Not in your version");
     }
-    await expect(changes.nth(3).locator("ins").first()).toHaveText(NEW_SENTENCES[lang][1]!);
+    await expect(changes.filter({ hasText: NEW_SENTENCES[lang][1]! }).first().locator("ins").filter({ hasText: NEW_SENTENCES[lang][1]! })).toHaveCount(1);
 
     // Add the new text: in the form only, at the places the default has it, the team's sentence kept.
     await notice.getByRole("button", { name: "Add the new text" }).click();
@@ -109,7 +110,7 @@ for (const lang of LANGS) {
     const text = admin.getByLabel("Text", { exact: true });
     for (const s of NEW_SENTENCES[lang]) await expect(text).toHaveValue(new RegExp(s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     await expect(text).toHaveValue(new RegExp(OWN[lang].replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-    await expect(admin.getByLabel("Last updated")).toHaveValue(/23/);
+    await expect(admin.getByLabel("Last updated")).toHaveValue(/28/);
     // Not published yet.
     await page.goto(publicPath);
     await expect(page.locator("main")).not.toContainText(NEW_SENTENCES[lang][1]!);
@@ -126,7 +127,7 @@ for (const lang of LANGS) {
     const main = page.locator("main");
     for (const s of NEW_SENTENCES[lang]) await expect(main).toContainText(s);
     await expect(main).toContainText(OWN[lang]);
-    await expect(main).toContainText(/23/);
+    await expect(main).toContainText(/28/);
     // 106.14 What the designer's page and the ratings make public.
     await expect(main).toContainText("yallapp.com.tr/designers/");
 
