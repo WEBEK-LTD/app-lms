@@ -22,6 +22,7 @@ type Words = {
   shotsText: string;
   features: { icon: IconName; name: string; text: string }[];
   shots: { file: string; alt: string }[];
+  hero: string;
 };
 
 const WORDS: Record<Lang, Words> = {
@@ -51,11 +52,12 @@ const WORDS: Record<Lang, Words> = {
       { icon: "workspace_premium", name: "Points and badges", text: "Points for helping others, levels, a leaderboard, and badges for pros, businesses and active members." },
     ],
     shots: [
-      { file: "home", alt: "The Community's home: stories, a post with a photo and the feed" },
-      { file: "academy", alt: "The Academy: a course with its lessons" },
-      { file: "event-live", alt: "A live event with its time and the going button" },
-      { file: "messages", alt: "A conversation between two members" },
+      { file: "feed", alt: "The Community's feed: a member's post with a photo" },
+      { file: "showcase", alt: "The showcase: an app a member built" },
+      { file: "challenge", alt: "A challenge with its dates, reward and how to enter" },
+      { file: "jobs", alt: "Jobs: a job posted by the Yallapp team" },
     ],
+    hero: "The Community's home: stories, the feed with a member's photo post, this month's challenge and the events",
   },
   ar: {
     title: "مجتمع Yallapp",
@@ -83,11 +85,12 @@ const WORDS: Record<Lang, Words> = {
       { icon: "workspace_premium", name: "نقاط وشارات", text: "نقاط لمساعدة الآخرين، ومستويات، ولوحة متصدرين، وشارات للمحترفين والأعمال والأعضاء النشطين." },
     ],
     shots: [
-      { file: "home", alt: "الصفحة الرئيسية للمجتمع: القصص ومنشور بصورة والخلاصة" },
-      { file: "academy", alt: "الأكاديمية: دورة بدروسها" },
-      { file: "event-live", alt: "فعالية مباشرة بموعدها وزر الحضور" },
-      { file: "messages", alt: "محادثة بين عضوين" },
+      { file: "feed", alt: "خلاصة المجتمع: منشور عضو بصورة" },
+      { file: "showcase", alt: "معرض التطبيقات: تطبيق بناه أحد الأعضاء" },
+      { file: "challenge", alt: "تحدٍّ بمواعيده وجائزته وطريقة المشاركة" },
+      { file: "jobs", alt: "الوظائف: وظيفة نشرها فريق Yallapp" },
     ],
+    hero: "الصفحة الرئيسية للمجتمع: القصص، والخلاصة بمنشور عضو بصورة، وتحدي الشهر، والفعاليات",
   },
   tr: {
     title: "Yallapp Community",
@@ -115,11 +118,12 @@ const WORDS: Record<Lang, Words> = {
       { icon: "workspace_premium", name: "Puanlar ve rozetler", text: "Başkalarına yardım için puanlar, seviyeler, bir lider tablosu ve profesyoneller, işletmeler ve aktif üyeler için rozetler." },
     ],
     shots: [
-      { file: "home", alt: "Topluluğun ana sayfası: hikâyeler, fotoğraflı bir gönderi ve akış" },
-      { file: "academy", alt: "Akademi: dersleriyle bir kurs" },
-      { file: "event-live", alt: "Saati ve katılım düğmesiyle canlı bir etkinlik" },
-      { file: "messages", alt: "İki üye arasında bir sohbet" },
+      { file: "feed", alt: "Topluluğun akışı: bir üyenin fotoğraflı gönderisi" },
+      { file: "showcase", alt: "Vitrin: bir üyenin yaptığı uygulama" },
+      { file: "challenge", alt: "Tarihleri, ödülü ve nasıl katılınacağıyla bir yarışma" },
+      { file: "jobs", alt: "İşler: Yallapp ekibinin verdiği bir ilan" },
     ],
+    hero: "Topluluğun ana sayfası: hikâyeler, bir üyenin fotoğraflı gönderisiyle akış, bu ayın yarışması ve etkinlikler",
   },
 };
 
@@ -128,19 +132,32 @@ export function communityPageMetadata(lang: Lang): Metadata {
   return siteMetadata(lang, { title: w.title, description: w.description, path: "/yallapp-community" });
 }
 
-/** Yallapp Community on the marketing site: what it is, what's in it, its own pages, and the way in. */
+/** Yallapp Community on the marketing site: what it is and the way in, beside its home page; what's in it; its own pages. */
 export function CommunityPage({ lang }: { lang: Lang }) {
   const w = WORDS[lang];
   const cta = "flex h-12 items-center gap-2 self-start rounded-xl bg-ember px-5 text-[15px] font-bold text-white no-underline hover:text-white";
+  const hero = (
+    <section className="on-dark overflow-clip bg-night-2 text-white" data-community-hero="">
+      <div className="mx-auto flex max-w-[1160px] flex-col gap-10 px-4 pt-14 pb-0 sm:px-6 sm:pt-20">
+        <div className="flex max-w-[720px] flex-col gap-4">
+          <span className="self-start rounded-full bg-white/10 px-3 py-1 text-[13px] font-bold">{w.eyebrow}</span>
+          <h1 className="m-0 text-[36px] leading-[1.08] font-extrabold tracking-[-1px] sm:text-[52px]">{w.title}</h1>
+          <p className="m-0 text-[17px] leading-relaxed text-white/80 sm:text-[19px]">{w.intro}</p>
+          <a href={COMMUNITY_URL} className={cta} data-community-cta="">
+            <Icon name="groups" size={20} />
+            {w.join}
+            <Icon name="open_in_new" size={18} />
+          </a>
+        </div>
+        <div className="overflow-hidden rounded-t-2xl border border-b-0 border-white/15">
+          <img src="/community/screens/desktop-home.webp" alt={w.hero} width={1200} height={750} className="theme-light-only block h-auto w-full" />
+          <img src="/community/screens/desktop-home-dark.webp" alt={w.hero} width={1200} height={750} className="theme-dark-only h-auto w-full" />
+        </div>
+      </div>
+    </section>
+  );
   return (
-    <MarketingPage eyebrow={w.eyebrow} title={w.title} intro={w.intro} lang={lang} trail={[{ name: w.title, path: "/yallapp-community" }]}>
-      <Section id="join">
-        <a href={COMMUNITY_URL} className={cta} data-community-cta="">
-          <Icon name="groups" size={20} />
-          {w.join}
-          <Icon name="open_in_new" size={18} />
-        </a>
-      </Section>
+    <MarketingPage hero={hero} eyebrow={w.eyebrow} title={w.title} intro={w.intro} lang={lang} trail={[{ name: w.title, path: "/yallapp-community" }]}>
       <Section tinted id="inside">
         <SectionTitle title={w.whatTitle} text={w.whatText} />
         <ul className="m-0 grid list-none gap-4 p-0 [grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr))]" data-community-features="">
@@ -157,7 +174,7 @@ export function CommunityPage({ lang }: { lang: Lang }) {
         <SectionTitle title={w.shotsTitle} text={w.shotsText} />
         <div className="flex flex-wrap justify-center gap-6" data-community-shots="">
           {w.shots.map((s) => (
-            <figure key={s.file} className="m-0 w-[240px] max-w-full overflow-hidden rounded-[28px] border-[6px] border-midnight bg-midnight">
+            <figure key={s.file} className="m-0 w-[240px] max-w-full overflow-hidden rounded-[28px] border-[6px] border-[#0e0d24] bg-[#0e0d24]">
               <img src={`/community/screens/${s.file}.webp`} alt={s.alt} width={390} height={700} loading="lazy" className="theme-light-only block h-auto w-full" />
               <img src={`/community/screens/${s.file}-dark.webp`} alt={s.alt} width={390} height={700} loading="lazy" className="theme-dark-only h-auto w-full" />
             </figure>
