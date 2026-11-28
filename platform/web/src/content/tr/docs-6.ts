@@ -323,6 +323,7 @@ Yallapp haberlerini, yeni özellikleri ve planlı bakımları panelinizin **Duyu
 - **WhatsApp**: panelinizdeki **Destek** bağlantısı, bize ulaşmanın en hızlı yolu. İki numaramız var: biri Mısır'daki müşteriler için, diğeri başka her yer için. Panel, hesabınızın ülkesine ait numarayı açar; [İletişim](/contact) sayfası ikisini de gösterir
 - **E-posta**: yazılı olarak iletmeyi tercih ettiğiniz her şey için
 - Adım adım yanıtlar için bu dokümantasyon
+- **Yallapp Community**: diğer uygulama yapımcılarına sorun ve yaptığınızı paylaşın: [community.yallapp.com.tr](https://community.yallapp.com.tr)
 
 Bize bir ekran görüntüsü ve bulunduğunuz adımı gönderin, size doğrudan yanıt verelim.
 `,
