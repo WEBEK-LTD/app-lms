@@ -431,8 +431,9 @@ export async function PricingPage({ lang, period: asked = null }: { lang: Lang; 
       </div>
       {/* 146 The two products, side by side and alike: the app by day, Studio by night. */}
       <div className="pr-wrap pr-products" role="group" aria-label={m.productsLabel} data-products="">
-        <ProductChoice product="regular" lang={lang} name={names.regular} who={m.appWho} tag={w.androidIos} from={from.regular} />
+        {/* Studio first: the owner's rule for every page with prices. */}
         <ProductChoice product="studio" lang={lang} name={names.studio} who={m.studioWho} tag={m.studioTag} from={from.studio} />
+        <ProductChoice product="regular" lang={lang} name={names.regular} who={m.appWho} tag={w.androidIos} from={from.regular} />
       </div>
     </section>
   );
@@ -503,7 +504,7 @@ export async function PricingPage({ lang, period: asked = null }: { lang: Lang; 
                       </p>
                     </div>
                     <ul className="pr-life-from">
-                      {(["regular", "studio"] as const).map((product) =>
+                      {(["studio", "regular"] as const).map((product) =>
                         lifetimeFrom[product] ? (
                           <li key={product} data-lifetime-from={product}>
                             <span className="pr-life-from-name">
@@ -536,13 +537,32 @@ export async function PricingPage({ lang, period: asked = null }: { lang: Lang; 
             </div>
           ) : null}
 
+          {/* 103R Yallapp Studio's own plans; 146 for the same periods; 154 on a night band. */}
+          <section id="studio" aria-labelledby="studio-title" className="pr-night-band" data-product-plans="studio">
+            <div className="pr-wrap">
+              <div className="pr-sec-head">
+                <div>
+                  <span className="pr-kicker">
+                    <span className="pr-n">01</span>
+                    {s.studio}
+                  </span>
+                  <h2 id="studio-title">{s.plansTitle}</h2>
+                  <p>{s.plansText}</p>
+                </div>
+                <Link href={lp("/yallapp-studio")} className="pr-lnk-u">
+                  {s.homeLink}
+                </Link>
+              </div>
+              <StudioPlanCards plans={studioPlans} view={view} lang={lang} period={shownPeriod} contact={contact} />
+            </div>
+          </section>
           {/* 103R The regular apps' plans, by day. */}
           <section id="regular" aria-labelledby="regular-title" className="pr-day" data-product-plans="regular">
             <div className="pr-wrap">
               <div className="pr-sec-head">
                 <div>
                   <span className="pr-kicker">
-                    <span className="pr-n">01</span>
+                    <span className="pr-n">02</span>
                     {m.appName}
                   </span>
                   <h2 id="regular-title">{s.pricingRegular}</h2>
@@ -557,26 +577,6 @@ export async function PricingPage({ lang, period: asked = null }: { lang: Lang; 
                 <Icon name="dashboard_customize" size={18} />
                 <span>{richText(s.pricingStudio, { link: (chunk) => <a href="#studio">{chunk}</a> })}</span>
               </p>
-            </div>
-          </section>
-
-          {/* 103R Yallapp Studio's own plans; 146 for the same periods; 154 on a night band. */}
-          <section id="studio" aria-labelledby="studio-title" className="pr-night-band" data-product-plans="studio">
-            <div className="pr-wrap">
-              <div className="pr-sec-head">
-                <div>
-                  <span className="pr-kicker">
-                    <span className="pr-n">02</span>
-                    {s.studio}
-                  </span>
-                  <h2 id="studio-title">{s.plansTitle}</h2>
-                  <p>{s.plansText}</p>
-                </div>
-                <Link href={lp("/yallapp-studio")} className="pr-lnk-u">
-                  {s.homeLink}
-                </Link>
-              </div>
-              <StudioPlanCards plans={studioPlans} view={view} lang={lang} period={shownPeriod} contact={contact} />
               <div className="pr-notes" data-pricing-notes="">
                 <p>
                   <span data-currency-note="">{currencyNote(view, lang)}</span> {richText(m.eachApp, { link: wa })}
@@ -585,6 +585,7 @@ export async function PricingPage({ lang, period: asked = null }: { lang: Lang; 
               </div>
             </div>
           </section>
+
         </section>
 
         {/* 146 Each product in detail, with real screens of apps made with it; 154 Studio's with its real editor, and every kind of app each makes. */}
@@ -594,22 +595,6 @@ export async function PricingPage({ lang, period: asked = null }: { lang: Lang; 
             <p>{m.aboutText}</p>
           </div>
           <div className="pr-about-grid">
-            <ProductDetail
-              product="regular"
-              lang={lang}
-              name={names.regular}
-              intro={m.appIntro}
-              get={<CheckList items={[m.appGet1, m.appGet2, m.appGet3, m.appGet4, m.appGet5, w.weePublishPlayApple]} />}
-              steps={[m.appStep1, m.appStep2, m.appStep3]}
-              suits={m.appWhoText}
-              chips={kindChips(lang, "regular")}
-              links={
-                <>
-                  <MoreLink href={lp("/how-it-works")}>{h.howInDetail}</MoreLink>
-                  <MoreLink href={lp("/demo")}>{h.tryDemo}</MoreLink>
-                </>
-              }
-            />
             <ProductDetail
               product="studio"
               lang={lang}
@@ -639,6 +624,22 @@ export async function PricingPage({ lang, period: asked = null }: { lang: Lang; 
                 <>
                   <MoreLink href={lp("/yallapp-studio")}>{s.homeLink}</MoreLink>
                   <MoreLink href={lp("/demo/studio")}>{s.seeDemo}</MoreLink>
+                </>
+              }
+            />
+            <ProductDetail
+              product="regular"
+              lang={lang}
+              name={names.regular}
+              intro={m.appIntro}
+              get={<CheckList items={[m.appGet1, m.appGet2, m.appGet3, m.appGet4, m.appGet5, w.weePublishPlayApple]} />}
+              steps={[m.appStep1, m.appStep2, m.appStep3]}
+              suits={m.appWhoText}
+              chips={kindChips(lang, "regular")}
+              links={
+                <>
+                  <MoreLink href={lp("/how-it-works")}>{h.howInDetail}</MoreLink>
+                  <MoreLink href={lp("/demo")}>{h.tryDemo}</MoreLink>
                 </>
               }
             />

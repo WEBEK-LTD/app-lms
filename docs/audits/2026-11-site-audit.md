@@ -21,16 +21,19 @@ Area F is the marketing site. Area A (the docs, the help and the legal pages) ad
 
 | Page | Problem | Fix | Size |
 |---|---|---|---|
-| Header and footer, every page | **Missing:** Yallapp Community (232–235, shipped) has no link anywhere on the marketing site. | Add "Community" to the footer's product links (en, ar, tr). | S |
+| Header and footer, every page | **Missing:** Yallapp Community (232–235, shipped) has no link anywhere on the marketing site. | Add "Community" to the footer's product links (en, ar, tr), to its new page. | S |
 | robots.txt | **Missing:** the Community site's own sitemap (`/community/sitemap.xml`) isn't listed, so search engines only find it by chance. | List both sitemaps in robots.txt. | S |
 | Home hero badge | **Inconsistent:** "Android and iOS apps for eleven kinds of business", while the section below now says "nine kinds of Studio apps", and /solutions has 18 kinds. | Count every kind with a solutions page (18), in en, ar and tr. | S |
 | FAQ: "Which kinds of apps can I build?" (/faq, and the home's FAQ) | **Out of date:** it lists only the app editor's eleven kinds. Studio's kinds (delivery, food delivery, multi-vendor, rides, school, university, academy with many teachers, and the shop types) are left out. | Name the app editor's kinds and Studio's in the answer, from the registries. | S |
 | /solutions/multi-vendor | **Inconsistent:** same title as the docs guide. | Area A renames the guide. | S |
 | Yallapp Courier | **Not missing:** it isn't published yet (ROADMAP 104.8 is still open), so the site rightly doesn't sell it. Its docs guide exists (area A). | none | none |
 | Payments, currencies, publishing | **Checked, consistent:** Kashier, iyzico, Stripe, Apple Pay and Google Pay are named on /integrations and in the FAQ; "We publish for you on Google Play and the App Store" matches the plans; plan prices come from the settings. | none | none |
+| /pricing, the home, Black Friday | **Owner's rule, not met:** Studio's plans came after the app editor's: the classic product first in /pricing's hero, plan sections and product details; the home's classic plans before Studio's band; Black Friday's classic tab first, and its price drop could quote a classic plan. | Studio first everywhere with prices: /pricing's hero, plans (01 Studio, 02 the app), lifetime and details; the home's Studio band before the classic plans; Black Friday's Studio tab first and selected, with its price drop taken from Studio's plans first. | M |
+| /compare/*, /solutions/*, /demo/* | **Checked:** no prices or plans on these pages. | none | none |
+| Dashboard › License (plan picker) | **Checked:** an app's picker shows only its own product's plans (an app editor app can't take Studio's plans there), so the order rule doesn't apply. | none | none |
+| (new) /yallapp-community | **Missing:** no marketing page for Yallapp Community. | A page in en, ar and tr: what's in the Community (Q&A, tutorials, posts and stories, showcase, groups, messages, Academy, challenges, pros, jobs, events and live, points and badges, from what it does), our own Community screenshots by day and night, and the way in to community.yallapp.com.tr; linked from the footer, in the sitemap with hreflang. | M |
 | Legal pages (privacy, terms) | Area A lists what's out of date; the wording doesn't change here. | none | none |
 
 ## Follow-ups (not in this change)
 
-- A marketing page for Yallapp Community, beyond the footer link: needs the owner's words and pictures of the site, so I didn't write one.
 - A marketing page for Yallapp Courier, once 104.8 is published.

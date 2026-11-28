@@ -199,7 +199,7 @@ describe("32 search engines", () => {
   it("list every public page in the sitemap, and nothing private", () => {
     const entries = sitemapEntries(BASE, { "/terms": "15 October 2026", "/privacy": "not a date" });
     const urls = entries.map((e) => e.url);
-    for (const path of ["", "/solutions", "/features", "/integrations", "/how-it-works", "/pricing", "/yallapp-studio", "/demo", "/demo/studio", "/docs", "/developers", "/faq", "/contact", "/terms", "/privacy", "/refund", "/delete-account", "/black-friday"]) {
+    for (const path of ["", "/solutions", "/features", "/integrations", "/how-it-works", "/pricing", "/yallapp-studio", "/demo", "/demo/studio", "/docs", "/developers", "/faq", "/contact", "/terms", "/privacy", "/refund", "/delete-account", "/black-friday", "/yallapp-community"]) {
       expect(urls).toContain(`${BASE}${path}`);
     }
     for (const s of ALL_SOLUTIONS) expect(urls).toContain(`${BASE}/solutions/${s.id}`);
@@ -207,7 +207,7 @@ describe("32 search engines", () => {
     for (const id of STORY_IDS) expect(urls).toContain(`${BASE}${storyPath(id)}`);
     // 106.13 With /templates (its templates come from the store: tests/unit/studio-market-public.test.ts).
     expect(urls).toContain(`${BASE}/templates`);
-    expect(urls).toHaveLength(20 + compareParams().length + ALL_SOLUTIONS.length + DOCS.length + STORY_IDS.length);
+    expect(urls).toHaveLength(21 + compareParams().length + ALL_SOLUTIONS.length + DOCS.length + STORY_IDS.length);
     expect(new Set(urls).size).toBe(urls.length);
     for (const url of urls) {
       expect(url.startsWith(BASE)).toBe(true);

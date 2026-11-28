@@ -66,10 +66,9 @@ function productLinks(lang: Lang, m: Messages): { id: string; href: string; labe
     { id: "studio-demo", href: "/demo/studio", label: m.footer.studioDemo },
     // 106.13 Studio Market's public page.
     { id: "templates", href: "/templates", label: nav.market },
-  ]
-    .map((l) => ({ ...l, href: localePath(lang, l.href) }))
-    // 232 Yallapp Community: its own site, in the visitor's language by itself.
-    .concat({ id: "community", href: "/community", label: nav.community });
+    // 232 Yallapp Community's page on the marketing site, which leads to the Community itself.
+    { id: "community", href: "/yallapp-community", label: nav.community },
+  ].map((l) => ({ ...l, href: localePath(lang, l.href) }));
 }
 
 /** The dark footer. `full` (marketing pages) adds the WhatsApp button and a contact column, and the live activity card (outside the dark band, so it takes the page's light or dark colors). */
