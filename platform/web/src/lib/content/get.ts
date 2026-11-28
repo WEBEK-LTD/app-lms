@@ -53,7 +53,8 @@ export async function getSiteContents(keys: readonly string[], lang: Lang = "en"
     saved = null;
   }
   return pages.map((page, i) => {
-    if (!saved) return { ...page.defaults };
+    // The database can't be read (as while the pages are built): the defaults, in the page's language as getSiteContent gives them.
+    if (!saved) return lang === "en" ? { ...page.defaults } : contentInLang(page, lang, { ...page.defaults }, null);
     const key = keys[i]!;
     const english = contentWith(page, saved.get(key));
     return lang === "en" ? english : contentInLang(page, lang, english, saved.get(langContentKey(key, lang)) ?? null);

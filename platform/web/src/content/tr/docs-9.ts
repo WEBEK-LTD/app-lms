@@ -108,7 +108,7 @@ Kurye, Yallapp Courier hesabını uygulamada **Hesap**'tan siler. Kurye listeniz
 `,
   },
   "multi-vendor": {
-    title: "Çok satıcılı uygulamalar",
+    title: "Çok satıcılı uygulamanızı yönetin",
     description: "Birçok restoran, süpermarket ve dükkân için tek bir teslimat uygulaması kurun: katılım, her işletmenin paneli, teslimat, ödemeler, kampanyalar, şikâyetler ve dökümler.",
     body: `Çok satıcılı bir uygulama, birçok restoranı, süpermarketi ve dükkânı sizin adınızla tek bir teslimat uygulamasında toplar. Müşteriler her işletmeden sipariş verir, her işletme siparişlerini kendi panelinde alır ve bunları sizin kuryeleriniz ya da işletmenin kendi kuryeleri teslim eder. Bu bir [Yallapp Studio](/docs/yallapp-studio) projesidir ve Studio'nun kendi planlarındadır.
 

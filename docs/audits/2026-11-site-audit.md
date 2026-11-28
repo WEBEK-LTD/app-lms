@@ -1,6 +1,6 @@
 # Site audit, November 2026
 
-Two areas: **A**, the documentation, help and the legal pages' audit (first); **F**, the marketing site (below).
+Two areas: **A**, the documentation, help and the legal pages (first); **F**, the marketing site (below).
 
 # Area A (documentation, help, legal)
 
@@ -35,23 +35,29 @@ Size: S under an hour, M a few hours (words only), L more, or it waits on someth
 | /docs/yallapp-business | **Missing, waiting on a release.** Ringtones and money sounds (207, 213), ringing by order value, the end-of-day summary, pausing the shop, the home-screen widget (214) and the Pharaonic theme (215) are in Business 1.0.4–1.0.7, which isn't released (STATUS: the release waits for the owner). | Follow-up: document them with that release. | L |
 | /docs/store-orders | **Missing, waiting on a release.** The wishlist, reviews with photos, "Notify me when it's back", filters and product languages (212) need the customer app's release 16. Only the dashboard's Reviews tab is live. | Follow-up: document them with release 16. | L |
 | /docs/studio-elements | **Missing, waiting on a release.** A look's own product page and its eleven elements (228) are drawn by the customer app from release 16. | Follow-up with release 16. | L |
+| /docs/multi-vendor (from F) | **Inconsistent.** Its title was "Multi-vendor apps", the same as /solutions/multi-vendor. | Its own title: "Run your multi-vendor app" (ar: "إدارة تطبيقك متعدد المتاجر", tr: "Çok satıcılı uygulamanızı yönetin"). Fixed. | S |
+| Docs menu in ar/tr (from F) | **Broken when the database can't be read.** The menu, the search and /developers then showed every guide's title in English (`getSiteContents` fell back to the English defaults; `getSiteContent` already used the translation). On production the titles are translated. | The same fallback as `getSiteContent`: the built-in translation. Fixed. | S |
+| /developers in ar/tr | The API reference's endpoint summaries (about 250, from `docs/api/openapi.yaml`) are in English in every language. | Follow-up: translating the API reference is its own job. | L |
 | /docs (API docs, /developers) | Checked: the developers' guide and `docs/api/openapi.yaml` include phase 228's product page. The Community API is its own (`docs/api/community.yaml`) and isn't for clients. | None. | – |
 
-## Legal pages (audit only: no wording changed)
+## Legal pages
 
-| Page | What is outdated or missing | Size |
-|---|---|---|
-| /privacy §3 (data about your app's users) | Delivery, rides and taxi apps, Yallapp Courier and the drivers' apps use live locations (couriers', drivers', and the customer's pick-up and drop-off), and the section doesn't say so. Yallapp Courier isn't named anywhere in the legal pages. | M |
-| /privacy §3 | When release 16 ships: product reviews with photos, a short public name ("Ahmed K."), wishlists and "back in stock" requests. | S |
-| /privacy | Yallapp Community has its own privacy page (community.yallapp.com.tr/privacy) and accounts that aren't Yallapp accounts; Yallapp's policy doesn't say so or link to it. Its data includes the Pro Developer form's ID proof, kept privately and removed after review. | S |
-| /privacy §6, /terms §5 | Card payments in the apps now include Apple Pay and Google Pay through Stripe (155, 188). Stripe is named already; the wallets aren't. | S |
-| /terms §3 | What Yallapp provides doesn't mention Yallapp Community, nor Studio Market's sales between designers and owners (the privacy policy covers the designers' data). | S |
+The owner approved fixing these too (28 November 2026). Done in en, ar and tr; "Last updated" is now 28 November 2026 for the privacy policy and the terms, and the history is regenerated (`scripts/legal-history.mjs`), so Admin › Website content shows the update notice (172) for any saved version.
+
+| Page | What is outdated or missing | Size | Status |
+|---|---|---|---|
+| /privacy §3 (data about your app's users) | Delivery, rides and taxi apps, Yallapp Courier and the drivers' apps use live locations (couriers', drivers', and the customer's pick-up and drop-off), and the section doesn't say so. Yallapp Courier isn't named anywhere in the legal pages. | M | Fixed |
+| /privacy §3 | When release 16 ships: product reviews with photos, a short public name ("Ahmed K."), wishlists and "back in stock" requests. | S | Waits for release 16 |
+| /privacy | Yallapp Community has its own privacy page (community.yallapp.com.tr/privacy) and accounts that aren't Yallapp accounts; Yallapp's policy doesn't say so or link to it. Its data includes the Pro Developer form's ID proof, kept privately and removed after review. | S | Fixed |
+| /privacy §6, /terms §5 | Card payments in the apps now include Apple Pay and Google Pay through Stripe (155, 188). Stripe is named already; the wallets aren't. | S | Fixed |
+| /terms §3 | What Yallapp provides doesn't mention Yallapp Community, nor Studio Market's sales between designers and owners (the privacy policy covers the designers' data). | S | Fixed |
 
 ## Follow-ups (not fixed here, with the reason)
 
 - Yallapp Business 1.0.4–1.0.7 guide: waits for that release.
+- The API reference in Arabic and Turkish (about 250 endpoint summaries).
 - Store features of 212 and the look's product page (228) in the guides: wait for the customer app's release 16.
-- The legal items above: the owner rewrites the legal pages.
+- The privacy policy's reviews, wishlists and "back in stock" lines: with release 16.
 
 # Area F (the marketing site)
 
@@ -69,7 +75,7 @@ What was checked: every page in the sitemap (396 pages: English, Arabic and Turk
 | Pages with fewer than 3 hreflang links | none |
 | Pages wider than the screen at 390 | none |
 | English left on the marketing pages in ar and tr | none, apart from the competitor source titles on /compare/*, which are quotes and stay English. Eight guide titles in the docs menu showed in English on the test server only: earlier admin tests had saved English edits to them, and a team-edited English title shows until it's translated again. The built-in Arabic and Turkish titles are there. |
-| Duplicate titles | `/solutions/multi-vendor` and `/docs/multi-vendor` were both "Multi-vendor apps · Yallapp"; a guide named like a solutions page now adds "Docs" to its title. `/yallapp-studio` keeps the product's name in all three languages (fine) |
+| Duplicate titles | `/solutions/multi-vendor` and `/docs/multi-vendor` were both "Multi-vendor apps · Yallapp"; area A renamed the guide "Run your multi-vendor app". `/yallapp-studio` keeps the product's name in all three languages (fine) |
 
 ## Area F: the marketing site
 
@@ -79,7 +85,7 @@ What was checked: every page in the sitemap (396 pages: English, Arabic and Turk
 | robots.txt | **Missing:** the Community site's own sitemap (`/community/sitemap.xml`) isn't listed, so search engines only find it by chance. | List both sitemaps in robots.txt. | S |
 | Home hero badge | **Inconsistent:** "Android and iOS apps for eleven kinds of business", while the section below now says "nine kinds of Studio apps", and /solutions has 18 kinds. | Count every kind with a solutions page (18), in en, ar and tr. | S |
 | FAQ: "Which kinds of apps can I build?" (/faq, and the home's FAQ) | **Out of date:** it lists only the app editor's eleven kinds. Studio's kinds (delivery, food delivery, multi-vendor, rides, school, university, academy with many teachers, and the shop types) are left out. | Name the app editor's kinds and Studio's in the answer, from the registries. | S |
-| /solutions/multi-vendor | **Inconsistent:** same title as the docs guide. | The guide's title adds "Docs" (en, ar, tr). | S |
+| /solutions/multi-vendor | **Inconsistent:** same title as the docs guide. | Area A renamed the guide (en, ar, tr). | S |
 | Yallapp Courier | **Not missing:** it isn't published yet (ROADMAP 104.8 is still open), so the site rightly doesn't sell it. Its docs guide exists (area A). | none | none |
 | Payments, currencies, publishing | **Checked, consistent:** Kashier, iyzico, Stripe, Apple Pay and Google Pay are named on /integrations and in the FAQ; "We publish for you on Google Play and the App Store" matches the plans; plan prices come from the settings. | none | none |
 | /pricing, the home, Black Friday | **Owner's rule, not met:** Studio's plans came after the app editor's: the classic product first in /pricing's hero, plan sections and product details; the home's classic plans before Studio's band; Black Friday's classic tab first, and its price drop could quote a classic plan. | Studio first everywhere with prices: /pricing's hero, plans (01 Studio, 02 the app), lifetime and details; the home's Studio band before the classic plans; Black Friday's Studio tab first and selected, with its price drop taken from Studio's plans first. | M |
