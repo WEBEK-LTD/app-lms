@@ -31,20 +31,26 @@ Size: S under an hour, M a few hours (words only), L more, or it waits on someth
 | /docs/yallapp-business | **Missing, waiting on a release.** Ringtones and money sounds (207, 213), ringing by order value, the end-of-day summary, pausing the shop, the home-screen widget (214) and the Pharaonic theme (215) are in Business 1.0.4–1.0.7, which isn't released (STATUS: the release waits for the owner). | Follow-up: document them with that release. | L |
 | /docs/store-orders | **Missing, waiting on a release.** The wishlist, reviews with photos, "Notify me when it's back", filters and product languages (212) need the customer app's release 16. Only the dashboard's Reviews tab is live. | Follow-up: document them with release 16. | L |
 | /docs/studio-elements | **Missing, waiting on a release.** A look's own product page and its eleven elements (228) are drawn by the customer app from release 16. | Follow-up with release 16. | L |
+| /docs/multi-vendor (from F) | **Inconsistent.** Its title was "Multi-vendor apps", the same as /solutions/multi-vendor. | Its own title: "Run your multi-vendor app" (ar: "إدارة تطبيقك متعدد المتاجر", tr: "Çok satıcılı uygulamanızı yönetin"). Fixed. | S |
+| Docs menu in ar/tr (from F) | **Broken when the database can't be read.** The menu, the search and /developers then showed every guide's title in English (`getSiteContents` fell back to the English defaults; `getSiteContent` already used the translation). On production the titles are translated. | The same fallback as `getSiteContent`: the built-in translation. Fixed. | S |
+| /developers in ar/tr | The API reference's endpoint summaries (about 250, from `docs/api/openapi.yaml`) are in English in every language. | Follow-up: translating the API reference is its own job. | L |
 | /docs (API docs, /developers) | Checked: the developers' guide and `docs/api/openapi.yaml` include phase 228's product page. The Community API is its own (`docs/api/community.yaml`) and isn't for clients. | None. | – |
 
-## Legal pages (audit only: no wording changed)
+## Legal pages
 
-| Page | What is outdated or missing | Size |
-|---|---|---|
-| /privacy §3 (data about your app's users) | Delivery, rides and taxi apps, Yallapp Courier and the drivers' apps use live locations (couriers', drivers', and the customer's pick-up and drop-off), and the section doesn't say so. Yallapp Courier isn't named anywhere in the legal pages. | M |
-| /privacy §3 | When release 16 ships: product reviews with photos, a short public name ("Ahmed K."), wishlists and "back in stock" requests. | S |
-| /privacy | Yallapp Community has its own privacy page (community.yallapp.com.tr/privacy) and accounts that aren't Yallapp accounts; Yallapp's policy doesn't say so or link to it. Its data includes the Pro Developer form's ID proof, kept privately and removed after review. | S |
-| /privacy §6, /terms §5 | Card payments in the apps now include Apple Pay and Google Pay through Stripe (155, 188). Stripe is named already; the wallets aren't. | S |
-| /terms §3 | What Yallapp provides doesn't mention Yallapp Community, nor Studio Market's sales between designers and owners (the privacy policy covers the designers' data). | S |
+The owner approved fixing these too (28 November 2026). Done in en, ar and tr; "Last updated" is now 28 November 2026 for the privacy policy and the terms, and the history is regenerated (`scripts/legal-history.mjs`), so Admin › Website content shows the update notice (172) for any saved version.
+
+| Page | What is outdated or missing | Size | Status |
+|---|---|---|---|
+| /privacy §3 (data about your app's users) | Delivery, rides and taxi apps, Yallapp Courier and the drivers' apps use live locations (couriers', drivers', and the customer's pick-up and drop-off), and the section doesn't say so. Yallapp Courier isn't named anywhere in the legal pages. | M | Fixed |
+| /privacy §3 | When release 16 ships: product reviews with photos, a short public name ("Ahmed K."), wishlists and "back in stock" requests. | S | Waits for release 16 |
+| /privacy | Yallapp Community has its own privacy page (community.yallapp.com.tr/privacy) and accounts that aren't Yallapp accounts; Yallapp's policy doesn't say so or link to it. Its data includes the Pro Developer form's ID proof, kept privately and removed after review. | S | Fixed |
+| /privacy §6, /terms §5 | Card payments in the apps now include Apple Pay and Google Pay through Stripe (155, 188). Stripe is named already; the wallets aren't. | S | Fixed |
+| /terms §3 | What Yallapp provides doesn't mention Yallapp Community, nor Studio Market's sales between designers and owners (the privacy policy covers the designers' data). | S | Fixed |
 
 ## Follow-ups (not fixed here, with the reason)
 
 - Yallapp Business 1.0.4–1.0.7 guide: waits for that release.
+- The API reference in Arabic and Turkish (about 250 endpoint summaries).
 - Store features of 212 and the look's product page (228) in the guides: wait for the customer app's release 16.
-- The legal items above: the owner rewrites the legal pages.
+- The privacy policy's reviews, wishlists and "back in stock" lines: with release 16.

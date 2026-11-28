@@ -52,6 +52,22 @@ function of18(lang: Lang) {
   return found;
 }
 
+/** The privacy policy's default of 23 November 2026 (106.14's public page, before 28 November's additions). */
+function of23(lang: Lang) {
+  const found = legalVersions("privacy", lang).find((v) => v.body.includes(PUBLIC_PAGE[lang].shared) && !v.body.includes("community.yallapp.com.tr/privacy"));
+  if (!found) throw new Error("no 23 November version");
+  return found;
+}
+
+/** What 28 November 2026 added (the site audit): Yallapp Community's own policy, Apple Pay and Google Pay, live locations. */
+const OF28: Record<Lang, { community: string; wallets: string; locations: string }> = {
+  en: { community: "community.yallapp.com.tr/privacy", wallets: "Apple Pay or Google Pay", locations: "- **Live locations (delivery companies, rides and taxis, Yallapp Courier):**" },
+  ar: { community: "community.yallapp.com.tr/privacy", wallets: "Apple Pay أو Google Pay", locations: "- **المواقع المباشرة (شركات التوصيل والرحلات وسيارات الأجرة، وYallapp Courier):**" },
+  tr: { community: "community.yallapp.com.tr/privacy", wallets: "Apple Pay veya Google Pay", locations: "- **Canlı konumlar (teslimat şirketleri, yolculuk ve taksi, Yallapp Courier):**" },
+};
+/** 28 November's three changes: a paragraph in section 1, a sentence in a section 3 item, an item in section 3. */
+const OF28_CHANGES = 3;
+
 /** The privacy policy's default before 18 November 2026. */
 function before18(lang: Lang) {
   const versions = legalVersions("privacy", lang);
@@ -94,7 +110,7 @@ describe("the diff", () => {
   });
 
   it.each(LANGS)("finds 106.14's two new list items and the sentence added to section 6 on 23 November 2026 (%s)", (lang) => {
-    const changes = legalChanges(of18(lang).body, legalDefault("privacy", lang).body);
+    const changes = legalChanges(of18(lang).body, of23(lang).body);
     expect(changes.map((c) => c.type)).toEqual(["added", "added", "changed"]);
     const [page, ratings, shared] = changes as [LegalChange, LegalChange, LegalChange];
     expect(page.type === "added" && page.text.startsWith(PUBLIC_PAGE[lang].items[0]!)).toBe(true);
@@ -103,6 +119,20 @@ describe("the diff", () => {
     expect(shared.section).toMatch(/^## 6\./);
     expect(shared.type === "changed" && shared.added.map((x) => x.text)).toEqual([PUBLIC_PAGE[lang].shared]);
     expect(shared.type === "changed" && shared.removed).toEqual([]);
+  });
+
+  it.each(LANGS)("finds 28 November 2026's three changes: Yallapp Community's own policy, Apple Pay and Google Pay, live locations (%s)", (lang) => {
+    const changes = legalChanges(of23(lang).body, legalDefault("privacy", lang).body);
+    expect(changes.map((c) => [c.type, (c.section ?? "").slice(0, 5)])).toEqual([
+      ["added", "## 1."],
+      ["changed", "## 3."],
+      ["added", "## 3."],
+    ]);
+    const [community, wallets, locations] = changes as [LegalChange, LegalChange, LegalChange];
+    expect(community.type === "added" && community.text).toContain(OF28[lang].community);
+    expect(wallets.type === "changed" && wallets.added.map((x) => x.text).join(" ")).toContain(OF28[lang].wallets);
+    expect(wallets.type === "changed" && wallets.removed).toEqual([]);
+    expect(locations.type === "added" && locations.text.startsWith(OF28[lang].locations)).toBe(true);
   });
 
   it("splits a text into headings, list items and paragraphs, a wrapped line staying with its paragraph", () => {
@@ -131,11 +161,11 @@ describe("the notice's detection", () => {
     const old = before18(lang);
     const update = legalUpdateFor("privacy", lang, savedOn({ title: old.title, updated: old.updated, body: old.body }));
     expect(update).not.toBeNull();
-    expect(update!.updatedOn).toBe("23 November 2026");
+    expect(update!.updatedOn).toBe("28 November 2026");
     expect(update!.updated).toBe(legalDefault("privacy", lang).updated);
     expect(update!.baseUpdated).toBe(old.updated);
-    // 106.11's three and 106.14's two list items (its section 6 sentence is in the paragraph 106.11 changed).
-    expect(update!.changes.filter((c) => c.pending)).toHaveLength(5);
+    // 106.11's three and 106.14's two list items (its section 6 sentence is in the paragraph 106.11 changed), and 28 November's three.
+    expect(update!.changes.filter((c) => c.pending)).toHaveLength(5 + OF28_CHANGES);
   });
 
   it.each(LANGS)("doesn't show when the saved version already has the three sentences (%s)", (lang) => {
@@ -155,13 +185,17 @@ describe("the notice's detection", () => {
     // Saved after 18 November with no base (before bases were recorded): still compared with the version before 18 November.
     const late = legalUpdateFor("privacy", "en", savedOn({ body: before18("en").body }, "2026-11-25T10:00:00Z"));
     expect(late!.baseUpdated).toBe("16 November 2026");
-    expect(late!.changes.filter((c) => c.pending)).toHaveLength(5);
+    expect(late!.changes.filter((c) => c.pending)).toHaveLength(5 + OF28_CHANGES);
   });
 
   it("shows when only one of the three sentences is missing, with the other two marked as already there", () => {
     const current = legalDefault("privacy", "en").body;
     const update = legalUpdateFor("privacy", "en", savedOn({ body: current.replace(` ${NEW_SENTENCES.en[1]}`, "") }, "2026-11-18T12:00:00Z"));
-    expect(update!.changes.map((c) => c.pending)).toEqual([false, false, false, true, false]);
+    const pending = update!.changes.filter((c) => c.pending);
+    expect(pending).toHaveLength(1);
+    // Section 6's paragraph: the missing sentence, with 106.14's sentence the same paragraph gained.
+    expect(pending[0]!.type === "changed" && pending[0]!.added.map((x) => x.text)).toContain(NEW_SENTENCES.en[1]);
+    expect(update!.changes).toHaveLength(5 + OF28_CHANGES);
   });
 
   it("uses the recorded base: none for a version based on the current default, the changes since an older one", () => {
@@ -172,13 +206,13 @@ describe("the notice's detection", () => {
     const older = legalVersions("privacy", "en").find((v) => v.updated === "4 November 2026")!;
     const update = legalUpdateFor("privacy", "en", savedOn({ body: old.body, [BASE_FIELD]: older.hash }, "2026-11-19T00:00:00Z"));
     expect(update!.baseUpdated).toBe("4 November 2026");
-    // What 16 November added is in the saved text (it is the 16 November text): only the three and 106.14's two are pending.
-    expect(update!.changes.filter((c) => c.pending)).toHaveLength(5);
-    expect(update!.changes.length).toBeGreaterThan(5);
-    // Based on the 18 November version: only 106.14's changes.
+    // What 16 November added is in the saved text (it is the 16 November text): only the three, 106.14's two and 28 November's three are pending.
+    expect(update!.changes.filter((c) => c.pending)).toHaveLength(5 + OF28_CHANGES);
+    expect(update!.changes.length).toBeGreaterThan(5 + OF28_CHANGES);
+    // Based on the 18 November version: only 106.14's changes and 28 November's.
     const since18 = legalUpdateFor("privacy", "en", savedOn({ body: of18("en").body, [BASE_FIELD]: of18("en").hash }, "2026-11-20T00:00:00Z"));
     expect(since18!.baseUpdated).toBe("18 November 2026");
-    expect(since18!.changes.filter((c) => c.pending)).toHaveLength(3);
+    expect(since18!.changes.filter((c) => c.pending)).toHaveLength(3 + OF28_CHANGES);
   });
 
   it("shows nothing for a page with no saved text, a translation saved without its text, the terms and the refund policy unchanged since", () => {
@@ -204,7 +238,7 @@ describe("Add the new text", () => {
   it.each(LANGS)("turns the old default into the new one exactly (%s)", (lang) => {
     const update = legalUpdateFor("privacy", lang, savedOn({ body: before18(lang).body }))!;
     const merged = mergeLegalChanges(before18(lang).body, update.changes);
-    expect(merged).toEqual({ text: legalDefault("privacy", lang).body, placed: 5, unplaced: [] });
+    expect(merged).toEqual({ text: legalDefault("privacy", lang).body, placed: 5 + OF28_CHANGES, unplaced: [] });
   });
 
   it("keeps the team's own wording and puts each sentence next to the one it follows", () => {
@@ -216,7 +250,7 @@ describe("Add the new text", () => {
     const update = legalUpdateFor("privacy", "en", savedOn({ body: own }))!;
     const merged = mergeLegalChanges(own, update.changes);
     expect(merged.unplaced).toEqual([]);
-    expect(merged.placed).toBe(5);
+    expect(merged.placed).toBe(5 + OF28_CHANGES);
     expect(merged.text).toContain(`Billing records are kept for 10 years. ${NEW_SENTENCES.en[2]} Signing keys`);
     expect(merged.text).toContain(`when the law requires it. ${NEW_SENTENCES.en[1]} ${PUBLIC_PAGE.en.shared} We never sell or rent personal data.`);
     // The new list item after the one before it in the default, though the team reworded the one before that.
@@ -231,7 +265,7 @@ describe("Add the new text", () => {
     const own = old.replace(section6, "Our providers are listed on request.");
     const update = legalUpdateFor("privacy", "en", savedOn({ body: own }))!;
     const merged = mergeLegalChanges(own, update.changes);
-    expect(merged.placed).toBe(4);
+    expect(merged.placed).toBe(4 + OF28_CHANGES);
     expect(merged.unplaced).toHaveLength(1);
     expect(merged.unplaced[0]).toContain(NEW_SENTENCES.en[1]);
     expect(merged.text).toMatch(new RegExp(`Our providers are listed on request\\.\\n\\n${UNPLACED_START.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\n\\n[^\\n]+\\n\\n${UNPLACED_END}\\n\\n## 7\\.`));

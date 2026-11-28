@@ -1950,7 +1950,7 @@ A courier deletes their Yallapp Courier account in the app, from **Account**. Yo
     // 115.13 Public pages never call it a marketplace (phase 72).
     slug: "multi-vendor",
     section: "Your app",
-    title: "Multi-vendor apps",
+    title: "Run your multi-vendor app",
     description: "Set up one delivery app for many restaurants, supermarkets and shops: joining, each place's panel, delivery, payments, offers, complaints and statements.",
     steps: true,
     body: `A multi-vendor app puts many restaurants, supermarkets and shops in one delivery app under your name. Customers order from each place, every place takes its own orders in its own panel, and your couriers or the place's own deliver them. It is a [Yallapp Studio](/docs/yallapp-studio) project, on Studio's own plans.

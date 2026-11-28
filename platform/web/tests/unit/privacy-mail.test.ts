@@ -37,7 +37,7 @@ describe("114 the privacy policy's emails from Yallapp", () => {
     for (const words of ["owners of Yallapp accounts", "team members", "small image", "Yallapp address", "the time, the email it was and your address", "12 months", "refuses an address", "unsubscribe link", "unsubscribe button", "Dashboard › Your account", "still come"]) {
       expect(s, words).toContain(words);
     }
-    expect(PRIVACY.updated).toBe("23 November 2026");
+    expect(PRIVACY.updated).toBe("28 November 2026");
     expect(section(PRIVACY.body, "## 8. How long we keep it")).toContain("12 months");
   });
 
@@ -46,8 +46,8 @@ describe("114 the privacy policy's emails from Yallapp", () => {
     for (const words of ["أصحاب حسابات Yallapp", "أعضاء في فريقه", "صورة صغيرة", "12 شهرًا", "يرفض خادم البريد", "رابط إلغاء الاشتراك", "لوحة التحكم › حسابك", "ستظل تصلك"]) expect(ar, words).toContain(words);
     const tr = section(TR_LEGAL.privacy!.body, "## 5. Yallapp'ten e-postalar");
     for (const words of ["Yallapp hesaplarının sahiplerine", "ekip üyesi", "küçük bir görsel", "12 ay", "reddettiğinde", "abonelikten çıkma bağlantısını", "Panel › Hesabınız", "gelmeye devam eder"]) expect(tr, words).toContain(words);
-    expect(AR_LEGAL.privacy!.updated).toBe("23 نوفمبر 2026");
-    expect(TR_LEGAL.privacy!.updated).toBe("23 Kasım 2026");
+    expect(AR_LEGAL.privacy!.updated).toBe("28 نوفمبر 2026");
+    expect(TR_LEGAL.privacy!.updated).toBe("28 Kasım 2026");
   });
 
   it("106.11 says what designers' payouts keep, who gets it and how long, in every language", () => {
