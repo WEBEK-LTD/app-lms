@@ -19,7 +19,7 @@ import { getSiteContent, getSiteContents } from "@/lib/content/get";
 import { headingId } from "@/lib/content/markdown";
 import { parseGuide } from "@/lib/content/site";
 import { DASHBOARD_SCREENS, type AppScreen, type DashboardScreen } from "@/lib/marketing";
-import { screenAltFor } from "@/lib/marketing-lang";
+import { allSolutionsFor, screenAltFor } from "@/lib/marketing-lang";
 import { breadcrumbLd, siteMetadata, siteUrl } from "@/lib/seo";
 import { SEARCH_MAX_QUERY, searchDocs } from "@/lib/docs/search";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
@@ -179,7 +179,10 @@ export async function docMetadata(lang: Lang, slug: string): Promise<Metadata> {
   const article = docBySlug(slug);
   if (!article) return {};
   const text = await getSiteContent(article.key, lang);
-  return siteMetadata(lang, { title: text.title!, description: text.description!, path: `/docs/${article.slug}`, image: `/docs/${article.slug}/opengraph-image` });
+  // A guide named like a solutions page (Multi-vendor apps) says it's the guide, so the two pages' titles differ.
+  const sameAsPage = allSolutionsFor(lang).some((s) => s.name === text.title);
+  const title = sameAsPage ? `${text.title} · ${messagesFor(lang).docs.docs}` : text.title!;
+  return siteMetadata(lang, { title, description: text.description!, path: `/docs/${article.slug}`, image: `/docs/${article.slug}/opengraph-image` });
 }
 
 function Notice({ children }: { children: ReactNode }) {
