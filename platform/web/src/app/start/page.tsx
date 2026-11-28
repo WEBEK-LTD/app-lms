@@ -174,7 +174,8 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
                       {t("start.lookCount")}
                     </span>
                   ) : null}
-                  <span className="absolute start-3.5 top-3.5">
+                  {/* Above both phones, so the badge is never under them. */}
+                  <span className="absolute start-3.5 top-3.5 z-[3]">
                     <ProductBadge text={text} id={id} />
                   </span>
                 </div>

@@ -257,7 +257,6 @@ export async function HomePage({ lang }: { lang: Lang }) {
               </span>
             ))}
           </p>
-          <MoreLink href={lp("/demo/studio")}>{s.seeDemo}</MoreLink>
         </Section>
 
         {/* 103R Yallapp Studio, apart from the regular apps, with its own page, demo and plans. */}
