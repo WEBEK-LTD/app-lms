@@ -68,8 +68,8 @@ What was checked: every page in the sitemap (396 pages: English, Arabic and Turk
 | Missing meta description, OG image or canonical | none |
 | Pages with fewer than 3 hreflang links | none |
 | Pages wider than the screen at 390 | none |
-| English left on the marketing pages in ar and tr | none, apart from the competitor source titles on /compare/*, which are quotes and stay English, and the docs titles in /developers' guide list (area A) |
-| Duplicate titles | `/solutions/multi-vendor` and `/docs/multi-vendor` are both "Multi-vendor apps · Yallapp" (area A to rename the guide); `/yallapp-studio` keeps the product's name in all three languages (fine) |
+| English left on the marketing pages in ar and tr | none, apart from the competitor source titles on /compare/*, which are quotes and stay English. Eight guide titles in the docs menu showed in English on the test server only: earlier admin tests had saved English edits to them, and a team-edited English title shows until it's translated again. The built-in Arabic and Turkish titles are there. |
+| Duplicate titles | `/solutions/multi-vendor` and `/docs/multi-vendor` were both "Multi-vendor apps · Yallapp"; a guide named like a solutions page now adds "Docs" to its title. `/yallapp-studio` keeps the product's name in all three languages (fine) |
 
 ## Area F: the marketing site
 
@@ -79,7 +79,7 @@ What was checked: every page in the sitemap (396 pages: English, Arabic and Turk
 | robots.txt | **Missing:** the Community site's own sitemap (`/community/sitemap.xml`) isn't listed, so search engines only find it by chance. | List both sitemaps in robots.txt. | S |
 | Home hero badge | **Inconsistent:** "Android and iOS apps for eleven kinds of business", while the section below now says "nine kinds of Studio apps", and /solutions has 18 kinds. | Count every kind with a solutions page (18), in en, ar and tr. | S |
 | FAQ: "Which kinds of apps can I build?" (/faq, and the home's FAQ) | **Out of date:** it lists only the app editor's eleven kinds. Studio's kinds (delivery, food delivery, multi-vendor, rides, school, university, academy with many teachers, and the shop types) are left out. | Name the app editor's kinds and Studio's in the answer, from the registries. | S |
-| /solutions/multi-vendor | **Inconsistent:** same title as the docs guide. | Area A renames the guide. | S |
+| /solutions/multi-vendor | **Inconsistent:** same title as the docs guide. | The guide's title adds "Docs" (en, ar, tr). | S |
 | Yallapp Courier | **Not missing:** it isn't published yet (ROADMAP 104.8 is still open), so the site rightly doesn't sell it. Its docs guide exists (area A). | none | none |
 | Payments, currencies, publishing | **Checked, consistent:** Kashier, iyzico, Stripe, Apple Pay and Google Pay are named on /integrations and in the FAQ; "We publish for you on Google Play and the App Store" matches the plans; plan prices come from the settings. | none | none |
 | /pricing, the home, Black Friday | **Owner's rule, not met:** Studio's plans came after the app editor's: the classic product first in /pricing's hero, plan sections and product details; the home's classic plans before Studio's band; Black Friday's classic tab first, and its price drop could quote a classic plan. | Studio first everywhere with prices: /pricing's hero, plans (01 Studio, 02 the app), lifetime and details; the home's Studio band before the classic plans; Black Friday's Studio tab first and selected, with its price drop taken from Studio's plans first. | M |
