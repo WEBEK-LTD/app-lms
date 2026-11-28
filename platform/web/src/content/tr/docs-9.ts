@@ -12,7 +12,7 @@ Panelinin menüsündeki **Yallapp Studio** ile aç. İlk sayfası **Studio'daki 
 ## Normal uygulamalar ve Studio projeleri
 
 - **Sayfalar**: normal uygulamalar blokları ve hazır tasarımlarıyla sayfa düzenleyicisini kullanır. Studio projeleri, her öğenin her yere konabildiği Studio düzenleyicisini kullanır.
-- **Uygulama türleri**: Studio, Yallapp'ın yaptığı her uygulama türünü ve teslimat şirketleri gibi yalnızca Studio'nun sunduğu proje türlerini yapar.
+- **Uygulama türleri**: Studio, Yallapp'ın yaptığı her uygulama türünü ve teslimat şirketleri gibi yalnızca Studio'nun sunduğu proje türlerini yapar. Mağaza türleri giyim, çocuk giyim, kozmetik, oyuncak, ev dekorasyonu, örgü ve el yapımı, mobilya, elektronik, cep telefonu ya da bilgisayar ve oyun mağazası yapar; her birinin dört görünümü vardır ([Studio'nun demoları](/docs/studio-templates) sayfasına bakın).
 - **Planlar**: ayrıdırlar. Normal bir uygulama normal bir planla (Starter, Growth, Pro ya da Business), bir Studio projesi ise Studio'nun kendi planlarından biriyle ödenir.
 - **Hesabında**: normal uygulamaların panelde kalır; Studio projelerin Studio'dadır, her birinin kendi paneliyle.
 
@@ -28,7 +28,7 @@ Derleme, kurulum adımları ve uygulama mağazalarında yayınlama ikisinde de a
 
 Projenin paneli, kendi türündeki normal bir uygulamayla aynı sayfalarla açılır. Bir plan seçmeden önce tasarlayıp deneyebilirsin. Yayınlamak için Studio planlarından biri gerekir.
 
-Tüm sayfaları, fotoğrafları ve kayıtlarıyla Studio'nun on demosundan biriyle, iki görünümünden hangisiyle istersen, de başlayabilir, her birini önce canlı deneyebilirsin: [Hazır bölümler, şablonlar ve Studio'nun demoları](/docs/studio-templates) sayfasına bak.
+Tüm sayfaları, fotoğrafları ve kayıtlarıyla Studio'nun 20 demosundan biriyle, görünümlerinden hangisiyle istersen, de başlayabilir, her birini önce canlı deneyebilirsin: [Hazır bölümler, şablonlar ve Studio'nun demoları](/docs/studio-templates) sayfasına bak.
 
 Bir mağaza, Studio'nun çiçekçisi Leqaa'dan da başlayabilir; hediye ödemesi, teslimat günleri ve saatleri, kart mesajları ve flaş indirimleriyle. Bunları her mağaza uygulaması kullanabilir: [Teslimat günleri, hediyeler ve flaş indirimler](/docs/delivery-and-offers) sayfasına bak. Hikâyesi, **Çiçekçi uygulaması**, [Yallapp Studio](/yallapp-studio) sayfasındaki hikâyeler arasında.
 

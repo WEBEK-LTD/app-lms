@@ -25,7 +25,7 @@ export const TR_DOCS_1: Record<string, DocTranslation> = {
 ## Mağazalara giden yolunuz
 
 1. [Hesabınızı oluşturun](/docs/create-account) ve etkinleştirilmesini sağlayın.
-2. [Uygulama türünüzü seçin](/docs/app-types).
+2. Ne yapacağınızı seçin: bir [Yallapp Studio](/docs/yallapp-studio) projesi ya da **Diğer uygulama türleri** altındaki [bir uygulama türü](/docs/app-types).
 3. [İçeriğinizin nereden geleceğini seçin](/docs/content-sources) ve bağlayın.
 4. [Kurulum adımlarını](/docs/setup-steps) tamamlayın: marka, mağaza sayfası ve yayın.
 5. [Sayfalarınızı ve görünümünüzü](/docs/pages-and-look) oluşturun ve [dilleri](/docs/languages) açın.
@@ -61,14 +61,14 @@ Hesabınız etkinleştiğinde size e-posta göndeririz.
 
 ## Panelinize giriş yapın
 
-E-postanız ve şifrenizle [giriş yapın](/sign-in). İlk seferde uygulama türünüzü seçersiniz, ardından kurulum adımları gelir. Şifrenizi mi unuttunuz? Giriş sayfasında **Şifrenizi mi unuttunuz?** seçeneğini seçin; yeni bir şifre belirlemeniz için size bir bağlantı gönderelim.
+E-postanız ve şifrenizle [giriş yapın](/sign-in). İlk seferde ne yapacağınızı seçersiniz: önce Yallapp Studio'nun uygulama türleri gelir, uygulama düzenleyicisinin türleri ise onların altında, **Diğer uygulama türleri** bölümündedir. Ardından kurulum adımları gelir. Şifrenizi mi unuttunuz? Giriş sayfasında **Şifrenizi mi unuttunuz?** seçeneğini seçin; yeni bir şifre belirlemeniz için size bir bağlantı gönderelim.
 `,
   },
   "app-types": {
     title: "Uygulama türünüzü seçin",
     description:
       "Akademi, Mağaza, Restoran ve kafe, Randevu, Klinik, Spor salonu ve fitness, Emlak, Haber ve blog, Etkinlik ve bilet ya da Yardım ve bağış: her uygulama türünün ne yaptığı ve içeriğinin nereden gelebileceği.",
-    body: `Uygulama türü, uygulamanızın ekranlarını ve alt sekmelerini belirler. Onu bir kez, **Uygulama kurulumu**'nun ilk sayfasında seçersiniz ve daha sonra değiştirebilirsiniz.
+    body: `Uygulama türü, uygulamanızın ekranlarını ve alt sekmelerini belirler. Onu bir kez, **Uygulama kurulumu**'nun ilk sayfasında seçersiniz ve daha sonra değiştirebilirsiniz. Yeni bir hesabın ilk sayfasında önce Yallapp Studio'nun uygulama türleri gelir; bu türler onların altında, **Diğer uygulama türleri** bölümündedir.
 
 ## Akademi
 
