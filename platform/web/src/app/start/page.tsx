@@ -122,6 +122,9 @@ function EditorSection({ text, ids, adding }: { text: DashboardText; ids: readon
           );
         })}
       </ul>
+      <Link href={adding ? "/dashboard/app-type?new=1" : "/dashboard/app-type"} className="self-start text-sm font-semibold text-[var(--pk-ink2)] underline-offset-2 hover:underline">
+        {t("start.empty")}
+      </Link>
     </section>
   );
 }
@@ -187,9 +190,6 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
         })}
       </ul>
       <ShopTypes text={text} adding={adding} />
-      <Link href="/studio/new" className="self-start text-sm font-semibold underline-offset-2 hover:underline" style={{ color: STUDIO.gold }}>
-        {t("start.emptyStudio")}
-      </Link>
     </section>
   );
 }
@@ -296,8 +296,9 @@ function NotSure({ text, adding }: { text: DashboardText; adding: boolean }) {
         </form>
       </details>
       <div className="basis-full">
-        <Link href={adding ? "/dashboard/app-type?new=1" : "/dashboard/app-type"} className="text-sm font-semibold text-[var(--pk-ink2)] underline-offset-2 hover:underline">
-          {t("start.empty")}
+        {/* An empty start is a Studio project; the app editor's is with its types, under "Other app types". */}
+        <Link href="/studio/new" className="text-sm font-semibold text-[var(--pk-ink2)] underline-offset-2 hover:underline">
+          {t("start.emptyStudio")}
         </Link>
       </div>
     </div>

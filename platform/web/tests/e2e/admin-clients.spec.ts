@@ -66,7 +66,7 @@ test("the team sets up a pending client's app from their dashboard", async () =>
   // 132.110 The client's own start, in their account (no bounce to the admin), with the banner.
   await expect(page).toHaveURL(/\/start$/);
   await expect(page.locator("[data-working-in-account]")).toContainText(`You're working in ${client.name}'s account`);
-  await page.getByRole("link", { name: "Start from an empty app" }).click();
+  await page.goto((await page.locator('[data-classic] a[href^="/dashboard/app-type"]').getAttribute("href"))!); // the app editor's empty start, under "Other app types"
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
   await expect(page.locator("[data-working-in-account]")).toContainText(`You're working in ${client.name}'s account`);
 

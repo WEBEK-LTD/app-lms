@@ -62,7 +62,7 @@ test("two clients, each activated", async ({ browser }) => {
     await signIn(page, who.email, who.password);
     // 121 Without an app yet: the choice of editor or Studio first.
     await expect(page).toHaveURL(/\/start$/);
-    await page.getByRole("link", { name: "Start from an empty app" }).click();
+    await page.goto((await page.locator('[data-classic] a[href^="/dashboard/app-type"]').getAttribute("href"))!); // the app editor's empty start, under "Other app types"
     await expect(page).toHaveURL(/\/dashboard\/app-type$/);
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL((url) => !url.pathname.endsWith("/app-type"));

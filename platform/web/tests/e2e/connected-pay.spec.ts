@@ -158,7 +158,7 @@ test("a WooCommerce store's customers pay inside the app: the owner's Stripe, th
 
   // A store on the owner's WordPress site, its plugin connected.
   await signIn(page, shop.email, shop.password);
-  await page.getByRole("link", { name: "Start from an empty app" }).click();
+  await page.goto((await page.locator('[data-classic] a[href^="/dashboard/app-type"]').getAttribute("href"))!); // the app editor's empty start, under "Other app types"
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByLabel("Your WordPress website")).toHaveValue(siteUrl);

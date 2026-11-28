@@ -45,7 +45,7 @@ test("a product in Arabic with its brand, served in the customer's language with
   await expect(page.getByRole("status")).toContainText("Activated");
 
   await signIn(page, client.email, client.password);
-  await page.getByRole("link", { name: "Start from an empty app" }).click();
+  await page.goto((await page.locator('[data-classic] a[href^="/dashboard/app-type"]').getAttribute("href"))!); // the app editor's empty start, under "Other app types"
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByText("I don't have a website").click();

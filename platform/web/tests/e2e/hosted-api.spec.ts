@@ -84,7 +84,7 @@ test("our team moves a Store app to the hosted API", async ({ page }) => {
 
   await expect(page).toHaveURL(/\/start$/);
 
-  await page.getByRole("link", { name: "Start from an empty app" }).click();
+  await page.goto((await page.locator('[data-classic] a[href^="/dashboard/app-type"]').getAttribute("href"))!); // the app editor's empty start, under "Other app types"
 
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
   await page.getByText("Store", { exact: true }).click();
