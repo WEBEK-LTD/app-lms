@@ -102,7 +102,8 @@ export function siteSitemap(base: string, updated: Record<string, string | undef
 export function robotsRules(base: string): MetadataRoute.Robots {
   return {
     rules: [{ userAgent: "*", allow: "/", disallow: PRIVATE_PATHS }],
-    sitemap: `${base}/sitemap.xml`,
+    // 232 The Community site lists its own pages (app/community/sitemap.ts).
+    sitemap: [`${base}/sitemap.xml`, `${base}/community/sitemap.xml`],
     host: base,
   };
 }

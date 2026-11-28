@@ -1,6 +1,6 @@
 import { DOCS, type DocDefault } from "@/content/docs";
 import { PRIVACY, REFUND, TERMS, type LegalDefault } from "@/content/legal";
-import { ALL_SOLUTIONS, FAQ, INTEGRATION_COUNTS, numberWord, SOLUTIONS, STEPS } from "../marketing";
+import { ALL_SOLUTIONS, FAQ, INTEGRATION_COUNTS, numberWord, STEPS } from "../marketing";
 import { HOME_STUDIO_KINDS } from "../studio/home-kinds";
 import { inlineText, parseMarkdown, type Block, type Inline } from "./markdown";
 import { hasUnplacedBlock } from "./legal-diff";
@@ -219,7 +219,8 @@ function headerPage(key: string, title: string, path: string, defaults: { eyebro
 }
 
 /** 32 Counts in the default texts follow the registries (lib/app/kinds.ts, lib/marketing.ts). */
-const KIND_COUNT = numberWord(SOLUTIONS.length);
+/** Every kind with a solutions page, the app editor's and Studio's (the home's badge). */
+const ALL_KIND_COUNT = numberWord(ALL_SOLUTIONS.length);
 /** The home's Studio kinds (lib/studio/home-kinds.ts). */
 const STUDIO_KIND_COUNT = numberWord(HOME_STUDIO_KINDS.length);
 const STEPS_TITLE = `From sign-up to the app stores in ${numberWord(STEPS.length)} steps`;
@@ -259,7 +260,7 @@ export const CONTENT_PAGES: ContentPage[] = [
       { name: "plansText", label: "Plans: text", kind: "text", max: 300 },
     ],
     defaults: {
-      badge: `Android and iOS apps for ${KIND_COUNT} kinds of business`,
+      badge: `Android and iOS apps for ${ALL_KIND_COUNT} kinds of business`,
       title: "Your business, as your own mobile app.",
       titleWords: "your store, your school, your restaurant, your taxi company, your deliveries, your academy",
       intro:

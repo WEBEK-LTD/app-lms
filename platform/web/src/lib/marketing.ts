@@ -2262,6 +2262,9 @@ export interface FaqGroup {
   items: { q: string; a: string }[];
 }
 
+/** Studio's kinds with their own solutions page (beyond the app editor's), named in the FAQ. */
+const STUDIO_KIND_NAMES = ALL_SOLUTIONS.filter((s) => !SOLUTIONS.some((t) => t.id === s.id)).map((s) => s.name);
+
 export const FAQ: FaqGroup[] = [
   {
     title: "Getting started",
@@ -2277,7 +2280,7 @@ export const FAQ: FaqGroup[] = [
       {
         q: "Which kinds of apps can I build?",
         // 32 Counted and named from the kinds registry.
-        a: `${numberWord(SOLUTIONS.length).replace(/^./, (c) => c.toUpperCase())}, each with its own screens: ${listText(SOLUTIONS.map((s) => s.name))}. See [Solutions](/solutions) for what each one does.`,
+        a: `${numberWord(SOLUTIONS.length).replace(/^./, (c) => c.toUpperCase())}, each with its own screens: ${listText(SOLUTIONS.map((s) => s.name))}. In Yallapp Studio, ${numberWord(STUDIO_KIND_NAMES.length)} more: ${listText(STUDIO_KIND_NAMES)}, and shops by type (clothes, cosmetics, furniture, electronics and more). See [Solutions](/solutions) for what each one does.`,
       },
       {
         q: "How long until my apps are ready?",

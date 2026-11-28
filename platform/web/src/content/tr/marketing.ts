@@ -1484,7 +1484,7 @@ export const TR_MARKETING: MarketingTranslation = {
         },
         {
           q: "Hangi tür uygulamalar oluşturabilirim?",
-          a: "Her birinin kendi ekranları olan on bir tür: Akademi, Mağaza, Restoran ve kafe, Randevu, Klinik, Spor salonu ve fitness, Hizmetler ve şirketler, Emlak, Haber ve blog, Etkinlik ve bilet ile Yardım ve bağış. Her birinin ne yaptığı için [Çözümler](/solutions) sayfasına bakın.",
+          a: "Her birinin kendi ekranları olan on bir tür: Akademi, Mağaza, Restoran ve kafe, Randevu, Klinik, Spor salonu ve fitness, Hizmetler ve şirketler, Emlak, Haber ve blog, Etkinlik ve bilet ile Yardım ve bağış. Yallapp Studio’da yedi tür daha var: Teslimat, Yemek teslimatı, Çok satıcılı uygulamalar, Yolculuk ve taksi, Okullar, Üniversiteler ve Çok öğretmenli akademiler; ayrıca türe göre mağazalar (giyim, kozmetik, mobilya, elektronik ve daha fazlası). Her birinin ne yaptığı için [Çözümler](/solutions) sayfasına bakın.",
         },
         {
           q: "Uygulamalarım ne zaman hazır olur?",

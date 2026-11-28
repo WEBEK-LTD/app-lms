@@ -7,7 +7,7 @@ import type { SiteContentTranslation } from "../translation-types";
  */
 export const AR_SITE: SiteContentTranslation = {
   home: {
-    badge: "تطبيقات Android وiOS لـ {kinds} نوعًا من الأنشطة التجارية",
+    badge: "تطبيقات Android وiOS لـ {allKinds} نوعًا من الأنشطة التجارية",
     title: "نشاطك التجاري، في تطبيق جوّال خاص بك.",
     titleWords: "متجرك، مدرستك، مطعمك، شركة التاكسي، الشحن، أكاديميتك",
     intro:

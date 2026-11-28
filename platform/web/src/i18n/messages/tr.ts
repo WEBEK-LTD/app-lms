@@ -73,6 +73,7 @@ export const tr: Messages = {
     studioDemoText: "Studio uygulamalarını telefonunda dene",
     // 106.13 Studio Market's public page, in the Studio menu and the footer.
     market: "Studio Market",
+    community: "Topluluk",
     marketText: "Tasarımcılardan hazır uygulama tasarımları",
     signIn: "Giriş yap",
     getStarted: "Hemen başla",
