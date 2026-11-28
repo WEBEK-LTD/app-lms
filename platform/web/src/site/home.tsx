@@ -21,8 +21,12 @@ import { getSiteContent } from "@/lib/content/get";
 import { contentPage, titleWithWords } from "@/lib/content/site";
 import { translatedDefaults } from "@/lib/content/site-lang";
 import { DEMO_BRANDS } from "@/lib/demo/content";
+import { DEMO_SLUGS } from "@/lib/demo/constants";
+import { HOME_STUDIO_KINDS } from "@/lib/studio/home-kinds";
+import { lookScreen } from "./look-shots";
+import { ar as startAr, en as startEn, tr as startTr } from "@/i18n/dashboard/start";
 import type { AppScreen } from "@/lib/marketing";
-import { allSolutionsFor, comparisonFor, featureGroupsFor, integrationGroupsFor, numberWordFor, planFor, screenAltFor, solutionsFor, stepsFor } from "@/lib/marketing-lang";
+import { allSolutionsFor, comparisonFor, featureGroupsFor, integrationGroupsFor, planFor, screenAltFor, solutionsFor, stepsFor } from "@/lib/marketing-lang";
 import { DEFAULT_DESCRIPTION, organizationLd, siteMetadata, siteUrl, softwareLd, websiteLd } from "@/lib/seo";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { LANG_INFO } from "@/i18n/config";
@@ -66,6 +70,8 @@ export function homeMetadata(lang: Lang): Metadata {
 }
 
 /** The landing page (32, 41, 52, 54), in any language (55). */
+const START_WORDS = { en: startEn, ar: startAr, tr: startTr } as const;
+
 export async function HomePage({ lang }: { lang: Lang }) {
   const contact = await getVisitorContact();
   // 32 The same plans as the pricing page.
@@ -91,6 +97,13 @@ export async function HomePage({ lang }: { lang: Lang }) {
   const lp = (path: string) => localePath(lang, path);
   const alt = screenAltFor(lang);
   const solutions = solutionsFor(lang);
+  // The home's Studio kinds (lib/studio/home-kinds.ts) in the start picker's words, each with its main look's pictures.
+  const cards = START_WORDS[lang].cards as Record<string, { name: string; line: string }>;
+  const studioKinds = HOME_STUDIO_KINDS.flatMap(({ id, look }) => {
+    const light = lookScreen(id, look);
+    const words = cards[id];
+    return light && words ? [{ id, light, dark: lookScreen(id, `${look}-dark`), ...words }] : [];
+  });
   const steps = stepsFor(lang);
   const features = featureGroupsFor(lang).flatMap((g) => g.features).slice(0, 6);
   /** The looks a client can pick, shown side by side. */
@@ -204,27 +217,47 @@ export async function HomePage({ lang }: { lang: Lang }) {
 
         <Section tinted id="solutions">
           <SectionTitle title={text.solutionsTitle!} text={text.solutionsText} />
-          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr))]" data-reveal-group="">
-            {solutions.map((s) => (
+          {/* Yallapp Studio's kinds, each in its demo's main look: light, and dark when the site is. */}
+          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]" data-reveal-group="" data-studio-kinds="">
+            {studioKinds.map((k) => (
               <Link
-                key={s.id}
-                href={lp(`/solutions/${s.id}`)}
+                key={k.id}
+                href={lp(`/demo/studio#${DEMO_SLUGS[k.id]}`)}
+                data-studio-kind={k.id}
                 className="group flex flex-col gap-4 overflow-hidden rounded-2xl border border-line bg-white p-6 text-midnight no-underline transition-[border-color,box-shadow,translate] duration-200 hover:-translate-y-0.5 hover:border-midnight hover:text-midnight hover:shadow-[0_24px_40px_-28px_rgba(14,13,36,0.4)]"
               >
-                <FeatureIcon name={s.icon} />
-                <span className="flex flex-col gap-1.5">
-                  <span className="text-xl font-bold">{s.name}</span>
-                  <span className="text-[15px] leading-relaxed text-ink-4">{s.summary}</span>
+                <span className="flex items-center gap-2 self-start rounded-full bg-ember px-2.5 py-0.5 text-[11px] font-bold tracking-[0.5px] text-white uppercase">
+                  <Icon name="dashboard_customize" size={14} />
+                  Studio
                 </span>
-                <DeviceFrame screen={s.screens[0]!} size="sm" alt={alt[s.screens[0]!]} className="mt-auto self-center" />
+                <span className="flex flex-col gap-1.5">
+                  <span className="text-xl font-bold">{k.name}</span>
+                  <span className="text-[15px] leading-relaxed text-ink-4">{k.line}</span>
+                </span>
+                <span className="mt-auto self-center">
+                  <DeviceFrame screen={k.light} size="sm" alt={alt[k.light]} className="theme-light-only" />
+                  {k.dark ? <DeviceFrame screen={k.dark} size="sm" alt={alt[k.dark]} className="theme-dark-only" /> : null}
+                </span>
                 <span className="flex items-center gap-1.5 font-bold group-hover:underline">
-                  {s.appsTitle}
+                  {s.seeDemo}
                   <Icon name="arrow_forward" size={20} />
                 </span>
               </Link>
             ))}
           </div>
-          <MoreLink href={lp("/demo")}>{formatMessage(lang, h.tryDemos, { count: numberWordFor(lang, solutions.length) })}</MoreLink>
+          {/* The app editor's kinds: one quiet line. */}
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4" data-classic-kinds="">
+            <span className="font-semibold">{h.alsoClassic}</span>{" "}
+            {solutions.map((sol, i) => (
+              <span key={sol.id}>
+                {i ? " · " : ""}
+                <Link href={lp(`/solutions/${sol.id}`)} className="text-ink-4 underline-offset-2 hover:underline">
+                  {sol.name}
+                </Link>
+              </span>
+            ))}
+          </p>
+          <MoreLink href={lp("/demo/studio")}>{s.seeDemo}</MoreLink>
         </Section>
 
         {/* 103R Yallapp Studio, apart from the regular apps, with its own page, demo and plans. */}

@@ -133,6 +133,7 @@ export const tr: Messages = {
     tryDemo: "Telefonunuzda bir demo uygulama deneyin",
     appsGroup: "Yallapp uygulamaları",
     tryDemos: "{count} demo uygulamayı deneyin",
+    alsoClassic: "Uygulama düzenleyicisinde ayrıca:",
     looksTitle: "3 şablon, açık ve koyu tema, 3 dil",
     lookClassic: "Klasik",
     lookBold: "Cesur",

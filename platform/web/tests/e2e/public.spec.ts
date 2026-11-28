@@ -138,7 +138,11 @@ test("the landing page has the plans, the steps and the full footer", async ({ p
   for (const label of labels) expect(label.trim().length).toBeGreaterThan(1);
   expect(await strip.getByRole("img").count()).toBe(labels.length / 2);
   await expect(page.locator("[data-steps-timeline] > li")).toHaveCount(5);
-  await expect(page.getByRole("heading", { level: 2, name: "One platform, eleven kinds of apps" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "One platform, nine kinds of Studio apps" })).toBeVisible();
+  // Studio's kinds first, each in its own Studio look; the app editor's kinds in one quiet line below.
+  await expect(page.locator("[data-studio-kind]")).toHaveCount(9);
+  await expect(page.locator('[data-studio-kind="clothes"] img').first()).toHaveAttribute("src", /clothes-sig-c-home/);
+  await expect(page.locator("[data-classic-kinds] a")).toHaveCount(11);
 
   const footer = page.getByRole("contentinfo");
   await expect(footer).toContainText(`© ${new Date().getFullYear()} Yallapp · Cairo, Egypt`);
@@ -628,8 +632,8 @@ test("67 the home page in every language links favicons Google can use, and each
 
 test("the home page shows the app types, the screens and the comparison", async ({ page }) => {
   await page.goto("/");
-  // Every app type links to its own page.
-  for (const [name, path] of [
+  // Every app editor type still links to its own page, from the quiet line under Studio's kinds.
+  for (const [, path] of [
     ["Academy apps", "/solutions/academy"],
     ["Store apps", "/solutions/store"],
     ["Restaurant & café apps", "/solutions/restaurant"],
@@ -638,7 +642,7 @@ test("the home page shows the app types, the screens and the comparison", async 
     ["Gym & fitness apps", "/solutions/fitness"],
     ["Real estate apps", "/solutions/real-estate"],
   ] as const) {
-    await expect(page.getByRole("link", { name: new RegExp(name) })).toHaveAttribute("href", path);
+    await expect(page.locator(`[data-classic-kinds] a[href="${path}"]`)).toHaveCount(1);
   }
   await expect(page.getByRole("table", { name: "A typical app builder compared with Yallapp" })).toBeVisible();
   // App screenshots and dashboard screenshots load.
